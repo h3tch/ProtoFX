@@ -1,0 +1,41 @@
+buffer buff_pos {
+}
+
+buffer buff_idx {
+}
+
+vertinput in_vert {
+	attr vbuff_pos float 4
+}
+
+shader vert vs_simple {
+	#version 440
+	
+	uniform mat4 g_viewproj;
+	
+	layout(location = 0) in vec4 in_pos;
+	layout(location = 0) out vec4 vs_pos;
+	
+	void main ()
+	{
+		vs_pos = g_viewproj * in_pos;
+	}
+}
+
+shader frag fs_simple {
+	#version 440
+	
+	layout(location = 0) in vec4 gs_pos;
+	layout(location = 0) out vec4 color;
+	
+	void main ()
+	{
+		color = gs_pos / 100;
+	}
+}
+
+pass pass_render {
+	vert vs_simple
+	frag fs_simple
+	draw in_vert buff_idx triangles 24 1 0 0 0
+}
