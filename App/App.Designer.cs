@@ -76,6 +76,7 @@
             this.glControl.VSync = false;
             this.glControl.Load += new System.EventHandler(this.glControl_Load);
             this.glControl.Paint += new System.Windows.Forms.PaintEventHandler(this.glControl_Paint);
+            this.glControl.Resize += new System.EventHandler(this.glControl_Resize);
             // 
             // tableLayoutPanel1
             // 

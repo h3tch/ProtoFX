@@ -30,6 +30,11 @@ namespace gled
             GL.ClearColor(Color.SkyBlue);
         }
 
+        private void glControl_Resize(object sender, EventArgs e)
+        {
+
+        }
+
         private void glControl_Paint(object sender, PaintEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
