@@ -1,5 +1,4 @@
-﻿using gled;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,7 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace App
+namespace gled
 {
     public partial class App : Form
     {
@@ -18,20 +17,20 @@ namespace App
         public App()
         {
             InitializeComponent();
-            this.codeText.Text = System.IO.File.ReadAllText(@"../../sample.txt");
+            //this.codeText.Text = System.IO.File.ReadAllText(@"../../sample.txt");
         }
 
-        private void Form_FormClosing(object sender, FormClosingEventArgs e)
+        private void App_FormClosing(object sender, FormClosingEventArgs e)
         {
             DeleteClasses();
         }
 
-        private void glControl1_Load(object sender, EventArgs e)
+        private void glControl_Load(object sender, EventArgs e)
         {
             GL.ClearColor(Color.SkyBlue);
         }
 
-        private void glControl1_Paint(object sender, PaintEventArgs e)
+        private void glControl_Paint(object sender, PaintEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             glControl.SwapBuffers();
@@ -85,6 +84,7 @@ namespace App
                 }
             }
         }
+
         private void DeleteClasses()
         {
             foreach (var pair in classes)
@@ -101,7 +101,8 @@ namespace App
             var verbatimStrings = @"@(""[^""]*"")+";
             return Regex.Replace(code,
                 blockComments + "|" + lineComments + "|" + strings + "|" + verbatimStrings,
-                me => {
+                me =>
+                {
                     if (me.Value.StartsWith("/*") || me.Value.StartsWith("//"))
                         return me.Value.StartsWith("//") ? Environment.NewLine : "";
                     // Keep the literal strings
