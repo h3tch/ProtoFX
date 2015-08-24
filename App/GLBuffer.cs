@@ -9,6 +9,7 @@ namespace gled
     class GLBuffer : GLObject
     {
         public int size = 0;
+        public All type = All.UnsignedInt;
         public BufferUsageHint usage = BufferUsageHint.StaticDraw;
         public string[] file = null;
 

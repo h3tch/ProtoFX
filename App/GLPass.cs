@@ -2,6 +2,7 @@
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace gled
 {
@@ -23,10 +24,28 @@ namespace gled
         public GLObject glgeomout = null;
         public GLObject glfragout = null;
         public GLCamera glcamera = null;
+        public MultiDraw[] draw = null;
         public int g_view = -1;
         public int g_proj = -1;
         public int g_viewproj = -1;
         public int g_info = -1;
+
+        public struct MultiDraw
+        {
+            public All mode;
+            public GLVertinput vi;
+            public GLBuffer ib;
+            public DrawIndirectCmd[] cmd;
+        }
+
+        public struct DrawIndirectCmd
+        {
+            public uint count;
+            public uint instanceCount;
+            public uint firstIndex;
+            public uint baseVertex;
+            public uint baseInstance;
+        }
 
         public GLPass(string name, string annotation, string text, Dictionary<string, GLObject> classes)
             : base(name, annotation)
@@ -37,6 +56,17 @@ namespace gled
             // PARSE ARGUMENTS
             Args2Prop(this, args);
 
+            // parse draw call arguments
+            List<MultiDraw> calls = new List<MultiDraw>();
+            foreach (var call in args)
+            {
+                if (!call[0].Equals("draw"))
+                    continue;
+                GLObject obj;
+                classes.TryGetValue(call[1], obj);
+            }
+
+            // GET CAMERA OBJECT
             GLObject obj;
             classes.TryGetValue(GLCamera.cameraname, out obj);
             if (obj.GetType() == typeof(GLCamera))
@@ -122,6 +152,14 @@ namespace gled
             {
                 Vector4 info = glcamera.info;
                 GL.ProgramUniformMatrix4(glname, g_proj, 1, false, ref info.W);
+            }
+
+            foreach (var cmd in draw)
+            {
+                if (cmd.ib != null)
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, cmd.ib.glname);
+                GL.BindVertexArray(cmd.vi.glname);
+                GL.MultiDrawElementsIndirect(cmd.mode, cmd.ib.type, cmd.cmd, cmd.cmd.Length, Marshal.SizeOf(typeof(DrawIndirectCmd)));
             }
         }
 
