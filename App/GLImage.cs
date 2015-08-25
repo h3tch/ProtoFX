@@ -118,16 +118,6 @@ namespace gled
             return data;
         }
 
-        public override void Bind(int unit)
-        {
-
-        }
-
-        public override void Unbind(int unit)
-        {
-
-        }
-
         public override void Delete()
         {
             if (glname > 0)

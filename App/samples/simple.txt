@@ -1,7 +1,11 @@
 buffer buff_pos {
+	size 1024
+	usage staticDraw
 }
 
 buffer buff_idx {
+	size 1024
+	usage staticDraw
 }
 
 vertinput in_vert {
@@ -37,5 +41,9 @@ shader frag fs_simple {
 pass pass_render {
 	vert vs_simple
 	frag fs_simple
-	draw in_vert buff_idx triangles 24 1 0 0 0
+	draw buff_idx in_vert unsignedshort triangles 24 1 0 0 0
+}
+
+tech tech_simple {
+	pass pass_render
 }

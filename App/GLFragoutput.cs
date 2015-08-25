@@ -10,16 +10,6 @@ namespace gled
 
         }
 
-        public override void Bind(int unit)
-        {
-
-        }
-
-        public override void Unbind(int unit)
-        {
-
-        }
-
         public override void Delete()
         {
         }

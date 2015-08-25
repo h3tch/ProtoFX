@@ -87,16 +87,6 @@ namespace gled
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
 
-        public override void Bind(int unit)
-        {
-            GL.BindVertexArray(glname);
-        }
-
-        public override void Unbind(int unit)
-        {
-            GL.BindVertexArray(0);
-        }
-
         public override void Delete()
         {
             if (glname > 0)

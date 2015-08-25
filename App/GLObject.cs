@@ -19,8 +19,6 @@ namespace gled
         }
 
         public abstract void Delete();
-        public abstract void Bind(int unit);
-        public abstract void Unbind(int unit);
 
         static protected string[][] Text2Args(string text)
         {

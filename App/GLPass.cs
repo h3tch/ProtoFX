@@ -2,6 +2,7 @@
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace gled
@@ -24,18 +25,20 @@ namespace gled
         public GLObject glgeomout = null;
         public GLObject glfragout = null;
         public GLCamera glcamera = null;
-        public MultiDraw[] draw = null;
+        public List<MultiDraw> calls = new List<MultiDraw>();
         public int g_view = -1;
         public int g_proj = -1;
         public int g_viewproj = -1;
         public int g_info = -1;
 
-        public struct MultiDraw
+        public class MultiDraw
         {
-            public All mode;
-            public GLVertinput vi;
-            public GLBuffer ib;
-            public DrawIndirectCmd[] cmd;
+            public int vi;
+            public int ib;
+            public PrimitiveType mode;
+            public VertexAttribPointerType type;
+            public List<DrawIndirectCmd> cmd;
+            public DrawIndirectCmd[] glcmd;
         }
 
         public struct DrawIndirectCmd
@@ -57,56 +60,91 @@ namespace gled
             Args2Prop(this, args);
 
             // parse draw call arguments
-            List<MultiDraw> calls = new List<MultiDraw>();
+            List<uint> arg = new List<uint>();
             foreach (var call in args)
             {
-                if (!call[0].Equals("draw"))
+                // skip if arg is not a draw command
+                if (!call[0].Equals("draw") || call.Length < 5)
                     continue;
+
+                // parse draw call arguments
+                arg.Clear();
+                GLVertinput vi = null;
+                GLBuffer ib = null;
                 GLObject obj;
-                classes.TryGetValue(call[1], obj);
+                PrimitiveType mode = 0;
+                VertexAttribPointerType type = 0;
+                uint val;
+
+                for (var i = 1; i < call.Length; i++)
+                {
+                    if (vi == null && classes.TryGetValue(call[i], out obj) && obj.GetType() == typeof(GLVertinput))
+                        vi = (GLVertinput)obj;
+                    else if (ib == null && classes.TryGetValue(call[i], out obj) && obj.GetType() == typeof(GLBuffer))
+                        ib = (GLBuffer)obj;
+                    else if (type == 0 && Enum.TryParse(call[i], true, out type)) { }
+                    else if (mode == 0 && Enum.TryParse(call[i], true, out mode)) { }
+                    else if (UInt32.TryParse(call[i], out val))
+                        arg.Add(val);
+                }
+
+                // check for validity of the draw call
+                if (vi == null)
+                    throw new Exception("");
+                if (mode == 0)
+                    throw new Exception("");
+                if (ib != null && type == 0)
+                    throw new Exception("");
+                if (arg.Count == 0)
+                    throw new Exception("");
+
+                // get index buffer object (if present) and find existing MultiDraw class
+                MultiDraw draw = calls.Find(x => x.vi == vi.glname && x.ib == (ib != null ? ib.glname : 0));
+                if (draw == null)
+                {
+                    draw = new MultiDraw();
+                    draw.cmd = new List<DrawIndirectCmd>();
+                    draw.vi = vi.glname;
+                    draw.ib = ib != null ? ib.glname : 0;
+                    draw.mode = mode;
+                    draw.type = type;
+                    calls.Add(draw);
+                }
+
+                // add new draw command to the MultiDraw class
+                DrawIndirectCmd cmd = new DrawIndirectCmd();
+                cmd.count         = arg.Count >= 1 ? arg[0] : 0;
+                cmd.instanceCount = arg.Count >= 2 ? arg[1] : 0;
+                cmd.firstIndex    = arg.Count >= 3 ? arg[2] : 0;
+                cmd.baseVertex    = arg.Count >= 4 ? arg[3] : 0;
+                cmd.baseInstance  = arg.Count >= 5 ? arg[4] : 0;
+                draw.cmd.Add(cmd);
             }
+            
+            // convert draw command list to array so it can be used by OpenGL
+            foreach (var call in calls)
+                call.glcmd = call.cmd.ToArray();
 
             // GET CAMERA OBJECT
-            GLObject obj;
-            classes.TryGetValue(GLCamera.cameraname, out obj);
-            if (obj.GetType() == typeof(GLCamera))
-                glcamera = (GLCamera)obj;
+            GLObject cam;
+            classes.TryGetValue(GLCamera.cameraname, out cam);
+            if (cam.GetType() == typeof(GLCamera))
+                glcamera = (GLCamera)cam;
 
             // CREATE OPENGL OBJECT
             glname = GL.CreateProgram();
 
-            if (vert != null)
-                if (classes.TryGetValue(vert, out glvert) && glvert.GetType() != typeof(GLSampler))
-                    GL.AttachShader(glname, glvert.glname);
-                else
-                    throw new Exception("ERROR in pass " + name + ": Invalid name '" + vert + "' for 'vert'.");
+            // attach shader objects
+            glvert = attach(vert, classes);
+            gltess = attach(tess, classes);
+            gleval = attach(eval, classes);
+            glgeom = attach(geom, classes);
+            glfrag = attach(frag, classes);
 
-            if (tess != null)
-                if (classes.TryGetValue(tess, out gltess) && gltess.GetType() != typeof(GLSampler))
-                    GL.AttachShader(glname, gltess.glname);
-                else
-                    throw new Exception("ERROR in pass " + name + ": Invalid name '" + tess + "' for 'tess'.");
-
-            if (eval != null)
-                if (classes.TryGetValue(eval, out gleval) && gleval.GetType() != typeof(GLSampler))
-                    GL.AttachShader(glname, gleval.glname);
-                else
-                    throw new Exception("ERROR in pass " + name + ": Invalid name '" + eval + "' for 'eval'.");
-
-            if (geom != null)
-                if (classes.TryGetValue(geom, out glgeom) && glgeom.GetType() != typeof(GLSampler))
-                    GL.AttachShader(glname, glgeom.glname);
-                else
-                    throw new Exception("ERROR in pass " + name + ": Invalid name '" + geom + "' for 'geom'.");
-
-            if (frag != null)
-                if (classes.TryGetValue(frag, out glfrag) && glfrag.GetType() != typeof(GLSampler))
-                    GL.AttachShader(glname, glfrag.glname);
-                else
-                    throw new Exception("ERROR in pass " + name + ": Invalid name '" + frag + "' for 'frag'.");
-
+            // link program
             GL.LinkProgram(glname);
 
+            // detach shader objects
             if (glvert != null)
                 GL.DetachShader(glname, glvert.glname);
             if (gltess != null)
@@ -118,11 +156,13 @@ namespace gled
             if (glfrag != null)
                 GL.DetachShader(glname, glfrag.glname);
 
+            // check for link errors
             int status;
             GL.GetProgram(glname, GetProgramParameterName.LinkStatus, out status);
             if (status != 1)
                 throw new Exception("ERROR in pass " + name + ":\n" + GL.GetProgramInfoLog(glname));
             
+            // GET PROGRAM UNIFORMS
             g_view = GL.GetUniformLocation(glname, "g_view");
             g_proj = GL.GetUniformLocation(glname, "g_proj");
             g_viewproj = GL.GetUniformLocation(glname, "g_viewproj");
@@ -130,8 +170,23 @@ namespace gled
             
         }
 
-        public override void Bind(int unit)
+        private GLObject attach(string sh, Dictionary<string, GLObject> classes)
         {
+            if (sh == null)
+                return null;
+            GLObject glsh;
+            if (classes.TryGetValue(sh, out glsh) && glsh.GetType() == typeof(GLShader))
+                GL.AttachShader(glname, glsh.glname);
+            else
+                throw new Exception("ERROR in pass " + name + ": Invalid name '" + sh + "'.");
+            return glsh;
+        }
+
+        public void Exec()
+        {
+            GL.ClearColor(Color.SkyBlue);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
             GL.UseProgram(glname);
             if (g_view >= 0)
             {
@@ -154,18 +209,21 @@ namespace gled
                 GL.ProgramUniformMatrix4(glname, g_proj, 1, false, ref info.W);
             }
 
-            foreach (var cmd in draw)
+            foreach (var call in calls)
             {
-                if (cmd.ib != null)
-                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, cmd.ib.glname);
-                GL.BindVertexArray(cmd.vi.glname);
-                GL.MultiDrawElementsIndirect(cmd.mode, cmd.ib.type, cmd.cmd, cmd.cmd.Length, Marshal.SizeOf(typeof(DrawIndirectCmd)));
+                // bind vertex buffer to input stream
+                // (needs to be done before binding an ElementArrayBuffer)
+                GL.BindVertexArray(call.vi);
+                // bin index buffer to ElementArrayBuffer target
+                if (call.ib != 0)
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, call.ib);
+                // execute multiple indirect draw commands
+                GL.MultiDrawElementsIndirect((All)call.mode, (All)call.type, call.glcmd, call.glcmd.Length, Marshal.SizeOf(typeof(DrawIndirectCmd)));
             }
-        }
 
-        public override void Unbind(int unit)
-        {
             GL.UseProgram(0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            GL.BindVertexArray(0);
         }
 
         public override void Delete()

@@ -62,16 +62,6 @@ namespace gled
             mviewproj.M11 = float.NaN;
         }
 
-        public override void Bind(int unit)
-        {
-
-        }
-
-        public override void Unbind(int unit)
-        {
-
-        }
-
         public override void Delete()
         {
         }

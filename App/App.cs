@@ -1,8 +1,6 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -13,6 +11,7 @@ namespace gled
     {
         private Dictionary<string, GLObject> classes = new Dictionary<string, GLObject>();
         private GLCamera camera = new GLCamera();
+        private bool render = false;
 
         public App()
         {
@@ -25,19 +24,37 @@ namespace gled
             DeleteClasses();
         }
 
-        private void glControl_Load(object sender, EventArgs e)
-        {
-            GL.ClearColor(Color.SkyBlue);
-        }
-
         private void glControl_Resize(object sender, EventArgs e)
         {
-
+            Render();
         }
 
         private void glControl_Paint(object sender, PaintEventArgs e)
         {
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            Render();
+        }
+
+        private void glControl_MouseDown(object sender, MouseEventArgs e)
+        {
+            render = true;
+        }
+
+        private void glControl_MouseUp(object sender, MouseEventArgs e)
+        {
+            render = false;
+        }
+
+        private void glControl_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (render)
+                Render();
+        }
+
+        private void Render()
+        {
+            foreach (var c in classes)
+                if (c.Value.GetType() == typeof(GLTech))
+                    ((GLTech)c.Value).Exec();
             glControl.SwapBuffers();
         }
 
@@ -63,7 +80,7 @@ namespace gled
                 string classText = blocks[i].Substring(start + 1, blocks[i].LastIndexOf('}') - start - 1);
 
                 // GET CLASS TYPE, ANNOTATION AND NAME
-                var classType = "OpenTKTurorial02.GL"
+                var classType = "gled.GL"
                     + classInfo[0].First().ToString().ToUpper()
                     + classInfo[0].Substring(1);
                 var classAnno = classInfo[classInfo.Length - 2];
@@ -88,6 +105,8 @@ namespace gled
                     this.codeError.AppendText(ex.GetBaseException().Message + '\n');
                 }
             }
+
+            Render();
         }
 
         private void DeleteClasses()
