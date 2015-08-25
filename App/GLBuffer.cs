@@ -9,7 +9,6 @@ namespace gled
     class GLBuffer : GLObject
     {
         public int size = 0;
-        public All type = All.UnsignedInt;
         public BufferUsageHint usage = BufferUsageHint.StaticDraw;
         public string[] file = null;
 
@@ -54,7 +53,15 @@ namespace gled
             // load data from all files
             byte[][] filedata = new byte[filenames.Length][];
             for (int i = 0; i < filenames.Length; i++)
-                filedata[i] = File.ReadAllBytes(filenames[i]);
+            {
+                var filename = filenames[i].Split(new char[] { '|' });
+                if (filename.Length == 1)
+                    filedata[i] = File.ReadAllBytes(filename[0]);
+                else if (filename.Length == 2)
+                    filedata[i] = new GledXml(filename[0], filename[1]).data;
+                else
+                    throw new Exception("");
+            }
 
             // if size has not been specified,
             // compute the summed size of all file data

@@ -1,15 +1,21 @@
 buffer buff_pos {
-	size 1024
 	usage staticDraw
+	file ../../samples/cube.xml|pos
+}
+
+buffer buff_color {
+	usage staticDraw
+	file ../../samples/cube.xml|color
 }
 
 buffer buff_idx {
-	size 1024
 	usage staticDraw
+	file ../../samples/cube.xml|index
 }
 
 vertinput in_vert {
-	attr vbuff_pos float 4
+	attr buff_pos float 4
+	attr buff_color float 4
 }
 
 shader vert vs_simple {
@@ -18,30 +24,32 @@ shader vert vs_simple {
 	uniform mat4 g_viewproj;
 	
 	layout(location = 0) in vec4 in_pos;
-	layout(location = 0) out vec4 vs_pos;
+	layout(location = 1) in vec4 in_col;
+	layout(location = 0) out vec4 vs_col;
 	
 	void main ()
 	{
-		vs_pos = g_viewproj * in_pos;
+		gl_Position = g_viewproj * in_pos;
+		vs_col = in_col;
 	}
 }
 
 shader frag fs_simple {
 	#version 440
 	
-	layout(location = 0) in vec4 gs_pos;
+	layout(location = 0) in vec4 gs_col;
 	layout(location = 0) out vec4 color;
 	
 	void main ()
 	{
-		color = gs_pos / 100;
+		color = gs_col;
 	}
 }
 
 pass pass_render {
 	vert vs_simple
 	frag fs_simple
-	draw buff_idx in_vert unsignedshort triangles 24 1 0 0 0
+	draw buff_idx in_vert unsignedshort triangles 36 1 0 0 0
 }
 
 tech tech_simple {

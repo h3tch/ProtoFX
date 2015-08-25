@@ -63,6 +63,7 @@
     </Compile>
     <Compile Include="GLBuffer.cs" />
     <Compile Include="GLCamera.cs" />
+    <Compile Include="GledXml.cs" />
     <Compile Include="GLFragoutput.cs" />
     <Compile Include="GLGeomoutput.cs" />
     <Compile Include="GLImage.cs" />

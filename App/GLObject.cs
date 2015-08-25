@@ -28,7 +28,7 @@ namespace gled
 
             for (int i = 0; i < lines.Length; i++)
             {
-                MatchCollection matches = Regex.Matches(lines[i], "[\\w.]+");
+                MatchCollection matches = Regex.Matches(lines[i], "[\\w./|]+");
                 if (matches.Count >= 2)
                     args.Add(matches.Cast<Match>().Select(m => m.Value).ToArray());
             }
