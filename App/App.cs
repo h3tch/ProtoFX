@@ -1,6 +1,8 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -16,6 +18,7 @@ namespace gled
         public App()
         {
             InitializeComponent();
+            CultureInfo.CurrentCulture = new CultureInfo("de");
             this.codeText.Text = System.IO.File.ReadAllText(@"../../samples/simple.txt");
         }
 
@@ -52,6 +55,9 @@ namespace gled
 
         private void Render()
         {
+            camera.Update();
+            GL.Enable(EnableCap.DepthTest);
+            GL.Viewport(0, 0, glControl.ClientSize.Width, glControl.ClientSize.Height);
             foreach (var c in classes)
                 if (c.Value.GetType() == typeof(GLTech))
                     ((GLTech)c.Value).Exec();

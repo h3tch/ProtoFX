@@ -23,19 +23,21 @@ namespace gled
 
             // CREATE OPENGL OBJECT
             glname = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, glname); //GL.NamedBufferData(glname, size, System.IntPtr.Zero, usage);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, glname); GL.NamedBufferData(glname, size, System.IntPtr.Zero, usage);
 
             // LOAD BUFFER DATA
             var data = loadBufferFiles(file, size);
             var dataPtr = IntPtr.Zero;
             if (data != null)
             {
-                dataPtr = Marshal.AllocHGlobal(data.Length);
-                Marshal.Copy(data, 0, dataPtr, data.Length);
+                size = data.Length;
+                dataPtr = Marshal.AllocHGlobal(size);
+                Marshal.Copy(data, 0, dataPtr, size);
             }
 
             // ALLOCATE (AND WRITE) GPU MEMORY
-            GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(size), dataPtr, usage);
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)size, dataPtr, usage);
+            //GL.NamedBufferData(glname, size, dataPtr, usage);
             
             // FREE BUFFER DATA
             if (dataPtr != IntPtr.Zero)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -12,6 +13,8 @@ namespace gled
     class GledXml
     {
         public byte[] data { get; protected set; } = null;
+
+        private static CultureInfo culture = new CultureInfo("en");
 
         private static Dictionary<string, Type> str2type = new Dictionary<string, Type>
         {
@@ -60,7 +63,7 @@ namespace gled
                 var raw = Regex.Matches(item.InnerText, "(\\+|\\-)?[0-9\\.\\,]+");
                 values = Array.CreateInstance(type, raw.Count);
                 for (var i = 0; i < values.Length; i++)
-                    values.SetValue(Convert.ChangeType(raw[i].Value, type), i);
+                    values.SetValue(Convert.ChangeType(raw[i].Value, type, culture), i);
             }
 
             data = new byte[values.Length * Marshal.SizeOf(type)];

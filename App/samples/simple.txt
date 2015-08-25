@@ -38,7 +38,7 @@ shader frag fs_simple {
 	#version 440
 	
 	layout(location = 0) in vec4 gs_col;
-	layout(location = 0) out vec4 color;
+	out vec4 color;
 	
 	void main ()
 	{
@@ -49,7 +49,8 @@ shader frag fs_simple {
 pass pass_render {
 	vert vs_simple
 	frag fs_simple
-	draw buff_idx in_vert unsignedshort triangles 36 1 0 0 0
+	// draw <indexbuffername=0> <vertinname> <indextype> <primitivetype> <indexcount> <instancecount=0> <baseindex=0> <baseinstance=0> <basevertex=0>
+	draw buff_idx in_vert unsignedshort triangles 36
 }
 
 tech tech_simple {

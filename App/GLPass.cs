@@ -25,29 +25,28 @@ namespace gled
         public GLObject glgeomout = null;
         public GLObject glfragout = null;
         public GLCamera glcamera = null;
-        public List<MultiDraw> calls = new List<MultiDraw>();
+        public List<MultiDrawCall> calls = new List<MultiDrawCall>();
         public int g_view = -1;
         public int g_proj = -1;
         public int g_viewproj = -1;
         public int g_info = -1;
 
-        public class MultiDraw
+        public class MultiDrawCall
         {
             public int vi;
             public int ib;
-            public PrimitiveType mode;
-            public VertexAttribPointerType type;
-            public List<DrawIndirectCmd> cmd;
-            public DrawIndirectCmd[] glcmd;
+            public List<DrawCall> cmd;
         }
 
-        public struct DrawIndirectCmd
+        public struct DrawCall
         {
-            public uint count;
-            public uint instanceCount;
-            public uint firstIndex;
-            public uint baseVertex;
-            public uint baseInstance;
+            public PrimitiveType mode;
+            public int indexcount;
+            public DrawElementsType indextype;
+            public IntPtr baseindex;
+            public int instancecount;
+            public int basevertex;
+            public int baseinstance;
         }
 
         public GLPass(string name, string annotation, string text, Dictionary<string, GLObject> classes)
@@ -60,7 +59,7 @@ namespace gled
             Args2Prop(this, args);
 
             // parse draw call arguments
-            List<uint> arg = new List<uint>();
+            List<int> arg = new List<int>();
             foreach (var call in args)
             {
                 // skip if arg is not a draw command
@@ -73,8 +72,8 @@ namespace gled
                 GLBuffer ib = null;
                 GLObject obj;
                 PrimitiveType mode = 0;
-                VertexAttribPointerType type = 0;
-                uint val;
+                DrawElementsType type = 0;
+                int val;
 
                 for (var i = 1; i < call.Length; i++)
                 {
@@ -84,7 +83,7 @@ namespace gled
                         ib = (GLBuffer)obj;
                     else if (type == 0 && Enum.TryParse(call[i], true, out type)) { }
                     else if (mode == 0 && Enum.TryParse(call[i], true, out mode)) { }
-                    else if (UInt32.TryParse(call[i], out val))
+                    else if (Int32.TryParse(call[i], out val))
                         arg.Add(val);
                 }
 
@@ -99,31 +98,27 @@ namespace gled
                     throw new Exception("");
 
                 // get index buffer object (if present) and find existing MultiDraw class
-                MultiDraw draw = calls.Find(x => x.vi == vi.glname && x.ib == (ib != null ? ib.glname : 0));
-                if (draw == null)
+                MultiDrawCall multidrawcall = calls.Find(x => x.vi == vi.glname && x.ib == (ib != null ? ib.glname : 0));
+                if (multidrawcall == null)
                 {
-                    draw = new MultiDraw();
-                    draw.cmd = new List<DrawIndirectCmd>();
-                    draw.vi = vi.glname;
-                    draw.ib = ib != null ? ib.glname : 0;
-                    draw.mode = mode;
-                    draw.type = type;
-                    calls.Add(draw);
+                    multidrawcall = new MultiDrawCall();
+                    multidrawcall.cmd = new List<DrawCall>();
+                    multidrawcall.vi = vi.glname;
+                    multidrawcall.ib = ib != null ? ib.glname : 0;
+                    calls.Add(multidrawcall);
                 }
 
                 // add new draw command to the MultiDraw class
-                DrawIndirectCmd cmd = new DrawIndirectCmd();
-                cmd.count         = arg.Count >= 1 ? arg[0] : 0;
-                cmd.instanceCount = arg.Count >= 2 ? arg[1] : 0;
-                cmd.firstIndex    = arg.Count >= 3 ? arg[2] : 0;
-                cmd.baseVertex    = arg.Count >= 4 ? arg[3] : 0;
-                cmd.baseInstance  = arg.Count >= 5 ? arg[4] : 0;
-                draw.cmd.Add(cmd);
+                DrawCall drawcall = new DrawCall();
+                drawcall.mode          = mode;
+                drawcall.indextype     = type;
+                drawcall.indexcount    = arg.Count >= 1 ? arg[0] : 0;
+                drawcall.instancecount = arg.Count >= 2 ? arg[1] : 1;
+                drawcall.baseindex     = (IntPtr)(arg.Count >= 3 ? arg[2] : 0);
+                drawcall.baseinstance  = arg.Count >= 4 ? arg[3] : 0;
+                drawcall.basevertex    = arg.Count >= 5 ? arg[4] : 0;
+                multidrawcall.cmd.Add(drawcall);
             }
-            
-            // convert draw command list to array so it can be used by OpenGL
-            foreach (var call in calls)
-                call.glcmd = call.cmd.ToArray();
 
             // GET CAMERA OBJECT
             GLObject cam;
@@ -181,33 +176,22 @@ namespace gled
                 throw new Exception("ERROR in pass " + name + ": Invalid name '" + sh + "'.");
             return glsh;
         }
-
+        
         public void Exec()
         {
             GL.ClearColor(Color.SkyBlue);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             GL.UseProgram(glname);
+
             if (g_view >= 0)
-            {
-                Matrix4 view = glcamera.view;
-                GL.ProgramUniformMatrix4(glname, g_view, 1, false, ref view.Row0.W);
-            }
+                GL.UniformMatrix4(g_view, false, ref glcamera.view);
             if (g_proj >= 0)
-            {
-                Matrix4 proj = glcamera.proj;
-                GL.ProgramUniformMatrix4(glname, g_proj, 1, false, ref proj.Row0.W);
-            }
+                GL.UniformMatrix4(g_proj, false, ref glcamera.proj);
             if (g_viewproj >= 0)
-            {
-                Matrix4 viewproj = glcamera.viewproj;
-                GL.ProgramUniformMatrix4(glname, g_proj, 1, false, ref viewproj.Row0.W);
-            }
+                GL.UniformMatrix4(g_proj, false, ref glcamera.viewproj);
             if (g_info >= 0)
-            {
-                Vector4 info = glcamera.info;
-                GL.ProgramUniformMatrix4(glname, g_proj, 1, false, ref info.W);
-            }
+                GL.Uniform4(g_proj, ref glcamera.info);
 
             foreach (var call in calls)
             {
@@ -218,7 +202,8 @@ namespace gled
                 if (call.ib != 0)
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, call.ib);
                 // execute multiple indirect draw commands
-                GL.MultiDrawElementsIndirect((All)call.mode, (All)call.type, call.glcmd, call.glcmd.Length, Marshal.SizeOf(typeof(DrawIndirectCmd)));
+                foreach (var draw in call.cmd)
+                    GL.DrawElementsInstancedBaseVertexBaseInstance(draw.mode, draw.indexcount, draw.indextype, draw.baseindex, draw.instancecount, draw.basevertex, draw.baseinstance);
             }
 
             GL.UseProgram(0);
