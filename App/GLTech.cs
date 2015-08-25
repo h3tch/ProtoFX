@@ -29,10 +29,10 @@ namespace gled
             }
         }
 
-        public void Exec()
+        public void Exec(int width, int height)
         {
             foreach (var pass in passes)
-                pass.Exec();
+                pass.Exec(width, height);
         }
 
         public override void Delete()

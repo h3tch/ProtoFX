@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -14,6 +15,8 @@ namespace gled
         private Dictionary<string, GLObject> classes = new Dictionary<string, GLObject>();
         private GLCamera camera = new GLCamera();
         private bool render = false;
+        private Point mousedown = new Point(0, 0);
+        private Point mousepos = new Point(0, 0);
 
         public App()
         {
@@ -29,6 +32,9 @@ namespace gled
 
         private void glControl_Resize(object sender, EventArgs e)
         {
+            float aspect = (float)glControl.ClientSize.Width / (float)glControl.ClientSize.Height;
+            camera.Proj((float)(60 * (Math.PI / 180)), aspect, 0.1f, 100.0f);
+            
             Render();
         }
 
@@ -39,6 +45,8 @@ namespace gled
 
         private void glControl_MouseDown(object sender, MouseEventArgs e)
         {
+            mousedown.X = mousepos.X = e.X;
+            mousedown.Y = mousepos.Y = e.Y;
             render = true;
         }
 
@@ -49,18 +57,28 @@ namespace gled
 
         private void glControl_MouseMove(object sender, MouseEventArgs e)
         {
+            if (e.Button == MouseButtons.Left)
+                camera.Rotate((float)(Math.PI / 360) * (mousepos.Y - e.Y), (float)(Math.PI / 360) * (mousepos.X - e.X), 0);
+            else if (e.Button == MouseButtons.Right)
+                camera.Move(0, 0, 0.03f * (e.Y - mousepos.Y));
+            mousepos.X = e.X;
+            mousepos.Y = e.Y;
             if (render)
                 Render();
         }
 
         private void Render()
         {
+            glControl.MakeCurrent();
+            
             camera.Update();
             GL.Enable(EnableCap.DepthTest);
-            GL.Viewport(0, 0, glControl.ClientSize.Width, glControl.ClientSize.Height);
             foreach (var c in classes)
                 if (c.Value.GetType() == typeof(GLTech))
-                    ((GLTech)c.Value).Exec();
+                    ((GLTech)c.Value).Exec(
+                        glControl.ClientSize.Width,
+                        glControl.ClientSize.Height);
+
             glControl.SwapBuffers();
         }
 

@@ -59,7 +59,6 @@ namespace gled
                     throw new Exception("");
                 if (!str2type.TryGetValue(item.Attributes["type"].Value, out type))
                     throw new Exception("");
-                //var raw = Regex.Split(item.InnerText, "\\s+");
                 var raw = Regex.Matches(item.InnerText, "(\\+|\\-)?[0-9\\.\\,]+");
                 values = Array.CreateInstance(type, raw.Count);
                 for (var i = 0; i < values.Length; i++)

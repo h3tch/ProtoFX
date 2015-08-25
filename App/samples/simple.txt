@@ -21,7 +21,8 @@ vertinput in_vert {
 shader vert vs_simple {
 	#version 440
 	
-	uniform mat4 g_viewproj;
+	uniform mat4 g_view;
+	uniform mat4 g_proj;
 	
 	layout(location = 0) in vec4 in_pos;
 	layout(location = 1) in vec4 in_col;
@@ -29,7 +30,7 @@ shader vert vs_simple {
 	
 	void main ()
 	{
-		gl_Position = g_viewproj * in_pos;
+		gl_Position = g_proj * g_view * in_pos;
 		vs_col = in_col;
 	}
 }

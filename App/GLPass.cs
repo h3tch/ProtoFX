@@ -177,10 +177,11 @@ namespace gled
             return glsh;
         }
         
-        public void Exec()
+        public void Exec(int width, int height)
         {
             GL.ClearColor(Color.SkyBlue);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.Viewport(0, 0, width, height);
 
             GL.UseProgram(glname);
 
@@ -204,6 +205,7 @@ namespace gled
                 // execute multiple indirect draw commands
                 foreach (var draw in call.cmd)
                     GL.DrawElementsInstancedBaseVertexBaseInstance(draw.mode, draw.indexcount, draw.indextype, draw.baseindex, draw.instancecount, draw.basevertex, draw.baseinstance);
+                    //GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 8);
             }
 
             GL.UseProgram(0);
