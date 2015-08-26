@@ -1,12 +1,9 @@
-﻿using OpenTK;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace gled
 {
@@ -73,12 +70,14 @@ namespace gled
             var args = Text2Args(text);
 
             // PARSE ARGUMENTS
-            Args2Prop(this, args);
+            Args2Prop(this, ref args);
 
             // parse draw call arguments
             List<int> arg = new List<int>();
             foreach (var call in args)
             {
+                if (call == null)
+                    continue;
                 // skip if arg is not a draw command
                 if (call[0].Equals("draw") && call.Length >= 5)
                     ParseDrawCall(call, classes);
@@ -134,7 +133,6 @@ namespace gled
 
         private void ParseDrawCall(string[] call, Dictionary<string, GLObject> classes)
         {
-            // parse draw call arguments
             List<int> arg = new List<int>();
             GLVertinput vi = null;
             GLBuffer ib = null;
@@ -143,6 +141,7 @@ namespace gled
             DrawElementsType type = 0;
             int val;
 
+            // parse draw call arguments
             for (var i = 1; i < call.Length; i++)
             {
                 if (vi == null && classes.TryGetValue(call[i], out obj) && obj.GetType() == typeof(GLVertinput))
@@ -157,13 +156,17 @@ namespace gled
 
             // check for validity of the draw call
             if (vi == null)
-                throw new Exception("TODO ParseDrawCall");
+                throw new Exception("ERROR in pass " + name
+                    + ": Draw call " + calls.Count + " must have a vertinput.");
             if (mode == 0)
-                throw new Exception("TODO ParseDrawCall");
+                throw new Exception("ERROR in pass " + name
+                    + ": Draw call " + calls.Count + " must primitive type (e.g. triangles, trianglefan, lines, ...).");
             if (ib != null && type == 0)
-                throw new Exception("TODO ParseDrawCall");
+                throw new Exception("ERROR in pass " + name
+                    + ": Draw call " + calls.Count + " uses index vertices and must therefore specify an index type (e.g. unsignedshort, unsignedin).");
             if (arg.Count == 0)
-                throw new Exception("TODO ParseDrawCall");
+                throw new Exception("ERROR in pass " + name
+                    + ": Draw call " + calls.Count + " must specify the number of indices/vertices to draw.");
 
             // get index buffer object (if present) and find existing MultiDraw class
             MultiDrawCall multidrawcall = calls.Find(x => x.vi == vi.glname && x.ib == (ib != null ? ib.glname : 0));
@@ -190,18 +193,21 @@ namespace gled
 
         private void ParseOpenGLCall(string[] call)
         {
+            // find OpenGL method
             var mtype = FindMethod(call[0], call.Length - 1);
             if (mtype == null)
-                return;
+                throw new Exception("ERROR in pass " + name 
+                    + ": Unknown command " + string.Join(" ", call) + ".");
+            // get method parameter types
             var param = mtype.GetParameters();
-            if (param.Length != call.Length - 1)
-                throw new Exception("TODO ParseOpenGLCall");
             object[] inval = new object[param.Length];
+            // convert strings to parameter types
             for (int i = 0; i < param.Length; i++)
                 if (param[i].ParameterType.IsEnum)
                     inval[i] = Convert.ChangeType(Enum.Parse(param[i].ParameterType, call[i + 1]), param[i].ParameterType);
                 else
                     inval[i] = Convert.ChangeType(call[i + 1], param[i].ParameterType, culture);
+            // add to invocation list
             invoke.Add(new GLMethod(mtype, inval));
         }
 
@@ -218,7 +224,9 @@ namespace gled
             if (sh == null)
                 return null;
             GLObject glsh;
+            // get shader from class list
             if (classes.TryGetValue(sh, out glsh) && glsh.GetType() == typeof(GLShader))
+                // attach to program
                 GL.AttachShader(glname, glsh.glname);
             else
                 throw new Exception("ERROR in pass " + name + ": Invalid name '" + sh + "'.");
@@ -227,15 +235,17 @@ namespace gled
         
         public void Exec(int width, int height)
         {
+            // SET DEFAULT VIEWPORT
             GL.Viewport(0, 0, width, height);
+
+            // CALL USER SPECIFIED OPENGL FUNCTIONS
             foreach (var glcall in invoke)
                 glcall.mtype.Invoke(null, glcall.inval);
 
-            //GL.ClearColor(Color.SkyBlue);
-            //GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
+            // BIND PROGRAM
             GL.UseProgram(glname);
 
+            // SET INTERNAL VARIABLES
             if (g_view >= 0)
                 GL.UniformMatrix4(g_view, false, ref glcamera.view);
             if (g_proj >= 0)
@@ -245,6 +255,7 @@ namespace gled
             if (g_info >= 0)
                 GL.Uniform4(g_proj, ref glcamera.info);
 
+            // EXECUTE DRAW CALLS
             foreach (var call in calls)
             {
                 // bind vertex buffer to input stream

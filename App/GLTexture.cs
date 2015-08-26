@@ -26,7 +26,7 @@ namespace gled
             var args = Text2Args(text);
 
             // PARSE ARGUMENTS
-            Args2Prop(this, args);
+            Args2Prop(this, ref args);
 
             if (samp != null && classes.TryGetValue(samp, out glsamp) && glsamp.GetType() != typeof(GLSampler))
                 throw new Exception("ERROR in texture " + name + ": "

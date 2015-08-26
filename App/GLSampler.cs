@@ -16,7 +16,7 @@ namespace gled
             var args = Text2Args(text);
 
             // PARSE ARGUMENTS
-            Args2Prop(this, args);
+            Args2Prop(this, ref args);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenSampler();

@@ -21,7 +21,6 @@ namespace gled
         public App()
         {
             InitializeComponent();
-            CultureInfo.CurrentCulture = new CultureInfo("de");
             this.codeText.Text = System.IO.File.ReadAllText(@"../../samples/simple.txt");
         }
 
@@ -138,6 +137,7 @@ namespace gled
             foreach (var pair in classes)
                 pair.Value.Delete();
             classes.Clear();
+            // add default camera
             classes.Add(GLCamera.cameraname, camera);
         }
 
@@ -161,8 +161,10 @@ namespace gled
 
         private static string[] findBlocks(string code)
         {
+            // find potential block positions
             var matches = Regex.Matches(code, "(\\w+\\s*){2,3}\\{");
 
+            // find all '{' that potentially indicate a block
             int count = 0;
             int newline = 0;
             List<int> blockBr = new List<int>();
@@ -178,6 +180,7 @@ namespace gled
                     throw new Exception("FATAL ERROR in line " + newline + ": Unexpected occurrence of '}'.");
             }
 
+            // where 'matches' and 'blockBr' are aligned we have a block
             List<string> blocks = new List<string>();
             for (int i = 0; i < matches.Count; i++)
             {
@@ -185,6 +188,8 @@ namespace gled
                 if (idx >= 0)
                     blocks.Add(code.Substring(matches[i].Index, blockBr[idx + 1] - matches[i].Index + 1));
             }
+
+            // return blocks as array
             return blocks.ToArray();
         }
 

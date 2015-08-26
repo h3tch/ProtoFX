@@ -25,7 +25,7 @@ namespace gled
             var args = Text2Args(text);
 
             // PARSE ARGUMENTS
-            Args2Prop(this, args);
+            Args2Prop(this, ref args);
 
             // if type was not specified
             if (type == 0)
