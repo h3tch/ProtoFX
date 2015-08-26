@@ -12,7 +12,7 @@ namespace gled
 {
     class GledXml
     {
-        public byte[] data { get; protected set; } = null;
+        public byte[] data { get; protected set; }
 
         private static CultureInfo culture = new CultureInfo("en");
 

@@ -9,13 +9,14 @@ namespace gled
 {
     abstract class GLObject
     {
-        public int glname { get; protected set; } = 0;
-        public string name { get; }
-        public string anno { get; }
+        public int glname { get; protected set; }
+        public string name { get; protected set; }
+        public string anno { get; protected set; }
         private static CultureInfo culture = new CultureInfo("en");
 
         public GLObject(string name, string annotation)
         {
+			this.glname = 0;
             this.name = name;
             this.anno = annotation;
         }

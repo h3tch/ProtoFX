@@ -5,7 +5,7 @@ namespace gled
 {
     class GLCamera : GLObject
     {
-        public static string cameraname { get; } = "__glst_camera__";
+        public static string cameraname = "__glst_camera__";
         private Vector3 pos;
         private Vector3 rot;
         public Vector4 info;
