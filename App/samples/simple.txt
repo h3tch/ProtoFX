@@ -50,6 +50,10 @@ shader frag fs_simple {
 pass pass_render {
 	vert vs_simple
 	frag fs_simple
+	
+	ClearColor 0.1 0.3 1.0 0.0
+	Clear DepthBufferBit
+	
 	// draw <indexbuffername=0> <vertinname> <indextype> <primitivetype> <indexcount> <instancecount=0> <baseindex=0> <baseinstance=0> <basevertex=0>
 	draw buff_idx in_vert unsignedshort triangles 36
 }

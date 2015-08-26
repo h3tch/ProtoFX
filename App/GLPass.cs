@@ -3,12 +3,16 @@ using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace gled
 {
     class GLPass : GLObject
     {
+        private static CultureInfo culture = new CultureInfo("en");
         public string vert = null;
         public string tess = null;
         public string eval = null;
@@ -26,6 +30,7 @@ namespace gled
         public GLObject glfragout = null;
         public GLCamera glcamera = null;
         public List<MultiDrawCall> calls = new List<MultiDrawCall>();
+        public List<GLMethod> invoke = new List<GLMethod>();
         public int g_view = -1;
         public int g_proj = -1;
         public int g_viewproj = -1;
@@ -49,6 +54,18 @@ namespace gled
             public int baseinstance;
         }
 
+        public struct GLMethod
+        {
+            public MethodInfo mtype;
+            public object[] inval;
+
+            public GLMethod(MethodInfo mtype, object[] inval)
+            {
+                this.mtype = mtype;
+                this.inval = inval;
+            }
+        }
+
         public GLPass(string name, string annotation, string text, Dictionary<string, GLObject> classes)
             : base(name, annotation)
         {
@@ -63,61 +80,11 @@ namespace gled
             foreach (var call in args)
             {
                 // skip if arg is not a draw command
-                if (!call[0].Equals("draw") || call.Length < 5)
-                    continue;
-
-                // parse draw call arguments
-                arg.Clear();
-                GLVertinput vi = null;
-                GLBuffer ib = null;
-                GLObject obj;
-                PrimitiveType mode = 0;
-                DrawElementsType type = 0;
-                int val;
-
-                for (var i = 1; i < call.Length; i++)
-                {
-                    if (vi == null && classes.TryGetValue(call[i], out obj) && obj.GetType() == typeof(GLVertinput))
-                        vi = (GLVertinput)obj;
-                    else if (ib == null && classes.TryGetValue(call[i], out obj) && obj.GetType() == typeof(GLBuffer))
-                        ib = (GLBuffer)obj;
-                    else if (type == 0 && Enum.TryParse(call[i], true, out type)) { }
-                    else if (mode == 0 && Enum.TryParse(call[i], true, out mode)) { }
-                    else if (Int32.TryParse(call[i], out val))
-                        arg.Add(val);
-                }
-
-                // check for validity of the draw call
-                if (vi == null)
-                    throw new Exception("");
-                if (mode == 0)
-                    throw new Exception("");
-                if (ib != null && type == 0)
-                    throw new Exception("");
-                if (arg.Count == 0)
-                    throw new Exception("");
-
-                // get index buffer object (if present) and find existing MultiDraw class
-                MultiDrawCall multidrawcall = calls.Find(x => x.vi == vi.glname && x.ib == (ib != null ? ib.glname : 0));
-                if (multidrawcall == null)
-                {
-                    multidrawcall = new MultiDrawCall();
-                    multidrawcall.cmd = new List<DrawCall>();
-                    multidrawcall.vi = vi.glname;
-                    multidrawcall.ib = ib != null ? ib.glname : 0;
-                    calls.Add(multidrawcall);
-                }
-
-                // add new draw command to the MultiDraw class
-                DrawCall drawcall = new DrawCall();
-                drawcall.mode          = mode;
-                drawcall.indextype     = type;
-                drawcall.indexcount    = arg.Count >= 1 ? arg[0] : 0;
-                drawcall.instancecount = arg.Count >= 2 ? arg[1] : 1;
-                drawcall.baseindex     = (IntPtr)(arg.Count >= 3 ? arg[2] : 0);
-                drawcall.baseinstance  = arg.Count >= 4 ? arg[3] : 0;
-                drawcall.basevertex    = arg.Count >= 5 ? arg[4] : 0;
-                multidrawcall.cmd.Add(drawcall);
+                if (call[0].Equals("draw") && call.Length >= 5)
+                    ParseDrawCall(call, classes);
+                // try parsing as OpenGL call
+                else
+                    ParseOpenGLCall(call);
             }
 
             // GET CAMERA OBJECT
@@ -165,6 +132,87 @@ namespace gled
             
         }
 
+        private void ParseDrawCall(string[] call, Dictionary<string, GLObject> classes)
+        {
+            // parse draw call arguments
+            List<int> arg = new List<int>();
+            GLVertinput vi = null;
+            GLBuffer ib = null;
+            GLObject obj;
+            PrimitiveType mode = 0;
+            DrawElementsType type = 0;
+            int val;
+
+            for (var i = 1; i < call.Length; i++)
+            {
+                if (vi == null && classes.TryGetValue(call[i], out obj) && obj.GetType() == typeof(GLVertinput))
+                    vi = (GLVertinput)obj;
+                else if (ib == null && classes.TryGetValue(call[i], out obj) && obj.GetType() == typeof(GLBuffer))
+                    ib = (GLBuffer)obj;
+                else if (type == 0 && Enum.TryParse(call[i], true, out type)) { }
+                else if (mode == 0 && Enum.TryParse(call[i], true, out mode)) { }
+                else if (Int32.TryParse(call[i], out val))
+                    arg.Add(val);
+            }
+
+            // check for validity of the draw call
+            if (vi == null)
+                throw new Exception("TODO ParseDrawCall");
+            if (mode == 0)
+                throw new Exception("TODO ParseDrawCall");
+            if (ib != null && type == 0)
+                throw new Exception("TODO ParseDrawCall");
+            if (arg.Count == 0)
+                throw new Exception("TODO ParseDrawCall");
+
+            // get index buffer object (if present) and find existing MultiDraw class
+            MultiDrawCall multidrawcall = calls.Find(x => x.vi == vi.glname && x.ib == (ib != null ? ib.glname : 0));
+            if (multidrawcall == null)
+            {
+                multidrawcall = new MultiDrawCall();
+                multidrawcall.cmd = new List<DrawCall>();
+                multidrawcall.vi = vi.glname;
+                multidrawcall.ib = ib != null ? ib.glname : 0;
+                calls.Add(multidrawcall);
+            }
+
+            // add new draw command to the MultiDraw class
+            DrawCall drawcall = new DrawCall();
+            drawcall.mode = mode;
+            drawcall.indextype = type;
+            drawcall.indexcount = arg.Count >= 1 ? arg[0] : 0;
+            drawcall.instancecount = arg.Count >= 2 ? arg[1] : 1;
+            drawcall.baseindex = (IntPtr)(arg.Count >= 3 ? arg[2] : 0);
+            drawcall.baseinstance = arg.Count >= 4 ? arg[3] : 0;
+            drawcall.basevertex = arg.Count >= 5 ? arg[4] : 0;
+            multidrawcall.cmd.Add(drawcall);
+        }
+
+        private void ParseOpenGLCall(string[] call)
+        {
+            var mtype = FindMethod(call[0], call.Length - 1);
+            if (mtype == null)
+                return;
+            var param = mtype.GetParameters();
+            if (param.Length != call.Length - 1)
+                throw new Exception("TODO ParseOpenGLCall");
+            object[] inval = new object[param.Length];
+            for (int i = 0; i < param.Length; i++)
+                if (param[i].ParameterType.IsEnum)
+                    inval[i] = Convert.ChangeType(Enum.Parse(param[i].ParameterType, call[i + 1]), param[i].ParameterType);
+                else
+                    inval[i] = Convert.ChangeType(call[i + 1], param[i].ParameterType, culture);
+            invoke.Add(new GLMethod(mtype, inval));
+        }
+
+        private MethodInfo FindMethod(string name, int nparam)
+        {
+            var methods = from method in typeof(GL).GetMethods()
+                          where method.Name == name && method.GetParameters().Length == nparam
+                          select method;
+            return methods.Count() > 0 ? methods.First() : null;
+        }
+
         private GLObject attach(string sh, Dictionary<string, GLObject> classes)
         {
             if (sh == null)
@@ -179,9 +227,12 @@ namespace gled
         
         public void Exec(int width, int height)
         {
-            GL.ClearColor(Color.SkyBlue);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Viewport(0, 0, width, height);
+            foreach (var glcall in invoke)
+                glcall.mtype.Invoke(null, glcall.inval);
+
+            //GL.ClearColor(Color.SkyBlue);
+            //GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             GL.UseProgram(glname);
 
@@ -199,13 +250,25 @@ namespace gled
                 // bind vertex buffer to input stream
                 // (needs to be done before binding an ElementArrayBuffer)
                 GL.BindVertexArray(call.vi);
-                // bin index buffer to ElementArrayBuffer target
                 if (call.ib != 0)
+                {
+                    // bin index buffer to ElementArrayBuffer target
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, call.ib);
-                // execute multiple indirect draw commands
-                foreach (var draw in call.cmd)
-                    GL.DrawElementsInstancedBaseVertexBaseInstance(draw.mode, draw.indexcount, draw.indextype, draw.baseindex, draw.instancecount, draw.basevertex, draw.baseinstance);
-                    //GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 8);
+                    // execute multiple indirect draw commands
+                    foreach (var draw in call.cmd)
+                        GL.DrawElementsInstancedBaseVertexBaseInstance(
+                            draw.mode, draw.indexcount, draw.indextype,
+                            draw.baseindex, draw.instancecount,
+                            draw.basevertex, draw.baseinstance);
+                }
+                else
+                {
+                    // execute multiple indirect draw commands
+                    foreach (var draw in call.cmd)
+                        GL.DrawArraysInstancedBaseInstance(
+                            draw.mode, draw.baseindex.ToInt32(), draw.indexcount,
+                            draw.baseinstance, draw.instancecount);
+                }
             }
 
             GL.UseProgram(0);

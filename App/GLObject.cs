@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -11,6 +12,7 @@ namespace gled
         public int glname { get; protected set; } = 0;
         public string name { get; }
         public string anno { get; }
+        private static CultureInfo culture = new CultureInfo("en");
 
         public GLObject(string name, string annotation)
         {
@@ -54,7 +56,7 @@ namespace gled
                         if (field.FieldType.IsEnum)
                             field.SetValue(clazz, Convert.ChangeType(Enum.Parse(field.FieldType, arg[1], true), field.FieldType));
                         else
-                            field.SetValue(clazz, Convert.ChangeType(arg[1], field.FieldType));
+                            field.SetValue(clazz, Convert.ChangeType(arg[1], field.FieldType, culture));
                     }
                 }
             }
