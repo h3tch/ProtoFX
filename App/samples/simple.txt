@@ -1,3 +1,7 @@
+/////////////
+// BUFFERS //
+/////////////
+
 buffer buff_pos {
 	usage staticDraw
 	file ../../samples/cube.xml|pos
@@ -13,36 +17,30 @@ buffer buff_idx {
 	file ../../samples/cube.xml|index
 }
 
-image img_color {
-	width 1024
-	height 768
-	format RGBA
-}
-
-image img_depth {
-	width 1024
-	height 768
-	format DepthComponent32f
-}
+/////////////////////
+// BUFFER BINDINGS //
+/////////////////////
 
 vertinput in_vert {
 	attr buff_pos float 4
 	attr buff_color float 4
 }
 
-fragoutput out_frag {
-	color img_color
-	depth img_depth
-}
+/////////////
+// SHADERS //
+/////////////
 
 shader vert vs_simple {
 	#version 440
 	
-	uniform mat4 g_view;
-	uniform mat4 g_proj;
+	uniform mat4 g_view; // the camera view matrix (set by GLED)
+	uniform mat4 g_proj; // the camera projection matrix (set by GLED)
 	
+	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
 	layout(location = 1) in vec4 in_col;
+
+	// vertex shader output
 	layout(location = 0) out vec4 vs_col;
 	
 	void main ()
@@ -64,14 +62,25 @@ shader frag fs_simple {
 	}
 }
 
+/////////////
+// PROGRAM //
+/////////////
+
 pass pass_render {
+	// attach shaders
 	vert vs_simple
 	frag fs_simple
 	
+	// set clear color
 	ClearColor 0.1 0.3 1.0 0.0
+	// clear color and depth buffer
 	Clear ColorDepthBit
+	// enable depth buffer test
+	Enable depthTest
 	
-	// draw <indexbuffername=0> <vertinname> <indextype> <primitivetype> <indexcount> <instancecount=0> <baseindex=0> <baseinstance=0> <basevertex=0>
+	// draw cube
+	// draw <indexbuffername=0> <vertinname> <indextype> <primitivetype>
+	// <indexcount> <instancecount=0> <baseindex=0> <baseinstance=0> <basevertex=0>
 	draw buff_idx in_vert unsignedshort triangles 36
 }
 

@@ -209,7 +209,7 @@ namespace gled
             // convert strings to parameter types
             for (int i = 0; i < param.Length; i++)
                 if (param[i].ParameterType.IsEnum)
-                    inval[i] = Convert.ChangeType(Enum.Parse(param[i].ParameterType, call[i + 1]), param[i].ParameterType);
+                    inval[i] = Convert.ChangeType(Enum.Parse(param[i].ParameterType, call[i + 1], true), param[i].ParameterType);
                 else
                     inval[i] = Convert.ChangeType(call[i + 1], param[i].ParameterType, culture);
             // add to invocation list

@@ -22,6 +22,7 @@ namespace gled
         {
             InitializeComponent();
             this.codeText.Text = System.IO.File.ReadAllText(@"../../samples/simple.txt");
+            //this.codeText.Text = System.IO.File.ReadAllText(@"../../samples/simple_fragoutput.txt");
         }
 
         private void App_FormClosing(object sender, FormClosingEventArgs e)
@@ -71,7 +72,6 @@ namespace gled
             glControl.MakeCurrent();
             
             camera.Update();
-            GL.Enable(EnableCap.DepthTest);
             foreach (var c in classes)
                 if (c.Value.GetType() == typeof(GLTech))
                     ((GLTech)c.Value).Exec(
