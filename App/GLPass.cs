@@ -15,15 +15,14 @@ namespace gled
         public string eval = null;
         public string geom = null;
         public string frag = null;
-        public string geomout = null;
+        public string vertout = null;
         public string fragout = null;
-        public string[] option = null;
         public GLObject glvert = null;
         public GLObject gltess = null;
         public GLObject gleval = null;
         public GLObject glgeom = null;
         public GLObject glfrag = null;
-        public GLObject glgeomout = null;
+        public GLObject glvertout = null;
         public GLObject glfragout = null;
         public GLCamera glcamera = null;
         public List<MultiDrawCall> calls = new List<MultiDrawCall>();
@@ -101,6 +100,12 @@ namespace gled
             gleval = attach(eval, classes);
             glgeom = attach(geom, classes);
             glfrag = attach(frag, classes);
+            if (fragout != null)
+                if (classes.TryGetValue(fragout, out glfragout) == false || glfragout.GetType() != typeof(GLFragoutput))
+                    throw new Exception("ERROR in pass " + name + ": Could not find fragout '" + fragout + "'.");
+            if (vertout != null)
+                if (classes.TryGetValue(vertout, out glvertout) == false || glvertout.GetType() != typeof(GLFragoutput))
+                    throw new Exception("ERROR in pass " + name + ": Could not find vertout '" + vertout + "'.");
 
             // link program
             GL.LinkProgram(glname);
@@ -236,7 +241,13 @@ namespace gled
         public void Exec(int width, int height)
         {
             // SET DEFAULT VIEWPORT
-            GL.Viewport(0, 0, width, height);
+            if (glfragout == null)
+                GL.Viewport(0, 0, width, height);
+            else
+            {
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, glfragout.glname);
+                GL.Viewport(0, 0, ((GLFragoutput)glfragout).width, ((GLFragoutput)glfragout).height);
+            }
 
             // CALL USER SPECIFIED OPENGL FUNCTIONS
             foreach (var glcall in invoke)
@@ -285,6 +296,7 @@ namespace gled
             GL.UseProgram(0);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
 
         public override void Delete()

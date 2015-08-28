@@ -13,9 +13,26 @@ buffer buff_idx {
 	file ../../samples/cube.xml|index
 }
 
+image img_color {
+	width 1024
+	height 768
+	format RGBA
+}
+
+image img_depth {
+	width 1024
+	height 768
+	format DepthComponent32f
+}
+
 vertinput in_vert {
 	attr buff_pos float 4
 	attr buff_color float 4
+}
+
+fragoutput out_frag {
+	color img_color
+	depth img_depth
 }
 
 shader vert vs_simple {
