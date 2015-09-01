@@ -21,8 +21,8 @@ namespace gled
         public App()
         {
             InitializeComponent();
-            this.codeText.Text = System.IO.File.ReadAllText(@"../../samples/simple.txt");
-            //this.codeText.Text = System.IO.File.ReadAllText(@"../../samples/simple_fragoutput.txt");
+            //this.codeText.Text = System.IO.File.ReadAllText(@"../../samples/simple.txt");
+            this.codeText.Text = System.IO.File.ReadAllText(@"../../samples/simple_fragoutput.txt");
         }
 
         private void App_FormClosing(object sender, FormClosingEventArgs e)

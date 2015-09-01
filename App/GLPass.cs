@@ -10,6 +10,7 @@ namespace gled
     class GLPass : GLObject
     {
         private static CultureInfo culture = new CultureInfo("en");
+        private static GLVertinput defaultVertinput = new GLVertinput("default", "default", "", classes);
         public string vert = null;
         public string tess = null;
         public string eval = null;
@@ -26,6 +27,7 @@ namespace gled
         public GLObject glfragout = null;
         public GLCamera glcamera = null;
         public List<MultiDrawCall> calls = new List<MultiDrawCall>();
+        public List<TexCmd> texs = new List<TexCmd>();
         public List<GLMethod> invoke = new List<GLMethod>();
         public int g_view = -1;
         public int g_proj = -1;
@@ -50,6 +52,18 @@ namespace gled
             public int baseinstance;
         }
 
+        public struct TexCmd
+        {
+            public GLTexture tex;
+            public int unit;
+
+            public TexCmd(GLTexture tex, int unit)
+            {
+                this.tex = tex;
+                this.unit = unit;
+            }
+        }
+
         public struct GLMethod
         {
             public MethodInfo mtype;
@@ -71,18 +85,28 @@ namespace gled
             // PARSE ARGUMENTS
             Args2Prop(this, ref args);
 
-            // parse draw call arguments
+            // parse commands
             List<int> arg = new List<int>();
             foreach (var call in args)
             {
+                // skip if already processed
                 if (call == null)
                     continue;
-                // skip if arg is not a draw command
-                if (call[0].Equals("draw") && call.Length >= 5)
-                    ParseDrawCall(call, classes);
-                // try parsing as OpenGL call
-                else
-                    ParseOpenGLCall(call);
+                switch(call[0])
+                {
+                    case "draw":
+                        // try parsing draw command
+                        ParseDrawCall(call, classes);
+                        break;
+                    case "tex":
+                        // try parsing tex command
+                        ParseTexCmd(call, classes);
+                        break;
+                    default:
+                        // try parsing as OpenGL call
+                        ParseOpenGLCall(call);
+                        break;
+                }
             }
 
             // GET CAMERA OBJECT
@@ -153,25 +177,25 @@ namespace gled
                     vi = (GLVertinput)obj;
                 else if (ib == null && classes.TryGetValue(call[i], out obj) && obj.GetType() == typeof(GLBuffer))
                     ib = (GLBuffer)obj;
-                else if (type == 0 && Enum.TryParse(call[i], true, out type)) { }
-                else if (mode == 0 && Enum.TryParse(call[i], true, out mode)) { }
                 else if (Int32.TryParse(call[i], out val))
                     arg.Add(val);
+                else if (type == 0 && Enum.TryParse(call[i], true, out type)) { }
+                else if (mode == 0 && Enum.TryParse(call[i], true, out mode)) { }
             }
 
             // check for validity of the draw call
-            if (vi == null)
-                throw new Exception("ERROR in pass " + name
-                    + ": Draw call " + calls.Count + " must have a vertinput.");
             if (mode == 0)
                 throw new Exception("ERROR in pass " + name
-                    + ": Draw call " + calls.Count + " must primitive type (e.g. triangles, trianglefan, lines, ...).");
-            if (ib != null && type == 0)
-                throw new Exception("ERROR in pass " + name
-                    + ": Draw call " + calls.Count + " uses index vertices and must therefore specify an index type (e.g. unsignedshort, unsignedin).");
+                    + ": Draw call " + calls.Count + " must specify a primitive type (e.g. triangles, trianglefan, lines, ...).");
             if (arg.Count == 0)
                 throw new Exception("ERROR in pass " + name
                     + ": Draw call " + calls.Count + " must specify the number of indices/vertices to draw.");
+            //if (vi == null)
+            //    vi = defaultVertinput;
+            if (ib != null && type == 0)
+                throw new Exception("ERROR in pass " + name
+                    + ": Draw call " + calls.Count + " uses index vertices and must therefore specify an index type "
+                    + "(e.g. unsignedshort, unsignedin).");
 
             // get index buffer object (if present) and find existing MultiDraw class
             MultiDrawCall multidrawcall = calls.Find(x => x.vi == vi.glname && x.ib == (ib != null ? ib.glname : 0));
@@ -179,7 +203,7 @@ namespace gled
             {
                 multidrawcall = new MultiDrawCall();
                 multidrawcall.cmd = new List<DrawCall>();
-                multidrawcall.vi = vi.glname;
+                multidrawcall.vi = vi != null ? vi.glname : 0;
                 multidrawcall.ib = ib != null ? ib.glname : 0;
                 calls.Add(multidrawcall);
             }
@@ -194,6 +218,33 @@ namespace gled
             drawcall.baseinstance = arg.Count >= 4 ? arg[3] : 0;
             drawcall.basevertex = arg.Count >= 5 ? arg[4] : 0;
             multidrawcall.cmd.Add(drawcall);
+        }
+
+        private void ParseTexCmd(string[] call, Dictionary<string, GLObject> classes)
+        {
+            GLObject obj;
+            GLTexture tex = null;
+            int unit = -1;
+
+            // parse command arguments
+            for (var i = 1; i < call.Length; i++)
+            {
+                if (tex == null && classes.TryGetValue(call[i], out obj) && obj.GetType() == typeof(GLTexture))
+                    tex = (GLTexture)obj;
+                else
+                    Int32.TryParse(call[i], out unit);
+            }
+
+            // check for errors
+            if (tex == null)
+                throw new Exception("ERROR in pass " + name
+                    + ": Texture name of tex command " + texs.Count + " could not be found.");
+            if (unit < 0)
+                throw new Exception("ERROR in pass " + name
+                    + ": tex command " + texs.Count + " must specify a unit (e.g. tex tex_name 0).");
+
+            // add to texture list
+            texs.Add(new TexCmd(tex, unit));
         }
 
         private void ParseOpenGLCall(string[] call)
@@ -256,6 +307,10 @@ namespace gled
             // BIND PROGRAM
             GL.UseProgram(glname);
 
+            // BIND TEXTURES
+            foreach (var gltex in texs)
+                gltex.tex.Bind(gltex.unit);
+
             // SET INTERNAL VARIABLES
             if (g_view >= 0)
                 GL.UniformMatrix4(g_view, false, ref glcamera.view);
@@ -297,6 +352,8 @@ namespace gled
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            foreach (var gltex in texs)
+                gltex.tex.Unbind(gltex.unit);
         }
 
         public override void Delete()
