@@ -23,6 +23,11 @@ namespace gled
 
         public abstract void Delete();
 
+        public override string ToString()
+        {
+            return name;
+        }
+
         static protected string[][] Text2Args(string text)
         {
             List<string[]> args = new List<string[]>();

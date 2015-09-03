@@ -62,7 +62,7 @@ namespace gled
             if (glimg != null)
             {
                 GL.ActiveTexture(TextureUnit.Texture0 + unit);
-                GL.BindTexture(((GLImage)glimg).type, glimg.glname);
+                GL.BindTexture(((GLImage)glimg).target, glimg.glname);
             }
             else if (glbuff != null)
             {
@@ -79,7 +79,7 @@ namespace gled
             if (glimg != null)
             {
                 GL.ActiveTexture(TextureUnit.Texture0 + unit);
-                GL.BindTexture(((GLImage)glimg).type, 0);
+                GL.BindTexture(((GLImage)glimg).target, 0);
             }
             else if (glbuff != null)
             {

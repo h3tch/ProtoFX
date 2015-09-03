@@ -9,14 +9,21 @@ namespace gled
 {
     class GLImage : GLObject
     {
+        public string[] file = null;
         public int width = 1;
         public int height = 0;
         public int depth = 0;
         public int length = 0;
         public int mipmaps = 0;
         public TextureTarget type = 0;
-        public PixelInternalFormat format = PixelInternalFormat.Rgba8ui;
-        public string[] file = null;
+        public PixelInternalFormat format = PixelInternalFormat.Rgba;
+        public TextureTarget target { get { return type; } set { type = value; } }
+        public PixelInternalFormat gpuformat { get { return format; } set { format = value; } }
+
+        private System.Drawing.Imaging.PixelFormat fileformat = System.Drawing.Imaging.PixelFormat.Format32bppArgb;
+        private PixelType pixeltype = 0;
+        private int pixelsize = 0;
+        private OpenTK.Graphics.OpenGL4.PixelFormat pixelformat = 0;
 
         public GLImage(string name, string annotation, string text, Dictionary<string, GLObject> classes)
             : base(name, annotation)
@@ -28,18 +35,18 @@ namespace gled
             Args2Prop(this, ref args);
 
             // if type was not specified
-            if (type == 0)
+            if (target == 0)
             {
                 if (width > 0 && height == 1 && depth == 0 && length == 0)
-                    type = TextureTarget.Texture1D;
+                    target = TextureTarget.Texture1D;
                 else if (width > 0 && height == 1 && depth == 0 && length > 0)
-                    type = TextureTarget.Texture1DArray;
+                    target = TextureTarget.Texture1DArray;
                 else if (width > 0 && height > 1 && depth == 0 && length == 0)
-                    type = TextureTarget.Texture2D;
+                    target = TextureTarget.Texture2D;
                 else if (width > 0 && height > 1 && depth == 0 && length > 0)
-                    type = TextureTarget.Texture2DArray;
+                    target = TextureTarget.Texture2DArray;
                 else if (width > 0 && height > 1 && depth > 0 && length == 0)
-                    type = TextureTarget.Texture3D;
+                    target = TextureTarget.Texture3D;
                 else
                     throw new Exception("ERROR in image " + name + ": " 
                         + "Texture type could not be derived from 'width', 'height', 'depth' and 'length'. "
@@ -48,19 +55,18 @@ namespace gled
 
             // CREATE OPENGL OBJECT
             glname = GL.GenTexture();
-            GL.BindTexture(type, glname);
-            GL.TexParameter(type, TextureParameterName.TextureMinFilter,
+            GL.BindTexture(target, glname);
+            GL.TexParameter(target, TextureParameterName.TextureMinFilter,
                 (int)(mipmaps > 0 ? TextureMinFilter.NearestMipmapNearest : TextureMinFilter.Nearest));
-            GL.TexParameter(type, TextureParameterName.TextureMagFilter,
+            GL.TexParameter(target, TextureParameterName.TextureMagFilter,
                 (int)(mipmaps > 0 ? TextureMinFilter.NearestMipmapNearest : TextureMinFilter.Nearest));
-            GL.TexParameter(type, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(type, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(type, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(target, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(target, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(target, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
             // LOAD IMAGE DATA
-            OpenTK.Graphics.OpenGL4.PixelFormat dataformat;
-            PixelType datatype;
-            var data = loadImageFiles(file, width, height, depth, format, out dataformat, out datatype);
+            var data = loadImageFiles(file, width, height, depth, gpuformat,
+                out pixelformat, out pixeltype, out pixelsize, out fileformat);
             var dataPtr = IntPtr.Zero;
             if (data != null)
             {
@@ -69,22 +75,22 @@ namespace gled
             }
 
             // ALLOCATE GPU MEMORY
-            switch (type)
+            switch (target)
             {
                 case TextureTarget.Texture1D:
-                    GL.TexImage1D(type, 0, format, width, 0, dataformat, datatype, dataPtr);
+                    GL.TexImage1D(target, 0, gpuformat, width, 0, pixelformat, pixeltype, dataPtr);
                     break;
                 case TextureTarget.Texture1DArray:
-                    GL.TexImage2D(type, 0, format, width, length, 0, dataformat, datatype, dataPtr);
+                    GL.TexImage2D(target, 0, gpuformat, width, length, 0, pixelformat, pixeltype, dataPtr);
                     break;
                 case TextureTarget.Texture2D:
-                    GL.TexImage2D(type, 0, format, width, height, 0, dataformat, datatype, dataPtr);
+                    GL.TexImage2D(target, 0, gpuformat, width, height, 0, pixelformat, pixeltype, dataPtr);
                     break;
                 case TextureTarget.Texture2DArray:
-                    GL.TexImage3D(type, 0, format, width, height, length, 0, dataformat, datatype, dataPtr);
+                    GL.TexImage3D(target, 0, gpuformat, width, height, length, 0, pixelformat, pixeltype, dataPtr);
                     break;
                 case TextureTarget.Texture3D:
-                    GL.TexImage3D(type, 0, format, width, height, depth, 0, dataformat, datatype, dataPtr);
+                    GL.TexImage3D(target, 0, gpuformat, width, height, depth, 0, pixelformat, pixeltype, dataPtr);
                     break;
             }
 
@@ -94,33 +100,48 @@ namespace gled
 
             // GENERATE MIPMAPS
             if (mipmaps > 0)
-                GL.GenerateMipmap((GenerateMipmapTarget)type);
+                GL.GenerateMipmap((GenerateMipmapTarget)target);
 
-            GL.BindTexture(type, 0);
+            GL.BindTexture(target, 0);
             throwExceptionOnOpenGlError("image", name, "allocate (and write) texture");
         }
 
-        private static byte[] loadImageFiles(string[] filenames, int w, int h, int d, PixelInternalFormat format, 
-            out OpenTK.Graphics.OpenGL4.PixelFormat dataformat, out PixelType datatype)
+        public Bitmap Read(int level)
         {
-            if (format.ToString().StartsWith("DepthComponent"))
+            IntPtr dataPtr = Marshal.AllocHGlobal(width * height * pixelsize);
+
+            GL.BindTexture(this.target, this.glname);
+            GL.GetTexImage(this.target, level, this.pixelformat, this.pixeltype, dataPtr);
+            GL.BindTexture(this.target, 0);
+            throwExceptionOnOpenGlError("image", name, "read texture data from GPU");
+
+            Bitmap bmp = new Bitmap(width, height, width * pixelsize, fileformat, dataPtr);
+            
+            return bmp;
+        }
+
+        private static byte[] loadImageFiles(string[] filenames, int w, int h, int d, PixelInternalFormat gpuformat, 
+            out OpenTK.Graphics.OpenGL4.PixelFormat pixelformat, out PixelType pixeltype, out int pixelsize,
+            out System.Drawing.Imaging.PixelFormat fileformat)
+        {
+            if (gpuformat.ToString().StartsWith("DepthComponent"))
             {
-                dataformat = OpenTK.Graphics.OpenGL4.PixelFormat.DepthComponent;
-                datatype = PixelType.Float;
+                pixelformat = OpenTK.Graphics.OpenGL4.PixelFormat.DepthComponent;
+                pixeltype = PixelType.Float;
             }
             else
             {
-                dataformat = OpenTK.Graphics.OpenGL4.PixelFormat.Bgra;
-                datatype = PixelType.UnsignedByte;
+                pixelformat = OpenTK.Graphics.OpenGL4.PixelFormat.Bgra;
+                pixeltype = PixelType.UnsignedByte;
             }
-
-            System.Drawing.Imaging.PixelFormat fileformat = System.Drawing.Imaging.PixelFormat.Format32bppArgb;
-            int pxBytes = Image.GetPixelFormatSize(fileformat) / 8;
+            
+            fileformat = System.Drawing.Imaging.PixelFormat.Format32bppArgb;
+            pixelsize = Image.GetPixelFormatSize(fileformat) / 8;
             byte[] data = null;
 
             if (filenames != null && filenames.Length > 0)
             {
-                data = new byte[pxBytes * w * h * (d > 0 ? d : filenames.Length)];
+                data = new byte[pixelsize * w * h * (d > 0 ? d : filenames.Length)];
 
                 for (int i = 0; i < filenames.Length; i++)
                 {
@@ -129,7 +150,7 @@ namespace gled
                         new Rectangle(0, 0, Math.Min(bmp.Width, w), Math.Min(bmp.Height, h)),
                         ImageLockMode.ReadOnly, fileformat);
                 
-                    Marshal.Copy(bmpData.Scan0, data, pxBytes * w * h * i, bmpData.Stride * bmpData.Height);
+                    Marshal.Copy(bmpData.Scan0, data, pixelsize * w * h * i, bmpData.Stride * bmpData.Height);
 
                     bmp.UnlockBits(bmpData);
                 }

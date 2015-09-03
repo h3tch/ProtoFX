@@ -87,16 +87,16 @@ namespace gled
             DeleteClasses();
 
             // remove comments
-            var code = removeComments(this.codeText.Text, "//");
+            var code = RemoveComments(this.codeText.Text, "//");
 
             // find GLST class blocks (find "TYPE name { ... }")
-            var blocks = findBlocks(code);
+            var blocks = FindBlocks(code);
 
-            // parse arguments
+            // parse commands for each class block
             for (int i = 0; i < blocks.Length; i++)
             {
                 // PARSE CLASS INFO
-                string[] classInfo = findClassDef(blocks[i]);
+                string[] classInfo = FindClassDef(blocks[i]);
 
                 // PARSE CLASS TEXT
                 var start = blocks[i].IndexOf('{');
@@ -115,9 +115,11 @@ namespace gled
                     var type = Type.GetType(classType);
                     // check for errors
                     if (type == null)
-                        throw new Exception("ERROR in " + classInfo[0] + " " + className + ": Class type '" + classInfo[0] + "' not known.");
+                        throw new Exception("ERROR in " + classInfo[0] + " " + className + ": "
+                            + "Class type '" + classInfo[0] + "' not known.");
                     if (this.classes.ContainsKey(className))
-                        throw new Exception("ERROR in " + classInfo[0] + " " + className + ": Class name '" + className + "' already exists.");
+                        throw new Exception("ERROR in " + classInfo[0] + " " + className + ": "
+                            + "Class name '" + className + "' already exists.");
                     // instantiate class
                     this.classes.Add(className, (GLObject)Activator.CreateInstance(
                         type, className, classAnno, classText, this.classes));
@@ -129,6 +131,18 @@ namespace gled
                 }
             }
 
+            // UPDATE DEBUG DATA
+            this.comboBuf.Items.Clear();
+            this.comboImg.Items.Clear();
+            foreach (var pair in classes)
+            {
+                if (pair.Value.GetType() == typeof(GLBuffer))
+                    this.comboBuf.Items.Add(pair.Value);
+                else if (pair.Value.GetType() == typeof(GLImage))
+                    this.comboImg.Items.Add(pair.Value);
+            }
+
+            // SHOW SCENE
             Render();
         }
 
@@ -141,7 +155,7 @@ namespace gled
             classes.Add(GLCamera.cameraname, camera);
         }
 
-        private static string removeComments(string code, string linecomment)
+        private static string RemoveComments(string code, string linecomment)
         {
             var blockComments = @"/\*(.*?)\*/";
             var lineComments = @"//(.*?)\r?\n";
@@ -159,7 +173,7 @@ namespace gled
                 RegexOptions.Singleline);
         }
 
-        private static string[] findBlocks(string code)
+        private static string[] FindBlocks(string code)
         {
             // find potential block positions
             var matches = Regex.Matches(code, "(\\w+\\s*){2,3}\\{");
@@ -193,7 +207,7 @@ namespace gled
             return blocks.ToArray();
         }
 
-        private static string[] findClassDef(string classblock)
+        private static string[] FindClassDef(string classblock)
         {
             // parse class info
             MatchCollection matches = null;
@@ -204,6 +218,27 @@ namespace gled
                     return matches.Cast<Match>().Select(m => m.Value).ToArray();
             // ill defined class block
             return null;
+        }
+
+        private void comboImg_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.comboImg.SelectedItem.GetType() == typeof(GLImage))
+                ShowImage((GLImage)this.comboImg.SelectedItem);
+        }
+
+        private void pictureImg_Click(object sender, EventArgs e)
+        {
+            if (this.comboImg.SelectedItem.GetType() == typeof(GLImage))
+                ShowImage((GLImage)this.comboImg.SelectedItem);
+        }
+
+        private void ShowImage(GLImage img)
+        {
+            glControl.MakeCurrent();
+
+            Bitmap bmp = img.Read(0);
+
+            this.pictureImg.Image = bmp;
         }
     }
 }

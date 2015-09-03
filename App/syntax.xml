@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ScintillaNET>
+  <Language Name="default">
+    <Styles>
+      <Style Name="Default" FontName="Consolas"/>
+    </Styles>
+  </Language>
+  <Language Name="cpp">
+    <Indentation TabWidth="4" UseTabs="false"/>
+    <Lexer>
+      <Keywords List="0">
+        buffer
+        fragoutput
+        geomoutput
+        image
+        pass
+        sampler
+        scene
+        shader
+        tech
+        texture
+        uniform
+      </Keywords>
+      <Keywords List="1">
+        binding
+        buff
+        color
+        depth
+        eval
+        file
+        format
+        frag
+        fragout
+        geom
+        geomout
+        height
+        img
+        length
+        magfilter
+        minfilter
+        mipmaps
+        option
+        samp
+        show
+        size
+        stencil
+        tess
+        tex
+        type
+        usage
+        vert
+        width
+        wrap
+      </Keywords>
+    </Lexer>
+    <Styles>
+      <Style Name="CHARACTER" ForeColor="Black" BackColor="Red"/>
+      <Style Name="NUMBER" ForeColor="#108030" BackColor="White"/>
+      <Style Name="OPERATOR" ForeColor="#3050CC" BackColor="White"/>
+      <Style Name="COMMENT" ForeColor="#7F9F00" BackColor="White"/>
+      <Style Name="COMMENTLINE" ForeColor="#7F9F00" BackColor="White"/>
+    </Styles>
+  </Language>
+</ScintillaNET>

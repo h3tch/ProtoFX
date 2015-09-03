@@ -72,25 +72,25 @@ namespace gled
                         + "Invalid attachment point '" + arg[0] + "'.");
 
                 // attach texture to framebuffer
-                switch(glimg.type)
+                switch(glimg.target)
                 {
                     case TextureTarget.Texture2DArray:
                     case TextureTarget.Texture3D:
                         GL.FramebufferTexture3D(FramebufferTarget.Framebuffer,
-                            attachment, glimg.type, glimg.glname, mipmap, layer);
+                            attachment, glimg.target, glimg.glname, mipmap, layer);
                         break;
                     case TextureTarget.Texture1DArray:
                     case TextureTarget.Texture2D:
                         GL.FramebufferTexture2D(FramebufferTarget.Framebuffer,
-                            attachment, glimg.type, glimg.glname, mipmap);
+                            attachment, glimg.target, glimg.glname, mipmap);
                         break;
                     case TextureTarget.Texture1D:
                         GL.FramebufferTexture1D(FramebufferTarget.Framebuffer,
-                            attachment, glimg.type, glimg.glname, mipmap);
+                            attachment, glimg.target, glimg.glname, mipmap);
                         break;
                     default:
                         throw new Exception("ERROR in fragoutput " + name + ": "
-                            + "The texture type '" + glimg.type + "' of image '" + arg[1] + "' is not supported.");
+                            + "The texture type '" + glimg.target + "' of image '" + arg[1] + "' is not supported.");
                 }
             }
 

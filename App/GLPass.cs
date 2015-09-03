@@ -10,7 +10,7 @@ namespace gled
     class GLPass : GLObject
     {
         private static CultureInfo culture = new CultureInfo("en");
-        private static GLVertinput defaultVertinput = new GLVertinput("default", "default", "", classes);
+        //private static GLVertinput defaultVertinput = null;
         public string vert = null;
         public string tess = null;
         public string eval = null;
@@ -79,6 +79,9 @@ namespace gled
         public GLPass(string name, string annotation, string text, Dictionary<string, GLObject> classes)
             : base(name, annotation)
         {
+            //if (defaultVertinput == null)
+            //    defaultVertinput = new GLVertinput("default", "default", "", classes);
+
             // PARSE TEXT
             var args = Text2Args(text);
 
