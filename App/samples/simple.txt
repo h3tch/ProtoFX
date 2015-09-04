@@ -80,7 +80,7 @@ pass pass_render {
 	
 	// draw cube
 	// draw <indexbuffername=0> <vertinname> <indextype> <primitivetype>
-	// <indexcount> <instancecount=0> <baseindex=0> <baseinstance=0> <basevertex=0>
+	//      <indexcount> <baseindex=0> <instancecount=0> <baseinstance=0> <basevertex=0>
 	draw buff_idx in_vert unsignedshort triangles 36
 }
 

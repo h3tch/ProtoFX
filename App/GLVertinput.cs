@@ -6,6 +6,8 @@ namespace gled
 {
     class GLVertinput : GLObject
     {
+        public static string nullname = "__null_vertin__";
+
         public GLVertinput(string name, string annotation, string text, Dictionary<string, GLObject> classes)
             : base(name, annotation)
         {
@@ -28,6 +30,7 @@ namespace gled
             if (args.Length < 4)
                 throw new Exception("ERROR in vertinput " + name + ": attr"
                     + attrIdx + " needs at least 3 attributes (e.g. 'attrX buff_name float 4')");
+
             string bufname = args[1];
             string typename = args[2];
             int length  = int.Parse(args[3]);

@@ -10,7 +10,6 @@ namespace gled
     class GLPass : GLObject
     {
         private static CultureInfo culture = new CultureInfo("en");
-        //private static GLVertinput defaultVertinput = null;
         public string vert = null;
         public string tess = null;
         public string eval = null;
@@ -79,9 +78,6 @@ namespace gled
         public GLPass(string name, string annotation, string text, Dictionary<string, GLObject> classes)
             : base(name, annotation)
         {
-            //if (defaultVertinput == null)
-            //    defaultVertinput = new GLVertinput("default", "default", "", classes);
-
             // PARSE TEXT
             var args = Text2Args(text);
 
@@ -114,8 +110,7 @@ namespace gled
 
             // GET CAMERA OBJECT
             GLObject cam;
-            classes.TryGetValue(GLCamera.cameraname, out cam);
-            if (cam.GetType() == typeof(GLCamera))
+            if (classes.TryGetValue(GLCamera.nullname, out cam) && cam.GetType() == typeof(GLCamera))
                 glcamera = (GLCamera)cam;
 
             // CREATE OPENGL OBJECT
@@ -185,21 +180,30 @@ namespace gled
                 else if (type == 0 && Enum.TryParse(call[i], true, out type)) { }
                 else if (mode == 0 && Enum.TryParse(call[i], true, out mode)) { }
             }
-
-            // check for validity of the draw call
+            
+            #region CHECK VALIDITY OF DRAW CALL
+            // -) a draw call must specify a primitive type
             if (mode == 0)
                 throw new Exception("ERROR in pass " + name
                     + ": Draw call " + calls.Count + " must specify a primitive type (e.g. triangles, trianglefan, lines, ...).");
+            // -) a draw call mast specify the number of vertices to draw
             if (arg.Count == 0)
                 throw new Exception("ERROR in pass " + name
                     + ": Draw call " + calls.Count + " must specify the number of indices/vertices to draw.");
-            //if (vi == null)
-            //    vi = defaultVertinput;
+            // -) a draw call needs to specify a vertex input even if no vertices are drawn (NV BUG?)
+            if (vi == null)
+                if (classes.TryGetValue(GLVertinput.nullname, out obj) && obj.GetType() == typeof(GLVertinput))
+                    vi = (GLVertinput)obj;
+                else
+                    throw new Exception("INTERNAL ERROR in pass " + name + ": No default vertinput was created.");
+            // -) if indexed drawing is used, the draw call must specify an index buffer
             if (ib != null && type == 0)
                 throw new Exception("ERROR in pass " + name
                     + ": Draw call " + calls.Count + " uses index vertices and must therefore specify an index type "
                     + "(e.g. unsignedshort, unsignedin).");
+            #endregion
 
+            #region ADD DRAW CALL TO LIST
             // get index buffer object (if present) and find existing MultiDraw class
             MultiDrawCall multidrawcall = calls.Find(x => x.vi == vi.glname && x.ib == (ib != null ? ib.glname : 0));
             if (multidrawcall == null)
@@ -216,11 +220,12 @@ namespace gled
             drawcall.mode = mode;
             drawcall.indextype = type;
             drawcall.indexcount = arg.Count >= 1 ? arg[0] : 0;
-            drawcall.instancecount = arg.Count >= 2 ? arg[1] : 1;
-            drawcall.baseindex = (IntPtr)(arg.Count >= 3 ? arg[2] : 0);
+            drawcall.baseindex = (IntPtr)(arg.Count >= 2 ? arg[1] : 0);
+            drawcall.instancecount = arg.Count >= 3 ? arg[2] : 1;
             drawcall.baseinstance = arg.Count >= 4 ? arg[3] : 0;
             drawcall.basevertex = arg.Count >= 5 ? arg[4] : 0;
             multidrawcall.cmd.Add(drawcall);
+            #endregion
         }
 
         private void ParseTexCmd(string[] call, Dictionary<string, GLObject> classes)

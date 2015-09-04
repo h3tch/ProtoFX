@@ -8,6 +8,7 @@ namespace gled
 {
     class GLBuffer : GLObject
     {
+        public static string nullname = "__null_buffer__";
         public int size = 0;
         public BufferUsageHint usage = BufferUsageHint.StaticDraw;
         public string[] file = null;
@@ -23,7 +24,7 @@ namespace gled
 
             // CREATE OPENGL OBJECT
             glname = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, glname); GL.NamedBufferData(glname, size, System.IntPtr.Zero, usage);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
 
             // LOAD BUFFER DATA
             var data = loadBufferFiles(file, size);

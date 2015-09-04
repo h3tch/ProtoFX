@@ -8,7 +8,7 @@ buffer buff_pos {
 	usage staticDraw
 	// load <pos></pos> data from XML file
 	// these are vertex positions for each vertex
-	file ../../samples/cube.xml|pos
+	file ../../samples/cube.xml|pos ../../samples/quad.xml|pos
 }
 
 buffer buff_color {
@@ -107,15 +107,14 @@ shader frag fs_simple {
 
 shader vert vs_present {
 	#version 440
-
-	const vec4 vertex[4] = vec4[4] ( vec4(-1,-1,0,0), vec4(1,-1,1,0), vec4(1,1,1,1), vec4(-1,1,0,1) );
 	
+	layout(location = 0) in vec4 in_pos;
 	layout(location = 0) out vec2 vs_uv;
 	
 	void main ()
 	{
-		gl_Position = vec4(vertex[gl_VertexID].xy, 0, 1);
-		vs_uv = vertex[gl_VertexID].zw;
+		gl_Position = vec4(in_pos.xy, 0, 1);
+		vs_uv = in_pos.zw;
 	}
 }
 
@@ -164,7 +163,7 @@ pass pass_present {
 	Disable depthTest
 	
 	// draw fullscreen rectangle
-	draw trianglefan 4
+	draw buff_idx in_vert unsignedshort triangles 6 0 1 0 8
 }
 
 tech tech_simple {
