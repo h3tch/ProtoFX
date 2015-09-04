@@ -153,13 +153,6 @@ namespace gled
             classes.Clear();
             // add default camera
             classes.Add(GLCamera.nullname, camera);
-            // add default buffer
-            GLBuffer buf = new GLBuffer(GLBuffer.nullname, "", "size 16", classes);
-            classes.Add(GLBuffer.nullname, buf);
-            // add default vertex input
-            GLVertinput vi = new GLVertinput(GLVertinput.nullname, "",
-                "attr " + GLBuffer.nullname + " float 4", classes);
-            classes.Add(GLVertinput.nullname, vi);
         }
 
         private static string RemoveComments(string code, string linecomment)

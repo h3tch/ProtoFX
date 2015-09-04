@@ -6,8 +6,6 @@ namespace gled
 {
     class GLVertinput : GLObject
     {
-        public static string nullname = "__null_vertin__";
-
         public GLVertinput(string name, string annotation, string text, Dictionary<string, GLObject> classes)
             : base(name, annotation)
         {

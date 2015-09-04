@@ -192,10 +192,8 @@ namespace gled
                     + ": Draw call " + calls.Count + " must specify the number of indices/vertices to draw.");
             // -) a draw call needs to specify a vertex input even if no vertices are drawn (NV BUG?)
             if (vi == null)
-                if (classes.TryGetValue(GLVertinput.nullname, out obj) && obj.GetType() == typeof(GLVertinput))
-                    vi = (GLVertinput)obj;
-                else
-                    throw new Exception("INTERNAL ERROR in pass " + name + ": No default vertinput was created.");
+                throw new Exception("ERROR in pass " + name
+                    + ": Draw call " + calls.Count + " must specify a vertinput name.");
             // -) if indexed drawing is used, the draw call must specify an index buffer
             if (ib != null && type == 0)
                 throw new Exception("ERROR in pass " + name
