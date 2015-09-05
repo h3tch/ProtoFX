@@ -47,6 +47,18 @@ namespace gled
             throwExceptionOnOpenGlError("buffer", name, "allocate buffer");
         }
 
+        public byte[] Read()
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
+            IntPtr dataPtr = GL.MapBuffer(BufferTarget.ArrayBuffer, BufferAccess.ReadOnly);
+            byte[] data = new byte[size];
+            Marshal.Copy(dataPtr, data, 0, size);
+            GL.UnmapBuffer(BufferTarget.ArrayBuffer);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            throwExceptionOnOpenGlError("buffer", name, "map buffer");
+            return data;
+        }
+
         private static byte[] loadBufferFiles(string[] filenames, int size)
         {
             if (filenames == null || filenames.Length == 0)

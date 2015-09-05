@@ -1,10 +1,9 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
-using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -21,7 +20,9 @@ namespace gled
         public App()
         {
             InitializeComponent();
-            //this.codeText.Text = System.IO.File.ReadAllText(@"../../samples/simple.txt");
+
+            this.comboBufType.SelectedIndex = 7;
+
             this.codeText.Text = System.IO.File.ReadAllText(@"../../samples/simple_fragoutput.txt");
         }
 
@@ -222,23 +223,103 @@ namespace gled
 
         private void comboImg_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (this.comboImg.SelectedItem.GetType() == typeof(GLImage))
-                ShowImage((GLImage)this.comboImg.SelectedItem);
+            pictureImg_Click(sender, e);
         }
 
         private void pictureImg_Click(object sender, EventArgs e)
         {
-            if (this.comboImg.SelectedItem.GetType() == typeof(GLImage))
-                ShowImage((GLImage)this.comboImg.SelectedItem);
+            if (this.comboImg.SelectedItem == null || this.comboImg.SelectedItem.GetType() != typeof(GLImage))
+                return;
+            glControl.MakeCurrent();
+            Bitmap bmp = ((GLImage)this.comboImg.SelectedItem).Read(0);
+            this.pictureImg.Image = bmp;
         }
 
-        private void ShowImage(GLImage img)
+        private void comboBuf_SelectedIndexChanged(object sender, EventArgs e)
         {
+            int dim;
+            if (this.comboBuf.SelectedItem == null
+                || this.comboBuf.SelectedItem.GetType() != typeof(GLBuffer)
+                || int.TryParse(textBufDim.Text, out dim) == false)
+                return;
+
+            // gather needed info
+            GLBuffer buf = (GLBuffer)this.comboBuf.SelectedItem;
+            string type = (string)comboBufType.SelectedItem;
+            dim = Math.Max(0, dim);
+
+            // read data from GPU
             glControl.MakeCurrent();
+            byte[] data = buf.Read();
 
-            Bitmap bmp = img.Read(0);
+            // convert data to specified type
+            Array da = null;
+            Type colType = null;
+            switch (type)
+            {
+                case "byte": da = ConvertData<byte>(data); colType = typeof(byte); break;
+                case "short": da = ConvertData<short>(data); colType = typeof(short); break;
+                case "ushort": da = ConvertData<ushort>(data); colType = typeof(ushort); break;
+                case "int": da = ConvertData<int>(data); colType = typeof(int); break;
+                case "uint": da = ConvertData<uint>(data); colType = typeof(uint); break;
+                case "long": da = ConvertData<long>(data); colType = typeof(long); break;
+                case "ulong": da = ConvertData<ulong>(data); colType = typeof(ulong); break;
+                case "float": da = ConvertData<float>(data); colType = typeof(float); break;
+                case "double": da = ConvertData<double>(data); colType = typeof(double); break;
+            }
 
-            this.pictureImg.Image = bmp;
+            // CREATE TABLE
+            DataTable dt = new DataTable(buf.name);
+            // create columns
+            for (int i = 0; i < dim; i++)
+                dt.Columns.Add(i.ToString(), colType);
+            // create rows
+            for (int i = 0; i < da.Length;)
+            {
+                var row = dt.NewRow();
+                for (int c = 0; c < dim && i < da.Length; c++)
+                    row.SetField(c, da.GetValue(i++));
+                dt.Rows.Add(row);
+            }
+
+            // update GUI
+            DataSet ds = new DataSet(buf.name);
+            ds.Tables.Add(dt);
+            tableBuf.DataSource = ds;
+            tableBuf.DataMember = buf.name;
+        }
+
+        private void comboBufType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            comboBuf_SelectedIndexChanged(sender, e);
+        }
+
+        private void textBufDim_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                comboBuf_SelectedIndexChanged(sender, null);
+        }
+
+        private Array ConvertData<T>(byte[] data)
+        {
+            // find method to convert the data
+            var methods = from m in typeof(BitConverter).GetMethods()
+                          where m.Name == "To" + typeof(T).Name
+                          select m;
+            if (methods.Count() == 0)
+                return data;
+
+            var method = methods.First();
+
+            // allocate array
+            int typesize = Marshal.SizeOf(typeof(T));
+            Array rs = Array.CreateInstance(typeof(T), data.Length / typesize);
+
+            // convert data
+            for (int i = 0; i < rs.Length; i++)
+                rs.SetValue(Convert.ChangeType(method.Invoke(null, new object[] { data, typesize * i }), typeof(T)), i);
+
+            return rs;
         }
     }
 }
