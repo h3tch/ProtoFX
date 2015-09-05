@@ -7,7 +7,7 @@ namespace gled
     {
         public TextureMinFilter minfilter = TextureMinFilter.Nearest;
         public TextureMagFilter magfilter = TextureMagFilter.Nearest;
-        public TextureWrapMode wrap = TextureWrapMode.Repeat;
+        public TextureWrapMode wrap = TextureWrapMode.ClampToEdge;
 
         public GLSampler(string name, string annotation, string text, Dictionary<string, GLObject> classes)
             : base(name, annotation)

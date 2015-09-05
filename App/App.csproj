@@ -65,7 +65,6 @@
     <Compile Include="GLCamera.cs" />
     <Compile Include="GledXml.cs" />
     <Compile Include="GLFragoutput.cs" />
-    <Compile Include="GLGeomoutput.cs" />
     <Compile Include="GLImage.cs" />
     <Compile Include="GLObject.cs" />
     <Compile Include="GLPass.cs" />

@@ -14,10 +14,12 @@ namespace gled
 
             // CREATE OPENGL OBJECT
             glname = GL.GenVertexArray();
+            GL.BindVertexArray(glname);
 
             for (int i = 0; i < args.Length; i++)
                 enable(i, args[i], name, classes);
             
+            GL.BindVertexArray(0);
             throwExceptionOnOpenGlError("vertinput", name, "could not create OpenGL vertex array object");
         }
 
@@ -42,7 +44,6 @@ namespace gled
                     + ": Buffer '" + bufname + "' could not be found.");
             
             GL.BindBuffer(BufferTarget.ArrayBuffer, buff.glname);
-            GL.BindVertexArray(glname);
             GL.EnableVertexAttribArray(attrIdx);
 
             VertexAttribIntegerType typei;
@@ -59,7 +60,6 @@ namespace gled
                 GL.VertexAttribDivisor(attrIdx, divisor);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            GL.BindVertexArray(0);
         }
 
         public override void Delete()

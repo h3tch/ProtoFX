@@ -26,7 +26,8 @@ namespace gled
         public GLObject glfragout = null;
         public GLCamera glcamera = null;
         public List<MultiDrawCall> calls = new List<MultiDrawCall>();
-        public List<TexCmd> texs = new List<TexCmd>();
+        public List<Res<GLTexture>> textures = new List<Res<GLTexture>>();
+        public List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
         public List<GLMethod> invoke = new List<GLMethod>();
         public int g_view = -1;
         public int g_proj = -1;
@@ -51,18 +52,18 @@ namespace gled
             public int baseinstance;
         }
 
-        public struct TexCmd
+        public struct Res<T>
         {
-            public GLTexture tex;
+            public T obj;
             public int unit;
 
-            public TexCmd(GLTexture tex, int unit)
+            public Res(T obj, int unit)
             {
-                this.tex = tex;
+                this.obj = obj;
                 this.unit = unit;
             }
         }
-
+        
         public struct GLMethod
         {
             public MethodInfo mtype;
@@ -99,7 +100,13 @@ namespace gled
                         break;
                     case "tex":
                         // try parsing tex command
-                        ParseTexCmd(call, classes);
+                        Res<GLTexture> t = ParseTexCmd<GLTexture>(call, classes);
+                        textures.Add(t);
+                        break;
+                    case "samp":
+                        // try parsing tex command
+                        Res<GLSampler> s = ParseTexCmd<GLSampler>(call, classes);
+                        sampler.Add(s);
                         break;
                     default:
                         // try parsing as OpenGL call
@@ -226,31 +233,29 @@ namespace gled
             #endregion
         }
 
-        private void ParseTexCmd(string[] call, Dictionary<string, GLObject> classes)
+        private Res<T> ParseTexCmd<T>(string[] call, Dictionary<string, GLObject> classes)
         {
-            GLObject obj;
-            GLTexture tex = null;
+            GLObject obj = null;
             int unit = -1;
 
             // parse command arguments
             for (var i = 1; i < call.Length; i++)
             {
-                if (tex == null && classes.TryGetValue(call[i], out obj) && obj.GetType() == typeof(GLTexture))
-                    tex = (GLTexture)obj;
-                else
-                    Int32.TryParse(call[i], out unit);
+                if (obj == null && classes.TryGetValue(call[i], out obj) && obj.GetType() == typeof(T))
+                    continue;
+                Int32.TryParse(call[i], out unit);
             }
 
             // check for errors
-            if (tex == null)
+            if (obj == null)
                 throw new Exception("ERROR in pass " + name
-                    + ": Texture name of tex command " + texs.Count + " could not be found.");
+                    + ": Texture name of tex command " + textures.Count + " could not be found.");
             if (unit < 0)
                 throw new Exception("ERROR in pass " + name
-                    + ": tex command " + texs.Count + " must specify a unit (e.g. tex tex_name 0).");
+                    + ": tex command " + textures.Count + " must specify a unit (e.g. tex tex_name 0).");
 
             // add to texture list
-            texs.Add(new TexCmd(tex, unit));
+            return new Res<T>((T)Convert.ChangeType(obj, typeof(T)), unit);
         }
 
         private void ParseOpenGLCall(string[] call)
@@ -314,8 +319,10 @@ namespace gled
             GL.UseProgram(glname);
 
             // BIND TEXTURES
-            foreach (var gltex in texs)
-                gltex.tex.Bind(gltex.unit);
+            foreach (var t in textures)
+                t.obj.Bind(t.unit);
+            foreach (var s in sampler)
+                GL.BindSampler(s.unit, s.obj.glname);
 
             // SET INTERNAL VARIABLES
             if (g_view >= 0)
@@ -358,8 +365,10 @@ namespace gled
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            foreach (var gltex in texs)
-                gltex.tex.Unbind(gltex.unit);
+            foreach (var t in textures)
+                t.obj.Unbind(t.unit);
+            foreach (var s in sampler)
+                GL.BindSampler(s.unit, 0);
         }
 
         public override void Delete()

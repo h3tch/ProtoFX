@@ -58,6 +58,11 @@ vertinput in_vert {
 	attr buff_color float 4
 }
 
+sampler samp_linear {
+	minfilter linear
+	magfilter linear
+}
+
 fragoutput out_frag {
 	// first color attachment is img_color
 	color img_color
@@ -159,6 +164,7 @@ pass pass_present {
 	frag fs_present
 
 	tex tex_color 0
+	samp samp_linear 0
 	
 	Disable depthTest
 	
