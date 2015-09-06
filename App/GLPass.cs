@@ -29,6 +29,7 @@ namespace gled
         public List<Res<GLTexture>> textures = new List<Res<GLTexture>>();
         public List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
         public List<GLMethod> invoke = new List<GLMethod>();
+        public List<GLCsharp> csexec = new List<GLCsharp>();
         public int g_view = -1;
         public int g_proj = -1;
         public int g_viewproj = -1;
@@ -75,7 +76,7 @@ namespace gled
                 this.inval = inval;
             }
         }
-
+        
         public GLPass(string name, string annotation, string text, Dictionary<string, GLObject> classes)
             : base(name, annotation)
         {
@@ -107,6 +108,11 @@ namespace gled
                         // try parsing tex command
                         Res<GLSampler> s = ParseTexCmd<GLSampler>(call, classes);
                         sampler.Add(s);
+                        break;
+                    case "exec":
+                        GLObject obj;
+                        if (call.Length >= 2 && classes.TryGetValue(call[1], out obj) && obj.GetType() == typeof(GLCsharp))
+                            csexec.Add((GLCsharp)obj);
                         break;
                     default:
                         // try parsing as OpenGL call
@@ -323,6 +329,8 @@ namespace gled
                 t.obj.Bind(t.unit);
             foreach (var s in sampler)
                 GL.BindSampler(s.unit, s.obj.glname);
+            foreach (var e in csexec)
+                e.Bind(glname);
 
             // SET INTERNAL VARIABLES
             if (g_view >= 0)
@@ -369,6 +377,8 @@ namespace gled
                 t.obj.Unbind(t.unit);
             foreach (var s in sampler)
                 GL.BindSampler(s.unit, 0);
+            foreach (var e in csexec)
+                e.Unbind(glname);
         }
 
         public override void Delete()

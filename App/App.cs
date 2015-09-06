@@ -13,6 +13,7 @@ namespace gled
     {
         private Dictionary<string, GLObject> classes = new Dictionary<string, GLObject>();
         private GLCamera camera = new GLCamera();
+        private GledControl control = null;
         private bool render = false;
         private Point mousedown = new Point(0, 0);
         private Point mousepos = new Point(0, 0);
@@ -23,7 +24,9 @@ namespace gled
 
             this.comboBufType.SelectedIndex = 7;
 
-            this.codeText.Text = System.IO.File.ReadAllText(@"../../samples/simple_fragoutput.txt");
+            this.codeText.Text = System.IO.File.ReadAllText(@"../../samples/simple.txt");
+
+            this.control = new GledControl(glControl);
         }
 
         private void App_FormClosing(object sender, FormClosingEventArgs e)
@@ -154,6 +157,8 @@ namespace gled
             classes.Clear();
             // add default camera
             classes.Add(GLCamera.nullname, camera);
+            // add default control
+            classes.Add(GledControl.nullname, control);
         }
 
         private static string RemoveComments(string code, string linecomment)

@@ -62,6 +62,11 @@ shader frag fs_simple {
 	}
 }
 
+csharp cs_camera {
+	main gled.SimpleCamera
+	file ../../code/simplecamera.cs
+}
+
 /////////////
 // PROGRAM //
 /////////////
@@ -77,6 +82,8 @@ pass pass_render {
 	Clear ColorDepthBit
 	// enable depth buffer test
 	Enable depthTest
+
+	exec cs_camera
 	
 	// draw cube
 	// draw <indexbuffername=0> <vertinname> <indextype> <primitivetype>

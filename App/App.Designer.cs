@@ -37,10 +37,7 @@ namespace gled
             this.splitCode = new System.Windows.Forms.SplitContainer();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.codeText = new System.Windows.Forms.RichTextBox();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnCompile = new System.Windows.Forms.Button();
-            this.btnOpen = new System.Windows.Forms.Button();
-            this.btnSave = new System.Windows.Forms.Button();
             this.codeError = new System.Windows.Forms.RichTextBox();
             this.tabDebug = new System.Windows.Forms.TabPage();
             this.tabData = new System.Windows.Forms.TabControl();
@@ -67,7 +64,6 @@ namespace gled
             this.splitCode.Panel2.SuspendLayout();
             this.splitCode.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
-            this.flowLayoutPanel1.SuspendLayout();
             this.tabDebug.SuspendLayout();
             this.tabData.SuspendLayout();
             this.tabDataImg.SuspendLayout();
@@ -89,6 +85,7 @@ namespace gled
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.btnCompile);
             this.splitContainer1.Panel1.Controls.Add(this.glControl);
             // 
             // splitContainer1.Panel2
@@ -162,14 +159,13 @@ namespace gled
             // 
             this.tableLayoutPanel4.ColumnCount = 1;
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.Controls.Add(this.codeText, 0, 1);
-            this.tableLayoutPanel4.Controls.Add(this.flowLayoutPanel1, 0, 0);
+            this.tableLayoutPanel4.Controls.Add(this.codeText, 0, 0);
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
-            this.tableLayoutPanel4.RowCount = 2;
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel4.RowCount = 1;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel4.Size = new System.Drawing.Size(703, 644);
             this.tableLayoutPanel4.TabIndex = 1;
             // 
@@ -177,57 +173,25 @@ namespace gled
             // 
             this.codeText.Dock = System.Windows.Forms.DockStyle.Fill;
             this.codeText.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.codeText.Location = new System.Drawing.Point(0, 45);
+            this.codeText.Location = new System.Drawing.Point(0, 0);
             this.codeText.Margin = new System.Windows.Forms.Padding(0);
             this.codeText.Name = "codeText";
-            this.codeText.Size = new System.Drawing.Size(703, 599);
+            this.codeText.Size = new System.Drawing.Size(703, 644);
             this.codeText.TabIndex = 0;
             this.codeText.TabStop = false;
             this.codeText.Text = "";
             this.codeText.WordWrap = false;
             // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.Controls.Add(this.btnCompile);
-            this.flowLayoutPanel1.Controls.Add(this.btnOpen);
-            this.flowLayoutPanel1.Controls.Add(this.btnSave);
-            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(703, 45);
-            this.flowLayoutPanel1.TabIndex = 1;
-            // 
             // btnCompile
             // 
-            this.btnCompile.Location = new System.Drawing.Point(3, 5);
-            this.btnCompile.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.btnCompile.Location = new System.Drawing.Point(0, 0);
+            this.btnCompile.Margin = new System.Windows.Forms.Padding(0);
             this.btnCompile.Name = "btnCompile";
-            this.btnCompile.Size = new System.Drawing.Size(120, 35);
+            this.btnCompile.Size = new System.Drawing.Size(80, 35);
             this.btnCompile.TabIndex = 0;
             this.btnCompile.Text = "Compile";
             this.btnCompile.UseVisualStyleBackColor = true;
             this.btnCompile.Click += new System.EventHandler(this.btnCompile_Click);
-            // 
-            // btnOpen
-            // 
-            this.btnOpen.Location = new System.Drawing.Point(129, 5);
-            this.btnOpen.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Size = new System.Drawing.Size(120, 35);
-            this.btnOpen.TabIndex = 1;
-            this.btnOpen.Text = "Open";
-            this.btnOpen.UseVisualStyleBackColor = true;
-            // 
-            // btnSave
-            // 
-            this.btnSave.Location = new System.Drawing.Point(255, 5);
-            this.btnSave.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(120, 35);
-            this.btnSave.TabIndex = 2;
-            this.btnSave.Text = "Save";
-            this.btnSave.UseVisualStyleBackColor = true;
             // 
             // codeError
             // 
@@ -437,7 +401,6 @@ namespace gled
             ((System.ComponentModel.ISupportInitialize)(this.splitCode)).EndInit();
             this.splitCode.ResumeLayout(false);
             this.tableLayoutPanel4.ResumeLayout(false);
-            this.flowLayoutPanel1.ResumeLayout(false);
             this.tabDebug.ResumeLayout(false);
             this.tabData.ResumeLayout(false);
             this.tabDataImg.ResumeLayout(false);
@@ -475,9 +438,6 @@ namespace gled
         private System.Windows.Forms.ComboBox comboBuf;
         private System.Windows.Forms.DataGridView tableBuf;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private System.Windows.Forms.Button btnOpen;
-        private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.ComboBox comboBufType;
