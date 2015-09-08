@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,6 +10,8 @@ namespace gled
 {
     class GLPass : GLObject
     {
+        #region FIELDS
+
         private static CultureInfo culture = new CultureInfo("en");
         public string vert = null;
         public string tess = null;
@@ -29,11 +32,11 @@ namespace gled
         public List<Res<GLTexture>> textures = new List<Res<GLTexture>>();
         public List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
         public List<GLMethod> invoke = new List<GLMethod>();
-        public List<GLCsharp> csexec = new List<GLCsharp>();
-        public int g_view = -1;
-        public int g_proj = -1;
-        public int g_viewproj = -1;
-        public int g_info = -1;
+        public List<CsharpClass> csexec = new List<CsharpClass>();
+
+        #endregion
+
+        #region HELP STRUCT
 
         public class MultiDrawCall
         {
@@ -76,7 +79,55 @@ namespace gled
                 this.inval = inval;
             }
         }
-        
+
+        public class CsharpClass
+        {
+            private object instance = null;
+            private MethodInfo bind = null;
+            private MethodInfo unbind = null;
+
+            public CsharpClass(object instance, GLControl glControl)
+            {
+                this.instance = instance;
+
+                // get bind method from main class instance
+                bind = instance.GetType().GetMethod("Bind", new Type[] { typeof(int), typeof(int), typeof(int) });
+
+                // get unbind method from main class instance
+                unbind = instance.GetType().GetMethod("Unbind", new Type[] { typeof(int) });
+
+                #region SEARCH FOR EVENT HANDLERS AND ADD THEM TO GLCONTROL
+
+                // get all public methods and check whether they can be used as event handlers for glControl
+                var methods = instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
+                foreach (var method in methods)
+                {
+                    EventInfo eventInfo = glControl.GetType().GetEvent(method.Name);
+                    if (eventInfo != null)
+                    {
+                        Delegate csmethod = Delegate.CreateDelegate(eventInfo.EventHandlerType, instance, method.Name);
+                        eventInfo.AddEventHandler(glControl, csmethod);
+                    }
+                }
+
+                #endregion
+            }
+
+            public void Bind(int program, int width, int height)
+            {
+                if (bind != null)
+                    bind.Invoke(instance, new object[] { program, width, height });
+            }
+
+            public void Unbind(int program)
+            {
+                if (unbind != null)
+                    unbind.Invoke(instance, new object[] { program });
+            }
+        }
+
+        #endregion
+
         public GLPass(string name, string annotation, string text, Dictionary<string, GLObject> classes)
             : base(name, annotation)
         {
@@ -101,22 +152,18 @@ namespace gled
                         break;
                     case "tex":
                         // try parsing tex command
-                        Res<GLTexture> t = ParseTexCmd<GLTexture>(call, classes);
-                        textures.Add(t);
+                        textures.Add(ParseTexCmd<GLTexture>(call, classes));
                         break;
                     case "samp":
                         // try parsing tex command
-                        Res<GLSampler> s = ParseTexCmd<GLSampler>(call, classes);
-                        sampler.Add(s);
+                        sampler.Add(ParseTexCmd<GLSampler>(call, classes));
                         break;
                     case "exec":
-                        GLObject obj;
-                        if (call.Length >= 2 && classes.TryGetValue(call[1], out obj) && obj.GetType() == typeof(GLCsharp))
-                            csexec.Add((GLCsharp)obj);
+                        csexec.Add(ParseCsharpExec(call, classes));
                         break;
                     default:
                         // try parsing as OpenGL call
-                        ParseOpenGLCall(call);
+                        invoke.Add(ParseOpenGLCall(call));
                         break;
                 }
             }
@@ -162,13 +209,6 @@ namespace gled
             GL.GetProgram(glname, GetProgramParameterName.LinkStatus, out status);
             if (status != 1)
                 throw new Exception("ERROR in pass " + name + ":\n" + GL.GetProgramInfoLog(glname));
-            
-            // GET PROGRAM UNIFORMS
-            g_view = GL.GetUniformLocation(glname, "g_view");
-            g_proj = GL.GetUniformLocation(glname, "g_proj");
-            g_viewproj = GL.GetUniformLocation(glname, "g_viewproj");
-            g_info = GL.GetUniformLocation(glname, "g_info");
-            
         }
 
         private void ParseDrawCall(string[] call, Dictionary<string, GLObject> classes)
@@ -264,7 +304,7 @@ namespace gled
             return new Res<T>((T)Convert.ChangeType(obj, typeof(T)), unit);
         }
 
-        private void ParseOpenGLCall(string[] call)
+        private GLMethod ParseOpenGLCall(string[] call)
         {
             // find OpenGL method
             var mtype = FindMethod(call[0], call.Length - 1);
@@ -280,8 +320,37 @@ namespace gled
                     inval[i] = Convert.ChangeType(Enum.Parse(param[i].ParameterType, call[i + 1], true), param[i].ParameterType);
                 else
                     inval[i] = Convert.ChangeType(call[i + 1], param[i].ParameterType, culture);
-            // add to invocation list
-            invoke.Add(new GLMethod(mtype, inval));
+            
+            return new GLMethod(mtype, inval);
+        }
+
+        private CsharpClass ParseCsharpExec(string[] call, Dictionary<string, GLObject> classes)
+        {
+            // check if command provides the correct amount of paramenters
+            if (call.Length < 3)
+                throw new Exception("ERROR in pass " + name + ": "
+                    + "Not enough arguments for exec command '"+ string.Join(" ", call) + "'.");
+
+            // get csharp object
+            GLObject obj;
+            if (classes.TryGetValue(call[1], out obj) == false || obj.GetType() != typeof(GLCsharp))
+                throw new Exception("ERROR in pass " + name + ": Could not find csharp code '" + call[1]
+                    + "' of command '" + string.Join(" ", call) + "'.");
+            GLCsharp clazz = (GLCsharp)obj;
+            
+            // get GLControl
+            if (classes.TryGetValue(GledControl.nullname, out obj) == false || obj.GetType() != typeof(GledControl))
+                throw new Exception("INTERNAL_ERROR in pass " + name + ": Cound not find default GLControl.");
+            GledControl glControl = (GledControl)obj;
+
+            // create instance of defined main class
+            var instance = clazz.CreateInstance(call[2]);
+            if (instance == null)
+                throw new Exception("ERROR in pass " + name + ": "
+                    + "Main class '" + call[2] + "' of command '"
+                    + string.Join(" ", call) + "' could not be found.");
+
+            return new CsharpClass(instance, glControl.control);
         }
 
         private MethodInfo FindMethod(string name, int nparam)
@@ -309,13 +378,13 @@ namespace gled
         public void Exec(int width, int height)
         {
             // SET DEFAULT VIEWPORT
-            if (glfragout == null)
-                GL.Viewport(0, 0, width, height);
-            else
+            if (glfragout != null)
             {
+                width = ((GLFragoutput)glfragout).width;
+                height = ((GLFragoutput)glfragout).height;
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, glfragout.glname);
-                GL.Viewport(0, 0, ((GLFragoutput)glfragout).width, ((GLFragoutput)glfragout).height);
             }
+            GL.Viewport(0, 0, width, height);
 
             // CALL USER SPECIFIED OPENGL FUNCTIONS
             foreach (var glcall in invoke)
@@ -330,17 +399,7 @@ namespace gled
             foreach (var s in sampler)
                 GL.BindSampler(s.unit, s.obj.glname);
             foreach (var e in csexec)
-                e.Bind(glname);
-
-            // SET INTERNAL VARIABLES
-            if (g_view >= 0)
-                GL.UniformMatrix4(g_view, false, ref glcamera.view);
-            if (g_proj >= 0)
-                GL.UniformMatrix4(g_proj, false, ref glcamera.proj);
-            if (g_viewproj >= 0)
-                GL.UniformMatrix4(g_proj, false, ref glcamera.viewproj);
-            if (g_info >= 0)
-                GL.Uniform4(g_proj, ref glcamera.info);
+                e.Bind(glname, width, height);
 
             // EXECUTE DRAW CALLS
             foreach (var call in calls)
@@ -369,6 +428,7 @@ namespace gled
                 }
             }
 
+            // UNBIND OPENGL RESOURCES
             GL.UseProgram(0);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);

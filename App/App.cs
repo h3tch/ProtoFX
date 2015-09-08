@@ -12,11 +12,7 @@ namespace gled
     public partial class App : Form
     {
         private Dictionary<string, GLObject> classes = new Dictionary<string, GLObject>();
-        private GLCamera camera = new GLCamera();
-        private GledControl control = null;
         private bool render = false;
-        private Point mousedown = new Point(0, 0);
-        private Point mousepos = new Point(0, 0);
 
         public App()
         {
@@ -24,10 +20,10 @@ namespace gled
 
             this.comboBufType.SelectedIndex = 7;
 
-            this.codeText.Text = System.IO.File.ReadAllText(@"../../samples/simple.txt");
-
-            this.control = new GledControl(glControl);
+            this.codeText.Text = System.IO.File.ReadAllText(@"../../samples/simple_fragoutput.txt");
         }
+
+        #region EVENTS
 
         private void App_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -36,9 +32,6 @@ namespace gled
 
         private void glControl_Resize(object sender, EventArgs e)
         {
-            float aspect = (float)glControl.ClientSize.Width / (float)glControl.ClientSize.Height;
-            camera.Proj((float)(60 * (Math.PI / 180)), aspect, 0.1f, 100.0f);
-            
             Render();
         }
 
@@ -49,8 +42,6 @@ namespace gled
 
         private void glControl_MouseDown(object sender, MouseEventArgs e)
         {
-            mousedown.X = mousepos.X = e.X;
-            mousedown.Y = mousepos.Y = e.Y;
             render = true;
         }
 
@@ -61,28 +52,8 @@ namespace gled
 
         private void glControl_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
-                camera.Rotate((float)(Math.PI / 360) * (mousepos.Y - e.Y), (float)(Math.PI / 360) * (mousepos.X - e.X), 0);
-            else if (e.Button == MouseButtons.Right)
-                camera.Move(0, 0, 0.03f * (e.Y - mousepos.Y));
-            mousepos.X = e.X;
-            mousepos.Y = e.Y;
             if (render)
                 Render();
-        }
-
-        private void Render()
-        {
-            glControl.MakeCurrent();
-            
-            camera.Update();
-            foreach (var c in classes)
-                if (c.Value.GetType() == typeof(GLTech))
-                    ((GLTech)c.Value).Exec(
-                        glControl.ClientSize.Width,
-                        glControl.ClientSize.Height);
-
-            glControl.SwapBuffers();
         }
 
         private void btnCompile_Click(object sender, EventArgs e)
@@ -150,15 +121,99 @@ namespace gled
             Render();
         }
 
+        private void comboImg_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            pictureImg_Click(sender, e);
+        }
+
+        private void pictureImg_Click(object sender, EventArgs e)
+        {
+            if (this.comboImg.SelectedItem == null || this.comboImg.SelectedItem.GetType() != typeof(GLImage))
+                return;
+            glControl.MakeCurrent();
+            Bitmap bmp = ((GLImage)this.comboImg.SelectedItem).Read(0);
+            this.pictureImg.Image = bmp;
+        }
+
+        private void comboBuf_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int dim;
+            if (this.comboBuf.SelectedItem == null
+                || this.comboBuf.SelectedItem.GetType() != typeof(GLBuffer)
+                || int.TryParse(textBufDim.Text, out dim) == false)
+                return;
+
+            // gather needed info
+            GLBuffer buf = (GLBuffer)this.comboBuf.SelectedItem;
+            string type = (string)comboBufType.SelectedItem;
+            dim = Math.Max(0, dim);
+
+            // read data from GPU
+            glControl.MakeCurrent();
+            byte[] data = buf.Read();
+
+            // convert data to specified type
+            Type colType;
+            Array da = ConvertData(data, type, out colType);
+
+            // CREATE TABLE
+            DataTable dt = new DataTable(buf.name);
+            // create columns
+            for (int i = 0; i < dim; i++)
+                dt.Columns.Add(i.ToString(), colType);
+            // create rows
+            for (int i = 0; i < da.Length;)
+            {
+                var row = dt.NewRow();
+                for (int c = 0; c < dim && i < da.Length; c++)
+                    row.SetField(c, da.GetValue(i++));
+                dt.Rows.Add(row);
+            }
+
+            // update GUI
+            DataSet ds = new DataSet(buf.name);
+            ds.Tables.Add(dt);
+            tableBuf.DataSource = ds;
+            tableBuf.DataMember = buf.name;
+        }
+
+        private void comboBufType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            comboBuf_SelectedIndexChanged(sender, e);
+        }
+
+        private void textBufDim_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                comboBuf_SelectedIndexChanged(sender, null);
+        }
+
+        #endregion
+
+        #region UTIL
+
+        private void Render()
+        {
+            glControl.MakeCurrent();
+            
+            foreach (var c in classes)
+                if (c.Value.GetType() == typeof(GLTech))
+                    ((GLTech)c.Value).Exec(
+                        glControl.ClientSize.Width,
+                        glControl.ClientSize.Height);
+
+            glControl.SwapBuffers();
+        }
+
         private void DeleteClasses()
         {
+            // call delete method of OpenGL resources
             foreach (var pair in classes)
                 pair.Value.Delete();
+            // clear list of classes
             classes.Clear();
-            // add default camera
-            classes.Add(GLCamera.nullname, camera);
-            // add default control
-            classes.Add(GledControl.nullname, control);
+            // add default OpenTK glControl
+            classes.Add(GledControl.nullname, new GledControl(glControl));
         }
 
         private static string RemoveComments(string code, string linecomment)
@@ -226,83 +281,23 @@ namespace gled
             return null;
         }
 
-        private void comboImg_SelectedIndexChanged(object sender, EventArgs e)
+        private Array ConvertData(byte[] data, string type, out Type T)
         {
-            pictureImg_Click(sender, e);
-        }
-
-        private void pictureImg_Click(object sender, EventArgs e)
-        {
-            if (this.comboImg.SelectedItem == null || this.comboImg.SelectedItem.GetType() != typeof(GLImage))
-                return;
-            glControl.MakeCurrent();
-            Bitmap bmp = ((GLImage)this.comboImg.SelectedItem).Read(0);
-            this.pictureImg.Image = bmp;
-        }
-
-        private void comboBuf_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            int dim;
-            if (this.comboBuf.SelectedItem == null
-                || this.comboBuf.SelectedItem.GetType() != typeof(GLBuffer)
-                || int.TryParse(textBufDim.Text, out dim) == false)
-                return;
-
-            // gather needed info
-            GLBuffer buf = (GLBuffer)this.comboBuf.SelectedItem;
-            string type = (string)comboBufType.SelectedItem;
-            dim = Math.Max(0, dim);
-
-            // read data from GPU
-            glControl.MakeCurrent();
-            byte[] data = buf.Read();
-
             // convert data to specified type
-            Array da = null;
-            Type colType = null;
             switch (type)
             {
-                case "byte": da = ConvertData<byte>(data); colType = typeof(byte); break;
-                case "short": da = ConvertData<short>(data); colType = typeof(short); break;
-                case "ushort": da = ConvertData<ushort>(data); colType = typeof(ushort); break;
-                case "int": da = ConvertData<int>(data); colType = typeof(int); break;
-                case "uint": da = ConvertData<uint>(data); colType = typeof(uint); break;
-                case "long": da = ConvertData<long>(data); colType = typeof(long); break;
-                case "ulong": da = ConvertData<ulong>(data); colType = typeof(ulong); break;
-                case "float": da = ConvertData<float>(data); colType = typeof(float); break;
-                case "double": da = ConvertData<double>(data); colType = typeof(double); break;
+                case "byte": T = typeof(byte); return ConvertData<byte>(data);
+                case "short": T = typeof(short); return ConvertData<short>(data);
+                case "ushort": T = typeof(ushort); return ConvertData<ushort>(data);
+                case "int": T = typeof(int); return ConvertData<int>(data);
+                case "uint": T = typeof(uint); return ConvertData<uint>(data);
+                case "long": T = typeof(long); return ConvertData<long>(data);
+                case "ulong": T = typeof(ulong); return ConvertData<ulong>(data);
+                case "float": T = typeof(float); return ConvertData<float>(data);
+                case "double": T = typeof(double); return ConvertData<double>(data);
             }
 
-            // CREATE TABLE
-            DataTable dt = new DataTable(buf.name);
-            // create columns
-            for (int i = 0; i < dim; i++)
-                dt.Columns.Add(i.ToString(), colType);
-            // create rows
-            for (int i = 0; i < da.Length;)
-            {
-                var row = dt.NewRow();
-                for (int c = 0; c < dim && i < da.Length; c++)
-                    row.SetField(c, da.GetValue(i++));
-                dt.Rows.Add(row);
-            }
-
-            // update GUI
-            DataSet ds = new DataSet(buf.name);
-            ds.Tables.Add(dt);
-            tableBuf.DataSource = ds;
-            tableBuf.DataMember = buf.name;
-        }
-
-        private void comboBufType_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            comboBuf_SelectedIndexChanged(sender, e);
-        }
-
-        private void textBufDim_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-                comboBuf_SelectedIndexChanged(sender, null);
+            throw new Exception("INTERNAL_ERROR: Could not convert buffer data to specified type.");
         }
 
         private Array ConvertData<T>(byte[] data)
@@ -326,5 +321,7 @@ namespace gled
 
             return rs;
         }
+
+        #endregion
     }
 }

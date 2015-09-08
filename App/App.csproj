@@ -61,7 +61,7 @@
     <Compile Include="App.Designer.cs">
       <DependentUpon>App.cs</DependentUpon>
     </Compile>
-    <Compile Include="code\simplecamera.cs" />
+    <Compile Include="code\SimpleCamera.cs" />
     <Compile Include="GLBuffer.cs" />
     <Compile Include="GLCamera.cs" />
     <Compile Include="GLCSharp.cs" />

@@ -141,18 +141,25 @@ shader frag fs_present {
 // PROGRAM //
 /////////////
 
+csharp cs_util {
+	file ../../code/SimpleCamera.cs
+}
+
 pass pass_render {
 	// attach shaders
 	vert vs_simple
 	frag fs_simple
 
+	// render to
 	fragout out_frag
 	
-	// set clear color
+	// OpenGL calls
 	ClearColor 0.1 0.3 1.0 0.0
-	// clear color and depth buffer
 	Clear colorDepthBit
 	Enable depthTest
+
+	// execute camera code
+	exec cs_util gled.SimpleCamera
 	
 	// draw cube
 	draw buff_idx in_vert unsignedshort triangles 36
@@ -163,10 +170,11 @@ pass pass_present {
 	vert vs_present
 	frag fs_present
 
-	// bind resources
+	// bind shader resources
 	tex tex_color 0
 	samp samp_linear 0
 	
+	// OpenGL calls
 	Disable depthTest
 	
 	// draw fullscreen rectangle
