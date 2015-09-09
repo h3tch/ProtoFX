@@ -1,0 +1,187 @@
+/////////////
+// BUFFERS //
+/////////////
+
+buffer buff_pos {
+	// buffer will only be used for reading
+	// and will not be updated during runtime
+	usage staticDraw
+	// load <pos></pos> data from XML file
+	// these are vertex positions for each vertex
+	file ../../resources/cube.xml|pos ../../resources/quad.xml|pos
+}
+
+buffer buff_color {
+	// buffer will only be used for reading
+	// and will not be updated during runtime
+	usage staticDraw
+	// load <color></color> data from XML file
+	// these are vertex colors for each vertex
+	file ../../resources/cube.xml|color
+}
+
+buffer buff_idx {
+	// buffer will only be used for reading
+	// and will not be updated during runtime
+	usage staticDraw
+	// load <index></index> data from XML file
+	// these are indices forming triangles from vertex positions
+	file ../../resources/cube.xml|index
+}
+
+image img_color {
+	// image size in pixels
+	width 1024
+	height 768
+	// pixel format is (red,green,blue,alpha)
+	gpuformat RGBA
+}
+
+image img_depth {
+	// image size in pixels
+	width 1024
+	height 768
+	// pixel format is a 32 bit floating point depth
+	format DepthComponent32f
+}
+
+/////////////////////
+// BUFFER BINDINGS //
+/////////////////////
+
+vertinput in_vert {
+	// first attribute: floating point
+	// vertex positions (x,y,z,1)
+	attr buff_pos float 4
+	// second attribute: floating point
+	// vertex colors (x,y,z,1)
+	attr buff_color float 4
+}
+
+sampler samp_linear {
+	minfilter linear
+	magfilter linear
+}
+
+fragoutput out_frag {
+	// first color attachment is img_color
+	color img_color
+	// depth attachment is img_depth
+	depth img_depth
+}
+
+texture tex_color {
+	img img_color
+}
+
+/////////////
+// SHADERS //
+/////////////
+
+shader vert vs_simple {
+	#version 440
+	
+	uniform mat4 g_view; // the camera view matrix (set by GLED)
+	uniform mat4 g_proj; // the camera projection matrix (set by GLED)
+	
+	// vertex input as specified by 'in_vert'
+	layout(location = 0) in vec4 in_pos;
+	layout(location = 1) in vec4 in_col;
+
+	// vertex shader output
+	layout(location = 0) out vec4 vs_col;
+	
+	void main ()
+	{
+		gl_Position = g_proj * g_view * in_pos;
+		vs_col = in_col;
+	}
+}
+
+shader frag fs_simple {
+	#version 440
+	
+	layout(location = 0) in vec4 gs_col;
+	out vec4 color;
+	
+	void main ()
+	{
+		color = gs_col;
+	}
+}
+
+shader vert vs_present {
+	#version 440
+	
+	layout(location = 0) in vec4 in_pos;
+	layout(location = 0) out vec2 vs_uv;
+	
+	void main ()
+	{
+		gl_Position = vec4(in_pos.xy, 0, 1);
+		vs_uv = in_pos.zw;
+	}
+}
+
+shader frag fs_present {
+	#version 440
+
+	layout(binding = 0) uniform sampler2D tex;
+	
+	layout(location = 0) in vec2 gs_uv;
+	out vec4 color;
+	
+	void main ()
+	{
+		color = texture(tex, gs_uv);
+	}
+}
+
+/////////////
+// PROGRAM //
+/////////////
+
+csharp cs_util {
+	file ../../code/SimpleCamera.cs
+}
+
+pass pass_render {
+	// attach shaders
+	vert vs_simple
+	frag fs_simple
+
+	// render to
+	fragout out_frag
+	
+	// OpenGL calls
+	ClearColor 0.1 0.3 1.0 0.0
+	Clear colorDepthBit
+	Enable depthTest
+
+	// execute camera code
+	exec cs_util util.SimpleCamera 60 0.1 100 0 0 5
+	
+	// draw cube
+	draw buff_idx in_vert unsignedshort triangles 36
+}
+
+pass pass_present {
+	// attach shaders
+	vert vs_present
+	frag fs_present
+
+	// bind shader resources
+	tex tex_color 0
+	samp samp_linear 0
+	
+	// OpenGL calls
+	Disable depthTest
+	
+	// draw fullscreen rectangle
+	draw buff_idx in_vert unsignedshort triangles 6 0 1 0 8
+}
+
+tech tech_simple {
+	pass pass_render
+	pass pass_present
+}

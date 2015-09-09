@@ -31,13 +31,13 @@ namespace gled
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.btnCompile = new System.Windows.Forms.Button();
             this.glControl = new OpenTK.GLControl();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabCode = new System.Windows.Forms.TabPage();
             this.splitCode = new System.Windows.Forms.SplitContainer();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.codeText = new System.Windows.Forms.RichTextBox();
-            this.btnCompile = new System.Windows.Forms.Button();
             this.codeError = new System.Windows.Forms.RichTextBox();
             this.tabDebug = new System.Windows.Forms.TabPage();
             this.tabData = new System.Windows.Forms.TabControl();
@@ -78,6 +78,7 @@ namespace gled
             // 
             // splitContainer1
             // 
+            this.splitContainer1.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
             this.splitContainer1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -95,6 +96,17 @@ namespace gled
             this.splitContainer1.SplitterDistance = 1053;
             this.splitContainer1.SplitterWidth = 6;
             this.splitContainer1.TabIndex = 0;
+            // 
+            // btnCompile
+            // 
+            this.btnCompile.Location = new System.Drawing.Point(0, 0);
+            this.btnCompile.Margin = new System.Windows.Forms.Padding(0);
+            this.btnCompile.Name = "btnCompile";
+            this.btnCompile.Size = new System.Drawing.Size(80, 35);
+            this.btnCompile.TabIndex = 0;
+            this.btnCompile.Text = "Compile";
+            this.btnCompile.UseVisualStyleBackColor = true;
+            this.btnCompile.Click += new System.EventHandler(this.btnCompile_Click);
             // 
             // glControl
             // 
@@ -117,7 +129,9 @@ namespace gled
             this.tabControl.Controls.Add(this.tabCode);
             this.tabControl.Controls.Add(this.tabDebug);
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tabControl.Location = new System.Drawing.Point(0, 0);
+            this.tabControl.Margin = new System.Windows.Forms.Padding(0);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
             this.tabControl.Size = new System.Drawing.Size(717, 1018);
@@ -126,16 +140,17 @@ namespace gled
             // tabCode
             // 
             this.tabCode.Controls.Add(this.splitCode);
-            this.tabCode.Location = new System.Drawing.Point(4, 29);
+            this.tabCode.Location = new System.Drawing.Point(4, 31);
             this.tabCode.Name = "tabCode";
             this.tabCode.Padding = new System.Windows.Forms.Padding(3);
-            this.tabCode.Size = new System.Drawing.Size(709, 985);
+            this.tabCode.Size = new System.Drawing.Size(709, 983);
             this.tabCode.TabIndex = 0;
             this.tabCode.Text = "Code";
             this.tabCode.UseVisualStyleBackColor = true;
             // 
             // splitCode
             // 
+            this.splitCode.BackColor = System.Drawing.Color.DimGray;
             this.splitCode.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitCode.Location = new System.Drawing.Point(3, 3);
             this.splitCode.Margin = new System.Windows.Forms.Padding(0);
@@ -151,8 +166,8 @@ namespace gled
             // 
             this.splitCode.Panel2.Controls.Add(this.codeError);
             this.splitCode.Panel2MinSize = 75;
-            this.splitCode.Size = new System.Drawing.Size(703, 979);
-            this.splitCode.SplitterDistance = 644;
+            this.splitCode.Size = new System.Drawing.Size(703, 977);
+            this.splitCode.SplitterDistance = 642;
             this.splitCode.TabIndex = 0;
             // 
             // tableLayoutPanel4
@@ -165,38 +180,33 @@ namespace gled
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
             this.tableLayoutPanel4.RowCount = 1;
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(703, 644);
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 644F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(703, 642);
             this.tableLayoutPanel4.TabIndex = 1;
             // 
             // codeText
             // 
+            this.codeText.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.codeText.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.codeText.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.codeText.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.codeText.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.codeText.ForeColor = System.Drawing.SystemColors.HighlightText;
             this.codeText.Location = new System.Drawing.Point(0, 0);
             this.codeText.Margin = new System.Windows.Forms.Padding(0);
             this.codeText.Name = "codeText";
-            this.codeText.Size = new System.Drawing.Size(703, 644);
+            this.codeText.Size = new System.Drawing.Size(703, 642);
             this.codeText.TabIndex = 0;
             this.codeText.TabStop = false;
             this.codeText.Text = "";
             this.codeText.WordWrap = false;
             // 
-            // btnCompile
-            // 
-            this.btnCompile.Location = new System.Drawing.Point(0, 0);
-            this.btnCompile.Margin = new System.Windows.Forms.Padding(0);
-            this.btnCompile.Name = "btnCompile";
-            this.btnCompile.Size = new System.Drawing.Size(80, 35);
-            this.btnCompile.TabIndex = 0;
-            this.btnCompile.Text = "Compile";
-            this.btnCompile.UseVisualStyleBackColor = true;
-            this.btnCompile.Click += new System.EventHandler(this.btnCompile_Click);
-            // 
             // codeError
             // 
+            this.codeError.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.codeError.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.codeError.Dock = System.Windows.Forms.DockStyle.Fill;
             this.codeError.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.codeError.ForeColor = System.Drawing.SystemColors.HighlightText;
             this.codeError.Location = new System.Drawing.Point(0, 0);
             this.codeError.Margin = new System.Windows.Forms.Padding(0);
             this.codeError.Name = "codeError";
@@ -230,10 +240,10 @@ namespace gled
             // tabDataImg
             // 
             this.tabDataImg.Controls.Add(this.tableLayoutPanel2);
-            this.tabDataImg.Location = new System.Drawing.Point(4, 29);
+            this.tabDataImg.Location = new System.Drawing.Point(4, 31);
             this.tabDataImg.Name = "tabDataImg";
             this.tabDataImg.Padding = new System.Windows.Forms.Padding(3);
-            this.tabDataImg.Size = new System.Drawing.Size(695, 946);
+            this.tabDataImg.Size = new System.Drawing.Size(695, 944);
             this.tabDataImg.TabIndex = 0;
             this.tabDataImg.Text = "Images";
             this.tabDataImg.UseVisualStyleBackColor = true;
@@ -250,7 +260,7 @@ namespace gled
             this.tableLayoutPanel2.RowCount = 2;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(689, 940);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(689, 938);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
             // comboImg
@@ -259,7 +269,7 @@ namespace gled
             this.comboImg.FormattingEnabled = true;
             this.comboImg.Location = new System.Drawing.Point(3, 3);
             this.comboImg.Name = "comboImg";
-            this.comboImg.Size = new System.Drawing.Size(683, 28);
+            this.comboImg.Size = new System.Drawing.Size(683, 30);
             this.comboImg.TabIndex = 1;
             this.comboImg.SelectedIndexChanged += new System.EventHandler(this.comboImg_SelectedIndexChanged);
             // 
@@ -346,7 +356,7 @@ namespace gled
             this.comboBuf.FormattingEnabled = true;
             this.comboBuf.Location = new System.Drawing.Point(3, 3);
             this.comboBuf.Name = "comboBuf";
-            this.comboBuf.Size = new System.Drawing.Size(407, 28);
+            this.comboBuf.Size = new System.Drawing.Size(407, 30);
             this.comboBuf.TabIndex = 0;
             this.comboBuf.SelectedIndexChanged += new System.EventHandler(this.comboBuf_SelectedIndexChanged);
             // 
@@ -366,7 +376,7 @@ namespace gled
             "double"});
             this.comboBufType.Location = new System.Drawing.Point(416, 3);
             this.comboBufType.Name = "comboBufType";
-            this.comboBufType.Size = new System.Drawing.Size(131, 28);
+            this.comboBufType.Size = new System.Drawing.Size(131, 30);
             this.comboBufType.TabIndex = 1;
             this.comboBufType.SelectedIndexChanged += new System.EventHandler(this.comboBufType_SelectedIndexChanged);
             // 
@@ -375,7 +385,7 @@ namespace gled
             this.textBufDim.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBufDim.Location = new System.Drawing.Point(553, 3);
             this.textBufDim.Name = "textBufDim";
-            this.textBufDim.Size = new System.Drawing.Size(133, 26);
+            this.textBufDim.Size = new System.Drawing.Size(133, 28);
             this.textBufDim.TabIndex = 2;
             this.textBufDim.Text = "4";
             this.textBufDim.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textBufDim_KeyUp);
@@ -384,6 +394,7 @@ namespace gled
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(1776, 1018);
             this.Controls.Add(this.splitContainer1);
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);

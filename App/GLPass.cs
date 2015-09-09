@@ -90,7 +90,9 @@ namespace gled
                 this.instance = instance;
 
                 // get bind method from main class instance
-                bind = instance.GetType().GetMethod("Bind", new Type[] { typeof(int), typeof(int), typeof(int) });
+                bind = instance.GetType().GetMethod("Bind", new Type[] {
+                    typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)
+                });
 
                 // get unbind method from main class instance
                 unbind = instance.GetType().GetMethod("Unbind", new Type[] { typeof(int) });
@@ -112,10 +114,10 @@ namespace gled
                 #endregion
             }
 
-            public void Bind(int program, int width, int height)
+            public void Bind(int program, int width, int height, int widthTex, int heightTex)
             {
                 if (bind != null)
-                    bind.Invoke(instance, new object[] { program, width, height });
+                    bind.Invoke(instance, new object[] { program, width, height, widthTex, heightTex });
             }
 
             public void Unbind(int program)
@@ -192,16 +194,19 @@ namespace gled
 
         public void Exec(int width, int height)
         {
+            int widthOut = width;
+            int heightOut = height;
+
             // BIND FRAMEBUFFER
             if (glfragout != null)
             {
-                width = glfragout.width;
-                height = glfragout.height;
+                widthOut = glfragout.width;
+                heightOut = glfragout.height;
                 glfragout.Bind();
             }
 
             // SET DEFAULT VIEWPORT
-            GL.Viewport(0, 0, width, height);
+            GL.Viewport(0, 0, widthOut, heightOut);
 
             // CALL USER SPECIFIED OPENGL FUNCTIONS
             foreach (var glcall in invoke)
@@ -216,7 +221,7 @@ namespace gled
             foreach (var s in sampler)
                 GL.BindSampler(s.unit, s.obj.glname);
             foreach (var e in csexec)
-                e.Bind(glname, width, height);
+                e.Bind(glname, width, height, widthOut, heightOut);
 
             // EXECUTE DRAW CALLS
             foreach (var call in calls)
@@ -270,7 +275,7 @@ namespace gled
 
         #region PARSE GLED COMMANDS
 
-        private void ParseDrawCall(string[] call, Dictionary<string, GLObject> classes)
+        private void ParseDrawCall(string[] cmd, Dictionary<string, GLObject> classes)
         {
             List<int> arg = new List<int>();
             GLVertinput vi = null;
@@ -281,16 +286,16 @@ namespace gled
             int val;
 
             // parse draw call arguments
-            for (var i = 1; i < call.Length; i++)
+            for (var i = 1; i < cmd.Length; i++)
             {
-                if (vi == null && classes.TryGetValue(call[i], out obj) && obj.GetType() == typeof(GLVertinput))
+                if (vi == null && classes.TryGetValue(cmd[i], out obj) && obj.GetType() == typeof(GLVertinput))
                     vi = (GLVertinput)obj;
-                else if (ib == null && classes.TryGetValue(call[i], out obj) && obj.GetType() == typeof(GLBuffer))
+                else if (ib == null && classes.TryGetValue(cmd[i], out obj) && obj.GetType() == typeof(GLBuffer))
                     ib = (GLBuffer)obj;
-                else if (Int32.TryParse(call[i], out val))
+                else if (Int32.TryParse(cmd[i], out val))
                     arg.Add(val);
-                else if (type == 0 && Enum.TryParse(call[i], true, out type)) { }
-                else if (mode == 0 && Enum.TryParse(call[i], true, out mode)) { }
+                else if (type == 0 && Enum.TryParse(cmd[i], true, out type)) { }
+                else if (mode == 0 && Enum.TryParse(cmd[i], true, out mode)) { }
             }
             
             #region CHECK VALIDITY OF DRAW CALL
@@ -338,17 +343,17 @@ namespace gled
             #endregion
         }
 
-        private Res<T> ParseTexCmd<T>(string[] call, Dictionary<string, GLObject> classes)
+        private Res<T> ParseTexCmd<T>(string[] cmd, Dictionary<string, GLObject> classes)
         {
             GLObject obj = null;
             int unit = -1;
 
             // parse command arguments
-            for (var i = 1; i < call.Length; i++)
+            for (var i = 1; i < cmd.Length; i++)
             {
-                if (obj == null && classes.TryGetValue(call[i], out obj) && obj.GetType() == typeof(T))
+                if (obj == null && classes.TryGetValue(cmd[i], out obj) && obj.GetType() == typeof(T))
                     continue;
-                Int32.TryParse(call[i], out unit);
+                Int32.TryParse(cmd[i], out unit);
             }
 
             // check for errors
@@ -363,38 +368,38 @@ namespace gled
             return new Res<T>((T)Convert.ChangeType(obj, typeof(T)), unit);
         }
 
-        private GLMethod ParseOpenGLCall(string[] call)
+        private GLMethod ParseOpenGLCall(string[] cmd)
         {
             // find OpenGL method
-            var mtype = FindMethod(call[0], call.Length - 1);
+            var mtype = FindMethod(cmd[0], cmd.Length - 1);
             if (mtype == null)
                 throw new Exception("ERROR in pass " + name 
-                    + ": Unknown command " + string.Join(" ", call) + ".");
+                    + ": Unknown command " + string.Join(" ", cmd) + ".");
             // get method parameter types
             var param = mtype.GetParameters();
             object[] inval = new object[param.Length];
             // convert strings to parameter types
             for (int i = 0; i < param.Length; i++)
                 if (param[i].ParameterType.IsEnum)
-                    inval[i] = Convert.ChangeType(Enum.Parse(param[i].ParameterType, call[i + 1], true), param[i].ParameterType);
+                    inval[i] = Convert.ChangeType(Enum.Parse(param[i].ParameterType, cmd[i + 1], true), param[i].ParameterType);
                 else
-                    inval[i] = Convert.ChangeType(call[i + 1], param[i].ParameterType, App.culture);
+                    inval[i] = Convert.ChangeType(cmd[i + 1], param[i].ParameterType, App.culture);
             
             return new GLMethod(mtype, inval);
         }
 
-        private CsharpClass ParseCsharpExec(string[] call, Dictionary<string, GLObject> classes)
+        private CsharpClass ParseCsharpExec(string[] cmd, Dictionary<string, GLObject> classes)
         {
             // check if command provides the correct amount of paramenters
-            if (call.Length < 3)
+            if (cmd.Length < 3)
                 throw new Exception("ERROR in pass " + name + ": "
-                    + "Not enough arguments for exec command '"+ string.Join(" ", call) + "'.");
+                    + "Not enough arguments for exec command '"+ string.Join(" ", cmd) + "'.");
 
             // get csharp object
             GLObject obj;
-            if (classes.TryGetValue(call[1], out obj) == false || obj.GetType() != typeof(GLCsharp))
-                throw new Exception("ERROR in pass " + name + ": Could not find csharp code '" + call[1]
-                    + "' of command '" + string.Join(" ", call) + "'.");
+            if (classes.TryGetValue(cmd[1], out obj) == false || obj.GetType() != typeof(GLCsharp))
+                throw new Exception("ERROR in pass " + name + ": Could not find csharp code '" + cmd[1]
+                    + "' of command '" + string.Join(" ", cmd) + "'.");
             GLCsharp clazz = (GLCsharp)obj;
             
             // get GLControl
@@ -403,11 +408,11 @@ namespace gled
             GledControl glControl = (GledControl)obj;
 
             // create instance of defined main class
-            var instance = clazz.CreateInstance(call[2]);
+            var instance = clazz.CreateInstance(cmd[2], cmd);
             if (instance == null)
                 throw new Exception("ERROR in pass " + name + ": "
-                    + "Main class '" + call[2] + "' of command '"
-                    + string.Join(" ", call) + "' could not be found.");
+                    + "Main class '" + cmd[2] + "' of command '"
+                    + string.Join(" ", cmd) + "' could not be found.");
 
             return new CsharpClass(instance, glControl.control);
         }

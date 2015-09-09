@@ -22,7 +22,7 @@ namespace gled
 
             this.comboBufType.SelectedIndex = 7;
 
-            this.codeText.Text = System.IO.File.ReadAllText(@"../../samples/simple_fragoutput.txt");
+            this.codeText.Text = System.IO.File.ReadAllText(@"../../demos/simple_fragoutput.txt");
         }
 
         #region EVENTS

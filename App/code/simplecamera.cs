@@ -5,10 +5,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace gled
+namespace util
 {
     class SimpleCamera
     {
+        #region FIELDS
         private Vector3 pos;
         private Vector3 rot;
         private Vector4 info;
@@ -18,6 +19,7 @@ namespace gled
         private Dictionary<int, CameraUniforms> uniform = new Dictionary<int, CameraUniforms>();
         private Point mousedown = new Point(0, 0);
         private Point mousepos = new Point(0, 0);
+        #endregion
 
         public struct CameraUniforms
         {
@@ -27,14 +29,29 @@ namespace gled
             public int info;
         }
 
-        public SimpleCamera()
+        public SimpleCamera(string[] cmd)
         {
+            // default values
             pos = Vector3.Zero;
             rot = Vector3.Zero;
-            Proj((float)(60 * (Math.PI / 180)), 16f / 9f, 0.1f, 100.0f);
+            float fovy = 60.0f;
+            float n = 0.1f;
+            float f = 100.0f;
+            // parse command for values specified by the user
+            int i = 3;
+            if (cmd.Length > i) float.TryParse(cmd[i], out fovy); i++;
+            if (cmd.Length > i) float.TryParse(cmd[i], out n); i++;
+            if (cmd.Length > i) float.TryParse(cmd[i], out f); i++;
+            if (cmd.Length > i) float.TryParse(cmd[i], out pos.X); i++;
+            if (cmd.Length > i) float.TryParse(cmd[i], out pos.Y); i++;
+            if (cmd.Length > i) float.TryParse(cmd[i], out pos.Z); i++;
+            if (cmd.Length > i) float.TryParse(cmd[i], out rot.X); i++;
+            if (cmd.Length > i) float.TryParse(cmd[i], out rot.Y); i++;
+            if (cmd.Length > i) float.TryParse(cmd[i], out rot.Z); i++;
+            Proj((float)(fovy * (Math.PI / 180)), 16f / 9f, n, f);
         }
 
-        public void Bind(int program, int width, int height)
+        public void Bind(int program, int width, int height, int widthTex, int heightTex)
         {
             // GET OR CREATE CAMERA UNIFORMS FOR program
             CameraUniforms unif;

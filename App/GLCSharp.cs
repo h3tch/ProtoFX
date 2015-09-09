@@ -62,10 +62,11 @@ namespace gled
                 throw new Exception("ERROR in csharp " + name + ":\n" + compilerresults.Output);
         }
 
-        public object CreateInstance(string classname)
+        public object CreateInstance(string classname, string[] args)
         {
             // create main class from compiled files
-            object clazz = compilerresults.CompiledAssembly.CreateInstance(classname);
+            object clazz = compilerresults.CompiledAssembly.CreateInstance(
+                classname, false, BindingFlags.Default, null, new object[] { args }, App.culture, null);
             if (clazz == null)
                 throw new Exception("INTERNAL_ERROR in csharp " + name + ": Main class '" + classname + "' could not be found.");
 
