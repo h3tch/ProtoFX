@@ -2,13 +2,15 @@
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
+using SysImg = System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
 namespace gled
 {
     class GLImage : GLObject
     {
+        #region FIELDS
+
         public string[] file = null;
         public int width = 1;
         public int height = 0;
@@ -17,22 +19,28 @@ namespace gled
         public int mipmaps = 0;
         public TextureTarget type = 0;
         public PixelInternalFormat format = PixelInternalFormat.Rgba;
+        private SysImg.PixelFormat fileformat = SysImg.PixelFormat.Format32bppArgb;
+        private PixelType pixeltype = 0;
+        private int pixelsize = 0;
+        private PixelFormat pixelformat = 0;
+
+        #endregion
+
+        #region PROPERTIES
+
         public TextureTarget target { get { return type; } set { type = value; } }
         public PixelInternalFormat gpuformat { get { return format; } set { format = value; } }
 
-        private System.Drawing.Imaging.PixelFormat fileformat = System.Drawing.Imaging.PixelFormat.Format32bppArgb;
-        private PixelType pixeltype = 0;
-        private int pixelsize = 0;
-        private OpenTK.Graphics.OpenGL4.PixelFormat pixelformat = 0;
+        #endregion
 
-        public GLImage(string name, string annotation, string text, Dictionary<string, GLObject> classes)
+        public GLImage(string name, string annotation, string text, GLDict classes)
             : base(name, annotation)
         {
-            // PARSE TEXT
-            var args = Text2Args(text);
+            // PARSE TEXT TO COMMANDS
+            var cmds = Text2Cmds(text);
 
-            // PARSE ARGUMENTS
-            Args2Prop(this, ref args);
+            // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
+            Cmds2Fields(this, ref cmds);
 
             // if type was not specified
             if (target == 0)
@@ -120,22 +128,32 @@ namespace gled
             return bmp;
         }
 
+        public override void Delete()
+        {
+            if (glname > 0)
+            {
+                GL.DeleteTexture(glname);
+                glname = 0;
+            }
+        }
+
+        #region UTIL METHODS
+
         private static byte[] loadImageFiles(string[] filenames, int w, int h, int d, PixelInternalFormat gpuformat, 
-            out OpenTK.Graphics.OpenGL4.PixelFormat pixelformat, out PixelType pixeltype, out int pixelsize,
-            out System.Drawing.Imaging.PixelFormat fileformat)
+            out PixelFormat pixelformat, out PixelType pixeltype, out int pixelsize, out SysImg.PixelFormat fileformat)
         {
             if (gpuformat.ToString().StartsWith("DepthComponent"))
             {
-                pixelformat = OpenTK.Graphics.OpenGL4.PixelFormat.DepthComponent;
+                pixelformat = PixelFormat.DepthComponent;
                 pixeltype = PixelType.Float;
             }
             else
             {
-                pixelformat = OpenTK.Graphics.OpenGL4.PixelFormat.Bgra;
+                pixelformat = PixelFormat.Bgra;
                 pixeltype = PixelType.UnsignedByte;
             }
             
-            fileformat = System.Drawing.Imaging.PixelFormat.Format32bppArgb;
+            fileformat = SysImg.PixelFormat.Format32bppArgb;
             pixelsize = Image.GetPixelFormatSize(fileformat) / 8;
             byte[] data = null;
 
@@ -148,7 +166,7 @@ namespace gled
                     var bmp = new Bitmap(filenames[i]);
                     var bmpData = bmp.LockBits(
                         new Rectangle(0, 0, Math.Min(bmp.Width, w), Math.Min(bmp.Height, h)),
-                        ImageLockMode.ReadOnly, fileformat);
+                        SysImg.ImageLockMode.ReadOnly, fileformat);
                 
                     Marshal.Copy(bmpData.Scan0, data, pixelsize * w * h * i, bmpData.Stride * bmpData.Height);
 
@@ -159,13 +177,6 @@ namespace gled
             return data;
         }
 
-        public override void Delete()
-        {
-            if (glname > 0)
-            {
-                GL.DeleteTexture(glname);
-                glname = 0;
-            }
-        }
+        #endregion
     }
 }

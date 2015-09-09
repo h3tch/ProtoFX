@@ -1,7 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -9,10 +8,13 @@ namespace gled
 {
     abstract class GLObject
     {
+        #region PROPERTIES
+
         public int glname { get; protected set; }
         public string name { get; protected set; }
         public string anno { get; protected set; }
-        private static CultureInfo culture = new CultureInfo("en");
+
+        #endregion
 
         public GLObject(string name, string annotation)
         {
@@ -28,7 +30,9 @@ namespace gled
             return name;
         }
 
-        static protected string[][] Text2Args(string text)
+        #region UTIL METHODS
+
+        static protected string[][] Text2Cmds(string text)
         {
             List<string[]> args = new List<string[]>();
 
@@ -48,7 +52,7 @@ namespace gled
             return args.ToArray();
         }
 
-        static protected void Args2Prop<T>(T clazz, ref string[][] args)
+        static protected void Cmds2Fields<T>(T clazz, ref string[][] args)
         {
             Type type = clazz.GetType();
 
@@ -68,7 +72,7 @@ namespace gled
                         field.SetValue(clazz, Convert.ChangeType(Enum.Parse(field.FieldType, arg[1], true), field.FieldType));
                     // else try to convert it to the field type
                     else
-                        field.SetValue(clazz, Convert.ChangeType(arg[1], field.FieldType, culture));
+                        field.SetValue(clazz, Convert.ChangeType(arg[1], field.FieldType, App.culture));
                 }
             }
         }
@@ -79,5 +83,7 @@ namespace gled
             if (er != ErrorCode.NoError)
                 throw new Exception("ERROR in " + type + " " + name + ": OpenGL error " + er + " occurred during '" + glevent + "'.");
         }
+
+        #endregion
     }
 }

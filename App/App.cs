@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -11,8 +12,9 @@ namespace gled
 {
     public partial class App : Form
     {
-        private Dictionary<string, GLObject> classes = new Dictionary<string, GLObject>();
+        private GLDict classes = new GLDict();
         private bool render = false;
+        public static CultureInfo culture = new CultureInfo("en");
 
         public App()
         {

@@ -36,26 +36,31 @@ namespace gled
 
         public void Bind(int program, int width, int height)
         {
+            // GET OR CREATE CAMERA UNIFORMS FOR program
             CameraUniforms unif;
             if (uniform.TryGetValue(program, out unif) == false)
                 uniform.Add(program, unif = CreateCameraUniforms(program, width, height));
 
-            Update();
-
             // SET INTERNAL VARIABLES
             if (unif.view >= 0)
+            {
+                view = Matrix4.CreateTranslation(-pos)
+                    * Matrix4.CreateRotationY(-rot[1])
+                    * Matrix4.CreateRotationX(-rot[0]);
                 GL.UniformMatrix4(unif.view, false, ref view);
+            }
             if (unif.proj >= 0)
+            {
+                proj = Matrix4.CreatePerspectiveFieldOfView(info.X, info.Y, info.Z, info.W);
                 GL.UniformMatrix4(unif.proj, false, ref proj);
+            }
             if (unif.vwpj >= 0)
+            {
+                vwpj = view * proj;
                 GL.UniformMatrix4(unif.vwpj, false, ref vwpj);
+            }
             if (unif.info >= 0)
                 GL.Uniform4(unif.info, ref info);
-        }
-
-        public void Unbind(int program)
-        {
-
         }
 
         #region OPENTK GLCONTROL WINDOW EVENTS
@@ -109,16 +114,9 @@ namespace gled
             pos += view.Column0.Xyz * x + view.Column1.Xyz * y + view.Column2.Xyz * z;
         }
 
-        public void Proj(float fovy, float aspect, float znear, float zfar)
+        private void Proj(float fovy, float aspect, float znear, float zfar)
         {
             info = new Vector4(fovy, aspect, znear, zfar);
-        }
-
-        private void Update()
-        {
-            view = Matrix4.CreateTranslation(-pos) * Matrix4.CreateRotationY(-rot[1]) * Matrix4.CreateRotationX(-rot[0]);
-            proj = Matrix4.CreatePerspectiveFieldOfView(info.X, info.Y, info.Z, info.W);
-            vwpj = view * proj;
         }
 
         #endregion

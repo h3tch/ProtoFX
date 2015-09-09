@@ -11,18 +11,22 @@ namespace gled
 {
     class GLCsharp : GLObject
     {
+        #region FIELDS
+
         public string version = null;
         public string[] file = null;
         private CompilerResults compilerresults;
+
+        #endregion
 
         public GLCsharp(string name, string annotation, string text, Dictionary<string, GLObject> classes)
             : base(name, annotation)
         {
             // PARSE TEXT
-            var args = Text2Args(text);
+            var args = Text2Cmds(text);
 
             // PARSE ARGUMENTS
-            Args2Prop(this, ref args);
+            Cmds2Fields(this, ref args);
 
             // check for errors
             if (file == null || file.Length == 0)

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace gled
 {
@@ -10,22 +7,22 @@ namespace gled
     {
         private List<GLPass> passes = new List<GLPass>();
 
-        public GLTech(string name, string annotation, string text, Dictionary<string, GLObject> classes)
+        public GLTech(string name, string annotation, string text, GLDict classes)
             : base(name, annotation)
         {
             // PARSE TEXT
-            var args = Text2Args(text);
+            var cmds = Text2Cmds(text);
 
-            foreach (var arg in args)
+            foreach (var cmd in cmds)
             {
-                if (!arg[0].Equals("pass"))
+                if (!cmd[0].Equals("pass"))
                     continue;
 
-                GLObject pass;
-                if (!classes.TryGetValue(arg[1], out pass) || pass.GetType() != typeof(GLPass))
-                    throw new Exception("is not a pass object");
+                GLPass pass = classes.FindClass<GLPass>(cmd[1]);
+                if (pass == null)
+                    throw new Exception(GLDict.NotFoundMsg("tech", name, "pass", cmd[1]));
 
-                passes.Add((GLPass)pass);
+                passes.Add(pass);
             }
         }
 

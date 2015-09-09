@@ -25,9 +25,8 @@ namespace gled
         public GLObject gleval = null;
         public GLObject glgeom = null;
         public GLObject glfrag = null;
-        public GLObject glvertout = null;
-        public GLObject glfragout = null;
-        public GLCamera glcamera = null;
+        public GLVertoutput glvertout = null;
+        public GLFragoutput glfragout = null;
         public List<MultiDrawCall> calls = new List<MultiDrawCall>();
         public List<Res<GLTexture>> textures = new List<Res<GLTexture>>();
         public List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
@@ -128,50 +127,36 @@ namespace gled
 
         #endregion
 
-        public GLPass(string name, string annotation, string text, Dictionary<string, GLObject> classes)
+        public GLPass(string name, string annotation, string text, GLDict classes)
             : base(name, annotation)
         {
-            // PARSE TEXT
-            var args = Text2Args(text);
+            // PARSE TEXT TO COMMANDS
+            var cmds = Text2Cmds(text);
 
-            // PARSE ARGUMENTS
-            Args2Prop(this, ref args);
+            // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
+            Cmds2Fields(this, ref cmds);
 
-            // parse commands
-            List<int> arg = new List<int>();
-            foreach (var call in args)
+            // PARSE COMMANDS
+            foreach (var cmd in cmds)
             {
-                // skip if already processed
-                if (call == null)
+                // skip if already processed commands
+                if (cmd == null)
                     continue;
-                switch(call[0])
+                switch(cmd[0])
                 {
-                    case "draw":
-                        // try parsing draw command
-                        ParseDrawCall(call, classes);
-                        break;
-                    case "tex":
-                        // try parsing tex command
-                        textures.Add(ParseTexCmd<GLTexture>(call, classes));
-                        break;
-                    case "samp":
-                        // try parsing tex command
-                        sampler.Add(ParseTexCmd<GLSampler>(call, classes));
-                        break;
-                    case "exec":
-                        csexec.Add(ParseCsharpExec(call, classes));
-                        break;
-                    default:
-                        // try parsing as OpenGL call
-                        invoke.Add(ParseOpenGLCall(call));
-                        break;
+                    case "draw": ParseDrawCall(cmd, classes); break;
+                    case "tex": textures.Add(ParseTexCmd<GLTexture>(cmd, classes)); break;
+                    case "samp": sampler.Add(ParseTexCmd<GLSampler>(cmd, classes)); break;
+                    case "exec": csexec.Add(ParseCsharpExec(cmd, classes)); break;
+                    default: invoke.Add(ParseOpenGLCall(cmd)); break;
                 }
             }
 
-            // GET CAMERA OBJECT
-            GLObject cam;
-            if (classes.TryGetValue(GLCamera.nullname, out cam) && cam.GetType() == typeof(GLCamera))
-                glcamera = (GLCamera)cam;
+            // GET VERTEX AND FRAGMENT OUTPUT BINDINGS
+            if (fragout != null && (glfragout = classes.FindClass<GLFragoutput>(fragout)) == null)
+                throw new Exception(GLDict.NotFoundMsg("pass", name, "fragout", fragout));
+            if (vertout != null && (glvertout = classes.FindClass<GLVertoutput>(vertout)) == null)
+                throw new Exception(GLDict.NotFoundMsg("pass", name, "vertout", vertout));
 
             // CREATE OPENGL OBJECT
             glname = GL.CreateProgram();
@@ -182,12 +167,6 @@ namespace gled
             gleval = attach(eval, classes);
             glgeom = attach(geom, classes);
             glfrag = attach(frag, classes);
-            if (fragout != null)
-                if (classes.TryGetValue(fragout, out glfragout) == false || glfragout.GetType() != typeof(GLFragoutput))
-                    throw new Exception("ERROR in pass " + name + ": Could not find fragout '" + fragout + "'.");
-            if (vertout != null)
-                if (classes.TryGetValue(vertout, out glvertout) == false || glvertout.GetType() != typeof(GLFragoutput))
-                    throw new Exception("ERROR in pass " + name + ": Could not find vertout '" + vertout + "'.");
 
             // link program
             GL.LinkProgram(glname);
@@ -210,6 +189,86 @@ namespace gled
             if (status != 1)
                 throw new Exception("ERROR in pass " + name + ":\n" + GL.GetProgramInfoLog(glname));
         }
+
+        public void Exec(int width, int height)
+        {
+            // BIND FRAMEBUFFER
+            if (glfragout != null)
+            {
+                width = glfragout.width;
+                height = glfragout.height;
+                glfragout.Bind();
+            }
+
+            // SET DEFAULT VIEWPORT
+            GL.Viewport(0, 0, width, height);
+
+            // CALL USER SPECIFIED OPENGL FUNCTIONS
+            foreach (var glcall in invoke)
+                glcall.mtype.Invoke(null, glcall.inval);
+
+            // BIND PROGRAM
+            GL.UseProgram(glname);
+
+            // BIND TEXTURES
+            foreach (var t in textures)
+                t.obj.Bind(t.unit);
+            foreach (var s in sampler)
+                GL.BindSampler(s.unit, s.obj.glname);
+            foreach (var e in csexec)
+                e.Bind(glname, width, height);
+
+            // EXECUTE DRAW CALLS
+            foreach (var call in calls)
+            {
+                // bind vertex buffer to input stream
+                // (needs to be done before binding an ElementArrayBuffer)
+                GL.BindVertexArray(call.vi);
+                if (call.ib != 0)
+                {
+                    // bin index buffer to ElementArrayBuffer target
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, call.ib);
+                    // execute multiple indirect draw commands
+                    foreach (var draw in call.cmd)
+                        GL.DrawElementsInstancedBaseVertexBaseInstance(
+                            draw.mode, draw.indexcount, draw.indextype,
+                            draw.baseindex, draw.instancecount,
+                            draw.basevertex, draw.baseinstance);
+                }
+                else
+                {
+                    // execute multiple indirect draw commands
+                    foreach (var draw in call.cmd)
+                        GL.DrawArraysInstancedBaseInstance(
+                            draw.mode, draw.baseindex.ToInt32(), draw.indexcount,
+                            draw.baseinstance, draw.instancecount);
+                }
+            }
+
+            // UNBIND OPENGL RESOURCES
+            GL.UseProgram(0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            GL.BindVertexArray(0);
+            if (glfragout != null)
+                glfragout.Unbind();
+            foreach (var t in textures)
+                t.obj.Unbind(t.unit);
+            foreach (var s in sampler)
+                GL.BindSampler(s.unit, 0);
+            foreach (var e in csexec)
+                e.Unbind(glname);
+        }
+
+        public override void Delete()
+        {
+            if (glname > 0)
+            {
+                GL.DeleteProgram(glname);
+                glname = 0;
+            }
+        }
+
+        #region PARSE GLED COMMANDS
 
         private void ParseDrawCall(string[] call, Dictionary<string, GLObject> classes)
         {
@@ -319,7 +378,7 @@ namespace gled
                 if (param[i].ParameterType.IsEnum)
                     inval[i] = Convert.ChangeType(Enum.Parse(param[i].ParameterType, call[i + 1], true), param[i].ParameterType);
                 else
-                    inval[i] = Convert.ChangeType(call[i + 1], param[i].ParameterType, culture);
+                    inval[i] = Convert.ChangeType(call[i + 1], param[i].ParameterType, App.culture);
             
             return new GLMethod(mtype, inval);
         }
@@ -353,6 +412,10 @@ namespace gled
             return new CsharpClass(instance, glControl.control);
         }
 
+        #endregion
+
+        #region UTIL METHODS
+        
         private MethodInfo FindMethod(string name, int nparam)
         {
             var methods = from method in typeof(GL).GetMethods()
@@ -374,80 +437,7 @@ namespace gled
                 throw new Exception("ERROR in pass " + name + ": Invalid name '" + sh + "'.");
             return glsh;
         }
-        
-        public void Exec(int width, int height)
-        {
-            // SET DEFAULT VIEWPORT
-            if (glfragout != null)
-            {
-                width = ((GLFragoutput)glfragout).width;
-                height = ((GLFragoutput)glfragout).height;
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, glfragout.glname);
-            }
-            GL.Viewport(0, 0, width, height);
 
-            // CALL USER SPECIFIED OPENGL FUNCTIONS
-            foreach (var glcall in invoke)
-                glcall.mtype.Invoke(null, glcall.inval);
-
-            // BIND PROGRAM
-            GL.UseProgram(glname);
-
-            // BIND TEXTURES
-            foreach (var t in textures)
-                t.obj.Bind(t.unit);
-            foreach (var s in sampler)
-                GL.BindSampler(s.unit, s.obj.glname);
-            foreach (var e in csexec)
-                e.Bind(glname, width, height);
-
-            // EXECUTE DRAW CALLS
-            foreach (var call in calls)
-            {
-                // bind vertex buffer to input stream
-                // (needs to be done before binding an ElementArrayBuffer)
-                GL.BindVertexArray(call.vi);
-                if (call.ib != 0)
-                {
-                    // bin index buffer to ElementArrayBuffer target
-                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, call.ib);
-                    // execute multiple indirect draw commands
-                    foreach (var draw in call.cmd)
-                        GL.DrawElementsInstancedBaseVertexBaseInstance(
-                            draw.mode, draw.indexcount, draw.indextype,
-                            draw.baseindex, draw.instancecount,
-                            draw.basevertex, draw.baseinstance);
-                }
-                else
-                {
-                    // execute multiple indirect draw commands
-                    foreach (var draw in call.cmd)
-                        GL.DrawArraysInstancedBaseInstance(
-                            draw.mode, draw.baseindex.ToInt32(), draw.indexcount,
-                            draw.baseinstance, draw.instancecount);
-                }
-            }
-
-            // UNBIND OPENGL RESOURCES
-            GL.UseProgram(0);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-            GL.BindVertexArray(0);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            foreach (var t in textures)
-                t.obj.Unbind(t.unit);
-            foreach (var s in sampler)
-                GL.BindSampler(s.unit, 0);
-            foreach (var e in csexec)
-                e.Unbind(glname);
-        }
-
-        public override void Delete()
-        {
-            if (glname > 0)
-            {
-                GL.DeleteProgram(glname);
-                glname = 0;
-            }
-        }
+        #endregion
     }
 }

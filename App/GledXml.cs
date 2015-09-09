@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace gled
 {
     class GledXml
     {
+        #region PROPERTIES
+
         public byte[] data { get; protected set; }
 
-        private static CultureInfo culture = new CultureInfo("en");
+        #endregion
+
+        #region FIELDS
 
         private static Dictionary<string, Type> str2type = new Dictionary<string, Type>
         {
@@ -33,6 +33,8 @@ namespace gled
             {"short"   , typeof(short)},
             {"ushort"  , typeof(ushort)}
         };
+
+        #endregion
 
         public GledXml (string filename, string itemname)
         {
@@ -76,12 +78,12 @@ namespace gled
                 var raw = Regex.Matches(item.InnerText, "(\\+|\\-)?[0-9\\.\\,]+");
                 values = Array.CreateInstance(type, raw.Count);
                 for (var i = 0; i < values.Length; i++)
-                    values.SetValue(Convert.ChangeType(raw[i].Value, type, culture), i);
+                    values.SetValue(Convert.ChangeType(raw[i].Value, type, App.culture), i);
             }
 
             // convert to byte array
             data = new byte[values.Length * Marshal.SizeOf(type)];
-            System.Buffer.BlockCopy(values, 0, data, 0, data.Length);
+            Buffer.BlockCopy(values, 0, data, 0, data.Length);
         }
     }
 }

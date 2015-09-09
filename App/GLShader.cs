@@ -6,7 +6,7 @@ namespace gled
 {
     class GLShader : GLObject
     {
-        public GLShader(string name, string annotation, string text, Dictionary<string, GLObject> classes)
+        public GLShader(string name, string annotation, string text, GLDict classes)
             : base(name, annotation)
         {
             // CREATE OPENGL OBJECT
@@ -21,6 +21,8 @@ namespace gled
                 default:
                     throw new Exception("ERROR in shader " + name + ": Shader type '" + annotation + "' is not supported.");
             }
+
+            // CREATE OPENGL OBJECT
             glname = GL.CreateShader(type);
             GL.ShaderSource(glname, text);
             GL.CompileShader(glname);

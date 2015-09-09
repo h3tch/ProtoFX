@@ -63,8 +63,8 @@
     </Compile>
     <Compile Include="code\SimpleCamera.cs" />
     <Compile Include="GLBuffer.cs" />
-    <Compile Include="GLCamera.cs" />
     <Compile Include="GLCSharp.cs" />
+    <Compile Include="GLDict.cs" />
     <Compile Include="GledControl.cs" />
     <Compile Include="GledXml.cs" />
     <Compile Include="GLFragoutput.cs" />
@@ -72,11 +72,9 @@
     <Compile Include="GLObject.cs" />
     <Compile Include="GLPass.cs" />
     <Compile Include="GLSampler.cs" />
-    <Compile Include="GLScene.cs" />
     <Compile Include="GLShader.cs" />
     <Compile Include="GLTech.cs" />
     <Compile Include="GLTexture.cs" />
-    <Compile Include="GLUniform.cs" />
     <Compile Include="GLVertinput.cs" />
     <Compile Include="GLVertoutput.cs" />
     <Compile Include="Program.cs" />

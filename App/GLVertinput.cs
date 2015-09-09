@@ -10,7 +10,7 @@ namespace gled
             : base(name, annotation)
         {
             // PARSE TEXT
-            var args = Text2Args(text);
+            var args = Text2Cmds(text);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenVertexArray();

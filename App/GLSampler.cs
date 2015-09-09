@@ -9,14 +9,14 @@ namespace gled
         public TextureMagFilter magfilter = TextureMagFilter.Nearest;
         public TextureWrapMode wrap = TextureWrapMode.ClampToEdge;
 
-        public GLSampler(string name, string annotation, string text, Dictionary<string, GLObject> classes)
+        public GLSampler(string name, string annotation, string text, GLDict classes)
             : base(name, annotation)
         {
             // PARSE TEXT
-            var args = Text2Args(text);
+            var cmds = Text2Cmds(text);
 
-            // PARSE ARGUMENTS
-            Args2Prop(this, ref args);
+            // PARSE COMMANDS
+            Cmds2Fields(this, ref cmds);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenSampler();

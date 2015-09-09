@@ -8,18 +8,22 @@ namespace gled
 {
     class GLBuffer : GLObject
     {
+        #region FIELDS
+
         public int size = 0;
         public BufferUsageHint usage = BufferUsageHint.StaticDraw;
         public string[] file = null;
 
-        public GLBuffer(string name, string annotation, string text, Dictionary<string, GLObject> classes)
+        #endregion
+
+        public GLBuffer(string name, string annotation, string text, GLDict classes)
             : base(name, annotation)
         {
-            // PARSE TEXT
-            var args = Text2Args(text);
+            // PARSE TEXT TO COMMANDS
+            var cmds = Text2Cmds(text);
 
-            // PARSE ARGUMENTS
-            Args2Prop(this, ref args);
+            // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
+            Cmds2Fields(this, ref cmds);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenBuffer();
@@ -49,15 +53,29 @@ namespace gled
 
         public byte[] Read()
         {
+            // allocate buffer memory
+            byte[] data = new byte[size];
+
+            // map buffer and copy data to CPU memory
             GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
             IntPtr dataPtr = GL.MapBuffer(BufferTarget.ArrayBuffer, BufferAccess.ReadOnly);
-            byte[] data = new byte[size];
             Marshal.Copy(dataPtr, data, 0, size);
             GL.UnmapBuffer(BufferTarget.ArrayBuffer);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            throwExceptionOnOpenGlError("buffer", name, "map buffer");
+            
             return data;
         }
+
+        public override void Delete()
+        {
+            if (glname > 0)
+            {
+                GL.DeleteBuffer(glname);
+                glname = 0;
+            }
+        }
+
+        #region UTIL METHODS
 
         private static byte[] loadBufferFiles(string[] filenames, int size)
         {
@@ -94,13 +112,6 @@ namespace gled
             return data;
         }
 
-        public override void Delete()
-        {
-            if (glname > 0)
-            {
-                GL.DeleteBuffer(glname);
-                glname = 0;
-            }
-        }
+        #endregion
     }
 }

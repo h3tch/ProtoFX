@@ -6,8 +6,15 @@ namespace gled
 {
     class GLFragoutput : GLObject
     {
-        public int width = 0;
-        public int height = 0;
+        #region PROPERTIES
+
+        public int width { get; protected set; }
+        public int height { get; protected set; }
+
+        #endregion
+
+        #region FIELDS
+
         private int numAttachments = 0;
         private DrawBuffersEnum[] attachmentPoints = new DrawBuffersEnum[]
         {
@@ -29,30 +36,31 @@ namespace gled
             DrawBuffersEnum.ColorAttachment15,
         };
 
-        public GLFragoutput(string name, string annotation, string text, Dictionary<string, GLObject> classes)
+        #endregion
+
+        public GLFragoutput(string name, string annotation, string text, GLDict classes)
             : base(name, annotation)
         {
-            // PARSE TEXT
-            var args = Text2Args(text);
+            // PARSE TEXT TO COMMANDS
+            var cmds = Text2Cmds(text);
 
-            // PARSE ARGUMENTS
-            Args2Prop(this, ref args);
+            // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
+            Cmds2Fields(this, ref cmds);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, glname);
-
-            GLObject globj;
-            foreach (var arg in args)
+            
+            foreach (var cmd in cmds)
             {
                 // ignore already parsed commands
-                if (arg == null || arg.Length < 2)
+                if (cmd == null || cmd.Length < 2)
                     continue;
 
                 // get OpenGL image
-                if (classes.TryGetValue(arg[1], out globj) == false || globj.GetType() != typeof(GLImage))
-                    throw new Exception("ERROR in fragoutput " + name + ": Could not find image '" + arg[1] + "'.");
-                GLImage glimg = (GLImage)globj;
+                GLImage glimg = classes.FindClass<GLImage>(cmd[1]);
+                if (glimg == null)
+                    throw new Exception(GLDict.NotFoundMsg("fragoutput", name, "image", cmd[1]));
 
                 // set width and height for GLPass to set the right viewport size
                 if (width == 0 && height == 0)
@@ -62,14 +70,14 @@ namespace gled
                 }
 
                 // get additional optional parameters
-                int mipmap = arg.Length >= 3 ? int.Parse(arg[2]) : 0;
-                int layer = arg.Length >= 4 ? int.Parse(arg[3]) : 0;
+                int mipmap = cmd.Length >= 3 ? int.Parse(cmd[2]) : 0;
+                int layer = cmd.Length >= 4 ? int.Parse(cmd[3]) : 0;
 
                 // get attachment point
                 FramebufferAttachment attachment;
-                if (!Enum.TryParse(arg[0] + "attachment" + (arg[0].Equals("color") ? ""+numAttachments++ : ""), true, out attachment))
+                if (!Enum.TryParse(cmd[0] + "attachment" + (cmd[0].Equals("color") ? ""+numAttachments++ : ""), true, out attachment))
                     throw new Exception("ERROR in fragoutput " + name + ": "
-                        + "Invalid attachment point '" + arg[0] + "'.");
+                        + "Invalid attachment point '" + cmd[0] + "'.");
 
                 // attach texture to framebuffer
                 switch(glimg.target)
@@ -90,7 +98,7 @@ namespace gled
                         break;
                     default:
                         throw new Exception("ERROR in fragoutput " + name + ": "
-                            + "The texture type '" + glimg.target + "' of image '" + arg[1] + "' is not supported.");
+                            + "The texture type '" + glimg.target + "' of image '" + cmd[1] + "' is not supported.");
                 }
             }
 
@@ -103,7 +111,7 @@ namespace gled
             throwExceptionOnOpenGlError("image", name, "allocate (and write) texture");
         }
         
-        private void Bind()
+        public void Bind()
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, glname);
             // set draw buffers
@@ -113,7 +121,7 @@ namespace gled
                 GL.DrawBuffer(DrawBufferMode.None);
         }
 
-        private void Unbind()
+        public void Unbind()
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             // set draw buffer

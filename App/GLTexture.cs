@@ -10,6 +10,8 @@ namespace gled
 
     class GLTexture : GLObject
     {
+        #region FIELDS
+
         public string samp = null;
         public string buff = null;
         public string img = null;
@@ -18,28 +20,27 @@ namespace gled
         private GLObject glbuff = null;
         private GLObject glimg = null;
 
-        public GLTexture(string name, string annotation, string text, Dictionary<string, GLObject> classes)
+        #endregion
+
+        public GLTexture(string name, string annotation, string text, GLDict classes)
             : base(name, annotation)
 
         {
             // PARSE TEXT
-            var args = Text2Args(text);
+            var cmds = Text2Cmds(text);
 
-            // PARSE ARGUMENTS
-            Args2Prop(this, ref args);
+            // PARSE COMMANDS
+            Cmds2Fields(this, ref cmds);
+            
+            // GET REFERENCES
+            if (samp != null && (glsamp = classes.FindClass<GLSampler>(samp)) == null)
+                throw new Exception(GLDict.NotFoundMsg("texture", name, "sampler", samp));
+            if (buff != null && (glbuff = classes.FindClass<GLBuffer>(buff)) == null)
+                throw new Exception(GLDict.NotFoundMsg("texture", name, "buffer", buff));
+            if (img != null && (glimg = classes.FindClass<GLImage>(img)) == null)
+                throw new Exception(GLDict.NotFoundMsg("texture", name, "image", img));
 
-            if (samp != null && classes.TryGetValue(samp, out glsamp) && glsamp.GetType() != typeof(GLSampler))
-                throw new Exception("ERROR in texture " + name + ": "
-                        + "The specified sampler name '" + samp + "' does not reference an sampler object.");
-
-            if (buff != null && classes.TryGetValue(buff, out glbuff) && glbuff.GetType() != typeof(GLBuffer))
-                throw new Exception("ERROR in texture " + name + ": "
-                        + "The specified buffer name '" + buff + "' does not reference a buffer object.");
-
-            if (img != null && classes.TryGetValue(img, out glimg) && glimg.GetType() != typeof(GLImage))
-                throw new Exception("ERROR in texture " + name + ": "
-                        + "The specified image name '" + img + "' does not reference an image object.");
-
+            // INCASE THIS IS A TEXTURE OBJECT
             if (glbuff != null && glimg == null)
             {
                 if (format == 0)
@@ -96,6 +97,7 @@ namespace gled
                 glname = 0;
             }
         }
+        
     }
 
 }
