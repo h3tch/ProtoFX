@@ -162,7 +162,7 @@ pass pass_render {
 	exec cs_util util.SimpleCamera 60 0.1 100 0 0 5
 	
 	// draw cube
-	draw buff_idx in_vert unsignedshort triangles 36
+	draw buff_idx in_vert ushort triangles 36
 }
 
 pass pass_present {
@@ -178,7 +178,7 @@ pass pass_present {
 	Disable depthTest
 	
 	// draw fullscreen rectangle
-	draw buff_idx in_vert unsignedshort triangles 6 0 1 0 8
+	draw buff_idx in_vert ushort triangles 6 0 1 0 8
 }
 
 tech tech_simple {

@@ -22,6 +22,15 @@ namespace gled
         {
             InitializeComponent();
 
+            // ADD LIB FOLDER TO ENVIRONMENT VARIABLE PATH
+            // this is necessary for ScintillaNET
+            var envPath = Environment.GetEnvironmentVariable("PATH");
+            var dir = Directory.GetCurrentDirectory();
+            var lib = dir + "\\..\\..\\lib";
+            if (!envPath.Contains(lib))
+                Environment.SetEnvironmentVariable("PATH", envPath + ";" + lib);
+
+            // select 'float' as the default buffer value type
             this.comboBufType.SelectedIndex = 7;
 
             AddSourceTab(@"../../demos/fragoutput.tech");

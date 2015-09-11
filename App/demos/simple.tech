@@ -88,7 +88,7 @@ pass pass_render {
 	// draw cube
 	// draw <indexbuffername=0> <vertinname> <indextype> <primitivetype>
 	//      <indexcount> <baseindex=0> <instancecount=0> <baseinstance=0> <basevertex=0>
-	draw buff_idx in_vert unsignedshort triangles 36
+	draw buff_idx in_vert ushort triangles 36
 }
 
 tech tech_simple {
