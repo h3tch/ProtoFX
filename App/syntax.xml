@@ -10,32 +10,71 @@
     <Lexer>
       <Keywords List="0">
         buffer
+        csharp
+        float
         fragoutput
         geomoutput
         image
+        in
+        int
+        ivec2
+        ivec3
+        ivec4
+        layout
+        mat2
+        mat2x3
+        mat2x4
+        mat3
+        mat3x2
+        mat3x4
+        mat4
+        mat4x2
+        mat4x3
+        out
         pass
         sampler
+        sampler1D
+        sampler1DArray
+        sampler2D
+        sampler2DArray
+        sampler3D
+        sampler3DArray
+        samplerCube
         scene
         shader
         tech
         texture
+        uint
         uniform
+        uvec2
+        uvec3
+        uvec4
+        vec2
+        vec3
+        vec4
+        vertinput
+        void
       </Keywords>
       <Keywords List="1">
+        attr
         binding
         buff
         color
         depth
+        draw
         eval
+        exec
         file
         format
         frag
         fragout
         geom
         geomout
+        gpuformat
         height
         img
         length
+        location
         magfilter
         minfilter
         mipmaps

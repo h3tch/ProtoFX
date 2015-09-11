@@ -42,8 +42,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\Debug\OpenTK.GLControl.dll</HintPath>
     </Reference>
+    <Reference Include="ScintillaNET">
+      <HintPath>..\..\..\ScintillaNET v2.6\ScintillaNET.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -106,12 +110,12 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="demos\simple.tech" />
+    <None Include="demos\fragoutput.tech" />
     <Content Include="resources\cube.xml" />
     <Content Include="resources\quad.xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="demos\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

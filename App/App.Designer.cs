@@ -30,14 +30,13 @@ namespace gled
         /// </summary>
         private void InitializeComponent()
         {
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.btnCompile = new System.Windows.Forms.Button();
+            this.splitRenderCoding = new System.Windows.Forms.SplitContainer();
             this.glControl = new OpenTK.GLControl();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabCode = new System.Windows.Forms.TabPage();
-            this.splitCode = new System.Windows.Forms.SplitContainer();
-            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
-            this.codeText = new System.Windows.Forms.RichTextBox();
+            this.splitCodeError = new System.Windows.Forms.SplitContainer();
+            this.tabCodeTableLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.tabSource = new System.Windows.Forms.TabControl();
             this.codeError = new System.Windows.Forms.RichTextBox();
             this.tabDebug = new System.Windows.Forms.TabPage();
             this.tabData = new System.Windows.Forms.TabControl();
@@ -53,17 +52,17 @@ namespace gled
             this.comboBuf = new System.Windows.Forms.ComboBox();
             this.comboBufType = new System.Windows.Forms.ComboBox();
             this.textBufDim = new System.Windows.Forms.TextBox();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel1.SuspendLayout();
-            this.splitContainer1.Panel2.SuspendLayout();
-            this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
+            this.splitRenderCoding.Panel1.SuspendLayout();
+            this.splitRenderCoding.Panel2.SuspendLayout();
+            this.splitRenderCoding.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.tabCode.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitCode)).BeginInit();
-            this.splitCode.Panel1.SuspendLayout();
-            this.splitCode.Panel2.SuspendLayout();
-            this.splitCode.SuspendLayout();
-            this.tableLayoutPanel4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitCodeError)).BeginInit();
+            this.splitCodeError.Panel1.SuspendLayout();
+            this.splitCodeError.Panel2.SuspendLayout();
+            this.splitCodeError.SuspendLayout();
+            this.tabCodeTableLayout.SuspendLayout();
             this.tabDebug.SuspendLayout();
             this.tabData.SuspendLayout();
             this.tabDataImg.SuspendLayout();
@@ -76,37 +75,24 @@ namespace gled
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // splitContainer1
+            // splitRenderCoding
             // 
-            this.splitContainer1.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.splitContainer1.Name = "splitContainer1";
+            this.splitRenderCoding.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitRenderCoding.Location = new System.Drawing.Point(0, 0);
+            this.splitRenderCoding.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.splitRenderCoding.Name = "splitRenderCoding";
             // 
-            // splitContainer1.Panel1
+            // splitRenderCoding.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.btnCompile);
-            this.splitContainer1.Panel1.Controls.Add(this.glControl);
+            this.splitRenderCoding.Panel1.Controls.Add(this.glControl);
             // 
-            // splitContainer1.Panel2
+            // splitRenderCoding.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.tabControl);
-            this.splitContainer1.Size = new System.Drawing.Size(1776, 1018);
-            this.splitContainer1.SplitterDistance = 1053;
-            this.splitContainer1.SplitterWidth = 6;
-            this.splitContainer1.TabIndex = 0;
-            // 
-            // btnCompile
-            // 
-            this.btnCompile.Location = new System.Drawing.Point(0, 0);
-            this.btnCompile.Margin = new System.Windows.Forms.Padding(0);
-            this.btnCompile.Name = "btnCompile";
-            this.btnCompile.Size = new System.Drawing.Size(80, 35);
-            this.btnCompile.TabIndex = 0;
-            this.btnCompile.Text = "Compile";
-            this.btnCompile.UseVisualStyleBackColor = true;
-            this.btnCompile.Click += new System.EventHandler(this.btnCompile_Click);
+            this.splitRenderCoding.Panel2.Controls.Add(this.tabControl);
+            this.splitRenderCoding.Size = new System.Drawing.Size(1776, 1018);
+            this.splitRenderCoding.SplitterDistance = 1053;
+            this.splitRenderCoding.SplitterWidth = 6;
+            this.splitRenderCoding.TabIndex = 0;
             // 
             // glControl
             // 
@@ -139,7 +125,7 @@ namespace gled
             // 
             // tabCode
             // 
-            this.tabCode.Controls.Add(this.splitCode);
+            this.tabCode.Controls.Add(this.splitCodeError);
             this.tabCode.Location = new System.Drawing.Point(4, 31);
             this.tabCode.Name = "tabCode";
             this.tabCode.Padding = new System.Windows.Forms.Padding(3);
@@ -148,61 +134,53 @@ namespace gled
             this.tabCode.Text = "Code";
             this.tabCode.UseVisualStyleBackColor = true;
             // 
-            // splitCode
+            // splitCodeError
             // 
-            this.splitCode.BackColor = System.Drawing.Color.DimGray;
-            this.splitCode.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitCode.Location = new System.Drawing.Point(3, 3);
-            this.splitCode.Margin = new System.Windows.Forms.Padding(0);
-            this.splitCode.Name = "splitCode";
-            this.splitCode.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            this.splitCodeError.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitCodeError.Location = new System.Drawing.Point(3, 3);
+            this.splitCodeError.Margin = new System.Windows.Forms.Padding(0);
+            this.splitCodeError.Name = "splitCodeError";
+            this.splitCodeError.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
-            // splitCode.Panel1
+            // splitCodeError.Panel1
             // 
-            this.splitCode.Panel1.Controls.Add(this.tableLayoutPanel4);
-            this.splitCode.Panel1MinSize = 75;
+            this.splitCodeError.Panel1.Controls.Add(this.tabCodeTableLayout);
+            this.splitCodeError.Panel1MinSize = 75;
             // 
-            // splitCode.Panel2
+            // splitCodeError.Panel2
             // 
-            this.splitCode.Panel2.Controls.Add(this.codeError);
-            this.splitCode.Panel2MinSize = 75;
-            this.splitCode.Size = new System.Drawing.Size(703, 977);
-            this.splitCode.SplitterDistance = 642;
-            this.splitCode.TabIndex = 0;
+            this.splitCodeError.Panel2.Controls.Add(this.codeError);
+            this.splitCodeError.Panel2MinSize = 75;
+            this.splitCodeError.Size = new System.Drawing.Size(703, 977);
+            this.splitCodeError.SplitterDistance = 642;
+            this.splitCodeError.TabIndex = 0;
             // 
-            // tableLayoutPanel4
+            // tabCodeTableLayout
             // 
-            this.tableLayoutPanel4.ColumnCount = 1;
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.Controls.Add(this.codeText, 0, 0);
-            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
-            this.tableLayoutPanel4.RowCount = 1;
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 644F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(703, 642);
-            this.tableLayoutPanel4.TabIndex = 1;
+            this.tabCodeTableLayout.ColumnCount = 1;
+            this.tabCodeTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tabCodeTableLayout.Controls.Add(this.tabSource, 0, 0);
+            this.tabCodeTableLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabCodeTableLayout.Location = new System.Drawing.Point(0, 0);
+            this.tabCodeTableLayout.Name = "tabCodeTableLayout";
+            this.tabCodeTableLayout.RowCount = 1;
+            this.tabCodeTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tabCodeTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 642F));
+            this.tabCodeTableLayout.Size = new System.Drawing.Size(703, 642);
+            this.tabCodeTableLayout.TabIndex = 1;
             // 
-            // codeText
+            // tabSource
             // 
-            this.codeText.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            this.codeText.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.codeText.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.codeText.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.codeText.ForeColor = System.Drawing.SystemColors.HighlightText;
-            this.codeText.Location = new System.Drawing.Point(0, 0);
-            this.codeText.Margin = new System.Windows.Forms.Padding(0);
-            this.codeText.Name = "codeText";
-            this.codeText.Size = new System.Drawing.Size(703, 642);
-            this.codeText.TabIndex = 0;
-            this.codeText.TabStop = false;
-            this.codeText.Text = "";
-            this.codeText.WordWrap = false;
+            this.tabSource.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabSource.Location = new System.Drawing.Point(0, 3);
+            this.tabSource.Margin = new System.Windows.Forms.Padding(0, 3, 0, 0);
+            this.tabSource.Name = "tabSource";
+            this.tabSource.SelectedIndex = 0;
+            this.tabSource.Size = new System.Drawing.Size(703, 639);
+            this.tabSource.TabIndex = 0;
             // 
             // codeError
             // 
-            this.codeError.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.codeError.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.codeError.Dock = System.Windows.Forms.DockStyle.Fill;
             this.codeError.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -218,10 +196,10 @@ namespace gled
             // tabDebug
             // 
             this.tabDebug.Controls.Add(this.tabData);
-            this.tabDebug.Location = new System.Drawing.Point(4, 29);
+            this.tabDebug.Location = new System.Drawing.Point(4, 31);
             this.tabDebug.Name = "tabDebug";
             this.tabDebug.Padding = new System.Windows.Forms.Padding(3);
-            this.tabDebug.Size = new System.Drawing.Size(709, 985);
+            this.tabDebug.Size = new System.Drawing.Size(709, 983);
             this.tabDebug.TabIndex = 1;
             this.tabDebug.Text = "Debug";
             this.tabDebug.UseVisualStyleBackColor = true;
@@ -234,7 +212,7 @@ namespace gled
             this.tabData.Location = new System.Drawing.Point(3, 3);
             this.tabData.Name = "tabData";
             this.tabData.SelectedIndex = 0;
-            this.tabData.Size = new System.Drawing.Size(703, 979);
+            this.tabData.Size = new System.Drawing.Size(703, 977);
             this.tabData.TabIndex = 0;
             // 
             // tabDataImg
@@ -243,7 +221,7 @@ namespace gled
             this.tabDataImg.Location = new System.Drawing.Point(4, 31);
             this.tabDataImg.Name = "tabDataImg";
             this.tabDataImg.Padding = new System.Windows.Forms.Padding(3);
-            this.tabDataImg.Size = new System.Drawing.Size(695, 944);
+            this.tabDataImg.Size = new System.Drawing.Size(695, 942);
             this.tabDataImg.TabIndex = 0;
             this.tabDataImg.Text = "Images";
             this.tabDataImg.UseVisualStyleBackColor = true;
@@ -260,7 +238,7 @@ namespace gled
             this.tableLayoutPanel2.RowCount = 2;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(689, 938);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(689, 936);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
             // comboImg
@@ -296,10 +274,10 @@ namespace gled
             // tabDataBuf
             // 
             this.tabDataBuf.Controls.Add(this.tableLayoutPanel3);
-            this.tabDataBuf.Location = new System.Drawing.Point(4, 29);
+            this.tabDataBuf.Location = new System.Drawing.Point(4, 31);
             this.tabDataBuf.Name = "tabDataBuf";
             this.tabDataBuf.Padding = new System.Windows.Forms.Padding(3);
-            this.tabDataBuf.Size = new System.Drawing.Size(695, 946);
+            this.tabDataBuf.Size = new System.Drawing.Size(695, 942);
             this.tabDataBuf.TabIndex = 1;
             this.tabDataBuf.Text = "Buffers";
             this.tabDataBuf.UseVisualStyleBackColor = true;
@@ -316,7 +294,7 @@ namespace gled
             this.tableLayoutPanel3.RowCount = 2;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(689, 940);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(689, 936);
             this.tableLayoutPanel3.TabIndex = 0;
             // 
             // tableBuf
@@ -394,24 +372,25 @@ namespace gled
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(1776, 1018);
-            this.Controls.Add(this.splitContainer1);
+            this.Controls.Add(this.splitRenderCoding);
+            this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "App";
             this.Text = "GLED";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.App_FormClosing);
-            this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
-            this.splitContainer1.ResumeLayout(false);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.App_KeyUp);
+            this.splitRenderCoding.Panel1.ResumeLayout(false);
+            this.splitRenderCoding.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).EndInit();
+            this.splitRenderCoding.ResumeLayout(false);
             this.tabControl.ResumeLayout(false);
             this.tabCode.ResumeLayout(false);
-            this.splitCode.Panel1.ResumeLayout(false);
-            this.splitCode.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitCode)).EndInit();
-            this.splitCode.ResumeLayout(false);
-            this.tableLayoutPanel4.ResumeLayout(false);
+            this.splitCodeError.Panel1.ResumeLayout(false);
+            this.splitCodeError.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitCodeError)).EndInit();
+            this.splitCodeError.ResumeLayout(false);
+            this.tabCodeTableLayout.ResumeLayout(false);
             this.tabDebug.ResumeLayout(false);
             this.tabData.ResumeLayout(false);
             this.tabDataImg.ResumeLayout(false);
@@ -430,13 +409,11 @@ namespace gled
 
         #endregion
 
-        private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.Button btnCompile;
+        private System.Windows.Forms.SplitContainer splitRenderCoding;
         private OpenTK.GLControl glControl;
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabCode;
-        private System.Windows.Forms.SplitContainer splitCode;
-        private System.Windows.Forms.RichTextBox codeText;
+        private System.Windows.Forms.SplitContainer splitCodeError;
         private System.Windows.Forms.RichTextBox codeError;
         private System.Windows.Forms.TabPage tabDebug;
         private System.Windows.Forms.TabControl tabData;
@@ -448,10 +425,11 @@ namespace gled
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.ComboBox comboBuf;
         private System.Windows.Forms.DataGridView tableBuf;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
+        private System.Windows.Forms.TableLayoutPanel tabCodeTableLayout;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.ComboBox comboBufType;
         private System.Windows.Forms.TextBox textBufDim;
+        private System.Windows.Forms.TabControl tabSource;
     }
 }

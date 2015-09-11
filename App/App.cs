@@ -1,8 +1,10 @@
-﻿using System;
+﻿using ScintillaNET;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -22,7 +24,7 @@ namespace gled
 
             this.comboBufType.SelectedIndex = 7;
 
-            this.codeText.Text = System.IO.File.ReadAllText(@"../../demos/simple_fragoutput.txt");
+            AddSourceTab(@"../../demos/fragoutput.tech");
         }
 
         #region EVENTS
@@ -30,6 +32,12 @@ namespace gled
         private void App_FormClosing(object sender, FormClosingEventArgs e)
         {
             DeleteClasses();
+        }
+
+        private void App_KeyUp(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.F5)
+                btnCompile_Click(sender, null);
         }
 
         private void glControl_Resize(object sender, EventArgs e)
@@ -63,8 +71,11 @@ namespace gled
             this.codeError.Text = "";
             DeleteClasses();
 
+            var selectedTabPage = this.tabSource.SelectedTab;
+            var selectedTabPageText = (Scintilla)selectedTabPage.Controls[0];
+
             // remove comments
-            var code = RemoveComments(this.codeText.Text, "//");
+            var code = RemoveComments(selectedTabPageText.Text, "//");
 
             // find GLST class blocks (find "TYPE name { ... }")
             var blocks = FindBlocks(code);
@@ -188,6 +199,72 @@ namespace gled
         {
             if (e.KeyCode == Keys.Enter)
                 comboBuf_SelectedIndexChanged(sender, null);
+        }
+
+        #endregion
+
+        #region CONTROL
+
+        private void AddSourceTab(string path)
+        {
+            // load file
+            string filename = Path.GetFileName(path);
+            string text = File.ReadAllText(path);
+
+            // create new tab objects
+            TabPage tabSourcePage = new TabPage();
+            Scintilla tabSourcePageText = new Scintilla();
+
+            // suspend layouts
+            tabSourcePage.SuspendLayout();
+            tabSourcePageText.SuspendLayout();
+            this.tabSource.SuspendLayout();
+
+            // tabSourcePageText
+            tabSourcePageText.BorderStyle = BorderStyle.None;
+            tabSourcePageText.ConfigurationManager.CustomLocation = "../../syntax.xml";
+            tabSourcePageText.ConfigurationManager.Language = "cpp";
+            tabSourcePageText.Dock = DockStyle.Fill;
+            tabSourcePageText.Font = new Font("Consolas", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            tabSourcePageText.Location = new Point(0, 0);
+            tabSourcePageText.Margin = new Padding(0);
+            tabSourcePageText.Size = new Size(200, 100);
+            tabSourcePageText.Styles.BraceBad.FontName = "Verdana\0";
+            tabSourcePageText.Styles.BraceBad.Size = 10F;
+            tabSourcePageText.Styles.BraceLight.FontName = "Verdana\0";
+            tabSourcePageText.Styles.BraceLight.Size = 10F;
+            tabSourcePageText.Styles.ControlChar.FontName = "Verdana\0";
+            tabSourcePageText.Styles.ControlChar.Size = 10F;
+            tabSourcePageText.Styles.Default.BackColor = SystemColors.Window;
+            tabSourcePageText.Styles.Default.FontName = "Verdana\0";
+            tabSourcePageText.Styles.Default.Size = 10F;
+            tabSourcePageText.Styles.IndentGuide.FontName = "Verdana\0";
+            tabSourcePageText.Styles.IndentGuide.Size = 10F;
+            tabSourcePageText.Styles.LastPredefined.FontName = "Verdana\0";
+            tabSourcePageText.Styles.LastPredefined.Size = 10F;
+            tabSourcePageText.Styles.LineNumber.FontName = "Verdana\0";
+            tabSourcePageText.Styles.LineNumber.Size = 10F;
+            tabSourcePageText.Styles.Max.FontName = "Verdana\0";
+            tabSourcePageText.Styles.Max.Size = 10F;
+            tabSourcePageText.TabIndex = 0;
+            tabSourcePageText.Text = text;
+
+            // tabSourcePage
+            tabSourcePage.Controls.Add(tabSourcePageText);
+            tabSourcePage.Location = new Point(4, 31);
+            tabSourcePage.Margin = new Padding(0);
+            tabSourcePage.Padding = new Padding(3);
+            tabSourcePage.Size = new Size(695, 604);
+            tabSourcePage.TabIndex = 0;
+            tabSourcePage.Text = filename;
+
+            // add tab
+            this.tabSource.Controls.Add(tabSourcePage);
+
+            // resume layouts
+            tabSourcePage.ResumeLayout(false);
+            tabSourcePageText.ResumeLayout(false);
+            this.tabSource.ResumeLayout(false);
         }
 
         #endregion
