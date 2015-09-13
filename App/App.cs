@@ -32,8 +32,6 @@ namespace gled
 
             // select 'float' as the default buffer value type
             this.comboBufType.SelectedIndex = 7;
-
-            AddSourceTab(@"../../demos/fragoutput.tech");
         }
 
         #region EVENTS
@@ -46,7 +44,7 @@ namespace gled
         private void App_KeyUp(object sender, KeyEventArgs e)
         {
             if(e.KeyCode == Keys.F5)
-                btnCompile_Click(sender, null);
+                toolBtnRun_Click(sender, null);
         }
 
         private void glControl_Resize(object sender, EventArgs e)
@@ -74,75 +72,7 @@ namespace gled
             if (render)
                 Render();
         }
-
-        private void btnCompile_Click(object sender, EventArgs e)
-        {
-            this.codeError.Text = "";
-            DeleteClasses();
-
-            var selectedTabPage = this.tabSource.SelectedTab;
-            var selectedTabPageText = (Scintilla)selectedTabPage.Controls[0];
-
-            // remove comments
-            var code = RemoveComments(selectedTabPageText.Text, "//");
-
-            // find GLST class blocks (find "TYPE name { ... }")
-            var blocks = FindBlocks(code);
-
-            // parse commands for each class block
-            for (int i = 0; i < blocks.Length; i++)
-            {
-                // PARSE CLASS INFO
-                string[] classInfo = FindClassDef(blocks[i]);
-
-                // PARSE CLASS TEXT
-                var start = blocks[i].IndexOf('{');
-                string classText = blocks[i].Substring(start + 1, blocks[i].LastIndexOf('}') - start - 1);
-
-                // GET CLASS TYPE, ANNOTATION AND NAME
-                var classType = "gled.GL"
-                    + classInfo[0].First().ToString().ToUpper()
-                    + classInfo[0].Substring(1);
-                var classAnno = classInfo[classInfo.Length - 2];
-                var className = classInfo[classInfo.Length - 1];
-
-                // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS
-                try
-                {
-                    var type = Type.GetType(classType);
-                    // check for errors
-                    if (type == null)
-                        throw new Exception("ERROR in " + classInfo[0] + " " + className + ": "
-                            + "Class type '" + classInfo[0] + "' not known.");
-                    if (this.classes.ContainsKey(className))
-                        throw new Exception("ERROR in " + classInfo[0] + " " + className + ": "
-                            + "Class name '" + className + "' already exists.");
-                    // instantiate class
-                    this.classes.Add(className, (GLObject)Activator.CreateInstance(
-                        type, className, classAnno, classText, this.classes));
-                }
-                catch (Exception ex)
-                {
-                    // show errors
-                    this.codeError.AppendText(ex.GetBaseException().Message + '\n');
-                }
-            }
-
-            // UPDATE DEBUG DATA
-            this.comboBuf.Items.Clear();
-            this.comboImg.Items.Clear();
-            foreach (var pair in classes)
-            {
-                if (pair.Value.GetType() == typeof(GLBuffer))
-                    this.comboBuf.Items.Add(pair.Value);
-                else if (pair.Value.GetType() == typeof(GLImage))
-                    this.comboImg.Items.Add(pair.Value);
-            }
-
-            // SHOW SCENE
-            Render();
-        }
-
+        
         private void comboImg_SelectedIndexChanged(object sender, EventArgs e)
         {
             pictureImg_Click(sender, e);
@@ -210,6 +140,118 @@ namespace gled
                 comboBuf_SelectedIndexChanged(sender, null);
         }
 
+        private void toolBtnNew_Click(object sender, EventArgs e)
+        {
+            AddSourceTab(null);
+        }
+
+        private void toolBtnOpen_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openDlg = new OpenFileDialog();
+            openDlg.Filter = "Text Files (.tech)|*.tech|All Files (*.*)|*.*";
+            openDlg.FilterIndex = 1;
+            openDlg.Multiselect = true;
+
+            var result = openDlg.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                foreach (var filename in openDlg.FileNames)
+                {
+                    int i = 0;
+                    for (; i < tabSource.TabPages.Count; i++)
+                    {
+                        if (((TabPage)tabSource.TabPages[i]).filepath == filename)
+                        {
+                            this.tabSource.SelectedIndex = i;
+                            break;
+                        }
+                    }
+                    if (i == tabSource.TabPages.Count)
+                        AddSourceTab(filename);
+                }
+            }
+        }
+
+        private void toolBtnRun_Click(object sender, EventArgs e)
+        {
+            this.codeError.Text = "";
+            DeleteClasses();
+
+            var selectedTabPage = this.tabSource.SelectedTab;
+            var selectedTabPageText = (Scintilla)selectedTabPage.Controls[0];
+
+            // remove comments
+            var code = RemoveComments(selectedTabPageText.Text, "//");
+
+            // find GLST class blocks (find "TYPE name { ... }")
+            var blocks = FindBlocks(code);
+
+            // parse commands for each class block
+            for (int i = 0; i < blocks.Length; i++)
+            {
+                // PARSE CLASS INFO
+                string[] classInfo = FindClassDef(blocks[i]);
+
+                // PARSE CLASS TEXT
+                var start = blocks[i].IndexOf('{');
+                string classText = blocks[i].Substring(start + 1, blocks[i].LastIndexOf('}') - start - 1);
+
+                // GET CLASS TYPE, ANNOTATION AND NAME
+                var classType = "gled.GL"
+                    + classInfo[0].First().ToString().ToUpper()
+                    + classInfo[0].Substring(1);
+                var classAnno = classInfo[classInfo.Length - 2];
+                var className = classInfo[classInfo.Length - 1];
+
+                // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS
+                try
+                {
+                    var type = Type.GetType(classType);
+                    // check for errors
+                    if (type == null)
+                        throw new Exception("ERROR in " + classInfo[0] + " " + className + ": "
+                            + "Class type '" + classInfo[0] + "' not known.");
+                    if (this.classes.ContainsKey(className))
+                        throw new Exception("ERROR in " + classInfo[0] + " " + className + ": "
+                            + "Class name '" + className + "' already exists.");
+                    // instantiate class
+                    this.classes.Add(className, (GLObject)Activator.CreateInstance(
+                        type, className, classAnno, classText, this.classes));
+                }
+                catch (Exception ex)
+                {
+                    // show errors
+                    this.codeError.AppendText(ex.GetBaseException().Message + '\n');
+                }
+            }
+
+            // UPDATE DEBUG DATA
+            this.comboBuf.Items.Clear();
+            this.comboImg.Items.Clear();
+            foreach (var pair in classes)
+            {
+                if (pair.Value.GetType() == typeof(GLBuffer))
+                    this.comboBuf.Items.Add(pair.Value);
+                else if (pair.Value.GetType() == typeof(GLImage))
+                    this.comboImg.Items.Add(pair.Value);
+            }
+
+            // SHOW SCENE
+            Render();
+        }
+
+        private void toolBtnSave_Click(object sender, EventArgs e)
+        {
+            SaveTabPage((TabPage)this.tabSource.SelectedTab);
+        }
+
+        private void toolBtnSaveAll_Click(object sender, EventArgs e)
+        {
+            foreach (var tab in this.tabSource.TabPages)
+                SaveTabPage((TabPage)tab);
+        }
+
         #endregion
 
         #region CONTROL
@@ -217,11 +259,11 @@ namespace gled
         private void AddSourceTab(string path)
         {
             // load file
-            string filename = Path.GetFileName(path);
-            string text = File.ReadAllText(path);
+            string filename = path != null ? Path.GetFileName(path) : "unnamed.tech";
+            string text = path != null ? File.ReadAllText(path) : "";
 
             // create new tab objects
-            TabPage tabSourcePage = new TabPage();
+            gled.TabPage tabSourcePage = new gled.TabPage(path);
             Scintilla tabSourcePageText = new Scintilla();
 
             // suspend layouts
@@ -237,7 +279,6 @@ namespace gled
             tabSourcePageText.Font = new Font("Consolas", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             tabSourcePageText.Location = new Point(0, 0);
             tabSourcePageText.Margin = new Padding(0);
-            tabSourcePageText.Size = new Size(200, 100);
             tabSourcePageText.Styles.BraceBad.FontName = "Verdana\0";
             tabSourcePageText.Styles.BraceBad.Size = 10F;
             tabSourcePageText.Styles.BraceLight.FontName = "Verdana\0";
@@ -256,14 +297,12 @@ namespace gled
             tabSourcePageText.Styles.Max.FontName = "Verdana\0";
             tabSourcePageText.Styles.Max.Size = 10F;
             tabSourcePageText.TabIndex = 0;
-            tabSourcePageText.Text = text;
 
             // tabSourcePage
             tabSourcePage.Controls.Add(tabSourcePageText);
             tabSourcePage.Location = new Point(4, 31);
             tabSourcePage.Margin = new Padding(0);
             tabSourcePage.Padding = new Padding(3);
-            tabSourcePage.Size = new Size(695, 604);
             tabSourcePage.TabIndex = 0;
             tabSourcePage.Text = filename;
 
@@ -271,9 +310,11 @@ namespace gled
             this.tabSource.Controls.Add(tabSourcePage);
 
             // resume layouts
-            tabSourcePage.ResumeLayout(false);
             tabSourcePageText.ResumeLayout(false);
+            tabSourcePage.ResumeLayout(false);
             this.tabSource.ResumeLayout(false);
+
+            tabSourcePageText.Text = text;
         }
 
         #endregion
@@ -408,6 +449,27 @@ namespace gled
                 rs.SetValue(Convert.ChangeType(method.Invoke(null, new object[] { data, typesize * i }), typeof(T)), i);
 
             return rs;
+        }
+
+        private void SaveTabPage(TabPage tabPage)
+        {
+            var selectedTabPageText = (Scintilla)tabPage.Controls[0];
+
+            if (tabPage.filepath == null)
+            {
+                SaveFileDialog saveDlg = new SaveFileDialog();
+                saveDlg.Filter = "Text Files (.tech)|*.tech|All Files (*.*)|*.*";
+                saveDlg.FilterIndex = 1;
+
+                var result = saveDlg.ShowDialog();
+                if (result != DialogResult.OK)
+                    return;
+
+                tabPage.filepath = saveDlg.FileName;
+                tabPage.Text = Path.GetFileName(saveDlg.FileName);
+            }
+
+            File.WriteAllText(tabPage.filepath, selectedTabPageText.Text);
         }
 
         #endregion

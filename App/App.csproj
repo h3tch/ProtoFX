@@ -83,6 +83,9 @@
     <Compile Include="GLVertoutput.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TabPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <EmbeddedResource Include="App.resx">
       <DependentUpon>App.cs</DependentUpon>
     </EmbeddedResource>
@@ -110,6 +113,12 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\ImgOpen.bmp" />
+    <None Include="resources\ImgOpen.png" />
+    <None Include="resources\ImgSave.png" />
+    <None Include="resources\ImgSaveAll.png" />
+    <None Include="resources\ImgRun.png" />
+    <Content Include="syntax.xml" />
     <None Include="demos\simple.tech" />
     <None Include="demos\fragoutput.tech" />
     <Content Include="resources\cube.xml" />

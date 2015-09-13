@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace gled.Properties {
+namespace App.Properties {
     using System;
     
     
@@ -57,6 +57,46 @@ namespace gled.Properties {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ImgOpen {
+            get {
+                object obj = ResourceManager.GetObject("ImgOpen", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ImgRun {
+            get {
+                object obj = ResourceManager.GetObject("ImgRun", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ImgSave {
+            get {
+                object obj = ResourceManager.GetObject("ImgSave", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ImgSaveAll {
+            get {
+                object obj = ResourceManager.GetObject("ImgSaveAll", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }
