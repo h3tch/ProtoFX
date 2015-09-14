@@ -1,0 +1,35 @@
+﻿/////////////
+// BUFFERS //
+/////////////
+
+buffer buff_pos {
+	usage staticDraw
+	file geom/cube.xml|pos
+}
+
+buffer buff_color {
+	usage staticDraw
+	file geom/cube.xml|color
+}
+
+buffer buff_idx {
+	usage staticDraw
+	file geom/cube.xml|index
+}
+
+/////////////////////
+// BUFFER BINDINGS //
+/////////////////////
+
+vertinput in_vert {
+	attr buff_pos float 4
+	attr buff_color float 4
+}
+
+/////////////////
+// CSHARP CODE //
+/////////////////
+
+csharp cs_util {
+	file util/SimpleCamera.cs
+}

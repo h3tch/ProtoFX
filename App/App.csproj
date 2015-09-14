@@ -98,6 +98,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="demos\simple_include_header.tech" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -119,6 +120,8 @@
     <None Include="resources\ImgRun.png" />
     <None Include="resources\ImgNew.png" />
     <None Include="resources\ImgSaveAs.png" />
+    <None Include="demos\simple_include.tech" />
+    <None Include="resources\ImgClose.png" />
     <Content Include="syntax.xml" />
     <None Include="demos\simple.tech" />
     <None Include="demos\fragoutput.tech" />

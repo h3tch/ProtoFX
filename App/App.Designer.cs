@@ -54,13 +54,14 @@ namespace gled
             this.comboBuf = new System.Windows.Forms.ComboBox();
             this.comboBufType = new System.Windows.Forms.ComboBox();
             this.textBufDim = new System.Windows.Forms.TextBox();
+            this.toolBtnClose = new System.Windows.Forms.ToolStripButton();
             this.toolBtnNew = new System.Windows.Forms.ToolStripButton();
             this.toolBtnOpen = new System.Windows.Forms.ToolStripButton();
             this.toolBtnSave = new System.Windows.Forms.ToolStripButton();
             this.toolBtnSaveAll = new System.Windows.Forms.ToolStripButton();
+            this.toolBtnSaveAs = new System.Windows.Forms.ToolStripButton();
             this.toolBtnRun = new System.Windows.Forms.ToolStripButton();
             this.pictureImg = new System.Windows.Forms.PictureBox();
-            this.toolBtnSaveAs = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
             this.splitRenderCoding.Panel1.SuspendLayout();
             this.splitRenderCoding.Panel2.SuspendLayout();
@@ -215,6 +216,7 @@ namespace gled
             this.toolStrip.Dock = System.Windows.Forms.DockStyle.None;
             this.toolStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolBtnClose,
             this.toolBtnNew,
             this.toolBtnOpen,
             this.toolBtnSave,
@@ -223,7 +225,7 @@ namespace gled
             this.toolBtnRun});
             this.toolStrip.Location = new System.Drawing.Point(0, 3);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(47, 225);
+            this.toolStrip.Size = new System.Drawing.Size(47, 256);
             this.toolStrip.TabIndex = 0;
             // 
             // codeError
@@ -405,6 +407,16 @@ namespace gled
             this.textBufDim.Text = "4";
             this.textBufDim.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textBufDim_KeyUp);
             // 
+            // toolBtnClose
+            // 
+            this.toolBtnClose.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnClose.Image = global::App.Properties.Resources.ImgClose;
+            this.toolBtnClose.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnClose.Name = "toolBtnClose";
+            this.toolBtnClose.Size = new System.Drawing.Size(45, 28);
+            this.toolBtnClose.Text = "Close Tab";
+            this.toolBtnClose.Click += new System.EventHandler(this.toolBtnClose_Click);
+            // 
             // toolBtnNew
             // 
             this.toolBtnNew.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -445,6 +457,17 @@ namespace gled
             this.toolBtnSaveAll.Text = "Save all";
             this.toolBtnSaveAll.Click += new System.EventHandler(this.toolBtnSaveAll_Click);
             // 
+            // toolBtnSaveAs
+            // 
+            this.toolBtnSaveAs.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnSaveAs.Image = global::App.Properties.Resources.ImgSaveAs;
+            this.toolBtnSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnSaveAs.Name = "toolBtnSaveAs";
+            this.toolBtnSaveAs.Size = new System.Drawing.Size(45, 28);
+            this.toolBtnSaveAs.Text = "Save as";
+            this.toolBtnSaveAs.ToolTipText = "Save as";
+            this.toolBtnSaveAs.Click += new System.EventHandler(this.toolBtnSaveAs_Click);
+            // 
             // toolBtnRun
             // 
             this.toolBtnRun.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -464,17 +487,6 @@ namespace gled
             this.pictureImg.TabIndex = 0;
             this.pictureImg.TabStop = false;
             this.pictureImg.Click += new System.EventHandler(this.pictureImg_Click);
-            // 
-            // toolBtnSaveAs
-            // 
-            this.toolBtnSaveAs.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnSaveAs.Image = global::App.Properties.Resources.ImgSaveAs;
-            this.toolBtnSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolBtnSaveAs.Name = "toolBtnSaveAs";
-            this.toolBtnSaveAs.Size = new System.Drawing.Size(45, 28);
-            this.toolBtnSaveAs.Text = "Save as";
-            this.toolBtnSaveAs.ToolTipText = "Save as";
-            this.toolBtnSaveAs.Click += new System.EventHandler(this.toolBtnSaveAs_Click);
             // 
             // App
             // 
@@ -554,5 +566,6 @@ namespace gled
         private System.Windows.Forms.ToolStripButton toolBtnRun;
         private System.Windows.Forms.ToolStripButton toolBtnNew;
         private System.Windows.Forms.ToolStripButton toolBtnSaveAs;
+        private System.Windows.Forms.ToolStripButton toolBtnClose;
     }
 }

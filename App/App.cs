@@ -184,6 +184,7 @@ namespace gled
 
             // remove comments
             var code = RemoveComments(selectedTabPageText.Text, "//");
+            code = IncludeFiles(dir, code);
 
             // find GLST class blocks (find "TYPE name { ... }")
             var blocks = FindBlocks(code);
@@ -258,6 +259,30 @@ namespace gled
             SaveTabPage((TabPage)this.tabSource.SelectedTab, true);
         }
 
+        private void toolBtnClose_Click(object sender, EventArgs e)
+        {
+            if (tabSource.SelectedIndex < 0 || tabSource.SelectedIndex >= tabSource.TabPages.Count)
+                return;
+            TabPage tabSourcePage = (TabPage)tabSource.SelectedTab;
+            if (tabSourcePage.Text.EndsWith("*"))
+            {
+                DialogResult answer = MessageBox.Show(
+                    "Do you want to save the file before closing it?",
+                    "File changed", MessageBoxButtons.YesNo);
+                if (answer == DialogResult.Yes)
+                    SaveTabPage(tabSourcePage, false);
+            }
+            tabSource.TabPages.RemoveAt(tabSource.SelectedIndex);
+        }
+
+        private void tabSourcePageText_TextChanged(object sender, EventArgs e)
+        {
+            Scintilla tabSourcePageText = (Scintilla)sender;
+            TabPage tabSourcePage = (TabPage)tabSourcePageText.Parent;
+            if (!tabSourcePage.Text.EndsWith("*"))
+                tabSourcePage.Text = tabSourcePage.Text + '*';
+        }
+
         #endregion
 
         #region CONTROL
@@ -269,7 +294,7 @@ namespace gled
             string text = path != null ? File.ReadAllText(path) : "";
 
             // create new tab objects
-            gled.TabPage tabSourcePage = new gled.TabPage(path);
+            TabPage tabSourcePage = new TabPage(path);
             Scintilla tabSourcePageText = new Scintilla();
 
             // suspend layouts
@@ -321,6 +346,7 @@ namespace gled
             this.tabSource.ResumeLayout(false);
 
             tabSourcePageText.Text = text;
+            tabSourcePageText.TextChanged += new EventHandler(this.tabSourcePageText_TextChanged);
         }
 
         #endregion
@@ -367,6 +393,38 @@ namespace gled
                     return me.Value;
                 },
                 RegexOptions.Singleline);
+        }
+
+        private string IncludeFiles(string dir, string code)
+        {
+            // find include files
+            var matches = Regex.Matches(code, @"#include \""[^""]*\""");
+
+            // insert all include files
+            for (int i = 0, offset = 0; i < matches.Count; i++)
+            {
+                // get file path
+                var include = code.Substring(matches[i].Index + offset, matches[i].Length);
+                var startidx = include.IndexOf('"');
+                var incfile = include.Substring(startidx + 1, include.LastIndexOf('"') - startidx - 1);
+                var path = Path.IsPathRooted(incfile) ? incfile : dir + incfile;
+
+                // check if file exists
+                if (File.Exists(path) == false)
+                {
+                    this.codeError.AppendText("ERROR: The include file '" + incfile + "' could not be found.\n");
+                    continue;
+                }
+
+                // load the file and insert it, replacing #include
+                var content = File.ReadAllText(path);
+                code = code.Substring(0, matches[i].Index + offset)
+                    + content + code.Substring(matches[i].Index + offset + matches[i].Length);
+
+                // because the string now has a different length, we need an offset
+                offset += content.Length - matches[i].Length;
+            }
+            return code;
         }
 
         private static string[] FindBlocks(string code)
