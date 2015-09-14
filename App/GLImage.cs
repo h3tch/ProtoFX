@@ -4,6 +4,7 @@ using System;
 using System.Drawing;
 using SysImg = System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace gled
 {
@@ -33,7 +34,7 @@ namespace gled
 
         #endregion
 
-        public GLImage(string name, string annotation, string text, GLDict classes)
+        public GLImage(string dir, string name, string annotation, string text, GLDict classes)
             : base(name, annotation)
         {
             // PARSE TEXT TO COMMANDS
@@ -73,7 +74,7 @@ namespace gled
             GL.TexParameter(target, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
             // LOAD IMAGE DATA
-            var data = loadImageFiles(file, width, height, depth, gpuformat,
+            var data = loadImageFiles(dir, file, width, height, depth, gpuformat,
                 out pixelformat, out pixeltype, out pixelsize, out fileformat);
             var dataPtr = IntPtr.Zero;
             if (data != null)
@@ -139,7 +140,7 @@ namespace gled
 
         #region UTIL METHODS
 
-        private static byte[] loadImageFiles(string[] filenames, int w, int h, int d, PixelInternalFormat gpuformat, 
+        private static byte[] loadImageFiles(string dir, string[] filenames, int w, int h, int d, PixelInternalFormat gpuformat, 
             out PixelFormat pixelformat, out PixelType pixeltype, out int pixelsize, out SysImg.PixelFormat fileformat)
         {
             if (gpuformat.ToString().StartsWith("DepthComponent"))
@@ -163,7 +164,8 @@ namespace gled
 
                 for (int i = 0; i < filenames.Length; i++)
                 {
-                    var bmp = new Bitmap(filenames[i]);
+                    var path = Path.IsPathRooted(filenames[i]) ? filenames[i] : dir + filenames[i];
+                    var bmp = new Bitmap(path);
                     var bmpData = bmp.LockBits(
                         new Rectangle(0, 0, Math.Min(bmp.Width, w), Math.Min(bmp.Height, h)),
                         SysImg.ImageLockMode.ReadOnly, fileformat);

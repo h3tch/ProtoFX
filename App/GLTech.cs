@@ -7,7 +7,7 @@ namespace gled
     {
         private List<GLPass> passes = new List<GLPass>();
 
-        public GLTech(string name, string annotation, string text, GLDict classes)
+        public GLTech(string dir, string name, string annotation, string text, GLDict classes)
             : base(name, annotation)
         {
             // PARSE TEXT

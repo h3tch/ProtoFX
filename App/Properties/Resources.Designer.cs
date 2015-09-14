@@ -63,6 +63,16 @@ namespace App.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ImgNew {
+            get {
+                object obj = ResourceManager.GetObject("ImgNew", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ImgOpen {
             get {
                 object obj = ResourceManager.GetObject("ImgOpen", resourceCulture);
@@ -96,6 +106,16 @@ namespace App.Properties {
         internal static System.Drawing.Bitmap ImgSaveAll {
             get {
                 object obj = ResourceManager.GetObject("ImgSaveAll", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ImgSaveAs {
+            get {
+                object obj = ResourceManager.GetObject("ImgSaveAs", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

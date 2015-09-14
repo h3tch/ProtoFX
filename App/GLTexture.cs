@@ -22,7 +22,7 @@ namespace gled
 
         #endregion
 
-        public GLTexture(string name, string annotation, string text, GLDict classes)
+        public GLTexture(string dir, string name, string annotation, string text, GLDict classes)
             : base(name, annotation)
 
         {

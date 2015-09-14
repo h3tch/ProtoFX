@@ -6,7 +6,7 @@ namespace gled
 {
     class GLShader : GLObject
     {
-        public GLShader(string name, string annotation, string text, GLDict classes)
+        public GLShader(string dir, string name, string annotation, string text, GLDict classes)
             : base(name, annotation)
         {
             // CREATE OPENGL OBJECT

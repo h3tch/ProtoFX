@@ -16,7 +16,7 @@ namespace gled
 
         #endregion
 
-        public GLBuffer(string name, string annotation, string text, GLDict classes)
+        public GLBuffer(string dir, string name, string annotation, string text, GLDict classes)
             : base(name, annotation)
         {
             // PARSE TEXT TO COMMANDS
@@ -30,7 +30,7 @@ namespace gled
             GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
 
             // LOAD BUFFER DATA
-            var data = loadBufferFiles(file, size);
+            var data = loadBufferFiles(dir, file, size);
             var dataPtr = IntPtr.Zero;
             if (data != null)
             {
@@ -77,7 +77,7 @@ namespace gled
 
         #region UTIL METHODS
 
-        private static byte[] loadBufferFiles(string[] filenames, int size)
+        private static byte[] loadBufferFiles(string dir, string[] filenames, int size)
         {
             if (filenames == null || filenames.Length == 0)
                 return null;
@@ -87,10 +87,11 @@ namespace gled
             for (int i = 0; i < filenames.Length; i++)
             {
                 var filename = filenames[i].Split(new char[] { '|' });
+                var path = Path.IsPathRooted(filename[0]) ? filename[0] : dir + filename[0];
                 if (filename.Length == 1)
-                    filedata[i] = File.ReadAllBytes(filename[0]);
+                    filedata[i] = File.ReadAllBytes(path);
                 else if (filename.Length == 2)
-                    filedata[i] = new GledXml(filename[0], filename[1]).data;
+                    filedata[i] = new GledXml(path, filename[1]).data;
                 else
                     throw new Exception("");
             }

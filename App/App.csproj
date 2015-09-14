@@ -65,7 +65,6 @@
     <Compile Include="App.Designer.cs">
       <DependentUpon>App.cs</DependentUpon>
     </Compile>
-    <Compile Include="code\SimpleCamera.cs" />
     <Compile Include="GLBuffer.cs" />
     <Compile Include="GLCSharp.cs" />
     <Compile Include="GLDict.cs" />
@@ -118,13 +117,16 @@
     <None Include="resources\ImgSave.png" />
     <None Include="resources\ImgSaveAll.png" />
     <None Include="resources\ImgRun.png" />
+    <None Include="resources\ImgNew.png" />
+    <None Include="resources\ImgSaveAs.png" />
     <Content Include="syntax.xml" />
     <None Include="demos\simple.tech" />
     <None Include="demos\fragoutput.tech" />
-    <Content Include="resources\cube.xml" />
-    <Content Include="resources\quad.xml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="demos\geom\" />
+    <Folder Include="demos\util\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

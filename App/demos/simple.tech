@@ -4,17 +4,17 @@
 
 buffer buff_pos {
 	usage staticDraw
-	file ../../resources/cube.xml|pos
+	file geom/cube.xml|pos
 }
 
 buffer buff_color {
 	usage staticDraw
-	file ../../resources/cube.xml|color
+	file geom/cube.xml|color
 }
 
 buffer buff_idx {
 	usage staticDraw
-	file ../../resources/cube.xml|index
+	file geom/cube.xml|index
 }
 
 /////////////////////
@@ -67,7 +67,7 @@ shader frag fs_simple {
 /////////////
 
 csharp cs_util {
-	file ../../code/SimpleCamera.cs
+	file util/SimpleCamera.cs
 }
 
 pass pass_render {

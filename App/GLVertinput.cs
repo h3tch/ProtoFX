@@ -6,7 +6,7 @@ namespace gled
 {
     class GLVertinput : GLObject
     {
-        public GLVertinput(string name, string annotation, string text, Dictionary<string, GLObject> classes)
+        public GLVertinput(string dir, string name, string annotation, string text, Dictionary<string, GLObject> classes)
             : base(name, annotation)
         {
             // PARSE TEXT

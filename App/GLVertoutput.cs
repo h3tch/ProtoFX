@@ -6,7 +6,7 @@ namespace gled
 {
     class GLVertoutput : GLObject
     {
-        public GLVertoutput(string name, string annotation, string text, GLDict classes)
+        public GLVertoutput(string dir, string name, string annotation, string text, GLDict classes)
             : base(name, annotation)
         {
             // PARSE TEXT

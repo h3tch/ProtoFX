@@ -40,10 +40,6 @@ namespace gled
             this.toolStripContainer = new System.Windows.Forms.ToolStripContainer();
             this.tabSource = new System.Windows.Forms.TabControl();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
-            this.toolBtnOpen = new System.Windows.Forms.ToolStripButton();
-            this.toolBtnSave = new System.Windows.Forms.ToolStripButton();
-            this.toolBtnSaveAll = new System.Windows.Forms.ToolStripButton();
-            this.toolBtnRun = new System.Windows.Forms.ToolStripButton();
             this.codeError = new System.Windows.Forms.RichTextBox();
             this.tabDebug = new System.Windows.Forms.TabPage();
             this.tabData = new System.Windows.Forms.TabControl();
@@ -51,7 +47,6 @@ namespace gled
             this.tableLayoutImages = new System.Windows.Forms.TableLayoutPanel();
             this.comboImg = new System.Windows.Forms.ComboBox();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.pictureImg = new System.Windows.Forms.PictureBox();
             this.tabDataBuf = new System.Windows.Forms.TabPage();
             this.tableLayoutBufferDef = new System.Windows.Forms.TableLayoutPanel();
             this.tableBuf = new System.Windows.Forms.DataGridView();
@@ -60,6 +55,12 @@ namespace gled
             this.comboBufType = new System.Windows.Forms.ComboBox();
             this.textBufDim = new System.Windows.Forms.TextBox();
             this.toolBtnNew = new System.Windows.Forms.ToolStripButton();
+            this.toolBtnOpen = new System.Windows.Forms.ToolStripButton();
+            this.toolBtnSave = new System.Windows.Forms.ToolStripButton();
+            this.toolBtnSaveAll = new System.Windows.Forms.ToolStripButton();
+            this.toolBtnRun = new System.Windows.Forms.ToolStripButton();
+            this.pictureImg = new System.Windows.Forms.PictureBox();
+            this.toolBtnSaveAs = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
             this.splitRenderCoding.Panel1.SuspendLayout();
             this.splitRenderCoding.Panel2.SuspendLayout();
@@ -80,11 +81,11 @@ namespace gled
             this.tabDataImg.SuspendLayout();
             this.tableLayoutImages.SuspendLayout();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureImg)).BeginInit();
             this.tabDataBuf.SuspendLayout();
             this.tableLayoutBufferDef.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tableBuf)).BeginInit();
             this.tableLayoutBuffers.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureImg)).BeginInit();
             this.SuspendLayout();
             // 
             // splitRenderCoding
@@ -218,51 +219,12 @@ namespace gled
             this.toolBtnOpen,
             this.toolBtnSave,
             this.toolBtnSaveAll,
+            this.toolBtnSaveAs,
             this.toolBtnRun});
             this.toolStrip.Location = new System.Drawing.Point(0, 3);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(47, 194);
+            this.toolStrip.Size = new System.Drawing.Size(47, 225);
             this.toolStrip.TabIndex = 0;
-            // 
-            // toolBtnOpen
-            // 
-            this.toolBtnOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnOpen.Image = ((System.Drawing.Image)(resources.GetObject("toolBtnOpen.Image")));
-            this.toolBtnOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolBtnOpen.Name = "toolBtnOpen";
-            this.toolBtnOpen.Size = new System.Drawing.Size(45, 28);
-            this.toolBtnOpen.Text = "toolStripButton1";
-            this.toolBtnOpen.Click += new System.EventHandler(this.toolBtnOpen_Click);
-            // 
-            // toolBtnSave
-            // 
-            this.toolBtnSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnSave.Image = ((System.Drawing.Image)(resources.GetObject("toolBtnSave.Image")));
-            this.toolBtnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolBtnSave.Name = "toolBtnSave";
-            this.toolBtnSave.Size = new System.Drawing.Size(45, 28);
-            this.toolBtnSave.Text = "toolStripButton2";
-            this.toolBtnSave.Click += new System.EventHandler(this.toolBtnSave_Click);
-            // 
-            // toolBtnSaveAll
-            // 
-            this.toolBtnSaveAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnSaveAll.Image = global::App.Properties.Resources.ImgSaveAll;
-            this.toolBtnSaveAll.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolBtnSaveAll.Name = "toolBtnSaveAll";
-            this.toolBtnSaveAll.Size = new System.Drawing.Size(45, 28);
-            this.toolBtnSaveAll.Text = "toolStripButton3";
-            this.toolBtnSaveAll.Click += new System.EventHandler(this.toolBtnSaveAll_Click);
-            // 
-            // toolBtnRun
-            // 
-            this.toolBtnRun.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnRun.Image = global::App.Properties.Resources.ImgRun;
-            this.toolBtnRun.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolBtnRun.Name = "toolBtnRun";
-            this.toolBtnRun.Size = new System.Drawing.Size(45, 28);
-            this.toolBtnRun.Text = "toolStripButton4";
-            this.toolBtnRun.Click += new System.EventHandler(this.toolBtnRun_Click);
             // 
             // codeError
             // 
@@ -346,16 +308,6 @@ namespace gled
             this.panel1.Size = new System.Drawing.Size(924, 1009);
             this.panel1.TabIndex = 2;
             // 
-            // pictureImg
-            // 
-            this.pictureImg.Location = new System.Drawing.Point(0, 0);
-            this.pictureImg.Name = "pictureImg";
-            this.pictureImg.Size = new System.Drawing.Size(410, 353);
-            this.pictureImg.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureImg.TabIndex = 0;
-            this.pictureImg.TabStop = false;
-            this.pictureImg.Click += new System.EventHandler(this.pictureImg_Click);
-            // 
             // tabDataBuf
             // 
             this.tabDataBuf.Controls.Add(this.tableLayoutBufferDef);
@@ -379,7 +331,7 @@ namespace gled
             this.tableLayoutBufferDef.RowCount = 2;
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutBufferDef.Size = new System.Drawing.Size(930, 1055);
+            this.tableLayoutBufferDef.Size = new System.Drawing.Size(930, 1057);
             this.tableLayoutBufferDef.TabIndex = 0;
             // 
             // tableBuf
@@ -392,7 +344,7 @@ namespace gled
             this.tableBuf.Name = "tableBuf";
             this.tableBuf.ReadOnly = true;
             this.tableBuf.RowTemplate.Height = 28;
-            this.tableBuf.Size = new System.Drawing.Size(924, 1009);
+            this.tableBuf.Size = new System.Drawing.Size(924, 1011);
             this.tableBuf.TabIndex = 1;
             // 
             // tableLayoutBuffers
@@ -460,8 +412,69 @@ namespace gled
             this.toolBtnNew.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnNew.Name = "toolBtnNew";
             this.toolBtnNew.Size = new System.Drawing.Size(45, 28);
-            this.toolBtnNew.Text = "toolStripButton1";
+            this.toolBtnNew.Text = "New";
             this.toolBtnNew.Click += new System.EventHandler(this.toolBtnNew_Click);
+            // 
+            // toolBtnOpen
+            // 
+            this.toolBtnOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnOpen.Image = ((System.Drawing.Image)(resources.GetObject("toolBtnOpen.Image")));
+            this.toolBtnOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnOpen.Name = "toolBtnOpen";
+            this.toolBtnOpen.Size = new System.Drawing.Size(45, 28);
+            this.toolBtnOpen.Text = "Open";
+            this.toolBtnOpen.Click += new System.EventHandler(this.toolBtnOpen_Click);
+            // 
+            // toolBtnSave
+            // 
+            this.toolBtnSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnSave.Image = ((System.Drawing.Image)(resources.GetObject("toolBtnSave.Image")));
+            this.toolBtnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnSave.Name = "toolBtnSave";
+            this.toolBtnSave.Size = new System.Drawing.Size(45, 28);
+            this.toolBtnSave.Text = "Save";
+            this.toolBtnSave.Click += new System.EventHandler(this.toolBtnSave_Click);
+            // 
+            // toolBtnSaveAll
+            // 
+            this.toolBtnSaveAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnSaveAll.Image = global::App.Properties.Resources.ImgSaveAll;
+            this.toolBtnSaveAll.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnSaveAll.Name = "toolBtnSaveAll";
+            this.toolBtnSaveAll.Size = new System.Drawing.Size(45, 28);
+            this.toolBtnSaveAll.Text = "Save all";
+            this.toolBtnSaveAll.Click += new System.EventHandler(this.toolBtnSaveAll_Click);
+            // 
+            // toolBtnRun
+            // 
+            this.toolBtnRun.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnRun.Image = global::App.Properties.Resources.ImgRun;
+            this.toolBtnRun.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnRun.Name = "toolBtnRun";
+            this.toolBtnRun.Size = new System.Drawing.Size(45, 28);
+            this.toolBtnRun.Text = "Run";
+            this.toolBtnRun.Click += new System.EventHandler(this.toolBtnRun_Click);
+            // 
+            // pictureImg
+            // 
+            this.pictureImg.Location = new System.Drawing.Point(0, 0);
+            this.pictureImg.Name = "pictureImg";
+            this.pictureImg.Size = new System.Drawing.Size(410, 353);
+            this.pictureImg.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictureImg.TabIndex = 0;
+            this.pictureImg.TabStop = false;
+            this.pictureImg.Click += new System.EventHandler(this.pictureImg_Click);
+            // 
+            // toolBtnSaveAs
+            // 
+            this.toolBtnSaveAs.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnSaveAs.Image = global::App.Properties.Resources.ImgSaveAs;
+            this.toolBtnSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnSaveAs.Name = "toolBtnSaveAs";
+            this.toolBtnSaveAs.Size = new System.Drawing.Size(45, 28);
+            this.toolBtnSaveAs.Text = "Save as";
+            this.toolBtnSaveAs.ToolTipText = "Save as";
+            this.toolBtnSaveAs.Click += new System.EventHandler(this.toolBtnSaveAs_Click);
             // 
             // App
             // 
@@ -499,12 +512,12 @@ namespace gled
             this.tableLayoutImages.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureImg)).EndInit();
             this.tabDataBuf.ResumeLayout(false);
             this.tableLayoutBufferDef.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.tableBuf)).EndInit();
             this.tableLayoutBuffers.ResumeLayout(false);
             this.tableLayoutBuffers.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureImg)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -540,5 +553,6 @@ namespace gled
         private System.Windows.Forms.ToolStripButton toolBtnSaveAll;
         private System.Windows.Forms.ToolStripButton toolBtnRun;
         private System.Windows.Forms.ToolStripButton toolBtnNew;
+        private System.Windows.Forms.ToolStripButton toolBtnSaveAs;
     }
 }

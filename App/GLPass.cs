@@ -129,7 +129,7 @@ namespace gled
 
         #endregion
 
-        public GLPass(string name, string annotation, string text, GLDict classes)
+        public GLPass(string dir, string name, string annotation, string text, GLDict classes)
             : base(name, annotation)
         {
             // PARSE TEXT TO COMMANDS

@@ -19,7 +19,7 @@ namespace gled
 
         #endregion
 
-        public GLCsharp(string name, string annotation, string text, Dictionary<string, GLObject> classes)
+        public GLCsharp(string dir, string name, string annotation, string text, Dictionary<string, GLObject> classes)
             : base(name, annotation)
         {
             // PARSE TEXT
@@ -50,10 +50,11 @@ namespace gled
                 {"CompilerVersion", version != null ? version : "v4.0"}
             });
 
-            // use '\\' file paths instead of '/'
+            // use '\\' file paths instead of '/' and set absolute directory path
             for (int i = 0; i < file.Length; i++)
-                file[i] = file[i].Replace('/', Path.DirectorySeparatorChar);
-
+                file[i] = (Path.IsPathRooted(file[i]) ? file[i] : dir + file[i])
+                          .Replace('/', Path.DirectorySeparatorChar);
+            
             // compile files
             compilerresults = provider.CompileAssemblyFromFile(compilerParams, file);
 

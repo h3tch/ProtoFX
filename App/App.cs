@@ -178,8 +178,9 @@ namespace gled
             this.codeError.Text = "";
             DeleteClasses();
 
-            var selectedTabPage = this.tabSource.SelectedTab;
+            var selectedTabPage = (TabPage)this.tabSource.SelectedTab;
             var selectedTabPageText = (Scintilla)selectedTabPage.Controls[0];
+            var dir = (selectedTabPage.filepath != null ? Path.GetDirectoryName(selectedTabPage.filepath) : Directory.GetCurrentDirectory()) + '\\';
 
             // remove comments
             var code = RemoveComments(selectedTabPageText.Text, "//");
@@ -217,7 +218,7 @@ namespace gled
                             + "Class name '" + className + "' already exists.");
                     // instantiate class
                     this.classes.Add(className, (GLObject)Activator.CreateInstance(
-                        type, className, classAnno, classText, this.classes));
+                        type, dir, className, classAnno, classText, this.classes));
                 }
                 catch (Exception ex)
                 {
@@ -243,13 +244,18 @@ namespace gled
 
         private void toolBtnSave_Click(object sender, EventArgs e)
         {
-            SaveTabPage((TabPage)this.tabSource.SelectedTab);
+            SaveTabPage((TabPage)this.tabSource.SelectedTab, false);
         }
 
         private void toolBtnSaveAll_Click(object sender, EventArgs e)
         {
             foreach (var tab in this.tabSource.TabPages)
-                SaveTabPage((TabPage)tab);
+                SaveTabPage((TabPage)tab, false);
+        }
+
+        private void toolBtnSaveAs_Click(object sender, EventArgs e)
+        {
+            SaveTabPage((TabPage)this.tabSource.SelectedTab, true);
         }
 
         #endregion
@@ -451,11 +457,11 @@ namespace gled
             return rs;
         }
 
-        private void SaveTabPage(TabPage tabPage)
+        private void SaveTabPage(TabPage tabPage, bool newfile)
         {
             var selectedTabPageText = (Scintilla)tabPage.Controls[0];
 
-            if (tabPage.filepath == null)
+            if (tabPage.filepath == null || newfile)
             {
                 SaveFileDialog saveDlg = new SaveFileDialog();
                 saveDlg.Filter = "Text Files (.tech)|*.tech|All Files (*.*)|*.*";
