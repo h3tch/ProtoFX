@@ -6,7 +6,7 @@ using SysImg = System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.IO;
 
-namespace gled
+namespace App
 {
     class GLImage : GLObject
     {
@@ -164,7 +164,8 @@ namespace gled
 
                 for (int i = 0; i < filenames.Length; i++)
                 {
-                    var path = Path.IsPathRooted(filenames[i]) ? filenames[i] : dir + filenames[i];
+                    var filename = filenames[i];
+                    var path = Path.IsPathRooted(filename) ? filename : dir + filename;
                     var bmp = new Bitmap(path);
                     var bmpData = bmp.LockBits(
                         new Rectangle(0, 0, Math.Min(bmp.Width, w), Math.Min(bmp.Height, h)),

@@ -1,3 +1,5 @@
+// ATHOR: Michael Hecher
+
 /////////////
 // BUFFERS //
 /////////////
@@ -8,7 +10,7 @@ buffer buff_pos {
 	usage staticDraw
 	// load <pos></pos> data from XML file
 	// these are vertex positions for each vertex
-	file geom/cube.xml|pos geom/quad.xml|pos
+	file "geom/cube.xml|pos" "geom/quad.xml|pos"
 }
 
 buffer buff_color {
@@ -17,7 +19,7 @@ buffer buff_color {
 	usage staticDraw
 	// load <color></color> data from XML file
 	// these are vertex colors for each vertex
-	file geom/cube.xml|color
+	file "geom/cube.xml|color"
 }
 
 buffer buff_idx {
@@ -26,7 +28,7 @@ buffer buff_idx {
 	usage staticDraw
 	// load <index></index> data from XML file
 	// these are indices forming triangles from vertex positions
-	file geom/cube.xml|index
+	file "geom/cube.xml|index"
 }
 
 image img_color {
@@ -142,7 +144,7 @@ shader frag fs_present {
 /////////////
 
 csharp cs_util {
-	file util/SimpleCamera.cs
+	file "util/SimpleCamera.cs"
 }
 
 pass pass_render {

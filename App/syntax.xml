@@ -98,6 +98,8 @@
       <Style Name="OPERATOR" ForeColor="#3050CC" BackColor="White"/>
       <Style Name="COMMENT" ForeColor="#7F9F00" BackColor="White"/>
       <Style Name="COMMENTLINE" ForeColor="#7F9F00" BackColor="White"/>
+      <Style Name="PREPROCESSOR" ForeColor="#E47426" BackColor="White"/>
+      <Style Name="STRING" ForeColor="Maroon" BackColor="White"/>
     </Styles>
   </Language>
 </ScintillaNET>

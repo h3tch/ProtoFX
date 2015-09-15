@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-namespace gled
+namespace App
 {
     class GledXml
     {

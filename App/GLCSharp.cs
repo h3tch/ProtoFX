@@ -6,8 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using OpenTK;
+using OpenTK.Graphics.OpenGL4;
 
-namespace gled
+namespace App
 {
     class GLCsharp : GLObject
     {
@@ -52,6 +53,7 @@ namespace gled
 
             // use '\\' file paths instead of '/' and set absolute directory path
             for (int i = 0; i < file.Length; i++)
+                // use correct directory separator
                 file[i] = (Path.IsPathRooted(file[i]) ? file[i] : dir + file[i])
                           .Replace('/', Path.DirectorySeparatorChar);
             

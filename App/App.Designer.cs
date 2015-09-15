@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace gled
+namespace App
 {
     partial class App
     {
@@ -40,20 +40,6 @@ namespace gled
             this.toolStripContainer = new System.Windows.Forms.ToolStripContainer();
             this.tabSource = new System.Windows.Forms.TabControl();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
-            this.codeError = new System.Windows.Forms.RichTextBox();
-            this.tabDebug = new System.Windows.Forms.TabPage();
-            this.tabData = new System.Windows.Forms.TabControl();
-            this.tabDataImg = new System.Windows.Forms.TabPage();
-            this.tableLayoutImages = new System.Windows.Forms.TableLayoutPanel();
-            this.comboImg = new System.Windows.Forms.ComboBox();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.tabDataBuf = new System.Windows.Forms.TabPage();
-            this.tableLayoutBufferDef = new System.Windows.Forms.TableLayoutPanel();
-            this.tableBuf = new System.Windows.Forms.DataGridView();
-            this.tableLayoutBuffers = new System.Windows.Forms.TableLayoutPanel();
-            this.comboBuf = new System.Windows.Forms.ComboBox();
-            this.comboBufType = new System.Windows.Forms.ComboBox();
-            this.textBufDim = new System.Windows.Forms.TextBox();
             this.toolBtnClose = new System.Windows.Forms.ToolStripButton();
             this.toolBtnNew = new System.Windows.Forms.ToolStripButton();
             this.toolBtnOpen = new System.Windows.Forms.ToolStripButton();
@@ -61,7 +47,21 @@ namespace gled
             this.toolBtnSaveAll = new System.Windows.Forms.ToolStripButton();
             this.toolBtnSaveAs = new System.Windows.Forms.ToolStripButton();
             this.toolBtnRun = new System.Windows.Forms.ToolStripButton();
+            this.codeError = new System.Windows.Forms.RichTextBox();
+            this.tabDebug = new System.Windows.Forms.TabPage();
+            this.tabData = new System.Windows.Forms.TabControl();
+            this.tabDataImg = new System.Windows.Forms.TabPage();
+            this.tableLayoutImages = new System.Windows.Forms.TableLayoutPanel();
+            this.comboImg = new System.Windows.Forms.ComboBox();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.pictureImg = new System.Windows.Forms.PictureBox();
+            this.tabDataBuf = new System.Windows.Forms.TabPage();
+            this.tableLayoutBufferDef = new System.Windows.Forms.TableLayoutPanel();
+            this.tableBuf = new System.Windows.Forms.DataGridView();
+            this.tableLayoutBuffers = new System.Windows.Forms.TableLayoutPanel();
+            this.comboBuf = new System.Windows.Forms.ComboBox();
+            this.comboBufType = new System.Windows.Forms.ComboBox();
+            this.textBufDim = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
             this.splitRenderCoding.Panel1.SuspendLayout();
             this.splitRenderCoding.Panel2.SuspendLayout();
@@ -82,11 +82,11 @@ namespace gled
             this.tabDataImg.SuspendLayout();
             this.tableLayoutImages.SuspendLayout();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureImg)).BeginInit();
             this.tabDataBuf.SuspendLayout();
             this.tableLayoutBufferDef.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tableBuf)).BeginInit();
             this.tableLayoutBuffers.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureImg)).BeginInit();
             this.SuspendLayout();
             // 
             // splitRenderCoding
@@ -189,7 +189,7 @@ namespace gled
             // toolStripContainer.ContentPanel
             // 
             this.toolStripContainer.ContentPanel.Controls.Add(this.tabSource);
-            this.toolStripContainer.ContentPanel.Size = new System.Drawing.Size(891, 689);
+            this.toolStripContainer.ContentPanel.Size = new System.Drawing.Size(909, 689);
             this.toolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolStripContainer.Location = new System.Drawing.Point(3, 3);
             this.toolStripContainer.Name = "toolStripContainer";
@@ -208,7 +208,7 @@ namespace gled
             this.tabSource.Margin = new System.Windows.Forms.Padding(0);
             this.tabSource.Name = "tabSource";
             this.tabSource.SelectedIndex = 0;
-            this.tabSource.Size = new System.Drawing.Size(891, 689);
+            this.tabSource.Size = new System.Drawing.Size(909, 689);
             this.tabSource.TabIndex = 0;
             // 
             // toolStrip
@@ -225,15 +225,85 @@ namespace gled
             this.toolBtnRun});
             this.toolStrip.Location = new System.Drawing.Point(0, 3);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(47, 256);
+            this.toolStrip.Size = new System.Drawing.Size(29, 228);
             this.toolStrip.TabIndex = 0;
+            // 
+            // toolBtnClose
+            // 
+            this.toolBtnClose.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnClose.Image = global::App.Properties.Resources.ImgClose;
+            this.toolBtnClose.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnClose.Name = "toolBtnClose";
+            this.toolBtnClose.Size = new System.Drawing.Size(27, 28);
+            this.toolBtnClose.Text = "Close Tab";
+            this.toolBtnClose.Click += new System.EventHandler(this.toolBtnClose_Click);
+            // 
+            // toolBtnNew
+            // 
+            this.toolBtnNew.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnNew.Image = global::App.Properties.Resources.ImgNew;
+            this.toolBtnNew.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnNew.Name = "toolBtnNew";
+            this.toolBtnNew.Size = new System.Drawing.Size(27, 28);
+            this.toolBtnNew.Text = "New";
+            this.toolBtnNew.Click += new System.EventHandler(this.toolBtnNew_Click);
+            // 
+            // toolBtnOpen
+            // 
+            this.toolBtnOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnOpen.Image = global::App.Properties.Resources.ImgOpen;
+            this.toolBtnOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnOpen.Name = "toolBtnOpen";
+            this.toolBtnOpen.Size = new System.Drawing.Size(27, 28);
+            this.toolBtnOpen.Text = "Open (Ctrl + O)";
+            this.toolBtnOpen.Click += new System.EventHandler(this.toolBtnOpen_Click);
+            // 
+            // toolBtnSave
+            // 
+            this.toolBtnSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnSave.Image = ((System.Drawing.Image)(resources.GetObject("toolBtnSave.Image")));
+            this.toolBtnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnSave.Name = "toolBtnSave";
+            this.toolBtnSave.Size = new System.Drawing.Size(27, 28);
+            this.toolBtnSave.Text = "Save (Ctrl + S)";
+            this.toolBtnSave.Click += new System.EventHandler(this.toolBtnSave_Click);
+            // 
+            // toolBtnSaveAll
+            // 
+            this.toolBtnSaveAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnSaveAll.Image = global::App.Properties.Resources.ImgSaveAll;
+            this.toolBtnSaveAll.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnSaveAll.Name = "toolBtnSaveAll";
+            this.toolBtnSaveAll.Size = new System.Drawing.Size(27, 28);
+            this.toolBtnSaveAll.Text = "Save all (Ctrl + Shift + S)";
+            this.toolBtnSaveAll.Click += new System.EventHandler(this.toolBtnSaveAll_Click);
+            // 
+            // toolBtnSaveAs
+            // 
+            this.toolBtnSaveAs.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnSaveAs.Image = global::App.Properties.Resources.ImgSaveAs;
+            this.toolBtnSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnSaveAs.Name = "toolBtnSaveAs";
+            this.toolBtnSaveAs.Size = new System.Drawing.Size(27, 28);
+            this.toolBtnSaveAs.Text = "Save as (Alt + S)";
+            this.toolBtnSaveAs.Click += new System.EventHandler(this.toolBtnSaveAs_Click);
+            // 
+            // toolBtnRun
+            // 
+            this.toolBtnRun.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnRun.Image = global::App.Properties.Resources.ImgRun;
+            this.toolBtnRun.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnRun.Name = "toolBtnRun";
+            this.toolBtnRun.Size = new System.Drawing.Size(27, 28);
+            this.toolBtnRun.Text = "Run (F5)";
+            this.toolBtnRun.Click += new System.EventHandler(this.toolBtnRun_Click);
             // 
             // codeError
             // 
             this.codeError.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.codeError.Dock = System.Windows.Forms.DockStyle.Fill;
             this.codeError.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.codeError.ForeColor = System.Drawing.SystemColors.HighlightText;
+            this.codeError.ForeColor = System.Drawing.SystemColors.WindowText;
             this.codeError.Location = new System.Drawing.Point(0, 0);
             this.codeError.Margin = new System.Windows.Forms.Padding(0);
             this.codeError.Name = "codeError";
@@ -310,6 +380,16 @@ namespace gled
             this.panel1.Size = new System.Drawing.Size(924, 1009);
             this.panel1.TabIndex = 2;
             // 
+            // pictureImg
+            // 
+            this.pictureImg.Location = new System.Drawing.Point(0, 0);
+            this.pictureImg.Name = "pictureImg";
+            this.pictureImg.Size = new System.Drawing.Size(410, 353);
+            this.pictureImg.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictureImg.TabIndex = 0;
+            this.pictureImg.TabStop = false;
+            this.pictureImg.Click += new System.EventHandler(this.pictureImg_Click);
+            // 
             // tabDataBuf
             // 
             this.tabDataBuf.Controls.Add(this.tableLayoutBufferDef);
@@ -333,7 +413,7 @@ namespace gled
             this.tableLayoutBufferDef.RowCount = 2;
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutBufferDef.Size = new System.Drawing.Size(930, 1057);
+            this.tableLayoutBufferDef.Size = new System.Drawing.Size(930, 1055);
             this.tableLayoutBufferDef.TabIndex = 0;
             // 
             // tableBuf
@@ -407,87 +487,6 @@ namespace gled
             this.textBufDim.Text = "4";
             this.textBufDim.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textBufDim_KeyUp);
             // 
-            // toolBtnClose
-            // 
-            this.toolBtnClose.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnClose.Image = global::App.Properties.Resources.ImgClose;
-            this.toolBtnClose.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolBtnClose.Name = "toolBtnClose";
-            this.toolBtnClose.Size = new System.Drawing.Size(45, 28);
-            this.toolBtnClose.Text = "Close Tab";
-            this.toolBtnClose.Click += new System.EventHandler(this.toolBtnClose_Click);
-            // 
-            // toolBtnNew
-            // 
-            this.toolBtnNew.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnNew.Image = ((System.Drawing.Image)(resources.GetObject("toolBtnNew.Image")));
-            this.toolBtnNew.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolBtnNew.Name = "toolBtnNew";
-            this.toolBtnNew.Size = new System.Drawing.Size(45, 28);
-            this.toolBtnNew.Text = "New";
-            this.toolBtnNew.Click += new System.EventHandler(this.toolBtnNew_Click);
-            // 
-            // toolBtnOpen
-            // 
-            this.toolBtnOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnOpen.Image = ((System.Drawing.Image)(resources.GetObject("toolBtnOpen.Image")));
-            this.toolBtnOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolBtnOpen.Name = "toolBtnOpen";
-            this.toolBtnOpen.Size = new System.Drawing.Size(45, 28);
-            this.toolBtnOpen.Text = "Open";
-            this.toolBtnOpen.Click += new System.EventHandler(this.toolBtnOpen_Click);
-            // 
-            // toolBtnSave
-            // 
-            this.toolBtnSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnSave.Image = ((System.Drawing.Image)(resources.GetObject("toolBtnSave.Image")));
-            this.toolBtnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolBtnSave.Name = "toolBtnSave";
-            this.toolBtnSave.Size = new System.Drawing.Size(45, 28);
-            this.toolBtnSave.Text = "Save";
-            this.toolBtnSave.Click += new System.EventHandler(this.toolBtnSave_Click);
-            // 
-            // toolBtnSaveAll
-            // 
-            this.toolBtnSaveAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnSaveAll.Image = global::App.Properties.Resources.ImgSaveAll;
-            this.toolBtnSaveAll.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolBtnSaveAll.Name = "toolBtnSaveAll";
-            this.toolBtnSaveAll.Size = new System.Drawing.Size(45, 28);
-            this.toolBtnSaveAll.Text = "Save all";
-            this.toolBtnSaveAll.Click += new System.EventHandler(this.toolBtnSaveAll_Click);
-            // 
-            // toolBtnSaveAs
-            // 
-            this.toolBtnSaveAs.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnSaveAs.Image = global::App.Properties.Resources.ImgSaveAs;
-            this.toolBtnSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolBtnSaveAs.Name = "toolBtnSaveAs";
-            this.toolBtnSaveAs.Size = new System.Drawing.Size(45, 28);
-            this.toolBtnSaveAs.Text = "Save as";
-            this.toolBtnSaveAs.ToolTipText = "Save as";
-            this.toolBtnSaveAs.Click += new System.EventHandler(this.toolBtnSaveAs_Click);
-            // 
-            // toolBtnRun
-            // 
-            this.toolBtnRun.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnRun.Image = global::App.Properties.Resources.ImgRun;
-            this.toolBtnRun.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolBtnRun.Name = "toolBtnRun";
-            this.toolBtnRun.Size = new System.Drawing.Size(45, 28);
-            this.toolBtnRun.Text = "Run";
-            this.toolBtnRun.Click += new System.EventHandler(this.toolBtnRun_Click);
-            // 
-            // pictureImg
-            // 
-            this.pictureImg.Location = new System.Drawing.Point(0, 0);
-            this.pictureImg.Name = "pictureImg";
-            this.pictureImg.Size = new System.Drawing.Size(410, 353);
-            this.pictureImg.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureImg.TabIndex = 0;
-            this.pictureImg.TabStop = false;
-            this.pictureImg.Click += new System.EventHandler(this.pictureImg_Click);
-            // 
             // App
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -497,7 +496,8 @@ namespace gled
             this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "App";
-            this.Text = "GLED";
+            this.ShowIcon = false;
+            this.Text = "ProtoGL";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.App_FormClosing);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.App_KeyUp);
             this.splitRenderCoding.Panel1.ResumeLayout(false);
@@ -524,12 +524,12 @@ namespace gled
             this.tableLayoutImages.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureImg)).EndInit();
             this.tabDataBuf.ResumeLayout(false);
             this.tableLayoutBufferDef.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.tableBuf)).EndInit();
             this.tableLayoutBuffers.ResumeLayout(false);
             this.tableLayoutBuffers.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureImg)).EndInit();
             this.ResumeLayout(false);
 
         }

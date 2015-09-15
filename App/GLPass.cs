@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
-namespace gled
+namespace App
 {
     class GLPass : GLObject
     {

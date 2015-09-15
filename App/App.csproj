@@ -113,7 +113,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\ImgOpen.bmp" />
     <None Include="resources\ImgOpen.png" />
     <None Include="resources\ImgSave.png" />
     <None Include="resources\ImgSaveAll.png" />
@@ -122,6 +121,7 @@
     <None Include="resources\ImgSaveAs.png" />
     <None Include="demos\simple_include.tech" />
     <None Include="resources\ImgClose.png" />
+    <None Include="resources\AppIcon.ico" />
     <Content Include="syntax.xml" />
     <None Include="demos\simple.tech" />
     <None Include="demos\fragoutput.tech" />

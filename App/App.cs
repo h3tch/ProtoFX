@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace gled
+namespace App
 {
     public partial class App : Form
     {
@@ -43,8 +43,29 @@ namespace gled
 
         private void App_KeyUp(object sender, KeyEventArgs e)
         {
-            if(e.KeyCode == Keys.F5)
-                toolBtnRun_Click(sender, null);
+            switch (e.KeyCode)
+            {
+                case Keys.F5:
+                    // Compile and run
+                    toolBtnRun_Click(sender, null);
+                    break;
+                case Keys.S:
+                    if (e.Control && e.Shift)
+                        // Save all tabs
+                        toolBtnSaveAll_Click(sender, null);
+                    else if (e.Control)
+                        // Save active tab
+                        toolBtnSave_Click(sender, null);
+                    else if (e.Alt)
+                        // Save active tab as
+                        toolBtnSaveAs_Click(sender, null);
+                    break;
+                case Keys.O:
+                    if (e.Control)
+                        // Open tech files
+                        toolBtnOpen_Click(sender, null);
+                    break;
+            }
         }
 
         private void glControl_Resize(object sender, EventArgs e)
@@ -200,7 +221,7 @@ namespace gled
                 string classText = blocks[i].Substring(start + 1, blocks[i].LastIndexOf('}') - start - 1);
 
                 // GET CLASS TYPE, ANNOTATION AND NAME
-                var classType = "gled.GL"
+                var classType = "App.GL"
                     + classInfo[0].First().ToString().ToUpper()
                     + classInfo[0].Substring(1);
                 var classAnno = classInfo[classInfo.Length - 2];
@@ -245,13 +266,22 @@ namespace gled
 
         private void toolBtnSave_Click(object sender, EventArgs e)
         {
-            SaveTabPage((TabPage)this.tabSource.SelectedTab, false);
+            TabPage tab = (TabPage)this.tabSource.SelectedTab;
+            if (!tab.Text.EndsWith("*"))
+                return;
+            SaveTabPage(tab, false);
+            tab.Text = tab.Text.Substring(0, tab.Text.Length - 1);
         }
 
         private void toolBtnSaveAll_Click(object sender, EventArgs e)
         {
-            foreach (var tab in this.tabSource.TabPages)
-                SaveTabPage((TabPage)tab, false);
+            foreach (TabPage tab in this.tabSource.TabPages)
+            {
+                if (!tab.Text.EndsWith("*"))
+                    continue;
+                SaveTabPage(tab, false);
+                tab.Text = tab.Text.Substring(0, tab.Text.Length - 1);
+            }
         }
 
         private void toolBtnSaveAs_Click(object sender, EventArgs e)
@@ -291,16 +321,11 @@ namespace gled
         {
             // load file
             string filename = path != null ? Path.GetFileName(path) : "unnamed.tech";
-            string text = path != null ? File.ReadAllText(path) : "";
+            string text = path != null ? File.ReadAllText(path) : "// Unnamed GLED file";
 
             // create new tab objects
             TabPage tabSourcePage = new TabPage(path);
             Scintilla tabSourcePageText = new Scintilla();
-
-            // suspend layouts
-            tabSourcePage.SuspendLayout();
-            tabSourcePageText.SuspendLayout();
-            this.tabSource.SuspendLayout();
 
             // tabSourcePageText
             tabSourcePageText.BorderStyle = BorderStyle.None;
@@ -328,6 +353,8 @@ namespace gled
             tabSourcePageText.Styles.Max.FontName = "Verdana\0";
             tabSourcePageText.Styles.Max.Size = 10F;
             tabSourcePageText.TabIndex = 0;
+            tabSourcePageText.Text = text;
+            tabSourcePageText.TextChanged += new EventHandler(this.tabSourcePageText_TextChanged);
 
             // tabSourcePage
             tabSourcePage.Controls.Add(tabSourcePageText);
@@ -340,13 +367,6 @@ namespace gled
             // add tab
             this.tabSource.Controls.Add(tabSourcePage);
 
-            // resume layouts
-            tabSourcePageText.ResumeLayout(false);
-            tabSourcePage.ResumeLayout(false);
-            this.tabSource.ResumeLayout(false);
-
-            tabSourcePageText.Text = text;
-            tabSourcePageText.TextChanged += new EventHandler(this.tabSourcePageText_TextChanged);
         }
 
         #endregion

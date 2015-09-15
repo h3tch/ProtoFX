@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace gled
+namespace App
 {
     static class Program
     {

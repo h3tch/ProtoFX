@@ -4,7 +4,7 @@ using OpenTK.Graphics.OpenGL4;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace gled
+namespace App
 {
     class GLBuffer : GLObject
     {
@@ -86,6 +86,7 @@ namespace gled
             byte[][] filedata = new byte[filenames.Length][];
             for (int i = 0; i < filenames.Length; i++)
             {
+                // get path and node
                 var filename = filenames[i].Split(new char[] { '|' });
                 var path = Path.IsPathRooted(filename[0]) ? filename[0] : dir + filename[0];
                 if (filename.Length == 1)

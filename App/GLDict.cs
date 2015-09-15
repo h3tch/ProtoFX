@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace gled
+namespace App
 {
     class GLDict : Dictionary<string, GLObject>
     {

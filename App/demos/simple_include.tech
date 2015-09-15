@@ -53,7 +53,7 @@ pass pass_render {
 	Enable depthTest
 	
 	// execute camera code
-	exec cs_util util.SimpleCamera
+	exec cs_util util.SimpleCamera 60 0.1 100 0 0 5
 	
 	// draw cube
 	// draw <indexbuffername=0> <vertinname> <indextype> <primitivetype>

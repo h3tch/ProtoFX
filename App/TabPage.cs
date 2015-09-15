@@ -1,4 +1,4 @@
-﻿namespace gled
+﻿namespace App
 {
     class TabPage : System.Windows.Forms.TabPage
     {

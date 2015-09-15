@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL4;
 
-namespace gled
+namespace App
 {
     class GLSampler : GLObject
     {

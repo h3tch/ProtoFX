@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace gled
+namespace App
 {
     class GLVertoutput : GLObject
     {
