@@ -1,12 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ScintillaNET>
   <Language Name="default">
-    <Styles>
-      <Style Name="Default" FontName="Consolas"/>
-    </Styles>
+    <Indentation TabWidth="4" UseTabs="true"/>
   </Language>
   <Language Name="cpp">
-    <Indentation TabWidth="4" UseTabs="false"/>
+    <Indentation TabWidth="4" UseTabs="true"/>
     <Lexer>
       <Keywords List="0">
         buffer

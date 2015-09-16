@@ -14,9 +14,11 @@ namespace App
 {
     public partial class App : Form
     {
+        #region FIELDS
         private Dict classes = new Dict();
         private bool render = false;
         public static CultureInfo culture = new CultureInfo("en");
+        #endregion
 
         public App()
         {
@@ -38,6 +40,23 @@ namespace App
 
         private void App_FormClosing(object sender, FormClosingEventArgs e)
         {
+            // check if there are any files with changes
+            foreach (TabPage tab in this.tabSource.TabPages)
+            {
+                if (tab.Text.EndsWith("*"))
+                {
+                    // ask user whether he/she wants to save those files
+                    DialogResult answer = MessageBox.Show(
+                        "Do you want to save files with changes before closing them?",
+                        "Save file changes", MessageBoxButtons.YesNo);
+                    // if so, save all files with changes
+                    if (answer == DialogResult.Yes)
+                        toolBtnSaveAll_Click(sender, null);
+                    break;
+                }
+            }
+
+            // delete OpenGL objects
             DeleteClasses();
         }
 
@@ -164,6 +183,7 @@ namespace App
         private void toolBtnNew_Click(object sender, EventArgs e)
         {
             AddSourceTab(null);
+            tabSource.SelectedIndex = tabSource.TabPages.Count-1;
         }
 
         private void toolBtnOpen_Click(object sender, EventArgs e)
@@ -189,7 +209,10 @@ namespace App
                         }
                     }
                     if (i == tabSource.TabPages.Count)
+                    {
                         AddSourceTab(filename);
+                        tabSource.SelectedIndex = i;
+                    }
                 }
             }
         }
@@ -321,7 +344,7 @@ namespace App
         {
             // load file
             string filename = path != null ? Path.GetFileName(path) : "unnamed.tech";
-            string text = path != null ? File.ReadAllText(path) : "// Unnamed GLED file";
+            string text = path != null ? File.ReadAllText(path) : "// Unnamed ProtoGL file";
 
             // create new tab objects
             TabPage tabSourcePage = new TabPage(path);
@@ -335,23 +358,6 @@ namespace App
             tabSourcePageText.Font = new Font("Consolas", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             tabSourcePageText.Location = new Point(0, 0);
             tabSourcePageText.Margin = new Padding(0);
-            tabSourcePageText.Styles.BraceBad.FontName = "Verdana\0";
-            tabSourcePageText.Styles.BraceBad.Size = 10F;
-            tabSourcePageText.Styles.BraceLight.FontName = "Verdana\0";
-            tabSourcePageText.Styles.BraceLight.Size = 10F;
-            tabSourcePageText.Styles.ControlChar.FontName = "Verdana\0";
-            tabSourcePageText.Styles.ControlChar.Size = 10F;
-            tabSourcePageText.Styles.Default.BackColor = SystemColors.Window;
-            tabSourcePageText.Styles.Default.FontName = "Verdana\0";
-            tabSourcePageText.Styles.Default.Size = 10F;
-            tabSourcePageText.Styles.IndentGuide.FontName = "Verdana\0";
-            tabSourcePageText.Styles.IndentGuide.Size = 10F;
-            tabSourcePageText.Styles.LastPredefined.FontName = "Verdana\0";
-            tabSourcePageText.Styles.LastPredefined.Size = 10F;
-            tabSourcePageText.Styles.LineNumber.FontName = "Verdana\0";
-            tabSourcePageText.Styles.LineNumber.Size = 10F;
-            tabSourcePageText.Styles.Max.FontName = "Verdana\0";
-            tabSourcePageText.Styles.Max.Size = 10F;
             tabSourcePageText.TabIndex = 0;
             tabSourcePageText.Text = text;
             tabSourcePageText.TextChanged += new EventHandler(this.tabSourcePageText_TextChanged);
@@ -367,6 +373,7 @@ namespace App
             // add tab
             this.tabSource.Controls.Add(tabSourcePage);
 
+            tabSourcePageText.UndoRedo.EmptyUndoBuffer();
         }
 
         #endregion

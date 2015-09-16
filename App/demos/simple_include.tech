@@ -1,4 +1,4 @@
-﻿#include "simple_include_header.tech"
+#include "simple_include_header.tech"
 
 /////////////
 // SHADERS //
@@ -7,8 +7,8 @@
 shader vert vs_simple {
 	#version 440
 	
-	uniform mat4 g_view; // the camera view matrix (set by GLED)
-	uniform mat4 g_proj; // the camera projection matrix (set by GLED)
+	uniform mat4 g_view;
+	uniform mat4 g_proj;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
