@@ -34,7 +34,7 @@ namespace App
 
         #endregion
 
-        public GLImage(string dir, string name, string annotation, string text, GLDict classes)
+        public GLImage(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
             // PARSE TEXT TO COMMANDS
@@ -74,7 +74,7 @@ namespace App
             GL.TexParameter(target, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
             // LOAD IMAGE DATA
-            var data = loadImageFiles(dir, file, width, height, depth, gpuformat,
+            var data = loadImageFiles(dir, file, ref width, ref height, ref depth, gpuformat,
                 out pixelformat, out pixeltype, out pixelsize, out fileformat);
             var dataPtr = IntPtr.Zero;
             if (data != null)
@@ -140,40 +140,59 @@ namespace App
 
         #region UTIL METHODS
 
-        private static byte[] loadImageFiles(string dir, string[] filenames, int w, int h, int d, PixelInternalFormat gpuformat, 
-            out PixelFormat pixelformat, out PixelType pixeltype, out int pixelsize, out SysImg.PixelFormat fileformat)
+        private static byte[] loadImageFiles(string dir, string[] filenames,
+            ref int w, ref int h, ref int d, PixelInternalFormat gpuformat, 
+            out PixelFormat pixelformat, out PixelType pixeltype, out int pixelsize,
+            out SysImg.PixelFormat fileformat)
         {
-            if (gpuformat.ToString().StartsWith("DepthComponent"))
-            {
-                pixelformat = PixelFormat.DepthComponent;
-                pixeltype = PixelType.Float;
-            }
-            else
-            {
-                pixelformat = PixelFormat.Bgra;
-                pixeltype = PixelType.UnsignedByte;
-            }
-            
+            // SET DEFAULT DATA FOR OUTPUTS
+            byte[] data = null;
+            bool isdepth = gpuformat.ToString().StartsWith("DepthComponent");
+            // set default pixel data format and type
+            pixelformat = isdepth ? PixelFormat.DepthComponent : PixelFormat.Bgra;
+            pixeltype = isdepth ? PixelType.Float : PixelType.UnsignedByte;
+            // set default file format and pixel size
             fileformat = SysImg.PixelFormat.Format32bppArgb;
             pixelsize = Image.GetPixelFormatSize(fileformat) / 8;
-            byte[] data = null;
 
-            if (filenames != null && filenames.Length > 0)
+            // LOAD IMAGA DATA FROM FILES
+            if (filenames != null && filenames.Length > 0 && !isdepth)
             {
-                data = new byte[pixelsize * w * h * (d > 0 ? d : filenames.Length)];
+                // preload all files to get information
+                // like minimal width and height
+                var bmps = new Bitmap[filenames.Length];
+                int imgW = int.MaxValue;
+                int imgH = int.MaxValue;
+                int imgD = d > 0 ? Math.Min(filenames.Length, d) : filenames.Length;
 
-                for (int i = 0; i < filenames.Length; i++)
+                for (int i = 0; i < imgD; i++)
                 {
-                    var filename = filenames[i];
-                    var path = Path.IsPathRooted(filename) ? filename : dir + filename;
-                    var bmp = new Bitmap(path);
-                    var bmpData = bmp.LockBits(
-                        new Rectangle(0, 0, Math.Min(bmp.Width, w), Math.Min(bmp.Height, h)),
-                        SysImg.ImageLockMode.ReadOnly, fileformat);
-                
-                    Marshal.Copy(bmpData.Scan0, data, pixelsize * w * h * i, bmpData.Stride * bmpData.Height);
+                    var path = Path.IsPathRooted(filenames[i]) ? filenames[i] : dir + filenames[i];
+                    bmps[i] = new Bitmap(path);
+                    imgW = Math.Min(bmps[i].Width, imgW);
+                    imgH = Math.Min(bmps[i].Height, imgH);
+                }
 
-                    bmp.UnlockBits(bmpData);
+                // if w, h and d where not set by the user,
+                // use the minimal image size
+                if (w == 1 && h == 0 && d == 0)
+                {
+                    w = imgW;
+                    h = imgH;
+                    d = imgD;
+                }
+
+                // allocate texture memory
+                data = new byte[pixelsize * w * h * d];
+
+                // copy data to texture memory
+                for (int i = 0; i < imgD; i++)
+                {
+                    var bmpData = bmps[i].LockBits(
+                        new Rectangle(0, 0, Math.Min(bmps[i].Width, w), Math.Min(bmps[i].Height, h)),
+                        SysImg.ImageLockMode.ReadOnly, fileformat);
+                    Marshal.Copy(bmpData.Scan0, data, pixelsize * w * h * i, bmpData.Stride * bmpData.Height);
+                    bmps[i].UnlockBits(bmpData);
                 }
             }
 

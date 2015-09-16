@@ -17,7 +17,7 @@ namespace App
 
         #endregion
 
-        public GLTexture(string dir, string name, string annotation, string text, GLDict classes)
+        public GLTexture(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
 
         {
@@ -29,11 +29,11 @@ namespace App
             
             // GET REFERENCES
             if (samp != null && (glsamp = classes.FindClass<GLSampler>(samp)) == null)
-                throw new Exception(GLDict.NotFoundMsg("texture", name, "sampler", samp));
+                throw new Exception(Dict.NotFoundMsg("texture", name, "sampler", samp));
             if (buff != null && (glbuff = classes.FindClass<GLBuffer>(buff)) == null)
-                throw new Exception(GLDict.NotFoundMsg("texture", name, "buffer", buff));
+                throw new Exception(Dict.NotFoundMsg("texture", name, "buffer", buff));
             if (img != null && (glimg = classes.FindClass<GLImage>(img)) == null)
-                throw new Exception(GLDict.NotFoundMsg("texture", name, "image", img));
+                throw new Exception(Dict.NotFoundMsg("texture", name, "image", img));
 
             // INCASE THIS IS A TEXTURE OBJECT
             if (glbuff != null && glimg == null)

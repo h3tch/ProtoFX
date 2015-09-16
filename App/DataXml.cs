@@ -6,7 +6,7 @@ using System.Xml;
 
 namespace App
 {
-    class GledXml
+    class DataXml
     {
         #region PROPERTIES
 
@@ -36,7 +36,7 @@ namespace App
 
         #endregion
 
-        public GledXml (string filename, string itemname)
+        public DataXml (string filename, string itemname)
         {
             // load XML file
             var xmlDoc = new XmlDocument();

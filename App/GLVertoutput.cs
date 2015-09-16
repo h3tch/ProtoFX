@@ -6,7 +6,7 @@ namespace App
 {
     class GLVertoutput : GLObject
     {
-        public GLVertoutput(string dir, string name, string annotation, string text, GLDict classes)
+        public GLVertoutput(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
             // PARSE TEXT
@@ -31,7 +31,7 @@ namespace App
                     // get buffer
                     GLBuffer buf = classes.FindClass<GLBuffer>(cmd[1]);
                     if (buf == null)
-                        throw new Exception(GLDict.NotFoundMsg("vertoutput", name, "buffer", cmd[1]));
+                        throw new Exception(Dict.NotFoundMsg("vertoutput", name, "buffer", cmd[1]));
 
                     // parse offset
                     int offset = 0;

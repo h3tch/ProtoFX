@@ -38,7 +38,7 @@ namespace App
 
         #endregion
 
-        public GLFragoutput(string dir, string name, string annotation, string text, GLDict classes)
+        public GLFragoutput(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
             // PARSE TEXT TO COMMANDS
@@ -60,7 +60,7 @@ namespace App
                 // get OpenGL image
                 GLImage glimg = classes.FindClass<GLImage>(cmd[1]);
                 if (glimg == null)
-                    throw new Exception(GLDict.NotFoundMsg("fragoutput", name, "image", cmd[1]));
+                    throw new Exception(Dict.NotFoundMsg("fragoutput", name, "image", cmd[1]));
 
                 // set width and height for GLPass to set the right viewport size
                 if (width == 0 && height == 0)

@@ -20,6 +20,16 @@
      0.0  0.0  1.0  1.0
      1.0  1.0  1.0  1.0
   </color>
+  <uv type='float' isbinary='false'>
+    0.0  0.0
+    1.0  0.0
+    1.0  1.0
+    0.0  1.0
+    1.0  0.0
+    0.0  0.0
+    0.0  1.0
+    1.0  1.0
+  </uv>
   <index type='ushort' isbinary='false'>
      0  1  2
      2  3  0

@@ -9,7 +9,7 @@ namespace App
         public TextureMagFilter magfilter = TextureMagFilter.Nearest;
         public TextureWrapMode wrap = TextureWrapMode.ClampToEdge;
 
-        public GLSampler(string dir, string name, string annotation, string text, GLDict classes)
+        public GLSampler(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
             // PARSE TEXT

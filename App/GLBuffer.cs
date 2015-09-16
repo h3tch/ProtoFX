@@ -16,7 +16,7 @@ namespace App
 
         #endregion
 
-        public GLBuffer(string dir, string name, string annotation, string text, GLDict classes)
+        public GLBuffer(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
             // PARSE TEXT TO COMMANDS
@@ -92,7 +92,7 @@ namespace App
                 if (filename.Length == 1)
                     filedata[i] = File.ReadAllBytes(path);
                 else if (filename.Length == 2)
-                    filedata[i] = new GledXml(path, filename[1]).data;
+                    filedata[i] = new DataXml(path, filename[1]).data;
                 else
                     throw new Exception("");
             }

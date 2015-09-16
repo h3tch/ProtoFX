@@ -7,7 +7,7 @@ namespace App
     {
         private List<GLPass> passes = new List<GLPass>();
 
-        public GLTech(string dir, string name, string annotation, string text, GLDict classes)
+        public GLTech(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
             // PARSE TEXT
@@ -20,7 +20,7 @@ namespace App
 
                 GLPass pass = classes.FindClass<GLPass>(cmd[1]);
                 if (pass == null)
-                    throw new Exception(GLDict.NotFoundMsg("tech", name, "pass", cmd[1]));
+                    throw new Exception(Dict.NotFoundMsg("tech", name, "pass", cmd[1]));
 
                 passes.Add(pass);
             }

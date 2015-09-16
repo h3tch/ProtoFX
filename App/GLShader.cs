@@ -6,7 +6,7 @@ namespace App
 {
     class GLShader : GLObject
     {
-        public GLShader(string dir, string name, string annotation, string text, GLDict classes)
+        public GLShader(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
             // CREATE OPENGL OBJECT

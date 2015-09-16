@@ -129,7 +129,7 @@ namespace App
 
         #endregion
 
-        public GLPass(string dir, string name, string annotation, string text, GLDict classes)
+        public GLPass(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
             // PARSE TEXT TO COMMANDS
@@ -156,9 +156,9 @@ namespace App
 
             // GET VERTEX AND FRAGMENT OUTPUT BINDINGS
             if (fragout != null && (glfragout = classes.FindClass<GLFragoutput>(fragout)) == null)
-                throw new Exception(GLDict.NotFoundMsg("pass", name, "fragout", fragout));
+                throw new Exception(Dict.NotFoundMsg("pass", name, "fragout", fragout));
             if (vertout != null && (glvertout = classes.FindClass<GLVertoutput>(vertout)) == null)
-                throw new Exception(GLDict.NotFoundMsg("pass", name, "vertout", vertout));
+                throw new Exception(Dict.NotFoundMsg("pass", name, "vertout", vertout));
 
             // CREATE OPENGL OBJECT
             glname = GL.CreateProgram();
@@ -403,9 +403,9 @@ namespace App
             GLCsharp clazz = (GLCsharp)obj;
             
             // get GLControl
-            if (classes.TryGetValue(GledControl.nullname, out obj) == false || obj.GetType() != typeof(GledControl))
+            if (classes.TryGetValue(GraphicControl.nullname, out obj) == false || obj.GetType() != typeof(GraphicControl))
                 throw new Exception("INTERNAL_ERROR in pass " + name + ": Cound not find default GLControl.");
-            GledControl glControl = (GledControl)obj;
+            GraphicControl glControl = (GraphicControl)obj;
 
             // create instance of defined main class
             var instance = clazz.CreateInstance(cmd[2], cmd);

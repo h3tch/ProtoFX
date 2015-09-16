@@ -2,7 +2,7 @@
 
 namespace App
 {
-    class GLDict : Dictionary<string, GLObject>
+    class Dict : Dictionary<string, GLObject>
     {
         public T FindClass<T>(string classname)
             where T : GLObject

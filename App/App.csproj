@@ -68,9 +68,9 @@
     <Compile Include="demos\util\SimpleCamera.cs" />
     <Compile Include="GLBuffer.cs" />
     <Compile Include="GLCSharp.cs" />
-    <Compile Include="GLDict.cs" />
-    <Compile Include="GledControl.cs" />
-    <Compile Include="GledXml.cs" />
+    <Compile Include="Dict.cs" />
+    <Compile Include="GraphicControl.cs" />
+    <Compile Include="DataXml.cs" />
     <Compile Include="GLFragoutput.cs" />
     <Compile Include="GLImage.cs" />
     <Compile Include="GLObject.cs" />
@@ -100,6 +100,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="demos\simple_include_header.tech" />
+    <None Include="demos\simple_texture.tech" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

@@ -14,7 +14,7 @@ namespace App
 {
     public partial class App : Form
     {
-        private GLDict classes = new GLDict();
+        private Dict classes = new Dict();
         private bool render = false;
         public static CultureInfo culture = new CultureInfo("en");
 
@@ -394,7 +394,7 @@ namespace App
             // clear list of classes
             classes.Clear();
             // add default OpenTK glControl
-            classes.Add(GledControl.nullname, new GledControl(glControl));
+            classes.Add(GraphicControl.nullname, new GraphicControl(glControl));
         }
 
         private static string RemoveComments(string code, string linecomment)
