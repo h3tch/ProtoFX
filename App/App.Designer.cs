@@ -493,10 +493,10 @@ namespace App
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(2014, 1137);
             this.Controls.Add(this.splitRenderCoding);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "App";
-            this.ShowIcon = false;
             this.Text = "ProtoGL";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.App_FormClosing);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.App_KeyUp);
