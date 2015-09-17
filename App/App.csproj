@@ -54,11 +54,11 @@
   <ItemGroup>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\Debug\OpenTK.dll</HintPath>
+      <HintPath>lib\Release\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK.GLControl, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\Debug\OpenTK.GLControl.dll</HintPath>
+      <HintPath>lib\Release\OpenTK.GLControl.dll</HintPath>
     </Reference>
     <Reference Include="ScintillaNET">
       <HintPath>lib\Debug\ScintillaNET.dll</HintPath>
