@@ -1,6 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Collections.Generic;
 
 namespace App
 {
@@ -104,9 +103,9 @@ namespace App
 
             // CHECK FOR OPENGL ERRORS
             Bind();
-            var status = GL.CheckNamedFramebufferStatus(glname, FramebufferTarget.Framebuffer);
+            var status = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
             Unbind();
-            if (status != All.FramebufferComplete)
+            if (status != FramebufferErrorCode.FramebufferComplete)
                 throw new Exception("ERROR in fragoutput " + name + ": Could not be created due to an unknown error.");
             throwExceptionOnOpenGlError("image", name, "allocate (and write) texture");
         }

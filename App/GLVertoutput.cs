@@ -46,7 +46,7 @@ namespace App
                             + "The third parameter (size) of buff" + numbindings + " is invalid.");
 
                     // bind buffer to transform feedback
-                    GL.BindBufferRange(BufferRangeTarget.TransformFeedbackBuffer, numbindings++, buf.glname, (IntPtr)offset, size);
+                    GL.BindBufferRange(BufferRangeTarget.TransformFeedbackBuffer, numbindings++, buf.glname, (IntPtr)offset, (IntPtr)size);
                 }
             }
 
