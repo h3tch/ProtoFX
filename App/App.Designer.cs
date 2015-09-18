@@ -225,7 +225,7 @@ namespace App
             this.toolBtnRun});
             this.toolStrip.Location = new System.Drawing.Point(0, 3);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(29, 228);
+            this.toolStrip.Size = new System.Drawing.Size(29, 204);
             this.toolStrip.TabIndex = 0;
             // 
             // toolBtnClose
@@ -261,10 +261,9 @@ namespace App
             // toolBtnSave
             // 
             this.toolBtnSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnSave.Image = ((System.Drawing.Image)(resources.GetObject("toolBtnSave.Image")));
             this.toolBtnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnSave.Name = "toolBtnSave";
-            this.toolBtnSave.Size = new System.Drawing.Size(27, 28);
+            this.toolBtnSave.Size = new System.Drawing.Size(27, 4);
             this.toolBtnSave.Text = "Save (Ctrl + S)";
             this.toolBtnSave.Click += new System.EventHandler(this.toolBtnSave_Click);
             // 
@@ -497,6 +496,7 @@ namespace App
             this.KeyPreview = true;
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "App";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ProtoGL";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.App_FormClosing);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.App_KeyUp);

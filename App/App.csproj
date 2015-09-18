@@ -142,7 +142,6 @@
     <None Include="demos\simple_include.tech" />
     <None Include="resources\ImgClose.png" />
     <None Include="resources\AppIcon.ico" />
-    <Content Include="AppIcon.ico" />
     <Content Include="demos\geom\cube.xml" />
     <Content Include="demos\geom\quad.xml" />
     <Content Include="resources\AppIconDark.ico" />

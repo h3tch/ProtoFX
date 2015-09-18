@@ -337,47 +337,7 @@ namespace App
         }
 
         #endregion
-
-        #region CONTROL
-
-        private void AddSourceTab(string path)
-        {
-            // load file
-            string filename = path != null ? Path.GetFileName(path) : "unnamed.tech";
-            string text = path != null ? File.ReadAllText(path) : "// Unnamed ProtoGL file";
-
-            // create new tab objects
-            TabPage tabSourcePage = new TabPage(path);
-            Scintilla tabSourcePageText = new Scintilla();
-
-            // tabSourcePageText
-            tabSourcePageText.BorderStyle = BorderStyle.None;
-            tabSourcePageText.ConfigurationManager.CustomLocation = "../res/syntax.xml";
-            tabSourcePageText.ConfigurationManager.Language = "cpp";
-            tabSourcePageText.Dock = DockStyle.Fill;
-            tabSourcePageText.Font = new Font("Consolas", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            tabSourcePageText.Location = new Point(0, 0);
-            tabSourcePageText.Margin = new Padding(0);
-            tabSourcePageText.TabIndex = 0;
-            tabSourcePageText.Text = text;
-            tabSourcePageText.TextChanged += new EventHandler(this.tabSourcePageText_TextChanged);
-
-            // tabSourcePage
-            tabSourcePage.Controls.Add(tabSourcePageText);
-            tabSourcePage.Location = new Point(4, 31);
-            tabSourcePage.Margin = new Padding(0);
-            tabSourcePage.Padding = new Padding(3);
-            tabSourcePage.TabIndex = 0;
-            tabSourcePage.Text = filename;
-
-            // add tab
-            this.tabSource.Controls.Add(tabSourcePage);
-
-            tabSourcePageText.UndoRedo.EmptyUndoBuffer();
-        }
-
-        #endregion
-
+        
         #region UTIL
 
         private void Render()
@@ -561,6 +521,42 @@ namespace App
             }
 
             File.WriteAllText(tabPage.filepath, selectedTabPageText.Text);
+        }
+
+        private void AddSourceTab(string path)
+        {
+            // load file
+            string filename = path != null ? Path.GetFileName(path) : "unnamed.tech";
+            string text = path != null ? File.ReadAllText(path) : "// Unnamed ProtoGL file";
+
+            // create new tab objects
+            TabPage tabSourcePage = new TabPage(path);
+            Scintilla tabSourcePageText = new Scintilla();
+
+            // tabSourcePageText
+            tabSourcePageText.BorderStyle = BorderStyle.None;
+            tabSourcePageText.ConfigurationManager.CustomLocation = "../res/syntax.xml";
+            tabSourcePageText.ConfigurationManager.Language = "cpp";
+            tabSourcePageText.Dock = DockStyle.Fill;
+            tabSourcePageText.Font = new Font("Consolas", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            tabSourcePageText.Location = new Point(0, 0);
+            tabSourcePageText.Margin = new Padding(0);
+            tabSourcePageText.TabIndex = 0;
+            tabSourcePageText.Text = text;
+            tabSourcePageText.TextChanged += new EventHandler(this.tabSourcePageText_TextChanged);
+
+            // tabSourcePage
+            tabSourcePage.Controls.Add(tabSourcePageText);
+            tabSourcePage.Location = new Point(4, 31);
+            tabSourcePage.Margin = new Padding(0);
+            tabSourcePage.Padding = new Padding(3);
+            tabSourcePage.TabIndex = 0;
+            tabSourcePage.Text = filename;
+
+            // add tab
+            this.tabSource.Controls.Add(tabSourcePage);
+
+            tabSourcePageText.UndoRedo.EmptyUndoBuffer();
         }
 
         #endregion
