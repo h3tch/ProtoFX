@@ -77,34 +77,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App.cs">
+    <Compile Include="src\App.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="App.Designer.cs">
+    <Compile Include="src\App.Designer.cs">
       <DependentUpon>App.cs</DependentUpon>
     </Compile>
     <Compile Include="demos\util\SimpleCamera.cs" />
-    <Compile Include="GLBuffer.cs" />
-    <Compile Include="GLCSharp.cs" />
-    <Compile Include="Dict.cs" />
-    <Compile Include="GraphicControl.cs" />
-    <Compile Include="DataXml.cs" />
-    <Compile Include="GLFragoutput.cs" />
-    <Compile Include="GLImage.cs" />
-    <Compile Include="GLObject.cs" />
-    <Compile Include="GLPass.cs" />
-    <Compile Include="GLSampler.cs" />
-    <Compile Include="GLShader.cs" />
-    <Compile Include="GLTech.cs" />
-    <Compile Include="GLTexture.cs" />
-    <Compile Include="GLVertinput.cs" />
-    <Compile Include="GLVertoutput.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="src\GLBuffer.cs" />
+    <Compile Include="src\GLCSharp.cs" />
+    <Compile Include="src\Dict.cs" />
+    <Compile Include="src\GraphicControl.cs" />
+    <Compile Include="src\DataXml.cs" />
+    <Compile Include="src\GLFragoutput.cs" />
+    <Compile Include="src\GLImage.cs" />
+    <Compile Include="src\GLObject.cs" />
+    <Compile Include="src\GLPass.cs" />
+    <Compile Include="src\GLSampler.cs" />
+    <Compile Include="src\GLShader.cs" />
+    <Compile Include="src\GLTech.cs" />
+    <Compile Include="src\GLTexture.cs" />
+    <Compile Include="src\GLVertinput.cs" />
+    <Compile Include="src\GLVertoutput.cs" />
+    <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TabPage.cs">
+    <Compile Include="src\TabPage.cs">
       <SubType>Component</SubType>
     </Compile>
-    <EmbeddedResource Include="App.resx">
+    <EmbeddedResource Include="src\App.resx">
       <DependentUpon>App.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

@@ -120,11 +120,13 @@ namespace App
 
         private void pictureImg_Click(object sender, EventArgs e)
         {
-            if (this.comboImg.SelectedItem == null || this.comboImg.SelectedItem.GetType() != typeof(GLImage))
-                return;
-            glControl.MakeCurrent();
-            Bitmap bmp = ((GLImage)this.comboImg.SelectedItem).Read(0);
-            this.pictureImg.Image = bmp;
+            numImgLayer.Value = 0;
+            debugTexture();
+        }
+
+        private void numImgLayer_ValueChanged(object sender, EventArgs e)
+        {
+            debugTexture();
         }
 
         private void comboBuf_SelectedIndexChanged(object sender, EventArgs e)
@@ -557,6 +559,17 @@ namespace App
             this.tabSource.Controls.Add(tabSourcePage);
 
             tabSourcePageText.UndoRedo.EmptyUndoBuffer();
+        }
+
+        private void debugTexture()
+        {
+            if (comboImg.SelectedItem == null || comboImg.SelectedItem.GetType() != typeof(GLImage))
+                return;
+            var img = (GLImage)comboImg.SelectedItem;
+            numImgLayer.Maximum = Math.Max(Math.Max(img.length, img.depth) - 1, 0);
+            glControl.MakeCurrent();
+            var bmp = img.Read((int)numImgLayer.Value);
+            pictureImg.Image = bmp;
         }
 
         #endregion
