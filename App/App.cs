@@ -28,7 +28,7 @@ namespace App
             // this is necessary for ScintillaNET
             var envPath = Environment.GetEnvironmentVariable("PATH");
             var dir = Directory.GetCurrentDirectory();
-            var lib = dir + "\\..\\..\\lib";
+            var lib = dir + "\\..\\lib";
             if (!envPath.Contains(lib))
                 Environment.SetEnvironmentVariable("PATH", envPath + ";" + lib);
 
@@ -352,7 +352,7 @@ namespace App
 
             // tabSourcePageText
             tabSourcePageText.BorderStyle = BorderStyle.None;
-            tabSourcePageText.ConfigurationManager.CustomLocation = "../../syntax.xml";
+            tabSourcePageText.ConfigurationManager.CustomLocation = "../res/syntax.xml";
             tabSourcePageText.ConfigurationManager.Language = "cpp";
             tabSourcePageText.Dock = DockStyle.Fill;
             tabSourcePageText.Font = new Font("Consolas", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
