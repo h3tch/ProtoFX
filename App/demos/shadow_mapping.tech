@@ -1,0 +1,188 @@
+///////////////
+// MESH DATA //
+///////////////
+
+buffer buf_vpos {
+	usage staticDraw
+	file "geom/cube.xml|pos"
+}
+
+buffer buf_vnor{
+	usage staticDraw
+	file "geom/cube.xml|nor"
+}
+
+buffer buf_vcoo {
+	usage staticDraw
+	file "geom/cube.xml|uv"
+}
+
+buffer buf_vind {
+	usage staticDraw
+	file "geom/cube.xml|index"
+}
+
+////////////////
+// IMAGE DATA //
+////////////////
+
+image img_color {
+	type texture2DArray
+	width  512
+	height 512
+	length 32
+	format RGBA
+}
+
+image img_detail {
+	type texture2DArray
+	width  512
+	height 512
+	length 32
+	format RGBA
+}
+
+////////////////////
+// RENDER TARGETS //
+////////////////////
+
+image img_shadowmap {
+	type texture2D
+	width  1024
+	height 1024
+	format depth32f
+}
+
+fragoutput fout_shadowmap {
+	// depth attachment
+	depth img_shadowmap
+}
+
+//////////////////
+// VERTEX INPUT //
+//////////////////
+
+vertinput in_vert {
+	attr buf_vpos float 4
+	attr buf_vnor float 4
+	attr buf_vcoo float 2
+}
+
+//////////////////////
+// TEXTURE BINDINGS //
+//////////////////////
+
+texture tex_color {
+	img img_color
+}
+
+texture tex_detail {
+	img img_detail
+}
+
+// CSHARP CODE
+
+csharp cs_util {
+	file "util/SimpleCamera.cs"
+}
+
+// SADER
+
+shader vert vert_depth {
+	#version 440
+	
+	uniform mat4 g_viewproj;
+	
+	// vertex input as specified by 'in_vert'
+	layout(location = 0) in vec4 in_pos;
+	
+	void main ()
+	{
+		gl_Position = g_viewproj * in_pos;
+	}
+}
+
+shader vert vert_render {
+	#version 440
+	
+	uniform mat4 g_viewproj;
+	
+	// vertex input as specified by 'in_vert'
+	layout(location = 0) in vec4 in_pos;
+	layout(location = 1) in vec4 in_nor;
+	layout(location = 2) in vec2 in_coo;
+
+	// vertex shader output
+	layout(location = 0) out vec4 vs_nor;
+	layout(location = 1) out vec2 vs_coo;
+	
+	void main ()
+	{
+		gl_Position = g_viewproj * in_pos;
+		vs_nor = in_nor;
+		vs_coo = in_coo;
+	}
+}
+
+shader frag frag_render {
+}
+
+// SHADER PASSES
+
+pass pass_shadowmap {
+	vert vert_depth
+
+	// render to
+	fragout fout_shadowmap
+	
+	// enable depth buffer test
+	Enable depthTest
+	// clear color and depth buffer
+	Clear ColorDepthBit
+	
+	// execute camera code
+	exec cs_util util.SimpleCamera 60 0.1 100 0 5 0 -90 0 0
+	
+	// draw cube
+	draw buf_vind in_vert ushort triangles 36
+}
+
+pass pass_renderdepth {
+	vert vert_depthonly
+	
+	// clear color and depth buffer
+	Clear ColorDepthBit
+	
+	// execute camera code
+	exec cs_util util.SimpleCamera 60 0.1 100 0 0 5
+	
+	// draw cube
+	draw buf_vind in_vert ushort triangles 36
+}
+
+pass pass_render {
+	vert vert_render
+	frag frag_render
+	
+	tex tex_color 0
+	tex tex_detail 1
+	
+	// execute camera code
+	exec cs_util util.SimpleCamera 60 0.1 100 0 0 5
+	
+	// draw cube
+	draw buf_vind in_vert ushort triangles 36
+}
+
+// TECHNIQUE
+
+tech tech_shadowmapping {
+	pass pass_shadowmap
+	//pass pass_renderdepth
+	//pass pass_render
+}
+
+
+
+
+

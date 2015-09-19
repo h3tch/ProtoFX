@@ -59,14 +59,14 @@ namespace util
                 uniform.Add(program, unif = CreateCameraUniforms(program, width, height));
 
             // SET INTERNAL VARIABLES
-            if (unif.view >= 0)
+            if (unif.view >= 0 || unif.vwpj >= 0)
             {
                 view = Matrix4.CreateTranslation(-pos)
                     * Matrix4.CreateRotationY(-rot[1])
                     * Matrix4.CreateRotationX(-rot[0]);
                 GL.UniformMatrix4(unif.view, false, ref view);
             }
-            if (unif.proj >= 0)
+            if (unif.proj >= 0 || unif.vwpj >= 0)
             {
                 proj = Matrix4.CreatePerspectiveFieldOfView(info.X, info.Y, info.Z, info.W);
                 GL.UniformMatrix4(unif.proj, false, ref proj);

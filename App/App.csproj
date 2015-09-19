@@ -117,6 +117,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="demos\shadow_mapping.tech" />
     <None Include="demos\simple_include_header.tech" />
     <None Include="demos\simple_texture.tech" />
     <None Include="Properties\Settings.settings">
@@ -144,6 +145,7 @@
     <None Include="resources\AppIcon.ico" />
     <Content Include="demos\geom\cube.xml" />
     <Content Include="demos\geom\quad.xml" />
+    <Content Include="demos\tex\lena.jpg" />
     <Content Include="resources\AppIconDark.ico" />
     <Content Include="res\syntax.xml" />
     <None Include="demos\simple.tech" />
