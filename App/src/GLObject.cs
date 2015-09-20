@@ -43,7 +43,7 @@ namespace App
             for (int i = 0; i < lines.Length; i++)
             {
                 // parse words, numbers and so on
-                MatchCollection matches = Regex.Matches(lines[i], "[\\w./|]+");
+                MatchCollection matches = Regex.Matches(lines[i], "[\\w./|\\-]+");
                 // an command must have at least two arguments
                 if (matches.Count >= 2)
                     args.Add(matches.Cast<Match>().Select(m => m.Value).ToArray());

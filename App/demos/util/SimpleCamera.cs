@@ -37,6 +37,7 @@ namespace util
             float fovy = 60.0f;
             float n = 0.1f;
             float f = 100.0f;
+            float red2deg = (float)(Math.PI / 180);
             // parse command for values specified by the user
             int i = 3;
             if (cmd.Length > i) float.TryParse(cmd[i], out fovy); i++;
@@ -48,7 +49,8 @@ namespace util
             if (cmd.Length > i) float.TryParse(cmd[i], out rot.X); i++;
             if (cmd.Length > i) float.TryParse(cmd[i], out rot.Y); i++;
             if (cmd.Length > i) float.TryParse(cmd[i], out rot.Z); i++;
-            Proj((float)(fovy * (Math.PI / 180)), 16f / 9f, n, f);
+            rot = rot * red2deg;
+            Proj(fovy * red2deg, 16f / 9f, n, f);
         }
 
         public void Bind(int program, int width, int height, int widthTex, int heightTex)
@@ -62,8 +64,8 @@ namespace util
             if (unif.view >= 0 || unif.vwpj >= 0)
             {
                 view = Matrix4.CreateTranslation(-pos)
-                    * Matrix4.CreateRotationY(-rot[1])
-                    * Matrix4.CreateRotationX(-rot[0]);
+                    * Matrix4.CreateRotationY(-rot.Y)
+                    * Matrix4.CreateRotationX(-rot.X);
                 GL.UniformMatrix4(unif.view, false, ref view);
             }
             if (unif.proj >= 0 || unif.vwpj >= 0)

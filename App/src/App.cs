@@ -1,4 +1,5 @@
-﻿using ScintillaNET;
+﻿using OpenTK.Graphics.OpenGL4;
+using ScintillaNET;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -131,16 +132,14 @@ namespace App
 
         private void comboBuf_SelectedIndexChanged(object sender, EventArgs e)
         {
-            int dim;
             if (this.comboBuf.SelectedItem == null
-                || this.comboBuf.SelectedItem.GetType() != typeof(GLBuffer)
-                || int.TryParse(textBufDim.Text, out dim) == false)
+                || this.comboBuf.SelectedItem.GetType() != typeof(GLBuffer))
                 return;
 
             // gather needed info
             GLBuffer buf = (GLBuffer)this.comboBuf.SelectedItem;
             string type = (string)comboBufType.SelectedItem;
-            dim = Math.Max(0, dim);
+            int dim = (int)numBufDim.Value;
 
             // read data from GPU
             glControl.MakeCurrent();
@@ -175,11 +174,10 @@ namespace App
         {
             comboBuf_SelectedIndexChanged(sender, e);
         }
-
-        private void textBufDim_KeyUp(object sender, KeyEventArgs e)
+        
+        private void numBufDim_ValueChanged(object sender, EventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
-                comboBuf_SelectedIndexChanged(sender, null);
+            comboBuf_SelectedIndexChanged(sender, null);
         }
 
         private void toolBtnNew_Click(object sender, EventArgs e)
@@ -336,10 +334,35 @@ namespace App
             TabPage tabSourcePage = (TabPage)tabSourcePageText.Parent;
             if (!tabSourcePage.Text.EndsWith("*"))
                 tabSourcePage.Text = tabSourcePage.Text + '*';
+
+            // UPDATE LINE NUMBERS
+            var lineNumberLength = tabSourcePageText.Lines.Count.ToString().Length;
+            var lineNumberWidth = TextRenderer.MeasureText(new string('9', lineNumberLength), tabSourcePageText.Font).Width;
+            if (tabSourcePageText.Margins[0].Width != lineNumberWidth)
+                tabSourcePageText.Margins[0].Width = lineNumberWidth;
+        }
+
+        private void tabSourcePageText_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Copy;
+            Scintilla tabSourcePageText = (Scintilla)sender;
+            var effects = tabSourcePageText.DoDragDrop("Test Drag/Drop", DragDropEffects.Copy);
+        }
+
+        private void tabSourcePageText_DragOver(object sender, DragEventArgs e)
+        {
+            var a = sender;
+        }
+
+        private void tabSourcePageText_DragDrop(object sender, DragEventArgs e)
+        {
+            Scintilla tabSourcePageText = (Scintilla)sender;
+            var text = e.Data.ToString();
+            //tabSourcePageText.InsertText("Test D&D");
         }
 
         #endregion
-        
+
         #region UTIL
 
         private void Render()
@@ -546,6 +569,19 @@ namespace App
             tabSourcePageText.TabIndex = 0;
             tabSourcePageText.Text = text;
             tabSourcePageText.TextChanged += new EventHandler(this.tabSourcePageText_TextChanged);
+            // enable drag&drop
+            tabSourcePageText.AllowDrop = true;
+            tabSourcePageText.DragEnter += new DragEventHandler(this.tabSourcePageText_DragEnter);
+            //tabSourcePageText.DragOver += new DragEventHandler(this.tabSourcePageText_DragOver);
+            tabSourcePageText.DragDrop += new DragEventHandler(this.tabSourcePageText_DragDrop);
+            // enable code folding
+            tabSourcePageText.Folding.IsEnabled = true;
+            tabSourcePageText.Margins[2].Type = MarginType.Symbol;
+            tabSourcePageText.Margins[2].Width = 20;
+            // display line numbers
+            var lineNumberLength = tabSourcePageText.Lines.Count.ToString().Length;
+            var lineNumberWidth = TextRenderer.MeasureText(new string('9', lineNumberLength), tabSourcePageText.Font).Width;
+            tabSourcePageText.Margins[0].Width = lineNumberWidth;
 
             // tabSourcePage
             tabSourcePage.Controls.Add(tabSourcePageText);

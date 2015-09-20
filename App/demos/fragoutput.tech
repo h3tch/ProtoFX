@@ -10,7 +10,7 @@ buffer buff_pos {
 	usage staticDraw
 	// load <pos></pos> data from XML file
 	// these are vertex positions for each vertex
-	file "geom/cube.xml|pos" "geom/quad.xml|pos"
+	file "geom/cube.xml|position" "geom/quad.xml|position"
 }
 
 buffer buff_color {
@@ -83,8 +83,7 @@ texture tex_color {
 shader vert vs_simple {
 	#version 440
 	
-	uniform mat4 g_view; // the camera view matrix (set by GLED)
-	uniform mat4 g_proj; // the camera projection matrix (set by GLED)
+	uniform mat4 g_viewproj;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -95,7 +94,7 @@ shader vert vs_simple {
 	
 	void main ()
 	{
-		gl_Position = g_proj * g_view * in_pos;
+		gl_Position = g_viewproj * in_pos;
 		vs_col = in_col;
 	}
 }

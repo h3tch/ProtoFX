@@ -1,9 +1,9 @@
 <?xml version='1.0'?>
 <gled>
-  <pos type='float' isbinary='false'>
+  <position type='float' isbinary='false'>
     -1.0 -1.0  0.0  0.0
      1.0 -1.0  1.0  0.0
      1.0  1.0  1.0  1.0
     -1.0  1.0  0.0  1.0
-  </pos>
+  </position>
 </gled>
