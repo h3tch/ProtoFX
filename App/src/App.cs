@@ -341,29 +341,64 @@ namespace App
             if (tabSourcePageText.Margins[0].Width != lineNumberWidth)
                 tabSourcePageText.Margins[0].Width = lineNumberWidth;
         }
-
-        private string selectedText = null;
-
-        private void tabSourcePageText_DragEnter(object sender, DragEventArgs e)
-        {
-            e.Effect = DragDropEffects.Move;
-            Scintilla tabSourcePageText = (Scintilla)sender;
-            selectedText = tabSourcePageText.Text.Substring(tabSourcePageText.Selection.Start, tabSourcePageText.Selection.Length);
-            //tabSourcePageText.DoDragDrop("Test Drag/Drop", DragDropEffects.Copy);
-        }
-
+        
         private void tabSourcePageText_DragOver(object sender, DragEventArgs e)
         {
-            Scintilla tabSourcePageText = (Scintilla)sender;
-            Point p = new Point(e.X, e.Y);
-            p = tabSourcePageText.PointToClient(p);
-            tabSourcePageText.Caret.Position = tabSourcePageText.PositionFromPoint(p.X, p.Y);
+            Scintilla tabSourceText = (Scintilla)sender;
+
+            // convert cursor position to text position
+            Point point = new Point(e.X, e.Y);
+            point = tabSourceText.PointToClient(point);
+            int pos = tabSourceText.PositionFromPoint(point.X, point.Y);
+
+            // refresh text control
+            tabSourceText.Refresh();
+
+            // is draging possible
+            if (tabSourceText.GetRange(tabSourceText.Caret.Position, tabSourceText.Caret.Anchor)
+                .IntersectsWith(tabSourceText.GetRange(pos)))
+            {
+                // if not show "NO" cursor
+                e.Effect = DragDropEffects.None;
+                return;
+            }
+
+            // draw line at cursor position in text
+            var g = tabSourceText.CreateGraphics();
+            var pen = new Pen(Color.Black, 2);
+            var height = TextRenderer.MeasureText("0", tabSourceText.Font).Height;
+            point.X = tabSourceText.PointXFromPosition(pos);
+            point.Y = tabSourceText.PointYFromPosition(pos);
+            g.DrawLine(pen, point.X, point.Y, point.X, point.Y + height);
+
+            // show "MOVE" cursor
+            e.Effect = DragDropEffects.Move;
         }
 
         private void tabSourcePageText_DragDrop(object sender, DragEventArgs e)
         {
-            Scintilla tabSourcePageText = (Scintilla)sender;
-            //tabSourcePageText.InsertText("Test D&D");
+            Scintilla tabSourceText = (Scintilla)sender;
+
+            // convert cursor position to text position
+            Point point = new Point(e.X, e.Y);
+            point = tabSourceText.PointToClient(point);
+            int pos = tabSourceText.PositionFromPoint(point.X, point.Y);
+
+            // is dropping possible
+            if (tabSourceText.GetRange(tabSourceText.Caret.Position, tabSourceText.Caret.Anchor)
+                .IntersectsWith(tabSourceText.GetRange(pos)))
+                return;
+            
+            // cut the selected text to the clipboard
+            tabSourceText.Clipboard.Cut();
+            // adjust caret position if necessary
+            if (pos > tabSourceText.Caret.Position)
+                pos -= Math.Abs(tabSourceText.Caret.Anchor - tabSourceText.Caret.Position);
+            // move caret to the insert position
+            tabSourceText.Caret.Position = pos;
+            tabSourceText.Caret.Anchor = pos;
+            // insert cut text from clipboard
+            tabSourceText.Clipboard.Paste();
         }
 
         #endregion
@@ -576,7 +611,6 @@ namespace App
             tabSourcePageText.TextChanged += new EventHandler(this.tabSourcePageText_TextChanged);
             // enable drag&drop
             tabSourcePageText.AllowDrop = true;
-            tabSourcePageText.DragEnter += new DragEventHandler(this.tabSourcePageText_DragEnter);
             tabSourcePageText.DragOver += new DragEventHandler(this.tabSourcePageText_DragOver);
             tabSourcePageText.DragDrop += new DragEventHandler(this.tabSourcePageText_DragDrop);
             // enable code folding
@@ -612,7 +646,7 @@ namespace App
             var bmp = img.Read((int)numImgLayer.Value);
             pictureImg.Image = bmp;
         }
-
+        
         #endregion
     }
 }

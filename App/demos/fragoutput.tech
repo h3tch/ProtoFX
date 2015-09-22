@@ -14,8 +14,6 @@ buffer buff_pos {
 }
 
 buffer buff_color {
-	// buffer will only be used for reading
-	// and will not be updated during runtime
 	usage staticDraw
 	// load <color></color> data from XML file
 	// these are vertex colors for each vertex
@@ -23,8 +21,6 @@ buffer buff_color {
 }
 
 buffer buff_idx {
-	// buffer will only be used for reading
-	// and will not be updated during runtime
 	usage staticDraw
 	// load <index></index> data from XML file
 	// these are indices forming triangles from vertex positions
