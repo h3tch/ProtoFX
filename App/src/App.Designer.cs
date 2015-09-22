@@ -56,7 +56,6 @@ namespace App
             this.panelImg = new System.Windows.Forms.Panel();
             this.pictureImg = new System.Windows.Forms.PictureBox();
             this.numImgLayer = new System.Windows.Forms.NumericUpDown();
-            this.comboImgFormat = new System.Windows.Forms.ComboBox();
             this.tabDataBuf = new System.Windows.Forms.TabPage();
             this.tableLayoutBufferDef = new System.Windows.Forms.TableLayoutPanel();
             this.tableBuf = new System.Windows.Forms.DataGridView();
@@ -345,30 +344,45 @@ namespace App
             // tableLayoutImages
             // 
             this.tableLayoutImages.ColumnCount = 3;
-            this.tableLayoutImages.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutImages.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
-            this.tableLayoutImages.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
+            this.tableLayoutImages.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F));
+            this.tableLayoutImages.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutImages.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutImages.Controls.Add(this.comboImg, 0, 0);
             this.tableLayoutImages.Controls.Add(this.panelImg, 0, 1);
             this.tableLayoutImages.Controls.Add(this.numImgLayer, 2, 0);
-            this.tableLayoutImages.Controls.Add(this.comboImgFormat, 1, 0);
             this.tableLayoutImages.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutImages.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutImages.Name = "tableLayoutImages";
             this.tableLayoutImages.RowCount = 2;
-            this.tableLayoutImages.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutImages.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
             this.tableLayoutImages.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutImages.TabIndex = 0;
             // 
             // comboImg
             // 
-            this.comboImg.Dock = System.Windows.Forms.DockStyle.Top;
+            this.tableLayoutImages.SetColumnSpan(this.comboImg, 2);
+            this.comboImg.Dock = System.Windows.Forms.DockStyle.Fill;
             this.comboImg.FormattingEnabled = true;
             this.comboImg.Location = new System.Drawing.Point(3, 3);
             this.comboImg.Name = "comboImg";
             this.comboImg.Size = new System.Drawing.Size(626, 30);
             this.comboImg.TabIndex = 1;
             this.comboImg.SelectedIndexChanged += new System.EventHandler(this.comboImg_SelectedIndexChanged);
+            // 
+            // numImgLayer
+            // 
+            this.numImgLayer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numImgLayer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numImgLayer.Location = new System.Drawing.Point(785, 3);
+            this.numImgLayer.Maximum = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.numImgLayer.Name = "numImgLayer";
+            this.numImgLayer.Size = new System.Drawing.Size(144, 30);
+            this.numImgLayer.TabIndex = 3;
+            this.numImgLayer.ValueChanged += new System.EventHandler(this.numImgLayer_ValueChanged);
             // 
             // panelImg
             // 
@@ -389,30 +403,6 @@ namespace App
             this.pictureImg.TabIndex = 0;
             this.pictureImg.TabStop = false;
             this.pictureImg.Click += new System.EventHandler(this.pictureImg_Click);
-            // 
-            // numImgLayer
-            // 
-            this.numImgLayer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numImgLayer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numImgLayer.Location = new System.Drawing.Point(785, 3);
-            this.numImgLayer.Maximum = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
-            this.numImgLayer.Name = "numImgLayer";
-            this.numImgLayer.Size = new System.Drawing.Size(144, 30);
-            this.numImgLayer.TabIndex = 3;
-            this.numImgLayer.ValueChanged += new System.EventHandler(this.numImgLayer_ValueChanged);
-            // 
-            // comboImgFormat
-            // 
-            this.comboImgFormat.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.comboImgFormat.FormattingEnabled = true;
-            this.comboImgFormat.Location = new System.Drawing.Point(635, 3);
-            this.comboImgFormat.Name = "comboImgFormat";
-            this.comboImgFormat.Size = new System.Drawing.Size(144, 30);
-            this.comboImgFormat.TabIndex = 4;
             // 
             // tabDataBuf
             // 
@@ -605,6 +595,5 @@ namespace App
         private System.Windows.Forms.ToolStripButton toolBtnClose;
         private System.Windows.Forms.NumericUpDown numImgLayer;
         private System.Windows.Forms.NumericUpDown numBufDim;
-        private System.Windows.Forms.ComboBox comboImgFormat;
     }
 }
