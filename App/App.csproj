@@ -60,7 +60,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\OpenTK.GLControl.dll</HintPath>
     </Reference>
-    <Reference Include="PresentationCore" />
     <Reference Include="ScintillaNET">
       <HintPath>lib\ScintillaNET.dll</HintPath>
     </Reference>
@@ -147,7 +146,6 @@
     <Content Include="demos\geom\cube.xml" />
     <Content Include="demos\geom\quad.xml" />
     <Content Include="demos\tex\lena.jpg" />
-    <Content Include="resources\AppIconDark.ico" />
     <Content Include="res\syntax.xml" />
     <None Include="demos\simple.tech" />
     <None Include="demos\fragoutput.tech" />

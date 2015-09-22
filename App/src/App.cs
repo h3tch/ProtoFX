@@ -1,5 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using ScintillaNET;
+﻿using ScintillaNET;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -644,6 +643,7 @@ namespace App
             numImgLayer.Maximum = Math.Max(Math.Max(img.length, img.depth) - 1, 0);
             glControl.MakeCurrent();
             var bmp = img.Read((int)numImgLayer.Value);
+            bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
             pictureImg.Image = bmp;
         }
         
