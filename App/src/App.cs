@@ -389,11 +389,11 @@ namespace App
                 .IntersectsWith(tabSourceText.GetRange(pos)))
                 return;
             
-            // cut the selected text to the clipboard
-            tabSourceText.Clipboard.Cut();
             // adjust caret position if necessary
             if (pos > tabSourceText.Caret.Position)
                 pos -= Math.Abs(tabSourceText.Caret.Anchor - tabSourceText.Caret.Position);
+            // cut the selected text to the clipboard
+            tabSourceText.Clipboard.Cut();
             // move caret to the insert position
             tabSourceText.Caret.Position = pos;
             tabSourceText.Caret.Anchor = pos;
