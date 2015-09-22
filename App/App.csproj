@@ -60,6 +60,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\OpenTK.GLControl.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="ScintillaNET">
       <HintPath>lib\ScintillaNET.dll</HintPath>
     </Reference>
@@ -75,6 +77,7 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\App.cs">

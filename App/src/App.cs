@@ -342,22 +342,27 @@ namespace App
                 tabSourcePageText.Margins[0].Width = lineNumberWidth;
         }
 
+        private string selectedText = null;
+
         private void tabSourcePageText_DragEnter(object sender, DragEventArgs e)
         {
-            e.Effect = DragDropEffects.Copy;
+            e.Effect = DragDropEffects.Move;
             Scintilla tabSourcePageText = (Scintilla)sender;
-            var effects = tabSourcePageText.DoDragDrop("Test Drag/Drop", DragDropEffects.Copy);
+            selectedText = tabSourcePageText.Text.Substring(tabSourcePageText.Selection.Start, tabSourcePageText.Selection.Length);
+            //tabSourcePageText.DoDragDrop("Test Drag/Drop", DragDropEffects.Copy);
         }
 
         private void tabSourcePageText_DragOver(object sender, DragEventArgs e)
         {
-            var a = sender;
+            Scintilla tabSourcePageText = (Scintilla)sender;
+            Point p = new Point(e.X, e.Y);
+            p = tabSourcePageText.PointToClient(p);
+            tabSourcePageText.Caret.Position = tabSourcePageText.PositionFromPoint(p.X, p.Y);
         }
 
         private void tabSourcePageText_DragDrop(object sender, DragEventArgs e)
         {
             Scintilla tabSourcePageText = (Scintilla)sender;
-            var text = e.Data.ToString();
             //tabSourcePageText.InsertText("Test D&D");
         }
 
@@ -572,7 +577,7 @@ namespace App
             // enable drag&drop
             tabSourcePageText.AllowDrop = true;
             tabSourcePageText.DragEnter += new DragEventHandler(this.tabSourcePageText_DragEnter);
-            //tabSourcePageText.DragOver += new DragEventHandler(this.tabSourcePageText_DragOver);
+            tabSourcePageText.DragOver += new DragEventHandler(this.tabSourcePageText_DragOver);
             tabSourcePageText.DragDrop += new DragEventHandler(this.tabSourcePageText_DragDrop);
             // enable code folding
             tabSourcePageText.Folding.IsEnabled = true;
