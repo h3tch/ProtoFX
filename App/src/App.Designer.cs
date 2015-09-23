@@ -166,7 +166,7 @@ namespace App
             // 
             this.splitCodeError.Panel2.Controls.Add(this.codeError);
             this.splitCodeError.Panel2MinSize = 75;
-            this.splitCodeError.Size = new System.Drawing.Size(946, 1096);
+            this.splitCodeError.Size = new System.Drawing.Size(600, 900);
             this.splitCodeError.SplitterDistance = 717;
             this.splitCodeError.SplitterWidth = 5;
             this.splitCodeError.TabIndex = 0;
@@ -233,7 +233,7 @@ namespace App
             this.toolBtnClose.Image = global::App.Properties.Resources.ImgClose;
             this.toolBtnClose.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnClose.Name = "toolBtnClose";
-            this.toolBtnClose.Size = new System.Drawing.Size(27, 28);
+            this.toolBtnClose.Size = new System.Drawing.Size(32, 32);
             this.toolBtnClose.Text = "Close Tab";
             this.toolBtnClose.Click += new System.EventHandler(this.toolBtnClose_Click);
             // 
@@ -243,7 +243,7 @@ namespace App
             this.toolBtnNew.Image = global::App.Properties.Resources.ImgNew;
             this.toolBtnNew.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnNew.Name = "toolBtnNew";
-            this.toolBtnNew.Size = new System.Drawing.Size(27, 28);
+            this.toolBtnNew.Size = new System.Drawing.Size(32, 32);
             this.toolBtnNew.Text = "New";
             this.toolBtnNew.Click += new System.EventHandler(this.toolBtnNew_Click);
             // 
@@ -253,7 +253,7 @@ namespace App
             this.toolBtnOpen.Image = global::App.Properties.Resources.ImgOpen;
             this.toolBtnOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnOpen.Name = "toolBtnOpen";
-            this.toolBtnOpen.Size = new System.Drawing.Size(27, 28);
+            this.toolBtnOpen.Size = new System.Drawing.Size(32, 32);
             this.toolBtnOpen.Text = "Open (Ctrl + O)";
             this.toolBtnOpen.Click += new System.EventHandler(this.toolBtnOpen_Click);
             // 
@@ -263,7 +263,7 @@ namespace App
             this.toolBtnSave.Image = global::App.Properties.Resources.ImgSave;
             this.toolBtnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnSave.Name = "toolBtnSave";
-            this.toolBtnSave.Size = new System.Drawing.Size(27, 28);
+            this.toolBtnSave.Size = new System.Drawing.Size(32, 32);
             this.toolBtnSave.Text = "Save (Ctrl + S)";
             this.toolBtnSave.Click += new System.EventHandler(this.toolBtnSave_Click);
             // 
@@ -273,7 +273,7 @@ namespace App
             this.toolBtnSaveAll.Image = global::App.Properties.Resources.ImgSaveAll;
             this.toolBtnSaveAll.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnSaveAll.Name = "toolBtnSaveAll";
-            this.toolBtnSaveAll.Size = new System.Drawing.Size(27, 28);
+            this.toolBtnSaveAll.Size = new System.Drawing.Size(32, 32);
             this.toolBtnSaveAll.Text = "Save all (Ctrl + Shift + S)";
             this.toolBtnSaveAll.Click += new System.EventHandler(this.toolBtnSaveAll_Click);
             // 
@@ -283,7 +283,7 @@ namespace App
             this.toolBtnSaveAs.Image = global::App.Properties.Resources.ImgSaveAs;
             this.toolBtnSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnSaveAs.Name = "toolBtnSaveAs";
-            this.toolBtnSaveAs.Size = new System.Drawing.Size(27, 28);
+            this.toolBtnSaveAs.Size = new System.Drawing.Size(32, 32);
             this.toolBtnSaveAs.Text = "Save as (Alt + S)";
             this.toolBtnSaveAs.Click += new System.EventHandler(this.toolBtnSaveAs_Click);
             // 
@@ -293,7 +293,7 @@ namespace App
             this.toolBtnRun.Image = global::App.Properties.Resources.ImgRun;
             this.toolBtnRun.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnRun.Name = "toolBtnRun";
-            this.toolBtnRun.Size = new System.Drawing.Size(27, 28);
+            this.toolBtnRun.Size = new System.Drawing.Size(32, 32);
             this.toolBtnRun.Text = "Run (F5)";
             this.toolBtnRun.Click += new System.EventHandler(this.toolBtnRun_Click);
             // 
