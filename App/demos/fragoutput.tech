@@ -1,9 +1,10 @@
 // AUTHOR: Michael Hecher
 
-/////////////
-// BUFFERS //
-/////////////
+//////////////////
+// DATA OBJECTS //
+//////////////////
 
+// Vertex positions
 buffer buff_pos {
 	// buffer will only be used for reading
 	// and will not be updated during runtime
@@ -13,6 +14,7 @@ buffer buff_pos {
 	file "geom/cube.xml|position" "geom/quad.xml|position"
 }
 
+// Vertex colors
 buffer buff_color {
 	usage staticDraw
 	// load <color></color> data from XML file
@@ -20,6 +22,7 @@ buffer buff_color {
 	file "geom/cube.xml|color"
 }
 
+// Triangle list defining the mesh
 buffer buff_idx {
 	usage staticDraw
 	// load <index></index> data from XML file
@@ -27,6 +30,7 @@ buffer buff_idx {
 	file "geom/cube.xml|index"
 }
 
+// Color image (used as a render target)
 image img_color {
 	// image size in pixels
 	width 1024
@@ -35,6 +39,7 @@ image img_color {
 	gpuformat RGBA
 }
 
+// 32 bit floatingpoint depth image (used as a render target)
 image img_depth {
 	// image size in pixels
 	width 1024
@@ -43,9 +48,9 @@ image img_depth {
 	format depth32f
 }
 
-/////////////////////
-// BUFFER BINDINGS //
-/////////////////////
+/////////////////////////
+// DATA FORMAT OBJECTS //
+/////////////////////////
 
 vertinput in_vert {
 	// first attribute: floating point

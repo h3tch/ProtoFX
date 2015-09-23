@@ -213,7 +213,7 @@ namespace App
             // toolStrip
             // 
             this.toolStrip.Dock = System.Windows.Forms.DockStyle.None;
-            this.toolStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.toolStrip.ImageScalingSize = new System.Drawing.Size(32, 32);
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolBtnClose,
             this.toolBtnNew,
@@ -224,7 +224,7 @@ namespace App
             this.toolBtnRun});
             this.toolStrip.Location = new System.Drawing.Point(0, 3);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(29, 228);
+            this.toolStrip.Size = new System.Drawing.Size(32, 228);
             this.toolStrip.TabIndex = 0;
             // 
             // toolBtnClose
