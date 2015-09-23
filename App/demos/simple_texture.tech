@@ -4,7 +4,7 @@
 
 buffer buff_pos {
 	usage staticDraw
-	file "geom/cube.xml|pos"
+	file "geom/cube.xml|position"
 }
 
 buffer buff_uv {

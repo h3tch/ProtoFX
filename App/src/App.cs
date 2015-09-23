@@ -35,9 +35,8 @@ namespace App
             // select 'float' as the default buffer value type
             this.comboBufType.SelectedIndex = 7;
         }
-
-        #region EVENTS
-
+        
+        #region App Control
         private void App_FormClosing(object sender, FormClosingEventArgs e)
         {
             // check if there are any files with changes
@@ -57,7 +56,7 @@ namespace App
             }
 
             // delete OpenGL objects
-            DeleteClasses();
+            ClearGLObjects();
         }
 
         private void App_KeyUp(object sender, KeyEventArgs e)
@@ -86,7 +85,9 @@ namespace App
                     break;
             }
         }
+        #endregion
 
+        #region OpenGL Control
         private void glControl_Resize(object sender, EventArgs e)
         {
             Render();
@@ -112,23 +113,31 @@ namespace App
             if (render)
                 Render();
         }
-        
+        #endregion
+
+        #region Debug Image
         private void comboImg_SelectedIndexChanged(object sender, EventArgs e)
         {
             pictureImg_Click(sender, e);
         }
 
+        private void numImgLayer_ValueChanged(object sender, EventArgs e)
+        {
+            if (comboImg.SelectedItem == null || comboImg.SelectedItem.GetType() != typeof(GLImage))
+                return;
+            var img = (GLImage)comboImg.SelectedItem;
+            numImgLayer.Maximum = Math.Max(Math.Max(img.length, img.depth) - 1, 0);
+            pictureImg.Image = GetTextureLayer(img, (int)numImgLayer.Value);
+        }
+
         private void pictureImg_Click(object sender, EventArgs e)
         {
             numImgLayer.Value = 0;
-            debugTexture();
+            numImgLayer_ValueChanged(sender, e);
         }
+        #endregion
 
-        private void numImgLayer_ValueChanged(object sender, EventArgs e)
-        {
-            debugTexture();
-        }
-
+        #region Debug Buffer
         private void comboBuf_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (this.comboBuf.SelectedItem == null
@@ -178,7 +187,9 @@ namespace App
         {
             comboBuf_SelectedIndexChanged(sender, null);
         }
+        #endregion
 
+        #region Tool Buttons
         private void toolBtnNew_Click(object sender, EventArgs e)
         {
             AddSourceTab(null);
@@ -219,56 +230,66 @@ namespace App
         private void toolBtnRun_Click(object sender, EventArgs e)
         {
             this.codeError.Text = "";
-            DeleteClasses();
+            ClearGLObjects();
 
-            var selectedTabPage = (TabPage)this.tabSource.SelectedTab;
-            var selectedTabPageText = (Scintilla)selectedTabPage.Controls[0];
-            var dir = (selectedTabPage.filepath != null ? Path.GetDirectoryName(selectedTabPage.filepath) : Directory.GetCurrentDirectory()) + '\\';
+            var selectedSourceTab = (TabPage)this.tabSource.SelectedTab;
+            var selectedSourceText = (Scintilla)selectedSourceTab.Controls[0];
+            var dir = selectedSourceTab.filepath != null ?
+                Path.GetDirectoryName(selectedSourceTab.filepath) : Directory.GetCurrentDirectory();
+            dir += '\\';
 
-            // remove comments
-            var code = RemoveComments(selectedTabPageText.Text, "//");
-            code = IncludeFiles(dir, code);
-
-            // find GLST class blocks (find "TYPE name { ... }")
-            var blocks = FindBlocks(code);
-
-            // parse commands for each class block
-            for (int i = 0; i < blocks.Length; i++)
+            try
             {
-                // PARSE CLASS INFO
-                string[] classInfo = FindClassDef(blocks[i]);
+                // remove comments
+                var code = RemoveComments(selectedSourceText.Text, "//");
+                code = IncludeFiles(dir, code);
 
-                // PARSE CLASS TEXT
-                var start = blocks[i].IndexOf('{');
-                string classText = blocks[i].Substring(start + 1, blocks[i].LastIndexOf('}') - start - 1);
+                // find GLST class blocks (find "TYPE name { ... }")
+                var blocks = FindObjectBlocks(code);
 
-                // GET CLASS TYPE, ANNOTATION AND NAME
-                var classType = "App.GL"
-                    + classInfo[0].First().ToString().ToUpper()
-                    + classInfo[0].Substring(1);
-                var classAnno = classInfo[classInfo.Length - 2];
-                var className = classInfo[classInfo.Length - 1];
-
-                // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS
-                try
+                // parse commands for each class block
+                for (int i = 0; i < blocks.Length; i++)
                 {
-                    var type = Type.GetType(classType);
-                    // check for errors
-                    if (type == null)
-                        throw new Exception("ERROR in " + classInfo[0] + " " + className + ": "
-                            + "Class type '" + classInfo[0] + "' not known.");
-                    if (this.classes.ContainsKey(className))
-                        throw new Exception("ERROR in " + classInfo[0] + " " + className + ": "
-                            + "Class name '" + className + "' already exists.");
-                    // instantiate class
-                    this.classes.Add(className, (GLObject)Activator.CreateInstance(
-                        type, dir, className, classAnno, classText, this.classes));
+                    // PARSE CLASS INFO
+                    string[] classInfo = FindObjectClass(blocks[i]);
+
+                    // PARSE CLASS TEXT
+                    var start = blocks[i].IndexOf('{');
+                    string classText = blocks[i].Substring(start + 1, blocks[i].LastIndexOf('}') - start - 1);
+
+                    // GET CLASS TYPE, ANNOTATION AND NAME
+                    var classType = "App.GL"
+                        + classInfo[0].First().ToString().ToUpper()
+                        + classInfo[0].Substring(1);
+                    var classAnno = classInfo[classInfo.Length - 2];
+                    var className = classInfo[classInfo.Length - 1];
+
+                    // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS
+                    try
+                    {
+                        var type = Type.GetType(classType);
+                        // check for errors
+                        if (type == null)
+                            throw new Exception("ERROR in " + classInfo[0] + " " + className + ": "
+                                + "Class type '" + classInfo[0] + "' not known.");
+                        if (this.classes.ContainsKey(className))
+                            throw new Exception("ERROR in " + classInfo[0] + " " + className + ": "
+                                + "Class name '" + className + "' already exists.");
+                        // instantiate class
+                        this.classes.Add(className, (GLObject)Activator.CreateInstance(
+                            type, dir, className, classAnno, classText, this.classes));
+                    }
+                    catch (Exception ex)
+                    {
+                        // show errors
+                        this.codeError.AppendText(ex.GetBaseException().Message + '\n');
+                    }
                 }
-                catch (Exception ex)
-                {
-                    // show errors
-                    this.codeError.AppendText(ex.GetBaseException().Message + '\n');
-                }
+            }
+            catch (Exception ex)
+            {
+                // show errors
+                this.codeError.AppendText(ex.GetBaseException().Message + '\n');
             }
 
             // UPDATE DEBUG DATA
@@ -326,8 +347,10 @@ namespace App
             }
             tabSource.TabPages.RemoveAt(tabSource.SelectedIndex);
         }
+        #endregion
 
-        private void tabSourcePageText_TextChanged(object sender, EventArgs e)
+        #region Scintilla Text Control
+        private void tabSourceText_TextChanged(object sender, EventArgs e)
         {
             Scintilla tabSourcePageText = (Scintilla)sender;
             TabPage tabSourcePage = (TabPage)tabSourcePageText.Parent;
@@ -341,7 +364,7 @@ namespace App
                 tabSourcePageText.Margins[0].Width = lineNumberWidth;
         }
         
-        private void tabSourcePageText_DragOver(object sender, DragEventArgs e)
+        private void tabSourceText_DragOver(object sender, DragEventArgs e)
         {
             Scintilla tabSourceText = (Scintilla)sender;
 
@@ -374,7 +397,7 @@ namespace App
             e.Effect = DragDropEffects.Move;
         }
 
-        private void tabSourcePageText_DragDrop(object sender, DragEventArgs e)
+        private void tabSourceText_DragDrop(object sender, DragEventArgs e)
         {
             Scintilla tabSourceText = (Scintilla)sender;
 
@@ -399,11 +422,9 @@ namespace App
             // insert cut text from clipboard
             tabSourceText.Clipboard.Paste();
         }
-
         #endregion
-
+        
         #region UTIL
-
         private void Render()
         {
             glControl.MakeCurrent();
@@ -417,7 +438,7 @@ namespace App
             glControl.SwapBuffers();
         }
 
-        private void DeleteClasses()
+        private void ClearGLObjects()
         {
             // call delete method of OpenGL resources
             foreach (var pair in classes)
@@ -426,144 +447,6 @@ namespace App
             classes.Clear();
             // add default OpenTK glControl
             classes.Add(GraphicControl.nullname, new GraphicControl(glControl));
-        }
-
-        private static string RemoveComments(string code, string linecomment)
-        {
-            var blockComments = @"/\*(.*?)\*/";
-            var lineComments = @"//(.*?)\r?\n";
-            var strings = @"""((\\[^\n]|[^""\n])*)""";
-            var verbatimStrings = @"@(""[^""]*"")+";
-            return Regex.Replace(code,
-                blockComments + "|" + lineComments + "|" + strings + "|" + verbatimStrings,
-                me =>
-                {
-                    if (me.Value.StartsWith("/*") || me.Value.StartsWith("//"))
-                        return me.Value.StartsWith("//") ? Environment.NewLine : "";
-                    // Keep the literal strings
-                    return me.Value;
-                },
-                RegexOptions.Singleline);
-        }
-
-        private string IncludeFiles(string dir, string code)
-        {
-            // find include files
-            var matches = Regex.Matches(code, @"#include \""[^""]*\""");
-
-            // insert all include files
-            for (int i = 0, offset = 0; i < matches.Count; i++)
-            {
-                // get file path
-                var include = code.Substring(matches[i].Index + offset, matches[i].Length);
-                var startidx = include.IndexOf('"');
-                var incfile = include.Substring(startidx + 1, include.LastIndexOf('"') - startidx - 1);
-                var path = Path.IsPathRooted(incfile) ? incfile : dir + incfile;
-
-                // check if file exists
-                if (File.Exists(path) == false)
-                {
-                    this.codeError.AppendText("ERROR: The include file '" + incfile + "' could not be found.\n");
-                    continue;
-                }
-
-                // load the file and insert it, replacing #include
-                var content = File.ReadAllText(path);
-                code = code.Substring(0, matches[i].Index + offset)
-                    + content + code.Substring(matches[i].Index + offset + matches[i].Length);
-
-                // because the string now has a different length, we need an offset
-                offset += content.Length - matches[i].Length;
-            }
-            return code;
-        }
-
-        private static string[] FindBlocks(string code)
-        {
-            // find potential block positions
-            var matches = Regex.Matches(code, "(\\w+\\s*){2,3}\\{");
-
-            // find all '{' that potentially indicate a block
-            int count = 0;
-            int newline = 0;
-            List<int> blockBr = new List<int>();
-            for (int i = 0; i < code.Length; i++)
-            {
-                if (code[i] == '\n')
-                    newline++;
-                if (code[i] == '{' && count++ == 0)
-                    blockBr.Add(i);
-                if (code[i] == '}' && --count == 0)
-                    blockBr.Add(i);
-                if (count < 0)
-                    throw new Exception("FATAL ERROR in line " + newline + ": Unexpected occurrence of '}'.");
-            }
-
-            // where 'matches' and 'blockBr' are aligned we have a block
-            List<string> blocks = new List<string>();
-            for (int i = 0; i < matches.Count; i++)
-            {
-                int idx = blockBr.IndexOf(matches[i].Index + matches[i].Length - 1);
-                if (idx >= 0)
-                    blocks.Add(code.Substring(matches[i].Index, blockBr[idx + 1] - matches[i].Index + 1));
-            }
-
-            // return blocks as array
-            return blocks.ToArray();
-        }
-
-        private static string[] FindClassDef(string classblock)
-        {
-            // parse class info
-            MatchCollection matches = null;
-            var lines = classblock.Split(new char[] { '\n' });
-            for (int j = 0; j < lines.Length; j++)
-                // ignore empty or invalid lines
-                if ((matches = Regex.Matches(lines[j], "[\\w.]+")).Count > 0)
-                    return matches.Cast<Match>().Select(m => m.Value).ToArray();
-            // ill defined class block
-            return null;
-        }
-
-        private Array ConvertData(byte[] data, string type, out Type T)
-        {
-            // convert data to specified type
-            switch (type)
-            {
-                case "byte": T = typeof(byte); return ConvertData<byte>(data);
-                case "short": T = typeof(short); return ConvertData<short>(data);
-                case "ushort": T = typeof(ushort); return ConvertData<ushort>(data);
-                case "int": T = typeof(int); return ConvertData<int>(data);
-                case "uint": T = typeof(uint); return ConvertData<uint>(data);
-                case "long": T = typeof(long); return ConvertData<long>(data);
-                case "ulong": T = typeof(ulong); return ConvertData<ulong>(data);
-                case "float": T = typeof(float); return ConvertData<float>(data);
-                case "double": T = typeof(double); return ConvertData<double>(data);
-            }
-
-            throw new Exception("INTERNAL_ERROR: Could not convert buffer data to specified type.");
-        }
-
-        private Array ConvertData<T>(byte[] data)
-        {
-            // find method to convert the data
-            var methods = from m in typeof(BitConverter).GetMethods()
-                          where m.Name == "To" + typeof(T).Name
-                          select m;
-            if (methods.Count() == 0)
-                return data;
-
-            var method = methods.First();
-
-            // allocate array
-            int typesize = Marshal.SizeOf(typeof(T));
-            Array rs = Array.CreateInstance(typeof(T), data.Length / typesize);
-
-            // convert data
-            for (int i = 0; i < rs.Length; i++)
-                rs.SetValue(Convert.ChangeType(method.Invoke(null, new object[] { data, typesize * i }), typeof(T)), i);
-
-            return rs;
         }
 
         private void SaveTabPage(TabPage tabPage, bool newfile)
@@ -607,11 +490,11 @@ namespace App
             tabSourcePageText.Margin = new Padding(0);
             tabSourcePageText.TabIndex = 0;
             tabSourcePageText.Text = text;
-            tabSourcePageText.TextChanged += new EventHandler(this.tabSourcePageText_TextChanged);
+            tabSourcePageText.TextChanged += new EventHandler(this.tabSourceText_TextChanged);
             // enable drag&drop
             tabSourcePageText.AllowDrop = true;
-            tabSourcePageText.DragOver += new DragEventHandler(this.tabSourcePageText_DragOver);
-            tabSourcePageText.DragDrop += new DragEventHandler(this.tabSourcePageText_DragDrop);
+            tabSourcePageText.DragOver += new DragEventHandler(this.tabSourceText_DragOver);
+            tabSourcePageText.DragDrop += new DragEventHandler(this.tabSourceText_DragDrop);
             // enable code folding
             tabSourcePageText.Folding.IsEnabled = true;
             tabSourcePageText.Margins[2].Type = MarginType.Symbol;
@@ -634,19 +517,14 @@ namespace App
 
             tabSourcePageText.UndoRedo.EmptyUndoBuffer();
         }
-
-        private void debugTexture()
-        {
-            if (comboImg.SelectedItem == null || comboImg.SelectedItem.GetType() != typeof(GLImage))
-                return;
-            var img = (GLImage)comboImg.SelectedItem;
-            numImgLayer.Maximum = Math.Max(Math.Max(img.length, img.depth) - 1, 0);
-            glControl.MakeCurrent();
-            var bmp = img.Read((int)numImgLayer.Value);
-            bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
-            pictureImg.Image = bmp;
-        }
         
+        private Bitmap GetTextureLayer(GLImage img, int layer)
+        {
+            glControl.MakeCurrent();
+            var bmp = img.Read(layer);
+            bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            return bmp;
+        }
         #endregion
     }
 }
