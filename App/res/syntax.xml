@@ -51,6 +51,7 @@
         vec3
         vec4
         vertinput
+        vertoutput
         void
       </Keywords>
       <Keywords List="1">
@@ -86,6 +87,7 @@
         type
         usage
         vert
+        vertout
         width
         wrap
       </Keywords>

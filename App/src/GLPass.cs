@@ -197,13 +197,17 @@ namespace App
             int widthOut = width;
             int heightOut = height;
 
-            // BIND FRAMEBUFFER
+            // BIND OUTPUT BUFFERS
+            // bind framebuffer
             if (glfragout != null)
             {
                 widthOut = glfragout.width;
                 heightOut = glfragout.height;
                 glfragout.Bind();
             }
+            // bind transform feedback buffer
+            if (glvertout != null)
+                glvertout.Bind();
 
             // SET DEFAULT VIEWPORT
             GL.Viewport(0, 0, widthOut, heightOut);
@@ -254,12 +258,19 @@ namespace App
             GL.UseProgram(0);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);
+
             if (glfragout != null)
                 glfragout.Unbind();
+
+            if (glvertout != null)
+                glvertout.Unbind();
+
             foreach (var t in textures)
                 t.obj.Unbind(t.unit);
+
             foreach (var s in sampler)
                 GL.BindSampler(s.unit, 0);
+
             foreach (var e in csexec)
                 e.Unbind(glname);
         }

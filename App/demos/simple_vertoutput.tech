@@ -1,0 +1,145 @@
+// AUTHOR: Michael Hecher
+
+//////////////////
+// DATA OBJECTS //
+//////////////////
+
+buffer buf_pos {
+	// static ... writen to once used many times
+	// draw   ... CPU writes to and GPU reads from
+	usage staticDraw
+	file "geom/cube.xml|position"
+}
+
+// buffer used for vertex output
+buffer buf_projpos {
+	// stream ... writen to once used a few times
+	// copy   ... GPU writes to and GPU reads from
+	usage streamCopy
+	size 1024
+}
+
+buffer buf_col {
+	usage staticDraw
+	file "geom/cube.xml|color"
+}
+
+buffer buf_idx {
+	usage staticDraw
+	file "geom/cube.xml|index"
+}
+
+/////////////////////////
+// DATA FORMAT OBJECTS //
+/////////////////////////
+
+vertinput in_vert {
+	attr buf_pos float 4
+}
+
+vertoutput out_vert {
+	buff buf_projpos
+}
+
+vertinput in_projvert {
+	attr buf_projpos float 4
+	attr buf_col float 4
+}
+
+/////////////
+// SHADERS //
+/////////////
+
+shader vert vs_transform {
+	#version 440
+	
+	uniform mat4 g_viewproj;
+	
+	layout(location = 0) in vec4 in_pos;
+	
+	void main ()
+	{
+		gl_Position = g_viewproj * in_pos;
+	}
+}
+
+shader vert vs_render {
+	#version 440
+	
+	layout(location = 0) in vec4 in_projpos;
+	layout(location = 1) in vec4 in_col;
+
+	layout(location = 0) out vec4 vs_col;
+	
+	void main ()
+	{
+		gl_Position = g_viewproj * in_projpos;
+		vs_col = in_col;
+	}
+}
+
+shader frag fs_render {
+	#version 440
+	
+	layout(location = 0) in vec4 gs_col;
+	
+	out vec4 color;
+	
+	void main ()
+	{
+		color = gs_col;
+	}
+}
+
+//////////////
+// CONTROLS //
+//////////////
+
+csharp cs_util {
+	file "util/SimpleCamera.cs"
+}
+
+/////////////////
+// RENDER PASS //
+/////////////////
+
+pass pass_transform {
+	// ATTATCH SHADERS
+	vert vs_transform
+	
+	// VERTEX OUTPUT
+	vertout out_vert
+	
+	// OPENGL FUNCTIONS
+	Enable rasterizerDiscard
+	
+	// EXECUTE CONTROL
+	exec cs_util util.SimpleCamera 60 0.1 100 0 0 5
+	
+	// DRAW CALLS
+	draw in_vert points 12
+}
+
+pass pass_render {
+	// ATTATCH SHADERS
+	vert vs_render
+	frag fs_render
+	
+	// OPENGL FUNCTIONS
+	ClearColor 0.1 0.3 1.0 0.0
+	Clear ColorDepthBit
+	Enable depthTest
+	Disable rasterizerDiscard
+	
+	// DRAW CALLS
+	draw buf_idx in_projvert ushort triangles 36
+}
+
+///////////////
+// TECHNIQUE //
+///////////////
+
+tech tech_simple {
+	pass pass_transform
+	pass pass_render
+}

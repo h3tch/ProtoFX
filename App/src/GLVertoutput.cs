@@ -54,6 +54,16 @@ namespace App
             throwExceptionOnOpenGlError("vertinput", name, "could not create OpenGL vertex array object");
         }
 
+        public void Bind()
+        {
+            GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, glname);
+        }
+
+        public void Unbind()
+        {
+            GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, 0);
+        }
+
         public override void Delete()
         {
             if (glname > 0)
