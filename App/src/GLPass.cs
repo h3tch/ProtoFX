@@ -47,12 +47,22 @@ namespace App
         public struct DrawCall
         {
             public PrimitiveType mode;
-            public int indexcount;
             public DrawElementsType indextype;
-            public IntPtr baseindex;
-            public int instancecount;
-            public int basevertex;
-            public int baseinstance;
+            // arguments for indexed buffer drawing
+            public int iBaseVertex;
+            public int iBaseIndex;
+            public int iIndexCount;
+            public int iBaseInstance;
+            public int iInstanceCount;
+            // get arguments for vertex output drawing
+            public int vo;
+            public int voStream { get { return iBaseVertex; } }
+            public int voInstanceCount { get { return iBaseIndex; } }
+            // get arguments for vertex buffer drawing
+            public int vBaseVertex { get { return iBaseVertex; } }
+            public int vVertexCount { get { return iBaseIndex; } }
+            public int vBaseInstance { get { return iIndexCount; } }
+            public int vInstanceCount { get { return iBaseInstance; } }
         }
 
         public struct Res<T>
@@ -239,18 +249,30 @@ namespace App
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, call.ib);
                     // execute multiple indirect draw commands
                     foreach (var draw in call.cmd)
-                        GL.DrawElementsInstancedBaseVertexBaseInstance(
-                            draw.mode, draw.indexcount, draw.indextype,
-                            draw.baseindex, draw.instancecount,
-                            draw.basevertex, draw.baseinstance);
+                    {
+                        if (draw.vo > 0)
+                            GL.DrawTransformFeedbackStreamInstanced(draw.mode,
+                                draw.vo, draw.voStream, draw.voInstanceCount);
+                        else
+                            GL.DrawElementsInstancedBaseVertexBaseInstance(
+                                draw.mode, draw.iIndexCount, draw.indextype,
+                                (IntPtr)draw.iBaseIndex, draw.iInstanceCount,
+                                draw.iBaseVertex, draw.iBaseInstance);
+                    }
                 }
                 else
                 {
                     // execute multiple indirect draw commands
                     foreach (var draw in call.cmd)
-                        GL.DrawArraysInstancedBaseInstance(
-                            draw.mode, draw.baseindex.ToInt32(), draw.indexcount,
-                            draw.baseinstance, draw.instancecount);
+                    {
+                        if (draw.vo > 0)
+                            GL.DrawTransformFeedbackStreamInstanced(draw.mode,
+                                draw.vo, draw.voStream, draw.voInstanceCount);
+                        else
+                            GL.DrawArraysInstancedBaseInstance(
+                                draw.mode, draw.vBaseVertex, draw.vVertexCount,
+                                draw.vInstanceCount, draw.vBaseInstance);
+                    }
                 }
             }
 
@@ -259,18 +281,17 @@ namespace App
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);
 
+            // UNBIND OUTPUT BUFFERS
             if (glfragout != null)
                 glfragout.Unbind();
-
             if (glvertout != null)
                 glvertout.Unbind();
 
+            // UNBIND OPENGL OBJECTS
             foreach (var t in textures)
                 t.obj.Unbind(t.unit);
-
             foreach (var s in sampler)
                 GL.BindSampler(s.unit, 0);
-
             foreach (var e in csexec)
                 e.Unbind(glname);
         }
@@ -290,6 +311,7 @@ namespace App
         {
             List<int> arg = new List<int>();
             GLVertinput vi = null;
+            GLVertoutput vo = null;
             GLBuffer ib = null;
             GLObject obj;
             PrimitiveType mode = 0;
@@ -301,6 +323,8 @@ namespace App
             {
                 if (vi == null && classes.TryGetValue(cmd[i], out obj) && obj.GetType() == typeof(GLVertinput))
                     vi = (GLVertinput)obj;
+                else if (vo == null && classes.TryGetValue(cmd[i], out obj) && obj.GetType() == typeof(GLVertoutput))
+                    vo = (GLVertoutput)obj;
                 else if (ib == null && classes.TryGetValue(cmd[i], out obj) && obj.GetType() == typeof(GLBuffer))
                     ib = (GLBuffer)obj;
                 else if (Int32.TryParse(cmd[i], out val))
@@ -345,11 +369,12 @@ namespace App
             DrawCall drawcall = new DrawCall();
             drawcall.mode = mode;
             drawcall.indextype = type;
-            drawcall.indexcount = arg.Count >= 1 ? arg[0] : 0;
-            drawcall.baseindex = (IntPtr)(arg.Count >= 2 ? arg[1] : 0);
-            drawcall.instancecount = arg.Count >= 3 ? arg[2] : 1;
-            drawcall.baseinstance = arg.Count >= 4 ? arg[3] : 0;
-            drawcall.basevertex = arg.Count >= 5 ? arg[4] : 0;
+            drawcall.iBaseVertex = arg.Count >= 1 ? arg[0] : 0;
+            drawcall.iBaseIndex = arg.Count >= 2 ? arg[1] : 0;
+            drawcall.iIndexCount = arg.Count >= 3 ? arg[2] : 0;
+            drawcall.iBaseInstance = arg.Count >= 4 ? arg[3] : 0;
+            drawcall.iInstanceCount = arg.Count >= 5 ? arg[4] : 1;
+            drawcall.vo = vo != null ? vo.glname : 0;
             multidrawcall.cmd.Add(drawcall);
             #endregion
         }

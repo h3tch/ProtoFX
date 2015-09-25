@@ -6,6 +6,10 @@ namespace App
 {
     class GLVertoutput : GLObject
     {
+        public bool pause = false;
+        public bool resume = false;
+        public TransformFeedbackPrimitiveType primitive = TransformFeedbackPrimitiveType.Points;
+
         public GLVertoutput(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
@@ -57,10 +61,18 @@ namespace App
         public void Bind()
         {
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, glname);
+            if (resume)
+                GL.ResumeTransformFeedback();
+            else
+                GL.BeginTransformFeedback(primitive);
         }
 
         public void Unbind()
         {
+            if (pause)
+                GL.PauseTransformFeedback();
+            else
+                GL.EndTransformFeedback();
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, 0);
         }
 

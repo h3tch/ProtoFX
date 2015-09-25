@@ -18,7 +18,7 @@ buffer buff_color {
 	file "geom/cube.xml|color"
 }
 
-buffer buff_idx {
+buffer buf_idx {
 	usage staticDraw
 	file "geom/cube.xml|index"
 }
@@ -127,7 +127,7 @@ pass pass_shadowmap {
 	exec cs_util util.SimpleCamera 60 0.1 100 3 4 3 -45 45
 	
 	// draw cube
-	draw buff_idx in_vert ushort triangles 36
+	draw buf_idx in_vert ushort triangles 0 0 36
 }
 
 pass pass_render {
@@ -144,7 +144,7 @@ pass pass_render {
 	exec cs_util util.SimpleCamera 60 0.1 100 -5 4 10 -20 -10
 	
 	// draw cube
-	draw buff_idx in_vert ushort triangles 36
+	draw buf_idx in_vert ushort triangles 0 0 36
 }
 
 tech tech_simple {

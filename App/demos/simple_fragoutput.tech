@@ -23,7 +23,7 @@ buffer buff_color {
 }
 
 // Triangle list defining the mesh
-buffer buff_idx {
+buffer buf_idx {
 	usage staticDraw
 	// load <index></index> data from XML file
 	// these are indices forming triangles from vertex positions
@@ -164,7 +164,7 @@ pass pass_render {
 	exec cs_util util.SimpleCamera 60 0.1 100 0 0 5
 	
 	// draw cube
-	draw buff_idx in_vert ushort triangles 36
+	draw buf_idx in_vert ushort triangles 0 0 36
 }
 
 pass pass_present {
@@ -180,7 +180,7 @@ pass pass_present {
 	Disable depthTest
 	
 	// draw fullscreen rectangle
-	draw buff_idx in_vert ushort triangles 6 0 1 0 8
+	draw buf_idx in_vert ushort triangles 8 0 6
 }
 
 tech tech_simple {

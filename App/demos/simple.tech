@@ -125,9 +125,11 @@ pass pass_render {
 	// ushort ...... the format of the indices stored in buff_idx
 	// triangles ... the primitive type stored in buff_idx
 	//               (in this case a triangle list)
-	// 36 .......... use the first 36 indices in buff_idx
+	// 0 ........... the fisrt vertex to use is vertex 0
+	// 0 ........... the first index of 'buff_idx' to use is 0
+	// 36 .......... use 36 indices in 'buff_idx'
 	//               (= 36/3 = 12 triangles)
-	draw buf_idx in_vert ushort triangles 36
+	draw buf_idx in_vert ushort triangles 0 0 36
 }
 
 ///////////////
