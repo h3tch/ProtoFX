@@ -18,7 +18,7 @@ namespace App
         public string eval = null;
         public string geom = null;
         public string frag = null;
-        public string vertout = null;
+        public string[] vertout = null;
         public string fragout = null;
         public GLObject glvert = null;
         public GLObject gltess = null;
@@ -26,6 +26,7 @@ namespace App
         public GLObject glgeom = null;
         public GLObject glfrag = null;
         public GLVertoutput glvertout = null;
+        public TransformFeedbackPrimitiveType vertoutPrimitive = TransformFeedbackPrimitiveType.Points;
         public GLFragoutput glfragout = null;
         public List<MultiDrawCall> calls = new List<MultiDrawCall>();
         public List<Res<GLTexture>> textures = new List<Res<GLTexture>>();
@@ -41,6 +42,7 @@ namespace App
         {
             public int vi;
             public int ib;
+            public int vo;
             public List<DrawCall> cmd;
         }
 
@@ -55,14 +57,13 @@ namespace App
             public int iBaseInstance;
             public int iInstanceCount;
             // get arguments for vertex output drawing
-            public int vo;
-            public int voStream { get { return iBaseVertex; } }
-            public int voInstanceCount { get { return iBaseIndex; } }
+            public int voStream { get { return iBaseVertex; } set { iBaseVertex = value; } }
+            public int voInstanceCount { get { return iBaseIndex; } set { iBaseIndex = value; } }
             // get arguments for vertex buffer drawing
-            public int vBaseVertex { get { return iBaseVertex; } }
-            public int vVertexCount { get { return iBaseIndex; } }
-            public int vBaseInstance { get { return iIndexCount; } }
-            public int vInstanceCount { get { return iBaseInstance; } }
+            public int vBaseVertex { get { return iBaseVertex; } set { iBaseVertex = value; } }
+            public int vVertexCount { get { return iBaseIndex; } set { iBaseIndex = value; } }
+            public int vBaseInstance { get { return iIndexCount; } set { iIndexCount = value; } }
+            public int vInstanceCount { get { return iBaseInstance; } set { iBaseInstance = value; } }
         }
 
         public struct Res<T>
@@ -167,8 +168,8 @@ namespace App
             // GET VERTEX AND FRAGMENT OUTPUT BINDINGS
             if (fragout != null && (glfragout = classes.FindClass<GLFragoutput>(fragout)) == null)
                 throw new Exception(Dict.NotFoundMsg("pass", name, "fragout", fragout));
-            if (vertout != null && (glvertout = classes.FindClass<GLVertoutput>(vertout)) == null)
-                throw new Exception(Dict.NotFoundMsg("pass", name, "vertout", vertout));
+            if (vertout != null && vertout.Length > 0 && (glvertout = classes.FindClass<GLVertoutput>(vertout[0])) == null)
+                throw new Exception(Dict.NotFoundMsg("pass", name, "vertout", vertout[0]));
 
             // CREATE OPENGL OBJECT
             glname = GL.CreateProgram();
@@ -179,6 +180,35 @@ namespace App
             gleval = attach(eval, classes);
             glgeom = attach(geom, classes);
             glfrag = attach(frag, classes);
+
+            // specify vertex output varyings of the shader program
+            if (glvertout != null)
+            {
+                if (vertout.Length < 3)
+                    throw new Exception("ERROR in pass " + name + ": vertout command does not have "
+                        + "enough arguments (e.g. vertout vertout_name points varying_name).");
+                if (!Enum.TryParse(vertout[1], true, out vertoutPrimitive))
+                    throw new Exception("ERROR in pass " + name + ": vertout command does not support "
+                        + "the specified primitive type '" + vertout[1] + "' "
+                        + "(must be 'points', 'lines' or 'triangles').");
+
+                TransformFeedbackMode vertoutMode = TransformFeedbackMode.InterleavedAttribs;
+                int skip = 2;
+                if (vertout[2] == "gl_SeparateAttribs")
+                {
+                    vertoutMode = TransformFeedbackMode.SeparateAttribs;
+                    skip = 3;
+                }
+                else if (vertout[2] == "gl_InterleavedAttribs")
+                    skip = 3;
+
+                if (vertout.Length - skip > 0)
+                {
+                    string[] outputVaryings = new string[vertout.Length - skip];
+                    Array.Copy(vertout, skip, outputVaryings, 0, vertout.Length - skip);
+                    GL.TransformFeedbackVaryings(glname, outputVaryings.Length, outputVaryings, vertoutMode);
+                }
+            }
 
             // link program
             GL.LinkProgram(glname);
@@ -207,6 +237,16 @@ namespace App
             int widthOut = width;
             int heightOut = height;
 
+            // SET DEFAULT VIEWPORT
+            GL.Viewport(0, 0, widthOut, heightOut);
+
+            // CALL USER SPECIFIED OPENGL FUNCTIONS
+            foreach (var glcall in invoke)
+                glcall.mtype.Invoke(null, glcall.inval);
+
+            // BIND PROGRAM
+            GL.UseProgram(glname);
+            
             // BIND OUTPUT BUFFERS
             // bind framebuffer
             if (glfragout != null)
@@ -217,17 +257,7 @@ namespace App
             }
             // bind transform feedback buffer
             if (glvertout != null)
-                glvertout.Bind();
-
-            // SET DEFAULT VIEWPORT
-            GL.Viewport(0, 0, widthOut, heightOut);
-
-            // CALL USER SPECIFIED OPENGL FUNCTIONS
-            foreach (var glcall in invoke)
-                glcall.mtype.Invoke(null, glcall.inval);
-
-            // BIND PROGRAM
-            GL.UseProgram(glname);
+                glvertout.Bind(vertoutPrimitive);
 
             // BIND TEXTURES
             foreach (var t in textures)
@@ -249,43 +279,39 @@ namespace App
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, call.ib);
                     // execute multiple indirect draw commands
                     foreach (var draw in call.cmd)
-                    {
-                        if (draw.vo > 0)
-                            GL.DrawTransformFeedbackStreamInstanced(draw.mode,
-                                draw.vo, draw.voStream, draw.voInstanceCount);
-                        else
-                            GL.DrawElementsInstancedBaseVertexBaseInstance(
-                                draw.mode, draw.iIndexCount, draw.indextype,
-                                (IntPtr)draw.iBaseIndex, draw.iInstanceCount,
-                                draw.iBaseVertex, draw.iBaseInstance);
-                    }
+                        GL.DrawElementsInstancedBaseVertexBaseInstance(
+                            draw.mode, draw.iIndexCount, draw.indextype,
+                            (IntPtr)draw.iBaseIndex, draw.iInstanceCount,
+                            draw.iBaseVertex, draw.iBaseInstance);
+                }
+                else if(call.vo != 0)
+                {
+                    // execute multiple draw commands using the result
+                    // of a transform feedback buffer
+                    foreach (var draw in call.cmd)
+                        GL.DrawTransformFeedbackStreamInstanced(draw.mode,
+                            call.vo, draw.voStream, draw.voInstanceCount);
                 }
                 else
                 {
                     // execute multiple indirect draw commands
                     foreach (var draw in call.cmd)
-                    {
-                        if (draw.vo > 0)
-                            GL.DrawTransformFeedbackStreamInstanced(draw.mode,
-                                draw.vo, draw.voStream, draw.voInstanceCount);
-                        else
-                            GL.DrawArraysInstancedBaseInstance(
-                                draw.mode, draw.vBaseVertex, draw.vVertexCount,
-                                draw.vInstanceCount, draw.vBaseInstance);
-                    }
+                        GL.DrawArraysInstancedBaseInstance(
+                            draw.mode, draw.vBaseVertex, draw.vVertexCount,
+                            draw.vInstanceCount, draw.vBaseInstance);
                 }
             }
-
-            // UNBIND OPENGL RESOURCES
-            GL.UseProgram(0);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-            GL.BindVertexArray(0);
 
             // UNBIND OUTPUT BUFFERS
             if (glfragout != null)
                 glfragout.Unbind();
             if (glvertout != null)
                 glvertout.Unbind();
+
+            // UNBIND OPENGL RESOURCES
+            GL.UseProgram(0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            GL.BindVertexArray(0);
 
             // UNBIND OPENGL OBJECTS
             foreach (var t in textures)
@@ -314,6 +340,8 @@ namespace App
             GLVertoutput vo = null;
             GLBuffer ib = null;
             GLObject obj;
+            bool modeIsSet = false;
+            bool typeIsSet = false;
             PrimitiveType mode = 0;
             DrawElementsType type = 0;
             int val;
@@ -327,17 +355,20 @@ namespace App
                     vo = (GLVertoutput)obj;
                 else if (ib == null && classes.TryGetValue(cmd[i], out obj) && obj.GetType() == typeof(GLBuffer))
                     ib = (GLBuffer)obj;
-                else if (Int32.TryParse(cmd[i], out val))
+                else if (int.TryParse(cmd[i], out val))
                     arg.Add(val);
-                else if (type == 0 && Enum.TryParse(cmd[i], true, out type)) { }
-                else if (mode == 0 && Enum.TryParse(cmd[i], true, out mode)) { }
+                else if (typeIsSet == false && Enum.TryParse(cmd[i], true, out type))
+                    typeIsSet = true;
+                else if (modeIsSet == false && Enum.TryParse(cmd[i], true, out mode))
+                    modeIsSet = true;
             }
             
             #region CHECK VALIDITY OF DRAW CALL
             // -) a draw call must specify a primitive type
-            if (mode == 0)
+            if (modeIsSet == false)
                 throw new Exception("ERROR in pass " + name
-                    + ": Draw call " + calls.Count + " must specify a primitive type (e.g. triangles, trianglefan, lines, ...).");
+                    + ": Draw call " + calls.Count + " must specify a primitive type "
+                    + "(e.g. triangles, trianglefan, lines, points, ...).");
             // -) a draw call mast specify the number of vertices to draw
             if (arg.Count == 0)
                 throw new Exception("ERROR in pass " + name
@@ -347,21 +378,29 @@ namespace App
                 throw new Exception("ERROR in pass " + name
                     + ": Draw call " + calls.Count + " must specify a vertinput name.");
             // -) if indexed drawing is used, the draw call must specify an index buffer
-            if (ib != null && type == 0)
+            if (ib != null && modeIsSet == false)
                 throw new Exception("ERROR in pass " + name
-                    + ": Draw call " + calls.Count + " uses index vertices and must therefore specify an index type "
-                    + "(e.g. unsignedshort, unsignedin).");
+                    + ": Draw call " + calls.Count + " uses index vertices and "
+                    + "must therefore specify an index type (e.g. unsignedshort, unsignedin).");
+            // -) if indexed drawing is used, the draw call must specify a transform feedback buffer
+            if (ib != null && vo != null)
+                throw new Exception("ERROR in pass " + name
+                    + ": Draw call " + calls.Count + " uses index vertices and "
+                    + "can therefore not also specify a vertex output object.");
             #endregion
 
             #region ADD DRAW CALL TO LIST
             // get index buffer object (if present) and find existing MultiDraw class
-            MultiDrawCall multidrawcall = calls.Find(x => x.vi == vi.glname && x.ib == (ib != null ? ib.glname : 0));
+            MultiDrawCall multidrawcall = calls.Find(x => x.vi == vi.glname
+                && x.ib == (ib != null ? ib.glname : 0)
+                && x.vo == (vo != null ? vo.glname : 0));
             if (multidrawcall == null)
             {
                 multidrawcall = new MultiDrawCall();
                 multidrawcall.cmd = new List<DrawCall>();
                 multidrawcall.vi = vi != null ? vi.glname : 0;
                 multidrawcall.ib = ib != null ? ib.glname : 0;
+                multidrawcall.vo = vo != null ? vo.glname : 0;
                 calls.Add(multidrawcall);
             }
 
@@ -369,12 +408,26 @@ namespace App
             DrawCall drawcall = new DrawCall();
             drawcall.mode = mode;
             drawcall.indextype = type;
-            drawcall.iBaseVertex = arg.Count >= 1 ? arg[0] : 0;
-            drawcall.iBaseIndex = arg.Count >= 2 ? arg[1] : 0;
-            drawcall.iIndexCount = arg.Count >= 3 ? arg[2] : 0;
-            drawcall.iBaseInstance = arg.Count >= 4 ? arg[3] : 0;
-            drawcall.iInstanceCount = arg.Count >= 5 ? arg[4] : 1;
-            drawcall.vo = vo != null ? vo.glname : 0;
+            if (ib != null)
+            {
+                drawcall.iBaseVertex = arg.Count >= 1 ? arg[0] : 0;
+                drawcall.iBaseIndex = arg.Count >= 2 ? arg[1] : 0;
+                drawcall.iIndexCount = arg.Count >= 3 ? arg[2] : 0;
+                drawcall.iBaseInstance = arg.Count >= 4 ? arg[3] : 0;
+                drawcall.iInstanceCount = arg.Count >= 5 ? arg[4] : 1;
+            }
+            else if (vo != null)
+            {
+                drawcall.voStream = arg.Count >= 1 ? arg[0] : 0;
+                drawcall.voInstanceCount = arg.Count >= 2 ? arg[1] : 1;
+            }
+            else
+            {
+                drawcall.vBaseVertex = arg.Count >= 1 ? arg[0] : 0;
+                drawcall.vVertexCount = arg.Count >= 2 ? arg[1] : 0;
+                drawcall.vBaseInstance = arg.Count >= 3 ? arg[2] : 0;
+                drawcall.vInstanceCount = arg.Count >= 4 ? arg[3] : 1;
+            }
             multidrawcall.cmd.Add(drawcall);
             #endregion
         }

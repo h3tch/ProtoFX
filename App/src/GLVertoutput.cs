@@ -8,7 +8,6 @@ namespace App
     {
         public bool pause = false;
         public bool resume = false;
-        public TransformFeedbackPrimitiveType primitive = TransformFeedbackPrimitiveType.Points;
 
         public GLVertoutput(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
@@ -58,7 +57,7 @@ namespace App
             throwExceptionOnOpenGlError("vertinput", name, "could not create OpenGL vertex array object");
         }
 
-        public void Bind()
+        public void Bind(TransformFeedbackPrimitiveType primitive)
         {
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, glname);
             if (resume)

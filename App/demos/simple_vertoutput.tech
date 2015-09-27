@@ -57,23 +57,25 @@ shader vert vs_transform {
 	
 	layout(location = 0) in vec4 in_pos;
 	
+	out vec4 out_pos;
+	
 	void main ()
 	{
-		gl_Position = g_viewproj * in_pos;
+		out_pos = g_viewproj * in_pos;
 	}
 }
 
 shader vert vs_render {
 	#version 440
 	
-	layout(location = 0) in vec4 in_projpos;
+	layout(location = 0) in vec4 in_pos;
 	layout(location = 1) in vec4 in_col;
 
 	layout(location = 0) out vec4 vs_col;
 	
 	void main ()
 	{
-		gl_Position = g_viewproj * in_projpos;
+		gl_Position = in_pos;
 		vs_col = in_col;
 	}
 }
@@ -108,16 +110,17 @@ pass pass_transform {
 	vert vs_transform
 	
 	// VERTEX OUTPUT
-	vertout out_vert
+	vertout out_vert points out_pos
 	
 	// OPENGL FUNCTIONS
+	// disable rasterization
 	Enable rasterizerDiscard
 	
 	// EXECUTE CONTROL
 	exec cs_util util.SimpleCamera 60 0.1 100 0 0 5
 	
 	// DRAW CALLS
-	draw in_vert points 12
+	draw in_vert points 0 8
 }
 
 pass pass_render {
@@ -126,13 +129,15 @@ pass pass_render {
 	frag fs_render
 	
 	// OPENGL FUNCTIONS
+	// enable rasterization before
+	// clearing the framebuffer
+	Disable rasterizerDiscard
+	Enable depthTest
 	ClearColor 0.1 0.3 1.0 0.0
 	Clear ColorDepthBit
-	Enable depthTest
-	Disable rasterizerDiscard
 	
 	// DRAW CALLS
-	draw buf_idx in_projvert ushort triangles 36
+	draw buf_idx in_projvert ushort triangles 0 0 36
 }
 
 ///////////////
