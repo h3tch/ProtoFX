@@ -48,20 +48,25 @@ namespace App
         {
             public PrimitiveType mode;
             public DrawElementsType indextype;
+            public int arg0;
+            public int arg1;
+            public int arg2;
+            public int arg3;
+            public int arg4;
             // arguments for indexed buffer drawing
-            public int iBaseVertex;
-            public int iBaseIndex;
-            public int iIndexCount;
-            public int iBaseInstance;
-            public int iInstanceCount;
+            public int iBaseVertex { get { return arg0; } set { arg0 = value; } }
+            public IntPtr iBaseIndex { get { return (IntPtr)(arg1*Math.Max(1, (int)indextype - (int)DrawElementsType.UByte)); } set { arg1 = (int)value; } }
+            public int iIndexCount { get { return arg2; } set { arg2 = value; } }
+            public int iBaseInstance { get { return arg3; } set { arg3 = value; } }
+            public int iInstanceCount { get { return arg4; } set { arg4 = value; } }
             // get arguments for vertex output drawing
-            public int voStream { get { return iBaseVertex; } set { iBaseVertex = value; } }
-            public int voInstanceCount { get { return iBaseIndex; } set { iBaseIndex = value; } }
+            public int voStream { get { return arg0; } set { arg0 = value; } }
+            public int voInstanceCount { get { return arg1; } set { arg1 = value; } }
             // get arguments for vertex buffer drawing
-            public int vBaseVertex { get { return iBaseVertex; } set { iBaseVertex = value; } }
-            public int vVertexCount { get { return iBaseIndex; } set { iBaseIndex = value; } }
-            public int vBaseInstance { get { return iIndexCount; } set { iIndexCount = value; } }
-            public int vInstanceCount { get { return iBaseInstance; } set { iBaseInstance = value; } }
+            public int vBaseVertex { get { return arg0; } set { arg0 = value; } }
+            public int vVertexCount { get { return arg1; } set { arg1 = value; } }
+            public int vBaseInstance { get { return arg2; } set { arg2 = value; } }
+            public int vInstanceCount { get { return arg3; } set { arg3 = value; } }
         }
 
         public struct Res<T>
@@ -210,6 +215,17 @@ namespace App
             int widthOut = width;
             int heightOut = height;
 
+            // BIND FRAGMENT OUTPUT
+            // (widthOut and heightOut must be 
+            // computed before setting the glViewport)
+            if (glfragout != null)
+            {
+                // bind framebuffer output
+                widthOut = glfragout.width;
+                heightOut = glfragout.height;
+                glfragout.Bind();
+            }
+
             // SET DEFAULT VIEWPORT
             GL.Viewport(0, 0, widthOut, heightOut);
 
@@ -219,18 +235,10 @@ namespace App
 
             // BIND PROGRAM
             GL.UseProgram(glname);
-            
-            // BIND OUTPUT BUFFERS
-            if (glfragout != null)
-            {
-                // bind framebuffer output
-                widthOut = glfragout.width;
-                heightOut = glfragout.height;
-                glfragout.Bind();
-            }
 
+            // BIND VERTEX OUTPUT (transform feedback)
+            // (must be done after glUseProgram)
             if (glvertout != null)
-                // bind vertex output (transform feedback)
                 glvertout.Bind(vertoutPrimitive);
 
             // BIND TEXTURES
@@ -255,7 +263,7 @@ namespace App
                     foreach (var draw in call.cmd)
                         GL.DrawElementsInstancedBaseVertexBaseInstance(
                             draw.mode, draw.iIndexCount, draw.indextype,
-                            (IntPtr)draw.iBaseIndex, draw.iInstanceCount,
+                            draw.iBaseIndex, draw.iInstanceCount,
                             draw.iBaseVertex, draw.iBaseInstance);
                 }
                 else if(call.vo != 0)
@@ -385,7 +393,7 @@ namespace App
             if (ib != null)
             {
                 drawcall.iBaseVertex = arg.Count >= 1 ? arg[0] : 0;
-                drawcall.iBaseIndex = arg.Count >= 2 ? arg[1] : 0;
+                drawcall.iBaseIndex = (IntPtr)(arg.Count >= 2 ? arg[1] : 0);
                 drawcall.iIndexCount = arg.Count >= 3 ? arg[2] : 0;
                 drawcall.iBaseInstance = arg.Count >= 4 ? arg[3] : 0;
                 drawcall.iInstanceCount = arg.Count >= 5 ? arg[4] : 1;

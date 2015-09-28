@@ -6,4 +6,8 @@
      1.0  1.0  1.0  1.0
     -1.0  1.0  0.0  1.0
   </position>
+  <index type='ushort' isbinary='false'>
+    0  1  2
+    2  3  0
+  </index>
 </gled>

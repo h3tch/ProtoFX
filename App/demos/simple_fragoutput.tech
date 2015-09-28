@@ -5,7 +5,7 @@
 //////////////////
 
 // Vertex positions
-buffer buff_pos {
+buffer buf_pos {
 	// buffer will only be used for reading
 	// and will not be updated during runtime
 	usage staticDraw
@@ -15,7 +15,7 @@ buffer buff_pos {
 }
 
 // Vertex colors
-buffer buff_color {
+buffer buf_color {
 	usage staticDraw
 	// load <color></color> data from XML file
 	// these are vertex colors for each vertex
@@ -27,7 +27,7 @@ buffer buf_idx {
 	usage staticDraw
 	// load <index></index> data from XML file
 	// these are indices forming triangles from vertex positions
-	file "geom/cube.xml|index"
+	file "geom/cube.xml|index" "geom/quad.xml|index"
 }
 
 // Color image (used as a render target)
@@ -36,7 +36,7 @@ image img_color {
 	width 1024
 	height 768
 	// pixel format is (red,green,blue,alpha)
-	gpuformat RGBA
+	format RGBA
 }
 
 // 32 bit floatingpoint depth image (used as a render target)
@@ -55,10 +55,10 @@ image img_depth {
 vertinput in_vert {
 	// first attribute: floating point
 	// vertex positions (x,y,z,1)
-	attr buff_pos float 4
+	attr buf_pos float 4
 	// second attribute: floating point
 	// vertex colors (x,y,z,1)
-	attr buff_color float 4
+	attr buf_color float 4
 }
 
 sampler samp_linear {
@@ -156,7 +156,7 @@ pass pass_render {
 	fragout out_frag
 	
 	// OpenGL calls
-	ClearColor 0.1 0.3 1.0 0.0
+	ClearColor 0.1 0.3 1.0 1.0
 	Clear colorDepthBit
 	Enable depthTest
 
@@ -180,7 +180,7 @@ pass pass_present {
 	Disable depthTest
 	
 	// draw fullscreen rectangle
-	draw buf_idx in_vert ushort triangles 8 0 6
+	draw buf_idx in_vert ushort triangles 8 36 6
 }
 
 tech tech_simple {
