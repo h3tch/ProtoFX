@@ -1,6 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Collections.Generic;
 
 namespace App
 {
@@ -25,41 +24,19 @@ namespace App
             // parse commands
             int numbindings = 0;
             foreach (var cmd in cmds)
-            {
-                // skip if already processed
-                if (cmd == null || cmd.Length < 2)
-                    continue;
-                if (cmd[0] == "buff")
-                {
-                    // get buffer
-                    GLBuffer buf = classes.FindClass<GLBuffer>(cmd[1]);
-                    if (buf == null)
-                        throw new Exception(Dict.NotFoundMsg("vertoutput", name, "buffer", cmd[1]));
+                if (cmd != null && cmd.Length >= 2 && cmd[0] == "buff")
+                    attachBuffer(numbindings++, cmd, classes);
 
-                    // parse offset
-                    int offset = 0;
-                    if (cmd.Length >= 3 && int.TryParse(cmd[2], out offset) == false)
-                        throw new Exception("ERROR in sampler " + name + ": "
-                            + "The second parameter (offset) of buff" + numbindings + " is invalid.");
-
-                    // parse size
-                    int size = buf.size;
-                    if (cmd.Length >= 4 && int.TryParse(cmd[3], out size) == false)
-                        throw new Exception("ERROR in sampler " + name + ": "
-                            + "The third parameter (size) of buff" + numbindings + " is invalid.");
-
-                    // bind buffer to transform feedback
-                    GL.BindBufferRange(BufferRangeTarget.TransformFeedbackBuffer, numbindings++, buf.glname, (IntPtr)offset, (IntPtr)size);
-                }
-            }
-
+            // unbind object and check for errors
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, 0);
             throwExceptionOnOpenGlError("vertinput", name, "could not create OpenGL vertex array object");
         }
 
         public void Bind(TransformFeedbackPrimitiveType primitive)
         {
+            // bind transform feedback object
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, glname);
+            // resume or start transform feedback
             if (resume)
                 GL.ResumeTransformFeedback();
             else
@@ -68,10 +45,12 @@ namespace App
 
         public void Unbind()
         {
+            // pause or end transform feedback
             if (pause)
                 GL.PauseTransformFeedback();
             else
                 GL.EndTransformFeedback();
+            // undbind transform feedback
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, 0);
         }
 
@@ -82,6 +61,29 @@ namespace App
                 GL.DeleteTransformFeedback(glname);
                 glname = 0;
             }
+        }
+
+        private void attachBuffer(int unit, string[] cmd, Dict classes)
+        {
+            // get buffer
+            GLBuffer buf = classes.FindClass<GLBuffer>(cmd[1]);
+            if (buf == null)
+                throw new Exception(Dict.NotFoundMsg("vertoutput", name, "buffer", cmd[1]));
+
+            // parse offset
+            int offset = 0;
+            if (cmd.Length >= 3 && int.TryParse(cmd[2], out offset) == false)
+                throw new Exception("ERROR in sampler " + name + ": "
+                    + "The second parameter (offset) of buff" + unit + " is invalid.");
+
+            // parse size
+            int size = buf.size;
+            if (cmd.Length >= 4 && int.TryParse(cmd[3], out size) == false)
+                throw new Exception("ERROR in sampler " + name + ": "
+                    + "The third parameter (size) of buff" + unit + " is invalid.");
+
+            // bind buffer to transform feedback
+            GL.BindBufferRange(BufferRangeTarget.TransformFeedbackBuffer, unit, buf.glname, (IntPtr)offset, (IntPtr)size);
         }
     }
 }

@@ -11,7 +11,6 @@ namespace App
     class GLPass : GLObject
     {
         #region FIELDS
-
         private static CultureInfo culture = new CultureInfo("en");
         public string vert = null;
         public string tess = null;
@@ -33,7 +32,6 @@ namespace App
         public List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
         public List<GLMethod> invoke = new List<GLMethod>();
         public List<CsharpClass> csexec = new List<CsharpClass>();
-
         #endregion
 
         #region HELP STRUCT
@@ -183,32 +181,7 @@ namespace App
 
             // specify vertex output varyings of the shader program
             if (glvertout != null)
-            {
-                if (vertout.Length < 3)
-                    throw new Exception("ERROR in pass " + name + ": vertout command does not have "
-                        + "enough arguments (e.g. vertout vertout_name points varying_name).");
-                if (!Enum.TryParse(vertout[1], true, out vertoutPrimitive))
-                    throw new Exception("ERROR in pass " + name + ": vertout command does not support "
-                        + "the specified primitive type '" + vertout[1] + "' "
-                        + "(must be 'points', 'lines' or 'triangles').");
-
-                TransformFeedbackMode vertoutMode = TransformFeedbackMode.InterleavedAttribs;
-                int skip = 2;
-                if (vertout[2] == "gl_SeparateAttribs")
-                {
-                    vertoutMode = TransformFeedbackMode.SeparateAttribs;
-                    skip = 3;
-                }
-                else if (vertout[2] == "gl_InterleavedAttribs")
-                    skip = 3;
-
-                if (vertout.Length - skip > 0)
-                {
-                    string[] outputVaryings = new string[vertout.Length - skip];
-                    Array.Copy(vertout, skip, outputVaryings, 0, vertout.Length - skip);
-                    GL.TransformFeedbackVaryings(glname, outputVaryings.Length, outputVaryings, vertoutMode);
-                }
-            }
+                setVertexOutputVaryings(vertout);
 
             // link program
             GL.LinkProgram(glname);
@@ -248,15 +221,16 @@ namespace App
             GL.UseProgram(glname);
             
             // BIND OUTPUT BUFFERS
-            // bind framebuffer
             if (glfragout != null)
             {
+                // bind framebuffer output
                 widthOut = glfragout.width;
                 heightOut = glfragout.height;
                 glfragout.Bind();
             }
-            // bind transform feedback buffer
+
             if (glvertout != null)
+                // bind vertex output (transform feedback)
                 glvertout.Bind(vertoutPrimitive);
 
             // BIND TEXTURES
@@ -331,7 +305,7 @@ namespace App
             }
         }
 
-        #region PARSE GLED COMMANDS
+        #region PARSE COMMANDS
 
         private void ParseDrawCall(string[] cmd, Dictionary<string, GLObject> classes)
         {
@@ -530,6 +504,46 @@ namespace App
             else
                 throw new Exception("ERROR in pass " + name + ": Invalid name '" + sh + "'.");
             return glsh;
+        }
+
+        private void setVertexOutputVaryings(string[] varyings)
+        {
+            // the vertout command needs at least 3 arguments
+            if (varyings.Length < 3)
+                throw new Exception("ERROR in pass " + name + ": vertout command does not have "
+                    + "enough arguments (e.g. vertout vertout_name points varying_name).");
+
+            // parse vertex output primitive type
+            if (!Enum.TryParse(varyings[1], true, out vertoutPrimitive))
+                throw new Exception("ERROR in pass " + name + ": vertout command does not support "
+                    + "the specified primitive type '" + varyings[1] + "' "
+                    + "(must be 'points', 'lines' or 'triangles').");
+
+            // get vertex output varying specification
+            int skip = 2;
+            TransformFeedbackMode vertoutMode = TransformFeedbackMode.InterleavedAttribs;
+
+            // write output varyings into separate buffers
+            if (varyings[2] == "gl_SeparateAttribs")
+            {
+                vertoutMode = TransformFeedbackMode.SeparateAttribs;
+                skip = 3;
+            }
+            // write output varyings into the same buffer except
+            // if 'gl_NextBuffer' is specified in the varyings list
+            else if (varyings[2] == "gl_InterleavedAttribs")
+                skip = 3;
+
+            // set transform feedback varyings in the shader program
+            if (varyings.Length - skip > 0)
+            {
+                string[] outputVaryings = new string[varyings.Length - skip];
+                Array.Copy(varyings, skip, outputVaryings, 0, varyings.Length - skip);
+                GL.TransformFeedbackVaryings(glname, outputVaryings.Length, outputVaryings, vertoutMode);
+            }
+            else
+                throw new Exception("ERROR in pass " + name + ": vertout command does not specify "
+                    + "shader output varying names (e.g. vertout vertout_name points varying_name).");
         }
 
         #endregion
