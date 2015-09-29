@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<gled>
+  <position type='float' isbinary='false'>
+     10.0 -1.0  10.0  1.0
+     10.0 -1.0 -10.0  1.0
+    -10.0 -1.0 -10.0  1.0
+    -10.0 -1.0  10.0  1.0
+  </position>
+  <color type='float' isbinary='false'>
+    1.0  0.0  0.0  1.0
+    0.0  1.0  0.0  1.0
+    0.0  0.0  1.0  1.0
+    1.0  1.0  1.0  1.0
+  </color>
+  <uv type='float' isbinary='false'>
+    0.0  0.0
+    1.0  0.0
+    1.0  1.0
+    0.0  1.0
+  </uv>
+  <index type='ushort' isbinary='false'>
+    0  1  2
+    2  3  0
+  </index>
+</gled>

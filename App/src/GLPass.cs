@@ -48,11 +48,11 @@ namespace App
         {
             public PrimitiveType mode;
             public DrawElementsType indextype;
-            public int arg0;
-            public int arg1;
-            public int arg2;
-            public int arg3;
-            public int arg4;
+            private int arg0;
+            private int arg1;
+            private int arg2;
+            private int arg3;
+            private int arg4;
             // arguments for indexed buffer drawing
             public int iBaseVertex { get { return arg0; } set { arg0 = value; } }
             public IntPtr iBaseIndex { get { return (IntPtr)(arg1*Math.Max(1, (int)indextype - (int)DrawElementsType.UByte)); } set { arg1 = (int)value; } }
@@ -255,6 +255,9 @@ namespace App
                 // bind vertex buffer to input stream
                 // (needs to be done before binding an ElementArrayBuffer)
                 GL.BindVertexArray(call.vi);
+
+                // select right type
+                // of draw calls
                 if (call.ib != 0)
                 {
                     // bin index buffer to ElementArrayBuffer target
@@ -461,21 +464,24 @@ namespace App
 
         private CsharpClass ParseCsharpExec(string[] cmd, Dictionary<string, GLObject> classes)
         {
-            // check if command provides the correct amount of paramenters
+            // check if command provides the correct amount of parameters
             if (cmd.Length < 3)
                 throw new Exception("ERROR in pass " + name + ": "
                     + "Not enough arguments for exec command '"+ string.Join(" ", cmd) + "'.");
 
             // get csharp object
             GLObject obj;
-            if (classes.TryGetValue(cmd[1], out obj) == false || obj.GetType() != typeof(GLCsharp))
-                throw new Exception("ERROR in pass " + name + ": Could not find csharp code '" + cmd[1]
-                    + "' of command '" + string.Join(" ", cmd) + "'.");
+            if (classes.TryGetValue(cmd[1], out obj) == false
+                || obj.GetType() != typeof(GLCsharp))
+                throw new Exception("ERROR in pass " + name + ": Could not find csharp code '"
+                    + cmd[1] + "' of command '" + string.Join(" ", cmd) + "'.");
             GLCsharp clazz = (GLCsharp)obj;
             
             // get GLControl
-            if (classes.TryGetValue(GraphicControl.nullname, out obj) == false || obj.GetType() != typeof(GraphicControl))
-                throw new Exception("INTERNAL_ERROR in pass " + name + ": Cound not find default GLControl.");
+            if (classes.TryGetValue(GraphicControl.nullname, out obj) == false
+                || obj.GetType() != typeof(GraphicControl))
+                throw new Exception("INTERNAL_ERROR in pass " + name
+                    + ": Could not find default GLControl.");
             GraphicControl glControl = (GraphicControl)obj;
 
             // create instance of defined main class

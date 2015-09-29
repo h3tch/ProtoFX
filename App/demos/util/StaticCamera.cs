@@ -1,13 +1,11 @@
-using OpenTK;
+﻿using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
 
 namespace util
 {
-    class SimpleCamera
+    class StaticCamera
     {
         #region FIELDS
         private Vector3 pos;
@@ -17,8 +15,6 @@ namespace util
         private Matrix4 proj;
         private Matrix4 vwpj;
         private Dictionary<int, CameraUniforms> uniform = new Dictionary<int, CameraUniforms>();
-        private Point mousedown = new Point(0, 0);
-        private Point mousepos = new Point(0, 0);
         private string unif_view = "g_view";
         private string unif_proj = "g_proj";
         private string unif_vipj = "g_viewproj";
@@ -33,7 +29,7 @@ namespace util
             public int info;
         }
 
-        public SimpleCamera(string[] cmd)
+        public StaticCamera(string[] cmd)
         {
             // default values
             pos = Vector3.Zero;
@@ -90,33 +86,6 @@ namespace util
                 GL.Uniform4(unif.info, ref info);
         }
 
-        #region OPENTK GLCONTROL WINDOW EVENTS
-
-        public void MouseDown(object sender, MouseEventArgs e)
-        {
-            mousedown.X = mousepos.X = e.X;
-            mousedown.Y = mousepos.Y = e.Y;
-        }
-
-        public void MouseMove(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-                Rotate((float)(Math.PI / 360) * (mousepos.Y - e.Y), (float)(Math.PI / 360) * (mousepos.X - e.X), 0);
-            else if (e.Button == MouseButtons.Right)
-                Move(0, 0, 0.03f * (e.Y - mousepos.Y));
-            mousepos.X = e.X;
-            mousepos.Y = e.Y;
-        }
-
-        public void Resize(object sender, EventArgs e)
-        {
-            GLControl gl = (GLControl)sender;
-            float aspect = (float)gl.Width / gl.Height;
-            Proj((float)(60 * (Math.PI / 180)), aspect, 0.1f, 100.0f);
-        }
-
-        #endregion
-
         #region PRIVATE UTILITY METHODS
 
         private CameraUniforms CreateCameraUniforms(int program, int width, int height)
@@ -129,16 +98,6 @@ namespace util
             unif.vwpj = GL.GetUniformLocation(program, unif_vipj);
             unif.info = GL.GetUniformLocation(program, unif_info);
             return unif;
-        }
-
-        private void Rotate(float x, float y, float z)
-        {
-            rot += new Vector3(x, y, z);
-        }
-
-        private void Move(float x, float y, float z)
-        {
-            pos += view.Column0.Xyz * x + view.Column1.Xyz * y + view.Column2.Xyz * z;
         }
 
         private void Proj(float fovy, float aspect, float znear, float zfar)

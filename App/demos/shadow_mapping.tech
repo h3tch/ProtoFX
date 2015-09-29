@@ -10,17 +10,17 @@ buffer buff_pos {
 	usage staticDraw
 	// load <pos></pos> data from XML file
 	// these are vertex positions for each vertex
-	file "geom/cube.xml|position"
+	file "geom/cube.xml|position" "geom/plane.xml|position"
 }
 
 buffer buff_color {
 	usage staticDraw
-	file "geom/cube.xml|color"
+	file "geom/cube.xml|color" "geom/plane.xml|color"
 }
 
 buffer buf_idx {
 	usage staticDraw
-	file "geom/cube.xml|index"
+	file "geom/cube.xml|index" "geom/plane.xml|index"
 }
 
 image img_shadowmap {
@@ -55,6 +55,10 @@ fragoutput out_shadowmap {
 	depth img_shadowmap
 }
 
+texture tex_shadowmap {
+	img img_shadowmap
+}
+
 /////////////
 // SHADERS //
 /////////////
@@ -62,14 +66,14 @@ fragoutput out_shadowmap {
 shader vert vs_shadowmap {
 	#version 440
 	
-	uniform mat4 g_viewproj;
+	uniform mat4 g_lightproj;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
 	
 	void main ()
 	{
-		gl_Position = g_viewproj * in_pos;
+		gl_Position = g_lightproj * in_pos;
 	}
 }
 
@@ -77,30 +81,43 @@ shader vert vs_simple {
 	#version 440
 	
 	uniform mat4 g_viewproj;
+	uniform mat4 g_lightproj;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
 	layout(location = 1) in vec4 in_col;
 
 	// vertex shader output
-	layout(location = 0) out vec4 vs_col;
+	layout(location = 0) out vec4 out_lpos;
+	layout(location = 1) out vec4 out_col;
 	
 	void main ()
 	{
 		gl_Position = g_viewproj * in_pos;
-		vs_col = in_col;
+		out_lpos = g_lightproj * in_pos;
+		out_lpos.xyz = out_lpos.xyz * 0.5 + 0.5;
+		out_col = in_col;
 	}
 }
 
 shader frag fs_simple {
 	#version 440
 	
-	layout(location = 0) in vec4 gs_col;
+	layout(binding = 0) uniform sampler2D shadowmap;
+	
+	layout(location = 0) in vec4 in_lpos;
+	layout(location = 1) in vec4 in_col;
 	out vec4 color;
 	
 	void main ()
 	{
-		color = gs_col;
+		color = in_col;
+		vec4 lpos = in_lpos / in_lpos.w;
+		float ldepth = texture(shadowmap, lpos.xy).x;
+		if (lpos.w > 0)
+			color.rgb = vec3(ldepth);
+		if (ldepth < lpos.z)
+			color.rgb *= 0.5;
 	}
 }
 
@@ -109,7 +126,7 @@ shader frag fs_simple {
 /////////////
 
 csharp cs_util {
-	file "util/SimpleCamera.cs"
+	file "util/StaticCamera.cs" "util/SimpleCamera.cs"
 }
 
 pass pass_shadowmap {
@@ -124,16 +141,19 @@ pass pass_shadowmap {
 	Enable depthTest
 
 	// execute camera code
-	exec cs_util util.SimpleCamera 60 0.1 100 3 4 3 -45 45
+	exec cs_util util.StaticCamera 60 0.1 10 3 4 3 -45 45 0 "g_light" "g_proj" "g_lightproj"
 	
 	// draw cube
 	draw buf_idx in_vert ushort triangles 0 0 36
+	draw buf_idx in_vert ushort triangles 8 36 6
 }
 
 pass pass_render {
 	// attach shaders
 	vert vs_simple
 	frag fs_simple
+	
+	tex tex_shadowmap 0
 	
 	// OpenGL calls
 	ClearColor 0.1 0.3 1.0 0.0
@@ -142,9 +162,11 @@ pass pass_render {
 
 	// execute camera code
 	exec cs_util util.SimpleCamera 60 0.1 100 -5 4 10 -20 -10
+	exec cs_util util.StaticCamera 60 0.1 10 3 4 3 -45 45 0 "g_light" "g_proj" "g_lightproj"
 	
 	// draw cube
 	draw buf_idx in_vert ushort triangles 0 0 36
+	draw buf_idx in_vert ushort triangles 8 36 6
 }
 
 tech tech_simple {

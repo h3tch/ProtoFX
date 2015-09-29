@@ -79,6 +79,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="demos\util\StaticCamera.cs" />
     <Compile Include="src\App.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -150,6 +151,7 @@
     <None Include="resources\ImgClose.png" />
     <None Include="resources\AppIcon.ico" />
     <Content Include="demos\geom\cube.xml" />
+    <Content Include="demos\geom\plane.xml" />
     <Content Include="demos\geom\quad.xml" />
     <Content Include="demos\tex\lena.jpg" />
     <Content Include="res\syntax.xml" />
