@@ -124,6 +124,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="demos\shadow_mapping.tech" />
+    <None Include="demos\shadow_mapping_pcf.tech" />
     <None Include="demos\simple_include_header.tech" />
     <None Include="demos\simple_texture.tech" />
     <None Include="demos\simple_vertoutput.tech" />

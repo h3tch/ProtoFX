@@ -112,6 +112,10 @@ shader frag fs_simple {
 	layout(location = 1) in vec4 in_col;
 	out vec4 color;
 	
+	float dxdyBias(float bias, int dx, int dy) {
+		return bias + abs(bias * dx) + abs(bias * dy);
+	}
+	
 	void main ()
 	{
 		// pass color
@@ -127,10 +131,19 @@ shader frag fs_simple {
 		// and then to shadow map texture coordinates [0;1]
 		vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
 		
-		// if pixel distance from the light source is greader than
-		// the distance in the shadow map, the pixel is in shadow
-		if (lpos.z-0.0005 > texture(shadowmap, lpos.xy).x)
-			color.rgb *= 0.5;
+		const int r = 2;
+		const int d = 2*r+1;
+		const float bias = 0.0005;
+		float shadow = 0.0;
+		for (int dx = -r; dx <= r; dx++) {
+			for (int dy = -r; dy <= r; dy++)
+				shadow += lpos.z - dxdyBias(bias, dx, dy) > textureOffset(shadowmap, lpos.xy, ivec2(dx, dy)).x ? 1.0 : 0.0;
+		}
+		
+		if (shadow == 0.0)
+			return;
+		shadow /= float(d*d);
+		color.rgb *= (1.0 - shadow) * 0.5 + 0.5;
 	}
 }
 

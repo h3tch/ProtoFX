@@ -47,10 +47,12 @@ namespace App
                     // ask user whether he/she wants to save those files
                     DialogResult answer = MessageBox.Show(
                         "Do you want to save files with changes before closing them?",
-                        "Save file changes", MessageBoxButtons.YesNo);
+                        "Save file changes", MessageBoxButtons.YesNoCancel);
                     // if so, save all files with changes
                     if (answer == DialogResult.Yes)
                         toolBtnSaveAll_Click(sender, null);
+                    else if (answer == DialogResult.Cancel)
+                        e.Cancel = true;
                     break;
                 }
             }

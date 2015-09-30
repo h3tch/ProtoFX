@@ -8,10 +8,17 @@
     <Lexer>
       <Keywords List="0">
         buffer
+        break
+        const
+        continue
         csharp
+        discard
+        else
         float
+        for
         fragoutput
         geomoutput
+        if
         image
         in
         int
@@ -30,6 +37,7 @@
         mat4x3
         out
         pass
+        return
         sampler
         sampler1D
         sampler1DArray
@@ -53,6 +61,7 @@
         vertinput
         vertoutput
         void
+        while
       </Keywords>
       <Keywords List="1">
         attr
