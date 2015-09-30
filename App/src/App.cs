@@ -354,18 +354,31 @@ namespace App
         #region Scintilla Text Control
         private void tabSourceText_TextChanged(object sender, EventArgs e)
         {
-            Scintilla tabSourcePageText = (Scintilla)sender;
-            TabPage tabSourcePage = (TabPage)tabSourcePageText.Parent;
+            Scintilla tabSourceText = (Scintilla)sender;
+            TabPage tabSourcePage = (TabPage)tabSourceText.Parent;
             if (!tabSourcePage.Text.EndsWith("*"))
                 tabSourcePage.Text = tabSourcePage.Text + '*';
 
             // UPDATE LINE NUMBERS
-            var lineNumberLength = tabSourcePageText.Lines.Count.ToString().Length;
-            var lineNumberWidth = TextRenderer.MeasureText(new string('9', lineNumberLength), tabSourcePageText.Font).Width;
-            if (tabSourcePageText.Margins[0].Width != lineNumberWidth)
-                tabSourcePageText.Margins[0].Width = lineNumberWidth;
+            var lineNumberLength = tabSourceText.Lines.Count.ToString().Length;
+            var lineNumberWidth = TextRenderer.MeasureText(new string('9', lineNumberLength), tabSourceText.Font).Width;
+            if (tabSourceText.Margins[0].Width != lineNumberWidth)
+                tabSourceText.Margins[0].Width = lineNumberWidth;
         }
         
+        private void tabSourceText_SelectionChanged(object sender, EventArgs e)
+        {
+            Scintilla tabSourceText = (Scintilla)sender;
+            // DEACTIVATE MULTILINE SELECTION BECAUSE MULTILINE EDIT IS NOT SUPPORTED
+            if (tabSourceText.Selection.IsRectangle)
+            {
+                tabSourceText.Selection.Range = new Range(
+                    tabSourceText.Selection.Start,
+                    tabSourceText.Selection.End ,
+                    tabSourceText);
+            }
+        }
+
         private void tabSourceText_DragOver(object sender, DragEventArgs e)
         {
             Scintilla tabSourceText = (Scintilla)sender;
@@ -493,6 +506,7 @@ namespace App
             tabSourcePageText.TabIndex = 0;
             tabSourcePageText.Text = text;
             tabSourcePageText.TextChanged += new EventHandler(this.tabSourceText_TextChanged);
+            tabSourcePageText.SelectionChanged += new EventHandler(this.tabSourceText_SelectionChanged);
             // enable drag&drop
             tabSourcePageText.AllowDrop = true;
             tabSourcePageText.DragOver += new DragEventHandler(this.tabSourceText_DragOver);
