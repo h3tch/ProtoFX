@@ -18,6 +18,7 @@ namespace App
                 case "eval": type = ShaderType.TessEvaluationShader; break;
                 case "geom": type = ShaderType.GeometryShader; break;
                 case "frag": type = ShaderType.FragmentShader; break;
+                case "comp": type = ShaderType.ComputeShader; break;
                 default:
                     throw new Exception("ERROR in shader " + name + ": Shader type '" + annotation + "' is not supported.");
             }

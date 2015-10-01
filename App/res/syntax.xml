@@ -68,6 +68,8 @@
         binding
         buff
         color
+        comp
+        compute
         depth
         draw
         eval
