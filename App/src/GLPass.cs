@@ -177,18 +177,21 @@ namespace App
             Cmds2Fields(this, ref cmds);
 
             // PARSE COMMANDS
-            foreach (var cmd in cmds)
+            for (int i = 0; i < cmds.Length; i++)
             {
+                var cmd = cmds[i];
+
                 // skip if already processed commands
                 if (cmd == null)
                     continue;
+
                 switch(cmd[0])
                 {
-                    case "draw": ParseDrawCall(cmd, classes); break;
-                    case "compute": ParseComputeCall(cmd, classes);  break;
-                    case "tex": textures.Add(ParseTexCmd<GLTexture>(cmd, classes)); break;
-                    case "samp": sampler.Add(ParseTexCmd<GLSampler>(cmd, classes)); break;
-                    case "exec": csexec.Add(ParseCsharpExec(cmd, classes)); break;
+                    case "draw": ParseDrawCall(i+1, cmd, classes); break;
+                    case "compute": ParseComputeCall(i+1, cmd, classes);  break;
+                    case "tex": textures.Add(ParseTexCmd<GLTexture>(i + 1, cmd, classes)); break;
+                    case "samp": sampler.Add(ParseTexCmd<GLSampler>(i + 1, cmd, classes)); break;
+                    case "exec": csexec.Add(ParseCsharpExec(i + 1, cmd, classes)); break;
                     default: invoke.Add(ParseOpenGLCall(cmd)); break;
                 }
             }
@@ -378,71 +381,83 @@ namespace App
 
         #region PARSE COMMANDS
 
-        private void ParseDrawCall(string[] cmd, Dictionary<string, GLObject> classes)
+        private void ParseDrawCall(int cmdidx, string[] cmd, Dictionary<string, GLObject> classes)
         {
             List<int> arg = new List<int>();
             GLVertinput vertexin = null;
             GLVertoutput vertout = null;
             GLBuffer indexbuf = null;
             GLBuffer indirect = null;
-            GLObject obj;
             bool modeIsSet = false;
             bool typeIsSet = false;
-            PrimitiveType mode = 0;
-            DrawElementsType type = 0;
+            PrimitiveType primitive = 0;
+            DrawElementsType indextype = 0;
             int val;
 
             // parse draw call arguments
             for (var i = 1; i < cmd.Length; i++)
             {
-                if (vertexin == null && classes.TryGetValue(cmd[i], out obj)
-                    && obj.GetType() == typeof(GLVertinput))
-                    vertexin = (GLVertinput)obj;
+                // vertex input object
+                if (TryParseObject(classes, cmd[i], ref vertexin))
+                    continue;
 
-                else if (vertout == null && classes.TryGetValue(cmd[i], out obj)
-                    && obj.GetType() == typeof(GLVertoutput))
-                    vertout = (GLVertoutput)obj;
+                // vertex output object
+                if (TryParseObject(classes, cmd[i], ref vertout))
+                    continue;
 
-                else if (indexbuf == null && classes.TryGetValue(cmd[i], out obj)
-                    && obj.GetType() == typeof(GLBuffer))
-                    indexbuf = (GLBuffer)obj;
+                // index buffer object
+                if (TryParseObject(classes, cmd[i], ref indexbuf))
+                    continue;
 
-                else if (indirect == null && classes.TryGetValue(cmd[i], out obj)
-                    && obj.GetType() == typeof(GLBuffer))
-                    indirect = (GLBuffer)obj;
+                // indirect draw call buffer
+                if (TryParseObject(classes, cmd[i], ref indirect))
+                    continue;
 
-                else if (int.TryParse(cmd[i], out val))
+                // try parse integer argument of command
+                if (int.TryParse(cmd[i], out val))
                     arg.Add(val);
 
-                else if (typeIsSet == false && Enum.TryParse(cmd[i], true, out type))
+                // index buffer index type (ubyte, ushort or uint)
+                else if (typeIsSet == false && Enum.TryParse(cmd[i], true, out indextype))
                     typeIsSet = true;
 
-                else if (modeIsSet == false && Enum.TryParse(cmd[i], true, out mode))
+                // primitive type
+                else if (modeIsSet == false && Enum.TryParse(cmd[i], true, out primitive))
                     modeIsSet = true;
             }
 
             // -) a draw call must specify a primitive type
             if (modeIsSet == false)
-                throw new Exception("ERROR in pass " + name
-                    + ": Draw call " + drawcalls.Count + " must specify a primitive type "
-                    + "(e.g. triangles, trianglefan, lines, points, ...).");
+                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
+                    ": Draw call must specify a primitive type "
+                    + "(e.g. triangles, trianglefan, lines, points, ...)."));
 
             // determine the right draw call function
             MultiDrawCall.DrawFunc drawfunc;
-                 if (vertout == null && indexbuf != null && indirect == null && !typeIsSet) { drawfunc = MultiDrawCall.DrawFunc.DrawArraysIndirect; indirect = indexbuf; indexbuf = null; }
-            else if (vertout == null && indexbuf == null && indirect == null && !typeIsSet) { drawfunc = MultiDrawCall.DrawFunc.DrawArraysInstancedBaseInstance; }
-            else if (vertout == null && indexbuf != null && indirect != null &&  typeIsSet) { drawfunc = MultiDrawCall.DrawFunc.DrawElementsIndirect; }
-            else if (vertout == null && indexbuf != null && indirect == null &&  typeIsSet) { drawfunc = MultiDrawCall.DrawFunc.DrawElementsInstancedBaseVertexBaseInstance; }
-            else if (vertout != null && indexbuf != null && indirect == null && !typeIsSet) { drawfunc = MultiDrawCall.DrawFunc.DrawTransformFeedbackStreamInstanced; }
+            
+            if (vertout == null && indexbuf != null && indirect == null && !typeIsSet)
+            {
+                drawfunc = MultiDrawCall.DrawFunc.DrawArraysIndirect;
+                indirect = indexbuf;
+                indexbuf = null;
+            }
+            else if (vertout == null && indexbuf == null && indirect == null && !typeIsSet)
+                drawfunc = MultiDrawCall.DrawFunc.DrawArraysInstancedBaseInstance;
+            else if (vertout == null && indexbuf != null && indirect != null &&  typeIsSet)
+                drawfunc = MultiDrawCall.DrawFunc.DrawElementsIndirect;
+            else if (vertout == null && indexbuf != null && indirect == null &&  typeIsSet)
+                drawfunc = MultiDrawCall.DrawFunc.DrawElementsInstancedBaseVertexBaseInstance;
+            else if (vertout != null && indexbuf != null && indirect == null && !typeIsSet)
+                drawfunc = MultiDrawCall.DrawFunc.DrawTransformFeedbackStreamInstanced;
             else
-                throw new Exception("ERROR in pass " + name
-                    + ": Draw call function " + drawcalls.Count + " not recognized or ambiguous.");
+                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
+                    "Draw call function not recognized or ambiguous."));
                  
             // get index buffer object (if present) and find existing MultiDraw class
             MultiDrawCall multidrawcall = drawcalls.Find(x
                 => x.vertexin == (vertexin != null ? vertexin.glname : 0)
                 && x.indexbuf == (indexbuf != null ? indexbuf.glname : 0)
-                && x.vertout == (vertout  != null ? vertout.glname : 0)
+                && x.vertout  == (vertout  != null ?  vertout.glname : 0)
                 && x.indirect == (indirect != null ? indirect.glname : 0));
 
             if (multidrawcall == null)
@@ -452,15 +467,15 @@ namespace App
                 multidrawcall.drawfunc = drawfunc;
                 multidrawcall.vertexin = vertexin != null ? vertexin.glname : 0;
                 multidrawcall.indexbuf = indexbuf != null ? indexbuf.glname : 0;
-                multidrawcall.vertout = vertout  != null ? vertout.glname : 0;
+                multidrawcall.vertout  = vertout  != null ?  vertout.glname : 0;
                 multidrawcall.indirect = indirect != null ? indirect.glname : 0;
                 drawcalls.Add(multidrawcall);
             }
 
             // add new draw command to the MultiDraw class
             DrawCall drawcall = new DrawCall();
-            drawcall.mode = mode;
-            drawcall.indextype = type;
+            drawcall.mode = primitive;
+            drawcall.indextype = indextype;
             switch (drawfunc)
             {
                 case MultiDrawCall.DrawFunc.DrawArraysIndirect:
@@ -468,9 +483,9 @@ namespace App
                     break;
 
                 case MultiDrawCall.DrawFunc.DrawArraysInstancedBaseInstance:
-                    drawcall.vBaseVertex = arg.Count > 0 ? arg[0] : 0;
-                    drawcall.vVertexCount = arg.Count > 1 ? arg[1] : 0;
-                    drawcall.vBaseInstance = arg.Count > 2 ? arg[2] : 0;
+                    drawcall.vBaseVertex    = arg.Count > 0 ? arg[0] : 0;
+                    drawcall.vVertexCount   = arg.Count > 1 ? arg[1] : 0;
+                    drawcall.vBaseInstance  = arg.Count > 2 ? arg[2] : 0;
                     drawcall.vInstanceCount = arg.Count > 3 ? arg[3] : 1;
                     break;
 
@@ -479,15 +494,15 @@ namespace App
                     break;
 
                 case MultiDrawCall.DrawFunc.DrawElementsInstancedBaseVertexBaseInstance:
-                    drawcall.iBaseVertex = arg.Count >= 1 ? arg[0] : 0;
-                    drawcall.iBaseIndex = (IntPtr)(arg.Count >= 2 ? arg[1] : 0);
-                    drawcall.iIndexCount = arg.Count >= 3 ? arg[2] : 0;
-                    drawcall.iBaseInstance = arg.Count >= 4 ? arg[3] : 0;
+                    drawcall.iBaseVertex    = arg.Count >= 1 ? arg[0] : 0;
+                    drawcall.iBaseIndex     = (IntPtr)(arg.Count >= 2 ? arg[1] : 0);
+                    drawcall.iIndexCount    = arg.Count >= 3 ? arg[2] : 0;
+                    drawcall.iBaseInstance  = arg.Count >= 4 ? arg[3] : 0;
                     drawcall.iInstanceCount = arg.Count >= 5 ? arg[4] : 1;
                     break;
 
                 case MultiDrawCall.DrawFunc.DrawTransformFeedbackStreamInstanced:
-                    drawcall.voStream = arg.Count >= 1 ? arg[0] : 0;
+                    drawcall.voStream        = arg.Count >= 1 ? arg[0] : 0;
                     drawcall.voInstanceCount = arg.Count >= 2 ? arg[1] : 1;
                     break;
             }
@@ -495,44 +510,44 @@ namespace App
             multidrawcall.cmd.Add(drawcall);
         }
 
-        private void ParseComputeCall(string[] cmd, Dictionary<string, GLObject> classes)
+        private void ParseComputeCall(int cmdidx, string[] cmd, Dictionary<string, GLObject> classes)
         {
+            // check for errors
             if (cmd.Length != 3 || cmd.Length != 4)
-                throw new Exception("ERROR in pass " + name
-                    + ": Compute command does not provide enough arguments "
+                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
+                    "Compute command does not provide enough arguments "
                     + "(e.g., 'compute num_groups_X num_groups_y num_groups_z' or "
-                    + "'compute buffer_name indirect_pointer').");
+                    + "'compute buffer_name indirect_pointer')."));
 
             CompCall call = new CompCall();
-            GLObject buf = null;
 
+            // this is an indirect compute call
             if (cmd.Length == 3)
             {
-                if (!classes.TryGetValue(cmd[1], out buf) || buf.GetType() != typeof(GLBuffer))
-                    throw new Exception("ERROR in pass " + name
-                        + ": First argument of compute command must be a buffer name.");
-                call.numGroupsX = (uint)buf.glname;
-                if (!uint.TryParse(cmd[2], out call.numGroupsY))
-                    throw new Exception("ERROR in pass " + name
-                        + ": Second argument of compute command must be an unsigned integer.");
+                // indirect compute call buffer
+                call.numGroupsX = (uint)ParseObject<GLBuffer>(classes, cmdidx, cmd, 1,
+                    ": First argument of compute command must be a buffer name").glname;
+
+                // indirect compute call buffer pointer
+                call.numGroupsY = ParseType<uint>(cmdidx, cmd, 2,
+                    "Argument must be an unsigned integer, specifying a pointer into the indirect compute call buffer.");
             }
+            // this is a normal compute call
             else
             {
-                if (!uint.TryParse(cmd[1], out call.numGroupsX))
-                    throw new Exception("ERROR in pass " + name
-                        + ": First argument of compute command must be an unsigned integer.");
-                if (!uint.TryParse(cmd[2], out call.numGroupsY))
-                    throw new Exception("ERROR in pass " + name
-                        + ": Second argument of compute command must be an unsigned integer.");
-                if (!uint.TryParse(cmd[3], out call.numGroupsZ))
-                    throw new Exception("ERROR in pass " + name
-                        + ": Third argument of compute command must be an unsigned integer.");
+                // number of compute groups
+                call.numGroupsX = ParseType<uint>(cmdidx, cmd, 1,
+                    "Argument must be an unsigned integer, specifying the number of compute groups in X.");
+                call.numGroupsY = ParseType<uint>(cmdidx, cmd, 2,
+                    "Argument must be an unsigned integer, specifying the number of compute groups in Y.");
+                call.numGroupsZ = ParseType<uint>(cmdidx, cmd, 3,
+                    "Argument must be an unsigned integer, specifying the number of compute groups in Z.");
             }
             
             compcalls.Add(call);
         }
 
-        private Res<T> ParseTexCmd<T>(string[] cmd, Dictionary<string, GLObject> classes)
+        private Res<T> ParseTexCmd<T>(int cmdidx, string[] cmd, Dictionary<string, GLObject> classes)
         {
             GLObject obj = null;
             int unit = -1;
@@ -542,17 +557,17 @@ namespace App
             {
                 if (obj == null && classes.TryGetValue(cmd[i], out obj) && obj.GetType() == typeof(T))
                     continue;
-                Int32.TryParse(cmd[i], out unit);
+                int.TryParse(cmd[i], out unit);
             }
 
             // check for errors
             if (obj == null)
-                throw new Exception("ERROR in pass " + name
-                    + ": Texture name of tex command " + textures.Count + " could not be found.");
+                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
+                    "Texture name could not be found."));
             if (unit < 0)
-                throw new Exception("ERROR in pass " + name
-                    + ": tex command " + textures.Count + " must specify a unit (e.g. tex tex_name 0).");
-
+                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
+                    "tex command must specify a unit (e.g. tex tex_name 0)."));
+            
             // add to texture list
             return new Res<T>((T)Convert.ChangeType(obj, typeof(T)), unit);
         }
@@ -577,19 +592,21 @@ namespace App
             return new GLMethod(mtype, inval);
         }
 
-        private CsharpClass ParseCsharpExec(string[] cmd, Dictionary<string, GLObject> classes)
+        private CsharpClass ParseCsharpExec(int cmdidx, string[] cmd, Dictionary<string, GLObject> classes)
         {
             // check if command provides the correct amount of parameters
             if (cmd.Length < 3)
-                throw new Exception("ERROR in pass " + name + ": "
-                    + "Not enough arguments for exec command '"+ string.Join(" ", cmd) + "'.");
+                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
+                    "Not enough arguments for exec command."));
 
             // get csharp object
             GLObject obj;
             if (classes.TryGetValue(cmd[1], out obj) == false
                 || obj.GetType() != typeof(GLCsharp))
-                throw new Exception("ERROR in pass " + name + ": Could not find csharp code '"
-                    + cmd[1] + "' of command '" + string.Join(" ", cmd) + "'.");
+                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
+                    "Could not find csharp code '" + cmd[1] + "' of command '"
+                    + string.Join(" ", cmd) + "'."));
+
             GLCsharp clazz = (GLCsharp)obj;
             
             // get GLControl
@@ -602,9 +619,8 @@ namespace App
             // create instance of defined main class
             var instance = clazz.CreateInstance(cmd[2], cmd);
             if (instance == null)
-                throw new Exception("ERROR in pass " + name + ": "
-                    + "Main class '" + cmd[2] + "' of command '"
-                    + string.Join(" ", cmd) + "' could not be found.");
+                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
+                    "Main class '" + cmd[2] + "' could not be found."));
 
             return new CsharpClass(instance, glControl.control);
         }
@@ -673,6 +689,65 @@ namespace App
             else
                 throw new Exception("ERROR in pass " + name + ": vertout command does not specify "
                     + "shader output varying names (e.g. vertout vertout_name points varying_name).");
+        }
+        
+        private T ParseType<T>(int cmdidx, string[] cmd, int arg, string info)
+        {
+            try
+            {
+                return (T)Convert.ChangeType(cmd[arg], typeof(T), App.culture);
+            }
+            catch
+            {
+                throw new Exception(ErrorMsg(name, cmdidx, cmd[0], arg, info));
+            }
+        }
+
+        private bool TryParseType<T>(object obj, ref T output)
+        {
+            try
+            {
+                output = (T)Convert.ChangeType(obj, typeof(T), App.culture);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private T ParseObject<T>(Dictionary<string, GLObject> classes, int cmdidx, string[] cmd, int arg, string info)
+            where T : GLObject
+        {
+            GLObject tmp;
+            if (classes.TryGetValue(cmd[arg], out tmp) && tmp.GetType() == typeof(T))
+                throw new Exception(ErrorMsg(name, cmdidx, cmd[0], arg, info));
+            return (T)tmp;
+        }
+
+        private bool TryParseObject<T>(Dictionary<string, GLObject> classes, string name, ref T obj)
+            where T : GLObject
+        {
+            GLObject tmp;
+            if (obj == null && classes.TryGetValue(name, out tmp) && tmp.GetType() == typeof(T))
+            {
+                obj = (T)tmp;
+                return true;
+            }
+            return false;
+        }
+
+        private static string ErrorMsg(string passname, int cmdidx, string cmdname, int arg, string info)
+        {
+            return "ERROR in pass " + passname
+                + ", command " + cmdidx + " '" + cmdname + "'"
+                + (arg >= 0 ? (", argument " + arg) : "")
+                + (info != null ? (": " + info) : ".");
+        }
+
+        private static string ErrorMsg(string passname, int cmdidx, string cmdname, string info)
+        {
+            return ErrorMsg(passname, cmdidx, cmdname, -1, info);
         }
 
         #endregion
