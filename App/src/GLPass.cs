@@ -38,23 +38,88 @@ namespace App
         #endregion
 
         #region HELP STRUCT
+        public enum DrawFunc
+        {
+            ArraysIndirect    = 0 | 2 | 0 | 0,
+            ArraysInstanced   = 0 | 0 | 0 | 0,
+            ElementsIndirect  = 0 | 2 | 4 | 8,
+            ElementsInstanced = 0 | 2 | 0 | 8,
+            TransformFeedback = 1 | 2 | 0 | 0,
+        }
 
         public class MultiDrawCall
         {
-            public enum DrawFunc
-            {
-                DrawArraysIndirect,
-                DrawArraysInstancedBaseInstance,
-                DrawElementsIndirect,
-                DrawElementsInstancedBaseVertexBaseInstance,
-                DrawTransformFeedbackStreamInstanced,
-            }
             public DrawFunc drawfunc;
             public int vertexin;
             public int indexbuf;
             public int vertout;
             public int indirect;
             public List<DrawCall> cmd;
+
+            public MultiDrawCall(
+                DrawFunc drawfunc,
+                GLVertinput vertexin,
+                GLVertoutput vertout,
+                GLBuffer indexbuf,
+                GLBuffer indirect)
+            {
+                this.cmd = new List<DrawCall>();
+                this.drawfunc = drawfunc;
+                this.vertexin = vertexin != null ? vertexin.glname : 0;
+                this.indexbuf = indexbuf != null ? indexbuf.glname : 0;
+                this.vertout = vertout != null ? vertout.glname : 0;
+                this.indirect = indirect != null ? indirect.glname : 0;
+                if (drawfunc == DrawFunc.ArraysIndirect)
+                {
+                    this.indirect = this.indexbuf;
+                    this.indexbuf = 0;
+                }
+            }
+
+            public void draw()
+            {
+                // bind vertex buffer to input stream
+                // (needs to be done before binding an ElementArrayBuffer)
+                GL.BindVertexArray(this.vertexin);
+
+                switch (this.drawfunc)
+                {
+                    case DrawFunc.ArraysIndirect:
+                        GL.BindBuffer(BufferTarget.DrawIndirectBuffer, this.indirect);
+                        foreach (var draw in this.cmd)
+                            GL.DrawArraysIndirect(draw.mode, draw.indirectPtr);
+                        break;
+
+                    case DrawFunc.ArraysInstanced:
+                        foreach (var draw in this.cmd)
+                            GL.DrawArraysInstancedBaseInstance(
+                                draw.mode, draw.vBaseVertex, draw.vVertexCount,
+                                draw.vInstanceCount, draw.vBaseInstance);
+                        break;
+
+                    case DrawFunc.ElementsIndirect:
+                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, this.indexbuf);
+                        GL.BindBuffer(BufferTarget.DrawIndirectBuffer, this.indirect);
+                        foreach (var draw in this.cmd)
+                            GL.DrawElementsIndirect(draw.mode, (All)draw.indextype, draw.indirectPtr);
+                        break;
+
+                    case DrawFunc.ElementsInstanced:
+                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, this.indexbuf);
+                        foreach (var draw in this.cmd)
+                            GL.DrawElementsInstancedBaseVertexBaseInstance(
+                                draw.mode, draw.iIndexCount, draw.indextype,
+                                draw.iBaseIndex, draw.iInstanceCount,
+                                draw.iBaseVertex, draw.iBaseInstance);
+                        break;
+
+                    case DrawFunc.TransformFeedback:
+                        foreach (var draw in this.cmd)
+                            GL.DrawTransformFeedbackStreamInstanced(draw.mode,
+                                this.vertout, draw.voStream, draw.voInstanceCount);
+                        break;
+                }
+            }
         }
 
         public struct DrawCall
@@ -66,20 +131,32 @@ namespace App
             private int arg2;
             private int arg3;
             private int arg4;
+
+            public DrawCall(DrawFunc drawfunc, PrimitiveType mode, DrawElementsType indextype, List<int> arg)
+            {
+                this.mode = mode;
+                this.indextype = indextype;
+                arg0 = arg.Count > 0 ? arg[0] : 0;
+                arg1 = arg.Count > 1 ? arg[1] : (drawfunc == DrawFunc.TransformFeedback ? 1 : 0);
+                arg2 = arg.Count > 2 ? arg[2] : 0;
+                arg3 = arg.Count > 3 ? arg[3] : (drawfunc == DrawFunc.ArraysInstanced ? 1 : 0);
+                arg4 = arg.Count > 4 ? arg[4] : (drawfunc == DrawFunc.ElementsInstanced ? 1 : 0);
+            }
+
             // arguments for indexed buffer drawing
             public int iBaseVertex { get { return arg0; } set { arg0 = value; } }
             public IntPtr iBaseIndex { get { return (IntPtr)(arg1*Math.Max(1, (int)indextype - (int)DrawElementsType.UByte)); } set { arg1 = (int)value; } }
             public int iIndexCount { get { return arg2; } set { arg2 = value; } }
             public int iBaseInstance { get { return arg3; } set { arg3 = value; } }
             public int iInstanceCount { get { return arg4; } set { arg4 = value; } }
-            // get arguments for vertex output drawing
-            public int voStream { get { return arg0; } set { arg0 = value; } }
-            public int voInstanceCount { get { return arg1; } set { arg1 = value; } }
             // get arguments for vertex buffer drawing
             public int vBaseVertex { get { return arg0; } set { arg0 = value; } }
             public int vVertexCount { get { return arg1; } set { arg1 = value; } }
             public int vBaseInstance { get { return arg2; } set { arg2 = value; } }
             public int vInstanceCount { get { return arg3; } set { arg3 = value; } }
+            // get arguments for vertex output drawing
+            public int voStream { get { return arg0; } set { arg0 = value; } }
+            public int voInstanceCount { get { return arg1; } set { arg1 = value; } }
             // get arguments for indirect drawing
             public IntPtr indirectPtr { get { return (IntPtr)arg0; } set { arg0 = (int)value; } }
         }
@@ -91,6 +168,20 @@ namespace App
             public uint numGroupsZ;
             public int indirect { get { return (int)numGroupsX; } }
             public IntPtr indirectPtr { get { return (IntPtr)numGroupsY; } }
+
+            public void compute()
+            {
+                if (this.indirect > 0)
+                {
+                    // bind indirect compute call buffer
+                    GL.BindBuffer(BufferTarget.DispatchIndirectBuffer, this.indirect);
+                    // execute compute shader
+                    GL.DispatchComputeIndirect(this.indirectPtr);
+                }
+                else
+                    // execute compute shader
+                    GL.DispatchCompute(this.numGroupsX, this.numGroupsY, this.numGroupsZ);
+            }
         }
 
         public struct Res<T>
@@ -164,7 +255,6 @@ namespace App
                     unbind.Invoke(instance, new object[] { program });
             }
         }
-
         #endregion
 
         public GLPass(string dir, string name, string annotation, string text, Dict classes)
@@ -184,7 +274,6 @@ namespace App
                 // skip if already processed commands
                 if (cmd == null)
                     continue;
-
                 switch(cmd[0])
                 {
                     case "draw": ParseDrawCall(i+1, cmd, classes); break;
@@ -229,16 +318,11 @@ namespace App
                 GL.DetachShader(glname, glcomp.glname);
             else
             {
-                if (glvert != null)
-                    GL.DetachShader(glname, glvert.glname);
-                if (gltess != null)
-                    GL.DetachShader(glname, gltess.glname);
-                if (gleval != null)
-                    GL.DetachShader(glname, gleval.glname);
-                if (glgeom != null)
-                    GL.DetachShader(glname, glgeom.glname);
-                if (glfrag != null)
-                    GL.DetachShader(glname, glfrag.glname);
+                if (glvert != null) GL.DetachShader(glname, glvert.glname);
+                if (gltess != null) GL.DetachShader(glname, gltess.glname);
+                if (gleval != null) GL.DetachShader(glname, gleval.glname);
+                if (glgeom != null) GL.DetachShader(glname, glgeom.glname);
+                if (glfrag != null) GL.DetachShader(glname, glfrag.glname);
             }
 
             // check for link errors
@@ -289,64 +373,11 @@ namespace App
 
             // EXECUTE DRAW CALLS
             foreach (var call in drawcalls)
-            {
-                // bind vertex buffer to input stream
-                // (needs to be done before binding an ElementArrayBuffer)
-                GL.BindVertexArray(call.vertexin);
-
-                switch (call.drawfunc)
-                {
-                    case MultiDrawCall.DrawFunc.DrawArraysIndirect:
-                        GL.BindBuffer(BufferTarget.DrawIndirectBuffer, call.indirect);
-                        foreach (var draw in call.cmd)
-                            GL.DrawArraysIndirect(draw.mode, draw.indirectPtr);
-                        break;
-
-                    case MultiDrawCall.DrawFunc.DrawArraysInstancedBaseInstance:
-                        foreach (var draw in call.cmd)
-                            GL.DrawArraysInstancedBaseInstance(
-                                draw.mode, draw.vBaseVertex, draw.vVertexCount,
-                                draw.vInstanceCount, draw.vBaseInstance);
-                        break;
-
-                    case MultiDrawCall.DrawFunc.DrawElementsIndirect:
-                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, call.indexbuf);
-                        GL.BindBuffer(BufferTarget.DrawIndirectBuffer, call.indirect);
-                        foreach (var draw in call.cmd)
-                            GL.DrawElementsIndirect(draw.mode, (All)draw.indextype, draw.indirectPtr);
-                        break;
-
-                    case MultiDrawCall.DrawFunc.DrawElementsInstancedBaseVertexBaseInstance:
-                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, call.indexbuf);
-                        foreach (var draw in call.cmd)
-                            GL.DrawElementsInstancedBaseVertexBaseInstance(
-                                draw.mode, draw.iIndexCount, draw.indextype,
-                                draw.iBaseIndex, draw.iInstanceCount,
-                                draw.iBaseVertex, draw.iBaseInstance);
-                        break;
-
-                    case MultiDrawCall.DrawFunc.DrawTransformFeedbackStreamInstanced:
-                        foreach (var draw in call.cmd)
-                            GL.DrawTransformFeedbackStreamInstanced(draw.mode,
-                                call.vertout, draw.voStream, draw.voInstanceCount);
-                        break;
-                }
-            }
+                call.draw();
 
             // EXECUTE COMPUTE CALLS
             foreach (var call in compcalls)
-            {
-                if (call.indirect > 0)
-                {
-                    // bind indirect compute call buffer
-                    GL.BindBuffer(BufferTarget.DispatchIndirectBuffer, call.indirect);
-                    // execute compute shader
-                    GL.DispatchComputeIndirect(call.indirectPtr);
-                }
-                else
-                    // execute compute shader
-                    GL.DispatchCompute(call.numGroupsX, call.numGroupsY, call.numGroupsZ);
-            }
+                call.compute();
 
             // UNBIND OUTPUT BUFFERS
             if (glfragout != null)
@@ -380,7 +411,6 @@ namespace App
         }
 
         #region PARSE COMMANDS
-
         private void ParseDrawCall(int cmdidx, string[] cmd, Dictionary<string, GLObject> classes)
         {
             List<int> arg = new List<int>();
@@ -397,31 +427,13 @@ namespace App
             // parse draw call arguments
             for (var i = 1; i < cmd.Length; i++)
             {
-                // vertex input object
-                if (TryParseObject(classes, cmd[i], ref vertexin))
-                    continue;
-
-                // vertex output object
-                if (TryParseObject(classes, cmd[i], ref vertout))
-                    continue;
-
-                // index buffer object
-                if (TryParseObject(classes, cmd[i], ref indexbuf))
-                    continue;
-
-                // indirect draw call buffer
-                if (TryParseObject(classes, cmd[i], ref indirect))
-                    continue;
-
-                // try parse integer argument of command
-                if (int.TryParse(cmd[i], out val))
-                    arg.Add(val);
-
-                // index buffer index type (ubyte, ushort or uint)
+                if (TryParseObject(classes, cmd[i], ref vertexin)) continue;
+                if (TryParseObject(classes, cmd[i], ref vertout)) continue;
+                if (TryParseObject(classes, cmd[i], ref indexbuf)) continue;
+                if (TryParseObject(classes, cmd[i], ref indirect)) continue;
+                if (int.TryParse(cmd[i], out val)) arg.Add(val);
                 else if (typeIsSet == false && Enum.TryParse(cmd[i], true, out indextype))
                     typeIsSet = true;
-
-                // primitive type
                 else if (modeIsSet == false && Enum.TryParse(cmd[i], true, out primitive))
                     modeIsSet = true;
             }
@@ -433,25 +445,16 @@ namespace App
                     + "(e.g. triangles, trianglefan, lines, points, ...)."));
 
             // determine the right draw call function
-            MultiDrawCall.DrawFunc drawfunc;
-            
-            if (vertout == null && indexbuf != null && indirect == null && !typeIsSet)
-            {
-                drawfunc = MultiDrawCall.DrawFunc.DrawArraysIndirect;
-                indirect = indexbuf;
-                indexbuf = null;
-            }
-            else if (vertout == null && indexbuf == null && indirect == null && !typeIsSet)
-                drawfunc = MultiDrawCall.DrawFunc.DrawArraysInstancedBaseInstance;
-            else if (vertout == null && indexbuf != null && indirect != null &&  typeIsSet)
-                drawfunc = MultiDrawCall.DrawFunc.DrawElementsIndirect;
-            else if (vertout == null && indexbuf != null && indirect == null &&  typeIsSet)
-                drawfunc = MultiDrawCall.DrawFunc.DrawElementsInstancedBaseVertexBaseInstance;
-            else if (vertout != null && indexbuf != null && indirect == null && !typeIsSet)
-                drawfunc = MultiDrawCall.DrawFunc.DrawTransformFeedbackStreamInstanced;
-            else
+            int bits = (vertout != null ? 1 : 0) 
+                | (indexbuf != null ? 2 : 0)
+                | (indirect != null ? 4 : 0)
+                | (typeIsSet ? 8 : 0);
+
+            if (!Enum.IsDefined(typeof(DrawFunc), bits))
                 throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
                     "Draw call function not recognized or ambiguous."));
+
+            DrawFunc drawfunc = (DrawFunc)bits;
                  
             // get index buffer object (if present) and find existing MultiDraw class
             MultiDrawCall multidrawcall = drawcalls.Find(x
@@ -462,52 +465,12 @@ namespace App
 
             if (multidrawcall == null)
             {
-                multidrawcall = new MultiDrawCall();
-                multidrawcall.cmd = new List<DrawCall>();
-                multidrawcall.drawfunc = drawfunc;
-                multidrawcall.vertexin = vertexin != null ? vertexin.glname : 0;
-                multidrawcall.indexbuf = indexbuf != null ? indexbuf.glname : 0;
-                multidrawcall.vertout  = vertout  != null ?  vertout.glname : 0;
-                multidrawcall.indirect = indirect != null ? indirect.glname : 0;
+                multidrawcall = new MultiDrawCall(drawfunc, vertexin, vertout, indexbuf, indirect);
                 drawcalls.Add(multidrawcall);
             }
 
             // add new draw command to the MultiDraw class
-            DrawCall drawcall = new DrawCall();
-            drawcall.mode = primitive;
-            drawcall.indextype = indextype;
-            switch (drawfunc)
-            {
-                case MultiDrawCall.DrawFunc.DrawArraysIndirect:
-                    drawcall.indirectPtr = (IntPtr)(arg.Count > 0 ? arg[0] : 0);
-                    break;
-
-                case MultiDrawCall.DrawFunc.DrawArraysInstancedBaseInstance:
-                    drawcall.vBaseVertex    = arg.Count > 0 ? arg[0] : 0;
-                    drawcall.vVertexCount   = arg.Count > 1 ? arg[1] : 0;
-                    drawcall.vBaseInstance  = arg.Count > 2 ? arg[2] : 0;
-                    drawcall.vInstanceCount = arg.Count > 3 ? arg[3] : 1;
-                    break;
-
-                case MultiDrawCall.DrawFunc.DrawElementsIndirect:
-                    drawcall.indirectPtr = (IntPtr)(arg.Count > 0 ? arg[0] : 0);
-                    break;
-
-                case MultiDrawCall.DrawFunc.DrawElementsInstancedBaseVertexBaseInstance:
-                    drawcall.iBaseVertex    = arg.Count >= 1 ? arg[0] : 0;
-                    drawcall.iBaseIndex     = (IntPtr)(arg.Count >= 2 ? arg[1] : 0);
-                    drawcall.iIndexCount    = arg.Count >= 3 ? arg[2] : 0;
-                    drawcall.iBaseInstance  = arg.Count >= 4 ? arg[3] : 0;
-                    drawcall.iInstanceCount = arg.Count >= 5 ? arg[4] : 1;
-                    break;
-
-                case MultiDrawCall.DrawFunc.DrawTransformFeedbackStreamInstanced:
-                    drawcall.voStream        = arg.Count >= 1 ? arg[0] : 0;
-                    drawcall.voInstanceCount = arg.Count >= 2 ? arg[1] : 1;
-                    break;
-            }
-            
-            multidrawcall.cmd.Add(drawcall);
+            multidrawcall.cmd.Add(new DrawCall(drawfunc, primitive, indextype, arg));
         }
 
         private void ParseComputeCall(int cmdidx, string[] cmd, Dictionary<string, GLObject> classes)
@@ -624,11 +587,9 @@ namespace App
 
             return new CsharpClass(instance, glControl.control);
         }
-
         #endregion
 
         #region UTIL METHODS
-        
         private MethodInfo FindMethod(string name, int nparam)
         {
             var methods = from method in typeof(GL).GetMethods()
@@ -736,7 +697,7 @@ namespace App
             }
             return false;
         }
-
+        
         private static string ErrorMsg(string passname, int cmdidx, string cmdname, int arg, string info)
         {
             return "ERROR in pass " + passname
@@ -749,7 +710,6 @@ namespace App
         {
             return ErrorMsg(passname, cmdidx, cmdname, -1, info);
         }
-
         #endregion
     }
 }
