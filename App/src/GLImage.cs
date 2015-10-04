@@ -11,7 +11,6 @@ namespace App
     class GLImage : GLObject
     {
         #region FIELDS
-
         public string[] file = null;
         public int width = 1;
         public int height = 0;
@@ -24,19 +23,19 @@ namespace App
         private PixelType pixeltype = 0;
         private int pixelsize = 0;
         private PixelFormat pixelformat = 0;
-
         #endregion
 
         #region PROPERTIES
-
         public TextureTarget target { get { return type; } set { type = value; } }
         public PixelInternalFormat gpuformat { get { return format; } set { format = value; } }
-
         #endregion
 
         public GLImage(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
+            ErrorCollector err = new ErrorCollector();
+            err.PushStack("image '" + name + "'");
+
             // PARSE TEXT TO COMMANDS
             var cmds = Text2Cmds(text);
 
@@ -57,10 +56,16 @@ namespace App
                 else if (width > 0 && height > 1 && depth > 0 && length == 0)
                     target = TextureTarget.Texture3D;
                 else
-                    throw new Exception("ERROR in image " + name + ": " 
-                        + "Texture type could not be derived from 'width', 'height', 'depth' and 'length'. "
+                    err.Add("Texture type could not be derived from 'width', 'height', 'depth' and 'length'. "
                         + "Please check these parameters or specify the type directly (e.g. 'type = texture2D').");
             }
+
+            // LOAD IMAGE DATA
+            var data = loadImageFiles(err, dir, file, ref width, ref height, ref depth, gpuformat,
+                out pixelformat, out pixeltype, out pixelsize, out fileformat);
+
+            if (err.HasErrors())
+                err.ThrowExeption();
 
             // CREATE OPENGL OBJECT
             glname = GL.GenTexture();
@@ -73,46 +78,24 @@ namespace App
             GL.TexParameter(target, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(target, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
-            // LOAD IMAGE DATA
-            var data = loadImageFiles(dir, file, ref width, ref height, ref depth, gpuformat,
-                out pixelformat, out pixeltype, out pixelsize, out fileformat);
-            var dataPtr = IntPtr.Zero;
+            // ALLOCATE IMAGE MEMORY
             if (data != null)
             {
-                dataPtr = Marshal.AllocHGlobal(data.Length);
+                var dataPtr = Marshal.AllocHGlobal(data.Length);
                 Marshal.Copy(data, 0, dataPtr, data.Length);
-            }
-
-            // ALLOCATE GPU MEMORY
-            switch (target)
-            {
-                case TextureTarget.Texture1D:
-                    GL.TexImage1D(target, 0, gpuformat, width, 0, pixelformat, pixeltype, dataPtr);
-                    break;
-                case TextureTarget.Texture1DArray:
-                    GL.TexImage2D(target, 0, gpuformat, width, length, 0, pixelformat, pixeltype, dataPtr);
-                    break;
-                case TextureTarget.Texture2D:
-                    GL.TexImage2D(target, 0, gpuformat, width, height, 0, pixelformat, pixeltype, dataPtr);
-                    break;
-                case TextureTarget.Texture2DArray:
-                    GL.TexImage3D(target, 0, gpuformat, width, height, length, 0, pixelformat, pixeltype, dataPtr);
-                    break;
-                case TextureTarget.Texture3D:
-                    GL.TexImage3D(target, 0, gpuformat, width, height, depth, 0, pixelformat, pixeltype, dataPtr);
-                    break;
-            }
-
-            // FREE IMAGE DATA
-            if (dataPtr != IntPtr.Zero)
+                TexImage(target, gpuformat, width, height, depth, length, pixelformat, pixeltype, dataPtr);
                 Marshal.FreeHGlobal(dataPtr);
+            }
+            else
+                TexImage(target, gpuformat, width, height, depth, length, pixelformat, pixeltype, IntPtr.Zero);
 
             // GENERATE MIPMAPS
             if (mipmaps > 0)
                 GL.GenerateMipmap((GenerateMipmapTarget)target);
 
             GL.BindTexture(target, 0);
-            throwExceptionOnOpenGlError("image", name, "allocate (and write) texture");
+            if (GL.GetError() != ErrorCode.NoError)
+                err.Throw("OpenGL error '" + GL.GetError() + "' occurred during image allocation.");
         }
 
         public Bitmap Read(int level)
@@ -122,7 +105,6 @@ namespace App
             GL.BindTexture(this.target, this.glname);
             GL.GetTexImage(this.target, level, this.pixelformat, this.pixeltype, dataPtr);
             GL.BindTexture(this.target, 0);
-            throwExceptionOnOpenGlError("image", name, "read texture data from GPU");
 
             Bitmap bmp = new Bitmap(width, height, width * pixelsize, fileformat, dataPtr);
             
@@ -139,8 +121,7 @@ namespace App
         }
 
         #region UTIL METHODS
-
-        private static byte[] loadImageFiles(string dir, string[] filenames,
+        private static byte[] loadImageFiles(ErrorCollector err, string dir, string[] filenames,
             ref int w, ref int h, ref int d, PixelInternalFormat gpuformat, 
             out PixelFormat pixelformat, out PixelType pixeltype, out int pixelsize,
             out SysImg.PixelFormat fileformat)
@@ -199,6 +180,28 @@ namespace App
             return data;
         }
 
+        public void TexImage(TextureTarget target, PixelInternalFormat internalformat,
+            int width, int height, int depth, int length, PixelFormat format, PixelType type, IntPtr pixels)
+        {
+            switch (target)
+            {
+                case TextureTarget.Texture1D:
+                    GL.TexImage1D(target, 0, gpuformat, width, 0, pixelformat, pixeltype, pixels);
+                    break;
+                case TextureTarget.Texture1DArray:
+                    GL.TexImage2D(target, 0, gpuformat, width, length, 0, pixelformat, pixeltype, pixels);
+                    break;
+                case TextureTarget.Texture2D:
+                    GL.TexImage2D(target, 0, gpuformat, width, height, 0, pixelformat, pixeltype, pixels);
+                    break;
+                case TextureTarget.Texture2DArray:
+                    GL.TexImage3D(target, 0, gpuformat, width, height, length, 0, pixelformat, pixeltype, pixels);
+                    break;
+                case TextureTarget.Texture3D:
+                    GL.TexImage3D(target, 0, gpuformat, width, height, depth, 0, pixelformat, pixeltype, pixels);
+                    break;
+            }
+        }
         #endregion
     }
 }

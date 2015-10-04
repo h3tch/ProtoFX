@@ -27,13 +27,14 @@ namespace App
             glname = GL.CreateShader(type);
             GL.ShaderSource(glname, text);
             GL.CompileShader(glname);
-            throwExceptionOnOpenGlError("shader", name, "problem compiling shader");
 
             // CHECK FOR ERRORS
             int status;
             GL.GetShader(glname, ShaderParameter.CompileStatus, out status);
             if (status != 1)
                 throw new Exception("ERROR in shader " + name + ":\n" + GL.GetShaderInfoLog(glname));
+            if (GL.GetError() != ErrorCode.NoError)
+                throw new Exception("OpenGL error '" + GL.GetError() + "' occurred during shader creation.");
         }
 
         public override void Delete()

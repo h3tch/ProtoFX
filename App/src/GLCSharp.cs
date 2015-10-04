@@ -13,11 +13,9 @@ namespace App
     class GLCsharp : GLObject
     {
         #region FIELDS
-
         public string version = null;
         public string[] file = null;
         private CompilerResults compilerresults;
-
         #endregion
 
         public GLCsharp(string dir, string name, string annotation, string text, Dictionary<string, GLObject> classes)
@@ -62,7 +60,7 @@ namespace App
 
             // check for compiler errors
             if (compilerresults.Errors.Count != 0)
-                throw new Exception("ERROR in csharp " + name + ":\n" + compilerresults.Output);
+                throw new Exception("csharp " + name + ":\n" + compilerresults.Output);
         }
 
         public object CreateInstance(string classname, string[] args)
@@ -71,8 +69,7 @@ namespace App
             object clazz = compilerresults.CompiledAssembly.CreateInstance(
                 classname, false, BindingFlags.Default, null, new object[] { args }, App.culture, null);
             if (clazz == null)
-                throw new Exception("INTERNAL_ERROR in csharp " + name + ": Main class '" + classname + "' could not be found.");
-
+                throw new Exception("csharp " + name + ": Main class '" + classname + "' could not be found.");
             return clazz;
         }
 

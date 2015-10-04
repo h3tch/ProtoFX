@@ -42,8 +42,10 @@ texture tex_lena {
 shader vert vs_simple {
 	#version 440
 	
-	uniform mat4 g_view; // the camera view matrix (set by GLED)
-	uniform mat4 g_proj; // the camera projection matrix (set by GLED)
+	// the camera view matrix (set by GLED)
+	uniform mat4 g_view;
+	// the camera projection matrix (set by GLED)
+	uniform mat4 g_proj;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -99,8 +101,6 @@ pass pass_render {
 	exec cs_util util.SimpleCamera 60 0.1 100 0 0 5
 	
 	// draw cube
-	// draw <indexbuffername=0> <vertinname> <indextype> <primitivetype>
-	//      <indexcount> <baseindex=0> <instancecount=0> <baseinstance=0> <basevertex=0>
 	draw buf_idx in_vert ushort triangles 0 0 36
 }
 

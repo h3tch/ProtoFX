@@ -11,6 +11,9 @@ namespace App
         public GLVertoutput(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
+            ErrorCollector err = new ErrorCollector();
+            err.PushStack("vertoutput '" + name + "'");
+
             // PARSE TEXT
             var cmds = Text2Cmds(text);
 
@@ -23,13 +26,22 @@ namespace App
 
             // parse commands
             int numbindings = 0;
-            foreach (var cmd in cmds)
+            for (int i = 0; i < cmds.Length; i++)
+            {
+                var cmd = cmds[i];
+                err.PushStack("command " + (i + 1));
                 if (cmd != null && cmd.Length >= 2 && cmd[0] == "buff")
-                    attachBuffer(numbindings++, cmd, classes);
+                    attachBuffer(err, numbindings++, cmd, classes);
+                err.PopStack();
+            }
+            if (err.HasErrors())
+                err.ThrowExeption();
 
             // unbind object and check for errors
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, 0);
-            throwExceptionOnOpenGlError("vertinput", name, "could not create OpenGL vertex array object");
+            if (GL.GetError() != ErrorCode.NoError)
+                err.Throw("OpenGL error '" + GL.GetError()
+                    + "' occurred during vertex output object creation.");
         }
 
         public void Bind(TransformFeedbackPrimitiveType primitive)
@@ -63,27 +75,35 @@ namespace App
             }
         }
 
-        private void attachBuffer(int unit, string[] cmd, Dict classes)
+        private void attachBuffer(ErrorCollector err, int unit, string[] cmd, Dict classes)
         {
             // get buffer
             GLBuffer buf = classes.FindClass<GLBuffer>(cmd[1]);
             if (buf == null)
-                throw new Exception(Dict.NotFoundMsg("vertoutput", name, "buffer", cmd[1]));
+            {
+                err.Add("The name '" + cmd[1] + "' does not reference an object of type 'buffer'.");
+                return;
+            }
 
             // parse offset
             int offset = 0;
             if (cmd.Length >= 3 && int.TryParse(cmd[2], out offset) == false)
-                throw new Exception("ERROR in sampler " + name + ": "
-                    + "The second parameter (offset) of buff" + unit + " is invalid.");
+            {
+                err.Add("The second parameter (offset) of buff " + unit + " is invalid.");
+                return;
+            }
 
             // parse size
             int size = buf.size;
             if (cmd.Length >= 4 && int.TryParse(cmd[3], out size) == false)
-                throw new Exception("ERROR in sampler " + name + ": "
-                    + "The third parameter (size) of buff" + unit + " is invalid.");
+            {
+                err.Add("The third parameter (size) of buff" + unit + " is invalid.");
+                return;
+            }
 
             // bind buffer to transform feedback
-            GL.BindBufferRange(BufferRangeTarget.TransformFeedbackBuffer, unit, buf.glname, (IntPtr)offset, (IntPtr)size);
+            GL.BindBufferRange(BufferRangeTarget.TransformFeedbackBuffer,
+                unit, buf.glname, (IntPtr)offset, (IntPtr)size);
         }
     }
 }

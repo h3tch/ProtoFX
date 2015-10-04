@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace App
 {
@@ -28,8 +29,9 @@ namespace App
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapR, ref wrapi);
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapS, ref wrapi);
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapT, ref wrapi);
-
-            throwExceptionOnOpenGlError("sampler", name, "create sampler");
+            
+            if (GL.GetError() != ErrorCode.NoError)
+                throw new Exception("OpenGL error '" + GL.GetError() + "' occurred during sampler creation.");
         }
 
         public override void Delete()

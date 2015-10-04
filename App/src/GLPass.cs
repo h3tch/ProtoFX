@@ -260,6 +260,9 @@ namespace App
         public GLPass(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
+            ErrorCollector err = new ErrorCollector();
+            err.PushStack("pass '" + name + "'");
+
             // PARSE TEXT TO COMMANDS
             var cmds = Text2Cmds(text);
 
@@ -274,22 +277,27 @@ namespace App
                 // skip if already processed commands
                 if (cmd == null)
                     continue;
-                switch(cmd[0])
+
+                err.PushStack("command " + i + " '" + cmd[0] + "'");
+                switch (cmd[0])
                 {
-                    case "draw": ParseDrawCall(i+1, cmd, classes); break;
-                    case "compute": ParseComputeCall(i+1, cmd, classes);  break;
-                    case "tex": textures.Add(ParseTexCmd<GLTexture>(i + 1, cmd, classes)); break;
-                    case "samp": sampler.Add(ParseTexCmd<GLSampler>(i + 1, cmd, classes)); break;
-                    case "exec": csexec.Add(ParseCsharpExec(i + 1, cmd, classes)); break;
-                    default: invoke.Add(ParseOpenGLCall(cmd)); break;
+                    case "draw": ParseDrawCall(err, cmd, classes); break;
+                    case "compute": ParseComputeCall(err, cmd, classes);  break;
+                    case "tex": ParseTexCmd(err, cmd, classes); break;
+                    case "samp": ParseSampCmd(err, cmd, classes); break;
+                    case "exec": ParseCsharpExec(err, cmd, classes); break;
+                    default: ParseOpenGLCall(err, cmd); break;
                 }
+                err.PopStack();
             }
 
             // GET VERTEX AND FRAGMENT OUTPUT BINDINGS
             if (fragout != null && (glfragout = classes.FindClass<GLFragoutput>(fragout)) == null)
-                throw new Exception(Dict.NotFoundMsg("pass", name, "fragout", fragout));
+                err.Add("The name '" + fragout + "' does not reference an object of type 'fragout'.");
             if (vertout != null && vertout.Length > 0 && (glvertout = classes.FindClass<GLVertoutput>(vertout[0])) == null)
-                throw new Exception(Dict.NotFoundMsg("pass", name, "vertout", vertout[0]));
+                err.Add("The name '" + vertout + "' does not reference an object of type 'vertout'.");
+            if (err.HasErrors())
+                err.ThrowExeption();
 
             // CREATE OPENGL OBJECT
             glname = GL.CreateProgram();
@@ -297,18 +305,18 @@ namespace App
             // Attach shader objects.
             // First try attaching a compute shader. If that
             // fails, try attaching the default shader pipeline.
-            if ((glcomp = attach(comp, classes)) == null)
+            if ((glcomp = attach(err, comp, classes)) == null)
             {
-                glvert = attach(vert, classes);
-                gltess = attach(tess, classes);
-                gleval = attach(eval, classes);
-                glgeom = attach(geom, classes);
-                glfrag = attach(frag, classes);
+                glvert = attach(err, vert, classes);
+                gltess = attach(err, tess, classes);
+                gleval = attach(err, eval, classes);
+                glgeom = attach(err, geom, classes);
+                glfrag = attach(err, frag, classes);
             }
 
             // specify vertex output varyings of the shader program
             if (glvertout != null)
-                setVertexOutputVaryings(vertout);
+                setVertexOutputVaryings(err, vertout);
 
             // link program
             GL.LinkProgram(glname);
@@ -329,7 +337,11 @@ namespace App
             int status;
             GL.GetProgram(glname, GetProgramParameterName.LinkStatus, out status);
             if (status != 1)
-                throw new Exception("ERROR in pass " + name + ":\n" + GL.GetProgramInfoLog(glname));
+                err.Add("\n" + GL.GetProgramInfoLog(glname));
+            if (GL.GetError() != ErrorCode.NoError)
+                err.Add("OpenGL error '" + GL.GetError() + "' occurred during shader program creation.");
+            if (err.HasErrors())
+                err.ThrowExeption();
         }
 
         public void Exec(int width, int height)
@@ -411,7 +423,7 @@ namespace App
         }
 
         #region PARSE COMMANDS
-        private void ParseDrawCall(int cmdidx, string[] cmd, Dictionary<string, GLObject> classes)
+        private void ParseDrawCall(ErrorCollector err, string[] cmd, Dict classes)
         {
             List<int> arg = new List<int>();
             GLVertinput vertexin = null;
@@ -440,9 +452,11 @@ namespace App
 
             // -) a draw call must specify a primitive type
             if (modeIsSet == false)
-                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
-                    ": Draw call must specify a primitive type "
-                    + "(e.g. triangles, trianglefan, lines, points, ...)."));
+            {
+                err.Add("Draw call must specify a primitive type "
+                    + "(e.g. triangles, trianglefan, lines, points, ...).");
+                return;
+            }
 
             // determine the right draw call function
             int bits = (vertout != null ? 1 : 0) 
@@ -451,8 +465,10 @@ namespace App
                 | (typeIsSet ? 8 : 0);
 
             if (!Enum.IsDefined(typeof(DrawFunc), bits))
-                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
-                    "Draw call function not recognized or ambiguous."));
+            {
+                err.Add("Draw call function not recognized or ambiguous.");
+                return;
+            }
 
             DrawFunc drawfunc = (DrawFunc)bits;
                  
@@ -473,44 +489,66 @@ namespace App
             multidrawcall.cmd.Add(new DrawCall(drawfunc, primitive, indextype, arg));
         }
 
-        private void ParseComputeCall(int cmdidx, string[] cmd, Dictionary<string, GLObject> classes)
+        private void ParseComputeCall(ErrorCollector err, string[] cmd, Dict classes)
         {
             // check for errors
             if (cmd.Length != 3 || cmd.Length != 4)
-                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
-                    "Compute command does not provide enough arguments "
+            {
+                err.Add("Compute command does not provide enough arguments "
                     + "(e.g., 'compute num_groups_X num_groups_y num_groups_z' or "
-                    + "'compute buffer_name indirect_pointer')."));
-
-            CompCall call = new CompCall();
-
-            // this is an indirect compute call
-            if (cmd.Length == 3)
-            {
-                // indirect compute call buffer
-                call.numGroupsX = (uint)ParseObject<GLBuffer>(classes, cmdidx, cmd, 1,
-                    ": First argument of compute command must be a buffer name").glname;
-
-                // indirect compute call buffer pointer
-                call.numGroupsY = ParseType<uint>(cmdidx, cmd, 2,
-                    "Argument must be an unsigned integer, specifying a pointer into the indirect compute call buffer.");
+                    + "'compute buffer_name indirect_pointer').");
+                return;
             }
-            // this is a normal compute call
-            else
+
+            try
             {
-                // number of compute groups
-                call.numGroupsX = ParseType<uint>(cmdidx, cmd, 1,
-                    "Argument must be an unsigned integer, specifying the number of compute groups in X.");
-                call.numGroupsY = ParseType<uint>(cmdidx, cmd, 2,
-                    "Argument must be an unsigned integer, specifying the number of compute groups in Y.");
-                call.numGroupsZ = ParseType<uint>(cmdidx, cmd, 3,
-                    "Argument must be an unsigned integer, specifying the number of compute groups in Z.");
+                CompCall call = new CompCall();
+
+                // this is an indirect compute call
+                if (cmd.Length == 3)
+                {
+                    // indirect compute call buffer
+                    call.numGroupsX = (uint)ParseObject<GLBuffer>(classes, cmd, 1,
+                        ": First argument of compute command must be a buffer name").glname;
+                    // indirect compute call buffer pointer
+                    call.numGroupsY = ParseType<uint>(cmd, 2,
+                        "Argument must be an unsigned integer, specifying a pointer into the indirect compute call buffer.");
+                }
+                // this is a normal compute call
+                else
+                {
+                    // number of compute groups
+                    call.numGroupsX = ParseType<uint>(cmd, 1,
+                        "Argument must be an unsigned integer, specifying the number of compute groups in X.");
+                    call.numGroupsY = ParseType<uint>(cmd, 2,
+                        "Argument must be an unsigned integer, specifying the number of compute groups in Y.");
+                    call.numGroupsZ = ParseType<uint>(cmd, 3,
+                        "Argument must be an unsigned integer, specifying the number of compute groups in Z.");
+                }
+
+                compcalls.Add(call);
             }
-            
-            compcalls.Add(call);
+            catch (Exception ex)
+            {
+                err.Add(ex.Message);
+            }
         }
 
-        private Res<T> ParseTexCmd<T>(int cmdidx, string[] cmd, Dictionary<string, GLObject> classes)
+        private void ParseTexCmd(ErrorCollector err, string[] cmd, Dict classes)
+        {
+            var obj = ParseCmd<GLTexture>(err, cmd, classes);
+            if (!err.HasErrors())
+                textures.Add(obj);
+        }
+
+        private void ParseSampCmd(ErrorCollector err, string[] cmd, Dict classes)
+        {
+            var obj = ParseCmd<GLSampler>(err, cmd, classes);
+            if (!err.HasErrors())
+                sampler.Add(obj);
+        }
+
+        private Res<T> ParseCmd<T>(ErrorCollector err, string[] cmd, Dict classes)
         {
             GLObject obj = null;
             int unit = -1;
@@ -525,23 +563,24 @@ namespace App
 
             // check for errors
             if (obj == null)
-                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
-                    "Texture name could not be found."));
+                err.Add("Texture name could not be found.");
             if (unit < 0)
-                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
-                    "tex command must specify a unit (e.g. tex tex_name 0)."));
+                err.Add("tex command must specify a unit (e.g. tex tex_name 0).");
             
             // add to texture list
             return new Res<T>((T)Convert.ChangeType(obj, typeof(T)), unit);
         }
 
-        private GLMethod ParseOpenGLCall(string[] cmd)
+        private void ParseOpenGLCall(ErrorCollector err, string[] cmd)
         {
             // find OpenGL method
             var mtype = FindMethod(cmd[0], cmd.Length - 1);
             if (mtype == null)
-                throw new Exception("ERROR in pass " + name 
-                    + ": Unknown command " + string.Join(" ", cmd) + ".");
+            {
+                err.Add("Unknown command " + string.Join(" ", cmd) + ".");
+                return;
+            }
+
             // get method parameter types
             var param = mtype.GetParameters();
             object[] inval = new object[param.Length];
@@ -552,40 +591,42 @@ namespace App
                 else
                     inval[i] = Convert.ChangeType(cmd[i + 1], param[i].ParameterType, App.culture);
             
-            return new GLMethod(mtype, inval);
+            invoke.Add(new GLMethod(mtype, inval));
         }
 
-        private CsharpClass ParseCsharpExec(int cmdidx, string[] cmd, Dictionary<string, GLObject> classes)
+        private void ParseCsharpExec(ErrorCollector err, string[] cmd, Dict classes)
         {
             // check if command provides the correct amount of parameters
             if (cmd.Length < 3)
-                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
-                    "Not enough arguments for exec command."));
+            {
+                err.Add("Not enough arguments for exec command.");
+                return;
+            }
+
+            // get GLControl
+            GLObject obj;
+            classes.TryGetValue(GraphicControl.nullname, out obj);
+            GraphicControl glControl = (GraphicControl)obj;
 
             // get csharp object
-            GLObject obj;
             if (classes.TryGetValue(cmd[1], out obj) == false
                 || obj.GetType() != typeof(GLCsharp))
-                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
-                    "Could not find csharp code '" + cmd[1] + "' of command '"
-                    + string.Join(" ", cmd) + "'."));
-
+            {
+                err.Add("Could not find csharp code '" + cmd[1] + "' of command '"
+                    + string.Join(" ", cmd) + "'.");
+                return;
+            }
             GLCsharp clazz = (GLCsharp)obj;
-            
-            // get GLControl
-            if (classes.TryGetValue(GraphicControl.nullname, out obj) == false
-                || obj.GetType() != typeof(GraphicControl))
-                throw new Exception("INTERNAL_ERROR in pass " + name
-                    + ": Could not find default GLControl.");
-            GraphicControl glControl = (GraphicControl)obj;
 
             // create instance of defined main class
             var instance = clazz.CreateInstance(cmd[2], cmd);
             if (instance == null)
-                throw new Exception(ErrorMsg(name, cmdidx, cmd[0],
-                    "Main class '" + cmd[2] + "' could not be found."));
+            {
+                err.Add("Main class '" + cmd[2] + "' could not be found.");
+                return;
+            }
 
-            return new CsharpClass(instance, glControl.control);
+            csexec.Add(new CsharpClass(instance, glControl.control));
         }
         #endregion
 
@@ -598,7 +639,7 @@ namespace App
             return methods.Count() > 0 ? methods.First() : null;
         }
 
-        private GLObject attach(string sh, Dictionary<string, GLObject> classes)
+        private GLObject attach(ErrorCollector err, string sh, Dict classes)
         {
             if (sh == null)
                 return null;
@@ -608,22 +649,28 @@ namespace App
                 // attach to program
                 GL.AttachShader(glname, glsh.glname);
             else
-                throw new Exception("ERROR in pass " + name + ": Invalid name '" + sh + "'.");
+                err.Add("Invalid name '" + sh + "'.");
             return glsh;
         }
 
-        private void setVertexOutputVaryings(string[] varyings)
+        private void setVertexOutputVaryings(ErrorCollector err, string[] varyings)
         {
             // the vertout command needs at least 3 arguments
             if (varyings.Length < 3)
-                throw new Exception("ERROR in pass " + name + ": vertout command does not have "
+            {
+                err.Add("vertout command does not have "
                     + "enough arguments (e.g. vertout vertout_name points varying_name).");
+                throw err;
+            }
 
             // parse vertex output primitive type
             if (!Enum.TryParse(varyings[1], true, out vertoutPrimitive))
-                throw new Exception("ERROR in pass " + name + ": vertout command does not support "
+            {
+                err.Add("vertout command does not support "
                     + "the specified primitive type '" + varyings[1] + "' "
                     + "(must be 'points', 'lines' or 'triangles').");
+                throw err;
+            }
 
             // get vertex output varying specification
             int skip = 2;
@@ -648,11 +695,14 @@ namespace App
                 GL.TransformFeedbackVaryings(glname, outputVaryings.Length, outputVaryings, vertoutMode);
             }
             else
-                throw new Exception("ERROR in pass " + name + ": vertout command does not specify "
-                    + "shader output varying names (e.g. vertout vertout_name points varying_name).");
+            {
+                err.Add("vertout command does not specify shader output varying names "
+                    + "(e.g. vertout vertout_name points varying_name).");
+                throw err;
+            }
         }
         
-        private T ParseType<T>(int cmdidx, string[] cmd, int arg, string info)
+        private T ParseType<T>(string[] cmd, int arg, string info)
         {
             try
             {
@@ -660,7 +710,7 @@ namespace App
             }
             catch
             {
-                throw new Exception(ErrorMsg(name, cmdidx, cmd[0], arg, info));
+                throw new Exception(info);
             }
         }
 
@@ -677,16 +727,16 @@ namespace App
             }
         }
 
-        private T ParseObject<T>(Dictionary<string, GLObject> classes, int cmdidx, string[] cmd, int arg, string info)
+        private T ParseObject<T>(Dict classes, string[] cmd, int arg, string info)
             where T : GLObject
         {
             GLObject tmp;
             if (classes.TryGetValue(cmd[arg], out tmp) && tmp.GetType() == typeof(T))
-                throw new Exception(ErrorMsg(name, cmdidx, cmd[0], arg, info));
+                throw new Exception(info);
             return (T)tmp;
         }
 
-        private bool TryParseObject<T>(Dictionary<string, GLObject> classes, string name, ref T obj)
+        private bool TryParseObject<T>(Dict classes, string name, ref T obj)
             where T : GLObject
         {
             GLObject tmp;
@@ -696,19 +746,6 @@ namespace App
                 return true;
             }
             return false;
-        }
-        
-        private static string ErrorMsg(string passname, int cmdidx, string cmdname, int arg, string info)
-        {
-            return "ERROR in pass " + passname
-                + ", command " + cmdidx + " '" + cmdname + "'"
-                + (arg >= 0 ? (", argument " + arg) : "")
-                + (info != null ? (": " + info) : ".");
-        }
-
-        private static string ErrorMsg(string passname, int cmdidx, string cmdname, string info)
-        {
-            return ErrorMsg(passname, cmdidx, cmdname, -1, info);
         }
         #endregion
     }

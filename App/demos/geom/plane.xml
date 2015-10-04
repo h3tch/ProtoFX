@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<gled>
+<data>
   <position type='float' isbinary='false'>
      10.0 -1.0  10.0  1.0
      10.0 -1.0 -10.0  1.0
@@ -22,4 +22,4 @@
     0  1  2
     2  3  0
   </index>
-</gled>
+</data>

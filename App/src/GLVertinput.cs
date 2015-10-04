@@ -9,6 +9,9 @@ namespace App
         public GLVertinput(string dir, string name, string annotation, string text, Dictionary<string, GLObject> classes)
             : base(name, annotation)
         {
+            ErrorCollector err = new ErrorCollector();
+            err.PushStack("vertinput '" + name + "'");
+
             // PARSE TEXT
             var args = Text2Cmds(text);
 
@@ -17,19 +20,29 @@ namespace App
             GL.BindVertexArray(glname);
 
             for (int i = 0; i < args.Length; i++)
-                enable(i, args[i], name, classes);
-            
+            {
+                err.PushStack("command " + i + 1);
+                enable(err, i, args[i], name, classes);
+                err.PopStack();
+            }
+            if (err.HasErrors())
+                err.ThrowExeption();
+
             GL.BindVertexArray(0);
-            throwExceptionOnOpenGlError("vertinput", name, "could not create OpenGL vertex array object");
+            if (GL.GetError() != ErrorCode.NoError)
+                err.Throw("OpenGL error '" + GL.GetError()
+                    + "' occurred during vertex input object creation.");
         }
 
-        private void enable(int attrIdx, string[] args, string name, Dictionary<string, GLObject> classes)
+        private void enable(ErrorCollector err, int attrIdx, string[] args, string name, Dictionary<string, GLObject> classes)
         {
             if (!args[0].Equals("attr"))
                 return;
             if (args.Length < 4)
-                throw new Exception("ERROR in vertinput " + name + ": attr"
-                    + attrIdx + " needs at least 3 attributes (e.g. 'attrX buff_name float 4')");
+            {
+                err.Add("Command attr needs at least 3 attributes (e.g. 'attr buff_name float 4')");
+                return;
+            }
 
             string bufname = args[1];
             string typename = args[2];
@@ -40,8 +53,10 @@ namespace App
             
             GLObject buff;
             if (classes.TryGetValue(bufname, out buff) == false || buff.GetType() != typeof(GLBuffer))
-                throw new Exception("ERROR in vertinput " + name + " attr" + attrIdx
-                    + ": Buffer '" + bufname + "' could not be found.");
+            {
+                err.Add("Buffer '" + bufname + "' could not be found.");
+                return;
+            }
             
             GL.BindBuffer(BufferTarget.ArrayBuffer, buff.glname);
             GL.EnableVertexAttribArray(attrIdx);
@@ -53,8 +68,10 @@ namespace App
             else if (Enum.TryParse(typename, true, out typef))
                 GL.VertexAttribPointer(attrIdx, length, typef, false, stride, offset);
             else
-                throw new Exception("ERROR in vertinput " + name + " attr" + attrIdx
-                    + ": Type '" + typename + "' is not supported.");
+            {
+                err.Add("Type '" + typename + "' is not supported.");
+                return;
+            }
             
             if (divisor > 0)
                 GL.VertexAttribDivisor(attrIdx, divisor);

@@ -90,6 +90,7 @@
     <Compile Include="src\App.Util.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="src\ErrorCollector.cs" />
     <Compile Include="src\GLBuffer.cs" />
     <Compile Include="src\GLCSharp.cs" />
     <Compile Include="src\Dict.cs" />

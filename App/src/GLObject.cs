@@ -9,11 +9,9 @@ namespace App
     abstract class GLObject
     {
         #region PROPERTIES
-
         public int glname { get; protected set; }
         public string name { get; protected set; }
         public string anno { get; protected set; }
-
         #endregion
 
         public GLObject(string name, string annotation)
@@ -31,7 +29,6 @@ namespace App
         }
 
         #region UTIL METHODS
-
         static protected string[][] Text2Cmds(string text)
         {
             List<string[]> args = new List<string[]>();
@@ -76,14 +73,6 @@ namespace App
                 }
             }
         }
-
-        static protected void throwExceptionOnOpenGlError(string type, string name, string glevent)
-        {
-            ErrorCode er = GL.GetError();
-            if (er != ErrorCode.NoError)
-                throw new Exception("ERROR in " + type + " " + name + ": OpenGL error " + er + " occurred during '" + glevent + "'.");
-        }
-
         #endregion
     }
 }

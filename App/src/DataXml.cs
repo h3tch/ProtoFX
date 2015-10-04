@@ -9,13 +9,10 @@ namespace App
     class DataXml
     {
         #region PROPERTIES
-
         public byte[] data { get; protected set; }
-
         #endregion
 
         #region FIELDS
-
         private static Dictionary<string, Type> str2type = new Dictionary<string, Type>
         {
             {"bool"    , typeof(bool)},
@@ -33,24 +30,23 @@ namespace App
             {"short"   , typeof(short)},
             {"ushort"  , typeof(ushort)}
         };
-
         #endregion
 
-        public DataXml (string filename, string itemname)
+        public static byte[] Load(string filename, string itemname)
         {
+            string errstr = "XML '" + filename + "' " + itemname + ": ";
+
             // load XML file
             var xmlDoc = new XmlDocument();
             xmlDoc.Load(filename);
             // rood node must be <gled>
-            if (!xmlDoc.DocumentElement.Name.Equals("gled"))
-                throw new Exception("ERROR in XML " + filename + " " + itemname
-                    + ": Root node must be <gled>...</gled>.");
+            if (!xmlDoc.DocumentElement.Name.Equals("data"))
+                throw new Exception(errstr + "Root node must be <data>...</data>.");
 
             // find element by name
             var list = xmlDoc.DocumentElement.GetElementsByTagName(itemname);
             if (list.Count == 0)
-                throw new Exception("ERROR in XML " + filename + " " + itemname
-                    + ": Element '" + itemname + "' could not be found.");
+                throw new Exception(errstr + "Element '" + itemname + "' could not be found.");
             var item = list[0];
 
             // get type and values of the element
@@ -67,12 +63,11 @@ namespace App
             {
                 // get value type and check for errors
                 if (item.Attributes["type"] == null)
-                    throw new Exception("ERROR in XML " + filename + " " + itemname
-                        + ": For non binary data a type has to be specified (e.g. <" + itemname + " type='float'>).");
+                    throw new Exception(errstr + "For non binary data a type has to be specified "
+                        + "(e.g. <" + itemname + " type='float'>).");
 
                 if (!str2type.TryGetValue(item.Attributes["type"].Value, out type))
-                    throw new Exception("ERROR in XML " + filename + " " + itemname
-                        + ": Type '" + item.Attributes["type"].Value + "' not supported.");
+                    throw new Exception(errstr + "Type '" + item.Attributes["type"].Value + "' not supported.");
 
                 // convert values
                 var raw = Regex.Matches(item.InnerText, "(\\+|\\-)?[0-9\\.\\,]+");
@@ -82,8 +77,9 @@ namespace App
             }
 
             // convert to byte array
-            data = new byte[values.Length * Marshal.SizeOf(type)];
+            var data = new byte[values.Length * Marshal.SizeOf(type)];
             Buffer.BlockCopy(values, 0, data, 0, data.Length);
+            return data;
         }
     }
 }

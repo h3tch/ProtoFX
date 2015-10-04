@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL4;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -9,16 +8,17 @@ namespace App
     class GLBuffer : GLObject
     {
         #region FIELDS
-
         public int size = 0;
         public BufferUsageHint usage = BufferUsageHint.StaticDraw;
         public string[] file = null;
-
         #endregion
 
         public GLBuffer(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
+            ErrorCollector err = new ErrorCollector();
+            err.PushStack("buffer '" + name + "'");
+
             // PARSE TEXT TO COMMANDS
             var cmds = Text2Cmds(text);
 
@@ -30,25 +30,25 @@ namespace App
             GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
 
             // LOAD BUFFER DATA
-            var data = loadBufferFiles(dir, file, size);
-            var dataPtr = IntPtr.Zero;
+            var data = loadBufferFiles(err, dir, file, size);
+
+            // ALLOCATE (AND WRITE) GPU MEMORY
             if (data != null)
             {
                 size = data.Length;
-                dataPtr = Marshal.AllocHGlobal(size);
+                var dataPtr = Marshal.AllocHGlobal(size);
                 Marshal.Copy(data, 0, dataPtr, size);
-            }
-
-            // ALLOCATE (AND WRITE) GPU MEMORY
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)size, dataPtr, usage);
-            //GL.NamedBufferData(glname, size, dataPtr, usage);
-            
-            // FREE BUFFER DATA
-            if (dataPtr != IntPtr.Zero)
+                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)size, dataPtr, usage);
                 Marshal.FreeHGlobal(dataPtr);
+            }
+            else
+                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)size, IntPtr.Zero, usage);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            throwExceptionOnOpenGlError("buffer", name, "allocate buffer");
+            if (GL.GetError() != ErrorCode.NoError)
+                err.Add("OpenGL error '" + GL.GetError() + "' occurred during buffer allocation.");
+            if (err.HasErrors())
+                err.ThrowExeption();
         }
 
         public byte[] Read()
@@ -76,8 +76,7 @@ namespace App
         }
 
         #region UTIL METHODS
-
-        private static byte[] loadBufferFiles(string dir, string[] filenames, int size)
+        private static byte[] loadBufferFiles(ErrorCollector err, string dir, string[] filenames, int size)
         {
             if (filenames == null || filenames.Length == 0)
                 return null;
@@ -89,13 +88,23 @@ namespace App
                 // get path and node
                 var filename = filenames[i].Split(new char[] { '|' });
                 var path = Path.IsPathRooted(filename[0]) ? filename[0] : dir + filename[0];
-                if (filename.Length == 1)
-                    filedata[i] = File.ReadAllBytes(path);
-                else if (filename.Length == 2)
-                    filedata[i] = new DataXml(path, filename[1]).data;
-                else
-                    throw new Exception("");
+                try
+                {
+                    if (filename.Length == 1)
+                        filedata[i] = File.ReadAllBytes(path);
+                    else if (filename.Length == 2)
+                        filedata[i] = DataXml.Load(path, filename[1]);
+                    else
+                        err.Add("Do not know how to load file '" + filenames[i] + "'.");
+                }
+                catch(Exception ex)
+                {
+                    err.Add(ex.GetBaseException().Message);
+                }
             }
+
+            if (err.HasErrors())
+                err.ThrowExeption();
 
             // if size has not been specified,
             // compute the summed size of all file data
@@ -113,7 +122,6 @@ namespace App
 
             return data;
         }
-
         #endregion
     }
 }

@@ -46,7 +46,8 @@ namespace App
                 GL.BindTexture(TextureTarget.TextureBuffer, glname);
                 GL.TexBuffer(TextureBufferTarget.TextureBuffer, format, glbuff.glname);
                 GL.BindTexture(TextureTarget.TextureBuffer, 0);
-                throwExceptionOnOpenGlError("texture", name, "create texture buffer object");
+                if (GL.GetError() != ErrorCode.NoError)
+                    throw new Exception("OpenGL error '" + GL.GetError() + "' occurred during texture creation.");
             }
         }
 
