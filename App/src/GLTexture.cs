@@ -6,48 +6,52 @@ namespace App
     class GLTexture : GLObject
     {
         #region FIELDS
-
         public string samp = null;
         public string buff = null;
         public string img = null;
         public SizedInternalFormat format = 0;
-        private GLObject glsamp = null;
-        private GLObject glbuff = null;
-        private GLObject glimg = null;
-
+        private GLSampler glsamp = null;
+        private GLBuffer glbuff = null;
+        private GLImage glimg = null;
         #endregion
 
         public GLTexture(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
 
         {
+            ErrorCollector err = new ErrorCollector();
+            err.PushStack("texture '" + name + "'");
+
             // PARSE TEXT
             var cmds = Text2Cmds(text);
 
             // PARSE COMMANDS
             Cmds2Fields(this, ref cmds);
-            
+
             // GET REFERENCES
-            if (samp != null && (glsamp = classes.FindClass<GLSampler>(samp)) == null)
-                throw new Exception(Dict.NotFoundMsg("texture", name, "sampler", samp));
-            if (buff != null && (glbuff = classes.FindClass<GLBuffer>(buff)) == null)
-                throw new Exception(Dict.NotFoundMsg("texture", name, "buffer", buff));
-            if (img != null && (glimg = classes.FindClass<GLImage>(img)) == null)
-                throw new Exception(Dict.NotFoundMsg("texture", name, "image", img));
+            if (samp != null)
+                classes.TryFindClass(err, samp, out glsamp);
+            if (buff != null)
+                classes.TryFindClass(err, buff, out glbuff);
+            if (img != null)
+                classes.TryFindClass(err, img, out glimg);
+
+            // IF THERE ARE ERRORS THROW AND EXCEPTION
+            if (err.HasErrors())
+                err.ThrowExeption();
 
             // INCASE THIS IS A TEXTURE OBJECT
             if (glbuff != null && glimg == null)
             {
                 if (format == 0)
-                    throw new Exception("ERROR in texture " + name + ": "
-                            + "No texture buffer format defined for buffer '" + buff + "' (e.g. format RGBA8).");
+                    err.Throw("No texture buffer format defined for buffer '" + buff + "' (e.g. format RGBA8).");
                 // CREATE OPENGL OBJECT
                 glname = GL.GenTexture();
                 GL.BindTexture(TextureTarget.TextureBuffer, glname);
                 GL.TexBuffer(TextureBufferTarget.TextureBuffer, format, glbuff.glname);
                 GL.BindTexture(TextureTarget.TextureBuffer, 0);
                 if (GL.GetError() != ErrorCode.NoError)
-                    throw new Exception("OpenGL error '" + GL.GetError() + "' occurred during texture creation.");
+                    err.Throw("OpenGL error '" + GL.GetError() + "' occurred during texture creation.");
             }
         }
 

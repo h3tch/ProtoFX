@@ -25,8 +25,8 @@ buffer buf_idx {
 
 image img_shadowmap {
 	// image size in pixels
-	width 1024
-	height 1024
+	width 512
+	height 512
 	// pixel format is a 32
 	// bit floating point depth
 	format depth32f
@@ -133,7 +133,7 @@ shader frag fs_simple {
 		
 		const int r = 2;
 		const int d = 2*r+1;
-		const float bias = 0.0005;
+		const float bias = 0.001;
 		float shadow = 0.0;
 		for (int dx = -r; dx <= r; dx++) {
 			for (int dy = -r; dy <= r; dy++)

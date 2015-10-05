@@ -7,21 +7,25 @@ namespace App
     {
         private Stack<string> callstack = new Stack<string>();
         private List<string> messages = new List<string>();
+        private string callstackstring
+        {
+            get
+            {
+                string str = "";
+                foreach (var s in callstack)
+                    str += s + ": ";
+                return str;
+            }
+        }
 
         public void Add(string message)
         {
-            string str = "";
-            foreach (var s in callstack)
-                str += s;
-            messages.Add(str + ": " + message);
+            messages.Add(callstackstring + message);
         }
 
         public void Throw(string message)
         {
-            string str = "";
-            foreach (var s in callstack)
-                str += s;
-            throw new Exception(str + ": " + message);
+            throw new Exception(callstackstring + message);
         }
 
         public void ThrowExeption()

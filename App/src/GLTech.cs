@@ -10,20 +10,31 @@ namespace App
         public GLTech(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
+            ErrorCollector err = new ErrorCollector();
+            err.PushStack("tech '" + name + "'");
+
             // PARSE TEXT
             var cmds = Text2Cmds(text);
 
-            foreach (var cmd in cmds)
+            // PARSE COMMANDS
+            GLPass pass;
+            for (int i = 0; i < cmds.Length; i++)
             {
+                // NEEDS TO BE A pass COMMAND
+                var cmd = cmds[i];
                 if (!cmd[0].Equals("pass"))
                     continue;
 
-                GLPass pass = classes.FindClass<GLPass>(cmd[1]);
-                if (pass == null)
-                    throw new Exception(Dict.NotFoundMsg("tech", name, "pass", cmd[1]));
+                err.PushStack("command " + i + " '" + name + "'");
 
-                passes.Add(pass);
+                // find pass object
+                if (classes.TryFindClass(err, cmd[1], out pass))
+                    passes.Add(pass);
             }
+
+            // IF THERE ARE ERRORS THROW AND EXCEPTION
+            if (err.HasErrors())
+                err.ThrowExeption();
         }
 
         public void Exec(int width, int height)

@@ -13,10 +13,17 @@ namespace App
             return null;
         }
 
-        public static string NotFoundMsg(string callertype, string callername, string classtype, string classname)
+        public bool TryFindClass<T>(ErrorCollector err, string instancename, out T obj)
+            where T : GLObject
         {
-            return "ERROR in " + callertype + " " + callername + ": "
-                + "The name '" + classname + "' does not reference an object of type '" + classtype + "'.";
+            var classname = typeof(T).Name.Substring(2).ToLower();
+            if ((obj = FindClass<T>(instancename)) == null)
+            {
+                err.Add("The name '" + classname + "' does not reference an object of type '" + classname + "'.");
+                return false;
+            }
+            else
+                return true;
         }
     }
 }

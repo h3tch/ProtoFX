@@ -8,10 +8,6 @@ namespace App
 {
     class DataXml
     {
-        #region PROPERTIES
-        public byte[] data { get; protected set; }
-        #endregion
-
         #region FIELDS
         private static Dictionary<string, Type> str2type = new Dictionary<string, Type>
         {
