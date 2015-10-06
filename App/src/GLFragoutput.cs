@@ -49,6 +49,7 @@ namespace App
             glname = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, glname);
             
+            // PARSE COMMANDS
             for (int i = 0; i < cmds.Length; i++)
             {
                 var cmd = cmds[i];
@@ -57,10 +58,13 @@ namespace App
                 if (cmd == null || cmd.Length < 2)
                     continue;
 
-                err.PushStack("command '" + (i + 1) + "'");
+                // attach image
+                err.PushStack("command " + (i + 1) + " '" + cmd[0] + "'");
                 attatch(err, cmd, classes);
                 err.PopStack();
             }
+
+            // if any errors occurred throw exception
             if (err.HasErrors())
                 err.ThrowExeption();
 
@@ -68,8 +72,11 @@ namespace App
             Bind();
             var status = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
             Unbind();
+
+            // final error checks
             if (GL.GetError() != ErrorCode.NoError)
-                err.Throw("OpenGL error '" + GL.GetError() + "' occurred during fragment output creation.");
+                err.Throw("OpenGL error '" + GL.GetError()
+                    + "' occurred during fragment output creation.");
             if (status != FramebufferErrorCode.FramebufferComplete)
                 err.Throw("Could not be created due to an unknown error.");
         }

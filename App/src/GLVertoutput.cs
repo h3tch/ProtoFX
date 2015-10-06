@@ -25,15 +25,22 @@ namespace App
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, glname);
 
             // parse commands
-            int numbindings = 0;
-            for (int i = 0; i < cmds.Length; i++)
+            for (int i = 0, numbindings = 0; i < cmds.Length; i++)
             {
                 var cmd = cmds[i];
-                err.PushStack("command " + (i + 1));
+
+                // ignore already parsed commands
+                if (cmd == null || cmd.Length < 2)
+                    continue;
+
+                // attach buffer
+                err.PushStack("command " + (i + 1) + " '" + cmd[0] + "'");
                 if (cmd != null && cmd.Length >= 2 && cmd[0] == "buff")
-                    attachBuffer(err, numbindings++, cmd, classes);
+                    attach(err, numbindings++, cmd, classes);
                 err.PopStack();
             }
+
+            // if errors occurred throw exception
             if (err.HasErrors())
                 err.ThrowExeption();
 
@@ -75,7 +82,7 @@ namespace App
             }
         }
 
-        private void attachBuffer(ErrorCollector err, int unit, string[] cmd, Dict classes)
+        private void attach(ErrorCollector err, int unit, string[] cmd, Dict classes)
         {
             // get buffer
             GLBuffer buf = classes.FindClass<GLBuffer>(cmd[1]);

@@ -64,6 +64,7 @@ namespace App
             var data = loadImageFiles(err, dir, file, ref width, ref height, ref depth, gpuformat,
                 out pixelformat, out pixeltype, out pixelsize, out fileformat);
 
+            // on errors throw an exception
             if (err.HasErrors())
                 err.ThrowExeption();
 

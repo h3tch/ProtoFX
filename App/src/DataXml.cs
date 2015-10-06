@@ -30,7 +30,7 @@ namespace App
 
         public static byte[] Load(string filename, string itemname)
         {
-            string errstr = "XML '" + filename + "' " + itemname + ": ";
+            string errstr = "XML '" + filename + "' <" + itemname + ">: ";
 
             // load XML file
             var xmlDoc = new XmlDocument();

@@ -60,7 +60,7 @@ namespace App
 
             // check for compiler errors
             if (compilerresults.Errors.Count != 0)
-                throw new Exception("csharp " + name + ":\n" + compilerresults.Output);
+                throw new Exception("csharp '" + name + "':\n" + compilerresults.Output);
         }
 
         public object CreateInstance(string classname, string[] args)
@@ -69,7 +69,7 @@ namespace App
             object clazz = compilerresults.CompiledAssembly.CreateInstance(
                 classname, false, BindingFlags.Default, null, new object[] { args }, App.culture, null);
             if (clazz == null)
-                throw new Exception("csharp " + name + ": Main class '" + classname + "' could not be found.");
+                throw new Exception("csharp '" + name + "': Main class '" + classname + "' could not be found.");
             return clazz;
         }
 

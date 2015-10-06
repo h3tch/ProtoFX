@@ -231,16 +231,16 @@ namespace App
             this.codeError.Text = "";
             ClearGLObjects();
 
-            var selectedSourceTab = (TabPage)this.tabSource.SelectedTab;
-            var selectedSourceText = (Scintilla)selectedSourceTab.Controls[0];
-            var dir = selectedSourceTab.filepath != null ?
-                Path.GetDirectoryName(selectedSourceTab.filepath) : Directory.GetCurrentDirectory();
+            var sourceTab = (TabPage)this.tabSource.SelectedTab;
+            var sourceText = (Scintilla)sourceTab.Controls[0];
+            var dir = sourceTab.filepath != null ?
+                Path.GetDirectoryName(sourceTab.filepath) : Directory.GetCurrentDirectory();
             dir += '\\';
 
             try
             {
                 // remove comments
-                var code = RemoveComments(selectedSourceText.Text, "//");
+                var code = RemoveComments(sourceText.Text, "//");
                 code = IncludeFiles(dir, code);
 
                 // find GLST class blocks (find "TYPE name { ... }")

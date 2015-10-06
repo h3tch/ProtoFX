@@ -35,6 +35,10 @@ namespace App
                 classes.TryFindClass(err, buff, out glbuff);
             if (img != null)
                 classes.TryFindClass(err, img, out glimg);
+            if (glbuff != null && glimg != null)
+                err.Add("Only an image or a buffer can be bound to a texture object.");
+            if (glbuff == null && glimg == null)
+                err.Add("Ether an image or a buffer has to be bound to a texture object.");
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION
             if (err.HasErrors())
@@ -60,16 +64,11 @@ namespace App
             if (samp != null)
                 GL.BindSampler(unit, glsamp.glname);
 
+            GL.ActiveTexture(TextureUnit.Texture0 + unit);
             if (glimg != null)
-            {
-                GL.ActiveTexture(TextureUnit.Texture0 + unit);
-                GL.BindTexture(((GLImage)glimg).target, glimg.glname);
-            }
-            else if (glbuff != null)
-            {
-                GL.ActiveTexture(TextureUnit.Texture0 + unit);
+                GL.BindTexture(glimg.target, glimg.glname);
+            else
                 GL.BindTexture(TextureTarget.TextureBuffer, glname);
-            }
         }
 
         public void Unbind(int unit)
@@ -77,16 +76,11 @@ namespace App
             if (samp != null)
                 GL.BindSampler(unit, 0);
 
+            GL.ActiveTexture(TextureUnit.Texture0 + unit);
             if (glimg != null)
-            {
-                GL.ActiveTexture(TextureUnit.Texture0 + unit);
-                GL.BindTexture(((GLImage)glimg).target, 0);
-            }
-            else if (glbuff != null)
-            {
-                GL.ActiveTexture(TextureUnit.Texture0 + unit);
+                GL.BindTexture(glimg.target, 0);
+            else
                 GL.BindTexture(TextureTarget.TextureBuffer, 0);
-            }
         }
 
         public override void Delete()
