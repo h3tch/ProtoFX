@@ -5,8 +5,10 @@ namespace App
 {
     class GLVertoutput : GLObject
     {
+        #region FIELDS
         public bool pause = false;
         public bool resume = false;
+        #endregion
 
         public GLVertoutput(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)

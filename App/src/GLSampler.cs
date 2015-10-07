@@ -6,9 +6,11 @@ namespace App
 {
     class GLSampler : GLObject
     {
+        #region FIELDS
         public TextureMinFilter minfilter = TextureMinFilter.Nearest;
         public TextureMagFilter magfilter = TextureMagFilter.Nearest;
         public TextureWrapMode wrap = TextureWrapMode.ClampToEdge;
+        #endregion
 
         public GLSampler(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)

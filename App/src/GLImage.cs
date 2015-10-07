@@ -56,8 +56,9 @@ namespace App
                 else if (width > 0 && height > 1 && depth > 0 && length == 0)
                     target = TextureTarget.Texture3D;
                 else
-                    err.Add("Texture type could not be derived from 'width', 'height', 'depth' and 'length'. "
-                        + "Please check these parameters or specify the type directly (e.g. 'type = texture2D').");
+                    err.Add("Texture type could not be derived from 'width', 'height', "
+                        + "'depth' and 'length'. Please check these parameters "
+                        + "or specify the type directly (e.g. 'type = texture2D').");
             }
 
             // LOAD IMAGE DATA

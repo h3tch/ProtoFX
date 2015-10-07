@@ -48,7 +48,8 @@ namespace App
             if (glbuff != null && glimg == null)
             {
                 if (format == 0)
-                    err.Throw("No texture buffer format defined for buffer '" + buff + "' (e.g. format RGBA8).");
+                    err.Throw("No texture buffer format defined "
+                        + "for buffer '" + buff + "' (e.g. format RGBA8).");
                 // CREATE OPENGL OBJECT
                 glname = GL.GenTexture();
                 GL.BindTexture(TextureTarget.TextureBuffer, glname);

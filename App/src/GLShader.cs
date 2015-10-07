@@ -1,6 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Collections.Generic;
 
 namespace App
 {
@@ -9,6 +8,7 @@ namespace App
         public GLShader(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
+            string errstr = "shader '" + name + "': ";
             // CREATE OPENGL OBJECT
             ShaderType type;
             switch (annotation)
@@ -20,7 +20,8 @@ namespace App
                 case "frag": type = ShaderType.FragmentShader; break;
                 case "comp": type = ShaderType.ComputeShader; break;
                 default:
-                    throw new Exception("ERROR in shader " + name + ": Shader type '" + annotation + "' is not supported.");
+                    throw new Exception(errstr + "Shader type '"
+                        + annotation + "' is not supported.");
             }
 
             // CREATE OPENGL OBJECT
@@ -32,9 +33,10 @@ namespace App
             int status;
             GL.GetShader(glname, ShaderParameter.CompileStatus, out status);
             if (status != 1)
-                throw new Exception("ERROR in shader " + name + ":\n" + GL.GetShaderInfoLog(glname));
+                throw new Exception(errstr + "\n" + GL.GetShaderInfoLog(glname));
             if (GL.GetError() != ErrorCode.NoError)
-                throw new Exception("OpenGL error '" + GL.GetError() + "' occurred during shader creation.");
+                throw new Exception(errstr + "OpenGL error '"
+                    + GL.GetError() + "' occurred during shader creation.");
         }
 
         public override void Delete()

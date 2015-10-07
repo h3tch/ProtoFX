@@ -354,7 +354,6 @@ namespace App
             // computed before setting the glViewport)
             if (glfragout != null)
             {
-                // bind framebuffer output
                 widthOut = glfragout.width;
                 heightOut = glfragout.height;
                 glfragout.Bind();

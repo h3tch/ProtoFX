@@ -129,6 +129,7 @@
     <None Include="demos\simple_include_header.tech" />
     <None Include="demos\simple_texture.tech" />
     <None Include="demos\simple_vertoutput.tech" />
+    <None Include="demos\tutorial\01_hello_triangle.tech" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -155,6 +156,7 @@
     <Content Include="demos\geom\cube.xml" />
     <Content Include="demos\geom\plane.xml" />
     <Content Include="demos\geom\quad.xml" />
+    <Content Include="demos\geom\triangle.xml" />
     <Content Include="demos\tex\lena.jpg" />
     <Content Include="res\syntax.xml" />
     <None Include="demos\simple.tech" />

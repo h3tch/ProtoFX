@@ -44,10 +44,10 @@ namespace App
             compilerParams.ReferencedAssemblies.AddRange(assemblies.ToArray());
             
             // select compiler version
-            CSharpCodeProvider provider = new CSharpCodeProvider(new Dictionary<string, string>
-            {
-                {"CompilerVersion", version != null ? version : "v4.0"}
-            });
+            CSharpCodeProvider provider = new CSharpCodeProvider(
+                new Dictionary<string, string> {
+                    {"CompilerVersion", version != null ? version : "v4.0"}
+                });
 
             // use '\\' file paths instead of '/' and set absolute directory path
             for (int i = 0; i < file.Length; i++)
