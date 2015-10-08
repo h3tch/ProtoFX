@@ -1,21 +1,44 @@
-﻿// AUTHOR: Michael Hecher
+// ========================
+// TUTORIAL: Hello Triangle
+// AUTHOR: Michael Hecher
+// ========================
+//
+// In this tutorial you will learn how to write a simple
+// hello triangle program. You will learn how to allocate
+// memory on the graphics card and use it in shaders. You
+// will also see how you can combine shaders into a render
+// pass to draw a triangle on the screen.
 
 //////////////////
 // DATA OBJECTS //
 //////////////////
 
-// Vertex positions
+// We will first allocate memory on the graphics card (often
+// refered to as GPU -- graphics processing unit). In this
+// simple excample, we only need buffer objects. Buffers are
+// usually used to store data needed for rendering geometry,
+// like vertex and index data of meshes.
+
+// Vertex position buffer defining
+// the triangle points of the mesh.
 buffer buf_pos {
-	// we will only read the data
+	// Buffer will only be read from by the GPU and will not
+	// be updated during runtime. The usage flag is used by
+	// the driver to decide where and how to allocate the
+	// buffer.
 	usage staticDraw
-	// load data <position> from cube.xml
+	// Load data <position> from cube.xml. Because we did not
+	// specifiy the size of the buffer explicitly it will be
+	// computed from the data in the file.
 	file "../geom/triangle.xml|position"
 }
 
-// Triangle list defining the mesh
+// Triangle list defining the triangles of the mesh. This
+// buffer will be used to tell the program which vertices
+// should be used for drawing triangles, as you will see
+// later. Such buffers are usually refered to as index buffers.
 buffer buf_idx {
 	usage staticDraw
-	// load data <index> from cube.xml
 	file "../geom/triangle.xml|index"
 }
 
@@ -23,10 +46,15 @@ buffer buf_idx {
 // DATA FORMAT OBJECTS //
 /////////////////////////
 
-// Define how to access vertex data from shaders
+// Next, we need to define how to access the mesh data from
+// shaders. In ProtoGL such object are called vertex input
+// objects (vertinput).
+
+// Define how to access vertex data from shaders.
 vertinput in_vert {
-	// bind vertex position buffer to attribute
-	// location 0 (see in_pos in vs_simple)
+	// Bind vertex position buffer to attribute location 0
+	// (see in_pos in vs_simple). Each vertex in 'buf_pos'
+	// is a 4 element float vector.
 	attr buf_pos float 4
 }
 
@@ -34,26 +62,44 @@ vertinput in_vert {
 // SHADERS //
 /////////////
 
-// Simple GLSL vertex shader transforming
-// vertex positions from model to perspective space
+// Now that the data and data access is set up we will now
+// have a look at how to define GLSL shaders. Please note that
+// this tutorial is not ment to teach how to write and program
+// shaders. 
+
+// Simple GLSL vertex shader passing the vertex data on to the
+// rasterizer. The rasterizer will convert the geometry data
+// into pixel information (fragments). Vertex shaders are
+// executed for each vertex listed in the triangle list 'buf_idx'
+// (index buffer). If a vertex is listed multiple times, the
+// shader will also be executed multiple times.
 shader vert vs_simple {
+	// GLSL shader based on the OpenGL 4.4 standard.
 	#version 440
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
 	
+	// The 'main' function is the entry
+	// point where the program starts.
 	void main () {
+		// Do nothing with the data but pass it
+		// on to the rasterizer.
 		gl_Position = in_pos;
 	}
 }
 
-// Simple GLSL fragment shader writing
-// the color of the fragment to the framebuffer
+// Simple GLSL fragment shader outputing a white pixel
+// everywhere geometry is visible inside the viewport/frame.
+// Fragment shaders are executed for each fragment generated
+// through rasterization.
 shader frag fs_simple {
 	#version 440
 	
 	// fragment color output
 	out vec4 color;
+	// Note that the output variable
+	// name does not need to be 'color'.
 	
 	void main () {
 		color = vec4(1.0);
@@ -71,9 +117,8 @@ pass pass_render {
 	frag fs_simple
 	
 	// OPENGL FUNCTIONS
-	// set clear color
-	ClearColor 0.1 0.3 1.0 0.0
-	// clear color and depth buffer
+	ClearColor 0 0 0 0
+	// Clear color and depth framebuffer.
 	Clear ColorDepthBit
 	// enable depth buffer test
 	Enable depthTest
@@ -88,7 +133,7 @@ pass pass_render {
 	//               (in this case a triangle list)
 	// 0 ........... the fisrt vertex to use is vertex 0
 	// 0 ........... the first index of 'buff_idx' to use is 0
-	// 3 ........... use 3 indices in 'buff_idx' (= 3/3 = 1 triangle)
+	// 3 ........... use 3 indices in 'buff_idx'
 	draw buf_idx in_vert ushort triangles 0 0 3
 }
 
