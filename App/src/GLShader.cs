@@ -20,7 +20,7 @@ namespace App
                 case "frag": type = ShaderType.FragmentShader; break;
                 case "comp": type = ShaderType.ComputeShader; break;
                 default:
-                    throw new Exception(errstr + "Shader type '"
+                    throw new GLException(errstr + "Shader type '"
                         + annotation + "' is not supported.");
             }
 
@@ -33,9 +33,9 @@ namespace App
             int status;
             GL.GetShader(glname, ShaderParameter.CompileStatus, out status);
             if (status != 1)
-                throw new Exception(errstr + "\n" + GL.GetShaderInfoLog(glname));
+                throw new GLException(errstr + "\n" + GL.GetShaderInfoLog(glname));
             if (GL.GetError() != ErrorCode.NoError)
-                throw new Exception(errstr + "OpenGL error '"
+                throw new GLException(errstr + "OpenGL error '"
                     + GL.GetError() + "' occurred during shader creation.");
         }
 

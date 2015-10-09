@@ -113,15 +113,14 @@ shader frag fs_simple {
 // Define a rendering pass
 pass pass_render {
 	// ATTATCH SHADERS
+	// We will use booth shaders defined above in this pass
+	// to render the thriangle.
 	vert vs_simple
 	frag fs_simple
 	
 	// OPENGL FUNCTIONS
-	ClearColor 0 0 0 0
-	// Clear color and depth framebuffer.
-	Clear ColorDepthBit
-	// enable depth buffer test
-	Enable depthTest
+	// Clear color framebuffer.
+	Clear ColorBit
 	
 	// DRAW CALLS
 	// buff_idx .... name of the ellement array buffer

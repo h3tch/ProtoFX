@@ -195,7 +195,13 @@ pass pass_render {
 	draw buf_idx in_vert ushort triangles 8 36 6
 }
 
+pass pass_reset {
+	ClearColor 0 0 0 0
+	Disable depthTest
+}
+
 tech tech_simple {
 	pass pass_shadowmap
 	pass pass_render
+	pass pass_reset
 }

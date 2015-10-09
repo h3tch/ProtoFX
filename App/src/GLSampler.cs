@@ -33,7 +33,7 @@ namespace App
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapT, ref wrapi);
             
             if (GL.GetError() != ErrorCode.NoError)
-                throw new Exception("OpenGL error '" + GL.GetError() + "' occurred during sampler creation.");
+                throw new GLException("OpenGL error '" + GL.GetError() + "' occurred during sampler creation.");
         }
 
         public override void Delete()

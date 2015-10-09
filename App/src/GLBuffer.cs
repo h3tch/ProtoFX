@@ -97,7 +97,7 @@ namespace App
                     else
                         err.Add("Do not know how to load file '" + filenames[i] + "'.");
                 }
-                catch(Exception ex)
+                catch(GLException ex)
                 {
                     err.Add(ex.GetBaseException().Message);
                 }

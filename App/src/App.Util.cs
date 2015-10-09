@@ -43,7 +43,7 @@ namespace App
 
                 // check if file exists
                 if (File.Exists(path) == false)
-                    throw new Exception("ERROR: The include file '" + incfile + "' could not be found.\n");
+                    throw new GLException("ERROR: The include file '" + incfile + "' could not be found.\n");
 
                 // load the file and insert it, replacing #include
                 var content = File.ReadAllText(path);
@@ -74,7 +74,7 @@ namespace App
                 if (code[i] == '}' && --count == 0)
                     blockBr.Add(i);
                 if (count < 0)
-                    throw new Exception("FATAL ERROR in line " + newline + ": Unexpected occurrence of '}'.");
+                    throw new GLException("FATAL ERROR in line " + newline + ": Unexpected occurrence of '}'.");
             }
 
             // where 'matches' and 'blockBr' are aligned we have a block
@@ -119,7 +119,7 @@ namespace App
                 case "double": T = typeof(double); return ConvertData<double>(data);
             }
 
-            throw new Exception("INTERNAL_ERROR: Could not convert buffer data to specified type.");
+            throw new GLException("INTERNAL_ERROR: Could not convert buffer data to specified type.");
         }
 
         private static Array ConvertData<T>(byte[] data)

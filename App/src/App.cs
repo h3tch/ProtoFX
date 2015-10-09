@@ -269,10 +269,10 @@ namespace App
                         var type = Type.GetType(classType);
                         // check for errors
                         if (type == null)
-                            throw new Exception("ERROR in " + classInfo[0] + " " + className + ": "
+                            throw new GLException(classInfo[0] + " '" + className + "': "
                                 + "Class type '" + classInfo[0] + "' not known.");
                         if (this.classes.ContainsKey(className))
-                            throw new Exception("ERROR in " + classInfo[0] + " " + className + ": "
+                            throw new GLException(classInfo[0] + " '" + className + "': "
                                 + "Class name '" + className + "' already exists.");
                         // instantiate class
                         this.classes.Add(className, (GLObject)Activator.CreateInstance(
@@ -280,15 +280,16 @@ namespace App
                     }
                     catch (Exception ex)
                     {
-                        // show errors
-                        this.codeError.AppendText(ex.GetBaseException().Message + '\n');
+                        if (ex.GetBaseException().GetType() == typeof(GLException))
+                            this.codeError.AppendText(ex.GetBaseException().Message);
                     }
                 }
             }
             catch (Exception ex)
             {
                 // show errors
-                this.codeError.AppendText(ex.GetBaseException().Message + '\n');
+                if (ex.GetBaseException().GetType() == typeof(GLException))
+                    this.codeError.AppendText(ex.GetBaseException().Message);
             }
 
             // UPDATE DEBUG DATA

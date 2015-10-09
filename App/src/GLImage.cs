@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Drawing;
 using SysImg = System.Drawing.Imaging;

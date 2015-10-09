@@ -25,11 +25,13 @@ namespace App
                 if (!cmd[0].Equals("pass"))
                     continue;
 
-                err.PushStack("command " + i + " '" + name + "'");
+                err.PushStack("command " + i + " '" + cmd[0] + "'");
 
                 // find pass object
                 if (classes.TryFindClass(err, cmd[1], out pass))
                     passes.Add(pass);
+
+                err.PopStack();
             }
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION

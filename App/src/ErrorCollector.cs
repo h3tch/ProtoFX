@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace App
 {
-    class ErrorCollector : Exception
+    class ErrorCollector
     {
-        private Stack<string> callstack = new Stack<string>();
+        private List<string> callstack = new List<string>();
         private List<string> messages = new List<string>();
         private string callstackstring
         {
@@ -25,7 +25,7 @@ namespace App
 
         public void Throw(string message)
         {
-            throw new Exception(callstackstring + message);
+            throw new GLException(callstackstring + message);
         }
 
         public void ThrowExeption()
@@ -33,17 +33,18 @@ namespace App
             string str = "";
             foreach (var msg in messages)
                 str += msg + '\n';
-            throw new Exception(str);
+            throw new GLException(str);
         }
 
         public void PushStack(string text)
         {
-            callstack.Push(text);
+            callstack.Add(text);
         }
 
         public void PopStack()
         {
-            callstack.Pop();
+            if (callstack.Count > 0)
+                callstack.RemoveAt(callstack.Count - 1);
         }
 
         public bool HasErrors()

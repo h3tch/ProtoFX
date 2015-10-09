@@ -94,6 +94,7 @@
     <Compile Include="src\GLBuffer.cs" />
     <Compile Include="src\GLCSharp.cs" />
     <Compile Include="src\Dict.cs" />
+    <Compile Include="src\GLException.cs" />
     <Compile Include="src\GraphicControl.cs" />
     <Compile Include="src\DataXml.cs" />
     <Compile Include="src\GLFragoutput.cs" />

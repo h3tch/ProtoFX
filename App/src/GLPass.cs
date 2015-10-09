@@ -300,44 +300,57 @@ namespace App
                 err.ThrowExeption();
 
             // CREATE OPENGL OBJECT
-            glname = GL.CreateProgram();
-
-            // Attach shader objects.
-            // First try attaching a compute shader. If that
-            // fails, try attaching the default shader pipeline.
-            if ((glcomp = attach(err, comp, classes)) == null)
+            if (vert != null || comp != null)
             {
-                glvert = attach(err, vert, classes);
-                gltess = attach(err, tess, classes);
-                gleval = attach(err, eval, classes);
-                glgeom = attach(err, geom, classes);
-                glfrag = attach(err, frag, classes);
+                glname = GL.CreateProgram();
+
+                // Attach shader objects.
+                // First try attaching a compute shader. If that
+                // fails, try attaching the default shader pipeline.
+                if ((glcomp = attach(err, comp, classes)) == null)
+                {
+                    glvert = attach(err, vert, classes);
+                    gltess = attach(err, tess, classes);
+                    gleval = attach(err, eval, classes);
+                    glgeom = attach(err, geom, classes);
+                    glfrag = attach(err, frag, classes);
+                }
+
+                // specify vertex output varyings of the shader program
+                if (glvertout != null)
+                    setVertexOutputVaryings(err, vertout);
+
+                // link program
+                GL.LinkProgram(glname);
+
+                // detach shader objects
+                if (glcomp != null)
+                    GL.DetachShader(glname, glcomp.glname);
+                else
+                {
+                    if (glvert != null)
+                        GL.DetachShader(glname, glvert.glname);
+                    if (gltess != null)
+                        GL.DetachShader(glname, gltess.glname);
+                    if (gleval != null)
+                        GL.DetachShader(glname, gleval.glname);
+                    if (glgeom != null)
+                        GL.DetachShader(glname, glgeom.glname);
+                    if (glfrag != null)
+                        GL.DetachShader(glname, glfrag.glname);
+                }
+
+                // check for link errors
+                int status;
+                GL.GetProgram(glname, GetProgramParameterName.LinkStatus, out status);
+                if (status != 1)
+                {
+                    var msg = GL.GetProgramInfoLog(glname);
+                    if (msg != null && msg.Length > 0)
+                        err.Add("\n" + msg);
+                }
             }
 
-            // specify vertex output varyings of the shader program
-            if (glvertout != null)
-                setVertexOutputVaryings(err, vertout);
-
-            // link program
-            GL.LinkProgram(glname);
-
-            // detach shader objects
-            if (glcomp != null)
-                GL.DetachShader(glname, glcomp.glname);
-            else
-            {
-                if (glvert != null) GL.DetachShader(glname, glvert.glname);
-                if (gltess != null) GL.DetachShader(glname, gltess.glname);
-                if (gleval != null) GL.DetachShader(glname, gleval.glname);
-                if (glgeom != null) GL.DetachShader(glname, glgeom.glname);
-                if (glfrag != null) GL.DetachShader(glname, glfrag.glname);
-            }
-
-            // check for link errors
-            int status;
-            GL.GetProgram(glname, GetProgramParameterName.LinkStatus, out status);
-            if (status != 1)
-                err.Add("\n" + GL.GetProgramInfoLog(glname));
             if (GL.GetError() != ErrorCode.NoError)
                 err.Add("OpenGL error '" + GL.GetError() + "' occurred during shader program creation.");
             if (err.HasErrors())
@@ -367,7 +380,8 @@ namespace App
                 glcall.mtype.Invoke(null, glcall.inval);
 
             // BIND PROGRAM
-            GL.UseProgram(glname);
+            if (glname > 0)
+                GL.UseProgram(glname);
 
             // BIND VERTEX OUTPUT (transform feedback)
             // (must be done after glUseProgram)
@@ -527,7 +541,7 @@ namespace App
 
                 compcalls.Add(call);
             }
-            catch (Exception ex)
+            catch (GLException ex)
             {
                 err.Add(ex.Message);
             }
@@ -656,20 +670,14 @@ namespace App
         {
             // the vertout command needs at least 3 arguments
             if (varyings.Length < 3)
-            {
-                err.Add("vertout command does not have "
+                err.Throw("vertout command does not have "
                     + "enough arguments (e.g. vertout vertout_name points varying_name).");
-                throw err;
-            }
 
             // parse vertex output primitive type
             if (!Enum.TryParse(varyings[1], true, out vertoutPrimitive))
-            {
-                err.Add("vertout command does not support "
+                err.Throw("vertout command does not support "
                     + "the specified primitive type '" + varyings[1] + "' "
                     + "(must be 'points', 'lines' or 'triangles').");
-                throw err;
-            }
 
             // get vertex output varying specification
             int skip = 2;
@@ -694,11 +702,8 @@ namespace App
                 GL.TransformFeedbackVaryings(glname, outputVaryings.Length, outputVaryings, vertoutMode);
             }
             else
-            {
-                err.Add("vertout command does not specify shader output varying names "
+                err.Throw("vertout command does not specify shader output varying names "
                     + "(e.g. vertout vertout_name points varying_name).");
-                throw err;
-            }
         }
         
         private T ParseType<T>(string[] cmd, int arg, string info)
@@ -709,7 +714,7 @@ namespace App
             }
             catch
             {
-                throw new Exception(info);
+                throw new GLException(info);
             }
         }
 
@@ -731,7 +736,7 @@ namespace App
         {
             GLObject tmp;
             if (classes.TryGetValue(cmd[arg], out tmp) && tmp.GetType() == typeof(T))
-                throw new Exception(info);
+                throw new GLException(info);
             return (T)tmp;
         }
 
