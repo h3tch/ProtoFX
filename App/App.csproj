@@ -132,6 +132,7 @@
     <None Include="demos\simple_vertoutput.tech" />
     <None Include="demos\tutorial\01_hello_triangle.tech" />
     <None Include="demos\tutorial\02_colored_triangle.tech" />
+    <None Include="demos\tutorial\03_simple_camera.tech" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -176,9 +177,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="doc\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

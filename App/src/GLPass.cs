@@ -328,16 +328,11 @@ namespace App
                     GL.DetachShader(glname, glcomp.glname);
                 else
                 {
-                    if (glvert != null)
-                        GL.DetachShader(glname, glvert.glname);
-                    if (gltess != null)
-                        GL.DetachShader(glname, gltess.glname);
-                    if (gleval != null)
-                        GL.DetachShader(glname, gleval.glname);
-                    if (glgeom != null)
-                        GL.DetachShader(glname, glgeom.glname);
-                    if (glfrag != null)
-                        GL.DetachShader(glname, glfrag.glname);
+                    if (glvert != null) GL.DetachShader(glname, glvert.glname);
+                    if (gltess != null) GL.DetachShader(glname, gltess.glname);
+                    if (gleval != null) GL.DetachShader(glname, gleval.glname);
+                    if (glgeom != null) GL.DetachShader(glname, glgeom.glname);
+                    if (glfrag != null) GL.DetachShader(glname, glfrag.glname);
                 }
 
                 // check for link errors

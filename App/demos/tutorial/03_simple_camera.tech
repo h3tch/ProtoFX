@@ -9,18 +9,17 @@
 
 buffer buf_pos {
 	usage staticDraw
-	file "../geom/triangle.xml|position"
+	file "../geom/cube.xml|position"
 }
 
-// Allocate an additional buffer for vertex colors.
 buffer buf_col {
 	usage staticDraw
-	file "../geom/triangle.xml|color"
+	file "../geom/cube.xml|color"
 }
 
 buffer buf_idx {
 	usage staticDraw
-	file "../geom/triangle.xml|index"
+	file "../geom/cube.xml|index"
 }
 
 /////////////////////////
@@ -29,7 +28,6 @@ buffer buf_idx {
 
 vertinput in_vert {
 	attr buf_pos float 4
-	// We now have a second input buffer for the shaders.
 	attr buf_col float 4
 }
 
@@ -40,18 +38,17 @@ vertinput in_vert {
 shader vert vs_simple {
 	#version 440
 	
+	// shader variable which will be set by "SimpleCamera.cs"
+	// (only uniform variables can be accessed outside the shader)
+	uniform mat4 g_viewproj;
+	
 	layout(location = 0) in vec4 in_pos;
-	// We have an additional input stream for
-	// vertex colors at attribute location 1.
 	layout(location = 1) in vec4 in_col;
 	
-	// We also need to pass the vertex color to the fragment
-	// shader. The output location musst match the input
-	// location of the fragment shader.
 	layout(location = 0) out vec4 out_col;
 	
 	void main () {
-		gl_Position = in_pos;
+		gl_Position = g_viewproj * in_pos;
 		out_col = in_col;
 	}
 }
@@ -59,7 +56,6 @@ shader vert vs_simple {
 shader frag fs_simple {
 	#version 440
 	
-	// We have an additional input for vertex colors.
 	layout(location = 0) in vec4 in_col;
 	
 	layout(location = 0) out vec4 color;
@@ -69,6 +65,17 @@ shader frag fs_simple {
 	}
 }
 
+//////////////
+// CONTROLS //
+//////////////
+
+// Include C# code to allow
+// for simple camera controls
+csharp cs_util {
+	// Compile C# file "SimpleCamera.cs"
+	file "../util/SimpleCamera.cs"
+}
+
 /////////////////
 // RENDER PASS //
 /////////////////
@@ -76,10 +83,24 @@ shader frag fs_simple {
 pass pass_render {
 	vert vs_simple
 	frag fs_simple
-	draw buf_idx in_vert ushort triangles 0 0 3
+	
+	// clear color and depth buffer
+	Clear ColorDepthBit
+	
+	// enable depth buffer test
+	Enable depthTest
+	
+	// Execute camera code (sets g_viewproj in vs_simple).
+	// You can control the camera with the left (rotate)
+	// and right (move) mouse buttons and mouse movement.
+	exec cs_util util.SimpleCamera 60 0.1 100 3 2 5 -20 30
+	
+	// draw triangle
+	draw buf_idx in_vert ushort triangles 0 0 36
 }
 
 pass pass_reset {
+	Disable depthTest
 }
 
 ///////////////
