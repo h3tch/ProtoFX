@@ -211,22 +211,20 @@ namespace App
         public class CsharpClass
         {
             private object instance = null;
-            private MethodInfo bind = null;
-            private MethodInfo unbind = null;
+            private MethodInfo update = null;
+            private MethodInfo endpass = null;
 
             public CsharpClass(object instance, GLControl glControl)
             {
                 this.instance = instance;
 
                 // get bind method from main class instance
-                bind = instance.GetType().GetMethod("Bind", new Type[] {
+                update = instance.GetType().GetMethod("Update", new Type[] {
                     typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)
                 });
 
                 // get unbind method from main class instance
-                unbind = instance.GetType().GetMethod("Unbind", new Type[] { typeof(int) });
-
-                #region SEARCH FOR EVENT HANDLERS AND ADD THEM TO GLCONTROL
+                endpass = instance.GetType().GetMethod("EndPass", new Type[] { typeof(int) });
 
                 // get all public methods and check whether they can be used as event handlers for glControl
                 var methods = instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
@@ -239,20 +237,18 @@ namespace App
                         eventInfo.AddEventHandler(glControl, csmethod);
                     }
                 }
-
-                #endregion
             }
 
-            public void Bind(int program, int width, int height, int widthTex, int heightTex)
+            public void Update(int program, int width, int height, int widthTex, int heightTex)
             {
-                if (bind != null)
-                    bind.Invoke(instance, new object[] { program, width, height, widthTex, heightTex });
+                if (update != null)
+                    update.Invoke(instance, new object[] { program, width, height, widthTex, heightTex });
             }
 
-            public void Unbind(int program)
+            public void EndPass(int program)
             {
-                if (unbind != null)
-                    unbind.Invoke(instance, new object[] { program });
+                if (endpass != null)
+                    endpass.Invoke(instance, new object[] { program });
             }
         }
         #endregion
@@ -389,7 +385,7 @@ namespace App
             foreach (var s in sampler)
                 GL.BindSampler(s.unit, s.obj.glname);
             foreach (var e in csexec)
-                e.Bind(glname, width, height, widthOut, heightOut);
+                e.Update(glname, width, height, widthOut, heightOut);
 
             // EXECUTE DRAW CALLS
             foreach (var call in drawcalls)
@@ -418,7 +414,7 @@ namespace App
             foreach (var s in sampler)
                 GL.BindSampler(s.unit, 0);
             foreach (var e in csexec)
-                e.Unbind(glname);
+                e.EndPass(glname);
         }
 
         public override void Delete()

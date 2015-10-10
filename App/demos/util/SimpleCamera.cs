@@ -16,7 +16,7 @@ namespace util
         private Matrix4 view;
         private Matrix4 proj;
         private Matrix4 vwpj;
-        private Dictionary<int, CameraUniforms> uniform = new Dictionary<int, CameraUniforms>();
+        private Dictionary<int, Uniforms> uniform = new Dictionary<int, Uniforms>();
         private Point mousedown = new Point(0, 0);
         private Point mousepos = new Point(0, 0);
         private string unif_view = "g_view";
@@ -25,7 +25,7 @@ namespace util
         private string unif_info = "g_info";
         #endregion
 
-        public struct CameraUniforms
+        public struct Uniforms
         {
             public int view;
             public int proj;
@@ -35,6 +35,15 @@ namespace util
 
         public SimpleCamera(string[] cmd)
         {
+            // The constructor is executed only once when the pass is created.
+
+            // ProtoGL code:
+            // exec csharp_name util.SimpleCamera fovy nearz farz x y z rotx roty rotz ...
+            //      uniform_view_name uniform_proj_name uniform_view_proj_name uniform_info_name
+
+            // argument cmd contains the whole command including
+            // 'exec', 'csharp_name' and 'util.SimpleCamera'
+
             // default values
             pos = Vector3.Zero;
             rot = Vector3.Zero;
@@ -42,8 +51,9 @@ namespace util
             float n = 0.1f;
             float f = 100.0f;
             float red2deg = (float)(Math.PI / 180);
+
             // parse command for values specified by the user
-            int i = 3;
+            int i = 3; // start with 'fovy'
             if (cmd.Length > i) float.TryParse(cmd[i++], out fovy);
             if (cmd.Length > i) float.TryParse(cmd[i++], out n);
             if (cmd.Length > i) float.TryParse(cmd[i++], out f);
@@ -61,10 +71,12 @@ namespace util
             Proj(fovy * red2deg, 16f / 9f, n, f);
         }
 
-        public void Bind(int program, int width, int height, int widthTex, int heightTex)
+        public void Update(int program, int width, int height, int widthTex, int heightTex)
         {
+            // This function is executed every frame at the beginning of a pass.
+
             // GET OR CREATE CAMERA UNIFORMS FOR program
-            CameraUniforms unif;
+            Uniforms unif;
             if (uniform.TryGetValue(program, out unif) == false)
                 uniform.Add(program, unif = CreateCameraUniforms(program, width, height));
 
@@ -76,22 +88,30 @@ namespace util
                     * Matrix4.CreateRotationX(-rot.X);
                 GL.UniformMatrix4(unif.view, false, ref view);
             }
+
             if (unif.proj >= 0 || unif.vwpj >= 0)
             {
                 proj = Matrix4.CreatePerspectiveFieldOfView(info.X, info.Y, info.Z, info.W);
                 GL.UniformMatrix4(unif.proj, false, ref proj);
             }
+
             if (unif.vwpj >= 0)
             {
                 vwpj = view * proj;
                 GL.UniformMatrix4(unif.vwpj, false, ref vwpj);
             }
+
             if (unif.info >= 0)
                 GL.Uniform4(unif.info, ref info);
         }
 
-        #region OPENTK GLCONTROL WINDOW EVENTS
+        //public void EndPass(int program)
+        //{
+        //    // Executed at the end of a pass every frame.
+        //    // not used
+        //}
 
+        #region OPENTK GLCONTROL WINDOW EVENTS
         public void MouseDown(object sender, MouseEventArgs e)
         {
             mousedown.X = mousepos.X = e.X;
@@ -114,16 +134,14 @@ namespace util
             float aspect = (float)gl.Width / gl.Height;
             Proj((float)(60 * (Math.PI / 180)), aspect, 0.1f, 100.0f);
         }
-
         #endregion
 
         #region PRIVATE UTILITY METHODS
-
-        private CameraUniforms CreateCameraUniforms(int program, int width, int height)
+        private Uniforms CreateCameraUniforms(int program, int width, int height)
         {
             info.Y = (float)width / height;
 
-            CameraUniforms unif = new CameraUniforms();
+            Uniforms unif = new Uniforms();
             unif.view = GL.GetUniformLocation(program, unif_view);
             unif.proj = GL.GetUniformLocation(program, unif_proj);
             unif.vwpj = GL.GetUniformLocation(program, unif_vipj);
@@ -145,7 +163,6 @@ namespace util
         {
             info = new Vector4(fovy, aspect, znear, zfar);
         }
-
         #endregion
     }
 }

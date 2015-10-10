@@ -57,7 +57,7 @@ namespace util
             Proj(fovy * red2deg, 16f / 9f, n, f);
         }
 
-        public void Bind(int program, int width, int height, int widthTex, int heightTex)
+        public void Update(int program, int width, int height, int widthTex, int heightTex)
         {
             // GET OR CREATE CAMERA UNIFORMS FOR program
             CameraUniforms unif;

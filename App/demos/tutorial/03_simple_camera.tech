@@ -2,6 +2,9 @@
 // TUTORIAL: Colored Triangle
 // AUTHOR: Michael Hecher
 // ==========================
+//
+// In this tutorial we will add a camera control class to the
+// ProtoGL program to navigate the scene and set shader uniforms.
 
 //////////////////
 // DATA OBJECTS //
@@ -38,8 +41,8 @@ vertinput in_vert {
 shader vert vs_simple {
 	#version 440
 	
-	// shader variable which will be set by "SimpleCamera.cs"
-	// (only uniform variables can be accessed outside the shader)
+	// Shader variable set by "SimpleCamera.cs" (only
+	// uniforms can be accessed outside the shader).
 	uniform mat4 g_viewproj;
 	
 	layout(location = 0) in vec4 in_pos;
@@ -69,10 +72,10 @@ shader frag fs_simple {
 // CONTROLS //
 //////////////
 
-// Include C# code to allow
-// for simple camera controls
+// Include C# code
 csharp cs_util {
-	// Compile C# file "SimpleCamera.cs"
+	// Compile C# file "SimpleCamera.cs" to add class
+	// util.SimpleCamera (multiple files can be listed).
 	file "../util/SimpleCamera.cs"
 }
 
@@ -83,20 +86,19 @@ csharp cs_util {
 pass pass_render {
 	vert vs_simple
 	frag fs_simple
+	draw buf_idx in_vert ushort triangles 0 0 36
 	
-	// clear color and depth buffer
+	// Clear color and depth framebuffer.
 	Clear ColorDepthBit
 	
-	// enable depth buffer test
+	// Enable depth buffer test. This is necessary to draw the
+	// cube correctly. You can try to turn this test off.
 	Enable depthTest
 	
 	// Execute camera code (sets g_viewproj in vs_simple).
 	// You can control the camera with the left (rotate)
 	// and right (move) mouse buttons and mouse movement.
 	exec cs_util util.SimpleCamera 60 0.1 100 3 2 5 -20 30
-	
-	// draw triangle
-	draw buf_idx in_vert ushort triangles 0 0 36
 }
 
 pass pass_reset {
