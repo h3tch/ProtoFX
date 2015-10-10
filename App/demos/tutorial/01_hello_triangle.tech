@@ -3,6 +3,10 @@
 // AUTHOR: Michael Hecher
 // ========================
 //
+// NOTE: This tutorial assumes you have basic knowledge on
+// how OpenGL works. ProtoGL is a tool for fast prototyping
+// of OpenGL based rendering techniques.
+//
 // In this tutorial you will learn how to write a simple
 // hello triangle program. You will learn how to allocate
 // memory on the graphics card and use it in shaders. You
@@ -97,7 +101,7 @@ shader frag fs_simple {
 	#version 440
 	
 	// fragment color output
-	out vec4 color;
+	layout(location = 0) out vec4 color;
 	// Note that the output variable
 	// name does not need to be 'color'.
 	
@@ -110,19 +114,20 @@ shader frag fs_simple {
 // RENDER PASS //
 /////////////////
 
-// Define a rendering pass
+// Define a rendering pass. In a pass shaders (if specified) are
+// compiled into a single shader program. Additionally a pass can
+// change the OpenGL 4.X state by calling functions like glEnable
+// (which is not necessary in this tutorial) and provide OpenGL
+// draw calls to execute the shaders and draw the geometry.
 pass pass_render {
 	// ATTATCH SHADERS
-	// We will use booth shaders defined above in this pass
-	// to render the thriangle.
+	// We will use booth shaders defined above
+	// in this pass to render the thriangle.
 	vert vs_simple
 	frag fs_simple
 	
-	// OPENGL FUNCTIONS
-	// Clear color framebuffer.
-	Clear ColorBit
-	
 	// DRAW CALLS
+	// Draw the triangle defined by 'buf_idx' and 'buf_pos'.
 	// buff_idx .... name of the ellement array buffer
 	//               containing triangle indices
 	// in_vert ..... name of the vertex input object defining
@@ -136,6 +141,15 @@ pass pass_render {
 	draw buf_idx in_vert ushort triangles 0 0 3
 }
 
+// Every ProtoGL thechnique should habe a pass which resets the
+// OpenGL state to the default state. This is necessary because
+// ProtoGL uses only one OpenGL context, which is not reset by
+// switching, recompiling or restarting a ProtoGL technique.
+pass pass_reset {
+	// The OpenGL state is not changed,
+	// therefore this pass is empty.
+}
+
 ///////////////
 // TECHNIQUE //
 ///////////////
@@ -143,6 +157,6 @@ pass pass_render {
 // Combine passes into a single technique.
 // In this case we only have one pass.
 tech tech_simple {
-	// First pass
 	pass pass_render
+	pass pass_reset
 }

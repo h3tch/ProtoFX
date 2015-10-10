@@ -1,0 +1,91 @@
+// ==========================
+// TUTORIAL: Colored Triangle
+// AUTHOR: Michael Hecher
+// ==========================
+
+//////////////////
+// DATA OBJECTS //
+//////////////////
+
+buffer buf_pos {
+	usage staticDraw
+	file "../geom/triangle.xml|position"
+}
+
+// Allocate an additional buffer for vertex colors.
+buffer buf_col {
+	usage staticDraw
+	file "../geom/triangle.xml|color"
+}
+
+buffer buf_idx {
+	usage staticDraw
+	file "../geom/triangle.xml|index"
+}
+
+/////////////////////////
+// DATA FORMAT OBJECTS //
+/////////////////////////
+
+vertinput in_vert {
+	attr buf_pos float 4
+	// We now have a second input buffer for the shaders.
+	attr buf_col float 4
+}
+
+/////////////
+// SHADERS //
+/////////////
+
+shader vert vs_simple {
+	#version 440
+	
+	layout(location = 0) in vec4 in_pos;
+	// We have an additional input stream for vertex colors.
+	layout(location = 1) in vec4 in_col;
+	
+	// We also need to pass the vertex color to the fragment
+	// shader. The output location musst match the input
+	// location of the fragment shader.
+	layout(location = 0) out vec4 out_col;
+	
+	void main () {
+		gl_Position = in_pos;
+		out_col = in_col;
+	}
+}
+
+shader frag fs_simple {
+	#version 440
+	
+	// We have an additional input for vertex colors.
+	layout(location = 0) in vec4 in_col;
+	
+	layout(location = 0) out vec4 color;
+	
+	void main () {
+		color = in_col;
+	}
+}
+
+/////////////////
+// RENDER PASS //
+/////////////////
+
+pass pass_render {
+	vert vs_simple
+	frag fs_simple
+	draw buf_idx in_vert ushort triangles 0 0 3
+}
+
+pass pass_reset {
+}
+
+///////////////
+// TECHNIQUE //
+///////////////
+
+tech tech_simple {
+	pass pass_render
+	pass pass_reset
+}
