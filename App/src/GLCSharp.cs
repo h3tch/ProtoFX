@@ -18,7 +18,7 @@ namespace App
         private CompilerResults compilerresults;
         #endregion
 
-        public GLCsharp(string dir, string name, string annotation, string text, Dictionary<string, GLObject> classes)
+        public GLCsharp(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
             // PARSE TEXT

@@ -1,7 +1,9 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL4;
-using System.IO;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using System.Xml;
+using System.IO;
 
 namespace App
 {
@@ -10,7 +12,6 @@ namespace App
         #region FIELDS
         public int size = 0;
         public BufferUsageHint usage = BufferUsageHint.StaticDraw;
-        public string[] file = null;
         #endregion
 
         public GLBuffer(string dir, string name, string annotation, string text, Dict classes)
@@ -25,13 +26,42 @@ namespace App
             // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
             Cmds2Fields(this, ref cmds);
 
+            // PARSE COMMANDS
+            List<byte[]> datalist = new List<byte[]>();
+            for (int i = 0; i < cmds.Length; i++)
+            {
+                var cmd = cmds[i];
+
+                // skip if already processed commands
+                if (cmd == null)
+                    continue;
+
+                err.PushStack("command " + i + " '" + cmd[0] + "'");
+
+                switch (cmd[0])
+                {
+                    case "txt":
+                        datalist.Add(loadText(err, dir, cmd, classes));
+                        break;
+                    case "xml":
+                        datalist.Add(LoadXml(err, dir, cmd, classes));
+                        break;
+                }
+                
+                err.PopStack();
+            }
+
+            if (err.HasErrors())
+                err.ThrowExeption();
+
+            // merge data into a single array
+            byte[] data = App.MergeData(datalist.ToArray(), size);
+            size = data.Length;
+
             // CREATE OPENGL OBJECT
             glname = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
-
-            // LOAD BUFFER DATA
-            var data = loadBufferFiles(err, dir, file, size);
-
+            
             // ALLOCATE (AND WRITE) GPU MEMORY
             if (data != null)
             {
@@ -76,51 +106,91 @@ namespace App
         }
 
         #region UTIL METHODS
-        private static byte[] loadBufferFiles(ErrorCollector err, string dir, string[] filenames, int size)
+        private static byte[] LoadXml(ErrorCollector err, string dir, string[] cmd, Dict classes)
         {
-            if (filenames == null || filenames.Length == 0)
+            // Check for a valid command
+            if (cmd.Length < 2)
+            {
+                err.Add("Do not know how to process this command.");
                 return null;
-
-            // load data from all files
-            byte[][] filedata = new byte[filenames.Length][];
-            for (int i = 0; i < filenames.Length; i++)
-            {
-                // get path and node
-                var filename = filenames[i].Split(new char[] { '|' });
-                var path = Path.IsPathRooted(filename[0]) ? filename[0] : dir + filename[0];
-                try
-                {
-                    if (filename.Length == 1)
-                        filedata[i] = File.ReadAllBytes(path);
-                    else if (filename.Length == 2)
-                        filedata[i] = DataXml.Load(path, filename[1]);
-                    else
-                        err.Add("Do not know how to load file '" + filenames[i] + "'.");
-                }
-                catch(GLException ex)
-                {
-                    err.Add(ex.GetBaseException().Message);
-                }
             }
 
-            if (err.HasErrors())
-                err.ThrowExeption();
-
-            // if size has not been specified,
-            // compute the summed size of all file data
-            if (size == 0)
+            // Get text from file or text object
+            string str = getText(dir, cmd[1], classes);
+            if (str == null)
             {
-                size = 0;
-                foreach (byte[] b in filedata)
-                    size += b.Length;
+                err.Add("Could not process command. Second argument "
+                    + "must be a name to a text object or a filename.");
+                return null;
             }
 
-            // copy file data to byte array
-            byte[] data = new byte[size];
-            for (int i = 0, start = 0; i < filedata.Length && start < data.Length; start += filedata[i++].Length)
-                Array.Copy(filedata[i], 0, data, start, Math.Min(data.Length - start, filedata[i].Length));
+            try
+            {
+                // Parse XML string
+                var document = new XmlDocument();
+                document.LoadXml(str);
 
-            return data;
+                // Load data from XML
+                byte[][] filedata = new byte[cmd.Length - 2][];
+                for (int i = 2; i < cmd.Length; i++)
+                {
+                    try
+                    {
+                        filedata[i - 2] = DataXml.Load(document, cmd[i]);
+                    }
+                    catch (GLException ex)
+                    {
+                        err.Add(ex.GetBaseException().Message);
+                    }
+                }
+
+                // Merge data
+                if (!err.HasErrors())
+                    return App.MergeData(filedata, 0);
+            }
+            catch (Exception ex)
+            {
+                err.Add(ex.GetBaseException().Message);
+            }
+
+            return null;
+        }
+
+        private static byte[] loadText(ErrorCollector err, string dir, string[] cmd, Dict classes)
+        {
+            // Check for a valid command
+            if (cmd.Length < 2)
+            {
+                err.Add("Do not know how to process this command.");
+                return null;
+            }
+
+            // Get text from file or text object
+            string str = getText(dir, cmd[1], classes);
+            if (str == null)
+            {
+                err.Add("Could not process command. Second argument "
+                    + "must be a name to a text object or a filename.");
+                return null;
+            }
+
+            // Convert text to byte array
+            byte[] bytes = new byte[str.Length * sizeof(char)];
+            Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            return bytes;
+        }
+
+        private static string getText(string dir, string name, Dict classes)
+        {
+            GLObject text;
+            string str = null;
+            if (classes.TryGetValue(name, out text) && text.GetType() == typeof(GLText))
+                str = ((GLText)text).text.Trim();
+            else if (File.Exists(name))
+                str = File.ReadAllText(name);
+            else if (File.Exists(dir + name))
+                str = File.ReadAllText(dir + name);
+            return str;
         }
         #endregion
     }

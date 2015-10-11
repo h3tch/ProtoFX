@@ -143,5 +143,32 @@ namespace App
 
             return rs;
         }
+
+        public static byte[] MergeData(byte[][] array, int size)
+        {
+            // if size has not been specified,
+            // compute the summed size of all file data
+            if (size == 0)
+            {
+                size = 0;
+                foreach (byte[] b in array)
+                    size += b != null ? b.Length : 0;
+            }
+
+            // copy file data to byte array
+            byte[] data = new byte[size];
+
+            int start = 0;
+            foreach (byte[] b in array)
+            {
+                if (b != null)
+                {
+                    Array.Copy(b, 0, data, start, Math.Min(data.Length - start, b.Length));
+                    start += b.Length;
+                }
+            }
+
+            return data;
+        }
     }
 }

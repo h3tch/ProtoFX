@@ -4,17 +4,17 @@
 
 buffer buff_pos {
 	usage staticDraw
-	file "geom/cube.xml|position"
+	xml "geom/cube.xml" data/position
 }
 
 buffer buff_uv {
 	usage staticDraw
-	file "geom/cube.xml|uv"
+	xml "geom/cube.xml" data/uv
 }
 
 buffer buf_idx {
 	usage staticDraw
-	file "geom/cube.xml|index"
+	xml "geom/cube.xml" data/index
 }
 
 image img_lena {

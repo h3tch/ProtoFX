@@ -2,19 +2,19 @@
 // BUFFERS //
 /////////////
 
-buffer buff_pos {
+buffer buf_pos {
 	usage staticDraw
-	file "geom/cube.xml|pos"
+	xml "geom/cube.xml" data/position
 }
 
-buffer buff_color {
+buffer buf_col {
 	usage staticDraw
-	file "geom/cube.xml|color"
+	xml "geom/cube.xml" data/color
 }
 
-buffer buff_idx {
+buffer buf_idx {
 	usage staticDraw
-	file "geom/cube.xml|index"
+	xml "geom/cube.xml" data/index
 }
 
 /////////////////////
@@ -22,8 +22,8 @@ buffer buff_idx {
 /////////////////////
 
 vertinput in_vert {
-	attr buff_pos float 4
-	attr buff_color float 4
+	attr buf_pos float 4
+	attr buf_col float 4
 }
 
 /////////////////

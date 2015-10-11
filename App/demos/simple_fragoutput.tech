@@ -11,7 +11,8 @@ buffer buf_pos {
 	usage staticDraw
 	// load <pos></pos> data from XML file
 	// these are vertex positions for each vertex
-	file "geom/cube.xml|position" "geom/quad.xml|position"
+	xml "geom/cube.xml" data/position
+	xml "geom/quad.xml" data/position
 }
 
 // Vertex colors
@@ -19,7 +20,8 @@ buffer buf_color {
 	usage staticDraw
 	// load <color></color> data from XML file
 	// these are vertex colors for each vertex
-	file "geom/cube.xml|color"
+	xml "geom/cube.xml" data/color
+	xml "geom/quad.xml" data/color
 }
 
 // Triangle list defining the mesh
@@ -27,7 +29,8 @@ buffer buf_idx {
 	usage staticDraw
 	// load <index></index> data from XML file
 	// these are indices forming triangles from vertex positions
-	file "geom/cube.xml|index" "geom/quad.xml|index"
+	xml "geom/cube.xml" data/index
+	xml "geom/quad.xml" data/index
 }
 
 // Color image (used as a render target)

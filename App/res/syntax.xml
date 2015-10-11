@@ -49,6 +49,7 @@
         scene
         shader
         tech
+        text
         texture
         uint
         uniform
@@ -101,6 +102,7 @@
         vertout
         width
         wrap
+        xml
       </Keywords>
     </Lexer>
     <Styles>

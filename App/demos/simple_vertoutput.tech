@@ -8,7 +8,7 @@ buffer buf_pos {
 	// static ... writen to once used many times
 	// draw   ... CPU writes to and GPU reads from
 	usage staticDraw
-	file "geom/cube.xml|position"
+	xml "geom/cube.xml" data/position
 }
 
 // buffer used for vertex output
@@ -21,12 +21,12 @@ buffer buf_projpos {
 
 buffer buf_col {
 	usage staticDraw
-	file "geom/cube.xml|color"
+	xml "geom/cube.xml" data/color
 }
 
 buffer buf_idx {
 	usage staticDraw
-	file "geom/cube.xml|index"
+	xml "geom/cube.xml" data/index
 }
 
 /////////////////////////

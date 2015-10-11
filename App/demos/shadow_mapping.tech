@@ -10,17 +10,20 @@ buffer buff_pos {
 	usage staticDraw
 	// load <pos></pos> data from XML file
 	// these are vertex positions for each vertex
-	file "geom/cube.xml|position" "geom/plane.xml|position"
+	xml "geom/cube.xml" data/position
+	xml "geom/plane.xml" data/position
 }
 
 buffer buff_color {
 	usage staticDraw
-	file "geom/cube.xml|color" "geom/plane.xml|color"
+	xml "geom/cube.xml" data/color
+	xml "geom/plane.xml" data/color
 }
 
 buffer buf_idx {
 	usage staticDraw
-	file "geom/cube.xml|index" "geom/plane.xml|index"
+	xml "geom/cube.xml" data/index
+	xml "geom/plane.xml" data/index
 }
 
 image img_shadowmap {

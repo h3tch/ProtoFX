@@ -9,18 +9,17 @@
 
 buffer buf_pos {
 	usage staticDraw
-	file "../geom/triangle.xml|position"
+	xml "../geom/triangle.xml" data/position
 }
 
-// Allocate an additional buffer for vertex colors.
 buffer buf_col {
 	usage staticDraw
-	file "../geom/triangle.xml|color"
+	xml "../geom/triangle.xml" data/color
 }
 
 buffer buf_idx {
 	usage staticDraw
-	file "../geom/triangle.xml|index"
+	xml "../geom/triangle.xml" data/index
 }
 
 /////////////////////////

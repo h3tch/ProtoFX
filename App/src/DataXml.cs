@@ -28,54 +28,65 @@ namespace App
         };
         #endregion
 
+        public static byte[] Load(XmlDocument xmlDoc, string itemname)
+        {
+            string errstr = "<" + itemname + ">: ";
+
+            try
+            {
+                var nodes = xmlDoc.SelectNodes(itemname);
+                var data = new byte[nodes.Count][];
+                int i = 0;
+                foreach (XmlNode node in nodes)
+                {
+                    // get type and values of the element
+                    Type type;
+                    Array values;
+                    // the values are in binary format
+                    if (node.Attributes["isbinary"] != null && node.Attributes["isbinary"].Value.Equals("true"))
+                    {
+                        type = typeof(char);
+                        values = node.InnerText.ToCharArray();
+                    }
+                    // the values are given as strings and have to be converted
+                    else
+                    {
+                        // get value type and check for errors
+                        if (node.Attributes["type"] == null)
+                            throw new GLException(errstr + "For non binary data a type has to be specified "
+                                + "(e.g. <" + itemname + " type='float'>).");
+
+                        if (!str2type.TryGetValue(node.Attributes["type"].Value, out type))
+                            throw new GLException(errstr + "Type '" + node.Attributes["type"].Value + "' not supported.");
+
+                        // convert values
+                        var raw = Regex.Matches(node.InnerText, "(\\+|\\-)?[0-9\\.\\,]+");
+                        values = Array.CreateInstance(type, raw.Count);
+                        for (var j = 0; j < values.Length; j++)
+                            values.SetValue(Convert.ChangeType(raw[j].Value, type, App.culture), j);
+                    }
+
+                    // convert to byte array
+                    data[i] = new byte[values.Length * Marshal.SizeOf(type)];
+                    Buffer.BlockCopy(values, 0, data[i], 0, data[i].Length);
+                    i++;
+                }
+
+                return App.MergeData(data, 0);
+            }
+            catch
+            {
+                throw new GLException(errstr + "Could not load item.");
+            }
+        }
+
         public static byte[] Load(string filename, string itemname)
         {
-            string errstr = "XML '" + filename + "' <" + itemname + ">: ";
-
             // load XML file
             var xmlDoc = new XmlDocument();
             xmlDoc.Load(filename);
-            // rood node must be <gled>
-            if (!xmlDoc.DocumentElement.Name.Equals("data"))
-                throw new GLException(errstr + "Root node must be <data>...</data>.");
 
-            // find element by name
-            var list = xmlDoc.DocumentElement.GetElementsByTagName(itemname);
-            if (list.Count == 0)
-                throw new GLException(errstr + "Element '" + itemname + "' could not be found.");
-            var item = list[0];
-
-            // get type and values of the element
-            Type type;
-            Array values;
-            // the values are in binary format
-            if (item.Attributes["isbinary"] != null && item.Attributes["isbinary"].Value.Equals("true"))
-            {
-                type = typeof(char);
-                values = item.InnerText.ToCharArray();
-            }
-            // the values are given as strings and have to be converted
-            else
-            {
-                // get value type and check for errors
-                if (item.Attributes["type"] == null)
-                    throw new GLException(errstr + "For non binary data a type has to be specified "
-                        + "(e.g. <" + itemname + " type='float'>).");
-
-                if (!str2type.TryGetValue(item.Attributes["type"].Value, out type))
-                    throw new GLException(errstr + "Type '" + item.Attributes["type"].Value + "' not supported.");
-
-                // convert values
-                var raw = Regex.Matches(item.InnerText, "(\\+|\\-)?[0-9\\.\\,]+");
-                values = Array.CreateInstance(type, raw.Count);
-                for (var i = 0; i < values.Length; i++)
-                    values.SetValue(Convert.ChangeType(raw[i].Value, type, App.culture), i);
-            }
-
-            // convert to byte array
-            var data = new byte[values.Length * Marshal.SizeOf(type)];
-            Buffer.BlockCopy(values, 0, data, 0, data.Length);
-            return data;
+            return Load(xmlDoc, itemname);
         }
     }
 }

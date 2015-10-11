@@ -34,7 +34,7 @@ buffer buf_pos {
 	// Load data <position> from cube.xml. Because we did not
 	// specifiy the size of the buffer explicitly it will be
 	// computed from the data in the file.
-	file "../geom/triangle.xml|position"
+	xml "../geom/triangle.xml" data/position
 }
 
 // Triangle list defining the triangles of the mesh. This
@@ -43,7 +43,7 @@ buffer buf_pos {
 // later. Such buffers are usually refered to as index buffers.
 buffer buf_idx {
 	usage staticDraw
-	file "../geom/triangle.xml|index"
+	xml "../geom/triangle.xml" data/index
 }
 
 /////////////////////////

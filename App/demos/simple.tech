@@ -9,21 +9,21 @@ buffer buf_pos {
 	// we will only read the data
 	usage staticDraw
 	// load data <position> from cube.xml
-	file "geom/cube.xml|position"
+	xml "geom/cube.xml" data/position
 }
 
 // Vertex colors
 buffer buf_col {
 	usage staticDraw
 	// load data <color> from cube.xml
-	file "geom/cube.xml|color"
+	xml "geom/cube.xml" data/color
 }
 
 // Triangle list defining the mesh
 buffer buf_idx {
 	usage staticDraw
 	// load data <index> from cube.xml
-	file "geom/cube.xml|index"
+	xml "geom/cube.xml" data/index
 }
 
 /////////////////////////

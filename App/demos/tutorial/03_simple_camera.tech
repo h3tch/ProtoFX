@@ -6,23 +6,67 @@
 // In this tutorial we will add a camera control class to the
 // ProtoGL program to navigate the scene and set shader uniforms.
 
+/////////////////////
+// DEFINE GEOMETRY //
+/////////////////////
+
+text xml_cube {
+	<?xml version='1.0'?>
+	<data>
+		<position type='float' isbinary='false'>
+			-1.0 -1.0  1.0  1.0
+			1.0 -1.0  1.0  1.0
+			1.0  1.0  1.0  1.0
+			-1.0  1.0  1.0  1.0
+			-1.0 -1.0 -1.0  1.0
+			1.0 -1.0 -1.0  1.0
+			1.0  1.0 -1.0  1.0
+			-1.0  1.0 -1.0  1.0
+		</position>
+		<color type='float' isbinary='false'>
+			1.0  0.0  0.0  1.0
+			0.0  1.0  0.0  1.0
+			0.0  0.0  1.0  1.0
+			1.0  1.0  1.0  1.0
+			1.0  0.0  0.0  1.0
+			0.0  1.0  0.0  1.0
+			0.0  0.0  1.0  1.0
+			1.0  1.0  1.0  1.0
+		</color>
+		<index type='ushort' isbinary='false'>
+			0  1  2
+			2  3  0
+			3  2  6
+			6  7  3
+			7  6  5
+			5  4  7
+			4  5  1
+			1  0  4
+			4  0  3
+			3  7  4
+			1  5  6
+			6  2  1
+		</index>
+	</data>
+}
+
 //////////////////
 // DATA OBJECTS //
 //////////////////
 
 buffer buf_pos {
 	usage staticDraw
-	file "../geom/cube.xml|position"
+	xml xml_cube data/position
 }
 
 buffer buf_col {
 	usage staticDraw
-	file "../geom/cube.xml|color"
+	xml xml_cube data/color
 }
 
 buffer buf_idx {
 	usage staticDraw
-	file "../geom/cube.xml|index"
+	xml xml_cube data/index
 }
 
 /////////////////////////
@@ -86,8 +130,14 @@ csharp cs_util {
 pass pass_render {
 	vert vs_simple
 	frag fs_simple
+
+	// Draw the cube mesh. Note that draw commands
+	// will be executed after OpenGL states were set.
 	draw buf_idx in_vert ushort triangles 0 0 36
 	
+	// SET OPENGL STATES
+	// Note: OpenGL states are set before draw calls are executed.
+
 	// Clear color and depth framebuffer.
 	Clear ColorDepthBit
 	
