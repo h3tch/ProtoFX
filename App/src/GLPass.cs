@@ -257,7 +257,7 @@ namespace App
             : base(name, annotation)
         {
             ErrorCollector err = new ErrorCollector();
-            err.PushStack("pass '" + name + "'");
+            err.PushCall("pass '" + name + "'");
 
             // PARSE TEXT TO COMMANDS
             var cmds = Text2Cmds(text);
@@ -274,7 +274,7 @@ namespace App
                 if (cmd == null)
                     continue;
 
-                err.PushStack("command " + i + " '" + cmd[0] + "'");
+                err.PushCall("command " + i + " '" + cmd[0] + "'");
                 switch (cmd[0])
                 {
                     case "draw": ParseDrawCall(err, cmd, classes); break;
@@ -284,7 +284,7 @@ namespace App
                     case "exec": ParseCsharpExec(err, cmd, classes); break;
                     default: ParseOpenGLCall(err, cmd); break;
                 }
-                err.PopStack();
+                err.PopCall();
             }
 
             // GET VERTEX AND FRAGMENT OUTPUT BINDINGS
@@ -350,21 +350,21 @@ namespace App
 
         public void Exec(int width, int height)
         {
-            int widthOut = width;
-            int heightOut = height;
+            int fbWidth = width;
+            int fbHeight = height;
 
             // BIND FRAGMENT OUTPUT
             // (widthOut and heightOut must be 
             // computed before setting the glViewport)
             if (glfragout != null)
             {
-                widthOut = glfragout.width;
-                heightOut = glfragout.height;
+                fbWidth = glfragout.width;
+                fbHeight = glfragout.height;
                 glfragout.Bind();
             }
 
             // SET DEFAULT VIEWPORT
-            GL.Viewport(0, 0, widthOut, heightOut);
+            GL.Viewport(0, 0, fbWidth, fbHeight);
 
             // CALL USER SPECIFIED OPENGL FUNCTIONS
             foreach (var glcall in invoke)
@@ -385,7 +385,7 @@ namespace App
             foreach (var s in sampler)
                 GL.BindSampler(s.unit, s.obj.glname);
             foreach (var e in csexec)
-                e.Update(glname, width, height, widthOut, heightOut);
+                e.Update(glname, width, height, fbWidth, fbHeight);
 
             // EXECUTE DRAW CALLS
             foreach (var call in drawcalls)
@@ -443,10 +443,10 @@ namespace App
             // parse draw call arguments
             for (var i = 1; i < cmd.Length; i++)
             {
-                if (TryParseObject(classes, cmd[i], ref vertexin)) continue;
-                if (TryParseObject(classes, cmd[i], ref vertout)) continue;
-                if (TryParseObject(classes, cmd[i], ref indexbuf)) continue;
-                if (TryParseObject(classes, cmd[i], ref indirect)) continue;
+                if (classes.TryParseObject(cmd[i], ref vertexin)) continue;
+                if (classes.TryParseObject(cmd[i], ref vertout)) continue;
+                if (classes.TryParseObject(cmd[i], ref indexbuf)) continue;
+                if (classes.TryParseObject(cmd[i], ref indirect)) continue;
                 if (int.TryParse(cmd[i], out val)) arg.Add(val);
                 else if (typeIsSet == false && Enum.TryParse(cmd[i], true, out indextype))
                     typeIsSet = true;
@@ -454,7 +454,7 @@ namespace App
                     modeIsSet = true;
             }
 
-            // -) a draw call must specify a primitive type
+            // a draw call must specify a primitive type
             if (modeIsSet == false)
             {
                 err.Add("Draw call must specify a primitive type "
@@ -512,21 +512,22 @@ namespace App
                 if (cmd.Length == 3)
                 {
                     // indirect compute call buffer
-                    call.numGroupsX = (uint)ParseObject<GLBuffer>(classes, cmd, 1,
+                    call.numGroupsX = (uint)classes.ParseObject<GLBuffer>(cmd[1],
                         ": First argument of compute command must be a buffer name").glname;
                     // indirect compute call buffer pointer
-                    call.numGroupsY = ParseType<uint>(cmd, 2,
-                        "Argument must be an unsigned integer, specifying a pointer into the indirect compute call buffer.");
+                    call.numGroupsY = Data.ParseType<uint>(cmd[2],
+                        "Argument must be an unsigned integer, specifying a pointer "
+                        + "into the indirect compute call buffer.");
                 }
                 // this is a normal compute call
                 else
                 {
                     // number of compute groups
-                    call.numGroupsX = ParseType<uint>(cmd, 1,
+                    call.numGroupsX = Data.ParseType<uint>(cmd[1],
                         "Argument must be an unsigned integer, specifying the number of compute groups in X.");
-                    call.numGroupsY = ParseType<uint>(cmd, 2,
+                    call.numGroupsY = Data.ParseType<uint>(cmd[2],
                         "Argument must be an unsigned integer, specifying the number of compute groups in Y.");
-                    call.numGroupsZ = ParseType<uint>(cmd, 3,
+                    call.numGroupsZ = Data.ParseType<uint>(cmd[3],
                         "Argument must be an unsigned integer, specifying the number of compute groups in Z.");
                 }
 
@@ -695,52 +696,6 @@ namespace App
             else
                 err.Throw("vertout command does not specify shader output varying names "
                     + "(e.g. vertout vertout_name points varying_name).");
-        }
-        
-        private T ParseType<T>(string[] cmd, int arg, string info)
-        {
-            try
-            {
-                return (T)Convert.ChangeType(cmd[arg], typeof(T), App.culture);
-            }
-            catch
-            {
-                throw new GLException(info);
-            }
-        }
-
-        private bool TryParseType<T>(object obj, ref T output)
-        {
-            try
-            {
-                output = (T)Convert.ChangeType(obj, typeof(T), App.culture);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private T ParseObject<T>(Dict classes, string[] cmd, int arg, string info)
-            where T : GLObject
-        {
-            GLObject tmp;
-            if (classes.TryGetValue(cmd[arg], out tmp) && tmp.GetType() == typeof(T))
-                throw new GLException(info);
-            return (T)tmp;
-        }
-
-        private bool TryParseObject<T>(Dict classes, string name, ref T obj)
-            where T : GLObject
-        {
-            GLObject tmp;
-            if (obj == null && classes.TryGetValue(name, out tmp) && tmp.GetType() == typeof(T))
-            {
-                obj = (T)tmp;
-                return true;
-            }
-            return false;
         }
         #endregion
     }

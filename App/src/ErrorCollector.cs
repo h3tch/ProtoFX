@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace App
 {
@@ -7,6 +6,8 @@ namespace App
     {
         private List<string> callstack = new List<string>();
         private List<string> messages = new List<string>();
+
+        // compile call stack into a single string
         private string callstackstring
         {
             get
@@ -14,6 +15,18 @@ namespace App
                 string str = "";
                 foreach (var s in callstack)
                     str += s + ": ";
+                return str;
+            }
+        }
+
+        // compile all messages into a single string
+        private string messagestring
+        {
+            get
+            {
+                string str = "";
+                foreach (var msg in messages)
+                    str += msg + '\n';
                 return str;
             }
         }
@@ -30,18 +43,15 @@ namespace App
 
         public void ThrowExeption()
         {
-            string str = "";
-            foreach (var msg in messages)
-                str += msg + '\n';
-            throw new GLException(str);
+            throw new GLException(messagestring);
         }
 
-        public void PushStack(string text)
+        public void PushCall(string text)
         {
             callstack.Add(text);
         }
 
-        public void PopStack()
+        public void PopCall()
         {
             if (callstack.Count > 0)
                 callstack.RemoveAt(callstack.Count - 1);

@@ -14,7 +14,7 @@ namespace App
             : base(name, annotation)
         {
             ErrorCollector err = new ErrorCollector();
-            err.PushStack("vertoutput '" + name + "'");
+            err.PushCall("vertoutput '" + name + "'");
 
             // PARSE TEXT
             var cmds = Text2Cmds(text);
@@ -36,10 +36,10 @@ namespace App
                     continue;
 
                 // attach buffer
-                err.PushStack("command " + (i + 1) + " '" + cmd[0] + "'");
+                err.PushCall("command " + (i + 1) + " '" + cmd[0] + "'");
                 if (cmd != null && cmd.Length >= 2 && cmd[0] == "buff")
                     attach(err, numbindings++, cmd, classes);
-                err.PopStack();
+                err.PopCall();
             }
 
             // if errors occurred throw exception

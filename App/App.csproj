@@ -79,6 +79,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\Data.cs" />
     <Compile Include="demos\util\StaticCamera.cs" />
     <Compile Include="src\GLText.cs" />
     <Compile Include="src\App.cs">

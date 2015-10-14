@@ -154,7 +154,7 @@ namespace App
 
             // convert data to specified type
             Type colType;
-            Array da = ConvertData(data, type, out colType);
+            Array da = Data.Convert(data, type, out colType);
 
             // CREATE TABLE
             DataTable dt = new DataTable(buf.name);

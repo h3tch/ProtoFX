@@ -33,7 +33,7 @@ namespace App
             : base(name, annotation)
         {
             ErrorCollector err = new ErrorCollector();
-            err.PushStack("image '" + name + "'");
+            err.PushCall("image '" + name + "'");
 
             // PARSE TEXT TO COMMANDS
             var cmds = Text2Cmds(text);
@@ -101,15 +101,24 @@ namespace App
 
         public Bitmap Read(int level)
         {
-            IntPtr dataPtr = Marshal.AllocHGlobal(width * height * pixelsize);
+            // compute mipmap level size
+            int w = width, h = height, l = level;
+            while (l-- > 0)
+            {
+                w /= 2;
+                h /= 2;
+            }
 
-            GL.BindTexture(this.target, this.glname);
-            GL.GetTexImage(this.target, level, this.pixelformat, this.pixeltype, dataPtr);
-            GL.BindTexture(this.target, 0);
+            // allocate memory
+            IntPtr dataPtr = Marshal.AllocHGlobal(w * h * pixelsize);
 
-            Bitmap bmp = new Bitmap(width, height, width * pixelsize, fileformat, dataPtr);
-            
-            return bmp;
+            // get image data
+            GL.BindTexture(target, glname);
+            GL.GetTexImage(target, level, pixelformat, pixeltype, dataPtr);
+            GL.BindTexture(target, 0);
+
+            // create bitmap from data
+            return new Bitmap(w, h, w * pixelsize, fileformat, dataPtr);
         }
 
         public override void Delete()

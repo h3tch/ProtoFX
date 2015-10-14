@@ -18,7 +18,7 @@ namespace App
             : base(name, annotation)
         {
             ErrorCollector err = new ErrorCollector();
-            err.PushStack("buffer '" + name + "'");
+            err.PushCall("buffer '" + name + "'");
 
             // PARSE TEXT TO COMMANDS
             var cmds = Text2Cmds(text);
@@ -36,7 +36,7 @@ namespace App
                 if (cmd == null)
                     continue;
 
-                err.PushStack("command " + i + " '" + cmd[0] + "'");
+                err.PushCall("command " + i + " '" + cmd[0] + "'");
 
                 switch (cmd[0])
                 {
@@ -48,14 +48,14 @@ namespace App
                         break;
                 }
                 
-                err.PopStack();
+                err.PopCall();
             }
 
             if (err.HasErrors())
                 err.ThrowExeption();
 
             // merge data into a single array
-            byte[] data = App.MergeData(datalist.ToArray(), size);
+            byte[] data = Data.Join(datalist.ToArray(), size);
             size = data.Length;
 
             // CREATE OPENGL OBJECT
@@ -146,7 +146,7 @@ namespace App
 
                 // Merge data
                 if (!err.HasErrors())
-                    return App.MergeData(filedata, 0);
+                    return Data.Join(filedata);
             }
             catch (Exception ex)
             {

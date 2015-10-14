@@ -20,7 +20,7 @@ namespace App
 
         {
             ErrorCollector err = new ErrorCollector();
-            err.PushStack("texture '" + name + "'");
+            err.PushCall("texture '" + name + "'");
 
             // PARSE TEXT
             var cmds = Text2Cmds(text);

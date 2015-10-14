@@ -72,7 +72,7 @@ namespace App
                     i++;
                 }
 
-                return App.MergeData(data, 0);
+                return Data.Join(data);
             }
             catch
             {
@@ -85,7 +85,6 @@ namespace App
             // load XML file
             var xmlDoc = new XmlDocument();
             xmlDoc.Load(filename);
-
             return Load(xmlDoc, itemname);
         }
     }

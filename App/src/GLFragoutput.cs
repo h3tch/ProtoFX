@@ -37,7 +37,7 @@ namespace App
             : base(name, annotation)
         {
             ErrorCollector err = new ErrorCollector();
-            err.PushStack("fragoutput '" + name + "'");
+            err.PushCall("fragoutput '" + name + "'");
 
             // PARSE TEXT TO COMMANDS
             var cmds = Text2Cmds(text);
@@ -59,9 +59,9 @@ namespace App
                     continue;
 
                 // attach image
-                err.PushStack("command " + (i + 1) + " '" + cmd[0] + "'");
+                err.PushCall("command " + (i + 1) + " '" + cmd[0] + "'");
                 attatch(err, cmd, classes);
-                err.PopStack();
+                err.PopCall();
             }
 
             // if any errors occurred throw exception

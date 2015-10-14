@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace App
 {
@@ -11,7 +10,7 @@ namespace App
             : base(name, annotation)
         {
             ErrorCollector err = new ErrorCollector();
-            err.PushStack("tech '" + name + "'");
+            err.PushCall("tech '" + name + "'");
 
             // PARSE TEXT
             var cmds = Text2Cmds(text);
@@ -25,13 +24,13 @@ namespace App
                 if (!cmd[0].Equals("pass"))
                     continue;
 
-                err.PushStack("command " + i + " '" + cmd[0] + "'");
+                err.PushCall("command " + i + " '" + cmd[0] + "'");
 
                 // find pass object
                 if (classes.TryFindClass(err, cmd[1], out pass))
                     passes.Add(pass);
 
-                err.PopStack();
+                err.PopCall();
             }
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION

@@ -1,5 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -31,7 +30,7 @@ namespace App
         #region UTIL METHODS
         static protected string[][] Text2Cmds(string text)
         {
-            List<string[]> args = new List<string[]>();
+            List<string[]> cmds = new List<string[]>();
 
             // split into lines
             var lines = text.Split(new char[] { '\n' });
@@ -43,24 +42,24 @@ namespace App
                 MatchCollection matches = Regex.Matches(lines[i], "[\\w./|\\-:]+");
                 // an command must have at least two arguments
                 if (matches.Count >= 2)
-                    args.Add(matches.Cast<Match>().Select(m => m.Value).ToArray());
+                    cmds.Add(matches.Cast<Match>().Select(m => m.Value).ToArray());
             }
 
-            return args.ToArray();
+            return cmds.ToArray();
         }
 
-        static protected void Cmds2Fields<T>(T clazz, ref string[][] args)
+        static protected void Cmds2Fields<T>(T clazz, ref string[][] cmds)
         {
             Type type = clazz.GetType();
 
-            for (int i = 0; i < args.Length; i++)
+            for (int i = 0; i < cmds.Length; i++)
             {
-                var arg = args[i];
+                var arg = cmds[i];
                 var field = type.GetField(arg[0]);
                 if (field != null)
                 {
                     // remove argument from array
-                    args[i] = null;
+                    cmds[i] = null;
                     // if this is an array pass the arguments as string
                     if (field.FieldType.IsArray)
                         field.SetValue(clazz, arg.Skip(1).Take(arg.Length-1).ToArray());

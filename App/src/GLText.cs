@@ -1,7 +1,4 @@
-﻿using System;
-using System.Xml;
-
-namespace App
+﻿namespace App
 {
     class GLText : GLObject
     {
