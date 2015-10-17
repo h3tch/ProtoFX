@@ -37,7 +37,7 @@ namespace App
 
                 // attach buffer
                 err.PushCall("command " + (i + 1) + " '" + cmd[0] + "'");
-                if (cmd != null && cmd.Length >= 2 && cmd[0] == "buff")
+                if (cmd[0] == "buff")
                     attach(err, numbindings++, cmd, classes);
                 err.PopCall();
             }
@@ -86,6 +86,12 @@ namespace App
 
         private void attach(GLException err, int unit, string[] cmd, Dict classes)
         {
+            if (cmd.Length < 2)
+            {
+                err.Add("Command buff needs at least one attribute (e.g. 'buff buff_name')");
+                return;
+            }
+
             // get buffer
             GLBuffer buf = classes.FindClass<GLBuffer>(cmd[1]);
             if (buf == null)

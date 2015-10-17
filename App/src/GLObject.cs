@@ -22,10 +22,7 @@ namespace App
 
         public abstract void Delete();
 
-        public override string ToString()
-        {
-            return name;
-        }
+        public override string ToString() => name;
 
         #region UTIL METHODS
         static protected string[][] Text2Cmds(string text)

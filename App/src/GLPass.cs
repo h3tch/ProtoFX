@@ -487,26 +487,23 @@ namespace App
             DrawFunc drawfunc = (DrawFunc)bits;
                  
             // get index buffer object (if present) and find existing MultiDraw class
-            MultiDrawCall multidrawcall = drawcalls.Find(x
-                => x.vertexin == (vertexin != null ? vertexin.glname : 0)
-                && x.indexbuf == (indexbuf != null ? indexbuf.glname : 0)
-                && x.vertout  == (vertout  != null ?  vertout.glname : 0)
-                && x.indirect == (indirect != null ? indirect.glname : 0));
-
-            if (multidrawcall == null)
-            {
-                multidrawcall = new MultiDrawCall(drawfunc, vertexin, vertout, indexbuf, indirect);
-                drawcalls.Add(multidrawcall);
-            }
+            MultiDrawCall multidrawcall = drawcalls.Find(
+                x => x.vertexin == (vertexin != null ? vertexin.glname : 0)
+                  && x.indexbuf == (indexbuf != null ? indexbuf.glname : 0)
+                  && x.vertout  == (vertout  != null ?  vertout.glname : 0)
+                  && x.indirect == (indirect != null ? indirect.glname : 0))
+                ?? new MultiDrawCall(drawfunc, vertexin, vertout, indexbuf, indirect);
 
             // add new draw command to the MultiDraw class
             multidrawcall.cmd.Add(new DrawCall(drawfunc, primitive, indextype, arg));
+            
+            drawcalls.Add(multidrawcall);
         }
 
         private void ParseComputeCall(GLException err, string[] cmd, Dict classes)
         {
             // check for errors
-            if (cmd.Length != 3 || cmd.Length != 4)
+            if (cmd.Length < 3 || cmd.Length > 4)
             {
                 err.Add("Compute command does not provide enough arguments "
                     + "(e.g., 'compute num_groups_X num_groups_y num_groups_z' or "

@@ -42,7 +42,7 @@ namespace App
 
                 // check if file exists
                 if (File.Exists(path) == false)
-                    throw new GLException("ERROR: The include file '" + incfile + "' could not be found.\n");
+                    throw new GLException("The include file '" + incfile + "' could not be found.\n");
 
                 // load the file and insert it, replacing #include
                 var content = File.ReadAllText(path);

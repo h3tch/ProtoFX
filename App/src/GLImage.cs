@@ -152,7 +152,7 @@ namespace App
             pixelsize = Image.GetPixelFormatSize(fileformat) / 8;
 
             // LOAD IMAGA DATA FROM FILES
-            if (filenames != null && filenames.Length > 0 && !isdepth)
+            if (filenames?.Length > 0 && !isdepth)
             {
                 // preload all files to get information
                 // like minimal width and height

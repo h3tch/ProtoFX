@@ -87,24 +87,16 @@ namespace App
 
         #region OpenGL Control
         private void glControl_Resize(object sender, EventArgs e)
-        {
-            Render();
-        }
+            => Render();
 
         private void glControl_Paint(object sender, PaintEventArgs e)
-        {
-            Render();
-        }
+            => Render();
 
         private void glControl_MouseDown(object sender, MouseEventArgs e)
-        {
-            render = true;
-        }
+            => render = true;
 
         private void glControl_MouseUp(object sender, MouseEventArgs e)
-        {
-            render = false;
-        }
+            => render = false;
 
         private void glControl_MouseMove(object sender, MouseEventArgs e)
         {
@@ -115,9 +107,7 @@ namespace App
 
         #region Debug Image
         private void comboImg_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            pictureImg_Click(sender, e);
-        }
+            => pictureImg_Click(sender, e);
 
         private void numImgLayer_ValueChanged(object sender, EventArgs e)
         {
@@ -177,14 +167,10 @@ namespace App
         }
 
         private void comboBufType_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            comboBuf_SelectedIndexChanged(sender, e);
-        }
+            => comboBuf_SelectedIndexChanged(sender, e);
         
         private void numBufDim_ValueChanged(object sender, EventArgs e)
-        {
-            comboBuf_SelectedIndexChanged(sender, null);
-        }
+            => comboBuf_SelectedIndexChanged(sender, null);
         #endregion
 
         #region Tool Buttons
@@ -327,9 +313,7 @@ namespace App
         }
 
         private void toolBtnSaveAs_Click(object sender, EventArgs e)
-        {
-            SaveTabPage((TabPage)this.tabSource.SelectedTab, true);
-        }
+            => SaveTabPage((TabPage)this.tabSource.SelectedTab, true);
 
         private void toolBtnClose_Click(object sender, EventArgs e)
         {

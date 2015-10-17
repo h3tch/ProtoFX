@@ -16,15 +16,13 @@ namespace App
         public bool TryFindClass<T>(string instancename, out T obj, GLException err = null)
             where T : GLObject
         {
-            // get class name of object type
-            var classname = typeof(T).Name.Substring(2).ToLower();
             // try to find the object instance
             if ((obj = FindClass<T>(instancename)) == null)
             {
-                // could not find it
-                if (err != null)
-                    err.Add("The name '" + instancename + "' could not be found or "
-                        + "does not reference an object of type '" + classname + "'.");
+                // get class name of object type
+                var classname = typeof(T).Name.Substring(2).ToLower();
+                err?.Add("The name '" + instancename + "' could not be found or "
+                    + "does not reference an object of type '" + classname + "'.");
                 return false;
             }
             return true;
@@ -42,7 +40,7 @@ namespace App
         public bool TryParseObject<T>(string name, ref T obj)
             where T : GLObject
         {
-            GLObject tmp = null;
+            GLObject tmp;
             if (obj == null && TryGetValue(name, out tmp) && tmp.GetType() == typeof(T))
             {
                 obj = (T)tmp;
