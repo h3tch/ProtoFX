@@ -19,7 +19,7 @@ namespace App
             : base(name, annotation)
 
         {
-            ErrorCollector err = new ErrorCollector();
+            var err = new GLException();
             err.PushCall("texture '" + name + "'");
 
             // PARSE TEXT
@@ -30,11 +30,11 @@ namespace App
 
             // GET REFERENCES
             if (samp != null)
-                classes.TryFindClass(err, samp, out glsamp);
+                classes.TryFindClass(samp, out glsamp, err);
             if (buff != null)
-                classes.TryFindClass(err, buff, out glbuff);
+                classes.TryFindClass(buff, out glbuff, err);
             if (img != null)
-                classes.TryFindClass(err, img, out glimg);
+                classes.TryFindClass(img, out glimg, err);
             if (glbuff != null && glimg != null)
                 err.Add("Only an image or a buffer can be bound to a texture object.");
             if (glbuff == null && glimg == null)
@@ -42,7 +42,7 @@ namespace App
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION
             if (err.HasErrors())
-                err.ThrowExeption();
+                throw err;
 
             // INCASE THIS IS A TEXTURE OBJECT
             if (glbuff != null && glimg == null)

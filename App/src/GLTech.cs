@@ -9,7 +9,7 @@ namespace App
         public GLTech(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
-            ErrorCollector err = new ErrorCollector();
+            var err = new GLException();
             err.PushCall("tech '" + name + "'");
 
             // PARSE TEXT
@@ -27,7 +27,7 @@ namespace App
                 err.PushCall("command " + i + " '" + cmd[0] + "'");
 
                 // find pass object
-                if (classes.TryFindClass(err, cmd[1], out pass))
+                if (classes.TryFindClass(cmd[1], out pass, err))
                     passes.Add(pass);
 
                 err.PopCall();
@@ -35,7 +35,7 @@ namespace App
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION
             if (err.HasErrors())
-                err.ThrowExeption();
+                throw err;
         }
 
         public void Exec(int width, int height)

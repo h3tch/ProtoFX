@@ -17,7 +17,7 @@ namespace App
         public GLBuffer(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
-            ErrorCollector err = new ErrorCollector();
+            var err = new GLException();
             err.PushCall("buffer '" + name + "'");
 
             // PARSE TEXT TO COMMANDS
@@ -52,7 +52,7 @@ namespace App
             }
 
             if (err.HasErrors())
-                err.ThrowExeption();
+                throw err;
 
             // merge data into a single array
             byte[] data = Data.Join(datalist.ToArray(), size);
@@ -78,7 +78,7 @@ namespace App
             if (GL.GetError() != ErrorCode.NoError)
                 err.Add("OpenGL error '" + GL.GetError() + "' occurred during buffer allocation.");
             if (err.HasErrors())
-                err.ThrowExeption();
+                throw err;
         }
 
         public byte[] Read()
@@ -106,7 +106,7 @@ namespace App
         }
 
         #region UTIL METHODS
-        private static byte[] LoadXml(ErrorCollector err, string dir, string[] cmd, Dict classes)
+        private static byte[] LoadXml(GLException err, string dir, string[] cmd, Dict classes)
         {
             // Check for a valid command
             if (cmd.Length < 2)
@@ -156,7 +156,7 @@ namespace App
             return null;
         }
 
-        private static byte[] loadText(ErrorCollector err, string dir, string[] cmd, Dict classes)
+        private static byte[] loadText(GLException err, string dir, string[] cmd, Dict classes)
         {
             // Check for a valid command
             if (cmd.Length < 2)

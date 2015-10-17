@@ -13,7 +13,7 @@ namespace App
         public GLVertoutput(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
-            ErrorCollector err = new ErrorCollector();
+            var err = new GLException();
             err.PushCall("vertoutput '" + name + "'");
 
             // PARSE TEXT
@@ -44,7 +44,7 @@ namespace App
 
             // if errors occurred throw exception
             if (err.HasErrors())
-                err.ThrowExeption();
+                throw err;
 
             // unbind object and check for errors
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, 0);
@@ -84,7 +84,7 @@ namespace App
             }
         }
 
-        private void attach(ErrorCollector err, int unit, string[] cmd, Dict classes)
+        private void attach(GLException err, int unit, string[] cmd, Dict classes)
         {
             // get buffer
             GLBuffer buf = classes.FindClass<GLBuffer>(cmd[1]);

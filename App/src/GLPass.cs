@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using PrimType = OpenTK.Graphics.OpenGL4.PrimitiveType;
+using VertoutPrimType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
+using ElementType = OpenTK.Graphics.OpenGL4.DrawElementsType;
 
 namespace App
 {
@@ -27,7 +30,7 @@ namespace App
         public GLObject glfrag = null;
         public GLObject glcomp = null;
         public GLVertoutput glvertout = null;
-        public TransformFeedbackPrimitiveType vertoutPrimitive = TransformFeedbackPrimitiveType.Points;
+        public VertoutPrimType vertoutPrimitive = VertoutPrimType.Points;
         public GLFragoutput glfragout = null;
         public List<MultiDrawCall> drawcalls = new List<MultiDrawCall>();
         public List<CompCall> compcalls = new List<CompCall>();
@@ -80,33 +83,34 @@ namespace App
             {
                 // bind vertex buffer to input stream
                 // (needs to be done before binding an ElementArrayBuffer)
-                GL.BindVertexArray(this.vertexin);
+                GL.BindVertexArray(vertexin);
 
-                switch (this.drawfunc)
+                switch (drawfunc)
                 {
                     case DrawFunc.ArraysIndirect:
-                        GL.BindBuffer(BufferTarget.DrawIndirectBuffer, this.indirect);
-                        foreach (var draw in this.cmd)
+                        GL.BindBuffer(BufferTarget.DrawIndirectBuffer, indirect);
+                        foreach (var draw in cmd)
                             GL.DrawArraysIndirect(draw.mode, draw.indirectPtr);
                         break;
 
                     case DrawFunc.ArraysInstanced:
-                        foreach (var draw in this.cmd)
+                        foreach (var draw in cmd)
                             GL.DrawArraysInstancedBaseInstance(
                                 draw.mode, draw.vBaseVertex, draw.vVertexCount,
                                 draw.vInstanceCount, draw.vBaseInstance);
                         break;
 
                     case DrawFunc.ElementsIndirect:
-                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, this.indexbuf);
-                        GL.BindBuffer(BufferTarget.DrawIndirectBuffer, this.indirect);
-                        foreach (var draw in this.cmd)
-                            GL.DrawElementsIndirect(draw.mode, (All)draw.indextype, draw.indirectPtr);
+                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexbuf);
+                        GL.BindBuffer(BufferTarget.DrawIndirectBuffer, indirect);
+                        foreach (var draw in cmd)
+                            GL.DrawElementsIndirect(draw.mode, (All)draw.indextype,
+                                draw.indirectPtr);
                         break;
 
                     case DrawFunc.ElementsInstanced:
-                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, this.indexbuf);
-                        foreach (var draw in this.cmd)
+                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexbuf);
+                        foreach (var draw in cmd)
                             GL.DrawElementsInstancedBaseVertexBaseInstance(
                                 draw.mode, draw.iIndexCount, draw.indextype,
                                 draw.iBaseIndex, draw.iInstanceCount,
@@ -114,9 +118,9 @@ namespace App
                         break;
 
                     case DrawFunc.TransformFeedback:
-                        foreach (var draw in this.cmd)
+                        foreach (var draw in cmd)
                             GL.DrawTransformFeedbackStreamInstanced(draw.mode,
-                                this.vertout, draw.voStream, draw.voInstanceCount);
+                                vertout, draw.voStream, draw.voInstanceCount);
                         break;
                 }
             }
@@ -124,15 +128,15 @@ namespace App
 
         public struct DrawCall
         {
-            public PrimitiveType mode;
-            public DrawElementsType indextype;
+            public PrimType mode;
+            public ElementType indextype;
             private int arg0;
             private int arg1;
             private int arg2;
             private int arg3;
             private int arg4;
 
-            public DrawCall(DrawFunc drawfunc, PrimitiveType mode, DrawElementsType indextype, List<int> arg)
+            public DrawCall(DrawFunc drawfunc, PrimType mode, ElementType indextype, List<int> arg)
             {
                 this.mode = mode;
                 this.indextype = indextype;
@@ -145,7 +149,10 @@ namespace App
 
             // arguments for indexed buffer drawing
             public int iBaseVertex { get { return arg0; } set { arg0 = value; } }
-            public IntPtr iBaseIndex { get { return (IntPtr)(arg1*Math.Max(1, (int)indextype - (int)DrawElementsType.UByte)); } set { arg1 = (int)value; } }
+            public IntPtr iBaseIndex {
+                get { return (IntPtr)(arg1*Math.Max(1, (int)indextype - (int)ElementType.UByte)); }
+                set { arg1 = (int)value; }
+            }
             public int iIndexCount { get { return arg2; } set { arg2 = value; } }
             public int iBaseInstance { get { return arg3; } set { arg3 = value; } }
             public int iInstanceCount { get { return arg4; } set { arg4 = value; } }
@@ -226,14 +233,16 @@ namespace App
                 // get unbind method from main class instance
                 endpass = instance.GetType().GetMethod("EndPass", new Type[] { typeof(int) });
 
-                // get all public methods and check whether they can be used as event handlers for glControl
+                // get all public methods and check whether
+                // they can be used as event handlers for glControl
                 var methods = instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
                 foreach (var method in methods)
                 {
                     EventInfo eventInfo = glControl.GetType().GetEvent(method.Name);
                     if (eventInfo != null)
                     {
-                        Delegate csmethod = Delegate.CreateDelegate(eventInfo.EventHandlerType, instance, method.Name);
+                        Delegate csmethod = Delegate.CreateDelegate(
+                            eventInfo.EventHandlerType, instance, method.Name);
                         eventInfo.AddEventHandler(glControl, csmethod);
                     }
                 }
@@ -256,7 +265,7 @@ namespace App
         public GLPass(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
-            ErrorCollector err = new ErrorCollector();
+            var err = new GLException();
             err.PushCall("pass '" + name + "'");
 
             // PARSE TEXT TO COMMANDS
@@ -288,12 +297,13 @@ namespace App
             }
 
             // GET VERTEX AND FRAGMENT OUTPUT BINDINGS
-            if (fragout != null && (glfragout = classes.FindClass<GLFragoutput>(fragout)) == null)
+            
+            if (fragout != null && !classes.TryFindClass(fragout, out glfragout))
                 err.Add("The name '" + fragout + "' does not reference an object of type 'fragout'.");
-            if (vertout != null && vertout.Length > 0 && (glvertout = classes.FindClass<GLVertoutput>(vertout[0])) == null)
-                err.Add("The name '" + vertout + "' does not reference an object of type 'vertout'.");
+            if (vertout != null && vertout.Length > 0 && !classes.TryFindClass(vertout[0], out glvertout))
+                err.Add("The name '" + vertout[0] + "' does not reference an object of type 'vertout'.");
             if (err.HasErrors())
-                err.ThrowExeption();
+                throw err;
 
             // CREATE OPENGL OBJECT
             if (vert != null || comp != null)
@@ -345,7 +355,7 @@ namespace App
             if (GL.GetError() != ErrorCode.NoError)
                 err.Add("OpenGL error '" + GL.GetError() + "' occurred during shader program creation.");
             if (err.HasErrors())
-                err.ThrowExeption();
+                throw err;
         }
 
         public void Exec(int width, int height)
@@ -427,7 +437,7 @@ namespace App
         }
 
         #region PARSE COMMANDS
-        private void ParseDrawCall(ErrorCollector err, string[] cmd, Dict classes)
+        private void ParseDrawCall(GLException err, string[] cmd, Dict classes)
         {
             List<int> arg = new List<int>();
             GLVertinput vertexin = null;
@@ -436,8 +446,8 @@ namespace App
             GLBuffer indirect = null;
             bool modeIsSet = false;
             bool typeIsSet = false;
-            PrimitiveType primitive = 0;
-            DrawElementsType indextype = 0;
+            PrimType primitive = 0;
+            ElementType indextype = 0;
             int val;
 
             // parse draw call arguments
@@ -493,7 +503,7 @@ namespace App
             multidrawcall.cmd.Add(new DrawCall(drawfunc, primitive, indextype, arg));
         }
 
-        private void ParseComputeCall(ErrorCollector err, string[] cmd, Dict classes)
+        private void ParseComputeCall(GLException err, string[] cmd, Dict classes)
         {
             // check for errors
             if (cmd.Length != 3 || cmd.Length != 4)
@@ -524,11 +534,14 @@ namespace App
                 {
                     // number of compute groups
                     call.numGroupsX = Data.ParseType<uint>(cmd[1],
-                        "Argument must be an unsigned integer, specifying the number of compute groups in X.");
+                        "Argument must be an unsigned integer, "
+                        + "specifying the number of compute groups in X.");
                     call.numGroupsY = Data.ParseType<uint>(cmd[2],
-                        "Argument must be an unsigned integer, specifying the number of compute groups in Y.");
+                        "Argument must be an unsigned integer, "
+                        + "specifying the number of compute groups in Y.");
                     call.numGroupsZ = Data.ParseType<uint>(cmd[3],
-                        "Argument must be an unsigned integer, specifying the number of compute groups in Z.");
+                        "Argument must be an unsigned integer, "
+                        + "specifying the number of compute groups in Z.");
                 }
 
                 compcalls.Add(call);
@@ -539,21 +552,21 @@ namespace App
             }
         }
 
-        private void ParseTexCmd(ErrorCollector err, string[] cmd, Dict classes)
+        private void ParseTexCmd(GLException err, string[] cmd, Dict classes)
         {
             var obj = ParseCmd<GLTexture>(err, cmd, classes);
             if (!err.HasErrors())
                 textures.Add(obj);
         }
 
-        private void ParseSampCmd(ErrorCollector err, string[] cmd, Dict classes)
+        private void ParseSampCmd(GLException err, string[] cmd, Dict classes)
         {
             var obj = ParseCmd<GLSampler>(err, cmd, classes);
             if (!err.HasErrors())
                 sampler.Add(obj);
         }
 
-        private Res<T> ParseCmd<T>(ErrorCollector err, string[] cmd, Dict classes)
+        private Res<T> ParseCmd<T>(GLException err, string[] cmd, Dict classes)
         {
             GLObject obj = null;
             int unit = -1;
@@ -576,7 +589,7 @@ namespace App
             return new Res<T>((T)Convert.ChangeType(obj, typeof(T)), unit);
         }
 
-        private void ParseOpenGLCall(ErrorCollector err, string[] cmd)
+        private void ParseOpenGLCall(GLException err, string[] cmd)
         {
             // find OpenGL method
             var mtype = FindMethod(cmd[0], cmd.Length - 1);
@@ -591,15 +604,19 @@ namespace App
             object[] inval = new object[param.Length];
             // convert strings to parameter types
             for (int i = 0; i < param.Length; i++)
+            {
                 if (param[i].ParameterType.IsEnum)
-                    inval[i] = Convert.ChangeType(Enum.Parse(param[i].ParameterType, cmd[i + 1], true), param[i].ParameterType);
+                    inval[i] = Convert.ChangeType(
+                        Enum.Parse(param[i].ParameterType, cmd[i + 1], true),
+                        param[i].ParameterType);
                 else
                     inval[i] = Convert.ChangeType(cmd[i + 1], param[i].ParameterType, App.culture);
+            }
             
             invoke.Add(new GLMethod(mtype, inval));
         }
 
-        private void ParseCsharpExec(ErrorCollector err, string[] cmd, Dict classes)
+        private void ParseCsharpExec(GLException err, string[] cmd, Dict classes)
         {
             // check if command provides the correct amount of parameters
             if (cmd.Length < 3)
@@ -644,7 +661,7 @@ namespace App
             return methods.Count() > 0 ? methods.First() : null;
         }
 
-        private GLObject attach(ErrorCollector err, string sh, Dict classes)
+        private GLObject attach(GLException err, string sh, Dict classes)
         {
             if (sh == null)
                 return null;
@@ -658,7 +675,7 @@ namespace App
             return glsh;
         }
 
-        private void setVertexOutputVaryings(ErrorCollector err, string[] varyings)
+        private void setVertexOutputVaryings(GLException err, string[] varyings)
         {
             // the vertout command needs at least 3 arguments
             if (varyings.Length < 3)

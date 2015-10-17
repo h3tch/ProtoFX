@@ -69,7 +69,8 @@ namespace App
             object clazz = compilerresults.CompiledAssembly.CreateInstance(
                 classname, false, BindingFlags.Default, null, new object[] { args }, App.culture, null);
             if (clazz == null)
-                throw new GLException("csharp '" + name + "': Main class '" + classname + "' could not be found.");
+                throw new GLException("csharp '" + name + "': Main class "
+                    + "'" + classname + "' could not be found.");
             return clazz;
         }
 

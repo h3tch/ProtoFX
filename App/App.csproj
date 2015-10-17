@@ -79,6 +79,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\CodeEditor.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="src\Data.cs" />
     <Compile Include="demos\util\StaticCamera.cs" />
     <Compile Include="src\GLText.cs" />
@@ -92,7 +95,6 @@
     <Compile Include="src\App.Util.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="src\ErrorCollector.cs" />
     <Compile Include="src\GLBuffer.cs" />
     <Compile Include="src\GLCSharp.cs" />
     <Compile Include="src\Dict.cs" />

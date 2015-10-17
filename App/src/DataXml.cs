@@ -43,7 +43,8 @@ namespace App
                     Type type;
                     Array values;
                     // the values are in binary format
-                    if (node.Attributes["isbinary"] != null && node.Attributes["isbinary"].Value.Equals("true"))
+                    var attr = node.Attributes;
+                    if (attr["isbinary"] != null && attr["isbinary"].Value.Equals("true"))
                     {
                         type = typeof(char);
                         values = node.InnerText.ToCharArray();
@@ -52,12 +53,13 @@ namespace App
                     else
                     {
                         // get value type and check for errors
-                        if (node.Attributes["type"] == null)
-                            throw new GLException(errstr + "For non binary data a type has to be specified "
-                                + "(e.g. <" + itemname + " type='float'>).");
+                        if (attr["type"] == null)
+                            throw new GLException(errstr + "For non binary data a type has to be "
+                                + " specified(e.g. <" + itemname + " type='float'>).");
 
-                        if (!str2type.TryGetValue(node.Attributes["type"].Value, out type))
-                            throw new GLException(errstr + "Type '" + node.Attributes["type"].Value + "' not supported.");
+                        if (!str2type.TryGetValue(attr["type"].Value, out type))
+                            throw new GLException(errstr + "Type '" + attr["type"].Value
+                                + "' not supported.");
 
                         // convert values
                         var raw = Regex.Matches(node.InnerText, "(\\+|\\-)?[0-9\\.\\,]+");

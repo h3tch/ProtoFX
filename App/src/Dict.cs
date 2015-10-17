@@ -13,7 +13,7 @@ namespace App
             return null;
         }
 
-        public bool TryFindClass<T>(ErrorCollector err, string instancename, out T obj)
+        public bool TryFindClass<T>(string instancename, out T obj, GLException err = null)
             where T : GLObject
         {
             // get class name of object type
@@ -22,8 +22,9 @@ namespace App
             if ((obj = FindClass<T>(instancename)) == null)
             {
                 // could not find it
-                err.Add("The name '" + instancename + "' could not be found or "
-                    + "does not reference an object of type '" + classname + "'.");
+                if (err != null)
+                    err.Add("The name '" + instancename + "' could not be found or "
+                        + "does not reference an object of type '" + classname + "'.");
                 return false;
             }
             return true;

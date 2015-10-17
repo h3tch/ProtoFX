@@ -1,5 +1,4 @@
-﻿using ScintillaNET;
-using System;
+﻿using System;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
@@ -232,7 +231,7 @@ namespace App
             ClearGLObjects();
 
             var sourceTab = (TabPage)this.tabSource.SelectedTab;
-            var sourceText = (Scintilla)sourceTab.Controls[0];
+            var sourceText = (CodeEditor)sourceTab.Controls[0];
             var dir = sourceTab.filepath != null ?
                 Path.GetDirectoryName(sourceTab.filepath) : Directory.GetCurrentDirectory();
             dir += '\\';
@@ -348,94 +347,6 @@ namespace App
             tabSource.TabPages.RemoveAt(tabSource.SelectedIndex);
         }
         #endregion
-
-        #region Scintilla Text Control
-        private void tabSourceText_TextChanged(object sender, EventArgs e)
-        {
-            Scintilla tabSourceText = (Scintilla)sender;
-            TabPage tabSourcePage = (TabPage)tabSourceText.Parent;
-            if (!tabSourcePage.Text.EndsWith("*"))
-                tabSourcePage.Text = tabSourcePage.Text + '*';
-
-            // UPDATE LINE NUMBERS
-            var lineNumberLength = tabSourceText.Lines.Count.ToString().Length;
-            var lineNumberWidth = TextRenderer.MeasureText(new string('9', lineNumberLength), tabSourceText.Font).Width;
-            if (tabSourceText.Margins[0].Width != lineNumberWidth)
-                tabSourceText.Margins[0].Width = lineNumberWidth;
-        }
-        
-        private void tabSourceText_SelectionChanged(object sender, EventArgs e)
-        {
-            Scintilla tabSourceText = (Scintilla)sender;
-            // DEACTIVATE MULTILINE SELECTION BECAUSE MULTILINE EDIT IS NOT SUPPORTED
-            if (tabSourceText.Selection.IsRectangle)
-            {
-                tabSourceText.Selection.Range = new Range(
-                    tabSourceText.Selection.Start,
-                    tabSourceText.Selection.End ,
-                    tabSourceText);
-            }
-        }
-
-        private void tabSourceText_DragOver(object sender, DragEventArgs e)
-        {
-            Scintilla tabSourceText = (Scintilla)sender;
-
-            // convert cursor position to text position
-            Point point = new Point(e.X, e.Y);
-            point = tabSourceText.PointToClient(point);
-            int pos = tabSourceText.PositionFromPoint(point.X, point.Y);
-
-            // refresh text control
-            tabSourceText.Refresh();
-
-            // is draging possible
-            if (tabSourceText.GetRange(tabSourceText.Caret.Position, tabSourceText.Caret.Anchor)
-                .IntersectsWith(tabSourceText.GetRange(pos)))
-            {
-                // if not show "NO" cursor
-                e.Effect = DragDropEffects.None;
-                return;
-            }
-
-            // draw line at cursor position in text
-            var g = tabSourceText.CreateGraphics();
-            var pen = new Pen(Color.Black, 2);
-            var height = TextRenderer.MeasureText("0", tabSourceText.Font).Height;
-            point.X = tabSourceText.PointXFromPosition(pos);
-            point.Y = tabSourceText.PointYFromPosition(pos);
-            g.DrawLine(pen, point.X, point.Y, point.X, point.Y + height);
-
-            // show "MOVE" cursor
-            e.Effect = DragDropEffects.Move;
-        }
-
-        private void tabSourceText_DragDrop(object sender, DragEventArgs e)
-        {
-            Scintilla tabSourceText = (Scintilla)sender;
-
-            // convert cursor position to text position
-            Point point = new Point(e.X, e.Y);
-            point = tabSourceText.PointToClient(point);
-            int pos = tabSourceText.PositionFromPoint(point.X, point.Y);
-
-            // is dropping possible
-            if (tabSourceText.GetRange(tabSourceText.Caret.Position, tabSourceText.Caret.Anchor)
-                .IntersectsWith(tabSourceText.GetRange(pos)))
-                return;
-            
-            // adjust caret position if necessary
-            if (pos > tabSourceText.Caret.Position)
-                pos -= Math.Abs(tabSourceText.Caret.Anchor - tabSourceText.Caret.Position);
-            // cut the selected text to the clipboard
-            tabSourceText.Clipboard.Cut();
-            // move caret to the insert position
-            tabSourceText.Caret.Position = pos;
-            tabSourceText.Caret.Anchor = pos;
-            // insert cut text from clipboard
-            tabSourceText.Clipboard.Paste();
-        }
-        #endregion
         
         #region UTIL
         private void Render()
@@ -464,7 +375,7 @@ namespace App
 
         private void SaveTabPage(TabPage tabPage, bool newfile)
         {
-            var selectedTabPageText = (Scintilla)tabPage.Controls[0];
+            var selectedTabPageText = (CodeEditor)tabPage.Controls[0];
 
             if (tabPage.filepath == null || newfile)
             {
@@ -490,33 +401,8 @@ namespace App
             string text = path != null ? File.ReadAllText(path) : "// Unnamed ProtoGL file";
 
             // create new tab objects
-            TabPage tabSourcePage = new TabPage(path);
-            Scintilla tabSourcePageText = new Scintilla();
-
-            // tabSourcePageText
-            tabSourcePageText.BorderStyle = BorderStyle.None;
-            tabSourcePageText.ConfigurationManager.CustomLocation = "../res/syntax.xml";
-            tabSourcePageText.ConfigurationManager.Language = "cpp";
-            tabSourcePageText.Dock = DockStyle.Fill;
-            tabSourcePageText.Font = new Font("Consolas", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            tabSourcePageText.Location = new Point(0, 0);
-            tabSourcePageText.Margin = new Padding(0);
-            tabSourcePageText.TabIndex = 0;
-            tabSourcePageText.Text = text;
-            tabSourcePageText.TextChanged += new EventHandler(this.tabSourceText_TextChanged);
-            tabSourcePageText.SelectionChanged += new EventHandler(this.tabSourceText_SelectionChanged);
-            // enable drag&drop
-            tabSourcePageText.AllowDrop = true;
-            tabSourcePageText.DragOver += new DragEventHandler(this.tabSourceText_DragOver);
-            tabSourcePageText.DragDrop += new DragEventHandler(this.tabSourceText_DragDrop);
-            // enable code folding
-            tabSourcePageText.Folding.IsEnabled = true;
-            tabSourcePageText.Margins[2].Type = MarginType.Symbol;
-            tabSourcePageText.Margins[2].Width = 20;
-            // display line numbers
-            var lineNumberLength = tabSourcePageText.Lines.Count.ToString().Length;
-            var lineNumberWidth = TextRenderer.MeasureText(new string('9', lineNumberLength), tabSourcePageText.Font).Width;
-            tabSourcePageText.Margins[0].Width = lineNumberWidth;
+            var tabSourcePage = new TabPage(path);
+            var tabSourcePageText = new CodeEditor(text);
 
             // tabSourcePage
             tabSourcePage.Controls.Add(tabSourcePageText);

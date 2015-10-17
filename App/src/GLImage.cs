@@ -4,6 +4,11 @@ using System.Drawing;
 using SysImg = System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.IO;
+using FilePixelFormat = System.Drawing.Imaging.PixelFormat;
+using TexTarget = OpenTK.Graphics.OpenGL4.TextureTarget;
+using TexParamName = OpenTK.Graphics.OpenGL4.TextureParameterName;
+using TexMinFilter = OpenTK.Graphics.OpenGL4.TextureMinFilter;
+using GpuFormat = OpenTK.Graphics.OpenGL4.PixelInternalFormat;
 
 namespace App
 {
@@ -16,23 +21,23 @@ namespace App
         public int depth = 0;
         public int length = 0;
         public int mipmaps = 0;
-        public TextureTarget type = 0;
-        public PixelInternalFormat format = PixelInternalFormat.Rgba;
-        private SysImg.PixelFormat fileformat = SysImg.PixelFormat.Format32bppArgb;
-        private PixelType pixeltype = 0;
-        private int pixelsize = 0;
-        private PixelFormat pixelformat = 0;
+        public TexTarget type = 0;
+        public GpuFormat format = GpuFormat.Rgba;
+        private FilePixelFormat fileFormat = FilePixelFormat.Format32bppArgb;
+        private PixelType pxType = 0;
+        private int pxSize = 0;
+        private PixelFormat pxFormat = 0;
         #endregion
 
         #region PROPERTIES
-        public TextureTarget target { get { return type; } set { type = value; } }
-        public PixelInternalFormat gpuformat { get { return format; } set { format = value; } }
+        public TexTarget target { get { return type; } set { type = value; } }
+        public GpuFormat gpuFormat { get { return format; } set { format = value; } }
         #endregion
 
         public GLImage(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
-            ErrorCollector err = new ErrorCollector();
+            var err = new GLException();
             err.PushCall("image '" + name + "'");
 
             // PARSE TEXT TO COMMANDS
@@ -45,15 +50,15 @@ namespace App
             if (target == 0)
             {
                 if (width > 0 && height == 1 && depth == 0 && length == 0)
-                    target = TextureTarget.Texture1D;
+                    target = TexTarget.Texture1D;
                 else if (width > 0 && height == 1 && depth == 0 && length > 0)
-                    target = TextureTarget.Texture1DArray;
+                    target = TexTarget.Texture1DArray;
                 else if (width > 0 && height > 1 && depth == 0 && length == 0)
-                    target = TextureTarget.Texture2D;
+                    target = TexTarget.Texture2D;
                 else if (width > 0 && height > 1 && depth == 0 && length > 0)
-                    target = TextureTarget.Texture2DArray;
+                    target = TexTarget.Texture2DArray;
                 else if (width > 0 && height > 1 && depth > 0 && length == 0)
-                    target = TextureTarget.Texture3D;
+                    target = TexTarget.Texture3D;
                 else
                     err.Add("Texture type could not be derived from 'width', 'height', "
                         + "'depth' and 'length'. Please check these parameters "
@@ -61,34 +66,34 @@ namespace App
             }
 
             // LOAD IMAGE DATA
-            var data = loadImageFiles(err, dir, file, ref width, ref height, ref depth, gpuformat,
-                out pixelformat, out pixeltype, out pixelsize, out fileformat);
+            var data = loadImageFiles(err, dir, file, ref width, ref height, ref depth, gpuFormat,
+                out pxFormat, out pxType, out pxSize, out fileFormat);
 
             // on errors throw an exception
             if (err.HasErrors())
-                err.ThrowExeption();
+                throw err;
 
             // CREATE OPENGL OBJECT
             glname = GL.GenTexture();
             GL.BindTexture(target, glname);
-            GL.TexParameter(target, TextureParameterName.TextureMinFilter,
-                (int)(mipmaps > 0 ? TextureMinFilter.NearestMipmapNearest : TextureMinFilter.Nearest));
-            GL.TexParameter(target, TextureParameterName.TextureMagFilter,
-                (int)(mipmaps > 0 ? TextureMinFilter.NearestMipmapNearest : TextureMinFilter.Nearest));
-            GL.TexParameter(target, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(target, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(target, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(target, TexParamName.TextureMinFilter,
+                (int)(mipmaps > 0 ? TexMinFilter.NearestMipmapNearest : TexMinFilter.Nearest));
+            GL.TexParameter(target, TexParamName.TextureMagFilter,
+                (int)(mipmaps > 0 ? TexMinFilter.NearestMipmapNearest : TexMinFilter.Nearest));
+            GL.TexParameter(target, TexParamName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(target, TexParamName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(target, TexParamName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
             // ALLOCATE IMAGE MEMORY
             if (data != null)
             {
                 var dataPtr = Marshal.AllocHGlobal(data.Length);
                 Marshal.Copy(data, 0, dataPtr, data.Length);
-                TexImage(target, gpuformat, width, height, depth, length, pixelformat, pixeltype, dataPtr);
+                TexImage(target, gpuFormat, width, height, depth, length, pxFormat, pxType, dataPtr);
                 Marshal.FreeHGlobal(dataPtr);
             }
             else
-                TexImage(target, gpuformat, width, height, depth, length, pixelformat, pixeltype, IntPtr.Zero);
+                TexImage(target, gpuFormat, width, height, depth, length, pxFormat, pxType, IntPtr.Zero);
 
             // GENERATE MIPMAPS
             if (mipmaps > 0)
@@ -110,15 +115,15 @@ namespace App
             }
 
             // allocate memory
-            IntPtr dataPtr = Marshal.AllocHGlobal(w * h * pixelsize);
+            IntPtr dataPtr = Marshal.AllocHGlobal(w * h * pxSize);
 
             // get image data
             GL.BindTexture(target, glname);
-            GL.GetTexImage(target, level, pixelformat, pixeltype, dataPtr);
+            GL.GetTexImage(target, level, pxFormat, pxType, dataPtr);
             GL.BindTexture(target, 0);
 
             // create bitmap from data
-            return new Bitmap(w, h, w * pixelsize, fileformat, dataPtr);
+            return new Bitmap(w, h, w * pxSize, fileFormat, dataPtr);
         }
 
         public override void Delete()
@@ -131,10 +136,10 @@ namespace App
         }
 
         #region UTIL METHODS
-        private static byte[] loadImageFiles(ErrorCollector err, string dir, string[] filenames,
-            ref int w, ref int h, ref int d, PixelInternalFormat gpuformat, 
+        private static byte[] loadImageFiles(GLException err, string dir, string[] filenames,
+            ref int w, ref int h, ref int d, GpuFormat gpuformat, 
             out PixelFormat pixelformat, out PixelType pixeltype, out int pixelsize,
-            out SysImg.PixelFormat fileformat)
+            out FilePixelFormat fileformat)
         {
             // SET DEFAULT DATA FOR OUTPUTS
             byte[] data = null;
@@ -143,7 +148,7 @@ namespace App
             pixelformat = isdepth ? PixelFormat.DepthComponent : PixelFormat.Bgra;
             pixeltype = isdepth ? PixelType.Float : PixelType.UnsignedByte;
             // set default file format and pixel size
-            fileformat = SysImg.PixelFormat.Format32bppArgb;
+            fileformat = FilePixelFormat.Format32bppArgb;
             pixelsize = Image.GetPixelFormatSize(fileformat) / 8;
 
             // LOAD IMAGA DATA FROM FILES
@@ -179,36 +184,41 @@ namespace App
                 // copy data to texture memory
                 for (int i = 0; i < imgD; i++)
                 {
-                    var bmpData = bmps[i].LockBits(
+                    var bits = bmps[i].LockBits(
                         new Rectangle(0, 0, Math.Min(bmps[i].Width, w), Math.Min(bmps[i].Height, h)),
                         SysImg.ImageLockMode.ReadOnly, fileformat);
-                    Marshal.Copy(bmpData.Scan0, data, pixelsize * w * h * i, bmpData.Stride * bmpData.Height);
-                    bmps[i].UnlockBits(bmpData);
+                    Marshal.Copy(bits.Scan0, data, pixelsize * w * h * i, bits.Stride * bits.Height);
+                    bmps[i].UnlockBits(bits);
                 }
             }
 
             return data;
         }
 
-        public void TexImage(TextureTarget target, PixelInternalFormat internalformat,
-            int width, int height, int depth, int length, PixelFormat format, PixelType type, IntPtr pixels)
+        public void TexImage(TexTarget target, GpuFormat internalformat, int width, int height,
+            int depth, int length, PixelFormat format, PixelType type, IntPtr pixels)
         {
             switch (target)
             {
-                case TextureTarget.Texture1D:
-                    GL.TexImage1D(target, 0, gpuformat, width, 0, pixelformat, pixeltype, pixels);
+                case TexTarget.Texture1D:
+                    GL.TexImage1D(target, 0, gpuFormat, width,
+                        0, pxFormat, pxType, pixels);
                     break;
-                case TextureTarget.Texture1DArray:
-                    GL.TexImage2D(target, 0, gpuformat, width, length, 0, pixelformat, pixeltype, pixels);
+                case TexTarget.Texture1DArray:
+                    GL.TexImage2D(target, 0, gpuFormat, width, length,
+                        0, pxFormat, pxType, pixels);
                     break;
-                case TextureTarget.Texture2D:
-                    GL.TexImage2D(target, 0, gpuformat, width, height, 0, pixelformat, pixeltype, pixels);
+                case TexTarget.Texture2D:
+                    GL.TexImage2D(target, 0, gpuFormat, width, height,
+                        0, pxFormat, pxType, pixels);
                     break;
-                case TextureTarget.Texture2DArray:
-                    GL.TexImage3D(target, 0, gpuformat, width, height, length, 0, pixelformat, pixeltype, pixels);
+                case TexTarget.Texture2DArray:
+                    GL.TexImage3D(target, 0, gpuFormat, width, height, length,
+                        0, pxFormat, pxType, pixels);
                     break;
-                case TextureTarget.Texture3D:
-                    GL.TexImage3D(target, 0, gpuformat, width, height, depth, 0, pixelformat, pixeltype, pixels);
+                case TexTarget.Texture3D:
+                    GL.TexImage3D(target, 0, gpuFormat, width, height, depth,
+                        0, pxFormat, pxType, pixels);
                     break;
             }
         }

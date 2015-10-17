@@ -36,7 +36,7 @@ namespace App
         public GLFragoutput(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
-            ErrorCollector err = new ErrorCollector();
+            var err = new GLException();
             err.PushCall("fragoutput '" + name + "'");
 
             // PARSE TEXT TO COMMANDS
@@ -66,7 +66,7 @@ namespace App
 
             // if any errors occurred throw exception
             if (err.HasErrors())
-                err.ThrowExeption();
+                throw err;
 
             // CHECK FOR OPENGL ERRORS
             Bind();
@@ -107,7 +107,7 @@ namespace App
             }
         }
 
-        private void attatch(ErrorCollector err, string[] cmd, Dict classes)
+        private void attatch(GLException err, string[] cmd, Dict classes)
         {
             // get OpenGL image
             GLImage glimg = classes.FindClass<GLImage>(cmd[1]);

@@ -9,7 +9,7 @@ namespace App
         public GLVertinput(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
-            ErrorCollector err = new ErrorCollector();
+            var err = new GLException();
             err.PushCall("vertinput '" + name + "'");
 
             // PARSE TEXT
@@ -35,7 +35,7 @@ namespace App
 
             // if errors occurred throw exception
             if (err.HasErrors())
-                err.ThrowExeption();
+                throw err;
 
             // unbind object and check for errors
             GL.BindVertexArray(0);
@@ -44,7 +44,7 @@ namespace App
                     + "' occurred during vertex input object creation.");
         }
 
-        private void attach(ErrorCollector err, int attrIdx, string[] args, string name, Dict classes)
+        private void attach(GLException err, int attrIdx, string[] args, string name, Dict classes)
         {
             // check commands for errors
             if (!args[0].Equals("attr"))
@@ -67,7 +67,7 @@ namespace App
             int divisor = args.Length > 6 ? int.Parse(args[6]) : 0;
             
             GLBuffer buff;
-            if (classes.TryFindClass(err, buffname, out buff) == false)
+            if (classes.TryFindClass(buffname, out buff, err) == false)
             {
                 err.Add("Buffer '" + buffname + "' could not be found.");
                 return;
