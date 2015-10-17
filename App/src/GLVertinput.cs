@@ -1,6 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Collections.Generic;
 
 namespace App
 {
@@ -10,7 +9,7 @@ namespace App
             : base(name, annotation)
         {
             var err = new GLException();
-            err.PushCall("vertinput '" + name + "'");
+            err.PushCall($"vertinput '{name}'");
 
             // PARSE TEXT
             var cmds = Text2Cmds(text);
@@ -28,7 +27,7 @@ namespace App
                     continue;
 
                 // attach buffer
-                err.PushCall("command " + (i + 1) + " '" + cmd[0] + "'");
+                err.PushCall($"command {i + 1} '{cmd[0]}'");
                 attach(err, i, cmd, name, classes);
                 err.PopCall();
             }
@@ -40,8 +39,7 @@ namespace App
             // unbind object and check for errors
             GL.BindVertexArray(0);
             if (GL.GetError() != ErrorCode.NoError)
-                err.Throw("OpenGL error '" + GL.GetError()
-                    + "' occurred during vertex input object creation.");
+                err.Throw($"OpenGL error '{GL.GetError()}' occurred during vertex input object creation.");
         }
 
         private void attach(GLException err, int attrIdx, string[] args, string name, Dict classes)
@@ -49,7 +47,7 @@ namespace App
             // check commands for errors
             if (!args[0].Equals("attr"))
             {
-                err.Add("Command '" + args[0] + "' not supported.");
+                err.Add($"Command '{args[0]}' not supported.");
                 return;
             }
             if (args.Length < 4)
@@ -69,7 +67,7 @@ namespace App
             GLBuffer buff;
             if (classes.TryFindClass(buffname, out buff, err) == false)
             {
-                err.Add("Buffer '" + buffname + "' could not be found.");
+                err.Add($"Buffer '{buffname}' could not be found.");
                 return;
             }
 
@@ -85,7 +83,7 @@ namespace App
             else if (Enum.TryParse(typename, true, out typef))
                 GL.VertexAttribPointer(attrIdx, length, typef, false, stride, offset);
             else
-                err.Add("Type '" + typename + "' is not supported.");
+                err.Add($"Type '{typename}' is not supported.");
             
             if (divisor > 0)
                 GL.VertexAttribDivisor(attrIdx, divisor);

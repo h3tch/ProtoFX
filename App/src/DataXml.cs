@@ -8,43 +8,26 @@ namespace App
 {
     class DataXml
     {
-        #region FIELDS
-        private static Dictionary<string, Type> str2type = new Dictionary<string, Type>
-        {
-            {"bool"    , typeof(bool)},
-            {"byte"    , typeof(byte)},
-            {"sbyte"   , typeof(sbyte)},
-            {"char"    , typeof(char)},
-            {"decimal" , typeof(decimal)},
-            {"double"  , typeof(double)},
-            {"float"   , typeof(float)},
-            {"int"     , typeof(int)},
-            {"uint"    , typeof(uint)},
-            {"long"    , typeof(long)},
-            {"ulong"   , typeof(ulong)},
-            {"object"  , typeof(object)},
-            {"short"   , typeof(short)},
-            {"ushort"  , typeof(ushort)}
-        };
-        #endregion
 
         public static byte[] Load(XmlDocument xmlDoc, string itemname)
         {
-            string errstr = "<" + itemname + ">: ";
+            string errstr = $"<{itemname}>: ";
 
             try
             {
                 var nodes = xmlDoc.SelectNodes(itemname);
                 var data = new byte[nodes.Count][];
                 int i = 0;
+
                 foreach (XmlNode node in nodes)
                 {
                     // get type and values of the element
                     Type type;
                     Array values;
+
                     // the values are in binary format
                     var attr = node.Attributes;
-                    if (attr["isbinary"] != null && attr["isbinary"].Value.Equals("true"))
+                    if (attr?["isbinary"].Value.Equals("true") ?? false)
                     {
                         type = typeof(char);
                         values = node.InnerText.ToCharArray();
@@ -54,12 +37,12 @@ namespace App
                     {
                         // get value type and check for errors
                         if (attr["type"] == null)
-                            throw new GLException(errstr + "For non binary data a type has to be "
-                                + " specified(e.g. <" + itemname + " type='float'>).");
-
-                        if (!str2type.TryGetValue(attr["type"].Value, out type))
-                            throw new GLException(errstr + "Type '" + attr["type"].Value
-                                + "' not supported.");
+                            throw new GLException($"{errstr}For non binary data a type has to be "
+                                + $" specified(e.g. <{itemname} type='float'>).");
+                        
+                        type = Data.str2type[attr["type"].Value];
+                        if (type == null)
+                            throw new GLException($"{errstr}Type '{attr["type"].Value}' not supported.");
 
                         // convert values
                         var raw = Regex.Matches(node.InnerText, "(\\+|\\-)?[0-9\\.\\,]+");
@@ -78,7 +61,7 @@ namespace App
             }
             catch
             {
-                throw new GLException(errstr + "Could not load item.");
+                throw new GLException($"{errstr}Could not load item.");
             }
         }
 

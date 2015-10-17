@@ -14,7 +14,7 @@ namespace App
             : base(name, annotation)
         {
             var err = new GLException();
-            err.PushCall("vertoutput '" + name + "'");
+            err.PushCall($"vertoutput '{name}'");
 
             // PARSE TEXT
             var cmds = Text2Cmds(text);
@@ -36,7 +36,7 @@ namespace App
                     continue;
 
                 // attach buffer
-                err.PushCall("command " + (i + 1) + " '" + cmd[0] + "'");
+                err.PushCall($"command {i + 1} '{cmd[0]}'");
                 if (cmd[0] == "buff")
                     attach(err, numbindings++, cmd, classes);
                 err.PopCall();
@@ -49,8 +49,7 @@ namespace App
             // unbind object and check for errors
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, 0);
             if (GL.GetError() != ErrorCode.NoError)
-                err.Throw("OpenGL error '" + GL.GetError()
-                    + "' occurred during vertex output object creation.");
+                err.Throw($"OpenGL error '{GL.GetError()}' occurred during vertex output object creation.");
         }
 
         public void Bind(TransformFeedbackPrimitiveType primitive)
@@ -96,7 +95,7 @@ namespace App
             GLBuffer buf = classes.FindClass<GLBuffer>(cmd[1]);
             if (buf == null)
             {
-                err.Add("The name '" + cmd[1] + "' does not reference an object of type 'buffer'.");
+                err.Add($"The name '{cmd[1]}' does not reference an object of type 'buffer'.");
                 return;
             }
 
@@ -104,7 +103,7 @@ namespace App
             int offset = 0;
             if (cmd.Length >= 3 && int.TryParse(cmd[2], out offset) == false)
             {
-                err.Add("The second parameter (offset) of buff " + unit + " is invalid.");
+                err.Add($"The second parameter (offset) of buff {unit} is invalid.");
                 return;
             }
 
@@ -112,7 +111,7 @@ namespace App
             int size = buf.size;
             if (cmd.Length >= 4 && int.TryParse(cmd[3], out size) == false)
             {
-                err.Add("The third parameter (size) of buff" + unit + " is invalid.");
+                err.Add($"The third parameter (size) of buff {unit} is invalid.");
                 return;
             }
 

@@ -10,15 +10,17 @@ namespace App
     class GLBuffer : GLObject
     {
         #region FIELDS
-        public int size = 0;
-        public BufferUsageHint usage = BufferUsageHint.StaticDraw;
+        [GLField]
+        public int size { get; private set; } = 0;
+        [GLField]
+        public BufferUsageHint usage { get; private set; } = BufferUsageHint.StaticDraw;
         #endregion
 
         public GLBuffer(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
             var err = new GLException();
-            err.PushCall("buffer '" + name + "'");
+            err.PushCall($"buffer '{name}'");
 
             // PARSE TEXT TO COMMANDS
             var cmds = Text2Cmds(text);
@@ -36,7 +38,7 @@ namespace App
                 if (cmd == null)
                     continue;
 
-                err.PushCall("command " + i + " '" + cmd[0] + "'");
+                err.PushCall($"command {i} '{cmd[0]}'");
 
                 switch (cmd[0])
                 {
@@ -76,7 +78,7 @@ namespace App
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             if (GL.GetError() != ErrorCode.NoError)
-                err.Add("OpenGL error '" + GL.GetError() + "' occurred during buffer allocation.");
+                err.Add($"OpenGL error '{GL.GetError()}' occurred during buffer allocation.");
             if (err.HasErrors())
                 throw err;
         }

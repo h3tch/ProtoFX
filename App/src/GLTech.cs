@@ -10,7 +10,7 @@ namespace App
             : base(name, annotation)
         {
             var err = new GLException();
-            err.PushCall("tech '" + name + "'");
+            err.PushCall($"tech '{name}'");
 
             // PARSE TEXT
             var cmds = Text2Cmds(text);
@@ -24,7 +24,7 @@ namespace App
                 if (!cmd[0].Equals("pass"))
                     continue;
 
-                err.PushCall("command " + i + " '" + cmd[0] + "'");
+                err.PushCall($"command {i} '{cmd[0]}'");
 
                 // find pass object
                 if (classes.TryFindClass(cmd[1], out pass, err))
@@ -44,8 +44,6 @@ namespace App
                 pass.Exec(width, height);
         }
 
-        public override void Delete()
-        {
-        }
+        public override void Delete() { }
     }
 }

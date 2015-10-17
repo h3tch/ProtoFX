@@ -21,8 +21,8 @@ namespace App
             {
                 // get class name of object type
                 var classname = typeof(T).Name.Substring(2).ToLower();
-                err?.Add("The name '" + instancename + "' could not be found or "
-                    + "does not reference an object of type '" + classname + "'.");
+                err?.Add($"The name '{instancename}' could not be found or "
+                    + $"does not reference an object of type '{classname}'.");
                 return false;
             }
             return true;

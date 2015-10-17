@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using static System.Reflection.BindingFlags;
 
 namespace App
 {
@@ -52,23 +54,23 @@ namespace App
             for (int i = 0; i < cmds.Length; i++)
             {
                 var arg = cmds[i];
-                var field = type.GetField(arg[0]);
-                if (field != null)
-                {
-                    // remove argument from array
-                    cmds[i] = null;
-                    // if this is an array pass the arguments as string
-                    if (field.FieldType.IsArray)
-                        field.SetValue(clazz, arg.Skip(1).Take(arg.Length-1).ToArray());
-                    // if this is an enum, convert the string to an enum value
-                    else if (field.FieldType.IsEnum)
-                        field.SetValue(clazz, Convert.ChangeType(
-                            Enum.Parse(field.FieldType, arg[1], true), field.FieldType));
-                    // else try to convert it to the field type
-                    else
-                        field.SetValue(clazz, Convert.ChangeType(
-                            arg[1], field.FieldType, App.culture));
-                }
+                var field = type.GetField(arg[0], Instance | Public | NonPublic);
+                if (field == null || field.GetCustomAttributes(typeof(GLField), false).Length == 0)
+                    continue;
+
+                // remove argument from array
+                cmds[i] = null;
+
+                // if this is an array pass the arguments as string
+                if (field.FieldType.IsArray)
+                    field.SetValue(clazz, arg.Skip(1).Take(arg.Length-1).ToArray());
+                // if this is an enum, convert the string to an enum value
+                else if (field.FieldType.IsEnum)
+                    field.SetValue(clazz, Convert.ChangeType(
+                        Enum.Parse(field.FieldType, arg[1], true), field.FieldType));
+                // else try to convert it to the field type
+                else
+                    field.SetValue(clazz, Convert.ChangeType(arg[1], field.FieldType, App.culture));
             }
         }
         #endregion

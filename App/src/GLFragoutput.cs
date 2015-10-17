@@ -6,7 +6,9 @@ namespace App
     class GLFragoutput : GLObject
     {
         #region PROPERTIES
+        [GLField]
         public int width { get; protected set; }
+        [GLField]
         public int height { get; protected set; }
         #endregion
 
@@ -37,7 +39,7 @@ namespace App
             : base(name, annotation)
         {
             var err = new GLException();
-            err.PushCall("fragoutput '" + name + "'");
+            err.PushCall($"fragoutput '{name}'");
 
             // PARSE TEXT TO COMMANDS
             var cmds = Text2Cmds(text);
@@ -59,7 +61,7 @@ namespace App
                     continue;
 
                 // attach image
-                err.PushCall("command " + (i + 1) + " '" + cmd[0] + "'");
+                err.PushCall($"command {i + 1} '{cmd[0]}'");
                 attatch(err, cmd, classes);
                 err.PopCall();
             }
@@ -75,8 +77,7 @@ namespace App
 
             // final error checks
             if (GL.GetError() != ErrorCode.NoError)
-                err.Throw("OpenGL error '" + GL.GetError()
-                    + "' occurred during fragment output creation.");
+                err.Throw($"OpenGL error '{GL.GetError()}' occurred during fragment output creation.");
             if (status != FramebufferErrorCode.FramebufferComplete)
                 err.Throw("Could not be created due to an unknown error.");
         }
@@ -113,7 +114,7 @@ namespace App
             GLImage glimg = classes.FindClass<GLImage>(cmd[1]);
             if (glimg == null)
             {
-                err.Add("The name '" + cmd[1] + "' does not reference an object of type 'image'.");
+                err.Add($"The name '{cmd[1]}' does not reference an object of type 'image'.");
                 return;
             }
 
@@ -130,10 +131,10 @@ namespace App
 
             // get attachment point
             FramebufferAttachment attachment;
-            if (!Enum.TryParse(cmd[0] + "attachment" + (cmd[0].Equals("color") ? "" + numAttachments++ : ""),
+            if (!Enum.TryParse($"{cmd[0]}attachment{(cmd[0].Equals("color") ? ""+numAttachments++ : "")}",
                 true, out attachment))
             {
-                err.Add("Invalid attachment point '" + cmd[0] + "'.");
+                err.Add($"Invalid attachment point '{cmd[0]}'.");
                 return;
             }
 
@@ -155,7 +156,7 @@ namespace App
                         attachment, glimg.target, glimg.glname, mipmap);
                     break;
                 default:
-                    err.Add("The texture type '" + glimg.target + "' of image '" + cmd[1] + "' is not supported.");
+                    err.Add($"The texture type '{glimg.target}' of image '{cmd[1]}' is not supported.");
                     break;
             }
         }

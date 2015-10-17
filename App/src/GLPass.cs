@@ -15,29 +15,37 @@ namespace App
     {
         #region FIELDS
         private static CultureInfo culture = new CultureInfo("en");
-        public string vert = null;
-        public string tess = null;
-        public string eval = null;
-        public string geom = null;
-        public string frag = null;
-        public string comp = null;
-        public string[] vertout = null;
-        public string fragout = null;
-        public GLObject glvert = null;
-        public GLObject gltess = null;
-        public GLObject gleval = null;
-        public GLObject glgeom = null;
-        public GLObject glfrag = null;
-        public GLObject glcomp = null;
-        public GLVertoutput glvertout = null;
-        public VertoutPrimType vertoutPrimitive = VertoutPrimType.Points;
-        public GLFragoutput glfragout = null;
-        public List<MultiDrawCall> drawcalls = new List<MultiDrawCall>();
-        public List<CompCall> compcalls = new List<CompCall>();
-        public List<Res<GLTexture>> textures = new List<Res<GLTexture>>();
-        public List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
-        public List<GLMethod> invoke = new List<GLMethod>();
-        public List<CsharpClass> csexec = new List<CsharpClass>();
+        [GLField]
+        private string vert = null;
+        [GLField]
+        private string tess = null;
+        [GLField]
+        private string eval = null;
+        [GLField]
+        private string geom = null;
+        [GLField]
+        private string frag = null;
+        [GLField]
+        private string comp = null;
+        [GLField]
+        private string[] vertout = null;
+        [GLField]
+        private string fragout = null;
+        private GLObject glvert = null;
+        private GLObject gltess = null;
+        private GLObject gleval = null;
+        private GLObject glgeom = null;
+        private GLObject glfrag = null;
+        private GLObject glcomp = null;
+        private GLVertoutput glvertout = null;
+        private VertoutPrimType vertoutPrimitive = VertoutPrimType.Points;
+        private GLFragoutput glfragout = null;
+        private List<MultiDrawCall> drawcalls = new List<MultiDrawCall>();
+        private List<CompCall> compcalls = new List<CompCall>();
+        private List<Res<GLTexture>> textures = new List<Res<GLTexture>>();
+        private List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
+        private List<GLMethod> invoke = new List<GLMethod>();
+        private List<CsharpClass> csexec = new List<CsharpClass>();
         #endregion
 
         #region HELP STRUCT
@@ -266,7 +274,7 @@ namespace App
             : base(name, annotation)
         {
             var err = new GLException();
-            err.PushCall("pass '" + name + "'");
+            err.PushCall($"pass '{name}'");
 
             // PARSE TEXT TO COMMANDS
             var cmds = Text2Cmds(text);
@@ -283,7 +291,7 @@ namespace App
                 if (cmd == null)
                     continue;
 
-                err.PushCall("command " + i + " '" + cmd[0] + "'");
+                err.PushCall($"command {i} '{cmd[0]}'");
                 switch (cmd[0])
                 {
                     case "draw": ParseDrawCall(err, cmd, classes); break;
@@ -299,9 +307,9 @@ namespace App
             // GET VERTEX AND FRAGMENT OUTPUT BINDINGS
             
             if (fragout != null && !classes.TryFindClass(fragout, out glfragout))
-                err.Add("The name '" + fragout + "' does not reference an object of type 'fragout'.");
+                err.Add($"The name '{fragout}' does not reference an object of type 'fragout'.");
             if (vertout != null && vertout.Length > 0 && !classes.TryFindClass(vertout[0], out glvertout))
-                err.Add("The name '" + vertout[0] + "' does not reference an object of type 'vertout'.");
+                err.Add($"The name '{vertout[0]}' does not reference an object of type 'vertout'.");
             if (err.HasErrors())
                 throw err;
 
@@ -353,7 +361,7 @@ namespace App
             }
 
             if (GL.GetError() != ErrorCode.NoError)
-                err.Add("OpenGL error '" + GL.GetError() + "' occurred during shader program creation.");
+                err.Add($"OpenGL error '{GL.GetError()}' occurred during shader program creation.");
             if (err.HasErrors())
                 throw err;
         }
@@ -631,7 +639,7 @@ namespace App
             if (classes.TryGetValue(cmd[1], out obj) == false
                 || obj.GetType() != typeof(GLCsharp))
             {
-                err.Add("Could not find csharp code '" + cmd[1] + "' of command '"
+                err.Add($"Could not find csharp code '{cmd[1]}' of command '"
                     + string.Join(" ", cmd) + "'.");
                 return;
             }
@@ -641,7 +649,7 @@ namespace App
             var instance = clazz.CreateInstance(cmd[2], cmd);
             if (instance == null)
             {
-                err.Add("Main class '" + cmd[2] + "' could not be found.");
+                err.Add($"Main class '{cmd[2]}' could not be found.");
                 return;
             }
 
@@ -658,17 +666,14 @@ namespace App
             return methods.Count() > 0 ? methods.First() : null;
         }
 
-        private GLObject attach(GLException err, string sh, Dict classes)
+        private GLShader attach(GLException err, string sh, Dict classes)
         {
-            if (sh == null)
-                return null;
-            GLObject glsh;
+            GLShader glsh = null;
+
             // get shader from class list
-            if (classes.TryGetValue(sh, out glsh) && glsh.GetType() == typeof(GLShader))
-                // attach to program
+            if (sh != null && classes.TryFindClass(sh, out glsh, err))
                 GL.AttachShader(glname, glsh.glname);
-            else
-                err.Add("Invalid name '" + sh + "'.");
+
             return glsh;
         }
 
@@ -682,7 +687,7 @@ namespace App
             // parse vertex output primitive type
             if (!Enum.TryParse(varyings[1], true, out vertoutPrimitive))
                 err.Throw("vertout command does not support "
-                    + "the specified primitive type '" + varyings[1] + "' "
+                    + $"the specified primitive type '{varyings[1]}' "
                     + "(must be 'points', 'lines' or 'triangles').");
 
             // get vertex output varying specification

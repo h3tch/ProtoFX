@@ -10,8 +10,6 @@
             this.text = text;
         }
 
-        public override void Delete()
-        {
-        }
+        public override void Delete() { }
     }
 }

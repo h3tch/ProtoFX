@@ -1,15 +1,18 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using System;
 
 namespace App
 {
     class GLTexture : GLObject
     {
         #region FIELDS
-        public string samp = null;
-        public string buff = null;
-        public string img = null;
-        public SizedInternalFormat format = 0;
+        [GLField]
+        private string samp = null;
+        [GLField]
+        private string buff = null;
+        [GLField]
+        private string img = null;
+        [GLField]
+        private SizedInternalFormat format = 0;
         private GLSampler glsamp = null;
         private GLBuffer glbuff = null;
         private GLImage glimg = null;
@@ -20,7 +23,7 @@ namespace App
 
         {
             var err = new GLException();
-            err.PushCall("texture '" + name + "'");
+            err.PushCall($"texture '{name}'");
 
             // PARSE TEXT
             var cmds = Text2Cmds(text);
@@ -48,15 +51,14 @@ namespace App
             if (glbuff != null && glimg == null)
             {
                 if (format == 0)
-                    err.Throw("No texture buffer format defined "
-                        + "for buffer '" + buff + "' (e.g. format RGBA8).");
+                    err.Throw($"No texture buffer format defined for buffer '{buff}' (e.g. format RGBA8).");
                 // CREATE OPENGL OBJECT
                 glname = GL.GenTexture();
                 GL.BindTexture(TextureTarget.TextureBuffer, glname);
                 GL.TexBuffer(TextureBufferTarget.TextureBuffer, format, glbuff.glname);
                 GL.BindTexture(TextureTarget.TextureBuffer, 0);
                 if (GL.GetError() != ErrorCode.NoError)
-                    err.Throw("OpenGL error '" + GL.GetError() + "' occurred during texture creation.");
+                    err.Throw($"OpenGL error '{GL.GetError()}' occurred during texture creation.");
             }
         }
 

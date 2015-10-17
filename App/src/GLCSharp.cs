@@ -13,8 +13,10 @@ namespace App
     class GLCsharp : GLObject
     {
         #region FIELDS
-        public string version = null;
-        public string[] file = null;
+        [GLField]
+        private string version = null;
+        [GLField]
+        private string[] file = null;
         private CompilerResults compilerresults;
         #endregion
 
@@ -60,7 +62,7 @@ namespace App
 
             // check for compiler errors
             if (compilerresults.Errors.Count != 0)
-                throw new GLException("csharp '" + name + "':\n" + compilerresults.Output);
+                throw new GLException($"csharp '{name}':\n" + compilerresults.Output);
         }
 
         public object CreateInstance(string classname, string[] args)
@@ -69,13 +71,10 @@ namespace App
             object clazz = compilerresults.CompiledAssembly.CreateInstance(
                 classname, false, BindingFlags.Default, null, new object[] { args }, App.culture, null);
             if (clazz == null)
-                throw new GLException("csharp '" + name + "': Main class "
-                    + "'" + classname + "' could not be found.");
+                throw new GLException($"csharp '{name}': Main class '{classname}' could not be found.");
             return clazz;
         }
 
-        public override void Delete()
-        {
-        }
+        public override void Delete() { }
     }
 }

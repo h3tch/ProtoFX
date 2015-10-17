@@ -15,14 +15,22 @@ namespace App
     class GLImage : GLObject
     {
         #region FIELDS
-        public string[] file = null;
+        [GLField]
+        private string[] file = null;
+        [GLField]
         public int width = 1;
+        [GLField]
         public int height = 0;
+        [GLField]
         public int depth = 0;
+        [GLField]
         public int length = 0;
+        [GLField]
         public int mipmaps = 0;
-        public TexTarget type = 0;
-        public GpuFormat format = GpuFormat.Rgba;
+        [GLField]
+        private TexTarget type = 0;
+        [GLField]
+        private GpuFormat format = GpuFormat.Rgba;
         private FilePixelFormat fileFormat = FilePixelFormat.Format32bppArgb;
         private PixelType pxType = 0;
         private int pxSize = 0;
@@ -30,15 +38,15 @@ namespace App
         #endregion
 
         #region PROPERTIES
-        public TexTarget target { get { return type; } set { type = value; } }
-        public GpuFormat gpuFormat { get { return format; } set { format = value; } }
+        public TexTarget target { get { return type; } private set { type = value; } }
+        public GpuFormat gpuFormat { get { return format; } private set { format = value; } }
         #endregion
 
         public GLImage(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
             var err = new GLException();
-            err.PushCall("image '" + name + "'");
+            err.PushCall($"image '{name}'");
 
             // PARSE TEXT TO COMMANDS
             var cmds = Text2Cmds(text);
@@ -101,7 +109,7 @@ namespace App
 
             GL.BindTexture(target, 0);
             if (GL.GetError() != ErrorCode.NoError)
-                err.Throw("OpenGL error '" + GL.GetError() + "' occurred during image allocation.");
+                err.Throw($"OpenGL error '{GL.GetError()}' occurred during image allocation.");
         }
 
         public Bitmap Read(int level)

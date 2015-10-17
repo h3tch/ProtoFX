@@ -5,9 +5,12 @@ namespace App
     class GLSampler : GLObject
     {
         #region FIELDS
-        public TextureMinFilter minfilter = TextureMinFilter.Nearest;
-        public TextureMagFilter magfilter = TextureMagFilter.Nearest;
-        public TextureWrapMode wrap = TextureWrapMode.ClampToEdge;
+        [GLField]
+        private TextureMinFilter minfilter = TextureMinFilter.Nearest;
+        [GLField]
+        private TextureMagFilter magfilter = TextureMagFilter.Nearest;
+        [GLField]
+        private TextureWrapMode wrap = TextureWrapMode.ClampToEdge;
         #endregion
 
         public GLSampler(string dir, string name, string annotation, string text, Dict classes)
@@ -31,8 +34,7 @@ namespace App
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapT, ref wrapi);
             
             if (GL.GetError() != ErrorCode.NoError)
-                throw new GLException("OpenGL error '" + GL.GetError() + "' "
-                    + "occurred during sampler creation.");
+                throw new GLException($"OpenGL error '{GL.GetError()}' occurred during sampler creation.");
         }
 
         public override void Delete()

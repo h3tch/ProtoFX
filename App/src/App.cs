@@ -213,10 +213,10 @@ namespace App
 
         private void toolBtnRun_Click(object sender, EventArgs e)
         {
-            this.codeError.Text = "";
+            codeError.Text = "";
             ClearGLObjects();
 
-            var sourceTab = (TabPage)this.tabSource.SelectedTab;
+            var sourceTab = (TabPage)tabSource.SelectedTab;
             var sourceText = (CodeEditor)sourceTab.Controls[0];
             var dir = sourceTab.filepath != null ?
                 Path.GetDirectoryName(sourceTab.filepath) : Directory.GetCurrentDirectory();
@@ -254,19 +254,19 @@ namespace App
                         var type = Type.GetType(classType);
                         // check for errors
                         if (type == null)
-                            throw new GLException(classInfo[0] + " '" + className + "': "
-                                + "Class type '" + classInfo[0] + "' not known.");
-                        if (this.classes.ContainsKey(className))
-                            throw new GLException(classInfo[0] + " '" + className + "': "
-                                + "Class name '" + className + "' already exists.");
+                            throw new GLException($"{classInfo[0]} '{className}': "
+                                + $"Class type '{classInfo[0]}' not known.");
+                        if (classes.ContainsKey(className))
+                            throw new GLException($"{classInfo[0]} '{className}': "
+                                + $"Class name '{className}' already exists.");
                         // instantiate class
-                        this.classes.Add(className, (GLObject)Activator.CreateInstance(
-                            type, dir, className, classAnno, classText, this.classes));
+                        classes.Add(className, (GLObject)Activator.CreateInstance(
+                            type, dir, className, classAnno, classText, classes));
                     }
                     catch (Exception ex)
                     {
                         if (ex.GetBaseException().GetType() == typeof(GLException))
-                            this.codeError.AppendText(ex.GetBaseException().Message);
+                            codeError.AppendText(ex.GetBaseException().Message);
                     }
                 }
             }
@@ -274,18 +274,18 @@ namespace App
             {
                 // show errors
                 if (ex.GetBaseException().GetType() == typeof(GLException))
-                    this.codeError.AppendText(ex.GetBaseException().Message);
+                    codeError.AppendText(ex.GetBaseException().Message);
             }
 
             // UPDATE DEBUG DATA
-            this.comboBuf.Items.Clear();
-            this.comboImg.Items.Clear();
+            comboBuf.Items.Clear();
+            comboImg.Items.Clear();
             foreach (var pair in classes)
             {
                 if (pair.Value.GetType() == typeof(GLBuffer))
-                    this.comboBuf.Items.Add(pair.Value);
+                    comboBuf.Items.Add(pair.Value);
                 else if (pair.Value.GetType() == typeof(GLImage))
-                    this.comboImg.Items.Add(pair.Value);
+                    comboImg.Items.Add(pair.Value);
             }
 
             // SHOW SCENE

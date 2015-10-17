@@ -11,8 +11,6 @@
             this.control = control;
         }
 
-        public override void Delete()
-        {
-        }
+        public override void Delete() { }
     }
 }

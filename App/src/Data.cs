@@ -7,6 +7,24 @@ namespace App
 {
     class Data
     {
+        public static Dictionary<string, Type> str2type = new Dictionary<string, Type>
+        {
+            {"bool"    , typeof(bool)},
+            {"byte"    , typeof(byte)},
+            {"sbyte"   , typeof(sbyte)},
+            {"char"    , typeof(char)},
+            {"decimal" , typeof(decimal)},
+            {"double"  , typeof(double)},
+            {"float"   , typeof(float)},
+            {"int"     , typeof(int)},
+            {"uint"    , typeof(uint)},
+            {"long"    , typeof(long)},
+            {"ulong"   , typeof(ulong)},
+            {"object"  , typeof(object)},
+            {"short"   , typeof(short)},
+            {"ushort"  , typeof(ushort)}
+        };
+
         public static Array Convert(byte[] data, string type, out Type T)
         {
             // convert data to specified type
@@ -48,7 +66,7 @@ namespace App
         {
             // find method to convert the data
             var methods = from m in typeof(BitConverter).GetMethods()
-                          where m.Name == "To" + typeof(T).Name
+                          where m.Name == $"To{typeof(T).Name}"
                           select m;
             if (methods.Count() == 0)
                 return data;
@@ -61,7 +79,8 @@ namespace App
 
             // convert data
             for (int i = 0; i < rs.Length; i++)
-                rs.SetValue(System.Convert.ChangeType(method.Invoke(null, new object[] { data, typesize * i }), typeof(T)), i);
+                rs.SetValue(System.Convert.ChangeType(
+                    method.Invoke(null, new object[] { data, typesize * i }), typeof(T)), i);
 
             return rs;
         }
