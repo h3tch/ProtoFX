@@ -45,14 +45,13 @@ namespace App
         public GLImage(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
-            var err = new GLException();
-            err.PushCall($"image '{name}'");
+            var err = new GLException($"image '{name}'");
 
-            // PARSE TEXT TO COMMANDS
-            var cmds = Text2Cmds(text);
+            // PARSE TEXT
+            var cmds = new Commands(text, err);
 
-            // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
-            Cmds2Fields(this, ref cmds);
+            // PARSE ARGUMENTS
+            cmds.Cmds2Fields(this, err);
 
             // if type was not specified
             if (target == 0)

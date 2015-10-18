@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Xml;
 using System.IO;
+using System.Linq;
 
 namespace App
 {
@@ -19,39 +20,22 @@ namespace App
         public GLBuffer(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
-            var err = new GLException();
-            err.PushCall($"buffer '{name}'");
+            var err = new GLException($"buffer '{name}'");
 
             // PARSE TEXT TO COMMANDS
-            var cmds = Text2Cmds(text);
+            var cmds = new Commands(text, err);
 
             // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
-            Cmds2Fields(this, ref cmds);
-
+            cmds.Cmds2Fields(this, err);
+            
             // PARSE COMMANDS
             List<byte[]> datalist = new List<byte[]>();
-            for (int i = 0; i < cmds.Length; i++)
-            {
-                var cmd = cmds[i];
 
-                // skip if already processed commands
-                if (cmd == null)
-                    continue;
+            foreach (var cmd in cmds["txt"])
+                datalist.Add(loadText(err + $"command {cmd.cmd} 'txt'", dir, cmd.args, classes));
 
-                err.PushCall($"command {i} '{cmd[0]}'");
-
-                switch (cmd[0])
-                {
-                    case "txt":
-                        datalist.Add(loadText(err, dir, cmd, classes));
-                        break;
-                    case "xml":
-                        datalist.Add(LoadXml(err, dir, cmd, classes));
-                        break;
-                }
-                
-                err.PopCall();
-            }
+            foreach (var cmd in cmds["xml"])
+                datalist.Add(LoadXml(err + $"command {cmd.cmd} 'xml'", dir, cmd.args, classes));
 
             if (err.HasErrors())
                 throw err;
@@ -77,8 +61,7 @@ namespace App
                 GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)size, IntPtr.Zero, usage);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            if (GL.GetError() != ErrorCode.NoError)
-                err.Add($"OpenGL error '{GL.GetError()}' occurred during buffer allocation.");
+            GlErrorCheck(err);
             if (err.HasErrors())
                 throw err;
         }
@@ -110,15 +93,8 @@ namespace App
         #region UTIL METHODS
         private static byte[] LoadXml(GLException err, string dir, string[] cmd, Dict classes)
         {
-            // Check for a valid command
-            if (cmd.Length < 2)
-            {
-                err.Add("Do not know how to process this command.");
-                return null;
-            }
-
             // Get text from file or text object
-            string str = getText(dir, cmd[1], classes);
+            string str = getText(dir, cmd[0], classes);
             if (str == null)
             {
                 err.Add("Could not process command. Second argument "
@@ -133,12 +109,12 @@ namespace App
                 document.LoadXml(str);
 
                 // Load data from XML
-                byte[][] filedata = new byte[cmd.Length - 2][];
-                for (int i = 2; i < cmd.Length; i++)
+                byte[][] filedata = new byte[cmd.Length - 1][];
+                for (int i = 1; i < cmd.Length; i++)
                 {
                     try
                     {
-                        filedata[i - 2] = DataXml.Load(document, cmd[i]);
+                        filedata[i - 1] = DataXml.Load(document, cmd[i]);
                     }
                     catch (GLException ex)
                     {
@@ -160,15 +136,8 @@ namespace App
 
         private static byte[] loadText(GLException err, string dir, string[] cmd, Dict classes)
         {
-            // Check for a valid command
-            if (cmd.Length < 2)
-            {
-                err.Add("Do not know how to process this command.");
-                return null;
-            }
-
             // Get text from file or text object
-            string str = getText(dir, cmd[1], classes);
+            string str = getText(dir, cmd[0], classes);
             if (str == null)
             {
                 err.Add("Could not process command. Second argument "

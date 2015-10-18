@@ -53,7 +53,7 @@ namespace util
             float red2deg = (float)(Math.PI / 180);
 
             // parse command for values specified by the user
-            int i = 3; // start with 'fovy'
+            int i = 0; // start with 'fovy'
             if (cmd.Length > i) float.TryParse(cmd[i++], out fovy);
             if (cmd.Length > i) float.TryParse(cmd[i++], out n);
             if (cmd.Length > i) float.TryParse(cmd[i++], out f);

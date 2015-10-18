@@ -16,11 +16,13 @@ namespace App
         public GLSampler(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
-            // PARSE TEXT
-            var cmds = Text2Cmds(text);
+            var err = new GLException($"sampler '{name}'");
 
-            // PARSE COMMANDS
-            Cmds2Fields(this, ref cmds);
+            // PARSE TEXT
+            var body = new Commands(text, err);
+
+            // PARSE ARGUMENTS
+            body.Cmds2Fields(this, err);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenSampler();
@@ -32,9 +34,10 @@ namespace App
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapR, ref wrapi);
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapS, ref wrapi);
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapT, ref wrapi);
-            
-            if (GL.GetError() != ErrorCode.NoError)
-                throw new GLException($"OpenGL error '{GL.GetError()}' occurred during sampler creation.");
+
+            GlErrorCheck(err);
+            if (err.HasErrors())
+                throw err;
         }
 
         public override void Delete()

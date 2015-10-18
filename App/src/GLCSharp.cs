@@ -23,13 +23,17 @@ namespace App
         public GLCsharp(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
+            var err = new GLException($"csharp '{name}'");
+
             // PARSE TEXT
-            var args = Text2Cmds(text);
+            var cmds = new Commands(text, err);
 
             // PARSE ARGUMENTS
-            Cmds2Fields(this, ref args);
+            cmds.Cmds2Fields(this, err);
 
             // check for errors
+            if (err.HasErrors())
+                throw err;
             if (file == null || file.Length == 0)
                 return;
 
@@ -62,7 +66,7 @@ namespace App
 
             // check for compiler errors
             if (compilerresults.Errors.Count != 0)
-                throw new GLException($"csharp '{name}':\n" + compilerresults.Output);
+                err.Throw("\n" + compilerresults.Output);
         }
 
         public object CreateInstance(string classname, string[] args)

@@ -79,12 +79,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="demos\util\SpotLight.cs" />
     <Compile Include="src\CodeEditor.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="src\Commands.cs" />
     <Compile Include="src\Data.cs" />
     <Compile Include="demos\util\StaticCamera.cs" />
     <Compile Include="src\GLField.cs" />
+    <Compile Include="src\GLInstance.cs" />
     <Compile Include="src\GLText.cs" />
     <Compile Include="src\App.cs">
       <SubType>Form</SubType>
@@ -132,6 +135,7 @@
     </Compile>
     <None Include="demos\shadow_mapping.tech" />
     <None Include="demos\shadow_mapping_pcf.tech" />
+    <None Include="demos\shadow_mapping_pcss.tech" />
     <None Include="demos\simple_include_header.tech" />
     <None Include="demos\simple_texture.tech" />
     <None Include="demos\simple_vertoutput.tech" />

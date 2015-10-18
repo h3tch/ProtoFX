@@ -38,33 +38,21 @@ namespace App
         public GLFragoutput(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
-            var err = new GLException();
-            err.PushCall($"fragoutput '{name}'");
+            var err = new GLException($"fragoutput '{name}'");
 
-            // PARSE TEXT TO COMMANDS
-            var cmds = Text2Cmds(text);
+            // PARSE TEXT
+            var body = new Commands(text, err);
 
-            // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
-            Cmds2Fields(this, ref cmds);
+            // PARSE ARGUMENTS
+            body.Cmds2Fields(this, err);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, glname);
             
             // PARSE COMMANDS
-            for (int i = 0; i < cmds.Length; i++)
-            {
-                var cmd = cmds[i];
-
-                // ignore already parsed commands
-                if (cmd == null || cmd.Length < 2)
-                    continue;
-
-                // attach image
-                err.PushCall($"command {i + 1} '{cmd[0]}'");
-                attatch(err, cmd, classes);
-                err.PopCall();
-            }
+            foreach (var cmd in body)
+                attatch(err + $"command {cmd.idx} '{cmd.cmd}'", cmd.cmd, cmd.args, classes);
 
             // if any errors occurred throw exception
             if (err.HasErrors())
@@ -108,13 +96,13 @@ namespace App
             }
         }
 
-        private void attatch(GLException err, string[] cmd, Dict classes)
+        private void attatch(GLException err, string cmd, string[] args, Dict classes)
         {
             // get OpenGL image
-            GLImage glimg = classes.FindClass<GLImage>(cmd[1]);
+            GLImage glimg = classes.FindClass<GLImage>(args[0]);
             if (glimg == null)
             {
-                err.Add($"The name '{cmd[1]}' does not reference an object of type 'image'.");
+                err.Add($"The name '{args[0]}' does not reference an object of type 'image'.");
                 return;
             }
 
@@ -126,15 +114,15 @@ namespace App
             }
 
             // get additional optional parameters
-            int mipmap = cmd.Length >= 3 ? int.Parse(cmd[2]) : 0;
-            int layer = cmd.Length >= 4 ? int.Parse(cmd[3]) : 0;
+            int mipmap = args.Length > 1 ? int.Parse(args[1]) : 0;
+            int layer = args.Length > 2 ? int.Parse(args[2]) : 0;
 
             // get attachment point
             FramebufferAttachment attachment;
-            if (!Enum.TryParse($"{cmd[0]}attachment{(cmd[0].Equals("color") ? ""+numAttachments++ : "")}",
+            if (!Enum.TryParse($"{cmd}attachment{(cmd.Equals("color") ? ""+numAttachments++ : "")}",
                 true, out attachment))
             {
-                err.Add($"Invalid attachment point '{cmd[0]}'.");
+                err.Add($"Invalid attachment point '{cmd}'.");
                 return;
             }
 
@@ -156,7 +144,7 @@ namespace App
                         attachment, glimg.target, glimg.glname, mipmap);
                     break;
                 default:
-                    err.Add($"The texture type '{glimg.target}' of image '{cmd[1]}' is not supported.");
+                    err.Add($"The texture type '{glimg.target}' of image '{args[0]}' is not supported.");
                     break;
             }
         }

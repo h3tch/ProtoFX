@@ -13,34 +13,22 @@ namespace App
         public GLVertoutput(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
-            var err = new GLException();
-            err.PushCall($"vertoutput '{name}'");
+            var err = new GLException($"vertoutput '{name}'");
 
             // PARSE TEXT
-            var cmds = Text2Cmds(text);
+            var body = new Commands(text, err);
 
             // PARSE ARGUMENTS
-            Cmds2Fields(this, ref cmds);
+            body.Cmds2Fields(this, err);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenTransformFeedback();
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, glname);
 
             // parse commands
-            for (int i = 0, numbindings = 0; i < cmds.Length; i++)
-            {
-                var cmd = cmds[i];
-
-                // ignore already parsed commands
-                if (cmd == null || cmd.Length < 2)
-                    continue;
-
-                // attach buffer
-                err.PushCall($"command {i + 1} '{cmd[0]}'");
-                if (cmd[0] == "buff")
-                    attach(err, numbindings++, cmd, classes);
-                err.PopCall();
-            }
+            int numbindings = 0;
+            foreach (var cmd in body["buff"])
+                attach(err + $"command {cmd.idx} 'buff'", numbindings++, cmd.args, classes);
 
             // if errors occurred throw exception
             if (err.HasErrors())
@@ -85,23 +73,23 @@ namespace App
 
         private void attach(GLException err, int unit, string[] cmd, Dict classes)
         {
-            if (cmd.Length < 2)
+            if (cmd.Length == 0)
             {
                 err.Add("Command buff needs at least one attribute (e.g. 'buff buff_name')");
                 return;
             }
 
             // get buffer
-            GLBuffer buf = classes.FindClass<GLBuffer>(cmd[1]);
+            GLBuffer buf = classes.FindClass<GLBuffer>(cmd[0]);
             if (buf == null)
             {
-                err.Add($"The name '{cmd[1]}' does not reference an object of type 'buffer'.");
+                err.Add($"The name '{cmd[0]}' does not reference an object of type 'buffer'.");
                 return;
             }
 
             // parse offset
             int offset = 0;
-            if (cmd.Length >= 3 && int.TryParse(cmd[2], out offset) == false)
+            if (cmd.Length > 1 && int.TryParse(cmd[1], out offset) == false)
             {
                 err.Add($"The second parameter (offset) of buff {unit} is invalid.");
                 return;
@@ -109,7 +97,7 @@ namespace App
 
             // parse size
             int size = buf.size;
-            if (cmd.Length >= 4 && int.TryParse(cmd[3], out size) == false)
+            if (cmd.Length > 2 && int.TryParse(cmd[2], out size) == false)
             {
                 err.Add($"The third parameter (size) of buff {unit} is invalid.");
                 return;

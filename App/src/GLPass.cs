@@ -273,33 +273,26 @@ namespace App
         public GLPass(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
-            var err = new GLException();
-            err.PushCall($"pass '{name}'");
+            var err = new GLException($"pass '{name}'");
 
-            // PARSE TEXT TO COMMANDS
-            var cmds = Text2Cmds(text);
+            // PARSE TEXT
+            var body = new Commands(text, err);
 
-            // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
-            Cmds2Fields(this, ref cmds);
+            // PARSE ARGUMENTS
+            body.Cmds2Fields(this, err);
 
             // PARSE COMMANDS
-            for (int i = 0; i < cmds.Length; i++)
+            foreach (var cmd in body)
             {
-                var cmd = cmds[i];
-
-                // skip if already processed commands
-                if (cmd == null)
-                    continue;
-
-                err.PushCall($"command {i} '{cmd[0]}'");
-                switch (cmd[0])
+                err.PushCall($"command {cmd.idx} '{cmd.cmd}'");
+                switch (cmd.cmd)
                 {
-                    case "draw": ParseDrawCall(err, cmd, classes); break;
-                    case "compute": ParseComputeCall(err, cmd, classes);  break;
-                    case "tex": ParseTexCmd(err, cmd, classes); break;
-                    case "samp": ParseSampCmd(err, cmd, classes); break;
-                    case "exec": ParseCsharpExec(err, cmd, classes); break;
-                    default: ParseOpenGLCall(err, cmd); break;
+                    case "draw": ParseDrawCall(err, cmd.args, classes); break;
+                    case "compute": ParseComputeCall(err, cmd.args, classes); break;
+                    case "tex": ParseTexCmd(err, cmd.args, classes); break;
+                    case "samp": ParseSampCmd(err, cmd.args, classes); break;
+                    case "exec": ParseCsharpExec(err, cmd.cmd, cmd.args, classes); break;
+                    default: ParseOpenGLCall(err, cmd.cmd, cmd.args); break;
                 }
                 err.PopCall();
             }
@@ -459,7 +452,7 @@ namespace App
             int val;
 
             // parse draw call arguments
-            for (var i = 1; i < cmd.Length; i++)
+            for (var i = 0; i < cmd.Length; i++)
             {
                 if (classes.TryParseObject(cmd[i], ref vertexin)) continue;
                 if (classes.TryParseObject(cmd[i], ref vertout)) continue;
@@ -511,7 +504,7 @@ namespace App
         private void ParseComputeCall(GLException err, string[] cmd, Dict classes)
         {
             // check for errors
-            if (cmd.Length < 3 || cmd.Length > 4)
+            if (cmd.Length < 2 || cmd.Length > 3)
             {
                 err.Add("Compute command does not provide enough arguments "
                     + "(e.g., 'compute num_groups_X num_groups_y num_groups_z' or "
@@ -524,13 +517,13 @@ namespace App
                 CompCall call = new CompCall();
 
                 // this is an indirect compute call
-                if (cmd.Length == 3)
+                if (cmd.Length == 2)
                 {
                     // indirect compute call buffer
-                    call.numGroupsX = (uint)classes.ParseObject<GLBuffer>(cmd[1],
+                    call.numGroupsX = (uint)classes.ParseObject<GLBuffer>(cmd[0],
                         ": First argument of compute command must be a buffer name").glname;
                     // indirect compute call buffer pointer
-                    call.numGroupsY = Data.ParseType<uint>(cmd[2],
+                    call.numGroupsY = Data.ParseType<uint>(cmd[1],
                         "Argument must be an unsigned integer, specifying a pointer "
                         + "into the indirect compute call buffer.");
                 }
@@ -538,13 +531,13 @@ namespace App
                 else
                 {
                     // number of compute groups
-                    call.numGroupsX = Data.ParseType<uint>(cmd[1],
+                    call.numGroupsX = Data.ParseType<uint>(cmd[0],
                         "Argument must be an unsigned integer, "
                         + "specifying the number of compute groups in X.");
-                    call.numGroupsY = Data.ParseType<uint>(cmd[2],
+                    call.numGroupsY = Data.ParseType<uint>(cmd[1],
                         "Argument must be an unsigned integer, "
                         + "specifying the number of compute groups in Y.");
-                    call.numGroupsZ = Data.ParseType<uint>(cmd[3],
+                    call.numGroupsZ = Data.ParseType<uint>(cmd[2],
                         "Argument must be an unsigned integer, "
                         + "specifying the number of compute groups in Z.");
                 }
@@ -577,7 +570,7 @@ namespace App
             int unit = -1;
 
             // parse command arguments
-            for (var i = 1; i < cmd.Length; i++)
+            for (var i = 0; i < cmd.Length; i++)
             {
                 if (obj == null && classes.TryGetValue(cmd[i], out obj) && obj.GetType() == typeof(T))
                     continue;
@@ -594,13 +587,13 @@ namespace App
             return new Res<T>((T)Convert.ChangeType(obj, typeof(T)), unit);
         }
 
-        private void ParseOpenGLCall(GLException err, string[] cmd)
+        private void ParseOpenGLCall(GLException err, string cmd, string[] args)
         {
             // find OpenGL method
-            var mtype = FindMethod(cmd[0], cmd.Length - 1);
+            var mtype = FindMethod(cmd, args.Length);
             if (mtype == null)
             {
-                err.Add("Unknown command " + string.Join(" ", cmd) + ".");
+                err.Add("Unknown command " + string.Join(" ", args) + ".");
                 return;
             }
 
@@ -612,19 +605,19 @@ namespace App
             {
                 if (param[i].ParameterType.IsEnum)
                     inval[i] = Convert.ChangeType(
-                        Enum.Parse(param[i].ParameterType, cmd[i + 1], true),
+                        Enum.Parse(param[i].ParameterType, args[i], true),
                         param[i].ParameterType);
                 else
-                    inval[i] = Convert.ChangeType(cmd[i + 1], param[i].ParameterType, App.culture);
+                    inval[i] = Convert.ChangeType(args[i], param[i].ParameterType, App.culture);
             }
             
             invoke.Add(new GLMethod(mtype, inval));
         }
 
-        private void ParseCsharpExec(GLException err, string[] cmd, Dict classes)
+        private void ParseCsharpExec(GLException err, string cmd, string[] args, Dict classes)
         {
             // check if command provides the correct amount of parameters
-            if (cmd.Length < 3)
+            if (args.Length < 2)
             {
                 err.Add("Not enough arguments for exec command.");
                 return;
@@ -636,20 +629,20 @@ namespace App
             GraphicControl glControl = (GraphicControl)obj;
 
             // get csharp object
-            if (classes.TryGetValue(cmd[1], out obj) == false
+            if (classes.TryGetValue(args[0], out obj) == false
                 || obj.GetType() != typeof(GLCsharp))
             {
-                err.Add($"Could not find csharp code '{cmd[1]}' of command '"
-                    + string.Join(" ", cmd) + "'.");
+                err.Add($"Could not find csharp code '{args[0]}' of command '{cmd} "
+                    + string.Join(" ", args) + "'.");
                 return;
             }
             GLCsharp clazz = (GLCsharp)obj;
 
             // create instance of defined main class
-            var instance = clazz.CreateInstance(cmd[2], cmd);
+            var instance = clazz.CreateInstance(args[1], args.Skip(2).ToArray());
             if (instance == null)
             {
-                err.Add($"Main class '{cmd[2]}' could not be found.");
+                err.Add($"Main class '{args[1]}' could not be found.");
                 return;
             }
 

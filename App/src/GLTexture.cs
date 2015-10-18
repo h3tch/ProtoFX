@@ -22,14 +22,13 @@ namespace App
             : base(name, annotation)
 
         {
-            var err = new GLException();
-            err.PushCall($"texture '{name}'");
+            var err = new GLException($"texture '{name}'");
 
             // PARSE TEXT
-            var cmds = Text2Cmds(text);
+            var body = new Commands(text, err);
 
-            // PARSE COMMANDS
-            Cmds2Fields(this, ref cmds);
+            // PARSE ARGUMENTS
+            body.Cmds2Fields(this, err);
 
             // GET REFERENCES
             if (samp != null)
@@ -57,9 +56,11 @@ namespace App
                 GL.BindTexture(TextureTarget.TextureBuffer, glname);
                 GL.TexBuffer(TextureBufferTarget.TextureBuffer, format, glbuff.glname);
                 GL.BindTexture(TextureTarget.TextureBuffer, 0);
-                if (GL.GetError() != ErrorCode.NoError)
-                    err.Throw($"OpenGL error '{GL.GetError()}' occurred during texture creation.");
+                GlErrorCheck(err);
             }
+
+            if (err.HasErrors())
+                throw err;
         }
 
         public void Bind(int unit)

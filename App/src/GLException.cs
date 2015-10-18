@@ -5,15 +5,29 @@ namespace App
 {
     class GLException : Exception
     {
-        private List<string> callstack = new List<string>();
+        private List<string> callstack;
         private List<string> messages = new List<string>();
 
         public GLException() : base()
         {
+            callstack = new List<string>();
         }
 
-        public GLException(string message) : base(message)
+        public GLException(string callstack) : base()
         {
+            this.callstack = new List<string>();
+            this.callstack.Add(callstack);
+        }
+
+        public GLException(string callstackstring, string message) : base(callstackstring + message)
+        {
+            callstack = new List<string>();
+        }
+
+        public GLException(GLException err, string callstack) : base()
+        {
+            this.callstack = err.callstack;
+            this.callstack.Add(callstack);
         }
 
         // compile call stack into a single string
@@ -50,6 +64,11 @@ namespace App
             callstack.Add(text);
         }
 
+        public static GLException operator +(GLException err, string callLevel)
+        {
+            return new GLException(err, callLevel);
+        }
+
         public void PopCall()
         {
             if (callstack.Count > 0)
@@ -63,7 +82,7 @@ namespace App
 
         public void Throw(string message)
         {
-            throw new GLException(callstackstring + message);
+            throw new GLException(callstackstring, message);
         }
     }
 }

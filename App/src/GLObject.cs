@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -47,7 +48,7 @@ namespace App
             return cmds.ToArray();
         }
 
-        static protected void Cmds2Fields<T>(T clazz, ref string[][] cmds)
+        /*static protected void Cmds2Fields<T>(T clazz, ref string[][] cmds)
         {
             Type type = clazz.GetType();
 
@@ -72,6 +73,13 @@ namespace App
                 else
                     field.SetValue(clazz, Convert.ChangeType(arg[1], field.FieldType, App.culture));
             }
+        }*/
+
+        static protected void GlErrorCheck(GLException err)
+        {
+            var errcode = GL.GetError();
+            if (errcode != ErrorCode.NoError)
+                err.Add($"OpenGL error '{errcode}' occurred during buffer allocation.");
         }
         #endregion
     }
