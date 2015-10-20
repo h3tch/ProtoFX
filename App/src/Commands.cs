@@ -23,15 +23,7 @@ namespace App
             public string[] args;
         }
 
-        private List<Triple> cmds;
-
-        public object Current
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        private List<Triple> cmds = new List<Triple>();
 
         public IEnumerable<Triple> this[int key] {
             get
@@ -68,7 +60,8 @@ namespace App
                 if (matches.Count >= 2)
                 {
                     var args = matches.Cast<Match>().Select(m => m.Value);
-                    cmds.Add(new Triple(command++, args.First(), args.Skip(1).ToArray()));
+                    var triple = new Triple(command++, args.First(), args.Skip(1).ToArray());
+                    cmds.Add(triple);
                 }
                 else if (matches.Count > 0)
                 {
@@ -76,6 +69,14 @@ namespace App
                     command++;
                 }
             }
+        }
+
+        internal Dictionary<string,string[]> ToDict()
+        {
+            var dict = new Dictionary<string, string[]>();
+            foreach (var cmd in cmds)
+                dict.Add(cmd.cmd, cmd.args);
+            return dict;
         }
 
         public void Cmds2Fields<T>(T clazz, GLException err = null)

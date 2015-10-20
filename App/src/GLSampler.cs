@@ -35,7 +35,7 @@ namespace App
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapS, ref wrapi);
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapT, ref wrapi);
 
-            GlErrorCheck(err);
+            HasErrorOrGlError(err);
             if (err.HasErrors())
                 throw err;
         }

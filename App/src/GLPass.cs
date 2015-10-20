@@ -38,14 +38,14 @@ namespace App
         private GLObject glfrag = null;
         private GLObject glcomp = null;
         private GLVertoutput glvertout = null;
-        private VertoutPrimType vertoutPrimitive = VertoutPrimType.Points;
+        private VertoutPrimType vertoutPrim = VertoutPrimType.Points;
         private GLFragoutput glfragout = null;
         private List<MultiDrawCall> drawcalls = new List<MultiDrawCall>();
         private List<CompCall> compcalls = new List<CompCall>();
         private List<Res<GLTexture>> textures = new List<Res<GLTexture>>();
         private List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
-        private List<GLMethod> invoke = new List<GLMethod>();
-        private List<CsharpClass> csexec = new List<CsharpClass>();
+        private List<GLMethod> glfunc = new List<GLMethod>();
+        private List<GLInstance> csexec = new List<GLInstance>();
         #endregion
 
         #region HELP STRUCT
@@ -222,52 +222,6 @@ namespace App
                 this.inval = inval;
             }
         }
-
-        public class CsharpClass
-        {
-            private object instance = null;
-            private MethodInfo update = null;
-            private MethodInfo endpass = null;
-
-            public CsharpClass(object instance, GLControl glControl)
-            {
-                this.instance = instance;
-
-                // get bind method from main class instance
-                update = instance.GetType().GetMethod("Update", new Type[] {
-                    typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)
-                });
-
-                // get unbind method from main class instance
-                endpass = instance.GetType().GetMethod("EndPass", new Type[] { typeof(int) });
-
-                // get all public methods and check whether
-                // they can be used as event handlers for glControl
-                var methods = instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
-                foreach (var method in methods)
-                {
-                    EventInfo eventInfo = glControl.GetType().GetEvent(method.Name);
-                    if (eventInfo != null)
-                    {
-                        Delegate csmethod = Delegate.CreateDelegate(
-                            eventInfo.EventHandlerType, instance, method.Name);
-                        eventInfo.AddEventHandler(glControl, csmethod);
-                    }
-                }
-            }
-
-            public void Update(int program, int width, int height, int widthTex, int heightTex)
-            {
-                if (update != null)
-                    update.Invoke(instance, new object[] { program, width, height, widthTex, heightTex });
-            }
-
-            public void EndPass(int program)
-            {
-                if (endpass != null)
-                    endpass.Invoke(instance, new object[] { program });
-            }
-        }
         #endregion
 
         public GLPass(string dir, string name, string annotation, string text, Dict classes)
@@ -378,7 +332,7 @@ namespace App
             GL.Viewport(0, 0, fbWidth, fbHeight);
 
             // CALL USER SPECIFIED OPENGL FUNCTIONS
-            foreach (var glcall in invoke)
+            foreach (var glcall in glfunc)
                 glcall.mtype.Invoke(null, glcall.inval);
 
             // BIND PROGRAM
@@ -388,7 +342,7 @@ namespace App
             // BIND VERTEX OUTPUT (transform feedback)
             // (must be done after glUseProgram)
             if (glvertout != null)
-                glvertout.Bind(vertoutPrimitive);
+                glvertout.Bind(vertoutPrim);
 
             // BIND TEXTURES
             foreach (var t in textures)
@@ -611,42 +565,27 @@ namespace App
                     inval[i] = Convert.ChangeType(args[i], param[i].ParameterType, App.culture);
             }
             
-            invoke.Add(new GLMethod(mtype, inval));
+            glfunc.Add(new GLMethod(mtype, inval));
         }
 
         private void ParseCsharpExec(GLException err, string cmd, string[] args, Dict classes)
         {
             // check if command provides the correct amount of parameters
-            if (args.Length < 2)
+            if (args.Length == 0)
             {
                 err.Add("Not enough arguments for exec command.");
                 return;
             }
 
             // get GLControl
-            GLObject obj;
-            classes.TryGetValue(GraphicControl.nullname, out obj);
-            GraphicControl glControl = (GraphicControl)obj;
+            GraphicControl glControl = classes.FindClass<GraphicControl>(GraphicControl.nullname);
 
-            // get csharp object
-            if (classes.TryGetValue(args[0], out obj) == false
-                || obj.GetType() != typeof(GLCsharp))
-            {
-                err.Add($"Could not find csharp code '{args[0]}' of command '{cmd} "
-                    + string.Join(" ", args) + "'.");
+            // get instance
+            GLInstance instance;
+            if (classes.TryFindClass(args[0], out instance, err) == false)
                 return;
-            }
-            GLCsharp clazz = (GLCsharp)obj;
 
-            // create instance of defined main class
-            var instance = clazz.CreateInstance(args[1], args.Skip(2).ToArray());
-            if (instance == null)
-            {
-                err.Add($"Main class '{args[1]}' could not be found.");
-                return;
-            }
-
-            csexec.Add(new CsharpClass(instance, glControl.control));
+            csexec.Add(instance);
         }
         #endregion
 
@@ -678,7 +617,7 @@ namespace App
                     + "enough arguments (e.g. vertout vertout_name points varying_name).");
 
             // parse vertex output primitive type
-            if (!Enum.TryParse(varyings[1], true, out vertoutPrimitive))
+            if (!Enum.TryParse(varyings[1], true, out vertoutPrim))
                 err.Throw("vertout command does not support "
                     + $"the specified primitive type '{varyings[1]}' "
                     + "(must be 'points', 'lines' or 'triangles').");

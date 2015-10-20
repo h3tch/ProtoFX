@@ -36,8 +36,8 @@ namespace App
 
             // unbind object and check for errors
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, 0);
-            if (GL.GetError() != ErrorCode.NoError)
-                err.Throw($"OpenGL error '{GL.GetError()}' occurred during vertex output object creation.");
+            if (HasErrorOrGlError(err))
+                throw err;
         }
 
         public void Bind(TransformFeedbackPrimitiveType primitive)

@@ -107,8 +107,8 @@ namespace App
                 GL.GenerateMipmap((GenerateMipmapTarget)target);
 
             GL.BindTexture(target, 0);
-            if (GL.GetError() != ErrorCode.NoError)
-                err.Throw($"OpenGL error '{GL.GetError()}' occurred during image allocation.");
+            if (HasErrorOrGlError(err))
+                throw err;
         }
 
         public Bitmap Read(int level)

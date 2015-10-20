@@ -21,6 +21,7 @@
         if
         image
         in
+        instance
         int
         ivec2
         ivec3
@@ -68,6 +69,7 @@
         attr
         binding
         buff
+        class
         color
         comp
         compute

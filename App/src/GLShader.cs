@@ -7,7 +7,8 @@ namespace App
         public GLShader(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
         {
-            string errstr = $"shader '{name}': ";
+            var err = new GLException($"shader '{name}'");
+
             // CREATE OPENGL OBJECT
             ShaderType type;
             switch (annotation)
@@ -19,7 +20,8 @@ namespace App
                 case "frag": type = ShaderType.FragmentShader; break;
                 case "comp": type = ShaderType.ComputeShader; break;
                 default:
-                    throw new GLException($"{errstr}Shader type '{annotation}' is not supported.");
+                    err.Throw($"Shader type '{annotation}' is not supported.");
+                    return;
             }
 
             // CREATE OPENGL OBJECT
@@ -31,9 +33,9 @@ namespace App
             int status;
             GL.GetShader(glname, ShaderParameter.CompileStatus, out status);
             if (status != 1)
-                throw new GLException(errstr + "\n" + GL.GetShaderInfoLog(glname));
-            if (GL.GetError() != ErrorCode.NoError)
-                throw new GLException($"{errstr}OpenGL error '{GL.GetError()}' occurred during shader creation.");
+                err.Throw("\n" + GL.GetShaderInfoLog(glname));
+            if (HasErrorOrGlError(err))
+                throw err;
         }
 
         public override void Delete()

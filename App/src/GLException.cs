@@ -8,28 +8,6 @@ namespace App
         private List<string> callstack;
         private List<string> messages = new List<string>();
 
-        public GLException() : base()
-        {
-            callstack = new List<string>();
-        }
-
-        public GLException(string callstack) : base()
-        {
-            this.callstack = new List<string>();
-            this.callstack.Add(callstack);
-        }
-
-        public GLException(string callstackstring, string message) : base(callstackstring + message)
-        {
-            callstack = new List<string>();
-        }
-
-        public GLException(GLException err, string callstack) : base()
-        {
-            this.callstack = err.callstack;
-            this.callstack.Add(callstack);
-        }
-
         // compile call stack into a single string
         private string callstackstring
         {
@@ -52,6 +30,30 @@ namespace App
                     str += msg + '\n';
                 return str;
             }
+        }
+
+        public string Text => messagestring;
+
+        public GLException() : base()
+        {
+            callstack = new List<string>();
+        }
+
+        public GLException(string callstack) : base()
+        {
+            this.callstack = new List<string>();
+            this.callstack.Add(callstack);
+        }
+
+        public GLException(string callstackstring, string message) : base(callstackstring + message)
+        {
+            callstack = new List<string>();
+        }
+
+        public GLException(GLException err, string callstack) : base()
+        {
+            this.callstack = err.callstack;
+            this.callstack.Add(callstack);
         }
 
         public void Add(string message)

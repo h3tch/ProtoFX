@@ -8,103 +8,159 @@ namespace util
     class StaticCamera
     {
         #region FIELDS
-        private Vector3 pos;
-        private Vector3 rot;
-        private Vector4 info;
-        private Matrix4 view;
-        private Matrix4 proj;
-        private Matrix4 vwpj;
-        private Dictionary<int, CameraUniforms> uniform = new Dictionary<int, CameraUniforms>();
-        private string unif_view = "g_view";
-        private string unif_proj = "g_proj";
-        private string unif_vipj = "g_viewproj";
-        private string unif_info = "g_info";
+        protected Vector3 pos;
+        protected Vector3 rot;
+        protected Vector4 camera;
+        protected Matrix4 view;
+        protected Matrix4 proj;
+        protected Matrix4 vwpj;
+        protected Dictionary<int, Unif> uniform = new Dictionary<int, Unif>();
+        protected string name;
+        protected static string name_view = "g_view";
+        protected static string name_proj = "g_proj";
+        protected static string name_vwpj = "g_viewproj";
+        protected static string name_camera = "g_camera";
         #endregion
 
-        public struct CameraUniforms
-        {
-            public int view;
-            public int proj;
-            public int vwpj;
-            public int info;
-        }
+        #region PROPERTIES
+        protected float fovy   { get { return camera.X; } set { camera.X = value; } }
+        protected float aspect { get { return camera.Y; } set { camera.Y = value; } }
+        protected float nearz  { get { return camera.Z; } set { camera.Z = value; } }
+        protected float farz   { get { return camera.W; } set { camera.W = value; } }
+        #endregion
 
-        public StaticCamera(string[] cmd)
+        public StaticCamera(Dictionary<string, string[]> cmds, out string errorText)
         {
-            // default values
-            pos = Vector3.Zero;
-            rot = Vector3.Zero;
-            float fovy = 60.0f;
-            float n = 0.1f;
-            float f = 100.0f;
-            float red2deg = (float)(Math.PI / 180);
+            // The constructor is executed only once when the pass is created.
+
+            // ProtoGL code:
+            // exec csharp_name util.SimpleCamera fovy nearz farz x y z rotx roty rotz ...
+            //      uniform_view_name uniform_proj_name uniform_view_proj_name uniform_info_name
+
+            // argument cmd contains the whole command including
+            // 'exec', 'csharp_name' and 'util.SimpleCamera'
+
             // parse command for values specified by the user
-            int i = 3;
-            if (cmd.Length > i) float.TryParse(cmd[i++], out fovy);
-            if (cmd.Length > i) float.TryParse(cmd[i++], out n);
-            if (cmd.Length > i) float.TryParse(cmd[i++], out f);
-            if (cmd.Length > i) float.TryParse(cmd[i++], out pos.X);
-            if (cmd.Length > i) float.TryParse(cmd[i++], out pos.Y);
-            if (cmd.Length > i) float.TryParse(cmd[i++], out pos.Z);
-            if (cmd.Length > i) float.TryParse(cmd[i++], out rot.X);
-            if (cmd.Length > i) float.TryParse(cmd[i++], out rot.Y);
-            if (cmd.Length > i) float.TryParse(cmd[i++], out rot.Z);
-            if (cmd.Length > i) unif_view = cmd[i++];
-            if (cmd.Length > i) unif_proj = cmd[i++];
-            if (cmd.Length > i) unif_vipj = cmd[i++];
-            if (cmd.Length > i) unif_info = cmd[i++];
-            rot = rot * red2deg;
-            Proj(fovy * red2deg, 16f / 9f, n, f);
+            errorText = "";
+            float[] pos = Convert(cmds, "pos", 3, 0f, ref errorText);
+            float[] rot = Convert(cmds, "rot", 3, 0f, ref errorText);
+            float[] fovy = Convert(cmds, "fov", 1, 60.0f, ref errorText);
+            float[] nearz = Convert(cmds, "near", 1, 0.1f, ref errorText);
+            float[] farz = Convert(cmds, "far", 1, 100.0f, ref errorText);
+            string[] name = cmds.ContainsKey("name") ? cmds["name"] : new[] { "SpotLight" };
+
+            // set fields
+            const float deg2rad = (float)(Math.PI / 180);
+            this.pos = new Vector3(pos[0], pos[1], pos[2]);
+            this.rot = new Vector3(rot[0], rot[1], rot[2]) * deg2rad;
+            this.camera = new Vector4(fovy[0] * deg2rad, 16f / 9f, nearz[0], farz[0]);
+            this.name = name[0];
         }
 
         public void Update(int program, int width, int height, int widthTex, int heightTex)
         {
+            // This function is executed every frame at the beginning of a pass.
+            
             // GET OR CREATE CAMERA UNIFORMS FOR program
-            CameraUniforms unif;
+            Unif unif;
             if (uniform.TryGetValue(program, out unif) == false)
-                uniform.Add(program, unif = CreateCameraUniforms(program, width, height));
+                uniform.Add(program, unif = new Unif(program, name));
+
+            // COMPUTE MATH
+            view = Matrix4.CreateTranslation(-pos)
+                 * Matrix4.CreateRotationY(-rot.Y)
+                 * Matrix4.CreateRotationX(-rot.X);
+            proj = Matrix4.CreatePerspectiveFieldOfView(fovy, aspect = (float)width / height, nearz, farz);
 
             // SET INTERNAL VARIABLES
-            if (unif.view >= 0 || unif.vwpj >= 0)
-            {
-                view = Matrix4.CreateTranslation(-pos)
-                    * Matrix4.CreateRotationY(-rot.Y)
-                    * Matrix4.CreateRotationX(-rot.X);
+            if (unif.view >= 0)
                 GL.UniformMatrix4(unif.view, false, ref view);
-            }
-            if (unif.proj >= 0 || unif.vwpj >= 0)
-            {
-                proj = Matrix4.CreatePerspectiveFieldOfView(info.X, info.Y, info.Z, info.W);
+
+            if (unif.proj >= 0)
                 GL.UniformMatrix4(unif.proj, false, ref proj);
-            }
+
             if (unif.vwpj >= 0)
             {
                 vwpj = view * proj;
                 GL.UniformMatrix4(unif.vwpj, false, ref vwpj);
             }
-            if (unif.info >= 0)
-                GL.Uniform4(unif.info, ref info);
+
+            if (unif.camera >= 0)
+                GL.Uniform4(unif.camera, ref camera);
         }
+
+        //public void EndPass(int program)
+        //{
+        //    // Executed at the end of a pass every frame.
+        //    // not used
+        //}
 
         #region PRIVATE UTILITY METHODS
-
-        private CameraUniforms CreateCameraUniforms(int program, int width, int height)
+        private void Rotate(float x, float y, float z)
         {
-            info.Y = (float)width / height;
-
-            CameraUniforms unif = new CameraUniforms();
-            unif.view = GL.GetUniformLocation(program, unif_view);
-            unif.proj = GL.GetUniformLocation(program, unif_proj);
-            unif.vwpj = GL.GetUniformLocation(program, unif_vipj);
-            unif.info = GL.GetUniformLocation(program, unif_info);
-            return unif;
+            rot += new Vector3(x, y, z);
         }
 
-        private void Proj(float fovy, float aspect, float znear, float zfar)
+        private void Move(float x, float y, float z)
         {
-            info = new Vector4(fovy, aspect, znear, zfar);
+            pos += view.Column0.Xyz * x + view.Column1.Xyz * y + view.Column2.Xyz * z;
         }
 
+        private static T[] Convert<T>(Dictionary<string, string[]> cmds, string cmd, int length, T defaultValue, ref string err)
+        {
+            int i = 0, l;
+            
+            T[] v = new T[length];
+
+            if (cmds.ContainsKey(cmd))
+            {
+                var s = cmds[cmd];
+                for (l = Math.Min(s.Length, length); i < s.Length; i++)
+                    if (!TryChangeType(s[i], out v[i], defaultValue))
+                        err += "Command '" + cmd + "': Could not convert argument "
+                            + i + " '" + s[i] + "'. ";
+            }
+
+            for (; i < length; i++)
+                v[i] = defaultValue;
+
+            return v;
+        }
+
+        private static bool TryChangeType<T>(object invalue, out T outvalue, T defaultValue)
+        {
+            outvalue = defaultValue;
+
+            if (invalue == null || invalue as IConvertible == null)
+                return false;
+
+            try
+            {
+                outvalue = (T)System.Convert.ChangeType(invalue, typeof(T));
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        #endregion
+
+        #region INNER CLASSES
+        protected struct Unif
+        {
+            public Unif(int program, string name)
+            {
+                view = GL.GetUniformLocation(program, name + "." + name_view);
+                proj = GL.GetUniformLocation(program, name + "." + name_proj);
+                vwpj = GL.GetUniformLocation(program, name + "." + name_vwpj);
+                camera = GL.GetUniformLocation(program, name + "." + name_camera);
+            }
+            public int view;
+            public int proj;
+            public int vwpj;
+            public int camera;
+        }
         #endregion
     }
 }

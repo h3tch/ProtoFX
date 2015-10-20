@@ -92,7 +92,17 @@ shader frag fs_simple {
 // for simple camera controls
 csharp cs_util {
 	// Compile C# file "SimpleCamera.cs"
-	file "util/SimpleCamera.cs"
+	file "util/StaticCamera.cs" "util/SimpleCamera.cs"
+}
+
+instance cs_camera {
+	class cs_util util.SimpleCamera
+	name Camera
+	fov 60
+	near 0.1
+	far 100
+	pos -5 4 10
+	rot -20 -15 0
 }
 
 /////////////////
@@ -115,7 +125,7 @@ pass pass_render {
 	
 	// EXECUTE CONTROL
 	// execute camera code (sets g_viewproj in vs_simple)
-	exec cs_util util.SimpleCamera 60 0.1 100 0 0 5
+	exec cs_camera
 	
 	// DRAW CALLS
 	// buff_idx .... name of the ellement array buffer

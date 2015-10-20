@@ -149,7 +149,7 @@ csharp cs_util {
 
 instance cs_light {
 	class cs_util util.SpotLight
-	uniform Light
+	name Light
 	fov 60
 	near 0.1
 	far 100
@@ -159,7 +159,7 @@ instance cs_light {
 
 instance cs_camera {
 	class cs_util util.SimpleCamera
-	uniform Camera
+	name Camera
 	fov 60
 	near 0.1
 	far 100

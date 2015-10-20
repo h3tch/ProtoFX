@@ -69,11 +69,12 @@ namespace App
                 err.Throw("\n" + compilerresults.Output);
         }
 
-        public object CreateInstance(string classname, string[] args)
+        public object CreateInstance(string classname, Dictionary<string,string[]> cmds)
         {
             // create main class from compiled files
+            string errorText = null;
             object clazz = compilerresults.CompiledAssembly.CreateInstance(
-                classname, false, BindingFlags.Default, null, new object[] { args }, App.culture, null);
+                classname, false, BindingFlags.Default, null, new object[] { cmds, errorText }, App.culture, null);
             if (clazz == null)
                 throw new GLException($"csharp '{name}': Main class '{classname}' could not be found.");
             return clazz;

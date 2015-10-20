@@ -27,8 +27,8 @@ namespace App
 
             // unbind object and check for errors
             GL.BindVertexArray(0);
-            if (GL.GetError() != ErrorCode.NoError)
-                err.Throw($"OpenGL error '{GL.GetError()}' occurred during vertex input object creation.");
+            if (HasErrorOrGlError(err))
+                throw err;
         }
 
         private void attach(GLException err, int attrIdx, string[] args, string name, Dict classes)

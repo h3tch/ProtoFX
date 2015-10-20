@@ -64,8 +64,8 @@ namespace App
             Unbind();
 
             // final error checks
-            if (GL.GetError() != ErrorCode.NoError)
-                err.Throw($"OpenGL error '{GL.GetError()}' occurred during fragment output creation.");
+            if (HasErrorOrGlError(err))
+                throw err;
             if (status != FramebufferErrorCode.FramebufferComplete)
                 err.Throw("Could not be created due to an unknown error.");
         }

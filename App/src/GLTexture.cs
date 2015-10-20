@@ -56,7 +56,7 @@ namespace App
                 GL.BindTexture(TextureTarget.TextureBuffer, glname);
                 GL.TexBuffer(TextureBufferTarget.TextureBuffer, format, glbuff.glname);
                 GL.BindTexture(TextureTarget.TextureBuffer, 0);
-                GlErrorCheck(err);
+                HasErrorOrGlError(err);
             }
 
             if (err.HasErrors())

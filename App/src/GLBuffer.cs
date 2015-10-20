@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Xml;
 using System.IO;
-using System.Linq;
 
 namespace App
 {
@@ -61,8 +60,7 @@ namespace App
                 GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)size, IntPtr.Zero, usage);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            GlErrorCheck(err);
-            if (err.HasErrors())
+            if (HasErrorOrGlError(err))
                 throw err;
         }
 
