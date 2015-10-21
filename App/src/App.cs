@@ -266,7 +266,7 @@ namespace App
                     catch (Exception ex)
                     {
                         if (ex.GetBaseException().GetType() == typeof(GLException))
-                            codeError.AppendText(((GLException)ex).Text);
+                            codeError.AppendText(((GLException)ex.GetBaseException()).Text);
                     }
                 }
             }
@@ -274,7 +274,7 @@ namespace App
             {
                 // show errors
                 if (ex.GetBaseException().GetType() == typeof(GLException))
-                    codeError.AppendText(((GLException)ex).Text);
+                    codeError.AppendText(((GLException)ex.GetBaseException()).Text);
             }
 
             // UPDATE DEBUG DATA

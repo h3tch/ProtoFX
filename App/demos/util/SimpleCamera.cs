@@ -6,6 +6,8 @@ using System.Windows.Forms;
 
 namespace util
 {
+    using Commands = Dictionary<string, string[]>;
+
     class SimpleCamera : StaticCamera
     {
         #region FIELDS
@@ -13,10 +15,9 @@ namespace util
         private Point mousepos = new Point(0, 0);
         #endregion
 
-        public SimpleCamera(Dictionary<string, string[]> cmd, out string errtext)
-            : base(cmd, out errtext)
+        public SimpleCamera(Commands cmd)
+            : base(cmd, "SimpleCamera")
         {
-            errtext += "Test";
         }
 
         #region OPENTK GLCONTROL WINDOW EVENTS
@@ -29,7 +30,8 @@ namespace util
         public void MouseMove(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
-                Rotate((float)(Math.PI / 360) * (mousepos.Y - e.Y), (float)(Math.PI / 360) * (mousepos.X - e.X), 0);
+                Rotate((float)(Math.PI / 360) * (mousepos.Y - e.Y),
+                    (float)(Math.PI / 360) * (mousepos.X - e.X), 0);
             else if (e.Button == MouseButtons.Right)
                 Move(0, 0, 0.03f * (e.Y - mousepos.Y));
             mousepos.X = e.X;

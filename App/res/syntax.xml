@@ -49,6 +49,7 @@
         samplerCube
         scene
         shader
+        struct
         tech
         text
         texture

@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 namespace util
 {
+    using Commands = Dictionary<string, string[]>;
+
     class SpotLight
     {
         #region FIELDS
@@ -22,6 +24,7 @@ namespace util
         protected static string name_camera = "camera";
         protected static string name_light = "light";
         protected Dictionary<int, Unif> uniform = new Dictionary<int, Unif>();
+        public List<string> errors = new List<string>();
         #endregion
 
         #region PROPERTIES
@@ -31,17 +34,16 @@ namespace util
         protected float farz { get { return camera.W; } set { camera.W = value; } }
         #endregion
 
-        public SpotLight(Dictionary<string,string[]> cmds, out string errorText)
+        public SpotLight(Commands cmds)
         {
             const float rad2deg = (float)(Math.PI / 180);
 
             // parse command for values specified by the user
-            errorText = "";
-            float[] pos = Convert(cmds, "pos", 3, 0f, ref errorText);
-            float[] rot = Convert(cmds, "rot", 3, 0f, ref errorText);
-            float[] fovy = Convert(cmds, "fov", 1, 60.0f, ref errorText);
-            float[] nearz = Convert(cmds, "near", 1, 0.1f, ref errorText);
-            float[] farz = Convert(cmds, "far", 1, 100.0f, ref errorText);
+            float[] pos = Convert(cmds, "pos", 3, 0f);
+            float[] rot = Convert(cmds, "rot", 3, 0f);
+            float[] fovy = Convert(cmds, "fov", 1, 60.0f);
+            float[] nearz = Convert(cmds, "near", 1, 0.1f);
+            float[] farz = Convert(cmds, "far", 1, 100.0f);
             string[] name = cmds.ContainsKey("name") ? cmds["name"] : new[] { "SpotLight" };
 
             // set fields
@@ -86,7 +88,7 @@ namespace util
 
         #region UTILITY METHOD
 
-        private static T[] Convert<T>(Dictionary<string, string[]> cmds, string cmd, int length, T defaultValue, ref string err)
+        private T[] Convert<T>(Commands cmds, string cmd, int length, T defaultValue)
         {
             int i = 0, l;
 
@@ -97,8 +99,8 @@ namespace util
                 var s = cmds[cmd];
                 for (l = Math.Min(s.Length, length); i < s.Length; i++)
                     if (!TryChangeType(s[i], out v[i], defaultValue))
-                        err += "Command '" + cmd + "': Could not convert argument "
-                            + i + " '" + s[i] + "'. ";
+                        errors.Add("Command '" + cmd + "': Could not convert argument "
+                            + i + " '" + s[i] + "'.");
             }
 
             for (; i < length; i++)

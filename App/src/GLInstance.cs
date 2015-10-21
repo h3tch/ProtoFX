@@ -34,12 +34,9 @@ namespace App
             }
 
             // INSTANTIATE CSHARP CLASS
-            instance = csharp.CreateInstance(cmd.args[1], body.ToDict());
-            if (instance == null)
-            {
-                err.Add($"Main class '{cmd.args[1]}' could not be found.");
-                return;
-            }
+            instance = csharp.CreateInstance(cmd.args[1], body.ToDict(), err);
+            if (err.HasErrors())
+                throw err;
 
             // get bind method from main class instance
             update = instance.GetType().GetMethod("Update", new [] {
@@ -55,11 +52,11 @@ namespace App
             var methods = instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
             foreach (var method in methods)
             {
-                var info = glControl.GetType().GetEvent(method.Name);
+                var info = glControl.control.GetType().GetEvent(method.Name);
                 if (info != null)
                 {
                     var csmethod = Delegate.CreateDelegate(info.EventHandlerType, instance, method.Name);
-                    info.AddEventHandler(glControl, csmethod);
+                    info.AddEventHandler(glControl.control, csmethod);
                 }
             }
         }

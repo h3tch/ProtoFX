@@ -69,15 +69,29 @@ namespace App
                 err.Throw("\n" + compilerresults.Output);
         }
 
-        public object CreateInstance(string classname, Dictionary<string,string[]> cmds)
+        public object CreateInstance(string classname, Dictionary<string,string[]> cmds,
+            GLException err = null)
         {
             // create main class from compiled files
-            string errorText = null;
-            object clazz = compilerresults.CompiledAssembly.CreateInstance(
-                classname, false, BindingFlags.Default, null, new object[] { cmds, errorText }, App.culture, null);
-            if (clazz == null)
-                throw new GLException($"csharp '{name}': Main class '{classname}' could not be found.");
-            return clazz;
+            object instance = compilerresults.CompiledAssembly.CreateInstance(
+                classname, false, BindingFlags.Default, null,
+                new object[] { cmds }, App.culture, null);
+
+            if (instance == null)
+                err.Throw($"csharp '{name}': Main class '{classname}' could not be found.");
+            
+            List<string> errors = GetValue<List<string>>(instance, "errors");
+            errors?.ForEach(msg => err?.Add(msg));
+
+            return instance;
+        }
+
+        private T GetValue<T>(object instance, string valuename)
+        {
+            var value = instance.GetType().GetField(valuename)?.GetValue(instance);
+            if (value == null)
+                return default(T);
+            return value.GetType() == typeof(T) ? (T)value : default(T);
         }
 
         public override void Delete() { }

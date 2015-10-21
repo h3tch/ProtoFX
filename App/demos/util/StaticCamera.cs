@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 namespace util
 {
+    using Commands = Dictionary<string, string[]>;
+
     class StaticCamera
     {
         #region FIELDS
@@ -16,10 +18,11 @@ namespace util
         protected Matrix4 vwpj;
         protected Dictionary<int, Unif> uniform = new Dictionary<int, Unif>();
         protected string name;
-        protected static string name_view = "g_view";
-        protected static string name_proj = "g_proj";
-        protected static string name_vwpj = "g_viewproj";
-        protected static string name_camera = "g_camera";
+        protected static string name_view = "view";
+        protected static string name_proj = "proj";
+        protected static string name_vwpj = "viewproj";
+        protected static string name_camera = "camera";
+        public List<string> errors = new List<string>();
         #endregion
 
         #region PROPERTIES
@@ -29,7 +32,8 @@ namespace util
         protected float farz   { get { return camera.W; } set { camera.W = value; } }
         #endregion
 
-        public StaticCamera(Dictionary<string, string[]> cmds, out string errorText)
+        public StaticCamera(Commands cmds)
+            : this(cmds, "StaticCamera")
         {
             // The constructor is executed only once when the pass is created.
 
@@ -41,13 +45,16 @@ namespace util
             // 'exec', 'csharp_name' and 'util.SimpleCamera'
 
             // parse command for values specified by the user
-            errorText = "";
-            float[] pos = Convert(cmds, "pos", 3, 0f, ref errorText);
-            float[] rot = Convert(cmds, "rot", 3, 0f, ref errorText);
-            float[] fovy = Convert(cmds, "fov", 1, 60.0f, ref errorText);
-            float[] nearz = Convert(cmds, "near", 1, 0.1f, ref errorText);
-            float[] farz = Convert(cmds, "far", 1, 100.0f, ref errorText);
-            string[] name = cmds.ContainsKey("name") ? cmds["name"] : new[] { "SpotLight" };
+        }
+
+        public StaticCamera(Commands cmds, string defaultName)
+        {
+            float[] pos = Convert(cmds, "pos", 3, 0f);
+            float[] rot = Convert(cmds, "rot", 3, 0f);
+            float[] fovy = Convert(cmds, "fov", 1, 60.0f);
+            float[] nearz = Convert(cmds, "near", 1, 0.1f);
+            float[] farz = Convert(cmds, "far", 1, 100.0f);
+            string[] name = cmds.ContainsKey("name") ? cmds["name"] : new[] { defaultName };
 
             // set fields
             const float deg2rad = (float)(Math.PI / 180);
@@ -70,7 +77,8 @@ namespace util
             view = Matrix4.CreateTranslation(-pos)
                  * Matrix4.CreateRotationY(-rot.Y)
                  * Matrix4.CreateRotationX(-rot.X);
-            proj = Matrix4.CreatePerspectiveFieldOfView(fovy, aspect = (float)width / height, nearz, farz);
+            proj = Matrix4.CreatePerspectiveFieldOfView(
+                fovy, aspect = (float)width / height, nearz, farz);
 
             // SET INTERNAL VARIABLES
             if (unif.view >= 0)
@@ -96,17 +104,7 @@ namespace util
         //}
 
         #region PRIVATE UTILITY METHODS
-        private void Rotate(float x, float y, float z)
-        {
-            rot += new Vector3(x, y, z);
-        }
-
-        private void Move(float x, float y, float z)
-        {
-            pos += view.Column0.Xyz * x + view.Column1.Xyz * y + view.Column2.Xyz * z;
-        }
-
-        private static T[] Convert<T>(Dictionary<string, string[]> cmds, string cmd, int length, T defaultValue, ref string err)
+        private T[] Convert<T>(Commands cmds, string cmd, int length, T defaultValue)
         {
             int i = 0, l;
             
@@ -117,8 +115,8 @@ namespace util
                 var s = cmds[cmd];
                 for (l = Math.Min(s.Length, length); i < s.Length; i++)
                     if (!TryChangeType(s[i], out v[i], defaultValue))
-                        err += "Command '" + cmd + "': Could not convert argument "
-                            + i + " '" + s[i] + "'. ";
+                        errors.Add("Command '" + cmd + "': Could not convert argument "
+                            + i + " '" + s[i] + "'.");
             }
 
             for (; i < length; i++)
