@@ -63,6 +63,10 @@ namespace App
             this.comboBuf = new System.Windows.Forms.ComboBox();
             this.comboBufType = new System.Windows.Forms.ComboBox();
             this.numBufDim = new System.Windows.Forms.NumericUpDown();
+            this.tabProperties = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.propertyGrid = new System.Windows.Forms.PropertyGrid();
+            this.comboProp = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
             this.splitRenderCoding.Panel1.SuspendLayout();
             this.splitRenderCoding.Panel2.SuspendLayout();
@@ -90,6 +94,8 @@ namespace App
             ((System.ComponentModel.ISupportInitialize)(this.tableBuf)).BeginInit();
             this.tableLayoutBuffers.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numBufDim)).BeginInit();
+            this.tabProperties.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitRenderCoding
@@ -131,12 +137,14 @@ namespace App
             // 
             this.tabControl.Controls.Add(this.tabCode);
             this.tabControl.Controls.Add(this.tabDebug);
+            this.tabControl.Controls.Add(this.tabProperties);
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tabControl.Location = new System.Drawing.Point(0, 0);
             this.tabControl.Margin = new System.Windows.Forms.Padding(0);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
+            this.tabControl.Size = new System.Drawing.Size(960, 1137);
             this.tabControl.TabIndex = 1;
             // 
             // tabCode
@@ -145,6 +153,7 @@ namespace App
             this.tabCode.Location = new System.Drawing.Point(4, 31);
             this.tabCode.Name = "tabCode";
             this.tabCode.Padding = new System.Windows.Forms.Padding(3);
+            this.tabCode.Size = new System.Drawing.Size(952, 1102);
             this.tabCode.TabIndex = 0;
             this.tabCode.Text = "Code";
             this.tabCode.UseVisualStyleBackColor = true;
@@ -166,8 +175,8 @@ namespace App
             // 
             this.splitCodeError.Panel2.Controls.Add(this.codeError);
             this.splitCodeError.Panel2MinSize = 75;
-            this.splitCodeError.Size = new System.Drawing.Size(600, 900);
-            this.splitCodeError.SplitterDistance = 717;
+            this.splitCodeError.Size = new System.Drawing.Size(946, 1096);
+            this.splitCodeError.SplitterDistance = 873;
             this.splitCodeError.SplitterWidth = 5;
             this.splitCodeError.TabIndex = 0;
             // 
@@ -181,7 +190,8 @@ namespace App
             this.tabCodeTableLayout.Name = "tabCodeTableLayout";
             this.tabCodeTableLayout.RowCount = 1;
             this.tabCodeTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tabCodeTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 717F));
+            this.tabCodeTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 873F));
+            this.tabCodeTableLayout.Size = new System.Drawing.Size(946, 873);
             this.tabCodeTableLayout.TabIndex = 1;
             // 
             // toolStripContainer
@@ -190,7 +200,7 @@ namespace App
             // toolStripContainer.ContentPanel
             // 
             this.toolStripContainer.ContentPanel.Controls.Add(this.tabSource);
-            this.toolStripContainer.ContentPanel.Size = new System.Drawing.Size(911, 686);
+            this.toolStripContainer.ContentPanel.Size = new System.Drawing.Size(903, 842);
             this.toolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolStripContainer.Location = new System.Drawing.Point(3, 3);
             this.toolStripContainer.Name = "toolStripContainer";
@@ -198,6 +208,7 @@ namespace App
             // toolStripContainer.RightToolStripPanel
             // 
             this.toolStripContainer.RightToolStripPanel.Controls.Add(this.toolStrip);
+            this.toolStripContainer.Size = new System.Drawing.Size(940, 867);
             this.toolStripContainer.TabIndex = 1;
             this.toolStripContainer.Text = "toolStripContainer2";
             // 
@@ -208,6 +219,7 @@ namespace App
             this.tabSource.Margin = new System.Windows.Forms.Padding(0);
             this.tabSource.Name = "tabSource";
             this.tabSource.SelectedIndex = 0;
+            this.tabSource.Size = new System.Drawing.Size(903, 842);
             this.tabSource.TabIndex = 0;
             // 
             // toolStrip
@@ -224,7 +236,7 @@ namespace App
             this.toolBtnRun});
             this.toolStrip.Location = new System.Drawing.Point(0, 3);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(32, 228);
+            this.toolStrip.Size = new System.Drawing.Size(37, 284);
             this.toolStrip.TabIndex = 0;
             // 
             // toolBtnClose
@@ -233,7 +245,7 @@ namespace App
             this.toolBtnClose.Image = global::App.Properties.Resources.ImgClose;
             this.toolBtnClose.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnClose.Name = "toolBtnClose";
-            this.toolBtnClose.Size = new System.Drawing.Size(32, 32);
+            this.toolBtnClose.Size = new System.Drawing.Size(35, 36);
             this.toolBtnClose.Text = "Close Tab";
             this.toolBtnClose.Click += new System.EventHandler(this.toolBtnClose_Click);
             // 
@@ -243,7 +255,7 @@ namespace App
             this.toolBtnNew.Image = global::App.Properties.Resources.ImgNew;
             this.toolBtnNew.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnNew.Name = "toolBtnNew";
-            this.toolBtnNew.Size = new System.Drawing.Size(32, 32);
+            this.toolBtnNew.Size = new System.Drawing.Size(35, 36);
             this.toolBtnNew.Text = "New";
             this.toolBtnNew.Click += new System.EventHandler(this.toolBtnNew_Click);
             // 
@@ -253,7 +265,7 @@ namespace App
             this.toolBtnOpen.Image = global::App.Properties.Resources.ImgOpen;
             this.toolBtnOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnOpen.Name = "toolBtnOpen";
-            this.toolBtnOpen.Size = new System.Drawing.Size(32, 32);
+            this.toolBtnOpen.Size = new System.Drawing.Size(35, 36);
             this.toolBtnOpen.Text = "Open (Ctrl + O)";
             this.toolBtnOpen.Click += new System.EventHandler(this.toolBtnOpen_Click);
             // 
@@ -263,7 +275,7 @@ namespace App
             this.toolBtnSave.Image = global::App.Properties.Resources.ImgSave;
             this.toolBtnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnSave.Name = "toolBtnSave";
-            this.toolBtnSave.Size = new System.Drawing.Size(32, 32);
+            this.toolBtnSave.Size = new System.Drawing.Size(35, 36);
             this.toolBtnSave.Text = "Save (Ctrl + S)";
             this.toolBtnSave.Click += new System.EventHandler(this.toolBtnSave_Click);
             // 
@@ -273,7 +285,7 @@ namespace App
             this.toolBtnSaveAll.Image = global::App.Properties.Resources.ImgSaveAll;
             this.toolBtnSaveAll.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnSaveAll.Name = "toolBtnSaveAll";
-            this.toolBtnSaveAll.Size = new System.Drawing.Size(32, 32);
+            this.toolBtnSaveAll.Size = new System.Drawing.Size(35, 36);
             this.toolBtnSaveAll.Text = "Save all (Ctrl + Shift + S)";
             this.toolBtnSaveAll.Click += new System.EventHandler(this.toolBtnSaveAll_Click);
             // 
@@ -283,7 +295,7 @@ namespace App
             this.toolBtnSaveAs.Image = global::App.Properties.Resources.ImgSaveAs;
             this.toolBtnSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnSaveAs.Name = "toolBtnSaveAs";
-            this.toolBtnSaveAs.Size = new System.Drawing.Size(32, 32);
+            this.toolBtnSaveAs.Size = new System.Drawing.Size(35, 36);
             this.toolBtnSaveAs.Text = "Save as (Alt + S)";
             this.toolBtnSaveAs.Click += new System.EventHandler(this.toolBtnSaveAs_Click);
             // 
@@ -293,7 +305,7 @@ namespace App
             this.toolBtnRun.Image = global::App.Properties.Resources.ImgRun;
             this.toolBtnRun.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnRun.Name = "toolBtnRun";
-            this.toolBtnRun.Size = new System.Drawing.Size(32, 32);
+            this.toolBtnRun.Size = new System.Drawing.Size(35, 36);
             this.toolBtnRun.Text = "Run (F5)";
             this.toolBtnRun.Click += new System.EventHandler(this.toolBtnRun_Click);
             // 
@@ -306,7 +318,7 @@ namespace App
             this.codeError.Location = new System.Drawing.Point(0, 0);
             this.codeError.Margin = new System.Windows.Forms.Padding(0);
             this.codeError.Name = "codeError";
-            this.codeError.Size = new System.Drawing.Size(946, 374);
+            this.codeError.Size = new System.Drawing.Size(946, 218);
             this.codeError.TabIndex = 0;
             this.codeError.Text = "";
             this.codeError.WordWrap = false;
@@ -317,6 +329,7 @@ namespace App
             this.tabDebug.Location = new System.Drawing.Point(4, 31);
             this.tabDebug.Name = "tabDebug";
             this.tabDebug.Padding = new System.Windows.Forms.Padding(3);
+            this.tabDebug.Size = new System.Drawing.Size(952, 1102);
             this.tabDebug.TabIndex = 1;
             this.tabDebug.Text = "Debug";
             this.tabDebug.UseVisualStyleBackColor = true;
@@ -329,6 +342,7 @@ namespace App
             this.tabData.Location = new System.Drawing.Point(3, 3);
             this.tabData.Name = "tabData";
             this.tabData.SelectedIndex = 0;
+            this.tabData.Size = new System.Drawing.Size(946, 1096);
             this.tabData.TabIndex = 0;
             // 
             // tabDataImg
@@ -337,6 +351,7 @@ namespace App
             this.tabDataImg.Location = new System.Drawing.Point(4, 31);
             this.tabDataImg.Name = "tabDataImg";
             this.tabDataImg.Padding = new System.Windows.Forms.Padding(3);
+            this.tabDataImg.Size = new System.Drawing.Size(938, 1061);
             this.tabDataImg.TabIndex = 0;
             this.tabDataImg.Text = "Images";
             this.tabDataImg.UseVisualStyleBackColor = true;
@@ -356,6 +371,7 @@ namespace App
             this.tableLayoutImages.RowCount = 2;
             this.tableLayoutImages.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
             this.tableLayoutImages.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutImages.Size = new System.Drawing.Size(932, 1055);
             this.tableLayoutImages.TabIndex = 0;
             // 
             // comboImg
@@ -365,24 +381,9 @@ namespace App
             this.comboImg.FormattingEnabled = true;
             this.comboImg.Location = new System.Drawing.Point(3, 3);
             this.comboImg.Name = "comboImg";
-            this.comboImg.Size = new System.Drawing.Size(626, 30);
+            this.comboImg.Size = new System.Drawing.Size(739, 30);
             this.comboImg.TabIndex = 1;
             this.comboImg.SelectedIndexChanged += new System.EventHandler(this.comboImg_SelectedIndexChanged);
-            // 
-            // numImgLayer
-            // 
-            this.numImgLayer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numImgLayer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numImgLayer.Location = new System.Drawing.Point(785, 3);
-            this.numImgLayer.Maximum = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
-            this.numImgLayer.Name = "numImgLayer";
-            this.numImgLayer.Size = new System.Drawing.Size(144, 30);
-            this.numImgLayer.TabIndex = 3;
-            this.numImgLayer.ValueChanged += new System.EventHandler(this.numImgLayer_ValueChanged);
             // 
             // panelImg
             // 
@@ -390,8 +391,9 @@ namespace App
             this.tableLayoutImages.SetColumnSpan(this.panelImg, 3);
             this.panelImg.Controls.Add(this.pictureImg);
             this.panelImg.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelImg.Location = new System.Drawing.Point(3, 43);
+            this.panelImg.Location = new System.Drawing.Point(3, 63);
             this.panelImg.Name = "panelImg";
+            this.panelImg.Size = new System.Drawing.Size(926, 989);
             this.panelImg.TabIndex = 2;
             // 
             // pictureImg
@@ -404,12 +406,28 @@ namespace App
             this.pictureImg.TabStop = false;
             this.pictureImg.Click += new System.EventHandler(this.pictureImg_Click);
             // 
+            // numImgLayer
+            // 
+            this.numImgLayer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numImgLayer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numImgLayer.Location = new System.Drawing.Point(748, 3);
+            this.numImgLayer.Maximum = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.numImgLayer.Name = "numImgLayer";
+            this.numImgLayer.Size = new System.Drawing.Size(181, 28);
+            this.numImgLayer.TabIndex = 3;
+            this.numImgLayer.ValueChanged += new System.EventHandler(this.numImgLayer_ValueChanged);
+            // 
             // tabDataBuf
             // 
             this.tabDataBuf.Controls.Add(this.tableLayoutBufferDef);
             this.tabDataBuf.Location = new System.Drawing.Point(4, 31);
             this.tabDataBuf.Name = "tabDataBuf";
             this.tabDataBuf.Padding = new System.Windows.Forms.Padding(3);
+            this.tabDataBuf.Size = new System.Drawing.Size(938, 1061);
             this.tabDataBuf.TabIndex = 1;
             this.tabDataBuf.Text = "Buffers";
             this.tabDataBuf.UseVisualStyleBackColor = true;
@@ -426,6 +444,7 @@ namespace App
             this.tableLayoutBufferDef.RowCount = 2;
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutBufferDef.Size = new System.Drawing.Size(932, 1055);
             this.tableLayoutBufferDef.TabIndex = 0;
             // 
             // tableBuf
@@ -438,6 +457,7 @@ namespace App
             this.tableBuf.Name = "tableBuf";
             this.tableBuf.ReadOnly = true;
             this.tableBuf.RowTemplate.Height = 28;
+            this.tableBuf.Size = new System.Drawing.Size(926, 1009);
             this.tableBuf.TabIndex = 1;
             // 
             // tableLayoutBuffers
@@ -455,6 +475,7 @@ namespace App
             this.tableLayoutBuffers.Name = "tableLayoutBuffers";
             this.tableLayoutBuffers.RowCount = 1;
             this.tableLayoutBuffers.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutBuffers.Size = new System.Drawing.Size(932, 40);
             this.tableLayoutBuffers.TabIndex = 2;
             // 
             // comboBuf
@@ -503,7 +524,7 @@ namespace App
             0,
             0});
             this.numBufDim.Name = "numBufDim";
-            this.numBufDim.Size = new System.Drawing.Size(181, 30);
+            this.numBufDim.Size = new System.Drawing.Size(181, 28);
             this.numBufDim.TabIndex = 2;
             this.numBufDim.Value = new decimal(new int[] {
             4,
@@ -511,6 +532,53 @@ namespace App
             0,
             0});
             this.numBufDim.ValueChanged += new System.EventHandler(this.numBufDim_ValueChanged);
+            // 
+            // tabProperties
+            // 
+            this.tabProperties.Controls.Add(this.tableLayoutPanel1);
+            this.tabProperties.Location = new System.Drawing.Point(4, 31);
+            this.tabProperties.Name = "tabProperties";
+            this.tabProperties.Padding = new System.Windows.Forms.Padding(3);
+            this.tabProperties.Size = new System.Drawing.Size(952, 1102);
+            this.tabProperties.TabIndex = 2;
+            this.tabProperties.Text = "Properties";
+            this.tabProperties.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 1;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Controls.Add(this.propertyGrid, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.comboProp, 0, 0);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 2;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(946, 1096);
+            this.tableLayoutPanel1.TabIndex = 0;
+            // 
+            // propertyGrid
+            // 
+            this.propertyGrid.CategoryForeColor = System.Drawing.SystemColors.InactiveCaptionText;
+            this.propertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.propertyGrid.Location = new System.Drawing.Point(3, 43);
+            this.propertyGrid.Name = "propertyGrid";
+            this.propertyGrid.Size = new System.Drawing.Size(940, 1050);
+            this.propertyGrid.TabIndex = 0;
+            this.propertyGrid.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid_PropertyValueChanged);
+            this.propertyGrid.Click += new System.EventHandler(this.propertyGrid_Click);
+            // 
+            // comboProp
+            // 
+            this.comboProp.Dock = System.Windows.Forms.DockStyle.Top;
+            this.comboProp.FormattingEnabled = true;
+            this.comboProp.Location = new System.Drawing.Point(3, 3);
+            this.comboProp.Name = "comboProp";
+            this.comboProp.Size = new System.Drawing.Size(940, 30);
+            this.comboProp.TabIndex = 0;
+            this.comboProp.SelectedIndexChanged += new System.EventHandler(this.comboProp_SelectedIndexChanged);
             // 
             // App
             // 
@@ -557,6 +625,8 @@ namespace App
             ((System.ComponentModel.ISupportInitialize)(this.tableBuf)).EndInit();
             this.tableLayoutBuffers.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.numBufDim)).EndInit();
+            this.tabProperties.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -595,5 +665,9 @@ namespace App
         private System.Windows.Forms.ToolStripButton toolBtnClose;
         private System.Windows.Forms.NumericUpDown numImgLayer;
         private System.Windows.Forms.NumericUpDown numBufDim;
+        private System.Windows.Forms.TabPage tabProperties;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.PropertyGrid propertyGrid;
+        private System.Windows.Forms.ComboBox comboProp;
     }
 }

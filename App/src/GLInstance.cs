@@ -6,7 +6,7 @@ namespace App
 {
     class GLInstance : GLObject
     {
-        private object instance = null;
+        public object instance = null;
         private MethodInfo update = null;
         private MethodInfo endpass = null;
 

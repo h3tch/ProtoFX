@@ -87,15 +87,15 @@ namespace App
             if (instance == null)
                 err?.Throw($"Main class '{classname}' could not be found.");
             
-            List<string> errors = GetValue<List<string>>(instance, "errors");
+            List<string> errors = InvokeMethod<List<string>>(instance, "GetErrors");
             errors?.ForEach(msg => err?.Add(msg));
 
             return instance;
         }
 
-        private T GetValue<T>(object instance, string valuename)
+        private T InvokeMethod<T>(object instance, string valuename)
         {
-            var value = instance.GetType().GetField(valuename)?.GetValue(instance);
+            var value = instance.GetType().GetMethod(valuename)?.Invoke(instance, new object[] { });
             if (value == null)
                 return default(T);
             return value.GetType() == typeof(T) ? (T)value : default(T);

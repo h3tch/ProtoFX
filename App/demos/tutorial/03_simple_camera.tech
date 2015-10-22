@@ -129,8 +129,7 @@ csharp cs_util {
 instance cs_camera {
 	class cs_util util.SimpleCamera
 	name Camera
-	pos 3 2 5
-	rot -20 30 0
+	pos 0 0 5
 }
 
 /////////////////

@@ -96,7 +96,10 @@ namespace App
             => render = true;
 
         private void glControl_MouseUp(object sender, MouseEventArgs e)
-            => render = false;
+        {
+            render = false;
+            this.propertyGrid.Refresh();
+        }
 
         private void glControl_MouseMove(object sender, MouseEventArgs e)
         {
@@ -171,6 +174,30 @@ namespace App
         
         private void numBufDim_ValueChanged(object sender, EventArgs e)
             => comboBuf_SelectedIndexChanged(sender, null);
+        #endregion
+
+        #region Debug Properties
+        private void comboProp_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.comboProp.SelectedItem == null
+                || this.comboProp.SelectedItem.GetType() != typeof(GLInstance))
+                return;
+
+            // gather needed info
+            GLInstance inst = (GLInstance)this.comboProp.SelectedItem;
+
+            this.propertyGrid.SelectedObject = inst.instance;
+        }
+
+        private void propertyGrid_Click(object sender, EventArgs e)
+        {
+            this.propertyGrid.SelectedObject = this.propertyGrid.SelectedObject;
+        }
+
+        private void propertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
+        {
+            Render();
+        }
         #endregion
 
         #region Tool Buttons
@@ -280,12 +307,15 @@ namespace App
             // UPDATE DEBUG DATA
             comboBuf.Items.Clear();
             comboImg.Items.Clear();
+            comboProp.Items.Clear();
             foreach (var pair in classes)
             {
                 if (pair.Value.GetType() == typeof(GLBuffer))
                     comboBuf.Items.Add(pair.Value);
                 else if (pair.Value.GetType() == typeof(GLImage))
                     comboImg.Items.Add(pair.Value);
+                else if (pair.Value.GetType() == typeof(GLInstance))
+                    comboProp.Items.Add(pair.Value);
             }
 
             // SHOW SCENE
