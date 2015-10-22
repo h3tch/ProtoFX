@@ -62,7 +62,14 @@ namespace App
                           .Replace('/', Path.DirectorySeparatorChar);
             
             // compile files
-            compilerresults = provider.CompileAssemblyFromFile(compilerParams, file);
+            try
+            {
+                compilerresults = provider.CompileAssemblyFromFile(compilerParams, file);
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                err.Throw(ex.Message);
+            }
 
             // check for compiler errors
             if (compilerresults.Errors.Count != 0)
@@ -78,7 +85,7 @@ namespace App
                 new object[] { cmds }, App.culture, null);
 
             if (instance == null)
-                err.Throw($"csharp '{name}': Main class '{classname}' could not be found.");
+                err?.Throw($"Main class '{classname}' could not be found.");
             
             List<string> errors = GetValue<List<string>>(instance, "errors");
             errors?.ForEach(msg => err?.Add(msg));

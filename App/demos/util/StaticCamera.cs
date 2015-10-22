@@ -20,7 +20,7 @@ namespace util
         protected string name;
         protected static string name_view = "view";
         protected static string name_proj = "proj";
-        protected static string name_vwpj = "viewproj";
+        protected static string name_vwpj = "viewProj";
         protected static string name_camera = "camera";
         public List<string> errors = new List<string>();
         #endregion
@@ -32,8 +32,7 @@ namespace util
         protected float farz   { get { return camera.W; } set { camera.W = value; } }
         #endregion
 
-        public StaticCamera(Commands cmds)
-            : this(cmds, "StaticCamera")
+        public StaticCamera(Commands cmds) : this(cmds, "StaticCamera")
         {
             // The constructor is executed only once when the pass is created.
 

@@ -52,7 +52,7 @@ shader vert vs_simple {
 	// shader variable which will be set by "SimpleCamera.cs"
 	// (only uniform variables can be accessed outside the shader)
 	struct SimpleCamera {
-		mat4 viewproj;
+		mat4 viewProj;
 	};
 	uniform SimpleCamera Camera;
 	
@@ -65,7 +65,7 @@ shader vert vs_simple {
 	
 	void main ()
 	{
-		gl_Position = Camera.viewproj * in_pos;
+		gl_Position = Camera.viewProj * in_pos;
 		vs_col = in_col;
 	}
 }

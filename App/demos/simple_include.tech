@@ -7,8 +7,11 @@
 shader vert vs_simple {
 	#version 440
 	
-	uniform mat4 g_view;
-	uniform mat4 g_proj;
+	struct SimpleCamera {
+		mat4 view;
+		mat4 proj;
+	};
+	uniform SimpleCamera Camera;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -19,7 +22,7 @@ shader vert vs_simple {
 	
 	void main ()
 	{
-		gl_Position = g_proj * g_view * in_pos;
+		gl_Position = Camera.proj * Camera.view * in_pos;
 		vs_col = in_col;
 	}
 }
@@ -53,7 +56,7 @@ pass pass_render {
 	Enable depthTest
 	
 	// execute camera code
-	exec cs_util util.SimpleCamera 60 0.1 100 0 0 5
+	exec cs_camera
 	
 	// draw cube
 	// draw <indexbuffername=0> <vertinname> <indextype> <primitivetype>

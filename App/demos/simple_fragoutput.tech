@@ -87,7 +87,10 @@ texture tex_color {
 shader vert vs_simple {
 	#version 440
 	
-	uniform mat4 g_viewproj;
+	struct SimpleCamera {
+		mat4 viewProj;
+	};
+	uniform SimpleCamera Camera;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -98,7 +101,7 @@ shader vert vs_simple {
 	
 	void main ()
 	{
-		gl_Position = g_viewproj * in_pos;
+		gl_Position = Camera.viewProj * in_pos;
 		vs_col = in_col;
 	}
 }
@@ -147,7 +150,14 @@ shader frag fs_present {
 /////////////
 
 csharp cs_util {
-	file "util/SimpleCamera.cs"
+	// Compile C# file "SimpleCamera.cs"
+	file "util/StaticCamera.cs" "util/SimpleCamera.cs"
+}
+
+instance cs_camera {
+	class cs_util util.SimpleCamera
+	name Camera
+	pos 0 0 5
 }
 
 pass pass_render {
@@ -164,7 +174,7 @@ pass pass_render {
 	Enable depthTest
 
 	// execute camera code
-	exec cs_util util.SimpleCamera 60 0.1 100 0 0 5
+	exec cs_camera
 	
 	// draw cube
 	draw buf_idx in_vert ushort triangles 0 0 36

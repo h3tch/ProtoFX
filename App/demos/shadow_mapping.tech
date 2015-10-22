@@ -69,7 +69,10 @@ texture tex_shadowmap {
 shader vert vs_shadowmap {
 	#version 440
 	
-	uniform mat4 g_lightproj;
+	struct StaticCamera {
+		mat4 viewProj;
+	};
+	uniform StaticCamera Light;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -77,15 +80,21 @@ shader vert vs_shadowmap {
 	void main ()
 	{
 		// transform vertex to light projection space
-		gl_Position = g_lightproj * in_pos;
+		gl_Position = Light.viewProj * in_pos;
 	}
 }
 
 shader vert vs_simple {
 	#version 440
 	
-	uniform mat4 g_viewproj;
-	uniform mat4 g_lightproj;
+	struct StaticCamera {
+		mat4 viewProj;
+	};
+	struct SimpleCamera {
+		mat4 viewProj;
+	};
+	uniform StaticCamera Light;
+	uniform SimpleCamera Camera;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -98,9 +107,9 @@ shader vert vs_simple {
 	void main ()
 	{
 		// transform vertex to camera projection space
-		gl_Position = g_viewproj * in_pos;
+		gl_Position = Camera.viewProj * in_pos;
 		// transform vertex to light projection space
-		out_lpos = g_lightproj * in_pos;
+		out_lpos = Light.viewProj * in_pos;
 		// pass vertex color
 		out_col = in_col;
 	}
@@ -145,6 +154,20 @@ csharp cs_util {
 	file "util/StaticCamera.cs" "util/SimpleCamera.cs"
 }
 
+instance cs_light {
+	class cs_util util.StaticCamera
+	name Light
+	pos 3 4 3
+	rot -45 45 0
+}
+
+instance cs_camera {
+	class cs_util util.SimpleCamera
+	name Camera
+	pos -5 4 10
+	rot -20 -15 0
+}
+
 pass pass_shadowmap {
 	// attach shaders
 	vert vs_shadowmap
@@ -157,7 +180,7 @@ pass pass_shadowmap {
 	Enable depthTest
 
 	// execute camera code
-	exec cs_util util.StaticCamera 60 0.1 100 3 4 3 -45 45 0 "g_light" "g_proj" "g_lightproj"
+	exec cs_light
 	
 	// draw cube
 	draw buf_idx in_vert ushort triangles 0 0 36
@@ -177,8 +200,8 @@ pass pass_render {
 	Enable depthTest
 
 	// execute camera code
-	exec cs_util util.SimpleCamera 60 0.1 100 -5 4 10 -20 -15
-	exec cs_util util.StaticCamera 60 0.1 100 3 4 3 -45 45 0 "g_light" "g_proj" "g_lightproj"
+	exec cs_camera
+	exec cs_light
 	
 	// draw cube
 	draw buf_idx in_vert ushort triangles 0 0 36

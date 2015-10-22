@@ -53,7 +53,10 @@ vertinput in_projvert {
 shader vert vs_transform {
 	#version 440
 	
-	uniform mat4 g_viewproj;
+	struct SimpleCamera {
+		mat4 viewProj;
+	};
+	uniform SimpleCamera Camera;
 	
 	layout(location = 0) in vec4 in_pos;
 	
@@ -61,7 +64,7 @@ shader vert vs_transform {
 	
 	void main ()
 	{
-		out_pos = g_viewproj * in_pos;
+		out_pos = Camera.viewProj * in_pos;
 	}
 }
 
@@ -98,7 +101,13 @@ shader frag fs_render {
 //////////////
 
 csharp cs_util {
-	file "util/SimpleCamera.cs"
+	file "util/StaticCamera.cs" "util/SimpleCamera.cs"
+}
+
+instance cs_camera {
+	class cs_util util.SimpleCamera
+	name Camera
+	pos 0 0 5
 }
 
 /////////////////
@@ -117,7 +126,7 @@ pass pass_transform {
 	Enable rasterizerDiscard
 	
 	// EXECUTE CONTROL
-	exec cs_util util.SimpleCamera 60 0.1 100 0 0 5
+	exec cs_camera
 	
 	// DRAW CALLS
 	draw in_vert points 0 8

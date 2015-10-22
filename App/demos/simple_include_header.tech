@@ -31,5 +31,11 @@ vertinput in_vert {
 /////////////////
 
 csharp cs_util {
-	file "util/SimpleCamera.cs"
+	file "util/StaticCamera.cs" "util/SimpleCamera.cs"
+}
+
+instance cs_camera {
+	class cs_util util.SimpleCamera
+	name Camera
+	pos 0 0 5
 }

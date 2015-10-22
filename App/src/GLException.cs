@@ -34,26 +34,32 @@ namespace App
 
         public string Text => messagestring;
 
-        public GLException() : base()
+        public GLException()
+            : this(new List<string>())
         {
-            callstack = new List<string>();
         }
 
-        public GLException(string callstack) : base()
+        private GLException(List<string> callstack)
+            : base()
         {
-            this.callstack = new List<string>();
-            this.callstack.Add(callstack);
+            this.callstack = callstack;
         }
 
-        public GLException(string callstackstring, string message) : base(callstackstring + message)
+        private GLException(List<string> callstack, string callstackstring)
+            : this(callstack)
         {
-            callstack = new List<string>();
+            callstack.Add(callstackstring);
         }
 
-        public GLException(GLException err, string callstack) : base()
+        public GLException(string callstackstring)
+            : this()
         {
-            this.callstack = err.callstack;
-            this.callstack.Add(callstack);
+            callstack.Add(callstackstring);
+        }
+
+        public GLException(GLException err, string callstackstring)
+            : this(err.callstack, callstackstring)
+        {
         }
 
         public void Add(string message)
@@ -84,7 +90,8 @@ namespace App
 
         public void Throw(string message)
         {
-            throw new GLException(callstackstring, message);
+            Add(message);
+            throw this;
         }
     }
 }

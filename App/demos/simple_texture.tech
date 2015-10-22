@@ -41,11 +41,12 @@ texture tex_lena {
 
 shader vert vs_simple {
 	#version 440
-	
-	// the camera view matrix (set by GLED)
-	uniform mat4 g_view;
-	// the camera projection matrix (set by GLED)
-	uniform mat4 g_proj;
+
+	struct SimpleCamera {
+		mat4 view;
+		mat4 proj;
+	};
+	uniform SimpleCamera Camera;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -56,14 +57,14 @@ shader vert vs_simple {
 	
 	void main ()
 	{
-		gl_Position = g_proj * g_view * in_pos;
+		gl_Position = Camera.proj * Camera.view * in_pos;
 		vs_uv = in_uv;
 	}
 }
 
 shader frag fs_simple {
 	#version 440
-    
+	
 	layout(binding = 0) uniform sampler2D tex;
 	
 	layout(location = 0) in vec2 gs_uv;
@@ -80,14 +81,20 @@ shader frag fs_simple {
 /////////////
 
 csharp cs_util {
-	file "util/SimpleCamera.cs"
+	file "util/StaticCamera.cs" "util/SimpleCamera.cs"
+}
+
+instance cs_camera {
+	class cs_util util.SimpleCamera
+	name Camera
+	pos 0 0 5
 }
 
 pass pass_render {
 	// attach shaders
 	vert vs_simple
 	frag fs_simple
-    
+	
 	tex tex_lena 0
 	
 	// set clear color
@@ -98,7 +105,7 @@ pass pass_render {
 	Enable depthTest
 	
 	// execute camera code
-	exec cs_util util.SimpleCamera 60 0.1 100 0 0 5
+	exec cs_camera
 	
 	// draw cube
 	draw buf_idx in_vert ushort triangles 0 0 36
