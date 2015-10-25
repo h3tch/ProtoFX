@@ -79,6 +79,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="demos\util\PoissonDisk.cs" />
     <Compile Include="demos\util\SpotLight.cs" />
     <Compile Include="src\CodeEditor.cs">
       <SubType>Component</SubType>

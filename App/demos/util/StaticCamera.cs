@@ -27,6 +27,7 @@ namespace util
         #endregion
 
         #region PROPERTIES
+        public string Name { get { return name; } set { name = value; } }
         public float[] Position { get { return pos; } set { pos = value; } }
         public float[] Rotation { get { return rot; } set { rot = value; } }
         public float FieldOfViewY { get { return fov; } set { fov = value; } }
@@ -52,7 +53,7 @@ namespace util
         {
             name = defaultName;
 
-            // parse command for values specified by the user
+            // PARSE COMMAND VALUES SPECIFIED BY THE USER
             Convert(cmds, "pos", ref pos);
             Convert(cmds, "rot", ref rot);
             Convert(cmds, "fov", ref fov);
