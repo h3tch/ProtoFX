@@ -178,7 +178,7 @@ instance cs_poisson {
 	class cs_sampling util.PoissonDisk
 	name Poisson
 	maxSamples 64
-	minRadius 0.1
+	minRadius 0.2
 	numRadii 32
 }
 

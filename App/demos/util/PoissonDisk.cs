@@ -5,7 +5,6 @@ using System.Collections.Generic;
 namespace util
 {
     using System.Globalization;
-    using System.Threading;
     using Commands = Dictionary<string, string[]>;
 
     class PoissonDisk
@@ -27,7 +26,6 @@ namespace util
         public int NumRadii { get { return numRadii; } set { numRadii = value; } }
         #endregion
 
-
         public PoissonDisk(Commands cmds)
         {
             // PARSE COMMAND VALUES SPECIFIED BY THE USER
@@ -44,8 +42,9 @@ namespace util
             }
 
             // CREATE POISSON DISK
-            
-            var points = PoissonGen.Disk(minRadius);
+
+            //var points = PoissonGen.Disk(minRadius);
+            var points = new PoissonDiscSampler(minRadius).Samples();
 
             // SORT POISSON DISK POINTS BY DESCENDING DISTANCE TO EACH OTHER
 
@@ -80,12 +79,12 @@ namespace util
                 return;
             var dist = sortedDist.ToArray();
             radius = new int[Math.Max(numRadii, 1)];
-            
+
             for (int i = 0, j = 0; i < numRadii; i++)
             {
                 // interpolate radius value
-                var t = (i + 1) / (float)numRadii;
-                var r = minRadius * (t - 1f) + minRadius * t;
+                var t = i / (float)numRadii;
+                var r = (1f - t);
                 // find first distance smaller than the interpolated radius
                 for (; j < maxSamples; j++)
                     if (dist[j] <= r)
@@ -183,345 +182,148 @@ namespace util
         #endregion
     }
 
-    public static class PoissonGen
+    /// Poisson-disc sampling using Bridson's algorithm.
+    /// Adapted from Mike Bostock's Javascript source: http://bl.ocks.org/mbostock/19168c663618b7f07158
+    ///
+    /// See here for more information about this algorithm:
+    ///   http://devmag.org.za/2009/05/03/poisson-disk-sampling/
+    ///   http://bl.ocks.org/mbostock/dbb02448b0f93e4c82c3
+    ///
+    /// Usage:
+    ///   PoissonDiscSampler sampler = new PoissonDiscSampler(10, 5, 0.3f);
+    ///   foreach (Vector2 sample in sampler.Samples()) {
+    ///       // ... do something, like instantiate an object at (sample.x, sample.y) for example:
+    ///       Instantiate(someObject, new Vector3(sample.x, 0, sample.y), Quaternion.identity);
+    ///   }
+    ///
+    /// Author: Gregory Schlomoff (gregory.schlomoff@gmail.com)
+    /// Released in the public domain
+    public class PoissonDiscSampler
     {
-        static Random rand = new Random();
-        private const float TwoPI = (float)(2 * Math.PI);
+        private const int k = 30;  // Maximum number of attempts before marking a sample as inactive.
 
-        public static List<Vector2> Disk(float radius)
+        private static Random rand = new Random();
+        private readonly float radius2;  // radius squared
+        private readonly float cellSize;
+        private Vector2[,] grid;
+        private List<Vector2> activeSamples = new List<Vector2>();
+
+        /// Create a sampler with the following parameters:
+        ///
+        /// width:  each sample's x coordinate will be between [0, width]
+        /// height: each sample's y coordinate will be between [0, height]
+        /// radius: each sample will be at least `radius` units away from any other sample, and at most 2 * `radius`.
+        public PoissonDiscSampler(float radius)
         {
-            List<Circle> circles = new List<Circle>();
-            List<Circle> active = new List<Circle>();
-
-            // compute minimal step size
-            float min, max;
-            if (Intersect(new Vector2(0f, 0f), 1f, new Vector2(1f, 0f), radius, out min, out max) == 0)
-                return null;
-            float step = max - min;
-
-            Intersect(new Vector2(0f, 0f), radius, new Vector2(radius, 0f), radius, out min, out max);
-            float halfArcLec = (max - min) * 0.5f;
-
-            // REPEAT RANDOMLY ADDING POINTS UNTIL NO MORE POINTS CAN BE ADDED
-
-            var circle = new Circle(new Vector2(0f, 0f), radius);
-            circles.Add(circle);
-            active.Add(circle);
-            while (active.Count > 0)
-            {
-                circle = active[0];
-                circle.NewCircles(halfArcLec, circles, active);
-                active.Remove(circle);
-                Thread.Sleep(1);
-            }
-
-            // CONVERT TO VECTOR ARRAY
-
-            List<Vector2> disk = new List<Vector2>(circles.Count);
-
-            foreach (var c in circles)
-                disk.Add(c.pos);
-
-            return disk;
+            radius2 = radius * radius;
+            cellSize = radius / (float)Math.Sqrt(2);
+            grid = new Vector2[(int)(1 / cellSize), (int)(1 / cellSize)];
         }
 
-        private static int Intersect(Vector2 A, float Ar, Vector2 B, float Br,
-            out float from, out float to)
+        /// Return a lazy sequence of samples. You typically want to call this in a foreach loop, like so:
+        ///   foreach (Vector2 sample in sampler.Samples()) { ... }
+        public List<Vector2> Samples()
         {
-            // Find the distance between the centers.
-            Vector2 delta = A - B;
-            float distsq = delta.LengthSquared;
-            float dist = (float)Math.Sqrt(distsq);
+            List<Vector2> points = new List<Vector2>();
 
-            if (// No solutions, the circles are too far apart.
-                (dist > Ar + Br) ||
-                // No solutions, one circle contains the other.
-                (dist < Math.Abs(Ar - Br)) ||
-                // No solutions, the circles coincide.
-                ((dist == 0) && (Ar == Br)))
+            // First sample is choosen randomly
+            AddSample(new Vector2(0f, 0f));
+
+            while (activeSamples.Count > 0)
             {
-                from = float.NaN;
-                to = float.NaN;
-                return 0;
-            }
-            else
-            {
-                // Find a and h.
-                float a = (Ar * Ar - Br * Br + distsq) / (2 * dist);
-                float h = (float)Math.Sqrt(Ar * Ar - a * a);
+                // Pick a random active sample
+                int i = (int)rand.NextDouble() * activeSamples.Count;
+                Vector2 sample = activeSamples[i];
 
-                // Find P2.
-                delta = B - A;
-                Vector2 mid = A + a * delta / dist;
-
-                // Get the points P3.
-                delta.Y *= -1;
-                Vector2 v = (h * delta / dist).Yx;
-                Vector2 left = mid + v;
-                Vector2 right = mid - v;
-
-                // compute min
-                v = Vector2.NormalizeFast(right - A);
-                from = (float)Math.Acos(v.X);
-                if (v.Y < 0f)
-                    from = TwoPI - from;
-
-                // compute max
-                v = Vector2.NormalizeFast(left - A);
-                to = (float)Math.Acos(v.X);
-                if (v.Y < 0f)
-                    to = TwoPI - to;
-
-                // See if we have 1 or 2 solutions.
-                if (to < from)
-                    to += TwoPI;
-                return (dist == Ar + Br) ? 1 : 2;
-            }
-        }
-
-        public class Circle
-        {
-            public Vector2 pos;
-            private Circle prev, next, parent;
-            private float min, max;
-            private static float radius;
-            public Circle Prev { get { return prev; } set { prev = value; UpdateMinMax(value); } }
-            public Circle Next { get { return next; } set { next = value; UpdateMinMax(value); } }
-            public Circle Parent { get { return parent; } set { parent = value; UpdateMinMax(value); } }
-
-            public Circle(Vector2 pos, float radius, Circle parent = null)
-            {
-                Circle.radius = radius;
-                this.pos = pos;
-                this.prev = null;
-                this.next = null;
-                this.min = 0f;
-                this.max = 2 * TwoPI;
-                if (parent != null)
-                    this.Parent = parent;
-                else
-                    this.max = TwoPI;
-            }
-
-            public void NewCircles(float halfArc, List<Circle> circles, List<Circle> active)
-            {
-                Circle prev = this, newCircle = null;
-                int first = circles.Count;
-
-                while (min < max)
+                // Try `k` random candidates between [radius, 2 * radius] from that sample.
+                bool found = false;
+                for (int j = 0; j < k; ++j)
                 {
-                    var t = min + (max - min) * (float)rand.NextDouble();
-                    while (t - halfArc > min && t + halfArc < max)
-                        t -= halfArc;
-                    min = t + halfArc;
 
-                    Vector2 p = pos + new Vector2(
-                        radius * (float)Math.Cos(t),
-                        radius * (float)Math.Sin(t));
+                    var angle = 2 * Math.PI * rand.NextDouble();
+                    // See: http://stackoverflow.com/questions/9048095/create-random-number-within-an-annulus/9048443#9048443
+                    var r = (float)Math.Sqrt(rand.NextDouble() * 3 * radius2 + radius2);
+                    Vector2 candidate = sample + r * new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
 
-                    if (p.LengthSquared > (1 + radius) * (1 + radius))
-                        return;
-
-                    newCircle = new Circle(p, radius, this);
-                    newCircle.Prev = prev;
-                    prev.Next = newCircle;
-                    prev = newCircle;
-
-                    circles.Add(newCircle);
-                    active.Add(newCircle);
+                    // Accept candidates if it's inside the rect and farther than 2 * radius to any existing sample.
+                    if (candidate.Length <= 1f && IsFarEnough(candidate))
+                    {
+                        found = true;
+                        points.Add(AddSample(candidate));
+                        break;
+                    }
                 }
 
-                if (newCircle != null)
-                    newCircle.Next = circles[first];
+                // If we couldn't find a valid candidate after k attempts, remove this sample from the active samples queue
+                if (!found)
+                {
+                    activeSamples[i] = activeSamples[activeSamples.Count - 1];
+                    activeSamples.RemoveAt(activeSamples.Count - 1);
+                }
             }
 
-            private void UpdateMinMax(Circle circle)
+            return points;
+        }
+
+        private bool IsFarEnough(Vector2 sample)
+        {
+            Vector2 shift = new Vector2(0.5f, 0.5f);
+            GridPos pos = new GridPos(sample * 0.5f + shift, cellSize);
+
+            pos.x = Math.Min(pos.x, grid.GetLength(0) - 1);
+            pos.y = Math.Min(pos.y, grid.GetLength(1) - 1);
+            if (grid[pos.x, pos.y] != Vector2.Zero)
+                return false;
+
+            int xmin = Math.Max(pos.x - 2, 0);
+            int ymin = Math.Max(pos.y - 2, 0);
+            int xmax = Math.Min(pos.x + 2, grid.GetLength(0) - 1);
+            int ymax = Math.Min(pos.y + 2, grid.GetLength(1) - 1);
+
+            for (int y = ymin; y <= ymax; y++)
             {
-                if (circle == null)
-                    return;
-                float from, to;
-                Intersect(pos, radius, circle.pos, radius, out from, out to);
-                max = Math.Min(from, max);
-                min = Math.Max(to, min);
-                if (min > TwoPI)
-                    min -= TwoPI;
-                if (max < min)
-                    max += TwoPI;
+                for (int x = xmin; x <= xmax; x++)
+                {
+                    Vector2 s = grid[x, y];
+                    if (s != Vector2.Zero)
+                    {
+                        Vector2 d = s - sample;
+                        if (d.X * d.X + d.Y * d.Y < radius2)
+                            return false;
+                    }
+                }
+            }
+
+            return true;
+
+            // Note: we use the zero vector to denote an unfilled cell in the grid. This means that if we were
+            // to randomly pick (0, 0) as a sample, it would be ignored for the purposes of proximity-testing
+            // and we might end up with another sample too close from (0, 0). This is a very minor issue.
+        }
+
+        /// Adds the sample to the active samples queue and the grid before returning it
+        private Vector2 AddSample(Vector2 sample)
+        {
+            activeSamples.Add(sample);
+            Vector2 shift = new Vector2(0.5f, 0.5f);
+            GridPos pos = new GridPos(sample * 0.5f + shift, cellSize);
+            pos.x = Math.Min(pos.x, grid.GetLength(0) - 1);
+            pos.y = Math.Min(pos.y, grid.GetLength(1) - 1);
+            grid[pos.x, pos.y] = sample;
+            return sample;
+        }
+
+        /// Helper struct to calculate the x and y indices of a sample in the grid
+        private struct GridPos
+        {
+            public int x;
+            public int y;
+
+            public GridPos(Vector2 sample, float cellSize)
+            {
+                x = (int)(sample.X / cellSize);
+                y = (int)(sample.Y / cellSize);
             }
         }
     }
-
-    //// Based on http://theinstructionlimit.com/fast-uniform-poisson-disk-sampling-in-c
-
-    //// Adapated from java source by Herman Tulleken
-    //// http://www.luma.co.za/labs/2008/02/27/poisson-disk-sampling/
-
-    //// The algorithm is from the "Fast Poisson Disk Sampling in Arbitrary Dimensions" paper by Robert Bridson
-    //// http://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf
-
-    //public static class PoissonDiskSampler
-    //{
-    //    public const int DefaultPointsPerIteration = 30;
-
-    //    static readonly float SquareRootTwo = (float)Math.Sqrt(2);
-
-    //    struct Settings
-    //    {
-    //        public Vector2 TopLeft, LowerRight, Center;
-    //        public Vector2 Dimensions;
-    //        public float? RejectionSqDistance;
-    //        public float MinimumDistance;
-    //        public float CellSize;
-    //        public int GridWidth, GridHeight;
-    //    }
-
-    //    struct State
-    //    {
-    //        public Vector2?[,] Grid;
-    //        public List<Vector2> ActivePoints, Points;
-    //    }
-
-    //    public static List<Vector2> SampleCircle(Vector2 center, float radius, float minimumDistance)
-    //    {
-    //        return SampleCircle(center, radius, minimumDistance, DefaultPointsPerIteration);
-    //    }
-    //    public static List<Vector2> SampleCircle(Vector2 center, float radius, float minimumDistance, int pointsPerIteration)
-    //    {
-    //        return Sample(center - new Vector2(radius), center + new Vector2(radius), radius, minimumDistance, pointsPerIteration);
-    //    }
-
-    //    public static List<Vector2> SampleRectangle(Vector2 topLeft, Vector2 lowerRight, float minimumDistance)
-    //    {
-    //        return SampleRectangle(topLeft, lowerRight, minimumDistance, DefaultPointsPerIteration);
-    //    }
-    //    public static List<Vector2> SampleRectangle(Vector2 topLeft, Vector2 lowerRight, float minimumDistance, int pointsPerIteration)
-    //    {
-    //        return Sample(topLeft, lowerRight, null, minimumDistance, pointsPerIteration);
-    //    }
-
-    //    static List<Vector2> Sample(Vector2 topLeft, Vector2 lowerRight, float? rejectionDistance, float minimumDistance, int pointsPerIteration)
-    //    {
-    //        var settings = new Settings
-    //        {
-    //            TopLeft = topLeft,
-    //            LowerRight = lowerRight,
-    //            Dimensions = lowerRight - topLeft,
-    //            Center = (topLeft + lowerRight) / 2,
-    //            CellSize = minimumDistance / SquareRootTwo,
-    //            MinimumDistance = minimumDistance,
-    //            RejectionSqDistance = rejectionDistance == null ? null : rejectionDistance * rejectionDistance
-    //        };
-    //        settings.GridWidth = (int)(settings.Dimensions.X / settings.CellSize) + 1;
-    //        settings.GridHeight = (int)(settings.Dimensions.Y / settings.CellSize) + 1;
-
-    //        var state = new State
-    //        {
-    //            Grid = new Vector2?[settings.GridWidth, settings.GridHeight],
-    //            ActivePoints = new List<Vector2>(),
-    //            Points = new List<Vector2>()
-    //        };
-
-    //        AddFirstPoint(ref settings, ref state);
-
-    //        while (state.ActivePoints.Count != 0)
-    //        {
-    //            var listIndex = RandomHelper.Random.Next(state.ActivePoints.Count);
-
-    //            var point = state.ActivePoints[listIndex];
-    //            var found = false;
-
-    //            for (var k = 0; k < pointsPerIteration; k++)
-    //                found |= AddNextPoint(point, ref settings, ref state);
-
-    //            if (!found)
-    //                state.ActivePoints.RemoveAt(listIndex);
-    //        }
-
-    //        return state.Points;
-    //    }
-
-    //    static void AddFirstPoint(ref Settings settings, ref State state)
-    //    {
-    //        var added = false;
-    //        while (!added)
-    //        {
-    //            var d = RandomHelper.Random.NextDouble();
-    //            var xr = settings.TopLeft.X + settings.Dimensions.X * d;
-
-    //            d = RandomHelper.Random.NextDouble();
-    //            var yr = settings.TopLeft.Y + settings.Dimensions.Y * d;
-
-    //            var p = new Vector2((float)xr, (float)yr);
-    //            if (settings.RejectionSqDistance != null && Vector2.Dot(settings.Center, p) > settings.RejectionSqDistance)
-    //                continue;
-    //            added = true;
-
-    //            var index = Denormalize(p, settings.TopLeft, settings.CellSize);
-
-    //            state.Grid[(int)index.X, (int)index.Y] = p;
-
-    //            state.ActivePoints.Add(p);
-    //            state.Points.Add(p);
-    //        }
-    //    }
-
-    //    static bool AddNextPoint(Vector2 point, ref Settings settings, ref State state)
-    //    {
-    //        var found = false;
-    //        var q = GenerateRandomAround(point, settings.MinimumDistance);
-
-    //        if (q.X >= settings.TopLeft.X && q.X < settings.LowerRight.X &&
-    //            q.Y > settings.TopLeft.Y && q.Y < settings.LowerRight.Y &&
-    //            (settings.RejectionSqDistance == null || Vector2.Dot(settings.Center, q) <= settings.RejectionSqDistance))
-    //        {
-    //            var qIndex = Denormalize(q, settings.TopLeft, settings.CellSize);
-    //            var tooClose = false;
-
-    //            for (var i = (int)Math.Max(0, qIndex.X - 2); i < Math.Min(settings.GridWidth, qIndex.X + 3) && !tooClose; i++)
-    //                for (var j = (int)Math.Max(0, qIndex.Y - 2); j < Math.Min(settings.GridHeight, qIndex.Y + 3) && !tooClose; j++)
-    //                    if (state.Grid[i, j].HasValue && Math.Sqrt(Vector2.Dot(state.Grid[i, j].Value, q)) < settings.MinimumDistance)
-    //                        tooClose = true;
-
-    //            if (!tooClose)
-    //            {
-    //                found = true;
-    //                state.ActivePoints.Add(q);
-    //                state.Points.Add(q);
-    //                state.Grid[(int)qIndex.X, (int)qIndex.Y] = q;
-    //            }
-    //        }
-    //        return found;
-    //    }
-
-    //    static Vector2 GenerateRandomAround(Vector2 center, float minimumDistance)
-    //    {
-    //        var d = RandomHelper.Random.NextDouble();
-    //        var radius = minimumDistance + minimumDistance * d;
-
-    //        d = RandomHelper.Random.NextDouble();
-    //        var angle = MathHelper.TwoPi * d;
-
-    //        var newX = radius * Math.Sin(angle);
-    //        var newY = radius * Math.Cos(angle);
-
-    //        return new Vector2((float)(center.X + newX), (float)(center.Y + newY));
-    //    }
-
-    //    static Vector2 Denormalize(Vector2 point, Vector2 origin, double cellSize)
-    //    {
-    //        return new Vector2((int)((point.X - origin.X) / cellSize), (int)((point.Y - origin.Y) / cellSize));
-    //    }
-    //}
-
-    //public static class RandomHelper
-    //{
-    //    public static readonly Random Random = new Random();
-    //}
-
-    //public static class MathHelper
-    //{
-    //    public const float Pi = (float)Math.PI;
-    //    public const float HalfPi = (float)(Math.PI / 2);
-    //    public const float TwoPi = (float)(Math.PI * 2);
-    //}
 }
