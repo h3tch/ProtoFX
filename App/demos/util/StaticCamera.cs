@@ -7,7 +7,7 @@ namespace util
 {
     using Commands = Dictionary<string, string[]>;
 
-    class StaticCamera
+    public class StaticCamera
     {
         #region FIELDS
         public float[] pos = new float[] { 0f, 0f, 0f };

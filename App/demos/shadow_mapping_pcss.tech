@@ -156,6 +156,10 @@ csharp cs_util {
 	file "util/SpotLight.cs" "util/SimpleCamera.cs"
 }
 
+csharp cs_sampling {
+	file "util/PoissonDisk.cs"
+}
+
 instance cs_light {
 	class cs_util util.SpotLight
 	name Light
@@ -168,6 +172,14 @@ instance cs_camera {
 	name Camera
 	pos -5 4 10
 	rot -20 -15 0
+}
+
+instance cs_poisson {
+	class cs_sampling util.PoissonDisk
+	name Poisson
+	maxSamples 64
+	minRadius 0.1
+	numRadii 32
 }
 
 pass pass_shadowmap {
@@ -204,6 +216,7 @@ pass pass_render {
 	// execute camera code
 	exec cs_light
 	exec cs_camera
+	exec cs_poisson
 	
 	// draw cube
 	draw buf_idx in_vert ushort triangles 0 0 36
