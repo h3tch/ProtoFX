@@ -4,13 +4,17 @@ using System.Collections.Generic;
 
 namespace util
 {
+    using OpenTK.Graphics.OpenGL4;
     using System.Globalization;
+    using System.Text;
     using Commands = Dictionary<string, string[]>;
 
     class PoissonDisc
     {
         #region FIELDS
-        private string name = "PoissonDisk";
+        private string name = "PoissonDisc";
+        protected static string name_points = "points";
+        protected static string name_radius = "radius";
         public int maxSamples = 0;
         public int numRadii = 0;
         public float minRadius = 0f;
@@ -33,6 +37,7 @@ namespace util
         public PoissonDisc(Commands cmds)
         {
             // PARSE COMMAND VALUES SPECIFIED BY THE USER
+
             Convert(cmds, "name", ref name);
             Convert(cmds, "maxSamples", ref maxSamples);
             Convert(cmds, "minRadius", ref minRadius);
@@ -183,8 +188,29 @@ namespace util
             }
         }
         #endregion
+
+        #region INNER CLASSES
+        protected struct Unif
+        {
+            public Unif(int program, string name)
+            {
+                points = GL.GetUniformLocation(program, name + "." + name_points);
+                radius = GL.GetUniformLocation(program, name + "." + name_radius);
+                //int numUnif;
+                //GL.GetProgram(program, GetProgramParameterName.ActiveUniforms, out numUnif);
+                //for (int i = 0; i < numUnif; i++)
+                //{
+                //    int length = 128;
+                //    StringBuilder unifName = new StringBuilder(length);
+                //    GL.GetActiveUniformName(program, i, length, out length, unifName);
+                //}
+            }
+            public int points;
+            public int radius;
+        }
+        #endregion
     }
-    
+
     public class PoissonDiscSampler
     {
         private static Random rand = new Random();

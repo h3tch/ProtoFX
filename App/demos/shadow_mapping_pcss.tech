@@ -106,6 +106,13 @@ shader vert vs_simple {
 
 shader frag fs_simple {
 	#version 440
+
+	struct PoissonDisc {
+		vec2 pionts[];
+		float radius[];
+	};
+
+	uniform PoissonDisc Disc;
 	
 	layout(binding = 0) uniform sampler2D shadowmap;
 	
