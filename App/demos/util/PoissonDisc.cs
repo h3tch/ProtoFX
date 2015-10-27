@@ -7,7 +7,7 @@ namespace util
     using System.Globalization;
     using Commands = Dictionary<string, string[]>;
 
-    class PoissonDisk
+    class PoissonDisc
     {
         #region FIELDS
         private string name = "PoissonDisk";
@@ -17,8 +17,10 @@ namespace util
         private Vector2[] samples;
         private int[] radius;
         protected List<string> errors = new List<string>();
+        private static CultureInfo culture = new CultureInfo("en");
         #endregion
 
+        // Properties accessible by ProtoGL
         #region PROPERTIES
         public string Name { get { return name; } set { name = value; } }
         public int MaxSamples { get { return maxSamples; } set { maxSamples = value; } }
@@ -26,7 +28,9 @@ namespace util
         public int NumRadii { get { return numRadii; } set { numRadii = value; } }
         #endregion
 
-        public PoissonDisk(Commands cmds)
+        public List<string> GetErrors() { return errors; }
+
+        public PoissonDisc(Commands cmds)
         {
             // PARSE COMMAND VALUES SPECIFIED BY THE USER
             Convert(cmds, "name", ref name);
@@ -42,8 +46,7 @@ namespace util
             }
 
             // CREATE POISSON DISK
-
-            //var points = PoissonGen.Disk(minRadius);
+            
             var points = new PoissonDiscSampler(minRadius).Samples();
 
             // SORT POISSON DISK POINTS BY DESCENDING DISTANCE TO EACH OTHER
@@ -56,7 +59,8 @@ namespace util
             int idx = ClosestPoint(points, new Vector2(0f, 0f));
             sortedPoints.Add(points[idx]);
             sortedDist.Add(float.MaxValue);
-            points.RemoveAt(idx);
+            points[idx] = points[points.Count - 1];
+            points.RemoveAt(points.Count - 1);
 
             // sort points
             for (int i = 1; i < maxSamples; i++)
@@ -67,7 +71,8 @@ namespace util
                 // add point to sorted list and remove it from non-sorted list
                 sortedPoints.Add(points[idx]);
                 sortedDist.Add(r);
-                points.RemoveAt(idx);
+                points[idx] = points[points.Count - 1];
+                points.RemoveAt(points.Count - 1);
             }
 
             // save the result
@@ -84,7 +89,7 @@ namespace util
             {
                 // interpolate radius value
                 var t = i / (float)numRadii;
-                var r = (1f - t);
+                var r = 1f - t;
                 // find first distance smaller than the interpolated radius
                 for (; j < maxSamples; j++)
                     if (dist[j] <= r)
@@ -98,27 +103,25 @@ namespace util
         {
 
         }
-
-        public List<string> GetErrors()
-        {
-            return errors;
-        }
-
+        
         #region UTILITY METHOD
         private static int ClosestPoint(List<Vector2> points, Vector2 query)
         {
-            int i = 0;
-            int idx = 0;
+            int i = 0, idx = 0;
             float minDist = float.MaxValue;
 
+            // find minimal distance and index to query point
             foreach (var point in points)
             {
                 var dist = (point - query).LengthSquared;
+
+                // cache minimal distance
                 if (dist < minDist)
                 {
                     minDist = dist;
                     idx = i;
                 }
+
                 i++;
             }
 
@@ -127,16 +130,18 @@ namespace util
 
         private static int MostDistantPoint(List<Vector2> points, List<Vector2> queries, out float maxDist)
         {
-            int i = 0;
-            int idx = 0;
+            int i = 0, idx = 0;
             maxDist = 0f;
 
+            // find maximal distance and index to all query points
             foreach (var point in points)
             {
+                // get closest query point distance
                 var minDistToQueries = float.MaxValue;
                 foreach (var query in queries)
                     minDistToQueries = Math.Min((point - query).LengthSquared, minDistToQueries);
 
+                // cache maximal distance
                 if (minDistToQueries > maxDist)
                 {
                     maxDist = minDistToQueries;
@@ -161,8 +166,6 @@ namespace util
             }
         }
 
-        private static CultureInfo culture = new CultureInfo("en");
-
         private static bool TryChangeType<T>(object invalue, ref T value)
         {
 
@@ -181,148 +184,147 @@ namespace util
         }
         #endregion
     }
-
-    /// Poisson-disc sampling using Bridson's algorithm.
-    /// Adapted from Mike Bostock's Javascript source: http://bl.ocks.org/mbostock/19168c663618b7f07158
-    ///
-    /// See here for more information about this algorithm:
-    ///   http://devmag.org.za/2009/05/03/poisson-disk-sampling/
-    ///   http://bl.ocks.org/mbostock/dbb02448b0f93e4c82c3
-    ///
-    /// Usage:
-    ///   PoissonDiscSampler sampler = new PoissonDiscSampler(10, 5, 0.3f);
-    ///   foreach (Vector2 sample in sampler.Samples()) {
-    ///       // ... do something, like instantiate an object at (sample.x, sample.y) for example:
-    ///       Instantiate(someObject, new Vector3(sample.x, 0, sample.y), Quaternion.identity);
-    ///   }
-    ///
-    /// Author: Gregory Schlomoff (gregory.schlomoff@gmail.com)
-    /// Released in the public domain
+    
     public class PoissonDiscSampler
     {
-        private const int k = 30;  // Maximum number of attempts before marking a sample as inactive.
-
         private static Random rand = new Random();
-        private readonly float radius2;  // radius squared
-        private readonly float cellSize;
-        private Vector2[,] grid;
-        private List<Vector2> activeSamples = new List<Vector2>();
+        private readonly float radiusSq;
+        private List<Vector2> active = new List<Vector2>();
+        private Grid grid;
 
-        /// Create a sampler with the following parameters:
-        ///
-        /// width:  each sample's x coordinate will be between [0, width]
-        /// height: each sample's y coordinate will be between [0, height]
-        /// radius: each sample will be at least `radius` units away from any other sample, and at most 2 * `radius`.
         public PoissonDiscSampler(float radius)
         {
-            radius2 = radius * radius;
-            cellSize = radius / (float)Math.Sqrt(2);
-            grid = new Vector2[(int)(1 / cellSize), (int)(1 / cellSize)];
+            radiusSq = radius * radius;
+            grid = new Grid(radius);
         }
-
-        /// Return a lazy sequence of samples. You typically want to call this in a foreach loop, like so:
-        ///   foreach (Vector2 sample in sampler.Samples()) { ... }
+        
         public List<Vector2> Samples()
         {
             List<Vector2> points = new List<Vector2>();
 
-            // First sample is choosen randomly
-            AddSample(new Vector2(0f, 0f));
+            // Begin adding points starting with the center
+            active.Add(new Vector2(0f, 0f));
 
-            while (activeSamples.Count > 0)
+            while (active.Count > 0)
             {
                 // Pick a random active sample
-                int i = (int)rand.NextDouble() * activeSamples.Count;
-                Vector2 sample = activeSamples[i];
+                int i = (int)(rand.NextDouble() * active.Count);
+                int n = points.Count;
+                Vector2 sample = active[i];
 
-                // Try `k` random candidates between [radius, 2 * radius] from that sample.
-                bool found = false;
-                for (int j = 0; j < k; ++j)
+                // Try `k` random candidates between
+                // [radius, 2 * radius] from that sample.
+                const int k = 30;
+                for (int j = 0; j < k; j++)
                 {
-
-                    var angle = 2 * Math.PI * rand.NextDouble();
                     // See: http://stackoverflow.com/questions/9048095/create-random-number-within-an-annulus/9048443#9048443
-                    var r = (float)Math.Sqrt(rand.NextDouble() * 3 * radius2 + radius2);
+                    var r = (float)Math.Sqrt(rand.NextDouble() * 3 * radiusSq + radiusSq);
+                    var angle = 2 * Math.PI * rand.NextDouble();
                     Vector2 candidate = sample + r * new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
 
-                    // Accept candidates if it's inside the rect and farther than 2 * radius to any existing sample.
-                    if (candidate.Length <= 1f && IsFarEnough(candidate))
+                    // Accept candidates if it's inside the unit disc and
+                    // farther than 2 * radius to any existing sample.
+                    //if (candidate.Length <= 1f && IsFarEnough(candidate))
+                    if (candidate.Length <= 1f && grid.CanInsert(sample) && !grid.HasPoint(sample))
                     {
-                        found = true;
-                        points.Add(AddSample(candidate));
+                        active.Add(candidate);
+                        grid.Insert(candidate);
+                        points.Add(candidate);
                         break;
                     }
                 }
 
-                // If we couldn't find a valid candidate after k attempts, remove this sample from the active samples queue
-                if (!found)
+                // If we couldn't find a valid candidate after k attempts,
+                // remove this sample from the active samples queue
+                if (n == points.Count)
                 {
-                    activeSamples[i] = activeSamples[activeSamples.Count - 1];
-                    activeSamples.RemoveAt(activeSamples.Count - 1);
+                    // move last sample to current sample position
+                    active[i] = active[active.Count - 1];
+                    // remove last element in the list
+                    active.RemoveAt(active.Count - 1);
                 }
             }
 
             return points;
         }
-
-        private bool IsFarEnough(Vector2 sample)
+        
+        private class Grid
         {
-            Vector2 shift = new Vector2(0.5f, 0.5f);
-            GridPos pos = new GridPos(sample * 0.5f + shift, cellSize);
+            private Vector2[,] grid;
+            private float cellSize;
+            private float radius;
+            private float radiusSq;
 
-            pos.x = Math.Min(pos.x, grid.GetLength(0) - 1);
-            pos.y = Math.Min(pos.y, grid.GetLength(1) - 1);
-            if (grid[pos.x, pos.y] != Vector2.Zero)
-                return false;
-
-            int xmin = Math.Max(pos.x - 2, 0);
-            int ymin = Math.Max(pos.y - 2, 0);
-            int xmax = Math.Min(pos.x + 2, grid.GetLength(0) - 1);
-            int ymax = Math.Min(pos.y + 2, grid.GetLength(1) - 1);
-
-            for (int y = ymin; y <= ymax; y++)
+            public Grid(float radius)
             {
-                for (int x = xmin; x <= xmax; x++)
-                {
-                    Vector2 s = grid[x, y];
-                    if (s != Vector2.Zero)
-                    {
-                        Vector2 d = s - sample;
-                        if (d.X * d.X + d.Y * d.Y < radius2)
-                            return false;
-                    }
-                }
+                this.radius = radius;
+                radiusSq = radius * radius;
+                cellSize = radius / (float)Math.Sqrt(2);
+                grid = new Vector2[(int)(1 / cellSize), (int)(1 / cellSize)];
             }
 
-            return true;
-
-            // Note: we use the zero vector to denote an unfilled cell in the grid. This means that if we were
-            // to randomly pick (0, 0) as a sample, it would be ignored for the purposes of proximity-testing
-            // and we might end up with another sample too close from (0, 0). This is a very minor issue.
-        }
-
-        /// Adds the sample to the active samples queue and the grid before returning it
-        private Vector2 AddSample(Vector2 sample)
-        {
-            activeSamples.Add(sample);
-            Vector2 shift = new Vector2(0.5f, 0.5f);
-            GridPos pos = new GridPos(sample * 0.5f + shift, cellSize);
-            pos.x = Math.Min(pos.x, grid.GetLength(0) - 1);
-            pos.y = Math.Min(pos.y, grid.GetLength(1) - 1);
-            grid[pos.x, pos.y] = sample;
-            return sample;
-        }
-
-        /// Helper struct to calculate the x and y indices of a sample in the grid
-        private struct GridPos
-        {
-            public int x;
-            public int y;
-
-            public GridPos(Vector2 sample, float cellSize)
+            public void Insert(Vector2 sample)
             {
-                x = (int)(sample.X / cellSize);
-                y = (int)(sample.Y / cellSize);
+                Vec2i pos = Disc2Grid(sample);
+                grid[pos.X, pos.Y] = sample;
+            }
+
+            public bool CanInsert(Vector2 sample)
+            {
+                return CanInsert(Disc2Grid(sample));
+            }
+
+            public bool CanInsert(Vec2i pos)
+            {
+                return grid[pos.X, pos.Y] == Vector2.Zero;
+            }
+
+            public bool HasPoint(Vector2 sample)
+            {
+                var pos = Disc2Grid(sample);
+
+                // 
+                int xmin = Math.Max(pos.X - 2, 0);
+                int ymin = Math.Max(pos.Y - 2, 0);
+                int xmax = Math.Min(pos.X + 2, grid.GetLength(0) - 1);
+                int ymax = Math.Min(pos.Y + 2, grid.GetLength(1) - 1);
+
+                //
+                for (int y = ymin; y <= ymax; y++)
+                {
+                    for (int x = xmin; x <= xmax; x++)
+                    {
+                        Vector2 s = grid[x, y];
+                        if (s != Vector2.Zero)
+                        {
+                            Vector2 d = s - sample;
+                            if (d.X * d.X + d.Y * d.Y < radiusSq)
+                                return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+
+            public Vec2i Disc2Grid(Vector2 sample)
+            {
+                int x = (int)((sample.X * 0.5f + 0.5f) / cellSize);
+                int y = (int)((sample.Y * 0.5f + 0.5f) / cellSize);
+                x = Math.Min(x, grid.GetLength(0) - 1);
+                y = Math.Min(y, grid.GetLength(1) - 1);
+                return new Vec2i(x, y);
+            }
+
+            public struct Vec2i
+            {
+                public int X;
+                public int Y;
+                public Vec2i(int x, int y)
+                {
+                    X = x;
+                    Y = y;
+                }
             }
         }
     }

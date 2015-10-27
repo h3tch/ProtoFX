@@ -73,7 +73,12 @@ namespace App
 
             // check for compiler errors
             if (compilerresults.Errors.Count != 0)
-                err.Throw("\n" + compilerresults.Output);
+            {
+                string msg = "";
+                foreach (var message in compilerresults.Output)
+                    msg += "\n" + message;
+                err.Throw(msg);
+            }
         }
 
         public object CreateInstance(string classname, Dictionary<string,string[]> cmds,

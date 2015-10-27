@@ -157,7 +157,7 @@ csharp cs_util {
 }
 
 csharp cs_sampling {
-	file "util/PoissonDisk.cs"
+	file "util/PoissonDisc.cs"
 }
 
 instance cs_light {
@@ -175,7 +175,7 @@ instance cs_camera {
 }
 
 instance cs_poisson {
-	class cs_sampling util.PoissonDisk
+	class cs_sampling util.PoissonDisc
 	name Poisson
 	maxSamples 64
 	minRadius 0.2
