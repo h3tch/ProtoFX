@@ -58,10 +58,11 @@ texture tex_shadowmap {
 shader vert vs_shadowmap {
 	#version 440
 	
-	uniform Light {
+	struct StaticCamera {
 		mat4 viewProj;
-	} light;
-	//uniform StaticCamera Light;
+	};
+
+	uniform StaticCamera light;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -76,14 +77,16 @@ shader vert vs_shadowmap {
 shader vert vs_simple {
 	#version 440
 	
-	uniform Light {
+	struct StaticCamera {
 		mat4 viewProj;
-	} light;
-	uniform Camera {
+	};
+
+	struct SimpleCamera {
 		mat4 viewProj;
-	} camera;
-	//uniform StaticCamera Light;
-	//uniform SimpleCamera Camera;
+	};
+
+	uniform StaticCamera light;
+	uniform SimpleCamera camera;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -163,29 +166,29 @@ shader frag fs_simple {
 /////////////
 
 csharp cs_util {
-	file "util/SpotLight.cs" "util/SimpleCamera.cs" "util/PoissonDisc.cs"
+	file "util/SpotLight.cs" "util/SimpleCamera.cs"
 }
 
-/*csharp cs_sampling {
+csharp cs_sampling {
 	file "util/PoissonDisc.cs"
-}*/
+}
 
 instance cs_light {
 	class cs_util util.SpotLight
-	name Light
+	name light
 	pos 3 4 3
 	rot -45 45 0
 }
 
 instance cs_camera {
 	class cs_util util.SimpleCamera
-	name Camera
+	name camera
 	pos -5 4 10
 	rot -20 -15 0
 }
 
 instance cs_poisson {
-	class cs_util util.PoissonDisc
+	class cs_sampling util.PoissonDisc
 	name PoissonDisc
 	maxSamples 64
 	minRadius 0.2

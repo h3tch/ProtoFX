@@ -168,8 +168,7 @@ namespace util
             public Unif(int program, string name)
             {
                 string[] names = Enum.GetNames(typeof(Names)).Select(v => name + "." + v).ToArray();
-                location = Enumerable.Repeat(-1, names.Length).ToArray();
-                //GL.GetUniformIndices(program, names.Length, names, location);
+                location = names.Select(n => GL.GetUniformLocation(program, n)).ToArray();
             }
 
             public int this[Names name]{

@@ -200,34 +200,50 @@ namespace util
         #region INNER CLASSES
         protected struct Unif
         {
-            private int[] location;
+            private int unit;
+            private int size;
             private int[] length;
-            private int[] stide;
-            
+            private int[] offset;
+            private int[] stride;
+
             public Unif(int program, string name)
             {
+                int block = GL.GetUniformBlockIndex(program, name);
+                GL.GetActiveUniformBlock(program, block, 
+                    ActiveUniformBlockParameter.UniformBlockBinding, out unit);
+                GL.GetActiveUniformBlock(program, block, 
+                    ActiveUniformBlockParameter.UniformBlockDataSize, out size);
+                
                 string[] names = Enum.GetNames(typeof(Names)).Select(v => name + "." + v).ToArray();
-                location = Enumerable.Repeat(-1, names.Length).ToArray();
+                int[] location = Enumerable.Repeat(-1, names.Length).ToArray();
                 length = new int[names.Length];
-                stide = new int[names.Length];
+                offset = new int[names.Length];
+                stride = new int[names.Length];
 
-                //GL.GetUniformIndices(program, names.Length, names, location);
+                GL.GetUniformIndices(program, names.Length, names, location);
 
-                //for (int i = 0; i < location.Length; i++)
-                //{
-                //    if (location[i] >= 0)
-                //    {
-                //        GL.GetActiveUniforms(program, 1, ref location[i],
-                //            ActiveUniformParameter.UniformSize, out length[i]);
-                //        GL.GetActiveUniforms(program, 1, ref location[i], 
-                //            ActiveUniformParameter.UniformArrayStride, out stide[i]);
-                //    }
-                //}
+                for (int i = 0; i < location.Length; i++)
+                {
+                    if (location[i] >= 0)
+                    {
+                        GL.GetActiveUniforms(program, 1, ref location[i],
+                            ActiveUniformParameter.UniformSize, out length[i]);
+                        GL.GetActiveUniforms(program, 1, ref location[i],
+                            ActiveUniformParameter.UniformOffset, out offset[i]);
+                        GL.GetActiveUniforms(program, 1, ref location[i],
+                            ActiveUniformParameter.UniformArrayStride, out stride[i]);
+                    }
+                }
             }
 
-            public int this[Names name]
+            public int Unit()
             {
-                get { return location[(int)name]; }
+                return unit;
+            }
+
+            public int Size()
+            {
+                return size;
             }
 
             public int Length(Names name)
@@ -235,9 +251,14 @@ namespace util
                 return length[(int)name];
             }
 
-            public int Stide(Names name)
+            public int Offset(Names name)
             {
-                return stide[(int)name];
+                return offset[(int)name];
+            }
+
+            public int Stride(Names name)
+            {
+                return stride[(int)name];
             }
         }
 
