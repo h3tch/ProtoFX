@@ -58,10 +58,10 @@ texture tex_shadowmap {
 shader vert vs_shadowmap {
 	#version 440
 	
-	struct StaticCamera {
+	uniform Light {
 		mat4 viewProj;
-	};
-	uniform StaticCamera Light;
+	} light;
+	//uniform StaticCamera Light;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -69,21 +69,21 @@ shader vert vs_shadowmap {
 	void main ()
 	{
 		// transform vertex to light projection space
-		gl_Position = Light.viewProj * in_pos;
+		gl_Position = light.viewProj * in_pos;
 	}
 }
 
 shader vert vs_simple {
 	#version 440
 	
-	struct StaticCamera {
+	uniform Light {
 		mat4 viewProj;
-	};
-	struct SimpleCamera {
+	} light;
+	uniform Camera {
 		mat4 viewProj;
-	};
-	uniform StaticCamera Light;
-	uniform SimpleCamera Camera;
+	} camera;
+	//uniform StaticCamera Light;
+	//uniform SimpleCamera Camera;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -96,9 +96,9 @@ shader vert vs_simple {
 	void main ()
 	{
 		// transform vertex to camera projection space
-		gl_Position = Camera.viewProj * in_pos;
+		gl_Position = camera.viewProj * in_pos;
 		// transform vertex to light projection space
-		out_lpos = Light.viewProj * in_pos;
+		out_lpos = light.viewProj * in_pos;
 		// pass vertex color
 		out_col = in_col;
 	}
@@ -106,13 +106,11 @@ shader vert vs_simple {
 
 shader frag fs_simple {
 	#version 440
+	#define NUM_POINTS 64
 
-	struct PoissonDisc {
-		vec2 pionts[];
-		float radius[];
-	};
-
-	uniform PoissonDisc Disc;
+	uniform PoissonDisc {
+		vec2 points[64];
+	} Disc;
 	
 	layout(binding = 0) uniform sampler2D shadowmap;
 	
@@ -143,14 +141,19 @@ shader frag fs_simple {
 		const int d = 2*r+1;
 		const float bias = 0.001;
 		float shadow = 0.0;
-		for (int dx = -r; dx <= r; dx++) {
-			for (int dy = -r; dy <= r; dy++)
-				shadow += lpos.z - dxdyBias(bias, dx, dy) > textureOffset(shadowmap, lpos.xy, ivec2(dx, dy)).x ? 1.0 : 0.0;
+		//for (int dx = -r; dx <= r; dx++) {
+		//	for (int dy = -r; dy <= r; dy++)
+		//		shadow += lpos.z - dxdyBias(bias, dx, dy) > textureOffset(shadowmap, lpos.xy, ivec2(dx, dy)).x ? 1.0 : 0.0;
+		//}
+		for (int i = 0; i < NUM_POINTS; i++) {
+			vec2 p = Disc.points[i] * r;
+			shadow += lpos.z > texture(shadowmap, p).x ? 1.0 : 0.0;
 		}
 		
 		if (shadow == 0.0)
 			return;
-		shadow /= float(d*d);
+		//shadow /= float(d*d);
+		shadow /= float(NUM_POINTS);
 		color.rgb *= (1.0 - shadow) * 0.5 + 0.5;
 	}
 }
@@ -160,12 +163,12 @@ shader frag fs_simple {
 /////////////
 
 csharp cs_util {
-	file "util/SpotLight.cs" "util/SimpleCamera.cs"
+	file "util/SpotLight.cs" "util/SimpleCamera.cs" "util/PoissonDisc.cs"
 }
 
-csharp cs_sampling {
+/*csharp cs_sampling {
 	file "util/PoissonDisc.cs"
-}
+}*/
 
 instance cs_light {
 	class cs_util util.SpotLight
@@ -182,8 +185,8 @@ instance cs_camera {
 }
 
 instance cs_poisson {
-	class cs_sampling util.PoissonDisc
-	name Poisson
+	class cs_util util.PoissonDisc
+	name PoissonDisc
 	maxSamples 64
 	minRadius 0.2
 	numRadii 32

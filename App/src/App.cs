@@ -244,6 +244,8 @@ namespace App
             ClearGLObjects();
 
             var sourceTab = (TabPage)tabSource.SelectedTab;
+            if (sourceTab == null)
+                return;
             var sourceText = (CodeEditor)sourceTab.Controls[0];
             var dir = sourceTab.filepath != null ?
                 Path.GetDirectoryName(sourceTab.filepath) : Directory.GetCurrentDirectory();

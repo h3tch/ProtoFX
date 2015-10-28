@@ -1,25 +1,30 @@
 ﻿using OpenTK;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
 namespace util
 {
-    using OpenTK.Graphics.OpenGL4;
-    using System.Globalization;
-    using System.Text;
     using Commands = Dictionary<string, string[]>;
 
     class PoissonDisc
     {
+        public enum Names
+        {
+            points,
+            radius,
+        }
+
         #region FIELDS
         private string name = "PoissonDisc";
-        protected static string name_points = "points";
-        protected static string name_radius = "radius";
         public int maxSamples = 0;
         public int numRadii = 0;
         public float minRadius = 0f;
         private Vector2[] samples;
         private int[] radius;
+        protected Dictionary<int, Unif> uniform = new Dictionary<int, Unif>();
         protected List<string> errors = new List<string>();
         private static CultureInfo culture = new CultureInfo("en");
         #endregion
@@ -51,7 +56,7 @@ namespace util
             }
 
             // CREATE POISSON DISK
-            
+
             var points = new PoissonDiscSampler(minRadius).Samples();
 
             // SORT POISSON DISK POINTS BY DESCENDING DISTANCE TO EACH OTHER
@@ -106,7 +111,10 @@ namespace util
 
         public void Update(int program, int width, int height, int widthTex, int heightTex)
         {
-
+            // GET OR CREATE CAMERA UNIFORMS FOR program
+            Unif unif;
+            if (uniform.TryGetValue(program, out unif) == false)
+                uniform.Add(program, unif = new Unif(program, name));
         }
         
         #region UTILITY METHOD
@@ -192,166 +200,190 @@ namespace util
         #region INNER CLASSES
         protected struct Unif
         {
+            private int[] location;
+            private int[] length;
+            private int[] stide;
+            
             public Unif(int program, string name)
             {
-                points = GL.GetUniformLocation(program, name + "." + name_points);
-                radius = GL.GetUniformLocation(program, name + "." + name_radius);
-                //int numUnif;
-                //GL.GetProgram(program, GetProgramParameterName.ActiveUniforms, out numUnif);
-                //for (int i = 0; i < numUnif; i++)
+                string[] names = Enum.GetNames(typeof(Names)).Select(v => name + "." + v).ToArray();
+                location = Enumerable.Repeat(-1, names.Length).ToArray();
+                length = new int[names.Length];
+                stide = new int[names.Length];
+
+                //GL.GetUniformIndices(program, names.Length, names, location);
+
+                //for (int i = 0; i < location.Length; i++)
                 //{
-                //    int length = 128;
-                //    StringBuilder unifName = new StringBuilder(length);
-                //    GL.GetActiveUniformName(program, i, length, out length, unifName);
+                //    if (location[i] >= 0)
+                //    {
+                //        GL.GetActiveUniforms(program, 1, ref location[i],
+                //            ActiveUniformParameter.UniformSize, out length[i]);
+                //        GL.GetActiveUniforms(program, 1, ref location[i], 
+                //            ActiveUniformParameter.UniformArrayStride, out stide[i]);
+                //    }
                 //}
             }
-            public int points;
-            public int radius;
-        }
-        #endregion
-    }
 
-    public class PoissonDiscSampler
-    {
-        private static Random rand = new Random();
-        private readonly float radiusSq;
-        private List<Vector2> active = new List<Vector2>();
-        private Grid grid;
-
-        public PoissonDiscSampler(float radius)
-        {
-            radiusSq = radius * radius;
-            grid = new Grid(radius);
-        }
-        
-        public List<Vector2> Samples()
-        {
-            List<Vector2> points = new List<Vector2>();
-
-            // Begin adding points starting with the center
-            active.Add(new Vector2(0f, 0f));
-
-            while (active.Count > 0)
+            public int this[Names name]
             {
-                // Pick a random active sample
-                int i = (int)(rand.NextDouble() * active.Count);
-                int n = points.Count;
-                Vector2 sample = active[i];
-
-                // Try `k` random candidates between
-                // [radius, 2 * radius] from that sample.
-                const int k = 30;
-                for (int j = 0; j < k; j++)
-                {
-                    // See: http://stackoverflow.com/questions/9048095/create-random-number-within-an-annulus/9048443#9048443
-                    var r = (float)Math.Sqrt(rand.NextDouble() * 3 * radiusSq + radiusSq);
-                    var angle = 2 * Math.PI * rand.NextDouble();
-                    Vector2 candidate = sample + r * new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
-
-                    // Accept candidates if it's inside the unit disc and
-                    // farther than 2 * radius to any existing sample.
-                    //if (candidate.Length <= 1f && IsFarEnough(candidate))
-                    if (candidate.Length <= 1f && grid.CanInsert(sample) && !grid.HasPoint(sample))
-                    {
-                        active.Add(candidate);
-                        grid.Insert(candidate);
-                        points.Add(candidate);
-                        break;
-                    }
-                }
-
-                // If we couldn't find a valid candidate after k attempts,
-                // remove this sample from the active samples queue
-                if (n == points.Count)
-                {
-                    // move last sample to current sample position
-                    active[i] = active[active.Count - 1];
-                    // remove last element in the list
-                    active.RemoveAt(active.Count - 1);
-                }
+                get { return location[(int)name]; }
             }
 
-            return points;
+            public int Length(Names name)
+            {
+                return length[(int)name];
+            }
+
+            public int Stide(Names name)
+            {
+                return stide[(int)name];
+            }
         }
-        
-        private class Grid
+
+        private class PoissonDiscSampler
         {
-            private Vector2[,] grid;
-            private float cellSize;
-            private float radius;
+            private static Random rand = new Random();
             private float radiusSq;
+            private List<Vector2> active = new List<Vector2>();
+            private Grid grid;
 
-            public Grid(float radius)
+            public PoissonDiscSampler(float radius)
             {
-                this.radius = radius;
                 radiusSq = radius * radius;
-                cellSize = radius / (float)Math.Sqrt(2);
-                grid = new Vector2[(int)(1 / cellSize), (int)(1 / cellSize)];
+                grid = new Grid(radius);
             }
 
-            public void Insert(Vector2 sample)
+            public List<Vector2> Samples()
             {
-                Vec2i pos = Disc2Grid(sample);
-                grid[pos.X, pos.Y] = sample;
-            }
+                List<Vector2> points = new List<Vector2>();
 
-            public bool CanInsert(Vector2 sample)
-            {
-                return CanInsert(Disc2Grid(sample));
-            }
+                // Begin adding points starting with the center
+                active.Add(new Vector2(0f, 0f));
 
-            public bool CanInsert(Vec2i pos)
-            {
-                return grid[pos.X, pos.Y] == Vector2.Zero;
-            }
-
-            public bool HasPoint(Vector2 sample)
-            {
-                var pos = Disc2Grid(sample);
-
-                // 
-                int xmin = Math.Max(pos.X - 2, 0);
-                int ymin = Math.Max(pos.Y - 2, 0);
-                int xmax = Math.Min(pos.X + 2, grid.GetLength(0) - 1);
-                int ymax = Math.Min(pos.Y + 2, grid.GetLength(1) - 1);
-
-                //
-                for (int y = ymin; y <= ymax; y++)
+                while (active.Count > 0)
                 {
-                    for (int x = xmin; x <= xmax; x++)
+                    // Pick a random active sample
+                    int i = (int)(rand.NextDouble() * active.Count);
+                    int n = points.Count;
+                    Vector2 sample = active[i];
+
+                    // Try `k` random candidates between
+                    // [radius, 2 * radius] from that sample.
+                    const int k = 30;
+                    for (int j = 0; j < k; j++)
                     {
-                        Vector2 s = grid[x, y];
-                        if (s != Vector2.Zero)
+                        // See: http://stackoverflow.com/questions/9048095/create-random-number-within-an-annulus/9048443#9048443
+                        var r = (float)Math.Sqrt(rand.NextDouble() * 3 * radiusSq + radiusSq);
+                        var angle = 2 * Math.PI * rand.NextDouble();
+                        Vector2 candidate = sample + r * new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+
+                        // Accept candidates if it's inside the unit disc and
+                        // farther than 2 * radius to any existing sample.
+                        //if (candidate.Length <= 1f && IsFarEnough(candidate))
+                        if (candidate.Length <= 1f && grid.CanInsert(sample) && !grid.HasPoint(sample))
                         {
-                            Vector2 d = s - sample;
-                            if (d.X * d.X + d.Y * d.Y < radiusSq)
-                                return true;
+                            active.Add(candidate);
+                            grid.Insert(candidate);
+                            points.Add(candidate);
+                            break;
                         }
                     }
+
+                    // If we couldn't find a valid candidate after k attempts,
+                    // remove this sample from the active samples queue
+                    if (n == points.Count)
+                    {
+                        // move last sample to current sample position
+                        active[i] = active[active.Count - 1];
+                        // remove last element in the list
+                        active.RemoveAt(active.Count - 1);
+                    }
                 }
 
-                return false;
+                return points;
             }
 
-            public Vec2i Disc2Grid(Vector2 sample)
+            private class Grid
             {
-                int x = (int)((sample.X * 0.5f + 0.5f) / cellSize);
-                int y = (int)((sample.Y * 0.5f + 0.5f) / cellSize);
-                x = Math.Min(x, grid.GetLength(0) - 1);
-                y = Math.Min(y, grid.GetLength(1) - 1);
-                return new Vec2i(x, y);
-            }
+                private Vector2[,] grid;
+                private float cellSize;
+                private float radius;
+                private float radiusSq;
 
-            public struct Vec2i
-            {
-                public int X;
-                public int Y;
-                public Vec2i(int x, int y)
+                public Grid(float radius)
                 {
-                    X = x;
-                    Y = y;
+                    this.radius = radius;
+                    radiusSq = radius * radius;
+                    cellSize = radius / (float)Math.Sqrt(2);
+                    grid = new Vector2[(int)(1 / cellSize), (int)(1 / cellSize)];
+                }
+
+                public void Insert(Vector2 sample)
+                {
+                    Vec2i pos = Disc2Grid(sample);
+                    grid[pos.X, pos.Y] = sample;
+                }
+
+                public bool CanInsert(Vector2 sample)
+                {
+                    return CanInsert(Disc2Grid(sample));
+                }
+
+                public bool CanInsert(Vec2i pos)
+                {
+                    return grid[pos.X, pos.Y] == Vector2.Zero;
+                }
+
+                public bool HasPoint(Vector2 sample)
+                {
+                    var pos = Disc2Grid(sample);
+
+                    // 
+                    int xmin = Math.Max(pos.X - 2, 0);
+                    int ymin = Math.Max(pos.Y - 2, 0);
+                    int xmax = Math.Min(pos.X + 2, grid.GetLength(0) - 1);
+                    int ymax = Math.Min(pos.Y + 2, grid.GetLength(1) - 1);
+
+                    //
+                    for (int y = ymin; y <= ymax; y++)
+                    {
+                        for (int x = xmin; x <= xmax; x++)
+                        {
+                            Vector2 s = grid[x, y];
+                            if (s != Vector2.Zero)
+                            {
+                                Vector2 d = s - sample;
+                                if (d.X * d.X + d.Y * d.Y < radiusSq)
+                                    return true;
+                            }
+                        }
+                    }
+
+                    return false;
+                }
+
+                public Vec2i Disc2Grid(Vector2 sample)
+                {
+                    int x = (int)((sample.X * 0.5f + 0.5f) / cellSize);
+                    int y = (int)((sample.Y * 0.5f + 0.5f) / cellSize);
+                    x = Math.Min(x, grid.GetLength(0) - 1);
+                    y = Math.Min(y, grid.GetLength(1) - 1);
+                    return new Vec2i(x, y);
+                }
+
+                public struct Vec2i
+                {
+                    public int X;
+                    public int Y;
+                    public Vec2i(int x, int y)
+                    {
+                        X = x;
+                        Y = y;
+                    }
                 }
             }
         }
+        #endregion
     }
 }

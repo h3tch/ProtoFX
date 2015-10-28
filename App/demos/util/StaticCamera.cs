@@ -2,6 +2,7 @@
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace util
 {
@@ -9,6 +10,14 @@ namespace util
 
     public class StaticCamera
     {
+        public enum Names
+        {
+            view,
+            proj,
+            viewProj,
+            camera,
+        }
+
         #region FIELDS
         public float[] pos = new float[] { 0f, 0f, 0f };
         public float[] rot = new float[] { 0f, 0f, 0f };
@@ -17,10 +26,6 @@ namespace util
         public float far = 100f;
         protected const float rad2deg = (float)(Math.PI / 180);
         protected string name;
-        protected static string name_view = "view";
-        protected static string name_proj = "proj";
-        protected static string name_vwpj = "viewProj";
-        protected static string name_camera = "camera";
         protected Matrix4 view;
         protected Dictionary<int, Unif> uniform = new Dictionary<int, Unif>();
         protected List<string> errors = new List<string>();
@@ -79,22 +84,22 @@ namespace util
             Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(fov * rad2deg, aspect, near, far);
 
             // SET INTERNAL VARIABLES
-            if (unif.view >= 0)
-                GL.UniformMatrix4(unif.view, false, ref view);
+            if (unif[Names.view] >= 0)
+                GL.UniformMatrix4(unif[Names.view], false, ref view);
 
-            if (unif.proj >= 0)
-                GL.UniformMatrix4(unif.proj, false, ref proj);
+            if (unif[Names.proj] >= 0)
+                GL.UniformMatrix4(unif[Names.proj], false, ref proj);
 
-            if (unif.vwpj >= 0)
+            if (unif[Names.viewProj] >= 0)
             {
                 Matrix4 vwpj = view * proj;
-                GL.UniformMatrix4(unif.vwpj, false, ref vwpj);
+                GL.UniformMatrix4(unif[Names.viewProj], false, ref vwpj);
             }
 
-            if (unif.camera >= 0)
+            if (unif[Names.camera] >= 0)
             {
                 Vector4 camera = new Vector4(fov * rad2deg, aspect, near, far);
-                GL.Uniform4(unif.camera, ref camera);
+                GL.Uniform4(unif[Names.camera], ref camera);
             }
         }
 
@@ -158,17 +163,18 @@ namespace util
         #region INNER CLASSES
         protected struct Unif
         {
+            private int[] location;
+            
             public Unif(int program, string name)
             {
-                view = GL.GetUniformLocation(program, name + "." + name_view);
-                proj = GL.GetUniformLocation(program, name + "." + name_proj);
-                vwpj = GL.GetUniformLocation(program, name + "." + name_vwpj);
-                camera = GL.GetUniformLocation(program, name + "." + name_camera);
+                string[] names = Enum.GetNames(typeof(Names)).Select(v => name + "." + v).ToArray();
+                location = Enumerable.Repeat(-1, names.Length).ToArray();
+                //GL.GetUniformIndices(program, names.Length, names, location);
             }
-            public int view;
-            public int proj;
-            public int vwpj;
-            public int camera;
+
+            public int this[Names name]{
+                get { return location[(int)name]; }
+            }
         }
         #endregion
     }
