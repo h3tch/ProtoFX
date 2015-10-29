@@ -4,6 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace util
 {
@@ -22,7 +25,7 @@ namespace util
         public int maxSamples = 0;
         public int numRadii = 0;
         public float minRadius = 0f;
-        private Vector2[] samples;
+        private float[,] samples;
         private int[] radius;
         protected Dictionary<int, Unif> uniform = new Dictionary<int, Unif>();
         protected List<string> errors = new List<string>();
@@ -57,7 +60,7 @@ namespace util
 
             // CREATE POISSON DISK
 
-            var points = new PoissonDiscSampler(minRadius).Samples();
+            var points = PoissonDiscSampler.Disc(minRadius);
 
             // SORT POISSON DISK POINTS BY DESCENDING DISTANCE TO EACH OTHER
 
@@ -86,7 +89,14 @@ namespace util
             }
 
             // save the result
-            samples = sortedPoints.ToArray();
+            samples = new float[sortedPoints.Count, 2];
+            int iter = 0;
+            foreach (var point in sortedPoints)
+            {
+                samples[iter, 0] = point.X;
+                samples[iter, 1] = point.Y;
+                iter++;
+            }
 
             // CREATE RADIUS LOOKUP TABLE
 
@@ -114,7 +124,16 @@ namespace util
             // GET OR CREATE CAMERA UNIFORMS FOR program
             Unif unif;
             if (uniform.TryGetValue(program, out unif) == false)
-                uniform.Add(program, unif = new Unif(program, name));
+                uniform.Add(program, unif = new Unif(program, name,
+                    Names.points, samples, Names.radius, radius));
+
+            unif.Bind();
+        }
+
+        public void Delete()
+        {
+            foreach (var u in uniform)
+                u.Value.Delete();
         }
         
         #region UTILITY METHOD
@@ -200,28 +219,37 @@ namespace util
         #region INNER CLASSES
         protected struct Unif
         {
+            private int glbuf;
             private int unit;
             private int size;
+            private int[] location;
             private int[] length;
             private int[] offset;
             private int[] stride;
+            public int Unit { get { return unit; } }
+            public IntPtr Size { get { return (IntPtr)size; } }
 
-            public Unif(int program, string name)
+            public Unif(int program, string name, params object[] nameArrayPairs)
             {
+                // get uniform block binding unit and size
                 int block = GL.GetUniformBlockIndex(program, name);
                 GL.GetActiveUniformBlock(program, block, 
                     ActiveUniformBlockParameter.UniformBlockBinding, out unit);
                 GL.GetActiveUniformBlock(program, block, 
                     ActiveUniformBlockParameter.UniformBlockDataSize, out size);
                 
+                // allocate memory for uniform block uniforms
                 string[] names = Enum.GetNames(typeof(Names)).Select(v => name + "." + v).ToArray();
-                int[] location = Enumerable.Repeat(-1, names.Length).ToArray();
+                location = Enumerable.Repeat(-1, names.Length).ToArray();
                 length = new int[names.Length];
                 offset = new int[names.Length];
                 stride = new int[names.Length];
 
+                // get uniform indices in uniform block
                 GL.GetUniformIndices(program, names.Length, names, location);
 
+                // get additional information about uniforms
+                // like array length, offset and stride
                 for (int i = 0; i < location.Length; i++)
                 {
                     if (location[i] >= 0)
@@ -234,50 +262,77 @@ namespace util
                             ActiveUniformParameter.UniformArrayStride, out stride[i]);
                     }
                 }
+
+                // allocate GPU memory
+                glbuf = GL.GenBuffer();
+                GL.BindBuffer(BufferTarget.UniformBuffer, glbuf);
+
+                // allocate CPU memory
+                var ptr = Marshal.AllocHGlobal(size);
+                for (int i = 0; i < nameArrayPairs.Length; i += 2)
+                    Copy((Names)nameArrayPairs[i], (Array)nameArrayPairs[i+1], ptr);
+
+                // copy CPU data to GPU
+                GL.BufferData(BufferTarget.UniformBuffer, Size, ptr, BufferUsageHint.DynamicDraw);
+
+                // CPU memory no longer needed
+                Marshal.FreeHGlobal(ptr);
             }
 
-            public int Unit()
+            public void Bind()
             {
-                return unit;
+                GL.BindBufferBase(BufferRangeTarget.UniformBuffer, unit, glbuf);
             }
 
-            public int Size()
+            public void Delete()
             {
-                return size;
+                if (glbuf > 0)
+                {
+                    GL.DeleteBuffer(glbuf);
+                    glbuf = 0;
+                }
             }
 
-            public int Length(Names name)
+            private void Copy(Names name, Array array, IntPtr ptr)
             {
-                return length[(int)name];
-            }
+                if (location[(int)name] < 0)
+                    return;
 
-            public int Offset(Names name)
-            {
-                return offset[(int)name];
-            }
+                // gather some needed information
+                int srcStride = Marshal.SizeOf(array.GetType().GetElementType()) * array.GetLength(1);
+                int dstStride = stride[(int)name];
+                int len = Math.Min(array.GetLength(0), length[(int)name]);
 
-            public int Stride(Names name)
-            {
-                return stride[(int)name];
+                // convert array to byte array
+                byte[] src = new byte[srcStride * array.GetLength(0)];
+                Buffer.BlockCopy(array, 0, src, 0, src.Length);
+
+                // stride copy data to new array if necessary
+                byte[] dst;
+                if (srcStride == dstStride)
+                    dst = src;
+                else
+                {
+                    dst = new byte[dstStride * array.GetLength(0)];
+                    for (int srci = 0, dsti = 0, skip = dstStride - srcStride; srci < src.Length; dsti += skip)
+                        dst[dsti++] = src[srci++];
+                }
+
+                // copy to unmanaged memory
+                Marshal.Copy(dst, 0, ptr, dstStride * len);
             }
         }
 
-        private class PoissonDiscSampler
+        private static class PoissonDiscSampler
         {
             private static Random rand = new Random();
-            private float radiusSq;
-            private List<Vector2> active = new List<Vector2>();
-            private Grid grid;
 
-            public PoissonDiscSampler(float radius)
+            public static List<Vector2> Disc(float radius)
             {
-                radiusSq = radius * radius;
-                grid = new Grid(radius);
-            }
-
-            public List<Vector2> Samples()
-            {
+                float radiusSq = radius * radius;
+                Grid grid = new Grid(radius);
                 List<Vector2> points = new List<Vector2>();
+                List<Vector2> active = new List<Vector2>();
 
                 // Begin adding points starting with the center
                 active.Add(new Vector2(0f, 0f));

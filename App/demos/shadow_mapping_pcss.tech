@@ -109,11 +109,11 @@ shader vert vs_simple {
 
 shader frag fs_simple {
 	#version 440
-	#define NUM_POINTS 64
+	#define NUM_POINTS 25
 
 	uniform PoissonDisc {
-		vec2 points[64];
-	} Disc;
+		vec2 points[NUM_POINTS];
+	} disc;
 	
 	layout(binding = 0) uniform sampler2D shadowmap;
 	
@@ -140,22 +140,17 @@ shader frag fs_simple {
 		// and then to shadow map texture coordinates [0;1]
 		vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
 		
-		const int r = 2;
-		const int d = 2*r+1;
+		const float r = 10.0 / 512.0;
 		const float bias = 0.001;
 		float shadow = 0.0;
-		//for (int dx = -r; dx <= r; dx++) {
-		//	for (int dy = -r; dy <= r; dy++)
-		//		shadow += lpos.z - dxdyBias(bias, dx, dy) > textureOffset(shadowmap, lpos.xy, ivec2(dx, dy)).x ? 1.0 : 0.0;
-		//}
+		
 		for (int i = 0; i < NUM_POINTS; i++) {
-			vec2 p = Disc.points[i] * r;
-			shadow += lpos.z > texture(shadowmap, p).x ? 1.0 : 0.0;
+			vec2 p = lpos.xy + disc.points[i] * r;
+			shadow += lpos.z - bias > texture(shadowmap, p).x ? 1.0 : 0.0;
 		}
 		
 		if (shadow == 0.0)
 			return;
-		//shadow /= float(d*d);
 		shadow /= float(NUM_POINTS);
 		color.rgb *= (1.0 - shadow) * 0.5 + 0.5;
 	}
@@ -166,7 +161,7 @@ shader frag fs_simple {
 /////////////
 
 csharp cs_util {
-	file "util/SpotLight.cs" "util/SimpleCamera.cs"
+	file "util/StaticCamera.cs" "util/SimpleCamera.cs"
 }
 
 csharp cs_sampling {
@@ -174,7 +169,7 @@ csharp cs_sampling {
 }
 
 instance cs_light {
-	class cs_util util.SpotLight
+	class cs_util util.StaticCamera
 	name light
 	pos 3 4 3
 	rot -45 45 0

@@ -85,6 +85,19 @@ namespace App
             return rs;
         }
 
+        public static byte[] Convert<T>(T[] src, int stride = 0)
+        {
+            if (stride == 0)
+                stride = Marshal.SizeOf<T>();
+            if (stride < Marshal.SizeOf<T>())
+                throw new ArgumentException(
+                    "The <stride> argument must be greater " +
+                    "that or equal to the size of the type <T>.");
+            byte[] dst = new byte[stride * src.Length];
+            Buffer.BlockCopy(src, 0, dst, 0, dst.Length);
+            return dst;
+        }
+
         public static T[] Join<T>(IEnumerable<T[]> list, int maxSize = 0)
         {
             // if size has not been specified,
