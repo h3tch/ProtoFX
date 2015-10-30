@@ -2,6 +2,7 @@
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace util
 {
@@ -9,6 +10,16 @@ namespace util
 
     class SpotLight
     {
+        public enum Names
+        {
+            view,
+            proj,
+            viewProj,
+            camera,
+            color,
+            light,
+        }
+
         #region FIELDS
         protected float[] pos = new float[] { 0f, 0f, 0f };
         protected float[] rot = new float[] { 0f, 0f, 0f };
@@ -21,12 +32,6 @@ namespace util
         protected float outerCone = 100f;
         protected const float rad2deg = (float)(Math.PI / 180);
         protected string name = "SpotLight";
-        protected static string name_view = "view";
-        protected static string name_proj = "proj";
-        protected static string name_vwpj = "viewProj";
-        protected static string name_camera = "camera";
-        protected static string name_color = "color";
-        protected static string name_light = "light";
         protected Dictionary<int, Unif> unif = new Dictionary<int, Unif>();
         protected List<string> errors = new List<string>();
         #endregion
@@ -73,34 +78,34 @@ namespace util
             Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(fov * rad2deg, aspect, near, far);
 
             // SET INTERNAL VARIABLES
-            if (unif.view >= 0)
-                GL.UniformMatrix4(unif.view, false, ref view);
+            if (unif[Names.view] >= 0)
+                GL.UniformMatrix4(unif[Names.view], false, ref view);
 
-            if (unif.proj >= 0)
-                GL.UniformMatrix4(unif.proj, false, ref proj);
+            if (unif[Names.proj] >= 0)
+                GL.UniformMatrix4(unif[Names.proj], false, ref proj);
 
-            if (unif.vwpj >= 0)
+            if (unif[Names.viewProj] >= 0)
             {
                 Matrix4 vwpj = view * proj;
-                GL.UniformMatrix4(unif.vwpj, false, ref vwpj);
+                GL.UniformMatrix4(unif[Names.viewProj], false, ref vwpj);
             }
 
-            if (unif.camera >= 0)
+            if (unif[Names.camera] >= 0)
             {
                 Vector4 camera = new Vector4(fov * rad2deg, aspect, near, far);
-                GL.Uniform4(unif.camera, ref camera);
+                GL.Uniform4(unif[Names.camera], ref camera);
             }
 
-            if (unif.color >= 0)
+            if (unif[Names.color] >= 0)
             {
                 Vector4 col = new Vector4(color[0], color[1], color[2], intensity);
-                GL.Uniform4(unif.color, ref col);
+                GL.Uniform4(unif[Names.color], ref col);
             }
 
-            if (unif.light >= 0)
+            if (unif[Names.light] >= 0)
             {
                 Vector4 light = new Vector4(innerCone * rad2deg, outerCone * rad2deg, 0f, 0f);
-                GL.Uniform4(unif.light, ref light);
+                GL.Uniform4(unif[Names.light], ref light);
             }
         }
 
@@ -158,21 +163,18 @@ namespace util
         #region INNER CLASSES
         protected struct Unif
         {
+            private int[] location;
+
             public Unif(int program, string name)
             {
-                view = GL.GetUniformLocation(program, name + "." + name_view);
-                proj = GL.GetUniformLocation(program, name + "." + name_proj);
-                vwpj = GL.GetUniformLocation(program, name + "." + name_vwpj);
-                camera = GL.GetUniformLocation(program, name + "." + name_camera);
-                color = GL.GetUniformLocation(program, name + "." + name_color);
-                light = GL.GetUniformLocation(program, name + "." + name_light);
+                string[] names = Enum.GetNames(typeof(Names)).Select(v => name + "." + v).ToArray();
+                location = names.Select(n => GL.GetUniformLocation(program, n)).ToArray();
             }
-            public int view;
-            public int proj;
-            public int vwpj;
-            public int camera;
-            public int color;
-            public int light;
+
+            public int this[Names name]
+            {
+                get { return location[(int)name]; }
+            }
         }
         #endregion
     }

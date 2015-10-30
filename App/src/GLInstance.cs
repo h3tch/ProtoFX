@@ -9,6 +9,7 @@ namespace App
         public object instance = null;
         private MethodInfo update = null;
         private MethodInfo endpass = null;
+        private MethodInfo delete = null;
 
         public GLInstance(string dir, string name, string annotation, string text, Dict classes)
             : base(name, annotation)
@@ -38,14 +39,17 @@ namespace App
             if (err.HasErrors())
                 throw err;
 
-            // get bind method from main class instance
+            // get Bind method from main class instance
             update = instance.GetType().GetMethod("Update", new [] {
                 typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)
             });
 
-            // get unbind method from main class instance
+            // get Unbind method from main class instance
             endpass = instance.GetType().GetMethod("EndPass", new [] { typeof(int) });
-                
+
+            // get Delete method from main class instance
+            delete = instance.GetType().GetMethod("Delete");
+
             // get all public methods and check whether
             // they can be used as event handlers for glControl
             GraphicControl glControl = classes.FindClass<GraphicControl>(GraphicControl.nullname);
@@ -63,16 +67,17 @@ namespace App
 
         public void Update(int program, int width, int height, int widthTex, int heightTex)
         {
-            if (update != null)
-                update.Invoke(instance, new object[] { program, width, height, widthTex, heightTex });
+            update?.Invoke(instance, new object[] { program, width, height, widthTex, heightTex });
         }
 
         public void EndPass(int program)
         {
-            if (endpass != null)
-                endpass.Invoke(instance, new object[] { program });
+            endpass?.Invoke(instance, new object[] { program });
         }
 
-        public override void Delete() { }
+        public override void Delete()
+        {
+            delete?.Invoke(instance, null);
+        }
     }
 }

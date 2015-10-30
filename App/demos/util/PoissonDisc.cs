@@ -4,9 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace util
 {
@@ -25,7 +23,7 @@ namespace util
         public int maxSamples = 0;
         public int numRadii = 0;
         public float minRadius = 0f;
-        private float[,] samples;
+        private float[,] points;
         private int[] radius;
         protected Dictionary<int, Unif> uniform = new Dictionary<int, Unif>();
         protected List<string> errors = new List<string>();
@@ -34,10 +32,10 @@ namespace util
 
         // Properties accessible by ProtoGL
         #region PROPERTIES
-        public string Name { get { return name; } set { name = value; } }
-        public int MaxSamples { get { return maxSamples; } set { maxSamples = value; } }
-        public float MinRadius { get { return minRadius; } set { minRadius = value; } }
-        public int NumRadii { get { return numRadii; } set { numRadii = value; } }
+        public string Name { get { return name; } }
+        public int MaxSamples { get { return maxSamples; } }
+        public float MinRadius { get { return minRadius; } }
+        public int NumRadii { get { return numRadii; } }
         #endregion
 
         public List<string> GetErrors() { return errors; }
@@ -89,12 +87,12 @@ namespace util
             }
 
             // save the result
-            samples = new float[sortedPoints.Count, 2];
+            this.points = new float[sortedPoints.Count, 2];
             int iter = 0;
             foreach (var point in sortedPoints)
             {
-                samples[iter, 0] = point.X;
-                samples[iter, 1] = point.Y;
+                this.points[iter, 0] = point.X;
+                this.points[iter, 1] = point.Y;
                 iter++;
             }
 
@@ -102,6 +100,7 @@ namespace util
 
             if (numRadii <= 0)
                 return;
+
             var dist = sortedDist.ToArray();
             radius = new int[Math.Max(numRadii, 1)];
 
@@ -125,7 +124,7 @@ namespace util
             Unif unif;
             if (uniform.TryGetValue(program, out unif) == false)
                 uniform.Add(program, unif = new Unif(program, name,
-                    Names.points, samples, Names.radius, radius));
+                    Names.points, points, Names.radius, radius));
 
             unif.Bind();
         }
@@ -293,9 +292,9 @@ namespace util
                 }
             }
 
-            private void Copy(Names name, Array array, IntPtr ptr)
+            private void Copy(Names name, Array array, IntPtr dst)
             {
-                if (location[(int)name] < 0)
+                if (location[(int)name] < 0 || array == null)
                     return;
 
                 // gather some needed information
@@ -307,19 +306,25 @@ namespace util
                 byte[] src = new byte[srcStride * array.GetLength(0)];
                 Buffer.BlockCopy(array, 0, src, 0, src.Length);
 
-                // stride copy data to new array if necessary
-                byte[] dst;
-                if (srcStride == dstStride)
-                    dst = src;
-                else
-                {
-                    dst = new byte[dstStride * array.GetLength(0)];
-                    for (int srci = 0, dsti = 0, skip = dstStride - srcStride; srci < src.Length; dsti += skip)
-                        dst[dsti++] = src[srci++];
-                }
+                // change stride of src array
+                src = ToStride(src, srcStride, dstStride);
 
                 // copy to unmanaged memory
-                Marshal.Copy(dst, 0, ptr, dstStride * len);
+                Marshal.Copy(src, 0, dst, dstStride * len);
+            }
+
+            private byte[] ToStride(byte[] src, int srcStride, int dstStride)
+            {
+                if (srcStride == dstStride)
+                    return src;
+
+                byte[] dst = new byte[(src.Length / srcStride) * dstStride];
+
+                int skip = dstStride - srcStride;
+                for (int srci = 0, dsti = 0; srci < src.Length; dsti += skip)
+                    dst[dsti++] = src[srci++];
+
+                return dst;
             }
         }
 

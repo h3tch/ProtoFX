@@ -74,7 +74,7 @@ shader vert vs_shadowmap {
 	}
 }
 
-shader vert vs_simple {
+shader vert vs_render {
 	#version 440
 	
 	struct StaticCamera {
@@ -107,9 +107,10 @@ shader vert vs_simple {
 	}
 }
 
-shader frag fs_simple {
+shader frag fs_render {
 	#version 440
 	#define NUM_POINTS 25
+	#define PI 3.1415926535897932384626433832795
 
 	uniform PoissonDisc {
 		vec2 points[NUM_POINTS];
@@ -123,6 +124,17 @@ shader frag fs_simple {
 	
 	float dxdyBias(float bias, int dx, int dy) {
 		return bias + abs(bias * dx) + abs(bias * dy);
+	}
+
+	float rand(vec2 xy) {
+		return fract(sin(dot(xy ,vec2(12.9898,78.233))) * 43758.5453);
+	}
+
+	mat2 randRot(vec2 xy) {
+		float angle = 2 * PI * rand(xy);
+		float sa = sin(angle);
+		float ca = cos(angle);
+		return mat2(ca, -sa, ca, sa);
 	}
 	
 	void main ()
@@ -139,13 +151,14 @@ shader frag fs_simple {
 		// transform to normalized device coordinates [-1;+1]
 		// and then to shadow map texture coordinates [0;1]
 		vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
+		mat2 R = randRot(lpos.xy);
 		
-		const float r = 10.0 / 512.0;
-		const float bias = 0.001;
+		const vec2 r = 10.0 / textureSize(shadowmap, 0);
+		const float bias = 0.0005;
+
 		float shadow = 0.0;
-		
 		for (int i = 0; i < NUM_POINTS; i++) {
-			vec2 p = lpos.xy + disc.points[i] * r;
+			vec2 p = lpos.xy + R * disc.points[i] * r;
 			shadow += lpos.z - bias > texture(shadowmap, p).x ? 1.0 : 0.0;
 		}
 		
@@ -186,8 +199,7 @@ instance cs_poisson {
 	class cs_sampling util.PoissonDisc
 	name PoissonDisc
 	maxSamples 64
-	minRadius 0.2
-	numRadii 32
+	minRadius 0.3
 }
 
 pass pass_shadowmap {
@@ -211,8 +223,8 @@ pass pass_shadowmap {
 
 pass pass_render {
 	// attach shaders
-	vert vs_simple
-	frag fs_simple
+	vert vs_render
+	frag fs_render
 	
 	tex tex_shadowmap 0
 	
