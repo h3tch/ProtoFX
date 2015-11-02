@@ -14,8 +14,8 @@ namespace util
         private Point mousepos = new Point(0, 0);
         #endregion
 
-        public SimpleCamera(Commands cmd)
-            : base(cmd, "SimpleCamera")
+        public SimpleCamera(string name, Commands cmd)
+            : base(name, cmd)
         {
         }
 

@@ -35,7 +35,7 @@ namespace App
         };
         #endregion
 
-        public GLFragoutput(string dir, string name, string annotation, string text, Dict classes)
+        public GLFragoutput(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
             var err = new GLException($"fragoutput '{name}'");
@@ -96,7 +96,7 @@ namespace App
             }
         }
 
-        private void attatch(GLException err, string cmd, string[] args, Dict classes)
+        private void attatch(GLException err, string cmd, string[] args, Dict<GLObject> classes)
         {
             // get OpenGL image
             GLImage glimg = classes.FindClass<GLImage>(args[0]);

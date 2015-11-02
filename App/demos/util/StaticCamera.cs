@@ -32,7 +32,7 @@ namespace util
         #endregion
 
         #region PROPERTIES
-        public string Name { get { return name; } set { name = value; } }
+        public string Name { get { return name; } }
         public float[] Position { get { return pos; } set { pos = value; } }
         public float[] Rotation { get { return rot; } set { rot = value; } }
         public float FieldOfViewY { get { return fov; } set { fov = value; } }
@@ -40,7 +40,7 @@ namespace util
         public float FarPlane { get { return far; } set { far = value; } }
         #endregion
 
-        public StaticCamera(Commands cmds) : this(cmds, "StaticCamera")
+        public StaticCamera(string name, Commands cmds)
         {
             // The constructor is executed only once when the pass is created.
 
@@ -52,19 +52,15 @@ namespace util
             // 'exec', 'csharp_name' and 'util.SimpleCamera'
 
             // parse command for values specified by the user
-        }
-
-        public StaticCamera(Commands cmds, string defaultName)
-        {
-            name = defaultName;
 
             // PARSE COMMAND VALUES SPECIFIED BY THE USER
+            this.name = name;
+            Convert(cmds, "name", ref this.name);
             Convert(cmds, "pos", ref pos);
             Convert(cmds, "rot", ref rot);
             Convert(cmds, "fov", ref fov);
             Convert(cmds, "near", ref near);
             Convert(cmds, "far", ref far);
-            Convert(cmds, "name", ref name);
         }
 
         public void Update(int program, int width, int height, int widthTex, int heightTex)

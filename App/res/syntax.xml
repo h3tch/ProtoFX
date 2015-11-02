@@ -92,6 +92,7 @@
         magfilter
         minfilter
         mipmaps
+        name
         option
         samp
         show

@@ -62,7 +62,7 @@ shader vert vs_shadowmap {
 		mat4 viewProj;
 	};
 
-	uniform SpotLight light;
+	uniform SpotLight cs_light;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -70,7 +70,7 @@ shader vert vs_shadowmap {
 	void main ()
 	{
 		// transform vertex to light projection space
-		gl_Position = light.viewProj * in_pos;
+		gl_Position = cs_light.viewProj * in_pos;
 	}
 }
 
@@ -85,8 +85,8 @@ shader vert vs_render {
 		mat4 viewProj;
 	};
 
-	uniform SpotLight light;
-	uniform SimpleCamera camera;
+	uniform SpotLight cs_light;
+	uniform SimpleCamera cs_camera;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -99,9 +99,9 @@ shader vert vs_render {
 	void main ()
 	{
 		// transform vertex to camera projection space
-		gl_Position = camera.viewProj * in_pos;
+		gl_Position = cs_camera.viewProj * in_pos;
 		// transform vertex to light projection space
-		out_lpos = light.viewProj * in_pos;
+		out_lpos = cs_light.viewProj * in_pos;
 		// pass vertex color
 		out_col = in_col;
 	}
@@ -112,11 +112,18 @@ shader frag fs_render {
 	#define NUM_POINTS 25
 	#define PI 3.1415926535897932384626433832795
 
-	uniform PoissonDisc {
+	struct SpotLight {
+		mat4 viewProj;
+		vec4 light;
+	};
+	
+	uniform cs_poisson {
 		vec2 points[NUM_POINTS];
 	} disc;
 	
-	layout(binding = 0) uniform sampler2D shadowmap;
+	uniform SpotLight cs_light;
+	
+	layout(binding = 0) uniform sampler2D tex_shadowmap;
 	
 	layout(location = 0) in vec4 in_lpos;
 	layout(location = 1) in vec4 in_col;
@@ -149,13 +156,13 @@ shader frag fs_render {
 		vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
 		mat2 R = randRot(lpos.xy);
 		
-		const vec2 r = 10.0 / textureSize(shadowmap, 0);
+		const vec2 r = 10.0 / textureSize(tex_shadowmap, 0);
 		const float bias = 0.0005;
 
 		float shadow = 0.0;
 		for (int i = 0; i < NUM_POINTS; i++) {
 			vec2 p = lpos.xy + R * disc.points[i] * r;
-			shadow += lpos.z - bias > texture(shadowmap, p).x ? 1.0 : 0.0;
+			shadow += lpos.z - bias > texture(tex_shadowmap, p).x ? 1.0 : 0.0;
 		}
 		
 		if (shadow == 0.0)
@@ -179,21 +186,18 @@ csharp cs_sampling {
 
 instance cs_light {
 	class cs_util util.SpotLight
-	name light
 	pos 3 4 3
 	rot -45 45 0
 }
 
 instance cs_camera {
 	class cs_util util.SimpleCamera
-	name camera
 	pos -5 4 10
 	rot -20 -15 0
 }
 
 instance cs_poisson {
 	class cs_sampling util.PoissonDisc
-	name PoissonDisc
 	maxSamples 64
 	minRadius 0.3
 }
@@ -209,9 +213,6 @@ pass pass_shadowmap {
 	Clear depthBit
 	Enable depthTest
 	Enable CullFace
-
-	// execute camera code
-	exec cs_light
 	
 	// draw cube
 	draw buf_idx in_vert ushort triangles 0 0 36
@@ -223,17 +224,10 @@ pass pass_render {
 	vert vs_render
 	frag fs_render
 	
-	tex tex_shadowmap 0
-	
 	// OpenGL calls
 	ClearColor 0.1 0.3 1.0 0.0
 	Clear colorDepthBit
 	Enable depthTest
-
-	// execute camera code
-	exec cs_light
-	exec cs_camera
-	exec cs_poisson
 	
 	// draw cube
 	draw buf_idx in_vert ushort triangles 0 0 36

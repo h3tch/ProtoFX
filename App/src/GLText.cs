@@ -4,7 +4,7 @@
     {
         public string text { get; private set; }
 
-        public GLText(string dir, string name, string annotation, string text, Dict classes)
+        public GLText(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
             this.text = text;

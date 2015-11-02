@@ -11,7 +11,7 @@ namespace App
         private MethodInfo endpass = null;
         private MethodInfo delete = null;
 
-        public GLInstance(string dir, string name, string annotation, string text, Dict classes)
+        public GLInstance(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
             var err = new GLException($"instance '{name}'");
@@ -35,7 +35,7 @@ namespace App
             }
 
             // INSTANTIATE CSHARP CLASS
-            instance = csharp.CreateInstance(cmd.args[1], body.ToDict(), err);
+            instance = csharp.CreateInstance(cmd.args[1], name, body.ToDict(), err);
             if (err.HasErrors())
                 throw err;
 

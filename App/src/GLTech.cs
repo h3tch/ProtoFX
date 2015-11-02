@@ -6,7 +6,7 @@ namespace App
     {
         private List<GLPass> passes = new List<GLPass>();
 
-        public GLTech(string dir, string name, string annotation, string text, Dict classes)
+        public GLTech(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
             var err = new GLException($"tech '{name}'");

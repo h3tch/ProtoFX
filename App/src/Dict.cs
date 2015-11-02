@@ -2,25 +2,25 @@
 
 namespace App
 {
-    class Dict : Dictionary<string, GLObject>
+    class Dict<T> : Dictionary<string, T> where T : GLObject
     {
-        public T FindClass<T>(string classname)
-            where T : GLObject
+        public TResult FindClass<TResult>(string classname)
+            where TResult : T
         {
-            GLObject obj = null;
-            if (classname != null && TryGetValue(classname, out obj) && obj.GetType() == typeof(T))
-                return (T)obj;
-            return null;
+            T obj = default(T);
+            if (classname != null && TryGetValue(classname, out obj) && obj is TResult)
+                return (TResult)obj;
+            return default(TResult);
         }
 
-        public bool TryFindClass<T>(string instancename, out T obj, GLException err = null)
-            where T : GLObject
+        public bool TryFindClass<TResult>(string instancename, out TResult obj, GLException err = null)
+            where TResult : T
         {
             // try to find the object instance
-            if ((obj = FindClass<T>(instancename)) == null)
+            if ((obj = FindClass<TResult>(instancename)) == null)
             {
                 // get class name of object type
-                var classname = typeof(T).Name.Substring(2).ToLower();
+                var classname = typeof(TResult).Name.Substring(2).ToLower();
                 err?.Add($"The name '{instancename}' could not be found or "
                     + $"does not reference an object of type '{classname}'.");
                 return false;
@@ -28,22 +28,22 @@ namespace App
             return true;
         }
 
-        public T ParseObject<T>(string arg, string info)
-            where T : GLObject
+        public TResult ParseObject<TResult>(string arg, string info)
+            where TResult : T
         {
-            GLObject tmp = null;
-            if (TryGetValue(arg, out tmp) && tmp.GetType() == typeof(T))
-                throw new GLException(info);
-            return (T)tmp;
+            T tmp = default(T);
+            if (TryGetValue(arg, out tmp) && tmp is TResult)
+                return (TResult)tmp;
+            throw new GLException(info);
         }
 
-        public bool TryParseObject<T>(string name, ref T obj)
-            where T : GLObject
+        public bool TryParseObject<TResult>(string name, ref TResult obj)
+            where TResult : T
         {
-            GLObject tmp;
-            if (obj == null && TryGetValue(name, out tmp) && tmp.GetType() == typeof(T))
+            T tmp = default(T);
+            if (obj == null && TryGetValue(name, out tmp) && tmp is TResult)
             {
-                obj = (T)tmp;
+                obj = (TResult)tmp;
                 return true;
             }
             return false;

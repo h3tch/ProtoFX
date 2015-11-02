@@ -40,11 +40,11 @@ namespace util
 
         public List<string> GetErrors() { return errors; }
 
-        public PoissonDisc(Commands cmds)
+        public PoissonDisc(string name, Commands cmds)
         {
             // PARSE COMMAND VALUES SPECIFIED BY THE USER
-
-            Convert(cmds, "name", ref name);
+            this.name = name;
+            Convert(cmds, "name", ref this.name);
             Convert(cmds, "maxSamples", ref maxSamples);
             Convert(cmds, "minRadius", ref minRadius);
             Convert(cmds, "numRadii", ref numRadii);

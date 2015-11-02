@@ -149,19 +149,5 @@ namespace App
                 return false;
             }
         }
-
-        //public static void ForEach<T>(this IEnumerable<T> ie, Action<T, int> action)
-        //{
-        //    var i = 0;
-        //    foreach (var e in ie)
-        //        action(e, i++);
-        //}
-
-        //public static IEnumerable<TResult> ForEach<T, TResult>(this IEnumerable<T> ie, Func<T, int, TResult> action)
-        //{
-        //    var i = 0;
-        //    foreach (var e in ie)
-        //        yield return action(e, i++);
-        //}
     }
 }

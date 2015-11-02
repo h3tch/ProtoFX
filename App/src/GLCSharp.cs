@@ -20,7 +20,7 @@ namespace App
         private CompilerResults compilerresults;
         #endregion
 
-        public GLCsharp(string dir, string name, string annotation, string text, Dict classes)
+        public GLCsharp(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
             var err = new GLException($"csharp '{name}'");
@@ -81,13 +81,13 @@ namespace App
             }
         }
 
-        public object CreateInstance(string classname, Dictionary<string,string[]> cmds,
+        public object CreateInstance(string classname, string name, Dictionary<string,string[]> cmds,
             GLException err = null)
         {
             // create main class from compiled files
             object instance = compilerresults.CompiledAssembly.CreateInstance(
                 classname, false, BindingFlags.Default, null,
-                new object[] { cmds }, App.culture, null);
+                new object[] { name, cmds }, App.culture, null);
 
             if (instance == null)
                 err?.Throw($"Main class '{classname}' could not be found.");

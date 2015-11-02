@@ -10,7 +10,7 @@ namespace App
         public bool resume = false;
         #endregion
 
-        public GLVertoutput(string dir, string name, string annotation, string text, Dict classes)
+        public GLVertoutput(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
             var err = new GLException($"vertoutput '{name}'");
@@ -71,7 +71,7 @@ namespace App
             }
         }
 
-        private void attach(GLException err, int unit, string[] cmd, Dict classes)
+        private void attach(GLException err, int unit, string[] cmd, Dict<GLObject> classes)
         {
             if (cmd.Length == 0)
             {

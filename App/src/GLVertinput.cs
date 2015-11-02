@@ -5,7 +5,7 @@ namespace App
 {
     class GLVertinput : GLObject
     {
-        public GLVertinput(string dir, string name, string annotation, string text, Dict classes)
+        public GLVertinput(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
             var err = new GLException($"vertinput '{name}'");
@@ -31,7 +31,7 @@ namespace App
                 throw err;
         }
 
-        private void attach(GLException err, int attrIdx, string[] args, string name, Dict classes)
+        private void attach(GLException err, int attrIdx, string[] args, string name, Dict<GLObject> classes)
         {
             // check commands for errors
             if (args.Length < 3)

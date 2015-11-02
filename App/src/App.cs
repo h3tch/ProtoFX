@@ -11,7 +11,7 @@ namespace App
     public partial class App : Form
     {
         #region FIELDS
-        private Dict classes = new Dict();
+        private Dict<GLObject> classes = new Dict<GLObject>();
         private bool render = false;
         public static CultureInfo culture = new CultureInfo("en");
         #endregion
@@ -289,8 +289,9 @@ namespace App
                             throw new GLException($"{classInfo[0]} '{className}': "
                                 + $"Class name '{className}' already exists.");
                         // instantiate class
-                        classes.Add(className, (GLObject)Activator.CreateInstance(
-                            type, dir, className, classAnno, classText, classes));
+                        var instance = (GLObject)Activator.CreateInstance(
+                            type, dir, className, classAnno, classText, classes);
+                        classes.Add(instance.name, instance);
                     }
                     catch (Exception ex)
                     {

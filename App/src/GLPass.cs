@@ -7,6 +7,7 @@ using System.Reflection;
 using PrimType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 using VertoutPrimType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
 using ElementType = OpenTK.Graphics.OpenGL4.DrawElementsType;
+using System.Text;
 
 namespace App
 {
@@ -198,7 +199,7 @@ namespace App
             }
         }
 
-        public struct Res<T>
+        public class Res<T>
         {
             public T obj;
             public int unit;
@@ -223,7 +224,7 @@ namespace App
         }
         #endregion
 
-        public GLPass(string dir, string name, string annotation, string text, Dict classes)
+        public GLPass(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
             var err = new GLException($"pass '{name}'");
@@ -288,11 +289,16 @@ namespace App
                     GL.DetachShader(glname, glcomp.glname);
                 else
                 {
-                    if (glvert != null) GL.DetachShader(glname, glvert.glname);
-                    if (gltess != null) GL.DetachShader(glname, gltess.glname);
-                    if (gleval != null) GL.DetachShader(glname, gleval.glname);
-                    if (glgeom != null) GL.DetachShader(glname, glgeom.glname);
-                    if (glfrag != null) GL.DetachShader(glname, glfrag.glname);
+                    if (glvert != null)
+                        GL.DetachShader(glname, glvert.glname);
+                    if (gltess != null)
+                        GL.DetachShader(glname, gltess.glname);
+                    if (gleval != null)
+                        GL.DetachShader(glname, gleval.glname);
+                    if (glgeom != null)
+                        GL.DetachShader(glname, glgeom.glname);
+                    if (glfrag != null)
+                        GL.DetachShader(glname, glfrag.glname);
                 }
 
                 // check for link errors
@@ -303,6 +309,61 @@ namespace App
                     var msg = GL.GetProgramInfoLog(glname);
                     if (msg != null && msg.Length > 0)
                         err.Add("\n" + msg);
+                }
+
+                // PARSE PROGRAM
+
+                int numUnif;
+                GL.GetProgram(glname, GetProgramParameterName.ActiveUniforms, out numUnif);
+
+                var unifLocation = Enumerable.Range(0, numUnif).ToArray();
+                var unifType = new int[unifLocation.Length];
+                var unifBlockIdx = new int[unifLocation.Length];
+                var unifNameLen = new int[unifLocation.Length];
+                var unifName = new string[unifLocation.Length];
+
+                GL.GetActiveUniforms(glname, unifLocation.Length, unifLocation,
+                    ActiveUniformParameter.UniformType, unifType);
+
+                GL.GetActiveUniforms(glname, unifLocation.Length, unifLocation,
+                    ActiveUniformParameter.UniformBlockIndex, unifBlockIdx);
+
+                GL.GetActiveUniforms(glname, unifLocation.Length, unifLocation,
+                    ActiveUniformParameter.UniformNameLength, unifNameLen);
+
+                int maxUnifNameLen = unifNameLen.Max();
+                StringBuilder str = new StringBuilder(maxUnifNameLen);
+                for (int i = 0; i < numUnif; i++)
+                {
+                    GL.GetActiveUniformName(glname, i, maxUnifNameLen, out unifNameLen[i], str.Clear());
+                    unifName[i] = str.ToString();
+                }
+
+                var samplerTypes =
+                    from enumName in Enum.GetNames(typeof(ActiveUniformType))
+                    where enumName.Contains("Sampler")
+                    select (int)Enum.Parse(typeof(ActiveUniformType), enumName);
+                
+                for (int i = 0; i < numUnif; i++)
+                {
+                    var objName = unifName[i].Split('.').First();
+                    var obj = classes.FindClass<GLObject>(objName);
+                    if (obj == null)
+                        continue;
+
+                    // is csharp instance
+                    if (obj is GLInstance && csexec.Find(x => x.name == objName) == null)
+                    {
+                        csexec.Add((GLInstance)obj);
+                    }
+                    // is texture sampler
+                    else if (obj is GLTexture && samplerTypes.Has(unifType[i])
+                        && textures.Find(x => x.obj.name == objName) == null)
+                    {
+                        int unit;
+                        GL.GetUniform(glname, i, out unit);
+                        textures.Add(new Res<GLTexture>((GLTexture)obj, unit));
+                    }
                 }
             }
 
@@ -391,7 +452,7 @@ namespace App
         }
 
         #region PARSE COMMANDS
-        private void ParseDrawCall(GLException err, string[] cmd, Dict classes)
+        private void ParseDrawCall(GLException err, string[] cmd, Dict<GLObject> classes)
         {
             List<int> arg = new List<int>();
             GLVertinput vertexin = null;
@@ -454,7 +515,7 @@ namespace App
             drawcalls.Add(multidrawcall);
         }
 
-        private void ParseComputeCall(GLException err, string[] cmd, Dict classes)
+        private void ParseComputeCall(GLException err, string[] cmd, Dict<GLObject> classes)
         {
             // check for errors
             if (cmd.Length < 2 || cmd.Length > 3)
@@ -503,38 +564,39 @@ namespace App
             }
         }
 
-        private void ParseTexCmd(GLException err, string[] cmd, Dict classes)
+        private void ParseTexCmd(GLException err, string[] cmd, Dict<GLObject> classes)
         {
             var obj = ParseCmd<GLTexture>(err, cmd, classes);
             if (!err.HasErrors())
                 textures.Add(obj);
         }
 
-        private void ParseSampCmd(GLException err, string[] cmd, Dict classes)
+        private void ParseSampCmd(GLException err, string[] cmd, Dict<GLObject> classes)
         {
             var obj = ParseCmd<GLSampler>(err, cmd, classes);
             if (!err.HasErrors())
                 sampler.Add(obj);
         }
 
-        private Res<T> ParseCmd<T>(GLException err, string[] cmd, Dict classes)
+        private Res<T> ParseCmd<T>(GLException err, string[] cmd, Dict<GLObject> classes)
+            where T : GLObject
         {
-            GLObject obj = null;
+            T obj = null;
             int unit = -1;
 
             // parse command arguments
             for (var i = 0; i < cmd.Length; i++)
             {
-                if (obj == null && classes.TryGetValue(cmd[i], out obj) && obj.GetType() == typeof(T))
+                if (obj == null && classes.TryParseObject(cmd[i], ref obj))
                     continue;
                 int.TryParse(cmd[i], out unit);
             }
 
             // check for errors
             if (obj == null)
-                err.Add("Texture name could not be found.");
+                err.Add("No object name could not be found.");
             if (unit < 0)
-                err.Add("tex command must specify a unit (e.g. tex tex_name 0).");
+                err.Add("Command must specify a unit (e.g. tex tex_name 0).");
             
             // add to texture list
             return new Res<T>((T)Convert.ChangeType(obj, typeof(T)), unit);
@@ -567,7 +629,7 @@ namespace App
             glfunc.Add(new GLMethod(mtype, inval));
         }
 
-        private void ParseCsharpExec(GLException err, string cmd, string[] args, Dict classes)
+        private void ParseCsharpExec(GLException err, string cmd, string[] args, Dict<GLObject> classes)
         {
             // check if command provides the correct amount of parameters
             if (args.Length == 0)
@@ -575,9 +637,6 @@ namespace App
                 err.Add("Not enough arguments for exec command.");
                 return;
             }
-
-            // get GLControl
-            GraphicControl glControl = classes.FindClass<GraphicControl>(GraphicControl.nullname);
 
             // get instance
             GLInstance instance;
@@ -597,7 +656,7 @@ namespace App
             return methods.Count() > 0 ? methods.First() : null;
         }
 
-        private GLShader attach(GLException err, string sh, Dict classes)
+        private GLShader attach(GLException err, string sh, Dict<GLObject> classes)
         {
             GLShader glsh = null;
 

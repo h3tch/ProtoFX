@@ -28,8 +28,8 @@ namespace util
         protected float far = 100f;
         protected float[] color = new float[] { 1f, 1f, 1f };
         protected float intensity = 100f;
-        protected float innerCone = 80f;
-        protected float outerCone = 100f;
+        protected float innerCone = 40f;
+        protected float radius = 0.1f;
         protected const float rad2deg = (float)(Math.PI / 180);
         protected string name = "SpotLight";
         protected Dictionary<int, Unif> unif = new Dictionary<int, Unif>();
@@ -44,13 +44,15 @@ namespace util
         public float FarPlane { get { return far; } set { far = value; } }
         public float[] Color { get { return color; } set { color = value; } }
         public float Intensity { get { return intensity; } set { intensity = value; } }
+        public float Radius { get { return radius; } set { radius = value; } }
         public float InnerCone { get { return innerCone; } set { innerCone = value; } }
-        public float OuterCone { get { return outerCone; } set { outerCone = value; } }
         #endregion
 
-        public SpotLight(Commands cmds)
+        public SpotLight(string name, Commands cmds)
         {
+            this.name = name;
             // parse command for values specified by the user
+            Convert(cmds, "name", ref this.name);
             Convert(cmds, "pos", ref pos);
             Convert(cmds, "rot", ref rot);
             Convert(cmds, "fov", ref fov);
@@ -59,8 +61,7 @@ namespace util
             Convert(cmds, "color", ref color);
             Convert(cmds, "intensity", ref intensity);
             Convert(cmds, "innerCone", ref innerCone);
-            Convert(cmds, "outerCone", ref outerCone);
-            Convert(cmds, "name", ref name);
+            Convert(cmds, "radius", ref radius);
         }
 
         public void Update(int program, int width, int height, int widthTex, int heightTex)
@@ -72,8 +73,8 @@ namespace util
 
             // COMPUTE MATH
             Matrix4 view = Matrix4.CreateTranslation(-pos[0], -pos[1], -pos[2])
-                         * Matrix4.CreateRotationY(-rot[0] * rad2deg)
-                         * Matrix4.CreateRotationX(-rot[1] * rad2deg);
+                 * Matrix4.CreateRotationY(-rot[1] * rad2deg)
+                 * Matrix4.CreateRotationX(-rot[0] * rad2deg);
             float aspect = (float)width / height;
             Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(fov * rad2deg, aspect, near, far);
 
@@ -104,7 +105,7 @@ namespace util
 
             if (unif[Names.light] >= 0)
             {
-                Vector4 light = new Vector4(innerCone * rad2deg, outerCone * rad2deg, 0f, 0f);
+                Vector4 light = new Vector4(innerCone * rad2deg, radius, 0f, 0f);
                 GL.Uniform4(unif[Names.light], ref light);
             }
         }

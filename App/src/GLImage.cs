@@ -42,7 +42,7 @@ namespace App
         public GpuFormat gpuFormat { get { return format; } private set { format = value; } }
         #endregion
 
-        public GLImage(string dir, string name, string annotation, string text, Dict classes)
+        public GLImage(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
             var err = new GLException($"image '{name}'");

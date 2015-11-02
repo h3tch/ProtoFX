@@ -4,7 +4,7 @@ namespace App
 {
     class GLShader : GLObject
     {
-        public GLShader(string dir, string name, string annotation, string text, Dict classes)
+        public GLShader(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
             var err = new GLException($"shader '{name}'");

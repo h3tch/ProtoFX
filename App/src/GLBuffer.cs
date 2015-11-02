@@ -16,7 +16,7 @@ namespace App
         public BufferUsageHint usage { get; private set; } = BufferUsageHint.StaticDraw;
         #endregion
 
-        public GLBuffer(string dir, string name, string annotation, string text, Dict classes)
+        public GLBuffer(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
             var err = new GLException($"buffer '{name}'");
@@ -89,7 +89,7 @@ namespace App
         }
 
         #region UTIL METHODS
-        private static byte[] LoadXml(GLException err, string dir, string[] cmd, Dict classes)
+        private static byte[] LoadXml(GLException err, string dir, string[] cmd, Dict<GLObject> classes)
         {
             // Get text from file or text object
             string str = getText(dir, cmd[0], classes);
@@ -132,7 +132,7 @@ namespace App
             return null;
         }
 
-        private static byte[] loadText(GLException err, string dir, string[] cmd, Dict classes)
+        private static byte[] loadText(GLException err, string dir, string[] cmd, Dict<GLObject> classes)
         {
             // Get text from file or text object
             string str = getText(dir, cmd[0], classes);
@@ -149,12 +149,12 @@ namespace App
             return bytes;
         }
 
-        private static string getText(string dir, string name, Dict classes)
+        private static string getText(string dir, string name, Dict<GLObject> classes)
         {
-            GLObject text;
+            GLText text;
             string str = null;
-            if (classes.TryGetValue(name, out text) && text.GetType() == typeof(GLText))
-                str = ((GLText)text).text.Trim();
+            if (classes.TryFindClass(name, out text))
+                str = text.text.Trim();
             else if (File.Exists(name))
                 str = File.ReadAllText(name);
             else if (File.Exists(dir + name))

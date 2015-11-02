@@ -13,7 +13,7 @@ namespace App
         private TextureWrapMode wrap = TextureWrapMode.ClampToEdge;
         #endregion
 
-        public GLSampler(string dir, string name, string annotation, string text, Dict classes)
+        public GLSampler(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
             var err = new GLException($"sampler '{name}'");

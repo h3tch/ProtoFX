@@ -5,6 +5,7 @@ namespace App
     abstract class GLObject
     {
         public int glname { get; protected set; }
+        [GLField]
         public string name { get; protected set; }
         public string anno { get; protected set; }
 
