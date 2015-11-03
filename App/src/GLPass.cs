@@ -332,7 +332,7 @@ namespace App
                     ActiveUniformParameter.UniformNameLength, unifNameLen);
 
                 int maxUnifNameLen = unifNameLen.Max();
-                StringBuilder str = new StringBuilder(maxUnifNameLen);
+                var str = new StringBuilder(maxUnifNameLen);
                 for (int i = 0; i < numUnif; i++)
                 {
                     GL.GetActiveUniformName(glname, i, maxUnifNameLen, out unifNameLen[i], str.Clear());
