@@ -310,61 +310,6 @@ namespace App
                     if (msg != null && msg.Length > 0)
                         err.Add("\n" + msg);
                 }
-
-                // PARSE PROGRAM
-
-                int numUnif;
-                GL.GetProgram(glname, GetProgramParameterName.ActiveUniforms, out numUnif);
-
-                var unifLocation = Enumerable.Range(0, numUnif).ToArray();
-                var unifType = new int[unifLocation.Length];
-                var unifBlockIdx = new int[unifLocation.Length];
-                var unifNameLen = new int[unifLocation.Length];
-                var unifName = new string[unifLocation.Length];
-
-                GL.GetActiveUniforms(glname, unifLocation.Length, unifLocation,
-                    ActiveUniformParameter.UniformType, unifType);
-
-                GL.GetActiveUniforms(glname, unifLocation.Length, unifLocation,
-                    ActiveUniformParameter.UniformBlockIndex, unifBlockIdx);
-
-                GL.GetActiveUniforms(glname, unifLocation.Length, unifLocation,
-                    ActiveUniformParameter.UniformNameLength, unifNameLen);
-
-                int maxUnifNameLen = unifNameLen.Max();
-                var str = new StringBuilder(maxUnifNameLen);
-                for (int i = 0; i < numUnif; i++)
-                {
-                    GL.GetActiveUniformName(glname, i, maxUnifNameLen, out unifNameLen[i], str.Clear());
-                    unifName[i] = str.ToString();
-                }
-
-                var samplerTypes =
-                    from enumName in Enum.GetNames(typeof(ActiveUniformType))
-                    where enumName.Contains("Sampler")
-                    select (int)Enum.Parse(typeof(ActiveUniformType), enumName);
-                
-                for (int i = 0; i < numUnif; i++)
-                {
-                    var objName = unifName[i].Split('.').First();
-                    var obj = classes.FindClass<GLObject>(objName);
-                    if (obj == null)
-                        continue;
-
-                    // is csharp instance
-                    if (obj is GLInstance && csexec.Find(x => x.name == objName) == null)
-                    {
-                        csexec.Add((GLInstance)obj);
-                    }
-                    // is texture sampler
-                    else if (obj is GLTexture && samplerTypes.Has(unifType[i])
-                        && textures.Find(x => x.obj.name == objName) == null)
-                    {
-                        int unit;
-                        GL.GetUniform(glname, i, out unit);
-                        textures.Add(new Res<GLTexture>((GLTexture)obj, unit));
-                    }
-                }
             }
 
             if (GL.GetError() != ErrorCode.NoError)
