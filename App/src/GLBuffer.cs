@@ -48,16 +48,19 @@ namespace App
             GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
             
             // ALLOCATE (AND WRITE) GPU MEMORY
-            if (data != null)
+            if (size > 0)
             {
-                size = data.Length;
-                var dataPtr = Marshal.AllocHGlobal(size);
-                Marshal.Copy(data, 0, dataPtr, size);
-                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)size, dataPtr, usage);
-                Marshal.FreeHGlobal(dataPtr);
+                if (data != null)
+                {
+                    size = data.Length;
+                    var dataPtr = Marshal.AllocHGlobal(size);
+                    Marshal.Copy(data, 0, dataPtr, size);
+                    GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)size, dataPtr, usage);
+                    Marshal.FreeHGlobal(dataPtr);
+                }
+                else
+                    GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)size, IntPtr.Zero, usage);
             }
-            else
-                GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)size, IntPtr.Zero, usage);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             if (HasErrorOrGlError(err))
@@ -69,12 +72,15 @@ namespace App
             // allocate buffer memory
             byte[] data = new byte[size];
 
-            // map buffer and copy data to CPU memory
-            GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
-            IntPtr dataPtr = GL.MapBuffer(BufferTarget.ArrayBuffer, BufferAccess.ReadOnly);
-            Marshal.Copy(dataPtr, data, 0, size);
-            GL.UnmapBuffer(BufferTarget.ArrayBuffer);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            if (size > 0)
+            {
+                // map buffer and copy data to CPU memory
+                GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
+                IntPtr dataPtr = GL.MapBuffer(BufferTarget.ArrayBuffer, BufferAccess.ReadOnly);
+                Marshal.Copy(dataPtr, data, 0, size);
+                GL.UnmapBuffer(BufferTarget.ArrayBuffer);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            }
             
             return data;
         }

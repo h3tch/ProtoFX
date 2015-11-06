@@ -48,182 +48,6 @@ namespace App
         private List<GLInstance> csexec = new List<GLInstance>();
         #endregion
 
-        #region HELP STRUCT
-        public enum DrawFunc
-        {
-            ArraysIndirect    = 0 | 2 | 0 | 0,
-            ArraysInstanced   = 0 | 0 | 0 | 0,
-            ElementsIndirect  = 0 | 2 | 4 | 8,
-            ElementsInstanced = 0 | 2 | 0 | 8,
-            TransformFeedback = 1 | 2 | 0 | 0,
-        }
-
-        public class MultiDrawCall
-        {
-            public DrawFunc drawfunc;
-            public int vertexin;
-            public int indexbuf;
-            public int vertout;
-            public int indirect;
-            public List<DrawCall> cmd;
-
-            public MultiDrawCall(
-                DrawFunc drawfunc,
-                GLVertinput vertexin,
-                GLVertoutput vertout,
-                GLBuffer indexbuf,
-                GLBuffer indirect)
-            {
-                this.cmd = new List<DrawCall>();
-                this.drawfunc = drawfunc;
-                this.vertexin = vertexin != null ? vertexin.glname : 0;
-                this.indexbuf = indexbuf != null ? indexbuf.glname : 0;
-                this.vertout = vertout != null ? vertout.glname : 0;
-                this.indirect = indirect != null ? indirect.glname : 0;
-                if (drawfunc == DrawFunc.ArraysIndirect)
-                {
-                    this.indirect = this.indexbuf;
-                    this.indexbuf = 0;
-                }
-            }
-
-            public void draw()
-            {
-                // bind vertex buffer to input stream
-                // (needs to be done before binding an ElementArrayBuffer)
-                GL.BindVertexArray(vertexin);
-
-                switch (drawfunc)
-                {
-                    case DrawFunc.ArraysIndirect:
-                        GL.BindBuffer(BufferTarget.DrawIndirectBuffer, indirect);
-                        foreach (var draw in cmd)
-                            GL.DrawArraysIndirect(draw.mode, draw.indirectPtr);
-                        break;
-
-                    case DrawFunc.ArraysInstanced:
-                        foreach (var draw in cmd)
-                            GL.DrawArraysInstancedBaseInstance(
-                                draw.mode, draw.vBaseVertex, draw.vVertexCount,
-                                draw.vInstanceCount, draw.vBaseInstance);
-                        break;
-
-                    case DrawFunc.ElementsIndirect:
-                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexbuf);
-                        GL.BindBuffer(BufferTarget.DrawIndirectBuffer, indirect);
-                        foreach (var draw in cmd)
-                            GL.DrawElementsIndirect(draw.mode, (All)draw.indextype,
-                                draw.indirectPtr);
-                        break;
-
-                    case DrawFunc.ElementsInstanced:
-                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexbuf);
-                        foreach (var draw in cmd)
-                            GL.DrawElementsInstancedBaseVertexBaseInstance(
-                                draw.mode, draw.iIndexCount, draw.indextype,
-                                draw.iBaseIndex, draw.iInstanceCount,
-                                draw.iBaseVertex, draw.iBaseInstance);
-                        break;
-
-                    case DrawFunc.TransformFeedback:
-                        foreach (var draw in cmd)
-                            GL.DrawTransformFeedbackStreamInstanced(draw.mode,
-                                vertout, draw.voStream, draw.voInstanceCount);
-                        break;
-                }
-            }
-        }
-
-        public struct DrawCall
-        {
-            public PrimType mode;
-            public ElementType indextype;
-            private int arg0;
-            private int arg1;
-            private int arg2;
-            private int arg3;
-            private int arg4;
-
-            public DrawCall(DrawFunc drawfunc, PrimType mode, ElementType indextype, List<int> arg)
-            {
-                this.mode = mode;
-                this.indextype = indextype;
-                arg0 = arg.Count > 0 ? arg[0] : 0;
-                arg1 = arg.Count > 1 ? arg[1] : (drawfunc == DrawFunc.TransformFeedback ? 1 : 0);
-                arg2 = arg.Count > 2 ? arg[2] : 0;
-                arg3 = arg.Count > 3 ? arg[3] : (drawfunc == DrawFunc.ArraysInstanced ? 1 : 0);
-                arg4 = arg.Count > 4 ? arg[4] : (drawfunc == DrawFunc.ElementsInstanced ? 1 : 0);
-            }
-
-            // arguments for indexed buffer drawing
-            public int iBaseVertex { get { return arg0; } set { arg0 = value; } }
-            public IntPtr iBaseIndex {
-                get { return (IntPtr)(arg1*Math.Max(1, (int)indextype - (int)ElementType.UByte)); }
-                set { arg1 = (int)value; }
-            }
-            public int iIndexCount { get { return arg2; } set { arg2 = value; } }
-            public int iBaseInstance { get { return arg3; } set { arg3 = value; } }
-            public int iInstanceCount { get { return arg4; } set { arg4 = value; } }
-            // get arguments for vertex buffer drawing
-            public int vBaseVertex { get { return arg0; } set { arg0 = value; } }
-            public int vVertexCount { get { return arg1; } set { arg1 = value; } }
-            public int vBaseInstance { get { return arg2; } set { arg2 = value; } }
-            public int vInstanceCount { get { return arg3; } set { arg3 = value; } }
-            // get arguments for vertex output drawing
-            public int voStream { get { return arg0; } set { arg0 = value; } }
-            public int voInstanceCount { get { return arg1; } set { arg1 = value; } }
-            // get arguments for indirect drawing
-            public IntPtr indirectPtr { get { return (IntPtr)arg0; } set { arg0 = (int)value; } }
-        }
-
-        public struct CompCall
-        {
-            public uint numGroupsX;
-            public uint numGroupsY;
-            public uint numGroupsZ;
-            public int indirect { get { return (int)numGroupsX; } }
-            public IntPtr indirectPtr { get { return (IntPtr)numGroupsY; } }
-
-            public void compute()
-            {
-                if (this.indirect > 0)
-                {
-                    // bind indirect compute call buffer
-                    GL.BindBuffer(BufferTarget.DispatchIndirectBuffer, this.indirect);
-                    // execute compute shader
-                    GL.DispatchComputeIndirect(this.indirectPtr);
-                }
-                else
-                    // execute compute shader
-                    GL.DispatchCompute(this.numGroupsX, this.numGroupsY, this.numGroupsZ);
-            }
-        }
-
-        public class Res<T>
-        {
-            public T obj;
-            public int unit;
-
-            public Res(T obj, int unit)
-            {
-                this.obj = obj;
-                this.unit = unit;
-            }
-        }
-        
-        public struct GLMethod
-        {
-            public MethodInfo mtype;
-            public object[] inval;
-
-            public GLMethod(MethodInfo mtype, object[] inval)
-            {
-                this.mtype = mtype;
-                this.inval = inval;
-            }
-        }
-        #endregion
-
         public GLPass(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
@@ -650,6 +474,196 @@ namespace App
             else
                 err.Throw("vertout command does not specify shader output varying names "
                     + "(e.g. vertout vertout_name points varying_name).");
+        }
+        #endregion
+
+        #region HELP STRUCT
+        public enum DrawFunc
+        {
+            ArraysIndirect = 0 | 2 | 0 | 0,
+            ArraysInstanced = 0 | 0 | 0 | 0,
+            ElementsIndirect = 0 | 2 | 4 | 8,
+            ElementsInstanced = 0 | 2 | 0 | 8,
+            TransformFeedback = 1 | 2 | 0 | 0,
+        }
+
+        public class MultiDrawCall
+        {
+            public DrawFunc drawfunc;
+            public int vertexin;
+            public int indexbuf;
+            public int vertout;
+            public int indirect;
+            public List<DrawCall> cmd;
+
+            public MultiDrawCall(
+                DrawFunc drawfunc,
+                GLVertinput vertexin,
+                GLVertoutput vertout,
+                GLBuffer indexbuf,
+                GLBuffer indirect)
+            {
+                this.cmd = new List<DrawCall>();
+                this.drawfunc = drawfunc;
+                this.vertexin = vertexin != null ? vertexin.glname : 0;
+                this.indexbuf = indexbuf != null ? indexbuf.glname : 0;
+                this.vertout = vertout != null ? vertout.glname : 0;
+                this.indirect = indirect != null ? indirect.glname : 0;
+                if (drawfunc == DrawFunc.ArraysIndirect)
+                {
+                    this.indirect = this.indexbuf;
+                    this.indexbuf = 0;
+                }
+            }
+
+            public void draw()
+            {
+                // bind vertex buffer to input stream
+                // (needs to be done before binding an ElementArrayBuffer)
+                GL.BindVertexArray(vertexin);
+
+                switch (drawfunc)
+                {
+                    case DrawFunc.ArraysIndirect:
+                        GL.BindBuffer(BufferTarget.DrawIndirectBuffer, indirect);
+                        foreach (var draw in cmd)
+                            GL.DrawArraysIndirect(draw.mode, draw.indirectPtr);
+                        break;
+
+                    case DrawFunc.ArraysInstanced:
+                        foreach (var draw in cmd)
+                            GL.DrawArraysInstancedBaseInstance(
+                                draw.mode, draw.vBaseVertex, draw.vVertexCount,
+                                draw.vInstanceCount, draw.vBaseInstance);
+                        break;
+
+                    case DrawFunc.ElementsIndirect:
+                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexbuf);
+                        GL.BindBuffer(BufferTarget.DrawIndirectBuffer, indirect);
+                        foreach (var draw in cmd)
+                            GL.DrawElementsIndirect(draw.mode, (All)draw.indextype,
+                                draw.indirectPtr);
+                        break;
+
+                    case DrawFunc.ElementsInstanced:
+                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexbuf);
+                        foreach (var draw in cmd)
+                            GL.DrawElementsInstancedBaseVertexBaseInstance(
+                                draw.mode, draw.iIndexCount, draw.indextype,
+                                draw.iBaseIndex, draw.iInstanceCount,
+                                draw.iBaseVertex, draw.iBaseInstance);
+                        break;
+
+                    case DrawFunc.TransformFeedback:
+                        foreach (var draw in cmd)
+                            GL.DrawTransformFeedbackStreamInstanced(draw.mode,
+                                vertout, draw.voStream, draw.voInstanceCount);
+                        break;
+                }
+            }
+        }
+
+        public struct DrawCall
+        {
+            public PrimType mode;
+            public ElementType indextype;
+            private int arg0;
+            private int arg1;
+            private int arg2;
+            private int arg3;
+            private int arg4;
+
+            public DrawCall(DrawFunc drawfunc, PrimType mode, ElementType indextype, List<int> arg)
+            {
+                this.mode = mode;
+                this.indextype = indextype;
+                arg0 = arg.Count > 0 ? arg[0] : 0;
+                arg1 = arg.Count > 1 ? arg[1] : (drawfunc == DrawFunc.TransformFeedback ? 1 : 0);
+                arg2 = arg.Count > 2 ? arg[2] : 0;
+                arg3 = arg.Count > 3 ? arg[3] : (drawfunc == DrawFunc.ArraysInstanced ? 1 : 0);
+                arg4 = arg.Count > 4 ? arg[4] : (drawfunc == DrawFunc.ElementsInstanced ? 1 : 0);
+            }
+
+            // arguments for indexed buffer drawing
+            public int iBaseVertex
+            { get { return arg0; } set { arg0 = value; } }
+            public IntPtr iBaseIndex
+            {
+                get { return (IntPtr)(arg1 * Math.Max(1, (int)indextype - (int)ElementType.UByte)); }
+                set { arg1 = (int)value; }
+            }
+            public int iIndexCount
+            { get { return arg2; } set { arg2 = value; } }
+            public int iBaseInstance
+            { get { return arg3; } set { arg3 = value; } }
+            public int iInstanceCount
+            { get { return arg4; } set { arg4 = value; } }
+            // get arguments for vertex buffer drawing
+            public int vBaseVertex
+            { get { return arg0; } set { arg0 = value; } }
+            public int vVertexCount
+            { get { return arg1; } set { arg1 = value; } }
+            public int vBaseInstance
+            { get { return arg2; } set { arg2 = value; } }
+            public int vInstanceCount
+            { get { return arg3; } set { arg3 = value; } }
+            // get arguments for vertex output drawing
+            public int voStream
+            { get { return arg0; } set { arg0 = value; } }
+            public int voInstanceCount
+            { get { return arg1; } set { arg1 = value; } }
+            // get arguments for indirect drawing
+            public IntPtr indirectPtr
+            { get { return (IntPtr)arg0; } set { arg0 = (int)value; } }
+        }
+
+        public struct CompCall
+        {
+            public uint numGroupsX;
+            public uint numGroupsY;
+            public uint numGroupsZ;
+            public int indirect
+            { get { return (int)numGroupsX; } }
+            public IntPtr indirectPtr
+            { get { return (IntPtr)numGroupsY; } }
+
+            public void compute()
+            {
+                if (this.indirect > 0)
+                {
+                    // bind indirect compute call buffer
+                    GL.BindBuffer(BufferTarget.DispatchIndirectBuffer, this.indirect);
+                    // execute compute shader
+                    GL.DispatchComputeIndirect(this.indirectPtr);
+                }
+                else
+                    // execute compute shader
+                    GL.DispatchCompute(this.numGroupsX, this.numGroupsY, this.numGroupsZ);
+            }
+        }
+
+        public class Res<T>
+        {
+            public T obj;
+            public int unit;
+
+            public Res(T obj, int unit)
+            {
+                this.obj = obj;
+                this.unit = unit;
+            }
+        }
+
+        public struct GLMethod
+        {
+            public MethodInfo mtype;
+            public object[] inval;
+
+            public GLMethod(MethodInfo mtype, object[] inval)
+            {
+                this.mtype = mtype;
+                this.inval = inval;
+            }
         }
         #endregion
     }

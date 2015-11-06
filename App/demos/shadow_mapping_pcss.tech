@@ -62,7 +62,7 @@ shader vert vs_shadowmap {
 		mat4 viewProj;
 	};
 
-	uniform SpotLight cs_light;
+	uniform SpotLight light;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -70,7 +70,7 @@ shader vert vs_shadowmap {
 	void main ()
 	{
 		// transform vertex to light projection space
-		gl_Position = cs_light.viewProj * in_pos;
+		gl_Position = light.viewProj * in_pos;
 	}
 }
 
@@ -85,8 +85,8 @@ shader vert vs_render {
 		mat4 viewProj;
 	};
 
-	uniform SpotLight cs_light;
-	uniform SimpleCamera cs_camera;
+	uniform SpotLight light;
+	uniform SimpleCamera camera;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -99,9 +99,9 @@ shader vert vs_render {
 	void main ()
 	{
 		// transform vertex to camera projection space
-		gl_Position = cs_camera.viewProj * in_pos;
+		gl_Position = camera.viewProj * in_pos;
 		// transform vertex to light projection space
-		out_lpos = cs_light.viewProj * in_pos;
+		out_lpos = light.viewProj * in_pos;
 		// pass vertex color
 		out_col = in_col;
 	}
@@ -111,19 +111,18 @@ shader frag fs_render {
 	#version 440
 	#define NUM_POINTS 25
 	#define PI 3.1415926535897932384626433832795
-
+	
 	struct SpotLight {
-		mat4 viewProj;
-		vec4 light;
+		vec4 camera;
 	};
 	
-	uniform cs_poisson {
+	uniform SpotLight light;
+
+	uniform PoissonDisc {
 		vec2 points[NUM_POINTS];
 	} disc;
 	
-	uniform SpotLight cs_light;
-	
-	layout(binding = 0) uniform sampler2D tex_shadowmap;
+	layout(binding = 0) uniform sampler2D shadowmap;
 	
 	layout(location = 0) in vec4 in_lpos;
 	layout(location = 1) in vec4 in_col;
@@ -133,11 +132,65 @@ shader frag fs_render {
 		return fract(sin(dot(xy ,vec2(12.9898,78.233))) * 43758.5453);
 	}
 
-	mat2 randRot(vec2 xy) {
-		float angle = 2 * PI * rand(xy);
+	mat2 randRot(float angle) {
 		float sa = sin(angle);
 		float ca = cos(angle);
 		return mat2(ca, -sa, ca, sa);
+	}
+
+	float lightradius2shadowmap(float radius, float zNear, float zReceiver) {
+		return radius * (zReceiver - zNear) / zReceiver;
+	}
+
+	float lightradius2penumbra(float radius, float zBlocker, float zReceiver) {
+		return radius * (zReceiver - zBlocker) / zBlocker;
+	}
+
+	float penumbra2shadowmap(float penumbra, float zNear, float zReceiver) {
+		return penumbra * zNear / zReceiver;
+	}
+
+	float BlockerSearch(float filterR, vec3 lpos) {
+		int nBlocker = 0;
+		float zBlocker = 0.0;
+		mat2 R = randRot(2 * PI * rand(lpos.xy));
+		const float bias = 0.0005;
+
+		for (int i = 0; i < NUM_POINTS; i++) {
+			vec2 p = lpos.xy + R * disc.points[i] * filterR;
+			float z = texture(shadowmap, p).x;
+			if (lpos.z - bias > z) {
+				zBlocker += z;
+				nBlocker++;
+			}
+		}
+
+		return zBlocker / float(nBlocker);
+	}
+
+	float PCF(float filterR, vec3 lpos) {
+		// PCF SHADOW MAPPING
+		float shadow = 0.0;
+		mat2 R = randRot(2 * PI * rand(lpos.xy));
+		const float bias = 0.0005;
+
+		for (int i = 0; i < NUM_POINTS; i++) {
+			vec2 p = lpos.xy + R * disc.points[i] * filterR;
+			shadow += lpos.z - bias > texture(shadowmap, p).x ? 1.0 : 0.0;
+		}
+
+		return shadow / float(NUM_POINTS);
+	}
+
+	float PCSS(float radius, float zNear, vec3 lpos) {
+		// BLOCKER SEARCH
+		float filterR = lightradius2shadowmap(radius, zNear, lpos.z);
+		float zBlocker = BlockerSearch(filterR, lpos);
+
+		// PCF SHADOW MAPPING
+		float penumbraR = lightradius2penumbra(radius, zBlocker, lpos.z);
+		filterR = penumbra2shadowmap(penumbraR, zNear, lpos.z);
+		return PCF(filterR, lpos);
 	}
 	
 	void main ()
@@ -154,20 +207,13 @@ shader frag fs_render {
 		// transform to normalized device coordinates [-1;+1]
 		// and then to shadow map texture coordinates [0;1]
 		vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
-		mat2 R = randRot(lpos.xy);
 		
-		const vec2 r = 10.0 / textureSize(tex_shadowmap, 0);
-		const float bias = 0.0005;
-
-		float shadow = 0.0;
-		for (int i = 0; i < NUM_POINTS; i++) {
-			vec2 p = lpos.xy + R * disc.points[i] * r;
-			shadow += lpos.z - bias > texture(tex_shadowmap, p).x ? 1.0 : 0.0;
-		}
+		const vec2 r = 10.0 / textureSize(shadowmap, 0);
 		
+		float shadow = PCSS((r.x + r.y) * 0.5, light.camera.z, lpos);
 		if (shadow == 0.0)
 			return;
-		shadow /= float(NUM_POINTS);
+		
 		color.rgb *= (1.0 - shadow) * 0.5 + 0.5;
 	}
 }
@@ -186,18 +232,21 @@ csharp cs_sampling {
 
 instance cs_light {
 	class cs_util util.SpotLight
+	name light
 	pos 3 4 3
 	rot -45 45 0
 }
 
 instance cs_camera {
 	class cs_util util.SimpleCamera
+	name camera
 	pos -5 4 10
 	rot -20 -15 0
 }
 
 instance cs_poisson {
 	class cs_sampling util.PoissonDisc
+	name PoissonDisc
 	maxSamples 64
 	minRadius 0.3
 }
@@ -213,6 +262,9 @@ pass pass_shadowmap {
 	Clear depthBit
 	Enable depthTest
 	Enable CullFace
+
+	// execute camera code
+	exec cs_light
 	
 	// draw cube
 	draw buf_idx in_vert ushort triangles 0 0 36
@@ -224,10 +276,17 @@ pass pass_render {
 	vert vs_render
 	frag fs_render
 	
+	tex tex_shadowmap 0
+	
 	// OpenGL calls
 	ClearColor 0.1 0.3 1.0 0.0
 	Clear colorDepthBit
 	Enable depthTest
+
+	// execute camera code
+	exec cs_light
+	exec cs_camera
+	exec cs_poisson
 	
 	// draw cube
 	draw buf_idx in_vert ushort triangles 0 0 36

@@ -126,11 +126,24 @@ shader frag fs_render {
 		return fract(sin(dot(xy ,vec2(12.9898,78.233))) * 43758.5453);
 	}
 
-	mat2 randRot(vec2 xy) {
-		float angle = 2 * PI * rand(xy);
+	mat2 randRot(float angle) {
 		float sa = sin(angle);
 		float ca = cos(angle);
 		return mat2(ca, -sa, ca, sa);
+	}
+
+	float PCF(float filterR, vec3 lpos) {
+		// PCF SHADOW MAPPING
+		float shadow = 0.0;
+		mat2 R = randRot(2 * PI * rand(lpos.xy));
+		const float bias = 0.0005;
+
+		for (int i = 0; i < NUM_POINTS; i++) {
+			vec2 p = lpos.xy + R * disc.points[i] * filterR;
+			shadow += lpos.z - bias > texture(shadowmap, p).x ? 1.0 : 0.0;
+		}
+
+		return shadow / float(NUM_POINTS);
 	}
 	
 	void main ()
@@ -147,20 +160,13 @@ shader frag fs_render {
 		// transform to normalized device coordinates [-1;+1]
 		// and then to shadow map texture coordinates [0;1]
 		vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
-		mat2 R = randRot(lpos.xy);
 		
 		const vec2 r = 10.0 / textureSize(shadowmap, 0);
-		const float bias = 0.0005;
-
-		float shadow = 0.0;
-		for (int i = 0; i < NUM_POINTS; i++) {
-			vec2 p = lpos.xy + R * disc.points[i] * r;
-			shadow += lpos.z - bias > texture(shadowmap, p).x ? 1.0 : 0.0;
-		}
 		
+		float shadow = PCF((r.x + r.y) * 0.5, lpos);
 		if (shadow == 0.0)
 			return;
-		shadow /= float(NUM_POINTS);
+		
 		color.rgb *= (1.0 - shadow) * 0.5 + 0.5;
 	}
 }
