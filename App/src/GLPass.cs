@@ -7,7 +7,6 @@ using System.Reflection;
 using PrimType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 using VertoutPrimType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
 using ElementType = OpenTK.Graphics.OpenGL4.DrawElementsType;
-using System.Text;
 
 namespace App
 {

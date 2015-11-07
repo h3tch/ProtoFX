@@ -32,10 +32,11 @@ namespace App
             var matches = Regex.Matches(code, @"#include \""[^""]*\""");
 
             // insert all include files
-            for (int i = 0, offset = 0; i < matches.Count; i++)
+            int offset = 0;
+            foreach (Match match in matches)
             {
                 // get file path
-                var include = code.Substring(matches[i].Index + offset, matches[i].Length);
+                var include = code.Substring(match.Index + offset, match.Length);
                 var startidx = include.IndexOf('"');
                 var incfile = include.Substring(startidx + 1, include.LastIndexOf('"') - startidx - 1);
                 var path = Path.IsPathRooted(incfile) ? incfile : dir + incfile;
@@ -46,12 +47,14 @@ namespace App
 
                 // load the file and insert it, replacing #include
                 var content = File.ReadAllText(path);
-                code = code.Substring(0, matches[i].Index + offset)
-                    + content + code.Substring(matches[i].Index + offset + matches[i].Length);
+                code = code.Substring(0, match.Index + offset)
+                    + content + code.Substring(match.Index + offset + match.Length);
 
-                // because the string now has a different length, we need an offset
-                offset += content.Length - matches[i].Length;
+                // because the string now has a different 
+                // length, we need to remember the offset
+                offset += content.Length - match.Length;
             }
+
             return code;
         }
 
@@ -78,11 +81,11 @@ namespace App
 
             // where 'matches' and 'blockBr' are aligned we have a block
             List<string> blocks = new List<string>();
-            for (int i = 0; i < matches.Count; i++)
+            foreach (Match match in matches)
             {
-                int idx = blockBr.IndexOf(matches[i].Index + matches[i].Length - 1);
+                int idx = blockBr.IndexOf(match.Index + match.Length - 1);
                 if (idx >= 0)
-                    blocks.Add(code.Substring(matches[i].Index, blockBr[idx + 1] - matches[i].Index + 1));
+                    blocks.Add(code.Substring(match.Index, blockBr[idx + 1] - match.Index + 1));
             }
 
             // return blocks as array

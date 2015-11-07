@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace App
 {
@@ -34,6 +35,16 @@ namespace App
                 if (e.Equals(value))
                     return true;
             return false;
+        }
+
+        public static int Find(this TabControl.TabPageCollection tab, string path)
+        {
+            for (int i = 0; i < tab.Count; i++)
+            {
+                if (((TabPage)tab[i]).filepath == path)
+                    return i;
+            }
+            return -1;
         }
     }
 }

@@ -10,35 +10,10 @@ namespace App
 {
     class Commands : IEnumerable<Commands.Triple>
     {
-        public struct Triple
-        {
-            public Triple(int idx, string cmd, string[] args)
-            {
-                this.idx = idx;
-                this.cmd = cmd;
-                this.args = args;
-            }
-            public int idx;
-            public string cmd;
-            public string[] args;
-        }
-
         private List<Triple> cmds = new List<Triple>();
 
-        public IEnumerable<Triple> this[int key] {
-            get
-            {
-                return cmds.Where(x => x.idx == key);
-            }
-        }
-
-        public IEnumerable<Triple> this[string key]
-        {
-            get
-            {
-                return cmds.Where(x => x.cmd == key);
-            }
-        }
+        public IEnumerable<Triple> this[int key] => cmds.Where(x => x.idx == key);
+        public IEnumerable<Triple> this[string key] => cmds.Where(x => x.cmd == key);
 
         public Commands(string body, GLException err = null)
         {
@@ -73,6 +48,7 @@ namespace App
 
         internal Dictionary<string,string[]> ToDict()
         {
+            // convert triple to dict of string arrays
             var dict = new Dictionary<string, string[]>();
             foreach (var cmd in cmds)
                 dict.Add(cmd.cmd, cmd.args);
@@ -86,28 +62,34 @@ namespace App
 
             foreach (var triple in cmds)
             {
+                // try to find a field with the respective name
                 var field = type.GetField(triple.cmd, Instance | Public | NonPublic);
                 var prop = type.GetProperty(triple.cmd, Instance | Public | NonPublic);
                 MemberInfo member = (MemberInfo)field ?? prop;
 
+                // if no field could be found go to the next command
                 if (member == null || member.GetCustomAttributes(typeof(GLField), false).Length == 0)
                     continue;
 
                 // remove argument from array
                 removeKeys.Add(triple);
 
+                // set value of field
                 object val = (object)field ?? prop;
                 Type valtype = field?.FieldType ?? prop?.PropertyType;
                 SetValue(clazz, val, valtype, triple.cmd, triple.args, err);
             }
-
+            
+            // remove all commands that could be used to set a field
             foreach (var triple in removeKeys)
                 cmds.Remove(triple);
         }
 
-        static private void SetValue<T>(T clazz, object field, Type fieldType, string key, string[] value, GLException err = null)
+        static private void SetValue<T>(T clazz, object field, Type fieldType,
+            string key, string[] value, GLException err = null)
         {
-            var SetValue = field.GetType().GetMethod("SetValue", new Type[] { typeof(object), typeof(object) });
+            var SetValue = field.GetType().GetMethod(
+                "SetValue", new Type[] { typeof(object), typeof(object) });
 
             // if this is an array pass the arguments as string
             if (fieldType.IsArray)
@@ -133,19 +115,23 @@ namespace App
             }
         }
 
-        public IEnumerator<Triple> GetEnumerator()
-        {
-            return cmds.GetEnumerator();
-        }
+        public IEnumerator<Triple> GetEnumerator() => cmds.GetEnumerator();
 
-        IEnumerator<Triple> IEnumerable<Triple>.GetEnumerator()
-        {
-            return cmds.GetEnumerator();
-        }
+        IEnumerator<Triple> IEnumerable<Triple>.GetEnumerator() => cmds.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator() => cmds.GetEnumerator();
+
+        public struct Triple
         {
-            return cmds.GetEnumerator();
+            public Triple(int idx, string cmd, string[] args)
+            {
+                this.idx = idx;
+                this.cmd = cmd;
+                this.args = args;
+            }
+            public int idx;
+            public string cmd;
+            public string[] args;
         }
     }
 }

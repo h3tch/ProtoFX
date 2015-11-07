@@ -86,14 +86,11 @@ namespace App
         #endregion
 
         #region OpenGL Control
-        private void glControl_Resize(object sender, EventArgs e)
-            => Render();
+        private void glControl_Resize(object sender, EventArgs e) => Render();
 
-        private void glControl_Paint(object sender, PaintEventArgs e)
-            => Render();
+        private void glControl_Paint(object sender, PaintEventArgs e) => Render();
 
-        private void glControl_MouseDown(object sender, MouseEventArgs e)
-            => render = true;
+        private void glControl_MouseDown(object sender, MouseEventArgs e) => render = true;
 
         private void glControl_MouseUp(object sender, MouseEventArgs e)
         {
@@ -209,32 +206,26 @@ namespace App
 
         private void toolBtnOpen_Click(object sender, EventArgs e)
         {
+            // create file dialog
             OpenFileDialog openDlg = new OpenFileDialog();
             openDlg.Filter = "Text Files (.tech)|*.tech|All Files (*.*)|*.*";
             openDlg.FilterIndex = 1;
             openDlg.Multiselect = true;
 
-            var result = openDlg.ShowDialog();
-
-            if (result == DialogResult.OK)
+            // open file dialog
+            if (openDlg.ShowDialog() != DialogResult.OK)
+                return;
+            
+            // open tabs
+            foreach (var path in openDlg.FileNames)
             {
-                foreach (var filename in openDlg.FileNames)
+                int i = tabSource.TabPages.Find(path);
+                if (i < 0)
                 {
-                    int i = 0;
-                    for (; i < tabSource.TabPages.Count; i++)
-                    {
-                        if (((TabPage)tabSource.TabPages[i]).filepath == filename)
-                        {
-                            this.tabSource.SelectedIndex = i;
-                            break;
-                        }
-                    }
-                    if (i == tabSource.TabPages.Count)
-                    {
-                        AddSourceTab(filename);
-                        tabSource.SelectedIndex = i;
-                    }
+                    i = tabSource.TabPages.Count;
+                    AddSourceTab(path);
                 }
+                tabSource.SelectedIndex = i;
             }
         }
 
@@ -243,19 +234,24 @@ namespace App
             codeError.Text = "";
             ClearGLObjects();
 
+            // if no tab page is selected nothing needs to be compiled
             var sourceTab = (TabPage)tabSource.SelectedTab;
             if (sourceTab == null)
                 return;
-            var sourceText = (CodeEditor)sourceTab.Controls[0];
-            var dir = sourceTab.filepath != null ?
+            
+            // get include directory
+            var includeDir = sourceTab.filepath != null ?
                 Path.GetDirectoryName(sourceTab.filepath) : Directory.GetCurrentDirectory();
-            dir += '\\';
+            includeDir += '\\';
 
             try
             {
+                // get code text form tab page
+                var text = ((CodeEditor)sourceTab.Controls[0]).Text;
+
                 // remove comments
-                var code = RemoveComments(sourceText.Text, "//");
-                code = IncludeFiles(dir, code);
+                var code = RemoveComments(text, "//");
+                code = IncludeFiles(includeDir, code);
 
                 // find GLST class blocks (find "TYPE name { ... }")
                 var blocks = FindObjectBlocks(code);
@@ -290,7 +286,7 @@ namespace App
                                 + $"Class name '{className}' already exists.");
                         // instantiate class
                         var instance = (GLObject)Activator.CreateInstance(
-                            type, dir, className, classAnno, classText, classes);
+                            type, includeDir, className, classAnno, classText, classes);
                         classes.Add(instance.name, instance);
                     }
                     catch (Exception ex)
@@ -327,7 +323,7 @@ namespace App
 
         private void toolBtnSave_Click(object sender, EventArgs e)
         {
-            TabPage tab = (TabPage)this.tabSource.SelectedTab;
+            TabPage tab = (TabPage)tabSource.SelectedTab;
             if (!tab.Text.EndsWith("*"))
                 return;
             SaveTabPage(tab, false);
@@ -346,7 +342,7 @@ namespace App
         }
 
         private void toolBtnSaveAs_Click(object sender, EventArgs e)
-            => SaveTabPage((TabPage)this.tabSource.SelectedTab, true);
+            => SaveTabPage((TabPage)tabSource.SelectedTab, true);
 
         private void toolBtnClose_Click(object sender, EventArgs e)
         {
@@ -430,7 +426,7 @@ namespace App
             tabSourcePage.Text = filename;
 
             // add tab
-            this.tabSource.Controls.Add(tabSourcePage);
+            tabSource.Controls.Add(tabSourcePage);
 
             tabSourcePageText.UndoRedo.EmptyUndoBuffer();
         }

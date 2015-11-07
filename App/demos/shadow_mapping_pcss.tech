@@ -149,8 +149,12 @@ shader frag fs_render {
 	float penumbra2shadowmap(float penumbra, float zNear, float zReceiver) {
 		return penumbra * zNear / zReceiver;
 	}
+	
+	float depth2viewZ(float z, float zNear, float zFar) {
+		return (2 * zNear) / (zFar + zNear - z * (zFar - zNear));
+	}
 
-	float BlockerSearch(float filterR, vec3 lpos) {
+	float BlockerSearch(float filterR, float zNear, float zFar, vec3 lpos) {
 		int nBlocker = 0;
 		float zBlocker = 0.0;
 		mat2 R = randRot(2 * PI * rand(lpos.xy));
@@ -160,7 +164,7 @@ shader frag fs_render {
 			vec2 p = lpos.xy + R * disc.points[i] * filterR;
 			float z = texture(shadowmap, p).x;
 			if (lpos.z - bias > z) {
-				zBlocker += z;
+				zBlocker += depth2viewZ(z, zNear, zFar);
 				nBlocker++;
 			}
 		}
@@ -182,14 +186,18 @@ shader frag fs_render {
 		return shadow / float(NUM_POINTS);
 	}
 
-	float PCSS(float radius, float zNear, vec3 lpos) {
+	float PCSS(float radius, float zNear, float zFar, vec3 lpos) {
+		float receiverZ = depth2viewZ(lpos.z, zNear, zFar);
+		
 		// BLOCKER SEARCH
-		float filterR = lightradius2shadowmap(radius, zNear, lpos.z);
-		float zBlocker = BlockerSearch(filterR, lpos);
+		float filterR = lightradius2shadowmap(radius, zNear, receiverZ);
+		float zBlocker = BlockerSearch(filterR, zNear, zFar, lpos);
+		if (isnan(zBlocker))
+			zBlocker = receiverZ;
 
 		// PCF SHADOW MAPPING
-		float penumbraR = lightradius2penumbra(radius, zBlocker, lpos.z);
-		filterR = penumbra2shadowmap(penumbraR, zNear, lpos.z);
+		float penumbraR = lightradius2penumbra(radius, zBlocker, receiverZ);
+		filterR = penumbra2shadowmap(penumbraR, zNear, receiverZ);
 		return PCF(filterR, lpos);
 	}
 	
@@ -208,9 +216,9 @@ shader frag fs_render {
 		// and then to shadow map texture coordinates [0;1]
 		vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
 		
-		const vec2 r = 10.0 / textureSize(shadowmap, 0);
-		
-		float shadow = PCSS((r.x + r.y) * 0.5, light.camera.z, lpos);
+		//const vec2 r = 10.0 / textureSize(shadowmap, 0);
+		//float shadow = PCF((r.x + r.y) * 0.5, lpos);
+		float shadow = PCSS(0.1, light.camera.z, light.camera.w, lpos);
 		if (shadow == 0.0)
 			return;
 		

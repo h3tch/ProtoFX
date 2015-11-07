@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace App
 {
-    class Data
+    public static class Data
     {
         public static Dictionary<string, Type> str2type = new Dictionary<string, Type>
         {
