@@ -58,11 +58,9 @@ texture tex_shadowmap {
 shader vert vs_shadowmap {
 	#version 440
 	
-	struct SpotLight {
+	uniform SpotLight {
 		mat4 viewProj;
-	};
-
-	uniform SpotLight light;
+	} light;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -77,16 +75,14 @@ shader vert vs_shadowmap {
 shader vert vs_render {
 	#version 440
 	
-	struct SpotLight {
+	uniform SpotLight {
 		mat4 viewProj;
-	};
-
-	struct SimpleCamera {
+		vec4 camera;
+	} light;
+	
+	uniform SimpleCamera {
 		mat4 viewProj;
-	};
-
-	uniform SpotLight light;
-	uniform SimpleCamera camera;
+	} camera;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -112,11 +108,10 @@ shader frag fs_render {
 	#define NUM_POINTS 25
 	#define PI 3.1415926535897932384626433832795
 	
-	struct SpotLight {
+	uniform SpotLight {
+		mat4 viewProj;
 		vec4 camera;
-	};
-	
-	uniform SpotLight light;
+	} light;
 
 	uniform PoissonDisc {
 		vec2 points[NUM_POINTS];
@@ -233,23 +228,25 @@ shader frag fs_render {
 csharp cs_util {
 	file "<csharp>/StaticCamera.cs" ...
 		 "<csharp>/SimpleCamera.cs" ...
-		 "<csharp>/SpotLight.cs"
+		 "<csharp>/SpotLight.cs" ...
+		 "<csharp>/UniformBlock.cs"
 }
 
 csharp cs_sampling {
-	file "<csharp>/PoissonDisc.cs"
+	file "<csharp>/PoissonDisc.cs" ...
+		 "<csharp>/UniformBlock.cs"
 }
 
 instance cs_light {
 	class cs_util csharp.SpotLight
-	name light
+	name SpotLight
 	pos 3 4 3
 	rot -45 45 0
 }
 
 instance cs_camera {
 	class cs_util csharp.SimpleCamera
-	name camera
+	name SimpleCamera
 	pos -5 4 10
 	rot -20 -15 0
 }

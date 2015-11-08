@@ -8,7 +8,7 @@ namespace csharp
 {
     using Commands = Dictionary<string, string[]>;
 
-    class SpotLight
+    public class SpotLight
     {
         public enum Names
         {
@@ -32,7 +32,9 @@ namespace csharp
         protected float radius = 0.1f;
         protected const float rad2deg = (float)(Math.PI / 180);
         protected string name = "SpotLight";
-        protected Dictionary<int, Unif> unif = new Dictionary<int, Unif>();
+        //protected Dictionary<int, Unif> unif = new Dictionary<int, Unif>();
+        protected Dictionary<int, UniformBlock<Names>> uniform =
+            new Dictionary<int, UniformBlock<Names>>();
         protected List<string> errors = new List<string>();
         #endregion
 
@@ -67,49 +69,97 @@ namespace csharp
         public void Update(int program, int width, int height, int widthTex, int heightTex)
         {
             // GET OR CREATE CAMERA UNIFORMS FOR program
-            Unif unif;
-            if (this.unif.TryGetValue(program, out unif) == false)
-                this.unif.Add(program, unif = new Unif(program, name));
+            UniformBlock<Names> unif;
+            if (uniform.TryGetValue(program, out unif) == false)
+                uniform.Add(program, unif = new UniformBlock<Names>(program, name));
 
             // COMPUTE MATH
             Matrix4 view = Matrix4.CreateTranslation(-pos[0], -pos[1], -pos[2])
                  * Matrix4.CreateRotationY(-rot[1] * rad2deg)
                  * Matrix4.CreateRotationX(-rot[0] * rad2deg);
+            unif.Set(Names.view, view.ToInt32());
+
             float aspect = (float)width / height;
             Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(fov * rad2deg, aspect, near, far);
-
-            // SET INTERNAL VARIABLES
-            if (unif[Names.view] >= 0)
-                GL.UniformMatrix4(unif[Names.view], false, ref view);
-
-            if (unif[Names.proj] >= 0)
-                GL.UniformMatrix4(unif[Names.proj], false, ref proj);
+            unif.Set(Names.proj, proj.ToInt32());
 
             if (unif[Names.viewProj] >= 0)
             {
                 Matrix4 vwpj = view * proj;
-                GL.UniformMatrix4(unif[Names.viewProj], false, ref vwpj);
+                unif.Set(Names.viewProj, vwpj.ToInt32());
             }
 
             if (unif[Names.camera] >= 0)
             {
                 Vector4 camera = new Vector4(fov * rad2deg, aspect, near, far);
-                GL.Uniform4(unif[Names.camera], ref camera);
+                unif.Set(Names.camera, camera.ToInt32());
             }
 
             if (unif[Names.color] >= 0)
             {
                 Vector4 col = new Vector4(color[0], color[1], color[2], intensity);
-                GL.Uniform4(unif[Names.color], ref col);
+                unif.Set(Names.color, col.ToInt32());
             }
 
             if (unif[Names.light] >= 0)
             {
                 Vector4 light = new Vector4(innerCone * rad2deg, radius, 0f, 0f);
-                GL.Uniform4(unif[Names.light], ref light);
+                unif.Set(Names.light, light.ToInt32());
             }
+
+            unif.Update();
+            unif.Bind();
+
+            //// GET OR CREATE CAMERA UNIFORMS FOR program
+            //Unif unif;
+            //if (this.unif.TryGetValue(program, out unif) == false)
+            //    this.unif.Add(program, unif = new Unif(program, name));
+
+            //Matrix4 view = Matrix4.CreateTranslation(-pos[0], -pos[1], -pos[2])
+            //     * Matrix4.CreateRotationY(-rot[1] * rad2deg)
+            //     * Matrix4.CreateRotationX(-rot[0] * rad2deg);
+            //float aspect = (float)width / height;
+            //Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(fov * rad2deg, aspect, near, far);
+
+
+            //// SET INTERNAL VARIABLES
+            //if (unif[Names.view] >= 0)
+            //    GL.UniformMatrix4(unif[Names.view], false, ref view);
+
+            //if (unif[Names.proj] >= 0)
+            //    GL.UniformMatrix4(unif[Names.proj], false, ref proj);
+
+            //if (unif[Names.viewProj] >= 0)
+            //{
+            //    Matrix4 vwpj = view * proj;
+            //    GL.UniformMatrix4(unif[Names.viewProj], false, ref vwpj);
+            //}
+
+            //if (unif[Names.camera] >= 0)
+            //{
+            //    Vector4 camera = new Vector4(fov * rad2deg, aspect, near, far);
+            //    GL.Uniform4(unif[Names.camera], ref camera);
+            //}
+
+            //if (unif[Names.color] >= 0)
+            //{
+            //    Vector4 col = new Vector4(color[0], color[1], color[2], intensity);
+            //    GL.Uniform4(unif[Names.color], ref col);
+            //}
+
+            //if (unif[Names.light] >= 0)
+            //{
+            //    Vector4 light = new Vector4(innerCone * rad2deg, radius, 0f, 0f);
+            //    GL.Uniform4(unif[Names.light], ref light);
+            //}
         }
 
+        public void Delete()
+        {
+            foreach (var u in uniform)
+                u.Value.Delete();
+        }
+        
         public List<string> GetErrors()
         {
             return errors;
@@ -162,21 +212,21 @@ namespace csharp
         #endregion
 
         #region INNER CLASSES
-        protected struct Unif
-        {
-            private int[] location;
+        //protected struct Unif
+        //{
+        //    private int[] location;
 
-            public Unif(int program, string name)
-            {
-                string[] names = Enum.GetNames(typeof(Names)).Select(v => name + "." + v).ToArray();
-                location = names.Select(n => GL.GetUniformLocation(program, n)).ToArray();
-            }
+        //    public Unif(int program, string name)
+        //    {
+        //        string[] names = Enum.GetNames(typeof(Names)).Select(v => name + "." + v).ToArray();
+        //        location = names.Select(n => GL.GetUniformLocation(program, n)).ToArray();
+        //    }
 
-            public int this[Names name]
-            {
-                get { return location[(int)name]; }
-            }
-        }
+        //    public int this[Names name]
+        //    {
+        //        get { return location[(int)name]; }
+        //    }
+        //}
         #endregion
     }
 }

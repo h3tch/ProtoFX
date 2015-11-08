@@ -1,16 +1,13 @@
 ﻿using OpenTK;
-using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace csharp
 {
     using Commands = Dictionary<string, string[]>;
 
-    class PoissonDisc
+    public class PoissonDisc
     {
         public enum Names
         {
@@ -25,7 +22,8 @@ namespace csharp
         public float minRadius = 0f;
         private float[,] points;
         private int[] radius;
-        protected Dictionary<int, Unif> uniform = new Dictionary<int, Unif>();
+        protected Dictionary<int, UniformBlock<Names>> uniform =
+            new Dictionary<int, UniformBlock<Names>>();
         protected List<string> errors = new List<string>();
         private static CultureInfo culture = new CultureInfo("en");
         #endregion
@@ -120,11 +118,11 @@ namespace csharp
 
         public void Update(int program, int width, int height, int widthTex, int heightTex)
         {
-            // GET OR CREATE CAMERA UNIFORMS FOR program
-            Unif unif;
+            // GET OR CREATE POISSON DISC UNIFORMS FOR program
+            UniformBlock<Names> unif;
             if (uniform.TryGetValue(program, out unif) == false)
-                uniform.Add(program, unif = new Unif(program, name,
-                    Names.points, points, Names.radius, radius));
+                uniform.Add(program, unif = new UniformBlock<Names>(
+                    program, name, Names.points, points, Names.radius, radius));
 
             unif.Bind();
         }
@@ -216,118 +214,6 @@ namespace csharp
         #endregion
 
         #region INNER CLASSES
-        protected struct Unif
-        {
-            private int glbuf;
-            private int unit;
-            private int size;
-            private int[] location;
-            private int[] length;
-            private int[] offset;
-            private int[] stride;
-            public int Unit { get { return unit; } }
-            public IntPtr Size { get { return (IntPtr)size; } }
-
-            public Unif(int program, string name, params object[] nameArrayPairs)
-            {
-                // get uniform block binding unit and size
-                int block = GL.GetUniformBlockIndex(program, name);
-                GL.GetActiveUniformBlock(program, block, 
-                    ActiveUniformBlockParameter.UniformBlockBinding, out unit);
-                GL.GetActiveUniformBlock(program, block, 
-                    ActiveUniformBlockParameter.UniformBlockDataSize, out size);
-                
-                // allocate memory for uniform block uniforms
-                string[] names = Enum.GetNames(typeof(Names)).Select(v => name + "." + v).ToArray();
-                location = Enumerable.Repeat(-1, names.Length).ToArray();
-                length = new int[names.Length];
-                offset = new int[names.Length];
-                stride = new int[names.Length];
-
-                // get uniform indices in uniform block
-                GL.GetUniformIndices(program, names.Length, names, location);
-
-                // get additional information about uniforms
-                // like array length, offset and stride
-                for (int i = 0; i < location.Length; i++)
-                {
-                    if (location[i] >= 0)
-                    {
-                        GL.GetActiveUniforms(program, 1, ref location[i],
-                            ActiveUniformParameter.UniformSize, out length[i]);
-                        GL.GetActiveUniforms(program, 1, ref location[i],
-                            ActiveUniformParameter.UniformOffset, out offset[i]);
-                        GL.GetActiveUniforms(program, 1, ref location[i],
-                            ActiveUniformParameter.UniformArrayStride, out stride[i]);
-                    }
-                }
-
-                // allocate GPU memory
-                glbuf = GL.GenBuffer();
-                GL.BindBuffer(BufferTarget.UniformBuffer, glbuf);
-
-                // allocate CPU memory
-                var ptr = Marshal.AllocHGlobal(size);
-                for (int i = 0; i < nameArrayPairs.Length; i += 2)
-                    Copy((Names)nameArrayPairs[i], (Array)nameArrayPairs[i+1], ptr);
-
-                // copy CPU data to GPU
-                GL.BufferData(BufferTarget.UniformBuffer, Size, ptr, BufferUsageHint.DynamicDraw);
-
-                // CPU memory no longer needed
-                Marshal.FreeHGlobal(ptr);
-            }
-
-            public void Bind()
-            {
-                GL.BindBufferBase(BufferRangeTarget.UniformBuffer, unit, glbuf);
-            }
-
-            public void Delete()
-            {
-                if (glbuf > 0)
-                {
-                    GL.DeleteBuffer(glbuf);
-                    glbuf = 0;
-                }
-            }
-
-            private void Copy(Names name, Array array, IntPtr dst)
-            {
-                if (location[(int)name] < 0 || array == null)
-                    return;
-
-                // gather some needed information
-                int srcStride = Marshal.SizeOf(array.GetType().GetElementType()) * array.GetLength(1);
-                int dstStride = stride[(int)name];
-                int len = Math.Min(array.GetLength(0), length[(int)name]);
-
-                // convert array to byte array
-                byte[] src = new byte[srcStride * array.GetLength(0)];
-                Buffer.BlockCopy(array, 0, src, 0, src.Length);
-
-                // change stride of src array
-                src = ToStride(src, srcStride, dstStride);
-
-                // copy to unmanaged memory
-                Marshal.Copy(src, 0, dst, dstStride * len);
-            }
-
-            private byte[] ToStride(byte[] src, int srcStride, int dstStride)
-            {
-                if (srcStride == dstStride)
-                    return src;
-
-                byte[] dst = new byte[(src.Length / srcStride) * dstStride];
-
-                int skip = dstStride - srcStride;
-                for (int srci = 0, dsti = 0; srci < src.Length; dsti += skip)
-                    dst[dsti++] = src[srci++];
-
-                return dst;
-            }
-        }
-
         private static class PoissonDiscSampler
         {
             private static Random rand = new Random();

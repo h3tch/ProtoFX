@@ -83,7 +83,7 @@ namespace App
             if (compilerresults.Errors.Count != 0)
             {
                 string msg = "";
-                foreach (var message in compilerresults.Output)
+                foreach (var message in compilerresults.Errors)
                     msg += "\n" + message;
                 err.Throw(msg);
             }

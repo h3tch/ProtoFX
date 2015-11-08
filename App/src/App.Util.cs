@@ -28,7 +28,7 @@ namespace App
 
         private static string RemoveNewLineIndicators(string code)
         {
-            return Regex.Replace(code, @"\.\.\.(\s?)(\n|\r|\r\n)", "");
+            return Regex.Replace(code, @"\.\.\.(\s?)(\n|\r|\r\n)", " ");
         }
 
         private static string IncludeFiles(string dir, string code)
