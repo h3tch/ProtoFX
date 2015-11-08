@@ -251,6 +251,7 @@ namespace App
 
                 // remove comments
                 var code = RemoveComments(text, "//");
+                code = RemoveNewLineIndicators(code);
                 code = IncludeFiles(includeDir, code);
 
                 // find GLST class blocks (find "TYPE name { ... }")

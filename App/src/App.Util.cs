@@ -15,7 +15,7 @@ namespace App
             var strings = @"""((\\[^\n]|[^""\n])*)""";
             var verbatimStrings = @"@(""[^""]*"")+";
             return Regex.Replace(code,
-                blockComments + "|" + lineComments + "|" + strings + "|" + verbatimStrings,
+                $"{blockComments}|{lineComments}|{strings}|{verbatimStrings}",
                 me =>
                 {
                     if (me.Value.StartsWith("/*") || me.Value.StartsWith("//"))
@@ -24,6 +24,11 @@ namespace App
                     return me.Value;
                 },
                 RegexOptions.Singleline);
+        }
+
+        private static string RemoveNewLineIndicators(string code)
+        {
+            return Regex.Replace(code, @"\.\.\.(\s?)(\n|\r|\r\n)", "");
         }
 
         private static string IncludeFiles(string dir, string code)

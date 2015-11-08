@@ -122,12 +122,12 @@ shader frag fs_simple {
 // Include C# code
 csharp cs_util {
 	// Compile C# file "SimpleCamera.cs" to add class
-	// util.SimpleCamera (multiple files can be listed).
-	file "../util/StaticCamera.cs" "../util/SimpleCamera.cs"
+	// csharp.SimpleCamera (multiple files can be listed).
+	file "<csharp>/StaticCamera.cs" "<csharp>/SimpleCamera.cs"
 }
 
 instance cs_camera {
-	class cs_util util.SimpleCamera
+	class cs_util csharp.SimpleCamera
 	name Camera
 	pos 0 0 5
 }

@@ -79,15 +79,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="demos\util\PoissonDisc.cs" />
-    <Compile Include="demos\util\SpotLight.cs" />
+    <Compile Include="csharp\PoissonDisc.cs" />
+    <Compile Include="csharp\SpotLight.cs" />
     <Compile Include="src\Extensions.cs" />
     <Compile Include="src\CodeEditor.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\Commands.cs" />
     <Compile Include="src\Data.cs" />
-    <Compile Include="demos\util\StaticCamera.cs" />
+    <Compile Include="csharp\StaticCamera.cs" />
     <Compile Include="src\GLField.cs" />
     <Compile Include="src\GLInstance.cs" />
     <Compile Include="src\GLText.cs" />
@@ -97,7 +97,7 @@
     <Compile Include="src\App.Designer.cs">
       <DependentUpon>App.cs</DependentUpon>
     </Compile>
-    <Compile Include="demos\util\SimpleCamera.cs" />
+    <Compile Include="csharp\SimpleCamera.cs" />
     <Compile Include="src\App.Util.cs">
       <SubType>Form</SubType>
     </Compile>

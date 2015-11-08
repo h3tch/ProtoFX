@@ -55,16 +55,24 @@ namespace App
                     {"CompilerVersion", version != null ? version : "v4.0"}
                 });
 
+            // replace placeholders with actual path
+            var path = (IEnumerable<string>)file;
+            var curDir = Directory.GetCurrentDirectory() + "/";
+            var placeholders = new[] { new[] { "<csharp>", curDir + "../csharp" } };
+            foreach (var placeholder in placeholders)
+                path = path.Select(x => x.Replace(placeholder[0], placeholder[1]));
+
+            // convert relative file paths to absolut file paths
+            path = path.Select(x => Path.IsPathRooted(x) ? x : dir + x);
+
             // use '\\' file paths instead of '/' and set absolute directory path
-            for (int i = 0; i < file.Length; i++)
-                // use correct directory separator
-                file[i] = (Path.IsPathRooted(file[i]) ? file[i] : dir + file[i])
-                          .Replace('/', Path.DirectorySeparatorChar);
+            if (Path.DirectorySeparatorChar != '/')
+                path = path.Select(x => x.Replace('/', Path.DirectorySeparatorChar));
             
             // compile files
             try
             {
-                compilerresults = provider.CompileAssemblyFromFile(compilerParams, file);
+                compilerresults = provider.CompileAssemblyFromFile(compilerParams, path.ToArray());
             }
             catch (DirectoryNotFoundException ex)
             {

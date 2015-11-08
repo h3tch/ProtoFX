@@ -30,7 +30,7 @@ namespace App
             foreach (var line in lines)
             {
                 // parse words, numbers and so on
-                MatchCollection matches = Regex.Matches(line, "[\\w./|\\-:]+");
+                MatchCollection matches = Regex.Matches(line, "[\\w./|\\-:<>]+");
                 // an command must have at least two arguments
                 if (matches.Count >= 2)
                 {

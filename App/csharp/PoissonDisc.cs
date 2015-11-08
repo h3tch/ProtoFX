@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace util
+namespace csharp
 {
     using Commands = Dictionary<string, string[]>;
 

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace util
+namespace csharp
 {
     using Commands = Dictionary<string, string[]>;
 

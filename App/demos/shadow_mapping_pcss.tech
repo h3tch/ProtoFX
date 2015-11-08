@@ -138,11 +138,11 @@ shader frag fs_render {
 		return mat2(ca, -sa, ca, sa);
 	}
 
-	float lightradius2shadowmap(float radius, float zNear, float zReceiver) {
+	float light2shadowmap(float radius, float zNear, float zReceiver) {
 		return radius * (zReceiver - zNear) / zReceiver;
 	}
 
-	float lightradius2penumbra(float radius, float zBlocker, float zReceiver) {
+	float light2penumbra(float radius, float zBlocker, float zReceiver) {
 		return radius * (zReceiver - zBlocker) / zBlocker;
 	}
 
@@ -190,13 +190,13 @@ shader frag fs_render {
 		float receiverZ = depth2viewZ(lpos.z, zNear, zFar);
 		
 		// BLOCKER SEARCH
-		float filterR = lightradius2shadowmap(radius, zNear, receiverZ);
+		float filterR = light2shadowmap(radius, zNear, receiverZ);
 		float zBlocker = BlockerSearch(filterR, zNear, zFar, lpos);
 		if (isnan(zBlocker))
 			zBlocker = receiverZ;
 
 		// PCF SHADOW MAPPING
-		float penumbraR = lightradius2penumbra(radius, zBlocker, receiverZ);
+		float penumbraR = light2penumbra(radius, zBlocker, receiverZ);
 		filterR = penumbra2shadowmap(penumbraR, zNear, receiverZ);
 		return PCF(filterR, lpos);
 	}
@@ -231,29 +231,31 @@ shader frag fs_render {
 /////////////
 
 csharp cs_util {
-	file "util/SpotLight.cs" "util/SimpleCamera.cs"
+	file "<csharp>/StaticCamera.cs" ...
+		 "<csharp>/SimpleCamera.cs" ...
+		 "<csharp>/SpotLight.cs"
 }
 
 csharp cs_sampling {
-	file "util/PoissonDisc.cs"
+	file "<csharp>/PoissonDisc.cs"
 }
 
 instance cs_light {
-	class cs_util util.SpotLight
+	class cs_util csharp.SpotLight
 	name light
 	pos 3 4 3
 	rot -45 45 0
 }
 
 instance cs_camera {
-	class cs_util util.SimpleCamera
+	class cs_util csharp.SimpleCamera
 	name camera
 	pos -5 4 10
 	rot -20 -15 0
 }
 
 instance cs_poisson {
-	class cs_sampling util.PoissonDisc
+	class cs_sampling csharp.PoissonDisc
 	name PoissonDisc
 	maxSamples 64
 	minRadius 0.3
