@@ -69,10 +69,9 @@ texture tex_shadowmap {
 shader vert vs_shadowmap {
 	#version 440
 	
-	struct StaticCamera {
+	layout(binding = 0) uniform StaticCamera {
 		mat4 viewProj;
-	};
-	uniform StaticCamera light;
+	} light;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -87,14 +86,13 @@ shader vert vs_shadowmap {
 shader vert vs_simple {
 	#version 440
 	
-	struct StaticCamera {
+	layout(binding = 0) uniform StaticCamera {
 		mat4 viewProj;
-	};
-	struct SimpleCamera {
+	} light;
+	
+	layout(binding = 1) uniform SimpleCamera {
 		mat4 viewProj;
-	};
-	uniform StaticCamera light;
-	uniform SimpleCamera camera;
+	} camera;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -166,19 +164,21 @@ shader frag fs_simple {
 /////////////
 
 csharp cs_util {
-	file "<csharp>/StaticCamera.cs" "<csharp>/SimpleCamera.cs"
+	file "<csharp>/StaticCamera.cs" ...
+	     "<csharp>/SimpleCamera.cs" ...
+	     "<csharp>/UniformBlock.cs"
 }
 
 instance cs_light {
 	class cs_util csharp.StaticCamera
-	name light
+	name StaticCamera
 	pos 3 4 3
 	rot -45 45 0
 }
 
 instance cs_camera {
 	class cs_util csharp.SimpleCamera
-	name camera
+	name SimpleCamera
 	pos -5 4 10
 	rot -20 -15 0
 }

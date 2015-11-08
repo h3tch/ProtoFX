@@ -98,6 +98,12 @@ namespace App
             return dst;
         }
 
+        public static TResult[] To<T, TResult>(T[] from)
+        {
+            GenericConverter<T, TResult> convert = default(GenericConverter<T, TResult>);
+            return from.Select(x => { convert.In = x; return convert.Out; }).ToArray();
+        }
+
         public static T[] Join<T>(IEnumerable<T[]> list, int maxSize = 0)
         {
             // if size has not been specified,
@@ -148,6 +154,15 @@ namespace App
             {
                 return false;
             }
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
+        private struct GenericConverter<IN, OUT>
+        {
+            [FieldOffset(0)]
+            public IN In;
+            [FieldOffset(0)]
+            public OUT Out;
         }
     }
 }

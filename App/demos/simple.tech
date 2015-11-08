@@ -51,7 +51,7 @@ shader vert vs_simple {
 	
 	// shader variable which will be set by "SimpleCamera.cs"
 	// (only uniform variables can be accessed outside the shader)
-	uniform SimpleCamera {
+	layout(binding = 0) uniform SimpleCamera {
 		mat4 viewProj;
 	} camera;
 	
@@ -102,9 +102,6 @@ csharp cs_util {
 instance cs_camera {
 	class cs_util csharp.SimpleCamera
 	name SimpleCamera
-	fov 60
-	near 0.1
-	far 100
 	pos -5 4 10
 	rot -20 -15 0
 }

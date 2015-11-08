@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace App
@@ -29,7 +30,7 @@ namespace App
                 Environment.SetEnvironmentVariable("PATH", envPath + ";" + lib);
 
             // select 'float' as the default buffer value type
-            this.comboBufType.SelectedIndex = 7;
+            comboBufType.SelectedIndex = 7;
         }
         
         #region App Control

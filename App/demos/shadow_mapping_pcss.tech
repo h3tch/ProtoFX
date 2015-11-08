@@ -58,7 +58,7 @@ texture tex_shadowmap {
 shader vert vs_shadowmap {
 	#version 440
 	
-	uniform SpotLight {
+	layout(binding = 0) uniform SpotLight {
 		mat4 viewProj;
 	} light;
 	
@@ -75,12 +75,12 @@ shader vert vs_shadowmap {
 shader vert vs_render {
 	#version 440
 	
-	uniform SpotLight {
+	layout(binding = 0) uniform SpotLight {
 		mat4 viewProj;
 		vec4 camera;
 	} light;
 	
-	uniform SimpleCamera {
+	layout(binding = 1) uniform SimpleCamera {
 		mat4 viewProj;
 	} camera;
 	
@@ -108,12 +108,12 @@ shader frag fs_render {
 	#define NUM_POINTS 25
 	#define PI 3.1415926535897932384626433832795
 	
-	uniform SpotLight {
+	layout(binding = 0) uniform SpotLight {
 		mat4 viewProj;
 		vec4 camera;
 	} light;
 
-	uniform PoissonDisc {
+	layout(binding = 2) uniform PoissonDisc {
 		vec2 points[NUM_POINTS];
 	} disc;
 	
@@ -229,11 +229,7 @@ csharp cs_util {
 	file "<csharp>/StaticCamera.cs" ...
 		 "<csharp>/SimpleCamera.cs" ...
 		 "<csharp>/SpotLight.cs" ...
-		 "<csharp>/UniformBlock.cs"
-}
-
-csharp cs_sampling {
-	file "<csharp>/PoissonDisc.cs" ...
+	     "<csharp>/PoissonDisc.cs" ...
 		 "<csharp>/UniformBlock.cs"
 }
 
@@ -252,7 +248,7 @@ instance cs_camera {
 }
 
 instance cs_poisson {
-	class cs_sampling csharp.PoissonDisc
+	class cs_util csharp.PoissonDisc
 	name PoissonDisc
 	maxSamples 64
 	minRadius 0.3

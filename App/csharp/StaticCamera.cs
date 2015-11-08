@@ -1,14 +1,12 @@
 ﻿using OpenTK;
-using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace csharp
 {
     using Commands = Dictionary<string, string[]>;
 
-    public class StaticCamera
+    class StaticCamera
     {
         public enum Names
         {
@@ -27,7 +25,6 @@ namespace csharp
         protected const float rad2deg = (float)(Math.PI / 180);
         protected string name;
         protected Matrix4 view;
-        //protected Dictionary<int, Unif> uniform = new Dictionary<int, Unif>();
         protected Dictionary<int, UniformBlock<Names>> uniform =
             new Dictionary<int, UniformBlock<Names>>();
         protected List<string> errors = new List<string>();
@@ -68,12 +65,11 @@ namespace csharp
         public void Update(int program, int width, int height, int widthTex, int heightTex)
         {
             // This function is executed every frame at the beginning of a pass.
-            Matrix4 view = Matrix4.CreateTranslation(-pos[0], -pos[1], -pos[2])
+            view = Matrix4.CreateTranslation(-pos[0], -pos[1], -pos[2])
                  * Matrix4.CreateRotationY(-rot[1] * rad2deg)
                  * Matrix4.CreateRotationX(-rot[0] * rad2deg);
             float aspect = (float)width / height;
             Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(fov * rad2deg, aspect, near, far);
-            Matrix4 vwpj = view * proj;
 
             // GET OR CREATE CAMERA UNIFORMS FOR program
             UniformBlock<Names> unif;
@@ -86,6 +82,7 @@ namespace csharp
 
             if (unif[Names.viewProj] >= 0)
             {
+                Matrix4 vwpj = view * proj;
                 unif.Set(Names.viewProj, vwpj.ToInt32());
             }
 
@@ -97,37 +94,6 @@ namespace csharp
 
             unif.Update();
             unif.Bind();
-
-            //// GET OR CREATE CAMERA UNIFORMS FOR program
-            //Unif unif;
-            //if (uniform.TryGetValue(program, out unif) == false)
-            //    uniform.Add(program, unif = new Unif(program, name));
-
-            //// COMPUTE MATH
-            //view = Matrix4.CreateTranslation(-pos[0], -pos[1], -pos[2])
-            //     * Matrix4.CreateRotationY(-rot[1] * rad2deg)
-            //     * Matrix4.CreateRotationX(-rot[0] * rad2deg);
-            //float aspect = (float)widthTex / heightTex;
-            //Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(fov * rad2deg, aspect, near, far);
-
-            //// SET INTERNAL VARIABLES
-            //if (unif[Names.view] >= 0)
-            //    GL.UniformMatrix4(unif[Names.view], false, ref view);
-
-            //if (unif[Names.proj] >= 0)
-            //    GL.UniformMatrix4(unif[Names.proj], false, ref proj);
-
-            //if (unif[Names.viewProj] >= 0)
-            //{
-            //    Matrix4 vwpj = view * proj;
-            //    GL.UniformMatrix4(unif[Names.viewProj], false, ref vwpj);
-            //}
-
-            //if (unif[Names.camera] >= 0)
-            //{
-            //    Vector4 camera = new Vector4(fov * rad2deg, aspect, near, far);
-            //    GL.Uniform4(unif[Names.camera], ref camera);
-            //}
         }
 
         //public void EndPass(int program)
@@ -192,22 +158,5 @@ namespace csharp
             }
         }
         #endregion
-
-        //#region INNER CLASSES
-        //protected struct Unif
-        //{
-        //    private int[] location;
-            
-        //    public Unif(int program, string name)
-        //    {
-        //        string[] names = Enum.GetNames(typeof(Names)).Select(v => name + "." + v).ToArray();
-        //        location = names.Select(n => GL.GetUniformLocation(program, n)).ToArray();
-        //    }
-
-        //    public int this[Names name]{
-        //        get { return location[(int)name]; }
-        //    }
-        //}
-        //#endregion
     }
 }

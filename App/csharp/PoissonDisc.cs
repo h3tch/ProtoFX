@@ -121,8 +121,12 @@ namespace csharp
             // GET OR CREATE POISSON DISC UNIFORMS FOR program
             UniformBlock<Names> unif;
             if (uniform.TryGetValue(program, out unif) == false)
-                uniform.Add(program, unif = new UniformBlock<Names>(
-                    program, name, Names.points, points, Names.radius, radius));
+            {
+                uniform.Add(program, unif = new UniformBlock<Names>(program, name));
+                unif.Set(Names.points, points);
+                unif.Set(Names.radius, radius);
+                unif.Update();
+            }
 
             unif.Bind();
         }
