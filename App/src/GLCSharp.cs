@@ -37,24 +37,6 @@ namespace App
             if (file == null || file.Length == 0)
                 return;
 
-            // select all app assemplies
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies()
-                            .Where(a => !a.IsDynamic)
-                            .Select(a => a.Location);
-
-            // set compiler parameters and assemblies
-            CompilerParameters compilerParams = new CompilerParameters();
-            compilerParams.GenerateInMemory = true;
-            compilerParams.GenerateExecutable = false;
-            compilerParams.IncludeDebugInformation = true;
-            compilerParams.ReferencedAssemblies.AddRange(assemblies.ToArray());
-            
-            // select compiler version
-            CSharpCodeProvider provider = new CSharpCodeProvider(
-                new Dictionary<string, string> {
-                    {"CompilerVersion", version != null ? version : "v4.0"}
-                });
-
             // replace placeholders with actual path
             var path = (IEnumerable<string>)file;
             var curDir = Directory.GetCurrentDirectory() + "/";
@@ -72,6 +54,24 @@ namespace App
             // compile files
             try
             {
+                // set compiler parameters and assemblies
+                CompilerParameters compilerParams = new CompilerParameters();
+                compilerParams.GenerateInMemory = true;
+                compilerParams.GenerateExecutable = false;
+                #if DEBUG
+                compilerParams.IncludeDebugInformation = true;
+                #else
+                compilerParams.IncludeDebugInformation = false;
+                #endif
+                compilerParams.ReferencedAssemblies.AddRange(
+                    AppDomain.CurrentDomain.GetAssemblies()
+                             .Where(a => !a.IsDynamic)
+                             .Select(a => a.Location).ToArray());
+
+                // select compiler version
+                CSharpCodeProvider provider = version != null ? 
+                    new CSharpCodeProvider(new Dictionary<string, string> { {"CompilerVersion", version} }) :
+                    new CSharpCodeProvider();
                 compilerresults = provider.CompileAssemblyFromFile(compilerParams, path.ToArray());
             }
             catch (DirectoryNotFoundException ex)

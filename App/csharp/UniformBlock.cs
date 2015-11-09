@@ -8,6 +8,7 @@ namespace csharp
 {
     public class UniformBlock<Names>
     {
+        #region FIELDS
         private int glbuf;
         private int unit;
         private int size;
@@ -17,8 +18,8 @@ namespace csharp
         private int[] stride;
         private int[] matstride;
         private int[] data;
-        public int Unit { get { return unit; } }
-        public IntPtr Size { get { return (IntPtr)size; } }
+        #endregion
+
         public int this[Names name] { get { return location[Convert.ToInt32(name)]; } }
 
         public UniformBlock(int program, string name)
@@ -37,6 +38,7 @@ namespace csharp
             offset = new int[names.Length];
             stride = new int[names.Length];
             matstride = new int[names.Length];
+            data = new int[size / Marshal.SizeOf<int>()];
 
             // get uniform indices in uniform block
             GL.GetUniformIndices(program, names.Length, names, location);
@@ -55,18 +57,20 @@ namespace csharp
                         ActiveUniformParameter.UniformArrayStride, out stride[i]);
                     GL.GetActiveUniforms(program, 1, ref location[i],
                         ActiveUniformParameter.UniformMatrixStride, out matstride[i]);
+                    // if no stride information is provided,
+                    // we have a default stride of 4 (vec4)
                     if (matstride[i] == 0 && stride[i] == 0)
-                        matstride[i] = Math.Max(matstride[i], 4);
+                        matstride[i] = 4;
+                    // convert to byte size
+                    matstride[i] *= 4;
                 }
             }
 
             // allocate GPU memory
             glbuf = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.UniformBuffer, glbuf);
-            GL.BufferData(BufferTarget.UniformBuffer, Size, IntPtr.Zero, BufferUsageHint.DynamicDraw);
-
-            // allocate CPU memory
-            data = new int[size / Marshal.SizeOf<int>()];
+            GL.BindBuffer(BufferTarget.UniformBuffer, glbuf); // Note: needs to be bound once!
+            GL.NamedBufferStorage(glbuf, size, IntPtr.Zero, BufferStorageFlags.MapWriteBit);
+            GL.BindBuffer(BufferTarget.UniformBuffer, 0);
         }
 
         public void Bind()
@@ -76,11 +80,12 @@ namespace csharp
 
         public void Update()
         {
-            GL.BindBuffer(BufferTarget.UniformBuffer, glbuf);
-            IntPtr ptr = GL.MapBuffer(BufferTarget.UniformBuffer, BufferAccess.WriteOnly);
+            // map GPU memory
+            IntPtr ptr = GL.MapNamedBuffer(glbuf, BufferAccess.WriteOnly);
+            // copy buffer to maped buffer
             Marshal.Copy(data, 0, ptr, data.Length);
-            GL.UnmapBuffer(BufferTarget.UniformBuffer);
-            GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+            // upload data
+            GL.UnmapNamedBuffer(glbuf);
         }
 
         public void Set(Names name, Array src)
@@ -88,10 +93,14 @@ namespace csharp
             int idx = Convert.ToInt32(name);
             if (location[idx] < 0 || src == null)
                 return;
+            // get the size of an array element
             int elementSize = Marshal.SizeOf(src.GetType().GetElementType());
+            // get the size of the whole array, but
+            // make sure it is not bigger than the buffer
             int size = Math.Min(
-                length[idx] * Math.Max(stride[idx], 4*matstride[idx]),
+                length[idx] * Math.Max(stride[idx], matstride[idx]),
                 elementSize * src.Length);
+            // copy array to buffer
             Buffer.BlockCopy(src, 0, data, offset[idx], size);
         }
 
@@ -107,52 +116,54 @@ namespace csharp
 
     public static class SaveConverter
     {
-        public static int[] ToInt32(float[] from)
+        public static int[] AsInt32(this float[] from)
         {
-            Converter con = default(Converter);
-            return from.Select(x => { con.Float = x; return con.Int; }).ToArray();
+            BitConverter bit = default(BitConverter);
+            return from.Select(x => { bit.Float = x; return bit.Int32; }).ToArray();
         }
 
-        public static float[] ToFloat(int[] from)
+        public static float[] AsFloat(int[] from)
         {
-            Converter con = default(Converter);
-            return from.Select(x => { con.Int = x; return con.Float; }).ToArray();
+            BitConverter bit = default(BitConverter);
+            return from.Select(x => { bit.Int32 = x; return bit.Float; }).ToArray();
         }
 
-        public static int[] ToInt32(this Vector4 v)
+        public static int[] AsInt32(this Vector4 v)
         {
-            Converter con = default(Converter);
-            return new[] { con.ToInt(v.X), con.ToInt(v.Y), con.ToInt(v.Z), con.ToInt(v.W) };
+            BitConverter bit = default(BitConverter);
+            return new[] {
+                bit.AsInt32(v.X), bit.AsInt32(v.Y), bit.AsInt32(v.Z), bit.AsInt32(v.W)
+            };
         }
 
-        public static int[] ToInt32(this Matrix4 v)
+        public static int[] AsInt32(this Matrix4 v)
         {
-            Converter con = default(Converter);
+            BitConverter bit = default(BitConverter);
             return new int[] {
-                con.ToInt(v.M11), con.ToInt(v.M12), con.ToInt(v.M13), con.ToInt(v.M14),
-                con.ToInt(v.M21), con.ToInt(v.M22), con.ToInt(v.M23), con.ToInt(v.M24),
-                con.ToInt(v.M31), con.ToInt(v.M32), con.ToInt(v.M33), con.ToInt(v.M34),
-                con.ToInt(v.M41), con.ToInt(v.M42), con.ToInt(v.M43), con.ToInt(v.M44),
+                bit.AsInt32(v.M11), bit.AsInt32(v.M12), bit.AsInt32(v.M13), bit.AsInt32(v.M14),
+                bit.AsInt32(v.M21), bit.AsInt32(v.M22), bit.AsInt32(v.M23), bit.AsInt32(v.M24),
+                bit.AsInt32(v.M31), bit.AsInt32(v.M32), bit.AsInt32(v.M33), bit.AsInt32(v.M34),
+                bit.AsInt32(v.M41), bit.AsInt32(v.M42), bit.AsInt32(v.M43), bit.AsInt32(v.M44),
             };
         }
 
         [StructLayout(LayoutKind.Explicit)]
-        private struct Converter
+        private struct BitConverter
         {
             [FieldOffset(0)]
-            public int Int;
+            public int Int32;
             [FieldOffset(0)]
             public float Float;
 
-            public float ToFloat(int v)
+            public float AsFloat(int v)
             {
-                Int = v;
+                Int32 = v;
                 return Float;
             }
-            public int ToInt(float v)
+            public int AsInt32(float v)
             {
                 Float = v;
-                return Int;
+                return Int32;
             }
         }
     }

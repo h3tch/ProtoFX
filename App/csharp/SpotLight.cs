@@ -29,8 +29,7 @@ namespace csharp
         protected float innerCone = 40f;
         protected float radius = 0.1f;
         protected const float rad2deg = (float)(Math.PI / 180);
-        protected string name = "SpotLight";
-        //protected Dictionary<int, Unif> unif = new Dictionary<int, Unif>();
+        protected string name;
         protected Dictionary<int, UniformBlock<Names>> uniform =
             new Dictionary<int, UniformBlock<Names>>();
         protected List<string> errors = new List<string>();
@@ -77,35 +76,24 @@ namespace csharp
             if (uniform.TryGetValue(program, out unif) == false)
                 uniform.Add(program, unif = new UniformBlock<Names>(program, name));
 
-            // COMPUTE MATH
-            unif.Set(Names.view, view.ToInt32());
+            // SET UNIFORM VALUES
+            unif.Set(Names.view, view.AsInt32());
 
-            unif.Set(Names.proj, proj.ToInt32());
+            unif.Set(Names.proj, proj.AsInt32());
 
             if (unif[Names.viewProj] >= 0)
-            {
-                Matrix4 vwpj = view * proj;
-                unif.Set(Names.viewProj, vwpj.ToInt32());
-            }
+                unif.Set(Names.viewProj, (view * proj).AsInt32());
 
             if (unif[Names.camera] >= 0)
-            {
-                Vector4 camera = new Vector4(fov * rad2deg, aspect, near, far);
-                unif.Set(Names.camera, camera.ToInt32());
-            }
+                unif.Set(Names.camera, new[] { fov * rad2deg, aspect, near, far }.AsInt32());
 
             if (unif[Names.color] >= 0)
-            {
-                Vector4 col = new Vector4(color[0], color[1], color[2], intensity);
-                unif.Set(Names.color, col.ToInt32());
-            }
+                unif.Set(Names.color, new[] { color[0], color[1], color[2], intensity }.AsInt32());
 
             if (unif[Names.light] >= 0)
-            {
-                Vector4 light = new Vector4(innerCone * rad2deg, radius, 0f, 0f);
-                unif.Set(Names.light, light.ToInt32());
-            }
+                unif.Set(Names.light, new[] { innerCone * rad2deg, radius, 0f, 0f }.AsInt32());
 
+            // UPDATE UNIFORM BUFFER
             unif.Update();
             unif.Bind();
         }

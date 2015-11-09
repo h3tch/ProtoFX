@@ -75,23 +75,19 @@ namespace csharp
             UniformBlock<Names> unif;
             if (uniform.TryGetValue(program, out unif) == false)
                 uniform.Add(program, unif = new UniformBlock<Names>(program, name));
-            
-            unif.Set(Names.view, view.ToInt32());
 
-            unif.Set(Names.proj, proj.ToInt32());
+            // SET UNIFORM VALUES
+            unif.Set(Names.view, view.AsInt32());
+
+            unif.Set(Names.proj, proj.AsInt32());
 
             if (unif[Names.viewProj] >= 0)
-            {
-                Matrix4 vwpj = view * proj;
-                unif.Set(Names.viewProj, vwpj.ToInt32());
-            }
+                unif.Set(Names.viewProj, (view * proj).AsInt32());
 
             if (unif[Names.camera] >= 0)
-            {
-                Vector4 camera = new Vector4(fov * rad2deg, aspect, near, far);
-                unif.Set(Names.camera, camera.ToInt32());
-            }
+                unif.Set(Names.camera, new[] { fov * rad2deg, aspect, near, far }.AsInt32());
 
+            // UPDATE UNIFORM BUFFER
             unif.Update();
             unif.Bind();
         }

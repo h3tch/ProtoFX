@@ -123,8 +123,10 @@ namespace csharp
             if (uniform.TryGetValue(program, out unif) == false)
             {
                 uniform.Add(program, unif = new UniformBlock<Names>(program, name));
+                // SET UNIFORM VALUES
                 unif.Set(Names.points, points);
                 unif.Set(Names.radius, radius);
+                // UPDATE UNIFORM BUFFER
                 unif.Update();
             }
 
