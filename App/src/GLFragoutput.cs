@@ -99,7 +99,7 @@ namespace App
         private void attatch(GLException err, string cmd, string[] args, Dict<GLObject> classes)
         {
             // get OpenGL image
-            GLImage glimg = classes.FindClass<GLImage>(args[0]);
+            GLImage glimg = classes.GetValue<GLImage>(args[0]);
             if (glimg == null)
             {
                 err.Add($"The name '{args[0]}' does not reference an object of type 'image'.");

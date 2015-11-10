@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Xml;
 using System.IO;
+using System.Linq;
 
 namespace App
 {
@@ -40,7 +41,8 @@ namespace App
                 throw err;
 
             // merge data into a single array
-            byte[] data = Data.Join(datalist.ToArray(), size);
+            var iter = Data.Join(datalist);
+            var data = iter.Take(size == 0 ? iter.Count() : size).ToArray();
             size = data.Length;
 
             // CREATE OPENGL OBJECT
@@ -75,11 +77,9 @@ namespace App
             if (size > 0)
             {
                 // map buffer and copy data to CPU memory
-                GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
-                IntPtr dataPtr = GL.MapBuffer(BufferTarget.ArrayBuffer, BufferAccess.ReadOnly);
+                IntPtr dataPtr = GL.MapNamedBuffer(glname, BufferAccess.ReadOnly);
                 Marshal.Copy(dataPtr, data, 0, size);
-                GL.UnmapBuffer(BufferTarget.ArrayBuffer);
-                GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                GL.UnmapNamedBuffer(glname);
             }
             
             return data;
@@ -128,7 +128,7 @@ namespace App
 
                 // Merge data
                 if (!err.HasErrors())
-                    return Data.Join(filedata);
+                    return Data.Join(filedata).ToArray();
             }
             catch (Exception ex)
             {
@@ -159,7 +159,7 @@ namespace App
         {
             GLText text;
             string str = null;
-            if (classes.TryFindClass(name, out text))
+            if (classes.TryGetValue(name, out text))
                 str = text.text.Trim();
             else if (File.Exists(name))
                 str = File.ReadAllText(name);

@@ -35,12 +35,11 @@ namespace App
                 if (matches.Count >= 2)
                 {
                     var args = matches.Cast<Match>().Select(m => m.Value);
-                    var triple = new Triple(command++, args.First(), args.Skip(1).ToArray());
-                    cmds.Add(triple);
+                    cmds.Add(new Triple(command++, args.First(), args.Skip(1).ToArray()));
                 }
                 else if (matches.Count > 0)
                 {
-                    err?.Add($"Command {command} musst specify at least one argument.");
+                    err?.Add($"Command {command} must specify at least one argument.");
                     command++;
                 }
             }
@@ -57,8 +56,8 @@ namespace App
 
         public void Cmds2Fields<T>(T clazz, GLException err = null)
         {
-            Type type = clazz.GetType();
-            List<Triple> removeKeys = new List<Triple>();
+            var type = clazz.GetType();
+            var removeKeys = new List<Triple>();
 
             foreach (var triple in cmds)
             {
@@ -88,39 +87,32 @@ namespace App
         static private void SetValue<T>(T clazz, object field, Type fieldType,
             string key, string[] value, GLException err = null)
         {
+            // check for errors
+            if (!fieldType.IsArray && value.Length > 1)
+                err?.Add($"Command '{key}' has too many arguments (more than one).");
+            
+            var val = fieldType.IsArray ?
+                // if this is an array pass the arguments as string
+                value :
+                fieldType.IsEnum ?
+                    // if this is an enum, convert the string to an enum value
+                    Convert.ChangeType(Enum.Parse(fieldType, value[0], true), fieldType) :
+                    // else try to convert it to the field type
+                    Convert.ChangeType(value[0], fieldType, App.culture);
+            
             var SetValue = field.GetType().GetMethod(
                 "SetValue", new Type[] { typeof(object), typeof(object) });
 
-            // if this is an array pass the arguments as string
-            if (fieldType.IsArray)
-                SetValue.Invoke(field, new object[] { clazz, value });
-
-            // if this is an enum, convert the string to an enum value
-            else if (fieldType.IsEnum)
-            {
-                if (value.Length > 1)
-                    err?.Add($"Command '{key}' has too many arguments (more than one).");
-                else
-                    SetValue.Invoke(field, new object[] { clazz,
-                        Convert.ChangeType(Enum.Parse(fieldType, value[0], true), fieldType) });
-            }
-            // else try to convert it to the field type
-            else
-            {
-                if (value.Length > 1)
-                    err?.Add($"Command '{key}' has too many arguments (more than one).");
-                else
-                    SetValue.Invoke(field, new object[] { clazz,
-                        Convert.ChangeType(value[0], fieldType, App.culture) });
-            }
+            SetValue.Invoke(field, new object[] { clazz, val });
         }
 
+        #region IEnumerable Interface
         public IEnumerator<Triple> GetEnumerator() => cmds.GetEnumerator();
-
         IEnumerator<Triple> IEnumerable<Triple>.GetEnumerator() => cmds.GetEnumerator();
-
         IEnumerator IEnumerable.GetEnumerator() => cmds.GetEnumerator();
+        #endregion
 
+        #region INNER CLASSES
         public struct Triple
         {
             public Triple(int idx, string cmd, string[] args)
@@ -133,5 +125,6 @@ namespace App
             public string cmd;
             public string[] args;
         }
+        #endregion
     }
 }

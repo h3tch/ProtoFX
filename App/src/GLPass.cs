@@ -76,9 +76,9 @@ namespace App
 
             // GET VERTEX AND FRAGMENT OUTPUT BINDINGS
             
-            if (fragout != null && !classes.TryFindClass(fragout, out glfragout))
+            if (fragout != null && !classes.TryGetValue(fragout, out glfragout))
                 err.Add($"The name '{fragout}' does not reference an object of type 'fragout'.");
-            if (vertout != null && vertout.Length > 0 && !classes.TryFindClass(vertout[0], out glvertout))
+            if (vertout != null && vertout.Length > 0 && !classes.TryGetValue(vertout[0], out glvertout))
                 err.Add($"The name '{vertout[0]}' does not reference an object of type 'vertout'.");
             if (err.HasErrors())
                 throw err;
@@ -236,11 +236,12 @@ namespace App
             // parse draw call arguments
             for (var i = 0; i < cmd.Length; i++)
             {
-                if (classes.TryParseObject(cmd[i], ref vertexin)) continue;
-                if (classes.TryParseObject(cmd[i], ref vertout)) continue;
-                if (classes.TryParseObject(cmd[i], ref indexbuf)) continue;
-                if (classes.TryParseObject(cmd[i], ref indirect)) continue;
-                if (int.TryParse(cmd[i], out val)) arg.Add(val);
+                if (classes.TryGetValue(cmd[i], ref vertexin)) continue;
+                if (classes.TryGetValue(cmd[i], ref vertout)) continue;
+                if (classes.TryGetValue(cmd[i], ref indexbuf)) continue;
+                if (classes.TryGetValue(cmd[i], ref indirect)) continue;
+                if (int.TryParse(cmd[i], out val))
+                    arg.Add(val);
                 else if (typeIsSet == false && Enum.TryParse(cmd[i], true, out indextype))
                     typeIsSet = true;
                 else if (modeIsSet == false && Enum.TryParse(cmd[i], true, out primitive))
@@ -302,8 +303,8 @@ namespace App
                 if (cmd.Length == 2)
                 {
                     // indirect compute call buffer
-                    call.numGroupsX = (uint)classes.ParseObject<GLBuffer>(cmd[0],
-                        ": First argument of compute command must be a buffer name").glname;
+                    call.numGroupsX = (uint)classes.GetValue<GLBuffer>(cmd[0],
+                        "First argument of compute command must be a buffer name").glname;
                     // indirect compute call buffer pointer
                     call.numGroupsY = Data.ParseType<uint>(cmd[1],
                         "Argument must be an unsigned integer, specifying a pointer "
@@ -355,7 +356,7 @@ namespace App
             // parse command arguments
             for (var i = 0; i < cmd.Length; i++)
             {
-                if (obj == null && classes.TryParseObject(cmd[i], ref obj))
+                if (obj == null && classes.TryGetValue(cmd[i], ref obj))
                     continue;
                 int.TryParse(cmd[i], out unit);
             }
@@ -408,7 +409,7 @@ namespace App
 
             // get instance
             GLInstance instance;
-            if (classes.TryFindClass(args[0], out instance, err) == false)
+            if (classes.TryGetValue(args[0], out instance, err) == false)
                 return;
 
             csexec.Add(instance);
@@ -429,7 +430,7 @@ namespace App
             GLShader glsh = null;
 
             // get shader from class list
-            if (sh != null && classes.TryFindClass(sh, out glsh, err))
+            if (sh != null && classes.TryGetValue(sh, out glsh, err))
                 GL.AttachShader(glname, glsh.glname);
 
             return glsh;

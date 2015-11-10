@@ -19,7 +19,7 @@ namespace App
             foreach (var cmd in body["pass"])
             {
                 err.PushCall($"command {cmd.idx} 'pass'");
-                if (classes.TryFindClass(cmd.args[0], out pass, err))
+                if (classes.TryGetValue(cmd.args[0], out pass, err))
                     passes.Add(pass);
                 err.PopCall();
             }

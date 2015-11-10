@@ -129,12 +129,12 @@ namespace App
         #region Debug Buffer
         private void comboBuf_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (this.comboBuf.SelectedItem == null
-                || this.comboBuf.SelectedItem.GetType() != typeof(GLBuffer))
+            if (comboBuf.SelectedItem == null
+                || comboBuf.SelectedItem.GetType() != typeof(GLBuffer))
                 return;
 
             // gather needed info
-            GLBuffer buf = (GLBuffer)this.comboBuf.SelectedItem;
+            GLBuffer buf = (GLBuffer)comboBuf.SelectedItem;
             string type = (string)comboBufType.SelectedItem;
             int dim = (int)numBufDim.Value;
 

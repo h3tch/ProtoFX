@@ -50,7 +50,7 @@ namespace App
             int divisor = args.Length > 5 ? int.Parse(args[5]) : 0;
             
             GLBuffer buff;
-            if (classes.TryFindClass(buffname, out buff, err) == false)
+            if (classes.TryGetValue(buffname, out buff, err) == false)
             {
                 err.Add($"Buffer '{buffname}' could not be found.");
                 return;

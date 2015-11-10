@@ -80,7 +80,7 @@ namespace App
             }
 
             // get buffer
-            GLBuffer buf = classes.FindClass<GLBuffer>(cmd[0]);
+            GLBuffer buf = classes.GetValue<GLBuffer>(cmd[0]);
             if (buf == null)
             {
                 err.Add($"The name '{cmd[0]}' does not reference an object of type 'buffer'.");

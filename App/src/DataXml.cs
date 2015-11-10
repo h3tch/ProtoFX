@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -8,7 +8,6 @@ namespace App
 {
     class DataXml
     {
-
         public static byte[] Load(XmlDocument xmlDoc, string itemname)
         {
             string errstr = $"<{itemname}>: ";
@@ -57,7 +56,7 @@ namespace App
                     i++;
                 }
 
-                return Data.Join(data);
+                return Data.Join(data).ToArray();
             }
             catch
             {

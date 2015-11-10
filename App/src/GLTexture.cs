@@ -31,11 +31,11 @@ namespace App
 
             // GET REFERENCES
             if (samp != null)
-                classes.TryFindClass(samp, out glsamp, err);
+                classes.TryGetValue(samp, out glsamp, err);
             if (buff != null)
-                classes.TryFindClass(buff, out glbuff, err);
+                classes.TryGetValue(buff, out glbuff, err);
             if (img != null)
-                classes.TryFindClass(img, out glimg, err);
+                classes.TryGetValue(img, out glimg, err);
             if (glbuff != null && glimg != null)
                 err.Add("Only an image or a buffer can be bound to a texture object.");
             if (glbuff == null && glimg == null)
