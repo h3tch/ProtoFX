@@ -15,22 +15,14 @@ namespace App
     class GLImage : GLObject
     {
         #region FIELDS
-        [GLField]
-        private string[] file = null;
-        [GLField]
-        public int width = 1;
-        [GLField]
-        public int height = 0;
-        [GLField]
-        public int depth = 0;
-        [GLField]
-        public int length = 0;
-        [GLField]
-        public int mipmaps = 0;
-        [GLField]
-        private TexTarget type = 0;
-        [GLField]
-        private GpuFormat format = GpuFormat.Rgba;
+        [GLField] private string[] file = null;
+        [GLField] public int width = 1;
+        [GLField] public int height = 0;
+        [GLField] public int depth = 0;
+        [GLField] public int length = 0;
+        [GLField] public int mipmaps = 0;
+        [GLField] private TexTarget type = 0;
+        [GLField] private GpuFormat format = GpuFormat.Rgba;
         private FilePixelFormat fileFormat = FilePixelFormat.Format32bppArgb;
         private PixelType pxType = 0;
         private int pxSize = 0;

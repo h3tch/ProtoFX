@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace App
@@ -96,7 +95,7 @@ namespace App
         private void glControl_MouseUp(object sender, MouseEventArgs e)
         {
             render = false;
-            this.propertyGrid.Refresh();
+            propertyGrid.Refresh();
         }
 
         private void glControl_MouseMove(object sender, MouseEventArgs e)
@@ -177,19 +176,19 @@ namespace App
         #region Debug Properties
         private void comboProp_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (this.comboProp.SelectedItem == null
-                || this.comboProp.SelectedItem.GetType() != typeof(GLInstance))
+            if (comboProp.SelectedItem == null
+                || comboProp.SelectedItem.GetType() != typeof(GLInstance))
                 return;
 
             // gather needed info
-            GLInstance inst = (GLInstance)this.comboProp.SelectedItem;
+            GLInstance inst = (GLInstance)comboProp.SelectedItem;
 
-            this.propertyGrid.SelectedObject = inst.instance;
+            propertyGrid.SelectedObject = inst.instance;
         }
 
         private void propertyGrid_Click(object sender, EventArgs e)
         {
-            this.propertyGrid.SelectedObject = this.propertyGrid.SelectedObject;
+            propertyGrid.SelectedObject = propertyGrid.SelectedObject;
         }
 
         private void propertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
@@ -251,29 +250,29 @@ namespace App
                 var text = ((CodeEditor)sourceTab.Controls[0]).Text;
 
                 // remove comments
-                var code = RemoveComments(text, "//");
+                var code = RemoveComments(text);
                 code = RemoveNewLineIndicators(code);
                 code = IncludeFiles(includeDir, code);
 
                 // find GLST class blocks (find "TYPE name { ... }")
-                var blocks = FindObjectBlocks(code);
+                var blocks = GetObjectBlocks(code);
 
                 // parse commands for each class block
-                for (int i = 0; i < blocks.Length; i++)
+                foreach (var block in blocks)
                 {
                     // PARSE CLASS INFO
-                    string[] classInfo = FindObjectClass(blocks[i]);
+                    string[] classDef = GetObjectBlockClassDef(block);
 
                     // PARSE CLASS TEXT
-                    var start = blocks[i].IndexOf('{');
-                    string classText = blocks[i].Substring(start + 1, blocks[i].LastIndexOf('}') - start - 1);
+                    var start = block.IndexOf('{');
+                    string classCmdStr = block.Substring(start + 1, block.LastIndexOf('}') - start - 1);
 
                     // GET CLASS TYPE, ANNOTATION AND NAME
                     var classType = "App.GL"
-                        + classInfo[0].First().ToString().ToUpper()
-                        + classInfo[0].Substring(1);
-                    var classAnno = classInfo[classInfo.Length - 2];
-                    var className = classInfo[classInfo.Length - 1];
+                        + classDef[0].First().ToString().ToUpper()
+                        + classDef[0].Substring(1);
+                    var classAnno = classDef[classDef.Length - 2];
+                    var className = classDef[classDef.Length - 1];
 
                     // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS
                     try
@@ -281,14 +280,14 @@ namespace App
                         var type = Type.GetType(classType);
                         // check for errors
                         if (type == null)
-                            throw new GLException($"{classInfo[0]} '{className}': "
-                                + $"Class type '{classInfo[0]}' not known.");
+                            throw new GLException($"{classDef[0]} '{className}': "
+                                + $"Class type '{classDef[0]}' not known.");
                         if (classes.ContainsKey(className))
-                            throw new GLException($"{classInfo[0]} '{className}': "
+                            throw new GLException($"{classDef[0]} '{className}': "
                                 + $"Class name '{className}' already exists.");
                         // instantiate class
                         var instance = (GLObject)Activator.CreateInstance(
-                            type, includeDir, className, classAnno, classText, classes);
+                            type, includeDir, className, classAnno, classCmdStr, classes);
                         classes.Add(instance.name, instance);
                     }
                     catch (Exception ex)

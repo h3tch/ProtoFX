@@ -5,14 +5,10 @@ namespace App
     class GLTexture : GLObject
     {
         #region FIELDS
-        [GLField]
-        private string samp = null;
-        [GLField]
-        private string buff = null;
-        [GLField]
-        private string img = null;
-        [GLField]
-        private SizedInternalFormat format = 0;
+        [GLField] private string samp = null;
+        [GLField] private string buff = null;
+        [GLField] private string img = null;
+        [GLField] private SizedInternalFormat format = 0;
         private GLSampler glsamp = null;
         private GLBuffer glbuff = null;
         private GLImage glimg = null;

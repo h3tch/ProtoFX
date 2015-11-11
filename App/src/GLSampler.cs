@@ -5,12 +5,9 @@ namespace App
     class GLSampler : GLObject
     {
         #region FIELDS
-        [GLField]
-        private TextureMinFilter minfilter = TextureMinFilter.Nearest;
-        [GLField]
-        private TextureMagFilter magfilter = TextureMagFilter.Nearest;
-        [GLField]
-        private TextureWrapMode wrap = TextureWrapMode.ClampToEdge;
+        [GLField] private TextureMinFilter minfilter = TextureMinFilter.Nearest;
+        [GLField] private TextureMagFilter magfilter = TextureMagFilter.Nearest;
+        [GLField] private TextureWrapMode wrap = TextureWrapMode.ClampToEdge;
         #endregion
 
         public GLSampler(string dir, string name, string annotation, string text, Dict<GLObject> classes)

@@ -11,10 +11,8 @@ namespace App
     class GLBuffer : GLObject
     {
         #region FIELDS
-        [GLField]
-        public int size { get; private set; } = 0;
-        [GLField]
-        public BufferUsageHint usage { get; private set; } = BufferUsageHint.StaticDraw;
+        [GLField] public int size { get; private set; } = 0;
+        [GLField] public BufferUsageHint usage { get; private set; } = BufferUsageHint.StaticDraw;
         #endregion
 
         public GLBuffer(string dir, string name, string annotation, string text, Dict<GLObject> classes)

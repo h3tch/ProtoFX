@@ -14,22 +14,14 @@ namespace App
     {
         #region FIELDS
         private static CultureInfo culture = new CultureInfo("en");
-        [GLField]
-        private string vert = null;
-        [GLField]
-        private string tess = null;
-        [GLField]
-        private string eval = null;
-        [GLField]
-        private string geom = null;
-        [GLField]
-        private string frag = null;
-        [GLField]
-        private string comp = null;
-        [GLField]
-        private string[] vertout = null;
-        [GLField]
-        private string fragout = null;
+        [GLField] private string vert = null;
+        [GLField] private string tess = null;
+        [GLField] private string eval = null;
+        [GLField] private string geom = null;
+        [GLField] private string frag = null;
+        [GLField] private string comp = null;
+        [GLField] private string[] vertout = null;
+        [GLField] private string fragout = null;
         private GLObject glvert = null;
         private GLObject gltess = null;
         private GLObject gleval = null;
