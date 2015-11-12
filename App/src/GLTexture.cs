@@ -45,7 +45,8 @@ namespace App
             if (glbuff != null && glimg == null)
             {
                 if (format == 0)
-                    err.Throw($"No texture buffer format defined for buffer '{buff}' (e.g. format RGBA8).");
+                    throw err.Add($"No texture buffer format defined " +
+                        "for buffer '{buff}' (e.g. format RGBA8).");
                 // CREATE OPENGL OBJECT
                 glname = GL.GenTexture();
                 GL.BindTexture(TextureTarget.TextureBuffer, glname);
@@ -64,10 +65,7 @@ namespace App
                 GL.BindSampler(unit, glsamp.glname);
 
             GL.ActiveTexture(TextureUnit.Texture0 + unit);
-            if (glimg != null)
-                GL.BindTexture(glimg.target, glimg.glname);
-            else
-                GL.BindTexture(TextureTarget.TextureBuffer, glname);
+            GL.BindTexture(glimg != null ? glimg.target : TextureTarget.TextureBuffer, glimg.glname);
         }
 
         public void Unbind(int unit)
@@ -76,10 +74,7 @@ namespace App
                 GL.BindSampler(unit, 0);
 
             GL.ActiveTexture(TextureUnit.Texture0 + unit);
-            if (glimg != null)
-                GL.BindTexture(glimg.target, 0);
-            else
-                GL.BindTexture(TextureTarget.TextureBuffer, 0);
+            GL.BindTexture(glimg != null ? glimg.target : TextureTarget.TextureBuffer, 0);
         }
 
         public override void Delete()

@@ -74,7 +74,7 @@ namespace App
             }
             catch (DirectoryNotFoundException ex)
             {
-                err.Throw(ex.Message);
+                throw err.Add(ex.Message);
             }
 
             // check for compiler errors
@@ -83,7 +83,7 @@ namespace App
                 string msg = "";
                 foreach (var message in compilerresults.Errors)
                     msg += "\n" + message;
-                err.Throw(msg);
+                throw err.Add(msg);
             }
         }
 
@@ -95,8 +95,8 @@ namespace App
                 classname, false, BindingFlags.Default, null,
                 new object[] { name, cmds }, App.culture, null);
 
-            if (instance == null)
-                err?.Throw($"Main class '{classname}' could not be found.");
+            if (instance == null && err != null)
+                throw err.Add($"Main class '{classname}' could not be found.");
             
             List<string> errors = InvokeMethod<List<string>>(instance, "GetErrors");
             errors?.ForEach(msg => err?.Add(msg));

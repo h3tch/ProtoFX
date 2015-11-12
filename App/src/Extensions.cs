@@ -96,5 +96,23 @@ namespace App
             }
             return -1;
         }
+
+        public static IEnumerable<T> Join<T>(this IEnumerable<T[]> list)
+        {
+            foreach (var el in list)
+                foreach (var e in el)
+                    yield return e;
+        }
+
+        public static string Join(this IEnumerable<string> list, string separator)
+        {
+            string str = "";
+            foreach (var s in list)
+                str += s + separator;
+            return str;
+        }
+
+        public static T UseIf<T>(this T obj, bool condition)
+            => condition ? obj : default(T);
     }
 }

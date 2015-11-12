@@ -11,7 +11,7 @@ namespace App
         {
             // tabSourcePageText
             this.BorderStyle = BorderStyle.None;
-            this.ConfigurationManager.CustomLocation = "../res/syntax.xml";
+            this.ConfigurationManager.CustomLocation = "../conf/syntax.xml";
             this.ConfigurationManager.Language = "cpp";
             this.Dock = DockStyle.Fill;
             this.Font = new Font("Consolas", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -61,12 +61,10 @@ namespace App
             var tabSourceText = (CodeEditor)sender;
             // DEACTIVATE MULTILINE SELECTION BECAUSE MULTILINE EDIT IS NOT SUPPORTED
             if (tabSourceText.Selection.IsRectangle)
-            {
                 tabSourceText.Selection.Range = new Range(
                     tabSourceText.Selection.Start,
                     tabSourceText.Selection.End,
                     tabSourceText);
-            }
         }
 
         private void HandleDragOver(object sender, DragEventArgs e)
@@ -85,7 +83,7 @@ namespace App
             if (tabSourceText.GetRange(tabSourceText.Caret.Position, tabSourceText.Caret.Anchor)
                 .IntersectsWith(tabSourceText.GetRange(pos)))
             {
-                // if not show "NO" cursor
+                // if not, show "NO" cursor
                 e.Effect = DragDropEffects.None;
                 return;
             }

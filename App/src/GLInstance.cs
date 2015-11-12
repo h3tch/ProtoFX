@@ -22,7 +22,8 @@ namespace App
             // GET CLASS COMMAND
             var cmds = body["class"].ToList();
             if (cmds.Count == 0)
-                err.Throw("Instance must specify a 'class' command (e.g., class csharp_name class_name).");
+                throw err.Add("Instance must specify a 'class' command " +
+                    "(e.g., class csharp_name class_name).");
             var cmd = cmds.First();
 
             // FIND CSHARP CLASS DEFINITION

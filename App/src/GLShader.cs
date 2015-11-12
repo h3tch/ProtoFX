@@ -20,8 +20,7 @@ namespace App
                 case "frag": type = ShaderType.FragmentShader; break;
                 case "comp": type = ShaderType.ComputeShader; break;
                 default:
-                    err.Throw($"Shader type '{annotation}' is not supported.");
-                    return;
+                    throw err.Add($"Shader type '{annotation}' is not supported.");
             }
 
             // CREATE OPENGL OBJECT
@@ -33,7 +32,7 @@ namespace App
             int status;
             GL.GetShader(glname, ShaderParameter.CompileStatus, out status);
             if (status != 1)
-                err.Throw("\n" + GL.GetShaderInfoLog(glname));
+                throw err.Add("\n" + GL.GetShaderInfoLog(glname));
             if (HasErrorOrGlError(err))
                 throw err;
         }

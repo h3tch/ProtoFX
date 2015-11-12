@@ -39,7 +39,7 @@ namespace App
                 throw err;
 
             // merge data into a single array
-            var iter = Data.Join(datalist);
+            var iter = datalist.Join();
             var data = iter.Take(size == 0 ? iter.Count() : size).ToArray();
             size = data.Length;
 
@@ -126,7 +126,7 @@ namespace App
 
                 // Merge data
                 if (!err.HasErrors())
-                    return Data.Join(filedata).ToArray();
+                    return filedata.Join().ToArray();
             }
             catch (Exception ex)
             {
@@ -148,22 +148,19 @@ namespace App
             }
 
             // Convert text to byte array
-            byte[] bytes = new byte[str.Length * sizeof(char)];
-            Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
-            return bytes;
+            return Data.Convert(str.ToCharArray());
         }
 
         private static string getText(string dir, string name, Dict<GLObject> classes)
         {
             GLText text;
-            string str = null;
             if (classes.TryGetValue(name, out text))
-                str = text.text.Trim();
+                return text.text.Trim();
             else if (File.Exists(name))
-                str = File.ReadAllText(name);
+                return File.ReadAllText(name);
             else if (File.Exists(dir + name))
-                str = File.ReadAllText(dir + name);
-            return str;
+                return File.ReadAllText(dir + name);
+            return null;
         }
         #endregion
     }

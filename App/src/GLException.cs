@@ -9,38 +9,16 @@ namespace App
         private List<string> messages = new List<string>();
 
         // compile call stack into a single string
-        private string callstackstring
-        {
-            get
-            {
-                string str = "";
-                foreach (var s in callstack)
-                    str += s + ": ";
-                return str;
-            }
-        }
+        private string callstackstring => callstack.Join(": ");
 
         // compile all messages into a single string
-        private string messagestring
-        {
-            get
-            {
-                string str = "";
-                foreach (var msg in messages)
-                    str += msg + '\n';
-                return str;
-            }
-        }
+        public string Text => messages.Join("\n");
 
-        public string Text => messagestring;
+        public bool HasErrors() => messages.Count > 0;
 
-        public GLException()
-            : this(new List<string>())
-        {
-        }
+        public GLException() : this(new List<string>()) { }
 
-        private GLException(List<string> callstack)
-            : base()
+        private GLException(List<string> callstack) : base()
         {
             this.callstack = callstack;
         }
@@ -51,8 +29,7 @@ namespace App
             callstack.Add(callstackstring);
         }
 
-        public GLException(string callstackstring)
-            : this()
+        public GLException(string callstackstring) : this()
         {
             callstack.Add(callstackstring);
         }
@@ -62,36 +39,25 @@ namespace App
         {
         }
 
-        public void Add(string message)
+        public GLException Add(string message)
         {
             messages.Add(callstackstring + message);
+            return this;
         }
 
-        public void PushCall(string text)
+        public GLException PushCall(string text)
         {
             callstack.Add(text);
+            return this;
+        }
+
+        public GLException PopCall()
+        {
+            callstack.UseIf(callstack.Count > 0)?.RemoveAt(callstack.Count - 1);
+            return this;
         }
 
         public static GLException operator +(GLException err, string callLevel)
-        {
-            return new GLException(err, callLevel);
-        }
-
-        public void PopCall()
-        {
-            if (callstack.Count > 0)
-                callstack.RemoveAt(callstack.Count - 1);
-        }
-
-        public bool HasErrors()
-        {
-            return messages.Count > 0;
-        }
-
-        public void Throw(string message)
-        {
-            Add(message);
-            throw this;
-        }
+            => new GLException(err, callLevel);
     }
 }

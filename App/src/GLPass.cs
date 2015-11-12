@@ -432,12 +432,12 @@ namespace App
         {
             // the vertout command needs at least 3 arguments
             if (varyings.Length < 3)
-                err.Throw("vertout command does not have "
+                throw err.Add("vertout command does not have "
                     + "enough arguments (e.g. vertout vertout_name points varying_name).");
 
             // parse vertex output primitive type
             if (!Enum.TryParse(varyings[1], true, out vertoutPrim))
-                err.Throw("vertout command does not support "
+                throw err.Add("vertout command does not support "
                     + $"the specified primitive type '{varyings[1]}' "
                     + "(must be 'points', 'lines' or 'triangles').");
 
@@ -464,7 +464,7 @@ namespace App
                 GL.TransformFeedbackVaryings(glname, outputVaryings.Length, outputVaryings, vertoutMode);
             }
             else
-                err.Throw("vertout command does not specify shader output varying names "
+                throw err.Add("vertout command does not specify shader output varying names "
                     + "(e.g. vertout vertout_name points varying_name).");
         }
         #endregion

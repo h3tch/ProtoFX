@@ -17,23 +17,15 @@ namespace App
             // PARSE COMMANDS
             GLPass pass;
             foreach (var cmd in body["pass"])
-            {
-                err.PushCall($"command {cmd.idx} 'pass'");
-                if (classes.TryGetValue(cmd.args[0], out pass, err))
+                if (classes.TryGetValue(cmd.args[0], out pass, err + $"command {cmd.idx} 'pass'"))
                     passes.Add(pass);
-                err.PopCall();
-            }
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION
             if (err.HasErrors())
                 throw err;
         }
 
-        public void Exec(int width, int height)
-        {
-            foreach (var pass in passes)
-                pass.Exec(width, height);
-        }
+        public void Exec(int width, int height) => passes.ForEach(x => x.Exec(width, height));
 
         public override void Delete() { }
     }

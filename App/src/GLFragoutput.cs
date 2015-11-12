@@ -65,7 +65,7 @@ namespace App
             if (HasErrorOrGlError(err))
                 throw err;
             if (status != FramebufferErrorCode.FramebufferComplete)
-                err.Throw("Could not be created due to an unknown error.");
+                throw err.Add("Could not be created due to an unknown error.");
         }
         
         public void Bind()

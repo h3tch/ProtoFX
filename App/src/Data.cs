@@ -68,13 +68,6 @@ namespace App
             return dst;
         }
 
-        public static IEnumerable<T> Join<T>(IEnumerable<T[]> list)
-        {
-            foreach (var el in list)
-                foreach (var e in el)
-                    yield return e;
-        }
-
         public static T ParseType<T>(string arg, string info)
         {
             try

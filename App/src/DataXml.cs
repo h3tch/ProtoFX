@@ -56,7 +56,7 @@ namespace App
                     i++;
                 }
 
-                return Data.Join(data).ToArray();
+                return data.Join().ToArray();
             }
             catch
             {
