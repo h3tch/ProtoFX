@@ -38,19 +38,17 @@ namespace App
             // check if there are any files with changes
             foreach (TabPage tab in this.tabSource.TabPages)
             {
-                if (tab.Text.EndsWith("*"))
-                {
-                    // ask user whether he/she wants to save those files
-                    DialogResult answer = MessageBox.Show(
-                        "Do you want to save files with changes before closing them?",
-                        "Save file changes", MessageBoxButtons.YesNoCancel);
-                    // if so, save all files with changes
-                    if (answer == DialogResult.Yes)
-                        toolBtnSaveAll_Click(sender, null);
-                    else if (answer == DialogResult.Cancel)
-                        e.Cancel = true;
-                    break;
-                }
+                if (!tab.Text.EndsWith("*"))
+                    continue;
+                // ask user whether he/she wants to save those files
+                DialogResult answer = MessageBox.Show(
+                    "Do you want to save files with changes before closing them?",
+                    "Save file changes", MessageBoxButtons.YesNoCancel);
+                // if so, save all files with changes
+                if (answer == DialogResult.Yes)
+                    toolBtnSaveAll_Click(sender, null);
+                else if (answer == DialogResult.Cancel)
+                    e.Cancel = true;
             }
 
             // delete OpenGL objects
@@ -143,7 +141,7 @@ namespace App
 
             // convert data to specified type
             Type colType;
-            Array da = Data.Convert(data, type, out colType);
+            Array da = data.To(type, out colType);
 
             // CREATE TABLE
             DataTable dt = new DataTable(buf.name);
@@ -181,9 +179,7 @@ namespace App
                 return;
 
             // gather needed info
-            GLInstance inst = (GLInstance)comboProp.SelectedItem;
-
-            propertyGrid.SelectedObject = inst.instance;
+            propertyGrid.SelectedObject = ((GLInstance)comboProp.SelectedItem).instance;
         }
 
         private void propertyGrid_Click(object sender, EventArgs e)
@@ -192,9 +188,7 @@ namespace App
         }
 
         private void propertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
-        {
-            Render();
-        }
+            => Render();
         #endregion
 
         #region Tool Buttons
@@ -393,7 +387,7 @@ namespace App
 
             if (tabPage.filepath == null || newfile)
             {
-                SaveFileDialog saveDlg = new SaveFileDialog();
+                var saveDlg = new SaveFileDialog();
                 saveDlg.Filter = "Text Files (.tech)|*.tech|All Files (*.*)|*.*";
                 saveDlg.FilterIndex = 1;
 

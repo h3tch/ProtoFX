@@ -298,22 +298,18 @@ namespace App
                     call.numGroupsX = (uint)classes.GetValue<GLBuffer>(cmd[0],
                         "First argument of compute command must be a buffer name").glname;
                     // indirect compute call buffer pointer
-                    call.numGroupsY = Data.ParseType<uint>(cmd[1],
-                        "Argument must be an unsigned integer, specifying a pointer "
-                        + "into the indirect compute call buffer.");
+                    call.numGroupsY = cmd[1].To<uint>("Argument must be an unsigned integer, "
+                        + "specifying a pointer into the indirect compute call buffer.");
                 }
                 // this is a normal compute call
                 else
                 {
                     // number of compute groups
-                    call.numGroupsX = Data.ParseType<uint>(cmd[0],
-                        "Argument must be an unsigned integer, "
+                    call.numGroupsX = cmd[0].To<uint>("Argument must be an unsigned integer, "
                         + "specifying the number of compute groups in X.");
-                    call.numGroupsY = Data.ParseType<uint>(cmd[1],
-                        "Argument must be an unsigned integer, "
+                    call.numGroupsY = cmd[1].To<uint>("Argument must be an unsigned integer, "
                         + "specifying the number of compute groups in Y.");
-                    call.numGroupsZ = Data.ParseType<uint>(cmd[2],
-                        "Argument must be an unsigned integer, "
+                    call.numGroupsZ = cmd[2].To<uint>("Argument must be an unsigned integer, "
                         + "specifying the number of compute groups in Z.");
                 }
 

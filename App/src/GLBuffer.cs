@@ -148,7 +148,7 @@ namespace App
             }
 
             // Convert text to byte array
-            return Data.Convert(str.ToCharArray());
+            return str.ToCharArray().ToBytes();
         }
 
         private static string getText(string dir, string name, Dict<GLObject> classes)

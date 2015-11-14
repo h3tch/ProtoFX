@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace App
@@ -90,10 +91,8 @@ namespace App
         public static int Find(this TabControl.TabPageCollection tab, string path)
         {
             for (int i = 0; i < tab.Count; i++)
-            {
                 if (((TabPage)tab[i]).filepath == path)
                     return i;
-            }
             return -1;
         }
 
@@ -114,5 +113,57 @@ namespace App
 
         public static T UseIf<T>(this T obj, bool condition)
             => condition ? obj : default(T);
+
+        public static byte[] ToBytes(this Array src)
+        {
+            byte[] dst = new byte[Marshal.SizeOf(src.GetType().GetElementType()) * src.Length];
+            Buffer.BlockCopy(src, 0, dst, 0, dst.Length);
+            return dst;
+        }
+
+        public static TResult To<TResult>(this string str, string exeptionMessage = null)
+        {
+            try
+            {
+                return (TResult)Convert.ChangeType(str, typeof(TResult), App.culture);
+            }
+            catch
+            {
+                if (exeptionMessage == null)
+                    return default(TResult);
+                throw new GLException(exeptionMessage);
+            }
+        }
+
+        public static TResult[] To<TResult>(this byte[] data)
+            where TResult : struct
+        {
+            TResult[] rs = new TResult[data.Length / Marshal.SizeOf(typeof(TResult))];
+            Buffer.BlockCopy(data, 0, rs, 0, data.Length);
+            return rs;
+        }
+
+        public static Array To(this Array data, string typeName, out Type type)
+        {
+            type = Data.str2type[typeName];
+            var bytes = data.GetType().GetElementType() == typeof(byte) ?
+                (byte[])data : data.ToBytes();
+
+            // convert data to specified type
+            switch (typeName)
+            {
+                case "byte":   return bytes.To<byte>();
+                case "short":  return bytes.To<short>();
+                case "ushort": return bytes.To<ushort>();
+                case "int":    return bytes.To<int>();
+                case "uint":   return bytes.To<uint>();
+                case "long":   return bytes.To<long>();
+                case "ulong":  return bytes.To<ulong>();
+                case "float":  return bytes.To<float>();
+                case "double": return bytes.To<double>();
+            }
+
+            throw new ArgumentException("ERROR: Could not convert buffer data to specified type.");
+        }
     }
 }
