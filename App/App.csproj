@@ -88,6 +88,7 @@
     <Compile Include="src\Data.cs" />
     <Compile Include="src\GLField.cs" />
     <Compile Include="src\GLInstance.cs" />
+    <Compile Include="src\GLReference.cs" />
     <Compile Include="src\GLText.cs" />
     <Compile Include="src\App.cs">
       <SubType>Form</SubType>
@@ -102,7 +103,9 @@
     <Compile Include="src\GLCSharp.cs" />
     <Compile Include="src\Dict.cs" />
     <Compile Include="src\GLException.cs" />
-    <Compile Include="src\GraphicControl.cs" />
+    <Compile Include="src\GraphicControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="src\DataXml.cs" />
     <Compile Include="src\GLFragoutput.cs" />
     <Compile Include="src\GLImage.cs" />

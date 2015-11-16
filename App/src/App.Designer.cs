@@ -32,7 +32,7 @@ namespace App
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(App));
             this.splitRenderCoding = new System.Windows.Forms.SplitContainer();
-            this.glControl = new OpenTK.GLControl();
+            this.glControl = new GraphicControl();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabCode = new System.Windows.Forms.TabPage();
             this.splitCodeError = new System.Windows.Forms.SplitContainer();
@@ -127,11 +127,7 @@ namespace App
             this.glControl.Size = new System.Drawing.Size(1048, 1137);
             this.glControl.TabIndex = 0;
             this.glControl.VSync = false;
-            this.glControl.Paint += new System.Windows.Forms.PaintEventHandler(this.glControl_Paint);
-            this.glControl.MouseDown += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseDown);
-            this.glControl.MouseMove += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseMove);
-            this.glControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseUp);
-            this.glControl.Resize += new System.EventHandler(this.glControl_Resize);
+            this.glControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.propertyGrid_MouseUp);
             // 
             // tabControl
             // 
@@ -634,7 +630,7 @@ namespace App
         #endregion
 
         private System.Windows.Forms.SplitContainer splitRenderCoding;
-        private OpenTK.GLControl glControl;
+        private GraphicControl glControl;
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabCode;
         private System.Windows.Forms.SplitContainer splitCodeError;

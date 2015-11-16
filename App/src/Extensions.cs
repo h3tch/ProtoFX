@@ -12,75 +12,6 @@ namespace App
     public static class Extensions
     {
         /// <summary>
-        /// Extends the ForEach method by adding a index variable.
-        /// </summary>
-        /// <typeparam name="T">
-        /// Type of the IEnumerable object elements.</typeparam>
-        /// <param name="ie">
-        /// The object which receives this extension method is the generic IEnumerable type.</param>
-        /// <param name="action">
-        /// The action to be performed on every element of the IEnumerable object.</param>
-        public static void ForEach<T>(this IEnumerable<T> ie, Action<T, int> action)
-        {
-            var i = 0;
-            foreach (var e in ie)
-                action(e, i++);
-        }
-
-        /// <summary>
-        /// Extends the Select method by adding a index variable.
-        /// </summary>
-        /// <typeparam name="T">Type of the IEnumerable object elements.</typeparam>
-        /// <typeparam name="TResult">The return type after processing each element.</typeparam>
-        /// <param name="ie">
-        /// The object which receives this extension method is the generic IEnumerable type.</param>
-        /// <param name="func">
-        /// The function to be performed on every element of the IEnumerable object.</param>
-        /// <returns>Returns the processed elements.</returns>
-        public static IEnumerable<TResult> Select<T, TResult>(this IEnumerable<T> ie,
-            Func<T, int, TResult> func)
-        {
-            var i = 0;
-            foreach (var e in ie)
-                yield return func(e, i++);
-        }
-
-        /// <summary>
-        /// Extends the IEnumerable class by a search and find functionality.
-        /// </summary>
-        /// <typeparam name="T">Type of the IEnumerable object elements.</typeparam>
-        /// <param name="ie">
-        /// The object which receives this extension method is the generic IEnumerable type.</param>
-        /// <param name="func">
-        /// The test function to be performed on every element of the IEnumerable object.</param>
-        /// <returns>
-        /// Returns the first object which fulfills the condition specified in func.</returns>
-        public static object Find<T>(this IEnumerable<T> ie, Func<T, bool> func)
-        {
-            foreach (var e in ie)
-                if (func(e))
-                    return e;
-            return null;
-        }
-
-        /// <summary>
-        /// Extends the IEnumerable class with has-element functionality.
-        /// </summary>
-        /// <typeparam name="T">Type of the IEnumerable object elements.</typeparam>
-        /// <param name="ie">
-        /// The object which receives this extension method is the generic IEnumerable type.</param>
-        /// <param name="value">
-        /// The value to search for.</param>
-        /// <returns>Returns true if the value was found.</returns>
-        public static bool Has<T>(this IEnumerable<T> ie, T value)
-        {
-            foreach (var e in ie)
-                if (e.Equals(value))
-                    return true;
-            return false;
-        }
-
-        /// <summary>
         /// Find tab in tab collection by the file path attached to it.
         /// </summary>
         /// <param name="tab">
@@ -94,6 +25,24 @@ namespace App
                 if (((TabPage)tab[i]).filepath == path)
                     return i;
             return -1;
+        }
+
+        public static IEnumerable<Exception> Catch<T>(this IEnumerable<T> ie, Action<T> func)
+        {
+            foreach (var e in ie)
+            {
+                Exception ex = null;
+                try
+                {
+                    func(e);
+                }
+                catch (Exception x)
+                {
+                    ex = x;
+                }
+                if (ex != null)
+                    yield return ex;
+            }
         }
 
         public static IEnumerable<T> Join<T>(this IEnumerable<T[]> list)
@@ -113,6 +62,12 @@ namespace App
 
         public static T UseIf<T>(this T obj, bool condition)
             => condition ? obj : default(T);
+
+        public static void Do<T>(this IEnumerable<T> ie, Action<T> func)
+        {
+            foreach (var e in ie)
+                func(e);
+        }
 
         public static byte[] ToBytes(this Array src)
         {

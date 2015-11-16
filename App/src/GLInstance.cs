@@ -53,15 +53,16 @@ namespace App
 
             // get all public methods and check whether
             // they can be used as event handlers for glControl
-            GraphicControl glControl = classes.GetValue<GraphicControl>(GraphicControl.nullname);
+            GLReference reference = classes.GetValue<GLReference>(GraphicControl.nullname);
+            GraphicControl glControl = (GraphicControl)reference.reference;
             var methods = instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
             foreach (var method in methods)
             {
-                var info = glControl.control.GetType().GetEvent(method.Name);
+                var info = glControl.GetType().GetEvent(method.Name);
                 if (info != null)
                 {
                     var csmethod = Delegate.CreateDelegate(info.EventHandlerType, instance, method.Name);
-                    info.AddEventHandler(glControl.control, csmethod);
+                    info.AddEventHandler(glControl, csmethod);
                 }
             }
         }

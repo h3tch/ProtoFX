@@ -115,18 +115,5 @@ namespace App
             // return blocks as array
             return blocks.ToArray();
         }
-
-        private static string[] GetObjectBlockClassDef(string objectblock)
-        {
-            // parse class info
-            MatchCollection matches = null;
-            var lines = objectblock.Split(new char[] { '\n' });
-            for (int j = 0; j < lines.Length; j++)
-                // ignore empty or invalid lines
-                if ((matches = Regex.Matches(lines[j], "[\\w.]+")).Count > 0)
-                    return matches.Cast<Match>().Select(m => m.Value).ToArray();
-            // ill defined class block
-            return null;
-        }
     }
 }

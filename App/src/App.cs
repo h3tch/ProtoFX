@@ -10,11 +10,7 @@ namespace App
 {
     public partial class App : Form
     {
-        #region FIELDS
-        private Dict<GLObject> classes = new Dict<GLObject>();
-        private bool render = false;
         public static CultureInfo culture = new CultureInfo("en");
-        #endregion
 
         public App()
         {
@@ -52,7 +48,7 @@ namespace App
             }
 
             // delete OpenGL objects
-            ClearGLObjects();
+            glControl.ClearScene();
         }
 
         private void App_KeyUp(object sender, KeyEventArgs e)
@@ -82,27 +78,7 @@ namespace App
             }
         }
         #endregion
-
-        #region OpenGL Control
-        private void glControl_Resize(object sender, EventArgs e) => Render();
-
-        private void glControl_Paint(object sender, PaintEventArgs e) => Render();
-
-        private void glControl_MouseDown(object sender, MouseEventArgs e) => render = true;
-
-        private void glControl_MouseUp(object sender, MouseEventArgs e)
-        {
-            render = false;
-            propertyGrid.Refresh();
-        }
-
-        private void glControl_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (render)
-                Render();
-        }
-        #endregion
-
+        
         #region Debug Image
         private void comboImg_SelectedIndexChanged(object sender, EventArgs e)
             => pictureImg_Click(sender, e);
@@ -187,8 +163,11 @@ namespace App
             propertyGrid.SelectedObject = propertyGrid.SelectedObject;
         }
 
+        private void propertyGrid_MouseUp(object sender, MouseEventArgs e)
+            => propertyGrid.Refresh();
+
         private void propertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
-            => Render();
+            => glControl.Render();
         #endregion
 
         #region Tool Buttons
@@ -226,7 +205,7 @@ namespace App
         private void toolBtnRun_Click(object sender, EventArgs e)
         {
             codeError.Text = "";
-            ClearGLObjects();
+            glControl.ClearScene();
 
             // if no tab page is selected nothing needs to be compiled
             var sourceTab = (TabPage)tabSource.SelectedTab;
@@ -237,83 +216,36 @@ namespace App
             var includeDir = sourceTab.filepath != null ?
                 Path.GetDirectoryName(sourceTab.filepath) : Directory.GetCurrentDirectory();
             includeDir += '\\';
+            
+            // get code text form tab page
+            var text = ((CodeEditor)sourceTab.Controls[0]).Text;
 
-            try
-            {
-                // get code text form tab page
-                var text = ((CodeEditor)sourceTab.Controls[0]).Text;
+            // remove comments
+            var code = RemoveComments(text);
+            code = RemoveNewLineIndicators(code);
+            code = IncludeFiles(includeDir, code);
 
-                // remove comments
-                var code = RemoveComments(text);
-                code = RemoveNewLineIndicators(code);
-                code = IncludeFiles(includeDir, code);
+            // FIND PROTOGL CLASS BLOCKS (find "TYPE name { ... }")
+            var blocks = GetObjectBlocks(code);
 
-                // find GLST class blocks (find "TYPE name { ... }")
-                var blocks = GetObjectBlocks(code);
+            // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
+            var errors = blocks.Catch(x => glControl.AddObject(x, includeDir))
+                .Where(x => x.GetBaseException() is GLException)
+                .Select(x => ((GLException)x.GetBaseException()).Text);
 
-                // parse commands for each class block
-                foreach (var block in blocks)
-                {
-                    // PARSE CLASS INFO
-                    string[] classDef = GetObjectBlockClassDef(block);
-
-                    // PARSE CLASS TEXT
-                    var start = block.IndexOf('{');
-                    string classCmdStr = block.Substring(start + 1, block.LastIndexOf('}') - start - 1);
-
-                    // GET CLASS TYPE, ANNOTATION AND NAME
-                    var classType = "App.GL"
-                        + classDef[0].First().ToString().ToUpper()
-                        + classDef[0].Substring(1);
-                    var classAnno = classDef[classDef.Length - 2];
-                    var className = classDef[classDef.Length - 1];
-
-                    // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS
-                    try
-                    {
-                        var type = Type.GetType(classType);
-                        // check for errors
-                        if (type == null)
-                            throw new GLException($"{classDef[0]} '{className}': "
-                                + $"Class type '{classDef[0]}' not known.");
-                        if (classes.ContainsKey(className))
-                            throw new GLException($"{classDef[0]} '{className}': "
-                                + $"Class name '{className}' already exists.");
-                        // instantiate class
-                        var instance = (GLObject)Activator.CreateInstance(
-                            type, includeDir, className, classAnno, classCmdStr, classes);
-                        classes.Add(instance.name, instance);
-                    }
-                    catch (Exception ex)
-                    {
-                        if (ex.GetBaseException().GetType() == typeof(GLException))
-                            codeError.AppendText(((GLException)ex.GetBaseException()).Text);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // show errors
-                if (ex.GetBaseException().GetType() == typeof(GLException))
-                    codeError.AppendText(((GLException)ex.GetBaseException()).Text);
-            }
+            // show errors
+            errors.Do(x => codeError.AppendText(x));
 
             // UPDATE DEBUG DATA
             comboBuf.Items.Clear();
             comboImg.Items.Clear();
             comboProp.Items.Clear();
-            foreach (var pair in classes)
-            {
-                if (pair.Value.GetType() == typeof(GLBuffer))
-                    comboBuf.Items.Add(pair.Value);
-                else if (pair.Value.GetType() == typeof(GLImage))
-                    comboImg.Items.Add(pair.Value);
-                else if (pair.Value.GetType() == typeof(GLInstance))
-                    comboProp.Items.Add(pair.Value);
-            }
+            glControl.Scene.Where(x => x.Value is GLBuffer).Do(x => comboBuf.Items.Add(x.Value));
+            glControl.Scene.Where(x => x.Value is GLImage).Do(x => comboImg.Items.Add(x.Value));
+            glControl.Scene.Where(x => x.Value is GLInstance).Do(x => comboProp.Items.Add(x.Value));
 
             // SHOW SCENE
-            Render();
+            glControl.Render();
         }
 
         private void toolBtnSave_Click(object sender, EventArgs e)
@@ -357,30 +289,6 @@ namespace App
         #endregion
         
         #region UTIL
-        private void Render()
-        {
-            glControl.MakeCurrent();
-            
-            foreach (var c in classes)
-                if (c.Value.GetType() == typeof(GLTech))
-                    ((GLTech)c.Value).Exec(
-                        glControl.ClientSize.Width,
-                        glControl.ClientSize.Height);
-
-            glControl.SwapBuffers();
-        }
-
-        private void ClearGLObjects()
-        {
-            // call delete method of OpenGL resources
-            foreach (var pair in classes)
-                pair.Value.Delete();
-            // clear list of classes
-            classes.Clear();
-            // add default OpenTK glControl
-            classes.Add(GraphicControl.nullname, new GraphicControl(glControl));
-        }
-
         private void SaveTabPage(TabPage tabPage, bool newfile)
         {
             var selectedTabPageText = (CodeEditor)tabPage.Controls[0];
