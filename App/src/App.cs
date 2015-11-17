@@ -85,7 +85,7 @@ namespace App
 
         private void numImgLayer_ValueChanged(object sender, EventArgs e)
         {
-            if (comboImg.SelectedItem == null || comboImg.SelectedItem.GetType() != typeof(GLImage))
+            if (comboImg.SelectedItem == null || !(comboImg.SelectedItem is GLImage))
                 return;
             var img = (GLImage)comboImg.SelectedItem;
             numImgLayer.Maximum = Math.Max(Math.Max(img.length, img.depth) - 1, 0);
@@ -159,9 +159,7 @@ namespace App
         }
 
         private void propertyGrid_Click(object sender, EventArgs e)
-        {
-            propertyGrid.SelectedObject = propertyGrid.SelectedObject;
-        }
+            => propertyGrid.SelectedObject = propertyGrid.SelectedObject;
 
         private void propertyGrid_MouseUp(object sender, MouseEventArgs e)
             => propertyGrid.Refresh();
@@ -230,11 +228,13 @@ namespace App
 
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
             var errors = blocks.Catch(x => glControl.AddObject(x, includeDir))
-                .Where(x => x.GetBaseException() is GLException)
-                .Select(x => ((GLException)x.GetBaseException()).Text);
+                .Where(x => x is GLException).Select(x => ((GLException)x).Text);
 
             // show errors
             errors.Do(x => codeError.AppendText(x));
+
+            // SHOW SCENE
+            glControl.Render();
 
             // UPDATE DEBUG DATA
             comboBuf.Items.Clear();
@@ -243,9 +243,6 @@ namespace App
             glControl.Scene.Where(x => x.Value is GLBuffer).Do(x => comboBuf.Items.Add(x.Value));
             glControl.Scene.Where(x => x.Value is GLImage).Do(x => comboImg.Items.Add(x.Value));
             glControl.Scene.Where(x => x.Value is GLInstance).Do(x => comboProp.Items.Add(x.Value));
-
-            // SHOW SCENE
-            glControl.Render();
         }
 
         private void toolBtnSave_Click(object sender, EventArgs e)
@@ -259,7 +256,7 @@ namespace App
 
         private void toolBtnSaveAll_Click(object sender, EventArgs e)
         {
-            foreach (TabPage tab in this.tabSource.TabPages)
+            foreach (TabPage tab in tabSource.TabPages)
             {
                 if (!tab.Text.EndsWith("*"))
                     continue;
