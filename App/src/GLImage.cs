@@ -4,11 +4,12 @@ using System.Drawing;
 using SysImg = System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.IO;
-using FilePixelFormat = System.Drawing.Imaging.PixelFormat;
 using TexTarget = OpenTK.Graphics.OpenGL4.TextureTarget;
 using TexParamName = OpenTK.Graphics.OpenGL4.TextureParameterName;
 using TexMinFilter = OpenTK.Graphics.OpenGL4.TextureMinFilter;
-using GpuFormat = OpenTK.Graphics.OpenGL4.PixelInternalFormat;
+using CpuFormat = System.Drawing.Imaging.PixelFormat;
+using GpuFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
+using GpuColorFormat = OpenTK.Graphics.OpenGL4.PixelInternalFormat;
 
 namespace App
 {
@@ -22,16 +23,16 @@ namespace App
         [GLField] public int length = 0;
         [GLField] public int mipmaps = 0;
         [GLField] private TexTarget type = 0;
-        [GLField] private GpuFormat format = GpuFormat.Rgba;
-        private FilePixelFormat fileFormat = FilePixelFormat.Format32bppArgb;
+        [GLField] private GpuColorFormat format = GpuColorFormat.Rgba;
+        private CpuFormat fileFormat = CpuFormat.Format32bppArgb;
         private PixelType pxType = 0;
         private int pxSize = 0;
-        private PixelFormat pxFormat = 0;
+        private GpuFormat pxFormat = 0;
         #endregion
 
         #region PROPERTIES
         public TexTarget target { get { return type; } private set { type = value; } }
-        public GpuFormat gpuFormat { get { return format; } private set { format = value; } }
+        public GpuColorFormat gpuFormat { get { return format; } private set { format = value; } }
         #endregion
 
         public GLImage(string dir, string name, string annotation, string text, Dict<GLObject> classes)
@@ -65,7 +66,7 @@ namespace App
             }
 
             // LOAD IMAGE DATA
-            var data = loadImageFiles(err, dir, file, ref width, ref height, ref depth, gpuFormat,
+            var data = loadImageFiles(err, dir, file, ref width, ref height, ref depth, format,
                 out pxFormat, out pxType, out pxSize, out fileFormat);
 
             // on errors throw an exception
@@ -88,11 +89,11 @@ namespace App
             {
                 var dataPtr = Marshal.AllocHGlobal(data.Length);
                 Marshal.Copy(data, 0, dataPtr, data.Length);
-                TexImage(target, gpuFormat, width, height, depth, length, pxFormat, pxType, dataPtr);
+                TexImage(target, width, height, depth, length, pxFormat, pxType, dataPtr);
                 Marshal.FreeHGlobal(dataPtr);
             }
             else
-                TexImage(target, gpuFormat, width, height, depth, length, pxFormat, pxType, IntPtr.Zero);
+                TexImage(target, width, height, depth, length, pxFormat, pxType, IntPtr.Zero);
 
             // GENERATE MIPMAPS
             if (mipmaps > 0)
@@ -103,26 +104,36 @@ namespace App
                 throw err;
         }
 
-        public Bitmap Read(int level)
+        public Bitmap Read(int level, int index)
         {
-            // compute mipmap level size
-            int w = width, h = height, l = level;
-            while (l-- > 0)
-            {
-                w /= 2;
-                h /= 2;
-            }
+            return Read(glname, level, index);
+        }
 
+        public static Bitmap Read(int ID, int level, int index)
+        {
+            int w, h, d, f;
+            GL.GetTextureLevelParameter(ID, level, GetTextureParameter.TextureInternalFormat, out f);
+            GL.GetTextureLevelParameter(ID, level, GetTextureParameter.TextureWidth, out w);
+            GL.GetTextureLevelParameter(ID, level, GetTextureParameter.TextureHeight, out h);
+            GL.GetTextureLevelParameter(ID, level, GetTextureParameter.TextureDepth, out d);
+
+            // convert to actual types
+            var format = (GpuColorFormat)f;
+            var isdepth = format.ToString().StartsWith("DepthComponent");
+            var pxSize = 4;
+            var bufSize = w * h * pxSize;
+            index = Math.Min(index, d);
+            
             // allocate memory
-            IntPtr dataPtr = Marshal.AllocHGlobal(w * h * pxSize);
+            IntPtr dataPtr = Marshal.AllocHGlobal(bufSize);
 
             // get image data
-            GL.BindTexture(target, glname);
-            GL.GetTexImage(target, level, pxFormat, pxType, dataPtr);
-            GL.BindTexture(target, 0);
+            GL.GetTextureSubImage(ID, level, 0, 0, index, w, h, 1,
+                isdepth ? GpuFormat.DepthComponent : GpuFormat.Bgra,
+                isdepth ? PixelType.Float : PixelType.UnsignedByte, bufSize, dataPtr);
 
             // create bitmap from data
-            return new Bitmap(w, h, w * pxSize, fileFormat, dataPtr);
+            return new Bitmap(w, h, w * pxSize, CpuFormat.Format32bppArgb, dataPtr);
         }
 
         public override void Delete()
@@ -136,18 +147,18 @@ namespace App
 
         #region UTIL METHODS
         private static byte[] loadImageFiles(GLException err, string dir, string[] filenames,
-            ref int w, ref int h, ref int d, GpuFormat gpuformat, 
-            out PixelFormat pixelformat, out PixelType pixeltype, out int pixelsize,
-            out FilePixelFormat fileformat)
+            ref int w, ref int h, ref int d, GpuColorFormat gpuformat, 
+            out GpuFormat pixelformat, out PixelType pixeltype, out int pixelsize,
+            out CpuFormat fileformat)
         {
             // SET DEFAULT DATA FOR OUTPUTS
             byte[] data = null;
             bool isdepth = gpuformat.ToString().StartsWith("DepthComponent");
             // set default pixel data format and type
-            pixelformat = isdepth ? PixelFormat.DepthComponent : PixelFormat.Bgra;
+            pixelformat = isdepth ? GpuFormat.DepthComponent : GpuFormat.Bgra;
             pixeltype = isdepth ? PixelType.Float : PixelType.UnsignedByte;
             // set default file format and pixel size
-            fileformat = FilePixelFormat.Format32bppArgb;
+            fileformat = CpuFormat.Format32bppArgb;
             pixelsize = Image.GetPixelFormatSize(fileformat) / 8;
 
             // LOAD IMAGA DATA FROM FILES
@@ -189,13 +200,21 @@ namespace App
                     Marshal.Copy(bits.Scan0, data, pixelsize * w * h * i, bits.Stride * bits.Height);
                     bmps[i].UnlockBits(bits);
                 }
+                
+                //// swap R and B color channel
+                //for (int r = 1, b = 3; r < data.Length; r += 4, b += 4)
+                //{
+                //    var tmp = data[r];
+                //    data[r] = data[b];
+                //    data[b] = tmp;
+                //}
             }
 
             return data;
         }
 
-        public void TexImage(TexTarget target, GpuFormat internalformat, int width, int height,
-            int depth, int length, PixelFormat format, PixelType type, IntPtr pixels)
+        public void TexImage(TexTarget target, int width, int height,
+            int depth, int length, GpuFormat format, PixelType type, IntPtr pixels)
         {
             switch (target)
             {

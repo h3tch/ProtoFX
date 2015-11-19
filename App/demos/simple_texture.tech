@@ -42,11 +42,10 @@ texture tex_lena {
 shader vert vs_simple {
 	#version 440
 
-	struct SimpleCamera {
+	layout(binding = 0) uniform SimpleCamera {
 		mat4 view;
 		mat4 proj;
-	};
-	uniform SimpleCamera Camera;
+	} camera;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -57,7 +56,7 @@ shader vert vs_simple {
 	
 	void main ()
 	{
-		gl_Position = Camera.proj * Camera.view * in_pos;
+		gl_Position = camera.proj * camera.view * in_pos;
 		vs_uv = in_uv;
 	}
 }
@@ -81,12 +80,14 @@ shader frag fs_simple {
 /////////////
 
 csharp cs_util {
-	file "<csharp>/StaticCamera.cs" "<csharp>/SimpleCamera.cs"
+	file "<csharp>/StaticCamera.cs" ...
+	      "<csharp>/SimpleCamera.cs" ...
+	      "<csharp>/UniformBlock.cs"
 }
 
 instance cs_camera {
 	class cs_util csharp.SimpleCamera
-	name Camera
+	name SimpleCamera
 	pos 0 0 5
 }
 

@@ -54,7 +54,7 @@ namespace App
             this.tableLayoutImages = new System.Windows.Forms.TableLayoutPanel();
             this.comboImg = new System.Windows.Forms.ComboBox();
             this.panelImg = new System.Windows.Forms.Panel();
-            this.pictureImg = new System.Windows.Forms.PictureBox();
+            this.pictureImg = new DebugTexture(glControl);
             this.numImgLayer = new System.Windows.Forms.NumericUpDown();
             this.tabDataBuf = new System.Windows.Forms.TabPage();
             this.tableLayoutBufferDef = new System.Windows.Forms.TableLayoutPanel();
@@ -640,7 +640,7 @@ namespace App
         private System.Windows.Forms.TabPage tabDataImg;
         private System.Windows.Forms.TabPage tabDataBuf;
         private System.Windows.Forms.TableLayoutPanel tableLayoutImages;
-        private System.Windows.Forms.PictureBox pictureImg;
+        private DebugTexture pictureImg;
         private System.Windows.Forms.ComboBox comboImg;
         private System.Windows.Forms.TableLayoutPanel tableLayoutBufferDef;
         private System.Windows.Forms.ComboBox comboBuf;

@@ -87,10 +87,9 @@ texture tex_color {
 shader vert vs_simple {
 	#version 440
 	
-	struct SimpleCamera {
+	layout(location = 0) uniform SimpleCamera {
 		mat4 viewProj;
-	};
-	uniform SimpleCamera Camera;
+	} camera;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -101,7 +100,7 @@ shader vert vs_simple {
 	
 	void main ()
 	{
-		gl_Position = Camera.viewProj * in_pos;
+		gl_Position = camera.viewProj * in_pos;
 		vs_col = in_col;
 	}
 }
@@ -151,12 +150,14 @@ shader frag fs_present {
 
 csharp cs_util {
 	// Compile C# file "SimpleCamera.cs"
-	file "<csharp>/StaticCamera.cs" "<csharp>/SimpleCamera.cs"
+	file "<csharp>/StaticCamera.cs" ...
+	     "<csharp>/SimpleCamera.cs" ...
+	     "<csharp>/UniformBlock.cs"
 }
 
 instance cs_camera {
 	class cs_util csharp.SimpleCamera
-	name Camera
+	name SimpleCamera
 	pos 0 0 5
 }
 

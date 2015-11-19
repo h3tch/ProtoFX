@@ -89,14 +89,11 @@ namespace App
                 return;
             var img = (GLImage)comboImg.SelectedItem;
             numImgLayer.Maximum = Math.Max(Math.Max(img.length, img.depth) - 1, 0);
-            pictureImg.Image = GetTextureLayer(img, (int)numImgLayer.Value);
+            pictureImg.SetDebug(img.glname, (int)numImgLayer.Value, 0);
         }
 
         private void pictureImg_Click(object sender, EventArgs e)
-        {
-            numImgLayer.Value = 0;
-            numImgLayer_ValueChanged(sender, e);
-        }
+            => numImgLayer_ValueChanged(sender, e);
         #endregion
 
         #region Debug Buffer
@@ -329,14 +326,6 @@ namespace App
             tabSource.Controls.Add(tabSourcePage);
 
             tabSourcePageText.UndoRedo.EmptyUndoBuffer();
-        }
-        
-        private Bitmap GetTextureLayer(GLImage img, int layer)
-        {
-            glControl.MakeCurrent();
-            var bmp = img.Read(layer);
-            bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
-            return bmp;
         }
         #endregion
     }
