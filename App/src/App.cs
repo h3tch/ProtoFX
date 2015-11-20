@@ -230,11 +230,13 @@ namespace App
             var blocks = GetObjectBlocks(code);
 
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
-            var errors = blocks.Catch(x => glControl.AddObject(x, includeDir))
-                .Where(x => x is GLException).Select(x => ((GLException)x).Text);
+            var ex = blocks.Catch(x => glControl.AddObject(x, includeDir)).ToArray();
 
             // show errors
-            errors.Do(x => codeError.AppendText(x));
+            var errors =
+                from x in ex where x is GLException || x.InnerException is GLException
+                select (x is GLException ? x : x.InnerException) as GLException;
+            errors.Do(x => codeError.AppendText(x.Text));
 
             // SHOW SCENE
             glControl.Render();

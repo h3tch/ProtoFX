@@ -4,10 +4,12 @@ using System.Collections.Generic;
 
 namespace csharp
 {
+    using System.Globalization;
     using Commands = Dictionary<string, string[]>;
 
     class SpotLight
     {
+        public static CultureInfo culture = new CultureInfo("en");
         public enum Names
         {
             view,
@@ -145,7 +147,7 @@ namespace csharp
 
             try
             {
-                value = (T)System.Convert.ChangeType(invalue, typeof(T));
+                value = (T)System.Convert.ChangeType(invalue, typeof(T), culture);
                 return true;
             }
             catch

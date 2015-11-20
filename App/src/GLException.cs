@@ -9,10 +9,10 @@ namespace App
         private List<string> messages = new List<string>();
 
         // compile call stack into a single string
-        private string callstackstring => callstack.Join(": ");
+        private string callstackstring => callstack.Merge(": ");
 
         // compile all messages into a single string
-        public string Text => messages.Join("\n");
+        public string Text => messages.Merge("\n");
 
         public bool HasErrors() => messages.Count > 0;
 

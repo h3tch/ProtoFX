@@ -45,14 +45,22 @@ namespace App
             }
         }
 
-        public static IEnumerable<T> Join<T>(this IEnumerable<T[]> list)
+        public static IEnumerable<T> Join<T>(this IEnumerable<T[]> id)
         {
-            foreach (var el in list)
+            foreach (var el in id)
                 foreach (var e in el)
                     yield return e;
         }
 
-        public static string Join(this IEnumerable<string> list, string separator)
+        public static IEnumerable<T> Merge<T>(this IEnumerable<T> ie, IEnumerable<T> other)
+        {
+            foreach (var el in ie)
+                yield return el;
+            foreach (var el in other)
+                yield return el;
+        }
+
+        public static string Merge(this IEnumerable<string> list, string separator)
         {
             string str = "";
             foreach (var s in list)

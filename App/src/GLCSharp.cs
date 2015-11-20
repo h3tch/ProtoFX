@@ -58,6 +58,7 @@ namespace App
                 compilerParams.GenerateExecutable = false;
                 #if DEBUG
                 compilerParams.IncludeDebugInformation = true;
+                compilerParams.CompilerOptions = "/define:DEBUG";
                 #else
                 compilerParams.IncludeDebugInformation = false;
                 #endif

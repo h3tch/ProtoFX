@@ -51,11 +51,11 @@ namespace App
 
             // check for errors
             if (type == null)
-                throw new GLException($"{classDef[0]} '{className}': "
-                    + $"Class type '{classDef[0]}' not known.");
+                throw new GLException($"{classDef[0]} '{className}'")
+                    .Add($"Class type '{classDef[0]}' not known.");
             if (scene.ContainsKey(className))
-                throw new GLException($"{classDef[0]} '{className}': "
-                    + $"Class name '{className}' already exists.");
+                throw new GLException($"{classDef[0]} '{className}'")
+                    .Add($"Class name '{className}' already exists.");
 
             // instantiate class
             var instance = (GLObject)Activator.CreateInstance(

@@ -78,6 +78,7 @@ shader vert vs_render {
 	layout(binding = 0) uniform SpotLight {
 		mat4 viewProj;
 		vec4 camera;
+		vec4 light;
 	} light;
 	
 	layout(binding = 1) uniform SimpleCamera {
@@ -111,6 +112,7 @@ shader frag fs_render {
 	layout(binding = 0) uniform SpotLight {
 		mat4 viewProj;
 		vec4 camera;
+		vec4 light;
 	} light;
 
 	layout(binding = 2) uniform PoissonDisc {
@@ -132,6 +134,25 @@ shader frag fs_render {
 		float ca = cos(angle);
 		return mat2(ca, -sa, ca, sa);
 	}
+	
+	vec2 depthGradient(vec2 uv, float z)
+	{
+		vec2 dz_duv = vec2(0.0, 0.0);
+
+		vec3 duvdist_dx = dFdx(vec3(uv,z));
+		vec3 duvdist_dy = dFdy(vec3(uv,z));
+
+		dz_duv.x = duvdist_dy.y * duvdist_dx.z;
+		dz_duv.x -= duvdist_dx.y * duvdist_dy.z;
+
+		dz_duv.y = duvdist_dx.x * duvdist_dy.z;
+		dz_duv.y -= duvdist_dy.x * duvdist_dx.z;
+
+		float det = (duvdist_dx.x * duvdist_dy.y) - (duvdist_dx.y * duvdist_dy.x);
+		dz_duv /= det;
+
+		return dz_duv;
+	}
 
 	float light2shadowmap(float radius, float zNear, float zReceiver) {
 		return radius * (zReceiver - zNear) / zReceiver;
@@ -145,55 +166,60 @@ shader frag fs_render {
 		return penumbra * zNear / zReceiver;
 	}
 	
-	float depth2viewZ(float z, float zNear, float zFar) {
-		return (2 * zNear) / (zFar + zNear - z * (zFar - zNear));
+	float biasZ(float z, vec2 zChange, vec2 offset) {
+		return z + dot(zChange.yx, offset);
+	}
+	
+	float exp2linDepth(float z, float zNear, float zFar) {
+		//float z_n = 2.0 * z - 1.0;
+		//return 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
+		//return (2 * zNear * zFar) / (zFar + zNear - z * (zFar - zNear));
+		return zFar * zNear / (zFar - z * (zFar - zNear));  
 	}
 
-	float BlockerSearch(float filterR, float zNear, float zFar, vec3 lpos) {
+	float BlockerSearch(float filterR, float zNear, float zFar, vec3 lpos, vec2 zChange) {
 		int nBlocker = 0;
 		float zBlocker = 0.0;
 		mat2 R = randRot(2 * PI * rand(lpos.xy));
-		const float bias = 0.0005;
 
 		for (int i = 0; i < NUM_POINTS; i++) {
-			vec2 p = lpos.xy + R * disc.points[i] * filterR;
-			float z = texture(shadowmap, p).x;
-			if (lpos.z - bias > z) {
-				zBlocker += depth2viewZ(z, zNear, zFar);
+			vec2 p = R * disc.points[i] * filterR;
+			float z = texture(shadowmap, lpos.xy + p).x;
+			if (biasZ(lpos.z, zChange, p) > z) {
+				zBlocker += z;
 				nBlocker++;
 			}
 		}
 
-		return zBlocker / float(nBlocker);
+		return exp2linDepth(zBlocker / float(nBlocker), zNear, zFar);
 	}
 
-	float PCF(float filterR, vec3 lpos) {
+	float PCF(float filterR, vec3 lpos, vec2 zChange) {
 		// PCF SHADOW MAPPING
 		float shadow = 0.0;
 		mat2 R = randRot(2 * PI * rand(lpos.xy));
-		const float bias = 0.0005;
 
 		for (int i = 0; i < NUM_POINTS; i++) {
-			vec2 p = lpos.xy + R * disc.points[i] * filterR;
-			shadow += lpos.z - bias > texture(shadowmap, p).x ? 1.0 : 0.0;
+			vec2 p = R * disc.points[i] * filterR;
+			shadow += biasZ(lpos.z, zChange, p) > texture(shadowmap, lpos.xy + p).x ? 1.0 : 0.0;
 		}
 
 		return shadow / float(NUM_POINTS);
 	}
 
-	float PCSS(float radius, float zNear, float zFar, vec3 lpos) {
-		float receiverZ = depth2viewZ(lpos.z, zNear, zFar);
+	float PCSS(float radius, float zNear, float zFar, vec3 lpos, vec2 zChange) {
+		float receiverZ = exp2linDepth(lpos.z, zNear, zFar);
 		
 		// BLOCKER SEARCH
 		float filterR = light2shadowmap(radius, zNear, receiverZ);
-		float zBlocker = BlockerSearch(filterR, zNear, zFar, lpos);
+		float zBlocker = BlockerSearch(filterR, zNear, zFar, lpos, zChange);
 		if (isnan(zBlocker))
 			zBlocker = receiverZ;
 
 		// PCF SHADOW MAPPING
 		float penumbraR = light2penumbra(radius, zBlocker, receiverZ);
 		filterR = penumbra2shadowmap(penumbraR, zNear, receiverZ);
-		return PCF(filterR, lpos);
+		return PCF(filterR, lpos, zChange);
 	}
 	
 	void main ()
@@ -210,10 +236,12 @@ shader frag fs_render {
 		// transform to normalized device coordinates [-1;+1]
 		// and then to shadow map texture coordinates [0;1]
 		vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
+		vec2 zChange = depthGradient(lpos.xy, lpos.z);
 		
-		//const vec2 r = 10.0 / textureSize(shadowmap, 0);
-		//float shadow = PCF((r.x + r.y) * 0.5, lpos);
-		float shadow = PCSS(0.1, light.camera.z, light.camera.w, lpos);
+		const vec2 r = 10.0 / textureSize(shadowmap, 0);
+		float shadow = PCF((r.x + r.y) * 0.5, lpos, zChange);
+		//float shadow = PCSS(light.light.y, light.camera.z,
+		//	light.camera.w, lpos, zChange);
 		if (shadow == 0.0)
 			return;
 		
@@ -238,6 +266,9 @@ instance cs_light {
 	name SpotLight
 	pos 3 4 3
 	rot -45 45 0
+	near 2
+	far 20
+	radius 0.5
 }
 
 instance cs_camera {
