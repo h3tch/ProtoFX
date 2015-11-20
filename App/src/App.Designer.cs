@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace App
+﻿namespace App
 {
     partial class App
     {
@@ -52,10 +50,11 @@ namespace App
             this.tabData = new System.Windows.Forms.TabControl();
             this.tabDataImg = new System.Windows.Forms.TabPage();
             this.tableLayoutImages = new System.Windows.Forms.TableLayoutPanel();
+            this.numImgLayer = new System.Windows.Forms.NumericUpDown();
             this.comboImg = new System.Windows.Forms.ComboBox();
             this.panelImg = new System.Windows.Forms.Panel();
-            this.pictureImg = new DebugTexture(glControl);
-            this.numImgLayer = new System.Windows.Forms.NumericUpDown();
+            this.pictureImg = new System.Windows.Forms.PictureBox();
+            this.numImgLevel = new System.Windows.Forms.NumericUpDown();
             this.tabDataBuf = new System.Windows.Forms.TabPage();
             this.tableLayoutBufferDef = new System.Windows.Forms.TableLayoutPanel();
             this.tableBuf = new System.Windows.Forms.DataGridView();
@@ -86,9 +85,10 @@ namespace App
             this.tabData.SuspendLayout();
             this.tabDataImg.SuspendLayout();
             this.tableLayoutImages.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numImgLayer)).BeginInit();
             this.panelImg.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureImg)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numImgLayer)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numImgLevel)).BeginInit();
             this.tabDataBuf.SuspendLayout();
             this.tableLayoutBufferDef.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tableBuf)).BeginInit();
@@ -358,26 +358,41 @@ namespace App
             this.tableLayoutImages.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F));
             this.tableLayoutImages.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutImages.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutImages.Controls.Add(this.numImgLayer, 1, 0);
             this.tableLayoutImages.Controls.Add(this.comboImg, 0, 0);
             this.tableLayoutImages.Controls.Add(this.panelImg, 0, 1);
-            this.tableLayoutImages.Controls.Add(this.numImgLayer, 2, 0);
+            this.tableLayoutImages.Controls.Add(this.numImgLevel, 2, 0);
             this.tableLayoutImages.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutImages.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutImages.Name = "tableLayoutImages";
             this.tableLayoutImages.RowCount = 2;
             this.tableLayoutImages.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
             this.tableLayoutImages.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutImages.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutImages.Size = new System.Drawing.Size(932, 1055);
             this.tableLayoutImages.TabIndex = 0;
             // 
+            // numImgLayer
+            // 
+            this.numImgLayer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numImgLayer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numImgLayer.Location = new System.Drawing.Point(562, 3);
+            this.numImgLayer.Maximum = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.numImgLayer.Name = "numImgLayer";
+            this.numImgLayer.Size = new System.Drawing.Size(180, 28);
+            this.numImgLayer.TabIndex = 4;
+            // 
             // comboImg
             // 
-            this.tableLayoutImages.SetColumnSpan(this.comboImg, 2);
             this.comboImg.Dock = System.Windows.Forms.DockStyle.Fill;
             this.comboImg.FormattingEnabled = true;
             this.comboImg.Location = new System.Drawing.Point(3, 3);
             this.comboImg.Name = "comboImg";
-            this.comboImg.Size = new System.Drawing.Size(739, 30);
+            this.comboImg.Size = new System.Drawing.Size(553, 30);
             this.comboImg.TabIndex = 1;
             this.comboImg.SelectedIndexChanged += new System.EventHandler(this.comboImg_SelectedIndexChanged);
             // 
@@ -402,20 +417,13 @@ namespace App
             this.pictureImg.TabStop = false;
             this.pictureImg.Click += new System.EventHandler(this.pictureImg_Click);
             // 
-            // numImgLayer
+            // numImgLevel
             // 
-            this.numImgLayer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numImgLayer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numImgLayer.Location = new System.Drawing.Point(748, 3);
-            this.numImgLayer.Maximum = new decimal(new int[] {
-            0,
-            0,
-            0,
-            0});
-            this.numImgLayer.Name = "numImgLayer";
-            this.numImgLayer.Size = new System.Drawing.Size(181, 28);
-            this.numImgLayer.TabIndex = 3;
-            this.numImgLayer.ValueChanged += new System.EventHandler(this.numImgLayer_ValueChanged);
+            this.numImgLevel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numImgLevel.Location = new System.Drawing.Point(748, 3);
+            this.numImgLevel.Name = "numImgLevel";
+            this.numImgLevel.Size = new System.Drawing.Size(181, 28);
+            this.numImgLevel.TabIndex = 5;
             // 
             // tabDataBuf
             // 
@@ -490,6 +498,7 @@ namespace App
             this.comboBufType.FormattingEnabled = true;
             this.comboBufType.Items.AddRange(new object[] {
             "byte",
+            "char",
             "short",
             "ushort",
             "int",
@@ -612,10 +621,11 @@ namespace App
             this.tabData.ResumeLayout(false);
             this.tabDataImg.ResumeLayout(false);
             this.tableLayoutImages.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.numImgLayer)).EndInit();
             this.panelImg.ResumeLayout(false);
             this.panelImg.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureImg)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numImgLayer)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numImgLevel)).EndInit();
             this.tabDataBuf.ResumeLayout(false);
             this.tableLayoutBufferDef.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.tableBuf)).EndInit();
@@ -640,7 +650,7 @@ namespace App
         private System.Windows.Forms.TabPage tabDataImg;
         private System.Windows.Forms.TabPage tabDataBuf;
         private System.Windows.Forms.TableLayoutPanel tableLayoutImages;
-        private DebugTexture pictureImg;
+        private System.Windows.Forms.PictureBox pictureImg;
         private System.Windows.Forms.ComboBox comboImg;
         private System.Windows.Forms.TableLayoutPanel tableLayoutBufferDef;
         private System.Windows.Forms.ComboBox comboBuf;
@@ -659,11 +669,12 @@ namespace App
         private System.Windows.Forms.ToolStripButton toolBtnNew;
         private System.Windows.Forms.ToolStripButton toolBtnSaveAs;
         private System.Windows.Forms.ToolStripButton toolBtnClose;
-        private System.Windows.Forms.NumericUpDown numImgLayer;
         private System.Windows.Forms.NumericUpDown numBufDim;
         private System.Windows.Forms.TabPage tabProperties;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.PropertyGrid propertyGrid;
         private System.Windows.Forms.ComboBox comboProp;
+        private System.Windows.Forms.NumericUpDown numImgLayer;
+        private System.Windows.Forms.NumericUpDown numImgLevel;
     }
 }

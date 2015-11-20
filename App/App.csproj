@@ -80,8 +80,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\DebugBuffer.cs" />
-    <Compile Include="src\DebugTexture.cs" />
     <Compile Include="src\Extensions.cs" />
     <Compile Include="src\CodeEditor.cs">
       <SubType>Component</SubType>

@@ -24,10 +24,10 @@ namespace App
             var errcode = GL.GetError();
             if (errcode != ErrorCode.NoError)
             {
-                err.Add($"OpenGL error '{errcode}' occurred during buffer allocation.");
+                err?.Add($"OpenGL error '{errcode}' occurred during buffer allocation.");
                 return true;
             }
-            return err.HasErrors();
+            return err != null ? err.HasErrors() : false;
         }
     }
 }

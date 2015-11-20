@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
@@ -25,7 +26,7 @@ namespace App
                 Environment.SetEnvironmentVariable("PATH", envPath + ";" + lib);
 
             // select 'float' as the default buffer value type
-            comboBufType.SelectedIndex = 7;
+            comboBufType.SelectedIndex = 8;
         }
         
         #region App Control
@@ -87,9 +88,14 @@ namespace App
         {
             if (comboImg.SelectedItem == null || !(comboImg.SelectedItem is GLImage))
                 return;
+
             var img = (GLImage)comboImg.SelectedItem;
             numImgLayer.Maximum = Math.Max(Math.Max(img.length, img.depth) - 1, 0);
-            pictureImg.SetDebug(img.glname, (int)numImgLayer.Value, 0);
+
+            glControl.MakeCurrent();
+            var bmp = img.Read((int)numImgLayer.Value, 0);
+            bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            pictureImg.Image = bmp;
         }
 
         private void pictureImg_Click(object sender, EventArgs e)
@@ -232,6 +238,20 @@ namespace App
 
             // SHOW SCENE
             glControl.Render();
+
+            // also add externally created textures to the scene
+            var appIDs = from x in glControl.Scene
+                         where x.Value is GLImage select x.Value.glname;
+            var glIDs = from x in Enumerable.Range(0, 64)
+                        where !appIDs.Contains(x) && GL.IsTexture(x) select x;
+            glIDs.Do(x => glControl.Scene.Add("GLTex" + x, new GLImage("GLTex" + x, "tex", x)));
+
+            // also add externally created buffers to the scene
+            appIDs = from x in glControl.Scene
+                     where x.Value is GLBuffer select x.Value.glname;
+            glIDs = from x in Enumerable.Range(0, 64)
+                    where !appIDs.Contains(x) && GL.IsBuffer(x) select x;
+            glIDs.Do(x => glControl.Scene.Add("GLBuf" + x, new GLBuffer("GLBuf" + x, "buf", x)));
 
             // UPDATE DEBUG DATA
             comboBuf.Items.Clear();

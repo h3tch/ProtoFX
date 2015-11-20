@@ -15,6 +15,17 @@ namespace App
         [GLField] public BufferUsageHint usage { get; private set; } = BufferUsageHint.StaticDraw;
         #endregion
 
+        public GLBuffer(string name, string annotation, int glname)
+            : base(name, annotation)
+        {
+            int s, u;
+            this.glname = glname;
+            GL.GetNamedBufferParameter(glname, BufferParameterName.BufferSize, out s);
+            GL.GetNamedBufferParameter(glname, BufferParameterName.BufferUsage, out u);
+            size = s;
+            usage = (BufferUsageHint)u;
+        }
+
         public GLBuffer(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
@@ -69,16 +80,21 @@ namespace App
 
         public byte[] Read()
         {
+            if (size == 0)
+                return "Buffer is empty".ToCharArray().ToBytes();
+
+            int flags;
+            GL.GetNamedBufferParameter(glname, BufferParameterName.BufferStorageFlags, out flags);
+            if ((flags & (int)BufferStorageFlags.MapReadBit) == 0)
+                return "Buffer cannot be read".ToCharArray().ToBytes();
+
             // allocate buffer memory
             byte[] data = new byte[size];
-
-            if (size > 0)
-            {
-                // map buffer and copy data to CPU memory
-                IntPtr dataPtr = GL.MapNamedBuffer(glname, BufferAccess.ReadOnly);
-                Marshal.Copy(dataPtr, data, 0, size);
-                GL.UnmapNamedBuffer(glname);
-            }
+            
+            // map buffer and copy data to CPU memory
+            IntPtr dataPtr = GL.MapNamedBuffer(glname, BufferAccess.ReadOnly);
+            Marshal.Copy(dataPtr, data, 0, size);
+            GL.UnmapNamedBuffer(glname);
             
             return data;
         }

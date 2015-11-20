@@ -71,7 +71,9 @@ namespace App
 
         public static byte[] ToBytes(this Array src)
         {
-            byte[] dst = new byte[Marshal.SizeOf(src.GetType().GetElementType()) * src.Length];
+            var ellType = src.GetType().GetElementType();
+            var ellSize = ellType == typeof(char) ? 2 : Marshal.SizeOf(ellType);
+            byte[] dst = new byte[ellSize * src.Length];
             Buffer.BlockCopy(src, 0, dst, 0, dst.Length);
             return dst;
         }
@@ -93,7 +95,8 @@ namespace App
         public static TResult[] To<TResult>(this byte[] data)
             where TResult : struct
         {
-            TResult[] rs = new TResult[data.Length / Marshal.SizeOf(typeof(TResult))];
+            var ellSize = typeof(TResult) == typeof(char) ? 2 : Marshal.SizeOf(typeof(TResult));
+            TResult[] rs = new TResult[(data.Length + ellSize - 1) / ellSize];
             Buffer.BlockCopy(data, 0, rs, 0, data.Length);
             return rs;
         }
@@ -107,7 +110,7 @@ namespace App
             // convert data to specified type
             switch (typeName)
             {
-                case "byte":   return bytes.To<byte>();
+                case "char":   return bytes.To<char>();
                 case "short":  return bytes.To<short>();
                 case "ushort": return bytes.To<ushort>();
                 case "int":    return bytes.To<int>();
