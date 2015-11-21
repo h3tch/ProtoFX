@@ -58,13 +58,17 @@ namespace App
 
         private void HandleSelectionChanged(object sender, EventArgs e)
         {
-            var tabSourceText = (CodeEditor)sender;
+            if (this != (CodeEditor)sender)
+                return;
             // DEACTIVATE MULTILINE SELECTION BECAUSE MULTILINE EDIT IS NOT SUPPORTED
-            if (tabSourceText.Selection.IsRectangle)
-                tabSourceText.Selection.Range = new Range(
-                    tabSourceText.Selection.Start,
-                    tabSourceText.Selection.End,
-                    tabSourceText);
+            if (Selection.IsRectangle)
+                Selection.Range = new Range(Selection.Start, Selection.End, this);
+            else
+            {
+                FindReplace.ClearAllHighlights();
+                if (Selection.Text.Length > 1)
+                    FindReplace.HighlightAll(FindReplace.FindAll(Selection.Text));
+            }
         }
 
         private void HandleDragOver(object sender, DragEventArgs e)
