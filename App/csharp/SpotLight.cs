@@ -93,7 +93,11 @@ namespace csharp
                 unif.Set(Names.color, new[] { color[0], color[1], color[2], intensity }.AsInt32());
 
             if (unif[Names.light] >= 0)
-                unif.Set(Names.light, new[] { innerCone * rad2deg, radius, 0f, 0f }.AsInt32());
+            {
+                var x = near * (float)Math.Tan(fov * rad2deg);
+                var y = x / aspect;
+                unif.Set(Names.light, new[] { innerCone * rad2deg, radius, x, y }.AsInt32());
+            }
 
             // UPDATE UNIFORM BUFFER
             unif.Update();

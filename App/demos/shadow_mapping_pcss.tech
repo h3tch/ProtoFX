@@ -125,6 +125,11 @@ shader frag fs_render {
 	layout(location = 1) in vec4 in_col;
 	out vec4 color;
 
+	const float lightR = light.light.y;
+	const float zNear = light.camera.z;
+	const float zFar = light.camera.w;
+	const vec2 fovVec = light.light.zw;
+	
 	float rand(vec2 xy) {
 		return fract(sin(dot(xy ,vec2(12.9898,78.233))) * 43758.5453);
 	}
@@ -135,49 +140,36 @@ shader frag fs_render {
 		return mat2(ca, -sa, ca, sa);
 	}
 	
-	vec2 depthGradient(vec2 uv, float z)
-	{
-		vec2 dz_duv = vec2(0.0, 0.0);
-
-		vec3 duvdist_dx = dFdx(vec3(uv,z));
-		vec3 duvdist_dy = dFdy(vec3(uv,z));
-
-		dz_duv.x = duvdist_dy.y * duvdist_dx.z;
-		dz_duv.x -= duvdist_dx.y * duvdist_dy.z;
-
-		dz_duv.y = duvdist_dx.x * duvdist_dy.z;
-		dz_duv.y -= duvdist_dy.x * duvdist_dx.z;
-
-		float det = (duvdist_dx.x * duvdist_dy.y) - (duvdist_dx.y * duvdist_dy.x);
-		dz_duv /= det;
-
-		return dz_duv;
+	vec2 depthNormalBias(vec3 lpos) {
+		vec3 normal = cross(dFdx(lpos), dFdy(lpos));
+		return vec2(1,-1) * normal.xy / normal.z;
 	}
 
-	float light2shadowmap(float radius, float zNear, float zReceiver) {
-		return radius * (zReceiver - zNear) / zReceiver;
+	float light2plane(float value, float zReceiver) {
+		return value * (zReceiver - zNear) / zReceiver;
 	}
 
-	float light2penumbra(float radius, float zBlocker, float zReceiver) {
-		return radius * (zReceiver - zBlocker) / zBlocker;
+	vec2 plane2tex(float value) {
+		return vec2(value) / fovVec;
 	}
 
-	float penumbra2shadowmap(float penumbra, float zNear, float zReceiver) {
-		return penumbra * zNear / zReceiver;
+	float light2penumbra(float value, float zBlocker, float zReceiver) {
+		return value * (zReceiver - zBlocker) / zBlocker;
+	}
+
+	float penumbra2plane(float value, float zReceiver) {
+		return value * zNear / zReceiver;
 	}
 	
-	float biasZ(float z, vec2 zChange, vec2 offset) {
-		return z + dot(zChange.yx, offset);
+	float bias(vec2 zChange, vec2 offset) {
+		return dot(zChange, offset) - 0.001;
 	}
 	
-	float exp2linDepth(float z, float zNear, float zFar) {
-		//float z_n = 2.0 * z - 1.0;
-		//return 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
-		//return (2 * zNear * zFar) / (zFar + zNear - z * (zFar - zNear));
+	float exp2linDepth(float z) {
 		return zFar * zNear / (zFar - z * (zFar - zNear));  
 	}
 
-	float BlockerSearch(float filterR, float zNear, float zFar, vec3 lpos, vec2 zChange) {
+	float BlockerSearch(vec2 filterR, vec3 lpos, vec2 surfBias) {
 		int nBlocker = 0;
 		float zBlocker = 0.0;
 		mat2 R = randRot(2 * PI * rand(lpos.xy));
@@ -185,47 +177,55 @@ shader frag fs_render {
 		for (int i = 0; i < NUM_POINTS; i++) {
 			vec2 p = R * disc.points[i] * filterR;
 			float z = texture(shadowmap, lpos.xy + p).x;
-			if (biasZ(lpos.z, zChange, p) > z) {
+			//z = exp2linDepth(z);
+			if (lpos.z + bias(surfBias, p) > z) {
 				zBlocker += z;
 				nBlocker++;
 			}
 		}
-
-		return exp2linDepth(zBlocker / float(nBlocker), zNear, zFar);
+		//return zBlocker / float(nBlocker);
+		return exp2linDepth(zBlocker / float(nBlocker));
 	}
 
-	float PCF(float filterR, vec3 lpos, vec2 zChange) {
+	float PCF(vec2 filterR, vec3 lpos, vec2 surfBias) {
 		// PCF SHADOW MAPPING
 		float shadow = 0.0;
 		mat2 R = randRot(2 * PI * rand(lpos.xy));
 
 		for (int i = 0; i < NUM_POINTS; i++) {
 			vec2 p = R * disc.points[i] * filterR;
-			shadow += biasZ(lpos.z, zChange, p) > texture(shadowmap, lpos.xy + p).x ? 1.0 : 0.0;
+			float z = texture(shadowmap, lpos.xy + p).x;
+			//z = exp2linDepth(z);
+			shadow += lpos.z + bias(surfBias, p) > z ? 1.0 : 0.0;
 		}
 
 		return shadow / float(NUM_POINTS);
 	}
 
-	float PCSS(float radius, float zNear, float zFar, vec3 lpos, vec2 zChange) {
-		float receiverZ = exp2linDepth(lpos.z, zNear, zFar);
+	float PCSS(vec2 surfBias, vec3 lpos) {
+		float receiverZ = exp2linDepth(lpos.z);
 		
 		// BLOCKER SEARCH
-		float filterR = light2shadowmap(radius, zNear, receiverZ);
-		float zBlocker = BlockerSearch(filterR, zNear, zFar, lpos, zChange);
+		float planeR = light2plane(lightR, receiverZ);
+		vec2 filterR = plane2tex(planeR);
+		float zBlocker = BlockerSearch(filterR, lpos, surfBias);
 		if (isnan(zBlocker))
-			zBlocker = receiverZ;
+			return 0;//zBlocker = lpos.z;
 
 		// PCF SHADOW MAPPING
-		float penumbraR = light2penumbra(radius, zBlocker, receiverZ);
-		filterR = penumbra2shadowmap(penumbraR, zNear, receiverZ);
-		return PCF(filterR, lpos, zChange);
+		float penumbraR = light2penumbra(lightR, zBlocker, receiverZ);
+		planeR = penumbra2plane(penumbraR, receiverZ);
+		filterR = plane2tex(planeR);
+		return PCF(filterR, lpos, surfBias);
 	}
 	
-	void main ()
-	{
+	void main () {
 		// pass color
 		color = in_col;
+		
+		//vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
+		//color.rgb = normalize(cross(dFdx(lpos),dFdy(lpos)));
+		//return;
 		
 		// if pixel outside light frustum clip space, do nothing
 		if (any(greaterThan(abs(in_lpos), in_lpos.wwww)))
@@ -236,12 +236,17 @@ shader frag fs_render {
 		// transform to normalized device coordinates [-1;+1]
 		// and then to shadow map texture coordinates [0;1]
 		vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
-		vec2 zChange = depthGradient(lpos.xy, lpos.z);
 		
-		const vec2 r = 10.0 / textureSize(shadowmap, 0);
-		float shadow = PCF((r.x + r.y) * 0.5, lpos, zChange);
-		//float shadow = PCSS(light.light.y, light.camera.z,
-		//	light.camera.w, lpos, zChange);
+		vec3 normal = cross(dFdx(lpos),dFdy(lpos));
+		if (normal.z < 0)
+			return;
+			
+		vec2 surfBias = -normal.xy / normal.z;
+		
+		//const vec2 r = 10.0 / textureSize(shadowmap, 0);
+		//float shadow = PCF((r.x + r.y) * 0.5, lpos, zChange);
+		float shadow = PCSS(surfBias, lpos);
+			
 		if (shadow == 0.0)
 			return;
 		
@@ -267,14 +272,14 @@ instance cs_light {
 	pos 3 4 3
 	rot -45 45 0
 	near 2
-	far 20
-	radius 0.5
+	far 40
+	radius 1
 }
 
 instance cs_camera {
 	class cs_util csharp.SimpleCamera
 	name SimpleCamera
-	pos -5 4 10
+	pos -2.5 2 5
 	rot -20 -15 0
 }
 
@@ -295,7 +300,7 @@ pass pass_shadowmap {
 	// OpenGL calls
 	Clear depthBit
 	Enable depthTest
-	Enable CullFace
+	//Enable CullFace
 
 	// execute camera code
 	exec cs_light

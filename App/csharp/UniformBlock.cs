@@ -67,13 +67,13 @@ namespace csharp
             }
 
             // allocate GPU memory
+            var flags = BufferStorageFlags.MapWriteBit;
+            #if DEBUG
+            flags |= BufferStorageFlags.MapReadBit;
+            #endif
             glbuf = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.UniformBuffer, glbuf); // Note: needs to be bound once!
-            GL.NamedBufferStorage(glbuf, size, IntPtr.Zero, BufferStorageFlags.MapWriteBit
-                #if DEBUG
-                | BufferStorageFlags.MapReadBit
-                #endif
-                );
+            GL.NamedBufferStorage(glbuf, size, IntPtr.Zero, flags);
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
         }
 
