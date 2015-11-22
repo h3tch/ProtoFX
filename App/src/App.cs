@@ -343,11 +343,11 @@ namespace App
             tabSourcePage.Padding = new Padding(3);
             tabSourcePage.TabIndex = 0;
             tabSourcePage.Text = filename;
+            tabSourcePage.AllowDrop = true;
 
             // add tab
             tabSource.Controls.Add(tabSourcePage);
-
-            tabSourcePageText.UndoRedo.EmptyUndoBuffer();
+            
         }
         #endregion
     }
