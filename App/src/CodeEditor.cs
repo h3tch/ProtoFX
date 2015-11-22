@@ -16,8 +16,14 @@ namespace App
         public CodeEditor(string text)
         {
             FindText = new TextBox();
-            FindText.Visible = false;
             FindText.Parent = this;
+            FindText.MinimumSize = new Size(0,0);
+            FindText.MaximumSize = new Size(1, 1);
+            FindText.SetBounds(0, 0, 1, 1);
+            FindText.TextChanged += new EventHandler(HandleFindTextChanged);
+            FindText.KeyUp += new KeyEventHandler(HandleFindKeyUp);
+            FindText.GotFocus += new EventHandler(HandleFindGotFocus);
+            FindText.LostFocus += new EventHandler(HandleFindLostFocus);
 
             // setup code coloring
             this.StyleResetDefault();
@@ -37,7 +43,6 @@ namespace App
             this.Styles[Style.Cpp.Word2].ForeColor = Color.FromArgb(30, 120, 255);
             this.Styles[Style.Cpp.Verbatim].ForeColor = Color.FromArgb(163, 21, 21);
             this.Styles[Style.Cpp.StringEol].BackColor = Color.Pink;
-
             this.Lexer = Lexer.Cpp;
             this.SetKeywords(0, keywords0);
             this.SetKeywords(1, keywords1);
@@ -92,15 +97,7 @@ namespace App
             UpdateLineNumbers();
         }
 
-        public void UpdateLineNumbers()
-        {
-            // UPDATE LINE NUMBERS
-            int nLines = Lines.Count.ToString().Length;
-            var width = TextRenderer.MeasureText(new string('9', nLines), Font).Width;
-            if (Margins[0].Width != width)
-                Margins[0].Width = width;
-        }
-        
+        #region EVENT HANDLERS
         private void HandleInsertCheck(object sender, InsertCheckEventArgs e)
         {
             if (KeyControl)
@@ -114,20 +111,19 @@ namespace App
             var tabSourcePage = (TabPage)editor.Parent;
             if (!tabSourcePage.Text.EndsWith("*"))
                 tabSourcePage.Text = tabSourcePage.Text + '*';
-
-            // UPDATE LINE NUMBERS
-            var nLines = editor.Lines.Count.ToString().Length-2;
-            var width = TextRenderer.MeasureText(new string('9', nLines), editor.Font).Width;
-            if (editor.Margins[0].Width != width)
-                editor.Margins[0].Width = width;
+            
+            editor.UpdateLineNumbers();
         }
 
         private void HandleSelectionChanged(object sender, UpdateUIEventArgs e)
         {
             var editor = (CodeEditor)sender;
             if (e.Change == UpdateChange.Selection)
+            {
                 // highlight all selected words
-                Highlight(SelectedWordRanges(SelectedWords()));
+                editor.ClearHighlights();
+                editor.Highlight(editor.SelectedWordsRanges(editor.SelectedWords()));
+            }
         }
 
         private void HandleDragOver(object sender, DragEventArgs e)
@@ -208,35 +204,127 @@ namespace App
             switch (e.KeyCode)
             {
                 case Keys.F:
+                    // start text search
                     FindText.Clear();
                     FindText.Focus();
                     break;
                 case Keys.R:
+                    // select all indicator to allow text replacement
                     editor.SelectAllIndicators();
                     break;
             }
+        }
+        #endregion
+
+        #region FIND EVENT HANDLERS
+        private void HandleFindTextChanged(object sender, EventArgs e)
+        {
+            var textbox = (TextBox)sender;
+            var editor = (CodeEditor)textbox.Parent;
+            editor.ClearHighlights();
+            if (textbox.Text.Length == 0)
+                return;
+
+            // select all ranges matching the search term
+            var ranges = editor.SelectedWordRanges(textbox.Text, false);
+
+            // if nothing can be selected, reduce the search term until somethin can
+            while (ranges.Count() == 0 && textbox.Text.Length > 1)
+            {
+                textbox.Text = textbox.Text.Substring(0, textbox.Text.Length - 1);
+                ranges = editor.SelectedWordRanges(textbox.Text, false);
+            }
+            textbox.Select(textbox.Text.Length, 0);
+
+            // highlight all selected words
+            editor.Highlight(ranges);
+
+            // rotate through all ranges until we arive
+            // at the one closest to the caret position
+            foreach (var range in ranges)
+            {
+                if (CurrentPosition <= range.Item1)
+                {
+                    CurrentPosition = range.Item1;
+                    AnchorPosition = range.Item2;
+                    break;
+                }
+            }
+        }
+
+        private void HandleFindGotFocus(object sender, EventArgs e)
+        {
+            // on focus color the caret red
+            var textbox = (TextBox)sender;
+            var editor = (CodeEditor)textbox.Parent;
+            editor.CaretWidth = 2;
+            editor.CaretForeColor = Color.Red;
+        }
+
+        private void HandleFindLostFocus(object sender, EventArgs e)
+        {
+            // on lost focus color the caret black
+            var textbox = (TextBox)sender;
+            var editor = (CodeEditor)textbox.Parent;
+            editor.CaretWidth = 1;
+            editor.CaretForeColor = Color.Black;
+        }
+
+        private void HandleFindKeyUp(object sender, KeyEventArgs e)
+        {
+            var textbox = (TextBox)sender;
+            var editor = (CodeEditor)textbox.Parent;
+
+            switch (e.KeyCode)
+            {
+                case Keys.R:
+                    // move focus to editor and
+                    // start with text replacement
+                    if (e.Control)
+                    {
+                        editor.SelectAllIndicators();
+                        editor.Focus();
+                    }
+                    break;
+                case Keys.Escape:
+                    // move focus to editor
+                    editor.Focus();
+                    break;
+            }
+        }
+        #endregion
+
+        #region UTIL
+        public void UpdateLineNumbers()
+        {
+            // UPDATE LINE NUMBERS
+            int nLines = Lines.Count.ToString().Length;
+            var width = TextRenderer.MeasureText(new string('9', nLines), Font).Width;
+            if (Margins[0].Width != width)
+                Margins[0].Width = width;
         }
 
         private void SelectAllIndicators()
         {
             // get current caret position
-            var cur = this.CurrentPosition;
+            var cur = CurrentPosition;
 
             // get selected word ranges
-            var ranges = SelectedWordRanges(SelectedWords());
+            var ranges = SelectedWordsRanges(SelectedWords());
+            var count = ranges.Count();
 
             // select all word ranges
-            this.ClearSelections();
+            ClearSelections();
             foreach (var range in ranges)
-                this.AddSelection(range.Item1, range.Item2);
+                AddSelection(range.Item1, range.Item2);
 
             // ClearSelections adds a default selection
             // at postion 0 which we need to remove
-            this.DropSelection(0);
+            DropSelection(0);
 
             // rotate through all selections until we arive at the original caret position
-            for (int i = 0; (cur < CurrentPosition || AnchorPosition < cur) && i < ranges.Count; i++)
-                this.RotateSelection();
+            for (int i = 0; (cur < CurrentPosition || AnchorPosition < cur) && i < count; i++)
+                RotateSelection();
         }
 
         private Dictionary<string, bool> SelectedWords()
@@ -273,35 +361,40 @@ namespace App
             return words;
         }
 
-        private List<Tuple<int, int>> SelectedWordRanges(Dictionary<string, bool> words)
+        private IEnumerable<Tuple<int, int>> SelectedWordsRanges(Dictionary<string, bool> words)
         {
-            var ranges = new List<Tuple<int, int>>();
-
             foreach (var word in words)
-            {
-                // Search the document
-                this.TargetStart = 0;
-                this.TargetEnd = this.TextLength;
-                this.SearchFlags = SearchFlags.MatchCase |
-                    (word.Value ? SearchFlags.WholeWord : SearchFlags.None);
-                while (this.SearchInTarget(word.Key) != -1)
-                {
-                    ranges.Add(new Tuple<int, int>(this.TargetStart, this.TargetEnd));
-                    // Search the remainder of the document
-                    this.TargetStart = this.TargetEnd;
-                    this.TargetEnd = this.TextLength;
-                }
-            }
-
-            return ranges;
+                foreach (var tupel in SelectedWordRanges(word.Key, word.Value))
+                    yield return tupel;
         }
 
-        private void Highlight(List<Tuple<int, int>> ranges)
+        private IEnumerable<Tuple<int, int>> SelectedWordRanges(string word, bool wholeWord)
+        {
+            // Search the document
+            TargetStart = 0;
+            TargetEnd = TextLength;
+            SearchFlags = SearchFlags.MatchCase |
+                (wholeWord ? SearchFlags.WholeWord : SearchFlags.None);
+            while (SearchInTarget(word) != -1)
+            {
+                yield return new Tuple<int, int>(TargetStart, TargetEnd);
+                // Search the remainder of the document
+                TargetStart = TargetEnd;
+                TargetEnd = TextLength;
+            }
+        }
+        #endregion
+
+        #region HIGHLIGHT TEXT
+        private void ClearHighlights()
         {
             // Remove all uses of our indicator
             this.IndicatorCurrent = HighlightIndicatorIndex;
             this.IndicatorClearRange(0, this.TextLength);
+        }
 
+        private void Highlight(IEnumerable<Tuple<int, int>> ranges)
+        {
             // Indicators 0-7 could be in use by a lexer
             // so we'll use indicator 8 to highlight words.
             int NUM = HighlightIndicatorIndex;
@@ -310,13 +403,14 @@ namespace App
             // Update indicator appearance
             this.Indicators[NUM].Style = IndicatorStyle.StraightBox;
             this.Indicators[NUM].Under = true;
-            this.Indicators[NUM].ForeColor = Color.Green;
-            this.Indicators[NUM].OutlineAlpha = 50;
-            this.Indicators[NUM].Alpha = 30;
+            this.Indicators[NUM].ForeColor = Color.Crimson;
+            this.Indicators[NUM].OutlineAlpha = 60;
+            this.Indicators[NUM].Alpha = 40;
 
             foreach (var range in ranges)
                 this.IndicatorFillRange(range.Item1, range.Item2 - range.Item1);
         }
+        #endregion
 
         #region KEYWORDS
         string keywords0 =

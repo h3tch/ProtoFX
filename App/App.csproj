@@ -175,7 +175,6 @@
     <Content Include="demos\geom\quad.xml" />
     <Content Include="demos\geom\triangle.xml" />
     <Content Include="demos\tex\lena.jpg" />
-    <Content Include="conf\syntax.xml" />
     <None Include="demos\simple.tech" />
     <None Include="demos\simple_fragoutput.tech" />
   </ItemGroup>
