@@ -12,9 +12,15 @@ namespace App
         private static int HighlightIndicatorIndex = 8;
         private TextBox FindText;
         private bool KeyControl = false;
+        private List<Tuple<int, int>>[] IndicatorRanges;
 
         public CodeEditor(string text)
         {
+            IndicatorRanges = new List<Tuple<int, int>>[Indicators.Count];
+            for (int i = 0; i < Indicators.Count; i++)
+                IndicatorRanges[i] = new List<Tuple<int, int>>();
+
+            // find text box
             FindText = new TextBox();
             FindText.Parent = this;
             FindText.MinimumSize = new Size(0,0);
@@ -120,9 +126,10 @@ namespace App
             var editor = (CodeEditor)sender;
             if (e.Change == UpdateChange.Selection)
             {
+                var ranges = editor.SelectedWordsRanges(editor.SelectedWords());
                 // highlight all selected words
-                editor.ClearHighlights();
-                editor.Highlight(editor.SelectedWordsRanges(editor.SelectedWords()));
+                editor.ClearIndicators(HighlightIndicatorIndex);
+                editor.AddIndicators(HighlightIndicatorIndex, ranges);
             }
         }
 
@@ -191,6 +198,17 @@ namespace App
         private void HandleKeyDown(object sender, KeyEventArgs e)
         {
             KeyControl = e.Control;
+
+            if (!KeyControl)
+                return;
+
+            switch (e.KeyCode)
+            {
+                case Keys.F:
+                case Keys.R:
+                    e.SuppressKeyPress = true;
+                    break;
+            }
         }
 
         private void HandleKeyUp(object sender, KeyEventArgs e)
@@ -210,7 +228,7 @@ namespace App
                     break;
                 case Keys.R:
                     // select all indicator to allow text replacement
-                    editor.SelectAllIndicators();
+                    editor.SelectIndicators(HighlightIndicatorIndex);
                     break;
             }
         }
@@ -221,7 +239,7 @@ namespace App
         {
             var textbox = (TextBox)sender;
             var editor = (CodeEditor)textbox.Parent;
-            editor.ClearHighlights();
+            editor.ClearIndicators(HighlightIndicatorIndex);
             if (textbox.Text.Length == 0)
                 return;
 
@@ -237,7 +255,7 @@ namespace App
             textbox.Select(textbox.Text.Length, 0);
 
             // highlight all selected words
-            editor.Highlight(ranges);
+            editor.AddIndicators(HighlightIndicatorIndex, ranges);
 
             // rotate through all ranges until we arive
             // at the one closest to the caret position
@@ -282,7 +300,7 @@ namespace App
                     // start with text replacement
                     if (e.Control)
                     {
-                        editor.SelectAllIndicators();
+                        editor.SelectIndicators(HighlightIndicatorIndex);
                         editor.Focus();
                     }
                     break;
@@ -304,13 +322,17 @@ namespace App
                 Margins[0].Width = width;
         }
 
-        private void SelectAllIndicators()
+        private void SelectIndicators(int index)
+        {
+            SelectRanges(IndicatorRanges[index]);
+        }
+
+        private void SelectRanges(IEnumerable<Tuple<int, int>> ranges)
         {
             // get current caret position
             var cur = CurrentPosition;
 
             // get selected word ranges
-            var ranges = SelectedWordsRanges(SelectedWords());
             var count = ranges.Count();
 
             // select all word ranges
@@ -386,29 +408,32 @@ namespace App
         #endregion
 
         #region HIGHLIGHT TEXT
-        private void ClearHighlights()
+        private void ClearIndicators(int index)
         {
             // Remove all uses of our indicator
-            this.IndicatorCurrent = HighlightIndicatorIndex;
-            this.IndicatorClearRange(0, this.TextLength);
+            IndicatorCurrent = index;
+            IndicatorClearRange(0, TextLength);
+            IndicatorRanges[index].Clear();
         }
 
-        private void Highlight(IEnumerable<Tuple<int, int>> ranges)
+        private void AddIndicators(int index, IEnumerable<Tuple<int, int>> ranges)
         {
-            // Indicators 0-7 could be in use by a lexer
-            // so we'll use indicator 8 to highlight words.
-            int NUM = HighlightIndicatorIndex;
-            this.IndicatorCurrent = NUM;
+            // set active indicator
+            IndicatorCurrent = index;
 
             // Update indicator appearance
-            this.Indicators[NUM].Style = IndicatorStyle.StraightBox;
-            this.Indicators[NUM].Under = true;
-            this.Indicators[NUM].ForeColor = Color.Crimson;
-            this.Indicators[NUM].OutlineAlpha = 60;
-            this.Indicators[NUM].Alpha = 40;
+            Indicators[index].Style = IndicatorStyle.StraightBox;
+            Indicators[index].Under = true;
+            Indicators[index].ForeColor = Color.Crimson;
+            Indicators[index].OutlineAlpha = 60;
+            Indicators[index].Alpha = 40;
 
             foreach (var range in ranges)
-                this.IndicatorFillRange(range.Item1, range.Item2 - range.Item1);
+            {
+                // add indicator range
+                IndicatorRanges[index].Add(range);
+                IndicatorFillRange(range.Item1, range.Item2 - range.Item1);
+            }
         }
         #endregion
 
