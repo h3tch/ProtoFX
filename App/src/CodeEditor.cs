@@ -259,15 +259,7 @@ namespace App
 
             // rotate through all ranges until we arive
             // at the one closest to the caret position
-            foreach (var range in ranges)
-            {
-                if (CurrentPosition <= range.Item1)
-                {
-                    CurrentPosition = range.Item1;
-                    AnchorPosition = range.Item2;
-                    break;
-                }
-            }
+            GotoRange(ranges, 1);
         }
 
         private void HandleFindGotFocus(object sender, EventArgs e)
@@ -295,6 +287,16 @@ namespace App
 
             switch (e.KeyCode)
             {
+                case Keys.Right:
+                case Keys.Down:
+                    // go to next found indicator
+                    GotoRange(IndicatorRanges[HighlightIndicatorIndex], 1);
+                    break;
+                case Keys.Left:
+                case Keys.Up:
+                    // go to last found indicator
+                    GotoRange(IndicatorRanges[HighlightIndicatorIndex], -1);
+                    break;
                 case Keys.R:
                     // move focus to editor and
                     // start with text replacement
@@ -313,13 +315,42 @@ namespace App
         #endregion
 
         #region UTIL
-        public void UpdateLineNumbers()
+        private void UpdateLineNumbers()
         {
             // UPDATE LINE NUMBERS
             int nLines = Lines.Count.ToString().Length;
             var width = TextRenderer.MeasureText(new string('9', nLines), Font).Width;
             if (Margins[0].Width != width)
                 Margins[0].Width = width;
+        }
+
+        private void GotoRange(IEnumerable<Tuple<int, int>> ranges, int step = 1)
+        {
+            Tuple<int, int> range = null;
+            // step forward
+            for (; step > 0; step--)
+                range = ClosestNextRange(CurrentPosition, ranges);
+            // step backward
+            for (; step < 0; step++)
+                range = ClosestPrevRange(CurrentPosition, ranges);
+            // go to range position
+            GotoPosition(range.Item1);
+        }
+
+        private Tuple<int, int> ClosestNextRange(int pos, IEnumerable<Tuple<int, int>> ranges)
+        {
+            foreach (var range in ranges)
+                if (pos < range.Item1)
+                    return range;
+            return ranges.First();
+        }
+
+        private Tuple<int, int> ClosestPrevRange(int pos, IEnumerable<Tuple<int, int>> ranges)
+        {
+            foreach (var range in ranges.Reverse())
+                if (pos >= range.Item2)
+                    return range;
+            return ranges.Last();
         }
 
         private void SelectIndicators(int index)
