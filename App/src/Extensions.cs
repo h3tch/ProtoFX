@@ -11,19 +11,23 @@ namespace App
     /// </summary>
     public static class Extensions
     {
-        /// <summary>
-        /// Find tab in tab collection by the file path attached to it.
-        /// </summary>
-        /// <param name="tab">
-        /// The object which receives this extension method is the TabPageCollection type.</param>
-        /// <param name="path">
-        /// The path to search for.</param>
-        /// <returns>The tab index or -1 if the tab could not be found.</returns>
-        public static int Find(this TabControl.TabPageCollection tab, string path)
+        public static int IndexOf(this TabControl.TabPageCollection tab, string path)
         {
             for (int i = 0; i < tab.Count; i++)
                 if (((TabPage)tab[i]).filepath == path)
                     return i;
+            return -1;
+        }
+
+        public static int IndexOf<T>(this IEnumerable<T> ie, Func<T, bool> func)
+        {
+            int i = 0;
+            foreach (var e in ie)
+            {
+                if (func(e))
+                    return i;
+                i++;
+            }
             return -1;
         }
 

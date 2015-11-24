@@ -185,7 +185,7 @@ namespace App
             // open tabs
             foreach (var path in openDlg.FileNames)
             {
-                int i = tabSource.TabPages.Find(path);
+                int i = tabSource.TabPages.IndexOf(path);
                 if (i < 0)
                 {
                     i = tabSource.TabPages.Count;

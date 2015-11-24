@@ -81,6 +81,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\CodeEditor.Events.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\CodeEditor.Find.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="src\Extensions.cs" />
     <Compile Include="src\CodeEditor.cs">
       <SubType>Component</SubType>
