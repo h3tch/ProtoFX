@@ -7,13 +7,13 @@ namespace App
 {
     partial class CodeEditor
     {
-        private bool KeyControl = false;
+        private bool KeyCtrl = false;
 
         private void HandleInsertCheck(object sender, InsertCheckEventArgs e)
         {
             // do not insert text when
             // the Ctrl key is pressed
-            if (KeyControl)
+            if (KeyCtrl)
                 e.Text = "";
         }
 
@@ -52,21 +52,17 @@ namespace App
             var editor = (CodeEditor)sender;
 
             // convert cursor position to text position
-            Point point = new Point(e.X, e.Y);
-            point = editor.PointToClient(point);
+            var point = editor.PointToClient(new Point(e.X, e.Y));
             int pos = editor.CharPositionFromPoint(point.X, point.Y);
 
             // refresh text control
             editor.Refresh();
 
-            // is draging possible
-            foreach (var selection in editor.Selections)
+            // if the mouse is over a selected area, dropping will not be possible
+            if (editor.Selections.IndexOf(x => x.Start <= pos && pos < x.End) >= 0)
             {
-                if (selection.Start <= pos && pos < selection.End)
-                {
-                    e.Effect = DragDropEffects.None;
-                    return;
-                }
+                e.Effect = DragDropEffects.None;
+                return;
             }
 
             // draw line at cursor position in text
@@ -88,7 +84,7 @@ namespace App
             // convert cursor position to text position
             var point = editor.PointToClient(new Point(e.X, e.Y));
             int pos = editor.CharPositionFromPoint(point.X, point.Y);
-
+            
             // is dropping possible
             foreach (var selection in editor.Selections)
             {
@@ -99,20 +95,18 @@ namespace App
                     pos -= selection.End - selection.Start;
             }
 
-            // cut the selected text to the clipboard
+            // cut the selected text to the clipboard,
+            // move caret to the insert position and
+            // insert cut text from clipboard
             editor.Cut();
-            // move caret to the insert position
             editor.CurrentPosition = pos;
             editor.AnchorPosition = pos;
-            // insert cut text from clipboard
             editor.Paste();
         }
 
         private void HandleKeyDown(object sender, KeyEventArgs e)
         {
-            KeyControl = e.Control;
-
-            if (!KeyControl)
+            if (!(KeyCtrl = e.Control))
                 return;
 
             switch (e.KeyCode)
@@ -127,9 +121,7 @@ namespace App
         private void HandleKeyUp(object sender, KeyEventArgs e)
         {
             var editor = (CodeEditor)sender;
-            KeyControl = e.Control;
-
-            if (!KeyControl)
+            if (!(KeyCtrl = e.Control))
                 return;
 
             switch (e.KeyCode)

@@ -4,21 +4,20 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using Range = System.Tuple<int, int>;
-using RangeIter = System.Collections.Generic.IEnumerable<System.Tuple<int, int>>;
 
 namespace App
 {
     partial class CodeEditor : Scintilla
     {
         private static int HighlightIndicatorIndex = 8;
-        private List<Range>[] IndicatorRanges;
+        private List<int[]>[] IndicatorRanges;
 
         public CodeEditor(string text)
         {
-            IndicatorRanges = new List<Tuple<int, int>>[Indicators.Count];
+            // instantiate fields
+            IndicatorRanges = new List<int[]>[Indicators.Count];
             for (int i = 0; i < Indicators.Count; i++)
-                IndicatorRanges[i] = new List<Tuple<int, int>>();
+                IndicatorRanges[i] = new List<int[]>();
 
             // find text box
             FindText = new TextBox();
@@ -80,7 +79,7 @@ namespace App
             AdditionalSelectionTyping = true;
             VirtualSpaceOptions = VirtualSpace.RectangularSelection;
 
-            // enable drag&drop
+            // enable drag & drop
             AllowDrop = true;
             DragOver += new DragEventHandler(HandleDragOver);
             DragDrop += new DragEventHandler(HandleDragDrop);
@@ -90,16 +89,18 @@ namespace App
             KeyDown += new KeyEventHandler(HandleKeyDown);
             InsertCheck += new EventHandler<InsertCheckEventArgs>(HandleInsertCheck);
 
-            // other settings
+            // setup layout
             BorderStyle = BorderStyle.None;
             Dock = DockStyle.Fill;
             Font = new Font("Consolas", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             Location = new Point(0, 0);
             Margin = new Padding(0);
             TabIndex = 0;
-            Text = text;
             TextChanged += new EventHandler(HandleTextChanged);
             UpdateUI += new EventHandler<UpdateUIEventArgs>(HandleUpdateUI);
+
+            // insert text
+            Text = text != null ? text : "";
             UpdateLineNumbers();
         }
 
@@ -146,7 +147,6 @@ namespace App
             return words;
         }
         
-        #region INDICATOR UTILITY FUNCTIONS
         public void ClearIndicators(int index)
         {
             // Remove all uses of our indicator
@@ -155,7 +155,7 @@ namespace App
             IndicatorRanges[index].Clear();
         }
 
-        private void AddIndicators(int index, RangeIter ranges)
+        private void AddIndicators(int index, IEnumerable<int[]> ranges)
         {
             // set active indicator
             IndicatorCurrent = index;
@@ -171,14 +171,12 @@ namespace App
             {
                 // add indicator range
                 IndicatorRanges[index].Add(range);
-                IndicatorFillRange(range.Item1, range.Item2 - range.Item1);
+                IndicatorFillRange(range[0], range[1] - range[0]);
             }
         }
 
         public void GotoNextIndicator(int index, int skip = 0)
-        {
-            GotoNextRange(IndicatorRanges[index], skip);
-        }
+            => GotoNextRange(IndicatorRanges[index], skip);
 
         public void SelectIndicators(int index)
         {
@@ -192,7 +190,7 @@ namespace App
             // select all word ranges
             ClearSelections();
             foreach (var range in ranges)
-                AddSelection(range.Item1, range.Item2);
+                AddSelection(range[0], range[1]);
 
             // ClearSelections adds a default selection
             // at postion 0 which we need to remove
@@ -202,10 +200,10 @@ namespace App
             for (int i = 0; (cur < CurrentPosition || AnchorPosition < cur) && i < count; i++)
                 RotateSelection();
         }
-        #endregion
 
         #region KEYWORDS
         string[] keywords = new[] {
+            // PROTOGL KEYWORDS
             "buffer         " +
             "break          " +
             "const          " +
@@ -263,8 +261,8 @@ namespace App
             "vertinput      " +
             "vertoutput     " +
             "void           " +
-            "while          "
-            ,
+            "while          " ,
+            // PROTOGL ATTRIBUTE KEYWORDS
             "attr      " +
             "binding   " +
             "buff      " +

@@ -5,8 +5,6 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using static System.Math;
-using Range = System.Tuple<int, int>;
-using RangeIter = System.Collections.Generic.IEnumerable<System.Tuple<int, int>>;
 
 namespace App
 {
@@ -14,14 +12,14 @@ namespace App
     {
         private TextBox FindText;
 
-        private RangeIter FindWordRanges(Dictionary<string, bool> words)
+        private IEnumerable<int[]> FindWordRanges(Dictionary<string, bool> words)
         {
             foreach (var word in words)
                 foreach (var tupel in FindWordRanges(word.Key, word.Value))
                     yield return tupel;
         }
 
-        private RangeIter FindWordRanges(string word, bool wholeWord)
+        private IEnumerable<int[]> FindWordRanges(string word, bool wholeWord)
         {
             // Search the document
             TargetStart = 0;
@@ -30,28 +28,28 @@ namespace App
             // while can find word
             while (SearchInTarget(word) != -1)
             {
-                yield return new Tuple<int, int>(TargetStart, TargetEnd);
+                yield return new [] { TargetStart, TargetEnd };
                 // Search the remainder of the document
                 TargetStart = TargetEnd;
                 TargetEnd = TextLength;
             }
         }
 
-        private void GotoNextRange(RangeIter ranges, int skip = 0)
+        private void GotoNextRange(IEnumerable<int[]> ranges, int skip = 0)
         {
             var count = ranges.Count();
             if (count == 0)
                 return;
             // find closest index
             var idx = (ranges
-                .Select(x => new[] { x.Item1 - CurrentPosition, x.Item2 - CurrentPosition })
+                .Select(x => new[] { x[0] - CurrentPosition, x[1] - CurrentPosition })
                 .Select(x => Sign(x[0]) == Sign(x[1]) ? Sign(Min(x[0], x[1])) : 0)
                 .IndexOf(x => x >= 0) + skip) % count;
             // select range at closest index
-            Range range = ranges.Skip(idx < 0 ? count + idx : idx).First();
+            var range = ranges.Skip(idx < 0 ? count + idx : idx).First();
             // go to range position
             if (range != null)
-                GotoPosition(range.Item1);
+                GotoPosition(range[0]);
         }
 
         private void HandleFindTextChanged(object sender, EventArgs e)
