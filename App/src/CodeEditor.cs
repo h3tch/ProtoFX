@@ -88,6 +88,7 @@ namespace App
             KeyUp += new KeyEventHandler(HandleKeyUp);
             KeyDown += new KeyEventHandler(HandleKeyDown);
             InsertCheck += new EventHandler<InsertCheckEventArgs>(HandleInsertCheck);
+            CharAdded += new EventHandler<CharAddedEventArgs>(HandleCharAdded);
 
             // setup layout
             BorderStyle = BorderStyle.None;

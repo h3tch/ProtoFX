@@ -1,12 +1,13 @@
-﻿using System;
+﻿using App;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace App
+namespace OpenTK
 {
-    class GraphicControl : OpenTK.GLControl
+    class GraphicControl : GLControl
     {
         public static string nullname = "__protogl_control__";
         private bool render = false;

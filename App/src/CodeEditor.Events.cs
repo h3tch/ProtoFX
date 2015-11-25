@@ -1,21 +1,67 @@
 ﻿using ScintillaNET;
 using System;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace App
 {
     partial class CodeEditor
     {
-        private bool KeyCtrl = false;
+        private bool DisableEditing = false;
 
         private void HandleInsertCheck(object sender, InsertCheckEventArgs e)
         {
+            var editor = (CodeEditor)sender;
+
             // do not insert text when
             // the Ctrl key is pressed
-            if (KeyCtrl)
+            if (editor.DisableEditing)
                 e.Text = "";
+
+            // auto indent
+            if ((e.Text.EndsWith("\r") || e.Text.EndsWith("\n")))
+            {
+                // get text of line above
+                var text = editor.Lines[editor.LineFromPosition(editor.CurrentPosition)].Text;
+                // insert indent of line above
+                e.Text += Regex.Match(text, "^[ \\t]*").Value;
+                // if line above ends with '{' insert indent
+                if (Regex.IsMatch(text, "{\\s*$"))
+                    e.Text += '\t';
+            }
         }
+
+
+        private void HandleCharAdded(object sender, CharAddedEventArgs e)
+        {
+            var editor = (CodeEditor)sender;
+
+            // auto indent
+            if (e.Char == '}')
+            {
+                int curLine = editor.LineFromPosition(editor.CurrentPosition);
+                // Check whether the bracket is the only non
+                // whitespace in the line. For cases like "if() { }".
+                if (editor.Lines[curLine].Text.Trim() == "}")
+                    SetIndent(editor, curLine, GetIndent(editor, curLine) - 4);
+            }
+        }
+
+        //Codes for the handling the Indention of the lines.
+        //They are manually added here until they get officially added to the Scintilla control.
+        #region CodeIndent Handlers
+        const int SCI_SETLINEINDENTATION = 2126;
+        const int SCI_GETLINEINDENTATION = 2127;
+        private void SetIndent(Scintilla scin, int line, int indent)
+        {
+            scin.DirectMessage(SCI_SETLINEINDENTATION, new IntPtr(line), new IntPtr(indent));
+        }
+        private int GetIndent(Scintilla scin, int line)
+        {
+            return (scin.DirectMessage(SCI_GETLINEINDENTATION, new IntPtr(line), IntPtr.Zero).ToInt32());
+        }
+        #endregion
 
         private void HandleTextChanged(object sender, EventArgs e)
         {
@@ -24,7 +70,7 @@ namespace App
             var tab = (TabPage)editor.Parent;
 
             // add file changed indicator '*'
-            if (!tab.Text.EndsWith("*"))
+            if (tab != null && !tab.Text.EndsWith("*"))
                 tab.Text = tab.Text + '*';
 
             // update line number margins
@@ -106,7 +152,7 @@ namespace App
 
         private void HandleKeyDown(object sender, KeyEventArgs e)
         {
-            if (!(KeyCtrl = e.Control))
+            if (!e.Control)
                 return;
 
             switch (e.KeyCode)
@@ -114,6 +160,7 @@ namespace App
                 case Keys.F:
                 case Keys.R:
                     e.SuppressKeyPress = true;
+                    DisableEditing = true;
                     break;
             }
         }
@@ -121,7 +168,7 @@ namespace App
         private void HandleKeyUp(object sender, KeyEventArgs e)
         {
             var editor = (CodeEditor)sender;
-            if (!(KeyCtrl = e.Control))
+            if (!e.Control)
                 return;
 
             switch (e.KeyCode)
@@ -130,10 +177,12 @@ namespace App
                     // start text search
                     FindText.Clear();
                     FindText.Focus();
+                    DisableEditing = true;
                     break;
                 case Keys.R:
                     // select all indicator to allow text replacement
                     editor.SelectIndicators(HighlightIndicatorIndex);
+                    DisableEditing = true;
                     break;
             }
         }
