@@ -53,6 +53,7 @@
     <Compile Include="csharp\SimpleCamera.cs" />
     <Compile Include="csharp\SpotLight.cs" />
     <Compile Include="csharp\StaticCamera.cs" />
+    <Compile Include="csharp\TurntableCamera.cs" />
     <Compile Include="csharp\UniformBlock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

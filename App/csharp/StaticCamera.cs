@@ -1,10 +1,10 @@
 ﻿using OpenTK;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace csharp
 {
-    using System.Globalization;
     using Commands = Dictionary<string, string[]>;
 
     class StaticCamera
@@ -112,7 +112,7 @@ namespace csharp
         }
 
         #region UTILITY METHOD
-        private void Convert<T>(Commands cmds, string cmd, ref T[] v)
+        protected void Convert<T>(Commands cmds, string cmd, ref T[] v)
         {
             int i = 0, l;
 
@@ -122,13 +122,15 @@ namespace csharp
             {
                 var s = cmds[cmd];
                 for (l = Math.Min(s.Length, length); i < s.Length; i++)
+                {
                     if (!TryChangeType(s[i], ref v[i]))
                         errors.Add("Command '" + cmd + "': Could not convert argument "
                             + (i + 1) + " '" + s[i] + "'.");
+                }
             }
         }
 
-        private void Convert<T>(Commands cmds, string cmd, ref T v)
+        protected void Convert<T>(Commands cmds, string cmd, ref T v)
         {
             if (cmds.ContainsKey(cmd))
             {

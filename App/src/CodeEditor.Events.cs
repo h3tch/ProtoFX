@@ -167,22 +167,23 @@ namespace App
 
         private void HandleKeyUp(object sender, KeyEventArgs e)
         {
-            var editor = (CodeEditor)sender;
+            // only disable editin if Ctrl is pressed
+            DisableEditing = e.Control;
+
             if (!e.Control)
                 return;
 
+            var editor = (CodeEditor)sender;
             switch (e.KeyCode)
             {
                 case Keys.F:
                     // start text search
-                    FindText.Clear();
-                    FindText.Focus();
-                    DisableEditing = true;
+                    editor.FindText.Clear();
+                    editor.FindText.Focus();
                     break;
                 case Keys.R:
                     // select all indicator to allow text replacement
                     editor.SelectIndicators(HighlightIndicatorIndex);
-                    DisableEditing = true;
                     break;
             }
         }

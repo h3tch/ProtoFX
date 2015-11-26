@@ -35,8 +35,8 @@ namespace App
         public GpuColorFormat gpuFormat { get { return format; } private set { format = value; } }
         #endregion
 
-        public GLImage(string name, string annotation, int glname)
-            : base(name, annotation)
+        public GLImage(string name, string anno, int glname)
+            : base(name, anno)
         {
             int f, t;
             this.glname = glname;
@@ -54,8 +54,8 @@ namespace App
             }
         }
 
-        public GLImage(string dir, string name, string annotation, string text, Dict<GLObject> classes)
-            : base(name, annotation)
+        public GLImage(string dir, string name, string anno, string text, Dict<GLObject> classes)
+            : base(name, anno)
         {
             var err = new GLException($"image '{name}'");
 
