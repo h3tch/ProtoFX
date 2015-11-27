@@ -217,6 +217,7 @@ namespace App
             var code = RemoveComments(text);
             code = RemoveNewLineIndicators(code);
             code = IncludeFiles(includeDir, code);
+            code = ResolvePreprocessorDefinitions(code);
 
             // FIND PROTOGL CLASS BLOCKS (find "TYPE name { ... }")
             var blocks = GetObjectBlocks(code);

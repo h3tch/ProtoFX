@@ -55,11 +55,11 @@ namespace App
         const int SCI_GETLINEINDENTATION = 2127;
         private void SetIndent(Scintilla scin, int line, int indent)
         {
-            scin.DirectMessage(SCI_SETLINEINDENTATION, new IntPtr(line), new IntPtr(indent));
+            scin.DirectMessage(SCI_SETLINEINDENTATION, (IntPtr)line, new IntPtr(indent));
         }
         private int GetIndent(Scintilla scin, int line)
         {
-            return (scin.DirectMessage(SCI_GETLINEINDENTATION, new IntPtr(line), IntPtr.Zero).ToInt32());
+            return (int)scin.DirectMessage(SCI_GETLINEINDENTATION, (IntPtr)line, IntPtr.Zero);
         }
         #endregion
 
@@ -159,6 +159,7 @@ namespace App
             {
                 case Keys.F:
                 case Keys.R:
+                case Keys.S:
                     e.SuppressKeyPress = true;
                     DisableEditing = true;
                     break;

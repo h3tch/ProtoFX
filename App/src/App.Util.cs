@@ -81,6 +81,36 @@ namespace App
             return text;
         }
 
+        private static string ResolvePreprocessorDefinitions(string text)
+        {
+            // find include files
+            var matches = Regex.Matches(text, @"#global(\s+\w+){2}");
+
+            // insert all include files
+            foreach (Match match in matches)
+            {
+                // get defined preprocessor string
+                var definitions = Regex.Split(match.Value, @"[ ]+");
+                var key = definitions[1];
+                var value = definitions[2];
+                text = text.Substring(0, match.Index) + text.Substring(match.Index + match.Length);
+
+                int offset = 0;
+                foreach (Match m in Regex.Matches(text, key))
+                {
+                    // replace preprocessor definition with defined preprocessor string
+                    text = text.Substring(0, m.Index + offset) + value
+                         + text.Substring(m.Index + offset + m.Length);
+
+                    // because the string now has a different 
+                    // length, we need to remember the offset
+                    offset += value.Length - m.Length;
+                }
+
+            }
+
+            return text;
+        }
 
         private static string[] GetObjectBlocks(string text)
         {

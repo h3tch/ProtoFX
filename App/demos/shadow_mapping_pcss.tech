@@ -1,5 +1,8 @@
 // AUTHOR: Michael Hecher
 
+// global variables
+#global MAX_POISSON_POINTS 25
+
 /////////////
 // BUFFERS //
 /////////////
@@ -106,7 +109,6 @@ shader vert vs_render {
 
 shader frag fs_render {
 	#version 440
-	#define NUM_POINTS 25
 	#define PI 3.1415926535897932384626433832795
 	
 	layout(binding = 0) uniform SpotLight {
@@ -116,7 +118,8 @@ shader frag fs_render {
 	} light;
 
 	layout(binding = 2) uniform PoissonDisc {
-		vec2 points[NUM_POINTS];
+		vec2 points[MAX_POISSON_POINTS];
+		int numPoints;
 	} disc;
 	
 	layout(binding = 0) uniform sampler2D shadowmap;
@@ -174,7 +177,7 @@ shader frag fs_render {
 		float zBlocker = 0.0;
 		mat2 R = randRot(2 * PI * rand(lpos.xy));
 
-		for (int i = 0; i < NUM_POINTS; i++) {
+		for (int i = 0; i < disc.numPoints; i++) {
 			vec2 p = R * disc.points[i] * filterR;
 			float z = texture(shadowmap, lpos.xy + p).x;
 			//z = exp2linDepth(z);
@@ -192,14 +195,14 @@ shader frag fs_render {
 		float shadow = 0.0;
 		mat2 R = randRot(2 * PI * rand(lpos.xy));
 
-		for (int i = 0; i < NUM_POINTS; i++) {
+		for (int i = 0; i < disc.numPoints; i++) {
 			vec2 p = R * disc.points[i] * filterR;
 			float z = texture(shadowmap, lpos.xy + p).x;
 			//z = exp2linDepth(z);
 			shadow += lpos.z + bias(surfBias, p) > z ? 1.0 : 0.0;
 		}
 
-		return shadow / float(NUM_POINTS);
+		return shadow / float(disc.numPoints);
 	}
 
 	float PCSS(vec2 surfBias, vec3 lpos) {
@@ -286,8 +289,8 @@ instance cs_camera {
 instance cs_poisson {
 	class cs_util csharp.PoissonDisc
 	name PoissonDisc
-	maxSamples 64
-	minRadius 0.3
+	maxPoints MAX_POISSON_POINTS
+	minRadius 0.2
 }
 
 pass pass_shadowmap {
