@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace App
 {
@@ -42,7 +43,11 @@ namespace App
                 throw err;
 
             // INCASE THIS IS A TEXTURE OBJECT
-            if (glbuff != null && glimg == null)
+            if (glimg != null)
+            {
+                glname = glimg.glname;
+            }
+            else if (glbuff != null)
             {
                 if (format == 0)
                     throw err.Add($"No texture buffer format defined " +
@@ -63,16 +68,19 @@ namespace App
         {
             if (samp != null)
                 GL.BindSampler(unit, glsamp.glname);
-
             GL.ActiveTexture(TextureUnit.Texture0 + unit);
-            GL.BindTexture(glimg != null ? glimg.target : TextureTarget.TextureBuffer, glimg.glname);
+            GL.BindTexture(glimg != null ? glimg.target : TextureTarget.TextureBuffer, glname);
+        }
+
+        public void Bind(int unit, int level, int layer, TextureAccess access, SizedInternalFormat format)
+        {
+            GL.BindImageTexture(unit, glname, level, layer >= 0, Math.Max(layer, 0), access, format);
         }
 
         public void Unbind(int unit)
         {
             if (samp != null)
                 GL.BindSampler(unit, 0);
-
             GL.ActiveTexture(TextureUnit.Texture0 + unit);
             GL.BindTexture(glimg != null ? glimg.target : TextureTarget.TextureBuffer, 0);
         }
