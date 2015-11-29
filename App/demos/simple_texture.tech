@@ -81,8 +81,8 @@ shader frag fs_simple {
 
 csharp cs_util {
 	file "<csharp>/StaticCamera.cs" ...
-	      "<csharp>/SimpleCamera.cs" ...
-	      "<csharp>/UniformBlock.cs"
+	     "<csharp>/SimpleCamera.cs" ...
+	     "<csharp>/UniformBlock.cs"
 }
 
 instance cs_camera {

@@ -33,6 +33,7 @@ namespace App
         private GLFragoutput glfragout = null;
         private List<MultiDrawCall> drawcalls = new List<MultiDrawCall>();
         private List<CompCall> compcalls = new List<CompCall>();
+        private List<ResTexImg> texImages = new List<ResTexImg>();
         private List<Res<GLTexture>> textures = new List<Res<GLTexture>>();
         private List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
         private List<GLMethod> glfunc = new List<GLMethod>();
@@ -167,6 +168,8 @@ namespace App
             // BIND TEXTURES
             foreach (var t in textures)
                 t.obj.Bind(t.unit);
+            foreach (var t in texImages)
+                t.obj.Bind(t.unit, t.level, t.layer, t.access, t.format);
             foreach (var s in sampler)
                 GL.BindSampler(s.unit, s.obj.glname);
             foreach (var e in csexec)
@@ -321,42 +324,61 @@ namespace App
             }
         }
 
-        private void ParseTexCmd(GLException err, string[] cmd, Dict<GLObject> classes)
+        private void ParseTexCmd(GLException err, string[] args, Dict<GLObject> classes)
         {
-            var obj = ParseCmd<GLTexture>(err, cmd, classes);
+            var types = new[] {
+                typeof(GLTexture),
+                typeof(int),
+                typeof(int),
+                typeof(int),
+                typeof(TextureAccess),
+                typeof(SizedInternalFormat)
+            };
+            var values = ParseCmd(args, types, args.Length == 6 ? 6 : 2, classes, err);
             if (!err.HasErrors())
-                textures.Add(obj);
+                textures.Add(new ResTexImg(values));
         }
 
-        private void ParseSampCmd(GLException err, string[] cmd, Dict<GLObject> classes)
+        private void ParseSampCmd(GLException err, string[] args, Dict<GLObject> classes)
         {
-            var obj = ParseCmd<GLSampler>(err, cmd, classes);
+            var types = new[] {
+                typeof(GLSampler),
+                typeof(int),
+            };
+            var values = ParseCmd(args, types, 2, classes, err);
             if (!err.HasErrors())
-                sampler.Add(obj);
+                sampler.Add(new Res<GLSampler>(values));
         }
 
-        private Res<T> ParseCmd<T>(GLException err, string[] cmd, Dict<GLObject> classes)
-            where T : GLObject
+        private object[] ParseCmd(string[] args, Type[] types, int numMandatory,
+            Dict<GLObject> classes, GLException err)
         {
-            T obj = null;
-            int unit = -1;
+            object[] values = new object[types.Length];
 
             // parse command arguments
-            for (var i = 0; i < cmd.Length; i++)
+            foreach (string arg in args)
             {
-                if (obj == null && classes.TryGetValue(cmd[i], ref obj))
-                    continue;
-                int.TryParse(cmd[i], out unit);
+                for (int i = values.IndexOf(x => x != null); i < types.Length; i++)
+                {
+                    try
+                    {
+                        values[i] = types[i].IsSubclassOf(typeof(GLObject))
+                            ? classes.GetValue<GLObject>(arg)
+                            : types[i].IsEnum
+                                ? Enum.Parse(types[i], arg, true)
+                                : Convert.ChangeType(arg, types[i], App.culture);
+                        break;
+                    }
+                    catch { }
+                }
             }
-
-            // check for errors
-            if (obj == null)
-                err.Add("No object name could not be found.");
-            if (unit < 0)
-                err.Add("Command must specify a unit (e.g. tex tex_name 0).");
             
-            // add to texture list
-            return new Res<T>((T)Convert.ChangeType(obj, typeof(T)), unit);
+            // check for errors
+            for (int i = 0; i < Math.Min(numMandatory, values.Length); i++)
+                if (values[i] == null)
+                    err?.Add($"Error parsing argument {i}.");
+
+            return values;
         }
 
         private void ParseOpenGLCall(GLException err, string cmd, string[] args)
@@ -635,10 +657,32 @@ namespace App
             public T obj;
             public int unit;
 
-            public Res(T obj, int unit)
+            public Res(object[] values)
             {
-                this.obj = obj;
-                this.unit = unit;
+                if (values[0] != null)
+                    obj = (T)values[0];
+                if (values[1] != null)
+                    unit = (int)values[1];
+            }
+        }
+
+        public class ResTexImg : Res<GLTexture>
+        {
+            public int level;
+            public int layer;
+            public TextureAccess access;
+            public SizedInternalFormat format;
+
+            public ResTexImg(object[] values) : base(values)
+            {
+                if (values[2] != null)
+                    level = (int)values[2];
+                if (values[3] != null)
+                    layer = (int)values[3];
+                if (values[4] != null)
+                    access = (TextureAccess)values[4];
+                if (values[5] != null)
+                    format = (SizedInternalFormat)values[5];
             }
         }
 
