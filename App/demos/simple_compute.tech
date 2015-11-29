@@ -1,0 +1,142 @@
+/////////////
+// BUFFERS //
+/////////////
+
+buffer buff_pos {
+	usage staticDraw
+	xml "geom/cube.xml" data/position
+}
+
+buffer buff_uv {
+	usage staticDraw
+	xml "geom/cube.xml" data/uv
+}
+
+buffer buf_idx {
+	usage staticDraw
+	xml "geom/cube.xml" data/index
+}
+
+image img_compute {
+	type texture2D
+	width 512
+	height 512
+}
+
+/////////////////////
+// BUFFER BINDINGS //
+/////////////////////
+
+vertinput in_vert {
+	attr buff_pos float 4
+	attr buff_uv float 2
+}
+
+texture tex_compute {
+	img img_compute
+}
+
+/////////////
+// SHADERS //
+/////////////
+
+shader comp cs_simple {
+	#version 440
+	
+	layout(binding = 0, rgba8) uniform writeonly image2D tex;
+	
+	layout (local_size_x = 16, local_size_y = 16) in;
+	
+	void main ()
+	{
+		const float roll = 0.0;
+		ivec2 storePos = ivec2(gl_GlobalInvocationID.xy);
+		float localCoef = length(vec2(ivec2(gl_LocalInvocationID.xy)-8)/8.0);
+		float globalCoef = sin(float(gl_WorkGroupID.x+gl_WorkGroupID.y)*0.1 + roll)*0.5;
+		imageStore(tex, storePos, vec4(0.5, 0.5, 1.0-globalCoef*localCoef, 1.0));
+	}
+}
+
+shader vert vs_simple {
+	#version 440
+
+	layout(binding = 0) uniform SimpleCamera {
+		mat4 view;
+		mat4 proj;
+	} camera;
+	
+	// vertex input as specified by 'in_vert'
+	layout(location = 0) in vec4 in_pos;
+	layout(location = 1) in vec2 in_uv;
+
+	// vertex shader output
+	layout(location = 0) out vec2 vs_uv;
+	
+	void main ()
+	{
+		gl_Position = camera.proj * camera.view * in_pos;
+		vs_uv = in_uv;
+	}
+}
+
+shader frag fs_simple {
+	#version 440
+	
+	layout(binding = 0) uniform sampler2D tex;
+	
+	layout(location = 0) in vec2 gs_uv;
+	out vec4 color;
+	
+	void main ()
+	{
+		color = texture(tex, gs_uv);
+	}
+}
+
+/////////////
+// PROGRAM //
+/////////////
+
+csharp cs_util {
+	file "<csharp>/StaticCamera.cs" ...
+		 "<csharp>/SimpleCamera.cs" ...
+		 "<csharp>/UniformBlock.cs"
+}
+
+instance cs_camera {
+	class cs_util csharp.SimpleCamera
+	name SimpleCamera
+	pos 0 0 5
+}
+
+pass pass_compute {
+	comp cs_simple
+	tex tex_compute 0 0 0 WriteOnly RGBA8
+	compute 32 32 1
+}
+
+pass pass_render {
+	// attach shaders
+	vert vs_simple
+	frag fs_simple
+	
+	tex tex_compute 0
+	
+	// set clear color
+	ClearColor 0.1 0.3 1.0 0.0
+	// clear color and depth buffer
+	Clear ColorDepthBit
+	// enable depth buffer test
+	Enable depthTest
+	
+	// execute camera code
+	exec cs_camera
+	
+	// draw cube
+	draw buf_idx in_vert ushort triangles 0 0 36
+}
+
+tech tech_simple {
+	pass pass_compute
+	pass pass_render
+}

@@ -336,7 +336,12 @@ namespace App
             };
             var values = ParseCmd(args, types, args.Length == 6 ? 6 : 2, classes, err);
             if (!err.HasErrors())
-                textures.Add(new ResTexImg(values));
+            {
+                if (args.Length == 6)
+                    texImages.Add(new ResTexImg(values));
+                else
+                    textures.Add(new Res<GLTexture>(values));
+            }
         }
 
         private void ParseSampCmd(GLException err, string[] args, Dict<GLObject> classes)
@@ -358,7 +363,7 @@ namespace App
             // parse command arguments
             foreach (string arg in args)
             {
-                for (int i = values.IndexOf(x => x != null); i < types.Length; i++)
+                for (int i = values.IndexOf(x => x == null); i < 0 || i < types.Length; i++)
                 {
                     try
                     {
@@ -367,7 +372,8 @@ namespace App
                             : types[i].IsEnum
                                 ? Enum.Parse(types[i], arg, true)
                                 : Convert.ChangeType(arg, types[i], App.culture);
-                        break;
+                        if (values[i] != null)
+                            break;
                     }
                     catch { }
                 }
@@ -639,16 +645,18 @@ namespace App
 
             public void compute()
             {
-                if (this.indirect > 0)
+                if (numGroupsZ > 0)
                 {
-                    // bind indirect compute call buffer
-                    GL.BindBuffer(BufferTarget.DispatchIndirectBuffer, this.indirect);
                     // execute compute shader
-                    GL.DispatchComputeIndirect(this.indirectPtr);
+                    GL.DispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
                 }
                 else
+                {
+                    // bind indirect compute call buffer
+                    GL.BindBuffer(BufferTarget.DispatchIndirectBuffer, indirect);
                     // execute compute shader
-                    GL.DispatchCompute(this.numGroupsX, this.numGroupsY, this.numGroupsZ);
+                    GL.DispatchComputeIndirect(indirectPtr);
+                }
             }
         }
 

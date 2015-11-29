@@ -218,6 +218,13 @@ namespace App
             "geomoutput     " +
             "if             " +
             "image          " +
+            "image1D        " +
+            "image1DArray   " +
+            "image2D        " +
+            "image2DArray   " +
+            "image3D        " +
+            "image3DArray   " +
+            "imageCube      " +
             "in             " +
             "instance       " +
             "int            " +
@@ -281,10 +288,16 @@ namespace App
             "fragout   " +
             "geom      " +
             "geomout   " +
+            "gl_GlobalInvocationID " +
+            "gl_LocalInvocationID " +
+            "gl_WorkGroupID " +
             "gpuformat " +
             "height    " +
             "img       " +
             "length    " +
+            "local_size_x " +
+            "local_size_y " +
+            "local_size_z " +
             "location  " +
             "magfilter " +
             "minfilter " +
