@@ -146,8 +146,10 @@
     <None Include="demos\shadow_mapping_pcf.tech" />
     <None Include="demos\shadow_mapping_pcf2.tech" />
     <None Include="demos\shadow_mapping_pcss.tech" />
+    <None Include="demos\simple_compute.tech" />
     <None Include="demos\simple_include_header.tech" />
     <None Include="demos\simple_texture.tech" />
+    <None Include="demos\simple_turntable.tech" />
     <None Include="demos\simple_vertoutput.tech" />
     <None Include="demos\tutorial\01_hello_triangle.tech" />
     <None Include="demos\tutorial\02_colored_triangle.tech" />

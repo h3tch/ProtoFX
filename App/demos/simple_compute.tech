@@ -17,9 +17,10 @@ buffer buf_idx {
 	xml "geom/cube.xml" data/index
 }
 
-image img_lena {
+image img_compute {
 	type texture2D
-	file "tex/lena.jpg"
+	width 512
+	height 512
 }
 
 /////////////////////
@@ -31,13 +32,30 @@ vertinput in_vert {
 	attr buff_uv float 2
 }
 
-texture tex_lena {
-	img img_lena
+texture tex_compute {
+	img img_compute
 }
 
 /////////////
 // SHADERS //
 /////////////
+
+shader comp cs_simple {
+	#version 440
+	
+	layout(binding = 0, rgba8) uniform writeonly image2D tex;
+	
+	layout (local_size_x = 16, local_size_y = 16) in;
+	
+	void main ()
+	{
+		const float roll = 0.0;
+		ivec2 storePos = ivec2(gl_GlobalInvocationID.xy);
+		float localCoef = length(vec2(ivec2(gl_LocalInvocationID.xy)-8)/8.0);
+		float globalCoef = sin(float(gl_WorkGroupID.x+gl_WorkGroupID.y)*0.1 + roll)*0.5;
+		imageStore(tex, storePos, vec4(0.5, 0.5, 1.0-globalCoef*localCoef, 1.0));
+	}
+}
 
 shader vert vs_simple {
 	#version 440
@@ -81,8 +99,8 @@ shader frag fs_simple {
 
 csharp cs_util {
 	file "<csharp>/StaticCamera.cs" ...
-	     "<csharp>/SimpleCamera.cs" ...
-	     "<csharp>/UniformBlock.cs"
+		 "<csharp>/SimpleCamera.cs" ...
+		 "<csharp>/UniformBlock.cs"
 }
 
 instance cs_camera {
@@ -91,12 +109,18 @@ instance cs_camera {
 	pos 0 0 5
 }
 
+pass pass_compute {
+	comp cs_simple
+	tex tex_compute 0 0 0 WriteOnly RGBA8
+	compute 32 32 1
+}
+
 pass pass_render {
 	// attach shaders
 	vert vs_simple
 	frag fs_simple
 	
-	tex tex_lena 0
+	tex tex_compute 0
 	
 	// set clear color
 	ClearColor 0.1 0.3 1.0 0.0
@@ -113,5 +137,6 @@ pass pass_render {
 }
 
 tech tech_simple {
+	pass pass_compute
 	pass pass_render
 }
