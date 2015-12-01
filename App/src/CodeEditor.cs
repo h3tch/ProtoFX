@@ -1,4 +1,5 @@
-﻿using ScintillaNET;
+﻿using AutocompleteMenuNS;
+using ScintillaNET;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -11,6 +12,7 @@ namespace App
     {
         private static int HighlightIndicatorIndex = 8;
         private List<int[]>[] IndicatorRanges;
+        private AutocompleteMenu AutoCMenu;
 
         public CodeEditor(string text)
         {
@@ -99,6 +101,11 @@ namespace App
             TabIndex = 0;
             TextChanged += new EventHandler(HandleTextChanged);
             UpdateUI += new EventHandler<UpdateUIEventArgs>(HandleUpdateUI);
+
+            // setup auto complete
+            AutoCMenu = new AutocompleteMenu();
+            AutoCMenu.TargetControlWrapper = new ScintillaWrapper(this);
+            AutoCMenu.Items = new[] { "buffer", "image" };
 
             // insert text
             Text = text != null ? text : "";
