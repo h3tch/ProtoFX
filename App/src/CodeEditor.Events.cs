@@ -54,13 +54,9 @@ namespace App
         const int SCI_SETLINEINDENTATION = 2126;
         const int SCI_GETLINEINDENTATION = 2127;
         private void SetIndent(Scintilla scin, int line, int indent)
-        {
-            scin.DirectMessage(SCI_SETLINEINDENTATION, (IntPtr)line, new IntPtr(indent));
-        }
+            => scin.DirectMessage(SCI_SETLINEINDENTATION, (IntPtr)line, new IntPtr(indent));
         private int GetIndent(Scintilla scin, int line)
-        {
-            return (int)scin.DirectMessage(SCI_GETLINEINDENTATION, (IntPtr)line, IntPtr.Zero);
-        }
+            => (int)scin.DirectMessage(SCI_GETLINEINDENTATION, (IntPtr)line, IntPtr.Zero);
         #endregion
 
         private void HandleTextChanged(object sender, EventArgs e)

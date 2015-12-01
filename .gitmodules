@@ -1,0 +1,3 @@
+[submodule "App/src/AutoC"]
+	path = App/src/AutoC
+	url = https://github.com/JohnyMac/AutoCompleteMenu-ScintillaNET.git
