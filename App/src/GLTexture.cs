@@ -15,8 +15,8 @@ namespace App
         private GLImage glimg = null;
         #endregion
 
-        public GLTexture(string dir, string name, string annotation, string text, Dict<GLObject> classes)
-            : base(name, annotation)
+        public GLTexture(string dir, string name, string anno, string text, Dict<GLObject> classes)
+            : base(name, anno)
         {
             var err = new GLException($"texture '{name}'");
 

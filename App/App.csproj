@@ -99,6 +99,9 @@
     <Compile Include="src\AutoC\AutocompleteMenu\Range.cs" />
     <Compile Include="src\AutoC\AutocompleteMenu\ScintillaWrapper.cs" />
     <Compile Include="src\AutoC\AutocompleteMenu\TextBoxWrapper.cs" />
+    <Compile Include="src\CodeCompletion.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="src\CodeEditor.Events.cs">
       <SubType>Component</SubType>
     </Compile>

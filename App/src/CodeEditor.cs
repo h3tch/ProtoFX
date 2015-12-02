@@ -12,7 +12,7 @@ namespace App
     {
         private static int HighlightIndicatorIndex = 8;
         private List<int[]>[] IndicatorRanges;
-        private AutocompleteMenu AutoCMenu;
+        private CodeCompletion AutoCMenu;
 
         public CodeEditor(string text)
         {
@@ -103,9 +103,7 @@ namespace App
             UpdateUI += new EventHandler<UpdateUIEventArgs>(HandleUpdateUI);
 
             // setup auto complete
-            AutoCMenu = new AutocompleteMenu();
-            AutoCMenu.TargetControlWrapper = new ScintillaWrapper(this);
-            AutoCMenu.Items = new[] { "buffer", "image" };
+            AutoCMenu = new CodeCompletion(this);
 
             // insert text
             Text = text != null ? text : "";
