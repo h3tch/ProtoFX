@@ -81,27 +81,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\AutoC\AutocompleteMenu\AutocompleteItem.cs" />
-    <Compile Include="src\AutoC\AutocompleteMenu\AutocompleteItems.cs" />
-    <Compile Include="src\AutoC\AutocompleteMenu\AutocompleteListView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="src\AutoC\AutocompleteMenu\AutocompleteMenu.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\AutoC\AutocompleteMenu\AutocompleteMenuHost.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\AutoC\AutocompleteMenu\Colors.cs" />
-    <Compile Include="src\AutoC\AutocompleteMenu\EventArgs.cs" />
-    <Compile Include="src\AutoC\AutocompleteMenu\IAutocompleteListView.cs" />
-    <Compile Include="src\AutoC\AutocompleteMenu\ITextBoxWrapper.cs" />
-    <Compile Include="src\AutoC\AutocompleteMenu\Range.cs" />
-    <Compile Include="src\AutoC\AutocompleteMenu\ScintillaWrapper.cs" />
-    <Compile Include="src\AutoC\AutocompleteMenu\TextBoxWrapper.cs" />
-    <Compile Include="src\CodeCompletion.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="src\CodeEditor.AutoC.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -166,9 +145,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="src\AutoC\AutocompleteMenu\AutocompleteMenu.resx">
-      <DependentUpon>AutocompleteMenu.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include="demos\shadow_mapping.tech" />
     <None Include="demos\shadow_mapping_pcf.tech" />
     <None Include="demos\shadow_mapping_pcf2.tech" />
