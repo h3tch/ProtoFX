@@ -214,13 +214,13 @@ namespace App
             var text = ((CodeEditor)sourceTab.Controls[0]).Text;
 
             // remove comments
-            var code = RemoveComments(text);
-            code = RemoveNewLineIndicators(code);
-            code = IncludeFiles(includeDir, code);
-            code = ResolvePreprocessorDefinitions(code);
+            var code = CodeEditor.RemoveComments(text);
+            code = CodeEditor.RemoveNewLineIndicators(code);
+            code = CodeEditor.IncludeFiles(includeDir, code);
+            code = CodeEditor.ResolvePreprocessorDefinitions(code);
 
             // FIND PROTOGL CLASS BLOCKS (find "TYPE name { ... }")
-            var blocks = GetObjectBlocks(code);
+            var blocks = CodeEditor.GetObjectBlocks(code);
 
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
             var ex = blocks.Catch(x => glControl.AddObject(x, includeDir)).ToArray();
