@@ -100,6 +100,9 @@ namespace App
             TextChanged += new EventHandler(HandleTextChanged);
             UpdateUI += new EventHandler<UpdateUIEventArgs>(HandleUpdateUI);
 
+            // auto completion settings
+            AutoCMaxHeight = 9;
+
             // insert text
             Text = text != null ? text : "";
             UpdateLineNumbers();
@@ -113,7 +116,7 @@ namespace App
             if (Margins[0].Width != width)
                 Margins[0].Width = width;
         }
-        
+
         private Dictionary<string, bool> GetWordsFromSelections()
         {
             var words = new Dictionary<string, bool>();
@@ -316,7 +319,8 @@ namespace App
             "vertout   " +
             "width     " +
             "wrap      " +
-            "xml       "};
+            "xml       "
+        };
         #endregion
-        }
+    }
 }

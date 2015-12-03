@@ -1,6 +1,7 @@
 ﻿using ScintillaNET;
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -46,6 +47,10 @@ namespace App
                 if (editor.Lines[curLine].Text.Trim() == "}")
                     SetIndent(editor, curLine, GetIndent(editor, curLine) - 4);
             }
+
+            // auto complete
+            if (char.IsLetter((char)e.Char))
+                editor.AutoCShow(editor.CurrentPosition);
         }
 
         //Codes for the handling the Indention of the lines.
@@ -54,13 +59,9 @@ namespace App
         const int SCI_SETLINEINDENTATION = 2126;
         const int SCI_GETLINEINDENTATION = 2127;
         private void SetIndent(Scintilla scin, int line, int indent)
-        {
-            scin.DirectMessage(SCI_SETLINEINDENTATION, (IntPtr)line, new IntPtr(indent));
-        }
+            => scin.DirectMessage(SCI_SETLINEINDENTATION, (IntPtr)line, new IntPtr(indent));
         private int GetIndent(Scintilla scin, int line)
-        {
-            return (int)scin.DirectMessage(SCI_GETLINEINDENTATION, (IntPtr)line, IntPtr.Zero);
-        }
+            => (int)scin.DirectMessage(SCI_GETLINEINDENTATION, (IntPtr)line, IntPtr.Zero);
         #endregion
 
         private void HandleTextChanged(object sender, EventArgs e)
@@ -160,6 +161,7 @@ namespace App
                 case Keys.F:
                 case Keys.R:
                 case Keys.S:
+                case Keys.Space:
                     e.SuppressKeyPress = true;
                     DisableEditing = true;
                     break;
@@ -185,6 +187,10 @@ namespace App
                 case Keys.R:
                     // select all indicator to allow text replacement
                     editor.SelectIndicators(HighlightIndicatorIndex);
+                    break;
+                case Keys.Space:
+                    // show auto complete menu
+                    editor.AutoCShow(editor.CurrentPosition);
                     break;
             }
         }

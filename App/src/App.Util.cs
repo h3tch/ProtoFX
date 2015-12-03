@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace App
@@ -13,7 +12,7 @@ namespace App
         /// </summary>
         /// <param name="text">String to remove comments from.</param>
         /// <returns>String without comments.</returns>
-        private static string RemoveComments(string text)
+        public static string RemoveComments(string text)
         {
             var blockComments = @"/\*(.*?)\*/";
             var lineComments = @"//(.*?)\r?\n";
@@ -24,9 +23,9 @@ namespace App
                 me =>
                 {
                     if (me.Value.StartsWith("/*"))
-                        return "";
+                        return new string(' ', me.Length);
                     if (me.Value.StartsWith("//"))
-                        return Environment.NewLine;
+                        return new string(' ', me.Length - Environment.NewLine.Length) + Environment.NewLine;
                     // Keep the literal strings
                     return me.Value;
                 },
@@ -131,7 +130,7 @@ namespace App
             }
 
             // find potential block positions
-            var matches = Regex.Matches(text, "(\\w+\\s*){2,3}\\{");
+            var matches = Regex.Matches(text, @"(\w+\s*){2,3}\{");
 
             // where 'matches' and 'blockBr' are aligned we have a block
             List<string> blocks = new List<string>();
