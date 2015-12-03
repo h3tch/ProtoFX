@@ -106,8 +106,8 @@
     <Compile Include="src\App.Designer.cs">
       <DependentUpon>App.cs</DependentUpon>
     </Compile>
-    <Compile Include="src\App.Util.cs">
-      <SubType>Form</SubType>
+    <Compile Include="src\CodeEditor.Util.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\GLBuffer.cs" />
     <Compile Include="src\GLCSharp.cs" />

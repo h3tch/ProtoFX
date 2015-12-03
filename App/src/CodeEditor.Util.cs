@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace App
 {
-    partial class App
+    partial class CodeEditor
     {
         /// <summary>
         /// Remove /*...*/ and // comments.
@@ -37,7 +37,7 @@ namespace App
         /// </summary>
         /// <param name="text">String to remove new line indicators from.</param>
         /// <returns>String without new line indicators.</returns>
-        private static string RemoveNewLineIndicators(string text)
+        public static string RemoveNewLineIndicators(string text)
         {
             return Regex.Replace(text, @"\.\.\.(\s?)(\n|\r|\r\n)", " ");
         }
@@ -48,7 +48,7 @@ namespace App
         /// <param name="dir">The directory of the *.tech file.</param>
         /// <param name="text">String to add included files to.</param>
         /// <returns>String including include files.</returns>
-        private static string IncludeFiles(string dir, string text)
+        public static string IncludeFiles(string dir, string text)
         {
             // find include files
             var matches = Regex.Matches(text, @"#include \""[^""]*\""");
@@ -80,7 +80,7 @@ namespace App
             return text;
         }
 
-        private static string ResolvePreprocessorDefinitions(string text)
+        public static string ResolvePreprocessorDefinitions(string text)
         {
             // find include files
             var matches = Regex.Matches(text, @"#global(\s+\w+){2}");
@@ -111,7 +111,7 @@ namespace App
             return text;
         }
 
-        private static string[] GetObjectBlocks(string text)
+        public static string[] GetObjectBlocks(string text)
         {
             // find all '{' that potentially indicate a block
             int count = 0;

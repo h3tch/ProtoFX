@@ -9,90 +9,93 @@ namespace App
 
         public void AutoCShow(int textPosition)
         {
-            var keywords = SelectKeywords();
+            // get the list of possible keywords from the current position
+            var keywords = SelectKeywords(textPosition);
             var wordPos = WordStartPosition(textPosition, true);
             AutoCShow(textPosition - wordPos, keywords.Merge(" "));
         }
 
-        private IEnumerable<string> SelectKeywords()
+        private IEnumerable<string> SelectKeywords(int textPosition)
         {
-            var text = App.RemoveComments(Text);
-            string block = GetSouroundingBlock(text);
-            string prev = GetPreviousWord(text);
+            var text = RemoveComments(Text);
+            string block = ProtoGLBlockDef(text, textPosition).FirstOrDefault();
+            string prev = PrecedingWord(text, textPosition);
             IEnumerable<string> result = null;
-            string search;
 
             // is within a class block
             if (block != null)
             {
                 // has a word before it
                 if (prev != null)
-                {
-                    search = $"{block}.{prev}.";
-                    result = from x in autoCompleteKeywords
-                             where x.StartsWith(search)
-                             select x.Substring(search.Length);
-                }
+                    result = KeywordsStartingWith($"{block}.{prev}.");
                 // does not have a word before it (or at least no keyword)
                 if (result == null || result.Count() == 0)
-                {
-                    search = $"{block}.";
-                    result = from x in autoCompleteKeywords
-                             where x.StartsWith(search)
-                             select x.Substring(search.Length);
-                }
+                    result = KeywordsStartingWith($"{block}.");
             }
             // is outside
             else
             {
                 // has word before it
                 if (prev != null)
-                {
-                    search = $"{prev},";
-                    result = from x in autoCompleteKeywords
-                             where x.StartsWith(search)
-                             select x.Substring(search.Length);
-                }
+                    result = KeywordsStartingWith($"{prev},");
                 // does not have a word before it (or at least no class-block keyword)
                 if (result == null || result.Count() == 0)
-                    result = from x in autoCompleteKeywords
-                             where x.IndexOf('.') < 0 && x.IndexOf(',') < 0
-                             select x;
+                    result = from x in autoCompleteKeywords select x;
             }
 
-            return result;
+            // return all keywords that are not hierarchical
+            return from x in result
+                   where x.IndexOf('.') < 0 && x.IndexOf(',') < 0
+                   select x;
         }
 
-        private string GetSouroundingBlock(string text)
+        private IEnumerable<string> KeywordsStartingWith(string searchString)
         {
-            var pos = CurrentPosition;
+            // search for all keywords starting with <searchString>
+            return from x in autoCompleteKeywords
+                   where x.StartsWith(searchString)
+                   select x.Substring(searchString.Length);
+        }
 
-            for (int open = 0, close = 0; open < pos && open < text.Length; open++)
+        private IEnumerable<string> ProtoGLBlockDef(string text, int textPosition)
+        {
+            int open = 0, close = 0;
+            for (; open < textPosition && open < text.Length; open++)
             {
+                // find class block opening brace
                 if (text[open] != '{')
                     continue;
+                
+                // find class block closing brace
                 int i = BraceMatch(open);
-                if (pos < i || i < 0)
-                {
-                    var matches = Regex.Matches(text.Substring(close, open - close + 1), @"(\w+\s*){2,3}\{");
-                    if (matches.Count == 0)
-                        return null;
-                    var lastMatch = matches[matches.Count - 1].Value;
-                    return Regex.Matches(lastMatch, @"\w+")[0].Value;
-                }
+
+                // if textPosition is withing the
+                // opening and closing brace
+                if (i < 0 || textPosition < i)
+                    break;
                 open = close = i;
             }
 
-            return null;
+            // find class block definition between the current opening and previous closing brace
+            var matches = Regex.Matches(text.Substring(close, open - close + 1), @"(\w+\s*){2,3}\{");
+            if (matches.Count > 0)
+            {
+                var blockDef = matches[matches.Count - 1].Value;
+                // find all words
+                foreach (Match match in Regex.Matches(blockDef, @"\w+"))
+                    yield return match.Value;
+            }
         }
 
-        private string GetPreviousWord(string text)
+        private static string PrecedingWord(string text, int textPosition)
         {
-            var pos = CurrentPosition;
-            var matches = Regex.Matches(text.Substring(0, pos), @"\w+\s*");
+            // find all words
+            var matches = Regex.Matches(text.Substring(0, textPosition), @"\w+\s*");
+            // return the las word
             return matches.Count > 0 ? matches[matches.Count - 1].Value.Trim() : null;
         }
 
+        #region AUTO COMPLETE KEYWORDS
         private static string[] autoCompleteKeywords = new[] {
             // buffer
             "buffer",
@@ -263,7 +266,7 @@ namespace App
             "shader.sampler1D",
             "shader.sampler1DArray",
             "shader.sampler1DArrayShadow",
-            "shader.sampler1DShadow ",
+            "shader.sampler1DShadow",
             "shader.sampler2D",
             "shader.sampler2DArray",
             "shader.sampler2DArrayShadow",
@@ -329,5 +332,6 @@ namespace App
             "vertinput",
             "vertinput.attr"
         };
+        #endregion
     }
 }
