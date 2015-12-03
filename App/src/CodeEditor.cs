@@ -100,6 +100,9 @@ namespace App
             TextChanged += new EventHandler(HandleTextChanged);
             UpdateUI += new EventHandler<UpdateUIEventArgs>(HandleUpdateUI);
 
+            // auto completion settings
+            AutoCMaxHeight = 9;
+
             // insert text
             Text = text != null ? text : "";
             UpdateLineNumbers();

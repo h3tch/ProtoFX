@@ -47,11 +47,10 @@ namespace App
                 if (editor.Lines[curLine].Text.Trim() == "}")
                     SetIndent(editor, curLine, GetIndent(editor, curLine) - 4);
             }
-            
+
             // auto complete
-            var keywords = editor.SelectKeywords();
-            var wordPos = editor.WordStartPosition(editor.CurrentPosition, true);
-            editor.AutoCShow(editor.CurrentPosition - wordPos, keywords.Merge(" "));
+            if (char.IsLetter((char)e.Char))
+                editor.AutoCShow(editor.CurrentPosition);
         }
 
         //Codes for the handling the Indention of the lines.
@@ -162,6 +161,7 @@ namespace App
                 case Keys.F:
                 case Keys.R:
                 case Keys.S:
+                case Keys.Space:
                     e.SuppressKeyPress = true;
                     DisableEditing = true;
                     break;
@@ -189,10 +189,8 @@ namespace App
                     editor.SelectIndicators(HighlightIndicatorIndex);
                     break;
                 case Keys.Space:
-                    // update and open auto complete menu
-                    //editor.AutoCMenu.UpdateAutocomplete();
-                    //editor.AutoCMenu.Update();
-                    //editor.AutoCMenu.ShowAutocomplete(true);
+                    // show auto complete menu
+                    editor.AutoCShow(editor.CurrentPosition);
                     break;
             }
         }

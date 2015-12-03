@@ -6,6 +6,14 @@ namespace App
 {
     partial class CodeEditor
     {
+
+        public void AutoCShow(int textPosition)
+        {
+            var keywords = SelectKeywords();
+            var wordPos = WordStartPosition(textPosition, true);
+            AutoCShow(textPosition - wordPos, keywords.Merge(" "));
+        }
+
         private IEnumerable<string> SelectKeywords()
         {
             var text = App.RemoveComments(Text);
@@ -64,7 +72,7 @@ namespace App
                 if (text[open] != '{')
                     continue;
                 int i = BraceMatch(open);
-                if (pos < i)
+                if (pos < i || i < 0)
                 {
                     var matches = Regex.Matches(text.Substring(close, open - close + 1), @"(\w+\s*){2,3}\{");
                     if (matches.Count == 0)
