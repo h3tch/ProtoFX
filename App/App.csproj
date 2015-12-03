@@ -102,6 +102,9 @@
     <Compile Include="src\CodeCompletion.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="src\CodeEditor.AutoC.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="src\CodeEditor.Events.cs">
       <SubType>Component</SubType>
     </Compile>

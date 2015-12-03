@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace App
@@ -12,7 +13,6 @@ namespace App
     {
         private static int HighlightIndicatorIndex = 8;
         private List<int[]>[] IndicatorRanges;
-        private CodeCompletion AutoCMenu;
 
         public CodeEditor(string text)
         {
@@ -102,9 +102,6 @@ namespace App
             TextChanged += new EventHandler(HandleTextChanged);
             UpdateUI += new EventHandler<UpdateUIEventArgs>(HandleUpdateUI);
 
-            // setup auto complete
-            AutoCMenu = new CodeCompletion(this);
-
             // insert text
             Text = text != null ? text : "";
             UpdateLineNumbers();
@@ -118,7 +115,7 @@ namespace App
             if (Margins[0].Width != width)
                 Margins[0].Width = width;
         }
-        
+
         private Dictionary<string, bool> GetWordsFromSelections()
         {
             var words = new Dictionary<string, bool>();
@@ -321,7 +318,8 @@ namespace App
             "vertout   " +
             "width     " +
             "wrap      " +
-            "xml       "};
+            "xml       "
+        };
         #endregion
-        }
+    }
 }
