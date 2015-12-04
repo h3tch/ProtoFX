@@ -16,31 +16,19 @@ namespace App
 
         private IEnumerable<string> SelectKeywords(int curPosition)
         {
+            // get necessary information for keyword search
             var text = RemoveComments(Text);
             var block = BlockDef(text, curPosition).FirstOrDefault();
             var prev = PrecedingWord(text, curPosition);
             IEnumerable<string> result = null;
 
-            // is within a class block
-            if (block != null)
-            {
-                // has a word before it
-                if (prev != null)
-                    result = KeywordsStartingWith($"{block}.{prev}.");
-                // does not have a word before it (or at least no keyword)
-                if (result == null || result.Count() == 0)
-                    result = KeywordsStartingWith($"{block}.");
-            }
-            // is outside
-            else
-            {
-                // has word before it
-                if (prev != null)
-                    result = KeywordsStartingWith($"{prev},");
-                // does not have a word before it (or at least no class-block keyword)
-                if (result == null || result.Count() == 0)
-                    result = from x in autoCompleteKeywords select x;
-            }
+            // has a word before it
+            if (prev != null)
+                result = KeywordsStartingWith(block != null ? $"{block}.{prev}." : $"{prev},");
+
+            // does not have a word before it (or at least no keyword)
+            if (result == null || result.Count() == 0)
+                result = KeywordsStartingWith(block != null ? $"{block}." : string.Empty);
 
             // return all keywords that are not hierarchical
             return from x in result
