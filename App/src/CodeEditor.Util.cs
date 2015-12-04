@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace App
 {
-    partial class App
+    partial class CodeEditor
     {
         /// <summary>
         /// Remove /*...*/ and // comments.
@@ -18,14 +19,16 @@ namespace App
             var lineComments = @"//(.*?)\r?\n";
             var strings = @"""((\\[^\n]|[^""\n])*)""";
             var verbatimStrings = @"@(""[^""]*"")+";
+            var newLineLen = Environment.NewLine.Length;
             return Regex.Replace(text,
                 $"{blockComments}|{lineComments}|{strings}|{verbatimStrings}",
                 me =>
                 {
+                    // replace comments with spaces
                     if (me.Value.StartsWith("/*"))
                         return new string(' ', me.Length);
                     if (me.Value.StartsWith("//"))
-                        return new string(' ', me.Length - Environment.NewLine.Length) + Environment.NewLine;
+                        return new string(' ', me.Length - newLineLen) + Environment.NewLine;
                     // Keep the literal strings
                     return me.Value;
                 },
@@ -37,18 +40,16 @@ namespace App
         /// </summary>
         /// <param name="text">String to remove new line indicators from.</param>
         /// <returns>String without new line indicators.</returns>
-        private static string RemoveNewLineIndicators(string text)
-        {
-            return Regex.Replace(text, @"\.\.\.(\s?)(\n|\r|\r\n)", " ");
-        }
+        public static string RemoveNewLineIndicators(string text)
+            => Regex.Replace(text, @"\.\.\.(\s?)(\n|\r|\r\n)", " ");
 
         /// <summary>
         /// Include preprocessor #include files.
         /// </summary>
-        /// <param name="dir">The directory of the *.tech file.</param>
         /// <param name="text">String to add included files to.</param>
+        /// <param name="dir">The directory of the *.tech file.</param>
         /// <returns>String including include files.</returns>
-        private static string IncludeFiles(string dir, string text)
+        public static string IncludeFiles(string text, string dir)
         {
             // find include files
             var matches = Regex.Matches(text, @"#include \""[^""]*\""");
@@ -80,7 +81,7 @@ namespace App
             return text;
         }
 
-        private static string ResolvePreprocessorDefinitions(string text)
+        public static string ResolvePreprocessorDefinitions(string text)
         {
             // find include files
             var matches = Regex.Matches(text, @"#global(\s+\w+){2}");
@@ -111,38 +112,39 @@ namespace App
             return text;
         }
 
-        private static string[] GetObjectBlocks(string text)
+        public static IEnumerable<int[]> GetBlockPositions(string text)
         {
             // find all '{' that potentially indicate a block
-            int count = 0;
-            int newline = 0;
-            List<int> blockBr = new List<int>();
-            for (int i = 0; i < text.Length; i++)
+            var blockBr = new List<int>();
+            for (int i = 0, count = 0, nline = 0; i < text.Length; i++)
             {
                 if (text[i] == '\n')
-                    newline++;
+                    nline++;
                 if (text[i] == '{' && count++ == 0)
                     blockBr.Add(i);
                 if (text[i] == '}' && --count == 0)
                     blockBr.Add(i);
                 if (count < 0)
-                    throw new GLException($"ERROR in line {newline}: Unexpected occurrence of '}}'.");
+                    throw new GLException($"ERROR in line {nline}: Unexpected occurrence of '}}'.");
             }
 
             // find potential block positions
             var matches = Regex.Matches(text, @"(\w+\s*){2,3}\{");
 
             // where 'matches' and 'blockBr' are aligned we have a block
-            List<string> blocks = new List<string>();
+            var blocks = new List<int[]>();
             foreach (Match match in matches)
             {
                 int idx = blockBr.IndexOf(match.Index + match.Length - 1);
                 if (idx >= 0)
-                    blocks.Add(text.Substring(match.Index, blockBr[idx + 1] - match.Index + 1));
+                    yield return new[] { match.Index, blockBr[idx], blockBr[idx + 1] };
             }
+        }
 
-            // return blocks as array
-            return blocks.ToArray();
+        public static IEnumerable<string> GetBlocks(string text)
+        {
+            foreach (var block in GetBlockPositions(text))
+                yield return text.Substring(block[0], block[2] - block[0] + 1);
         }
     }
 }

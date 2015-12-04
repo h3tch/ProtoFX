@@ -1,7 +1,6 @@
 ﻿using ScintillaNET;
 using System;
 using System.Drawing;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -158,10 +157,11 @@ namespace App
 
             switch (e.KeyCode)
             {
-                case Keys.F:
-                case Keys.R:
-                case Keys.S:
-                case Keys.Space:
+                // disable editing if Ctrl+<Key> is pressed
+                case Keys.F: // find
+                case Keys.R: // replace
+                case Keys.S: // save/save all/save as
+                case Keys.Space: // auto complete menu
                     e.SuppressKeyPress = true;
                     DisableEditing = true;
                     break;

@@ -6,93 +6,72 @@ namespace App
 {
     partial class CodeEditor
     {
-
-        public void AutoCShow(int textPosition)
+        public void AutoCShow(int curPosition)
         {
-            var keywords = SelectKeywords();
-            var wordPos = WordStartPosition(textPosition, true);
-            AutoCShow(textPosition - wordPos, keywords.Merge(" "));
+            // get the list of possible keywords from the current position
+            var keywords = SelectKeywords(curPosition);
+            var wordPos = WordStartPosition(curPosition, true);
+            AutoCShow(curPosition - wordPos, keywords.Merge(" "));
         }
 
-        private IEnumerable<string> SelectKeywords()
+        private IEnumerable<string> SelectKeywords(int curPosition)
         {
-            var text = App.RemoveComments(Text);
-            string block = GetSouroundingBlock(text);
-            string prev = GetPreviousWord(text);
+            // get necessary information for keyword search
+            var text = RemoveComments(Text);
+            var block = BlockDef(text, curPosition).FirstOrDefault();
+            var prev = PrecedingWord(text, curPosition);
             IEnumerable<string> result = null;
-            string search;
 
-            // is within a class block
+            // has a word before it
+            if (prev != null)
+                result = KeywordsStartingWith(block != null ? $"{block}.{prev}." : $"{prev},");
+
+            // does not have a word before it (or at least no keyword)
+            if (result == null || result.Count() == 0)
+                result = KeywordsStartingWith(block != null ? $"{block}." : string.Empty);
+
+            // return all keywords that are not hierarchical
+            return from x in result
+                   where x.IndexOf('.') < 0 && x.IndexOf(',') < 0
+                   select x;
+        }
+
+        private IEnumerable<string> KeywordsStartingWith(string searchString)
+        {
+            // search for all keywords starting with <searchString>
+            return from x in autoCompleteKeywords
+                   where x.StartsWith(searchString)
+                   select x.Substring(searchString.Length);
+        }
+
+        private IEnumerable<string> BlockDef(string text, int curPosition)
+        {
+            // find surrounding block
+            var block = (from x in GetBlockPositions(text)
+                         where x[1] < curPosition && curPosition < x[2]
+                         select x).FirstOrDefault();
+
             if (block != null)
             {
-                // has a word before it
-                if (prev != null)
-                {
-                    search = $"{block}.{prev}.";
-                    result = from x in autoCompleteKeywords
-                             where x.StartsWith(search)
-                             select x.Substring(search.Length);
-                }
-                // does not have a word before it (or at least no keyword)
-                if (result == null || result.Count() == 0)
-                {
-                    search = $"{block}.";
-                    result = from x in autoCompleteKeywords
-                             where x.StartsWith(search)
-                             select x.Substring(search.Length);
-                }
+                // find all words
+                var blockDef = text.Substring(block[0], block[1] - block[0]);
+                foreach (Match match in Regex.Matches(blockDef, @"\w+"))
+                    yield return match.Value;
             }
-            // is outside
-            else
-            {
-                // has word before it
-                if (prev != null)
-                {
-                    search = $"{prev},";
-                    result = from x in autoCompleteKeywords
-                             where x.StartsWith(search)
-                             select x.Substring(search.Length);
-                }
-                // does not have a word before it (or at least no class-block keyword)
-                if (result == null || result.Count() == 0)
-                    result = from x in autoCompleteKeywords
-                             where x.IndexOf('.') < 0 && x.IndexOf(',') < 0
-                             select x;
-            }
-
-            return result;
         }
 
-        private string GetSouroundingBlock(string text)
+        private static string PrecedingWord(string text, int textPosition)
         {
-            var pos = CurrentPosition;
-
-            for (int open = 0, close = 0; open < pos && open < text.Length; open++)
-            {
-                if (text[open] != '{')
-                    continue;
-                int i = BraceMatch(open);
-                if (pos < i || i < 0)
-                {
-                    var matches = Regex.Matches(text.Substring(close, open - close + 1), @"(\w+\s*){2,3}\{");
-                    if (matches.Count == 0)
-                        return null;
-                    var lastMatch = matches[matches.Count - 1].Value;
-                    return Regex.Matches(lastMatch, @"\w+")[0].Value;
-                }
-                open = close = i;
-            }
-
-            return null;
-        }
-
-        private string GetPreviousWord(string text)
-        {
-            var pos = CurrentPosition;
-            var matches = Regex.Matches(text.Substring(0, pos), @"\w+\s*");
+            // find all words
+            var matches = Regex.Matches(text.Substring(0, textPosition), @"\w+\s*");
+            // return the las word
             return matches.Count > 0 ? matches[matches.Count - 1].Value.Trim() : null;
         }
 
+        #region AUTO COMPLETE KEYWORDS
+        // Keyword can be defined as follows:
+        // <class type>.<class keyword>.<class keyword subkeyword>
+        // <class type>,<class annotation>
         private static string[] autoCompleteKeywords = new[] {
             // buffer
             "buffer",
@@ -133,12 +112,12 @@ namespace App
             "pass.tex",
             "pass.vert",
             // sampler
-            "shader",
             "sampler",
             "sampler.magfilter",
             "sampler.minfilter",
             "sampler.wrap",
             // shader
+            "shader",
             "shader,eval",
             "shader,frag",
             "shader,geom",
@@ -263,7 +242,7 @@ namespace App
             "shader.sampler1D",
             "shader.sampler1DArray",
             "shader.sampler1DArrayShadow",
-            "shader.sampler1DShadow ",
+            "shader.sampler1DShadow",
             "shader.sampler2D",
             "shader.sampler2DArray",
             "shader.sampler2DArrayShadow",
@@ -329,5 +308,6 @@ namespace App
             "vertinput",
             "vertinput.attr"
         };
+        #endregion
     }
 }
