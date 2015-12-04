@@ -216,11 +216,11 @@ namespace App
             // remove comments
             var code = CodeEditor.RemoveComments(text);
             code = CodeEditor.RemoveNewLineIndicators(code);
-            code = CodeEditor.IncludeFiles(includeDir, code);
+            code = CodeEditor.IncludeFiles(code, includeDir);
             code = CodeEditor.ResolvePreprocessorDefinitions(code);
 
             // FIND PROTOGL CLASS BLOCKS (find "TYPE name { ... }")
-            var blocks = CodeEditor.GetObjectBlocks(code);
+            var blocks = CodeEditor.GetBlocks(code);
 
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
             var ex = blocks.Catch(x => glControl.AddObject(x, includeDir)).ToArray();

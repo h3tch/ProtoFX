@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace App
@@ -134,6 +135,12 @@ namespace App
             }
 
             throw new ArgumentException("ERROR: Could not convert buffer data to specified type.");
+        }
+
+        public static IEnumerable<TResult> Select<TResult>(this MatchCollection matches, Func<Match, TResult> func)
+        {
+            foreach (Match match in matches)
+                yield return func(match);
         }
     }
 }
