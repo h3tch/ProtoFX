@@ -6,20 +6,19 @@ namespace App
 {
     partial class CodeEditor
     {
-
-        public void AutoCShow(int textPosition)
+        public void AutoCShow(int curPosition)
         {
             // get the list of possible keywords from the current position
-            var keywords = SelectKeywords(textPosition);
-            var wordPos = WordStartPosition(textPosition, true);
-            AutoCShow(textPosition - wordPos, keywords.Merge(" "));
+            var keywords = SelectKeywords(curPosition);
+            var wordPos = WordStartPosition(curPosition, true);
+            AutoCShow(curPosition - wordPos, keywords.Merge(" "));
         }
 
-        private IEnumerable<string> SelectKeywords(int textPosition)
+        private IEnumerable<string> SelectKeywords(int curPosition)
         {
             var text = RemoveComments(Text);
-            string block = ProtoGLBlockDef(text, textPosition).FirstOrDefault();
-            string prev = PrecedingWord(text, textPosition);
+            var block = BlockDef(text, curPosition).FirstOrDefault();
+            var prev = PrecedingWord(text, curPosition);
             IEnumerable<string> result = null;
 
             // is within a class block
@@ -57,31 +56,17 @@ namespace App
                    select x.Substring(searchString.Length);
         }
 
-        private IEnumerable<string> ProtoGLBlockDef(string text, int textPosition)
+        private IEnumerable<string> BlockDef(string text, int curPosition)
         {
-            int open = 0, close = 0;
-            for (; open < textPosition && open < text.Length; open++)
-            {
-                // find class block opening brace
-                if (text[open] != '{')
-                    continue;
-                
-                // find class block closing brace
-                int i = BraceMatch(open);
+            // find surrounding block
+            var block = (from x in GetBlockPositions(text)
+                         where x[1] < curPosition && curPosition < x[2]
+                         select x).FirstOrDefault();
 
-                // if textPosition is withing the
-                // opening and closing brace
-                if (i < 0 || textPosition < i)
-                    break;
-                open = close = i;
-            }
-
-            // find class block definition between the current opening and previous closing brace
-            var matches = Regex.Matches(text.Substring(close, open - close + 1), @"(\w+\s*){2,3}\{");
-            if (matches.Count > 0)
+            if (block != null)
             {
-                var blockDef = matches[matches.Count - 1].Value;
                 // find all words
+                var blockDef = text.Substring(block[0], block[1] - block[0]);
                 foreach (Match match in Regex.Matches(blockDef, @"\w+"))
                     yield return match.Value;
             }
@@ -96,6 +81,9 @@ namespace App
         }
 
         #region AUTO COMPLETE KEYWORDS
+        // Keyword can be defined as follows:
+        // <class type>.<class keyword>.<class keyword subkeyword>
+        // <class type>,<class annotation>
         private static string[] autoCompleteKeywords = new[] {
             // buffer
             "buffer",
@@ -136,12 +124,12 @@ namespace App
             "pass.tex",
             "pass.vert",
             // sampler
-            "shader",
             "sampler",
             "sampler.magfilter",
             "sampler.minfilter",
             "sampler.wrap",
             // shader
+            "shader",
             "shader,eval",
             "shader,frag",
             "shader,geom",
