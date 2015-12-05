@@ -31,8 +31,7 @@ namespace App
                     e.Text += '\t';
             }
         }
-
-
+        
         private void HandleCharAdded(object sender, CharAddedEventArgs e)
         {
             var editor = (CodeEditor)sender;
@@ -44,24 +43,13 @@ namespace App
                 // Check whether the bracket is the only non
                 // whitespace in the line. For cases like "if() { }".
                 if (editor.Lines[curLine].Text.Trim() == "}")
-                    SetIndent(editor, curLine, GetIndent(editor, curLine) - 4);
+                    editor.SetIndent(curLine, editor.GetIndent(curLine) - 4);
             }
 
             // auto complete
             if (char.IsLetter((char)e.Char))
                 editor.AutoCShow(editor.CurrentPosition);
         }
-
-        //Codes for the handling the Indention of the lines.
-        //They are manually added here until they get officially added to the Scintilla control.
-        #region CodeIndent Handlers
-        const int SCI_SETLINEINDENTATION = 2126;
-        const int SCI_GETLINEINDENTATION = 2127;
-        private void SetIndent(Scintilla scin, int line, int indent)
-            => scin.DirectMessage(SCI_SETLINEINDENTATION, (IntPtr)line, new IntPtr(indent));
-        private int GetIndent(Scintilla scin, int line)
-            => (int)scin.DirectMessage(SCI_GETLINEINDENTATION, (IntPtr)line, IntPtr.Zero);
-        #endregion
 
         private void HandleTextChanged(object sender, EventArgs e)
         {
@@ -194,5 +182,16 @@ namespace App
                     break;
             }
         }
+
+        //Codes for the handling the Indention of the lines.
+        //They are manually added here until they get officially added to the Scintilla control.
+        #region CodeIndent Handlers
+        const int SCI_SETLINEINDENTATION = 2126;
+        const int SCI_GETLINEINDENTATION = 2127;
+        private void SetIndent(int line, int indent)
+            => DirectMessage(SCI_SETLINEINDENTATION, (IntPtr)line, new IntPtr(indent));
+        private int GetIndent(int line)
+            => (int)DirectMessage(SCI_GETLINEINDENTATION, (IntPtr)line, IntPtr.Zero);
+        #endregion
     }
 }

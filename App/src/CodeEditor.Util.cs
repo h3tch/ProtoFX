@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace App
@@ -81,6 +80,11 @@ namespace App
             return text;
         }
 
+        /// <summary>
+        /// Resolve preprocessor #global definitions.
+        /// </summary>
+        /// <param name="text">String to resolve.</param>
+        /// <returns>String with resolved #global definitions.</returns>
         public static string ResolvePreprocessorDefinitions(string text)
         {
             // find include files
@@ -112,6 +116,12 @@ namespace App
             return text;
         }
 
+        /// <summary>
+        /// Find all block positions in the string.
+        /// </summary>
+        /// <param name="text">String to process.</param>
+        /// <returns>Returns an enumerable with block positions
+        /// [class type index, '{' index, '}' index]</returns>
         public static IEnumerable<int[]> GetBlockPositions(string text)
         {
             // find all '{' that potentially indicate a block
@@ -141,8 +151,14 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Get all block strings in the string "TYPE ANNO NAME { ... }".
+        /// </summary>
+        /// <param name="text">String to process.</param>
+        /// <returns>Returns an enumerable of all block strings.</returns>
         public static IEnumerable<string> GetBlocks(string text)
         {
+            // return block text from block positions
             foreach (var block in GetBlockPositions(text))
                 yield return text.Substring(block[0], block[2] - block[0] + 1);
         }

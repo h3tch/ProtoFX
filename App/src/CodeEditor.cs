@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace App
@@ -117,94 +116,6 @@ namespace App
                 Margins[0].Width = width;
         }
 
-        private Dictionary<string, bool> GetWordsFromSelections()
-        {
-            var words = new Dictionary<string, bool>();
-
-            // highlight all selected text
-            foreach (var selection in Selections)
-            {
-                // text length of selection
-                var len = selection.End - selection.Start;
-                // if not a selected word
-                var word = len == 0 ?
-                    // select word at caret position
-                    GetWordFromPosition(selection.Caret) :
-                    // get selected text
-                    GetTextRange(selection.Start, len);
-
-                // do not add empty strings 
-                // (GetWordFromPosition can return those)
-                if (word.Length == 0)
-                    continue;
-
-                // was selection a whole word
-                var isWholeWord = len == 0 || IsRangeWord(selection.Start, selection.End);
-
-                // we cannot add the same key twice
-                if (words.ContainsKey(word))
-                    words[word] |= isWholeWord;
-                else
-                    words.Add(word, isWholeWord);
-            }
-
-            return words;
-        }
-        
-        public void ClearIndicators(int index)
-        {
-            // Remove all uses of our indicator
-            IndicatorCurrent = index;
-            IndicatorClearRange(0, TextLength);
-            IndicatorRanges[index].Clear();
-        }
-
-        private void AddIndicators(int index, IEnumerable<int[]> ranges)
-        {
-            // set active indicator
-            IndicatorCurrent = index;
-
-            // Update indicator appearance
-            Indicators[index].Style = IndicatorStyle.StraightBox;
-            Indicators[index].Under = true;
-            Indicators[index].ForeColor = Color.Crimson;
-            Indicators[index].OutlineAlpha = 60;
-            Indicators[index].Alpha = 40;
-
-            foreach (var range in ranges)
-            {
-                // add indicator range
-                IndicatorRanges[index].Add(range);
-                IndicatorFillRange(range[0], range[1] - range[0]);
-            }
-        }
-
-        public void GotoNextIndicator(int index, int skip = 0)
-            => GotoNextRange(IndicatorRanges[index], skip);
-
-        public void SelectIndicators(int index)
-        {
-            // get current caret position
-            var cur = CurrentPosition;
-
-            // get selected word ranges
-            var ranges = IndicatorRanges[index];
-            var count = ranges.Count();
-
-            // select all word ranges
-            ClearSelections();
-            foreach (var range in ranges)
-                AddSelection(range[0], range[1]);
-
-            // ClearSelections adds a default selection
-            // at postion 0 which we need to remove
-            DropSelection(0);
-
-            // rotate through all selections until we arive at the original caret position
-            for (int i = 0; (cur < CurrentPosition || AnchorPosition < cur) && i < count; i++)
-                RotateSelection();
-        }
-
         #region KEYWORDS
         string[] keywords = new[] {
             // PROTOGL KEYWORDS
@@ -313,6 +224,7 @@ namespace App
             "stencil   " +
             "tess      " +
             "tex       " +
+            "txt       " +
             "type      " +
             "usage     " +
             "vert      " +

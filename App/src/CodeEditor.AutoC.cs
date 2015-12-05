@@ -51,9 +51,10 @@ namespace App
                          where x[1] < curPosition && curPosition < x[2]
                          select x).FirstOrDefault();
 
+            // surrounding block found
             if (block != null)
             {
-                // find all words
+                // return all words before the open brace '{'
                 var blockDef = text.Substring(block[0], block[1] - block[0]);
                 foreach (Match match in Regex.Matches(blockDef, @"\w+"))
                     yield return match.Value;
@@ -70,8 +71,7 @@ namespace App
 
         #region AUTO COMPLETE KEYWORDS
         // Keyword can be defined as follows:
-        // <class type>.<class keyword>.<class keyword subkeyword>
-        // <class type>,<class annotation>
+        // <class type>[,<class annotation> | .<class keyword> [.<sub keyword>]]
         private static string[] autoCompleteKeywords = new[] {
             // buffer
             "buffer",
