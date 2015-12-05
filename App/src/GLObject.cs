@@ -8,6 +8,11 @@ namespace App
         [Field] public string name { get; protected set; }
         public string anno { get; protected set; }
 
+        /// <summary>
+        /// Instantiate and initialize object.
+        /// </summary>
+        /// <param name="name">Name used to identify the object.</param>
+        /// <param name="annotation">Annotation used for special initialization.</param>
         public GLObject(string name, string annotation)
         {
             this.glname = 0;

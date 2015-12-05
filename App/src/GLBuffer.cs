@@ -38,11 +38,11 @@ namespace App
         /// </summary>
         /// <param name="dir">Directory of the tech-file.</param>
         /// <param name="name">Name used to identify the object.</param>
-        /// <param name="annotation">Annotation used for special initialization.</param>
+        /// <param name="anno">Annotation used for special initialization.</param>
         /// <param name="text">Text block specifying the object commands.</param>
         /// <param name="classes">Collection of scene objects.</param>
-        public GLBuffer(string dir, string name, string annotation, string text, Dict<GLObject> classes)
-            : base(name, annotation)
+        public GLBuffer(string dir, string name, string anno, string text, Dict<GLObject> classes)
+            : base(name, anno)
         {
             var err = new CompileException($"buffer '{name}'");
 

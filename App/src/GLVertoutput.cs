@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
+using PrimitiveType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
 
 namespace App
 {
@@ -10,8 +11,16 @@ namespace App
         public bool resume = false;
         #endregion
 
-        public GLVertoutput(string dir, string name, string annotation, string text, Dict<GLObject> classes)
-            : base(name, annotation)
+        /// <summary>
+        /// Create OpenGL object.
+        /// </summary>
+        /// <param name="dir">Directory of the tech-file.</param>
+        /// <param name="name">Name used to identify the object.</param>
+        /// <param name="anno">Annotation used for special initialization.</param>
+        /// <param name="text">Text block specifying the object commands.</param>
+        /// <param name="classes">Collection of scene objects.</param>
+        public GLVertoutput(string dir, string name, string anno, string text, Dict<GLObject> classes)
+            : base(name, anno)
         {
             var err = new CompileException($"vertoutput '{name}'");
 
@@ -40,7 +49,11 @@ namespace App
                 throw err;
         }
 
-        public void Bind(TransformFeedbackPrimitiveType primitive)
+        /// <summary>
+        /// Bind transform feedback object.
+        /// </summary>
+        /// <param name="primitive">Transform feedback primitive type.</param>
+        public void Bind(PrimitiveType primitive)
         {
             // bind transform feedback object
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, glname);
@@ -51,6 +64,9 @@ namespace App
                 GL.BeginTransformFeedback(primitive);
         }
 
+        /// <summary>
+        /// Unbind transform feedback object.
+        /// </summary>
         public void Unbind()
         {
             // pause or end transform feedback

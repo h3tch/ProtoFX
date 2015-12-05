@@ -15,6 +15,14 @@ namespace App
         private GLImage glimg = null;
         #endregion
 
+        /// <summary>
+        /// Create OpenGL object.
+        /// </summary>
+        /// <param name="dir">Directory of the tech-file.</param>
+        /// <param name="name">Name used to identify the object.</param>
+        /// <param name="anno">Annotation used for special initialization.</param>
+        /// <param name="text">Text block specifying the object commands.</param>
+        /// <param name="classes">Collection of scene objects.</param>
         public GLTexture(string dir, string name, string anno, string text, Dict<GLObject> classes)
             : base(name, anno)
         {
@@ -64,6 +72,10 @@ namespace App
                 throw err;
         }
 
+        /// <summary>
+        /// Bind texture to texture unit.
+        /// </summary>
+        /// <param name="unit">Texture unit.</param>
         public void Bind(int unit)
         {
             if (samp != null)
@@ -72,11 +84,23 @@ namespace App
             GL.BindTexture(glimg != null ? glimg.target : TextureTarget.TextureBuffer, glname);
         }
 
+        /// <summary>
+        /// Bind texture to compute image unit.
+        /// </summary>
+        /// <param name="unit">Image unit.</param>
+        /// <param name="level">Texture mipmap level.</param>
+        /// <param name="layer">Texture array index or texture depth.</param>
+        /// <param name="access">How the texture will be accessed by the shader.</param>
+        /// <param name="format">Pixel format of texture pixels.</param>
         public void Bind(int unit, int level, int layer, TextureAccess access, SizedInternalFormat format)
         {
             GL.BindImageTexture(unit, glname, level, layer >= 0, Math.Max(layer, 0), access, format);
         }
 
+        /// <summary>
+        /// Unbind texture from texture unit.
+        /// </summary>
+        /// <param name="unit">Texture unit.</param>
         public void Unbind(int unit)
         {
             if (samp != null)

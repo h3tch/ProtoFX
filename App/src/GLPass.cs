@@ -40,6 +40,14 @@ namespace App
         private List<GLInstance> csexec = new List<GLInstance>();
         #endregion
 
+        /// <summary>
+        /// Create pass object.
+        /// </summary>
+        /// <param name="dir">Directory of the tech-file.</param>
+        /// <param name="name">Name used to identify the object.</param>
+        /// <param name="annotation">Annotation used for special initialization.</param>
+        /// <param name="text">Text block specifying the object commands.</param>
+        /// <param name="classes">Collection of scene objects.</param>
         public GLPass(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
@@ -134,6 +142,11 @@ namespace App
                 throw err;
         }
 
+        /// <summary>
+        /// Execute pass.
+        /// </summary>
+        /// <param name="width">Width of the OpenGL control.</param>
+        /// <param name="height">Height of the OpenGL control.</param>
         public void Exec(int width, int height)
         {
             int fbWidth = width;
@@ -503,7 +516,7 @@ namespace App
             TransformFeedback = 1 | 2 | 0 | 0,
         }
 
-        public class MultiDrawCall
+        private class MultiDrawCall
         {
             public DrawFunc drawfunc;
             public int vertexin;
@@ -601,39 +614,28 @@ namespace App
             }
 
             // arguments for indexed buffer drawing
-            public int iBaseVertex
-            { get { return arg0; } set { arg0 = value; } }
+            public int iBaseVertex { get { return arg0; } set { arg0 = value; } }
             public IntPtr iBaseIndex
             {
                 get { return (IntPtr)(arg1 * Math.Max(1, (int)indextype - (int)ElementType.UByte)); }
                 set { arg1 = (int)value; }
             }
-            public int iIndexCount
-            { get { return arg2; } set { arg2 = value; } }
-            public int iBaseInstance
-            { get { return arg3; } set { arg3 = value; } }
-            public int iInstanceCount
-            { get { return arg4; } set { arg4 = value; } }
+            public int iIndexCount { get { return arg2; } set { arg2 = value; } }
+            public int iBaseInstance { get { return arg3; } set { arg3 = value; } }
+            public int iInstanceCount { get { return arg4; } set { arg4 = value; } }
             // get arguments for vertex buffer drawing
-            public int vBaseVertex
-            { get { return arg0; } set { arg0 = value; } }
-            public int vVertexCount
-            { get { return arg1; } set { arg1 = value; } }
-            public int vBaseInstance
-            { get { return arg2; } set { arg2 = value; } }
-            public int vInstanceCount
-            { get { return arg3; } set { arg3 = value; } }
+            public int vBaseVertex { get { return arg0; } set { arg0 = value; } }
+            public int vVertexCount { get { return arg1; } set { arg1 = value; } }
+            public int vBaseInstance { get { return arg2; } set { arg2 = value; } }
+            public int vInstanceCount { get { return arg3; } set { arg3 = value; } }
             // get arguments for vertex output drawing
-            public int voStream
-            { get { return arg0; } set { arg0 = value; } }
-            public int voInstanceCount
-            { get { return arg1; } set { arg1 = value; } }
+            public int voStream { get { return arg0; } set { arg0 = value; } }
+            public int voInstanceCount { get { return arg1; } set { arg1 = value; } }
             // get arguments for indirect drawing
-            public IntPtr indirectPtr
-            { get { return (IntPtr)arg0; } set { arg0 = (int)value; } }
+            public IntPtr indirectPtr { get { return (IntPtr)arg0; } set { arg0 = (int)value; } }
         }
 
-        public struct CompCall
+        private struct CompCall
         {
             public uint numGroupsX;
             public uint numGroupsY;
@@ -660,7 +662,7 @@ namespace App
             }
         }
 
-        public class Res<T>
+        private class Res<T>
         {
             public T obj;
             public int unit;
@@ -674,7 +676,7 @@ namespace App
             }
         }
 
-        public class ResTexImg : Res<GLTexture>
+        private class ResTexImg : Res<GLTexture>
         {
             public int level;
             public int layer;
@@ -694,7 +696,7 @@ namespace App
             }
         }
 
-        public struct GLMethod
+        private struct GLMethod
         {
             public MethodInfo mtype;
             public object[] inval;
