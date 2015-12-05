@@ -20,7 +20,7 @@ namespace App
             return default(TResult);
         }
 
-        public bool TryGetValue<TResult>(string key, out TResult obj, GLException err = null)
+        public bool TryGetValue<TResult>(string key, out TResult obj, CompileException err = null)
             where TResult : T
         {
             // try to find the object instance
@@ -40,7 +40,7 @@ namespace App
             T tmp = default(T);
             if (base.TryGetValue(key, out tmp) && tmp is TResult)
                 return (TResult)tmp;
-            throw new GLException(info);
+            throw new CompileException(info);
         }
 
         public bool TryGetValue<TResult>(string key, ref TResult obj)

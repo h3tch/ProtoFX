@@ -11,7 +11,11 @@ namespace App
         private static int HighlightIndicatorIndex = 8;
         private List<int[]>[] IndicatorRanges;
 
-        public CodeEditor(string text)
+        /// <summary>
+        /// Instantiate and initialize ScintillaNET based code editor for ProtoGL.
+        /// </summary>
+        /// <param name="text">[OPTIONAL] Initialize code editor with text.</param>
+        public CodeEditor(string text = null)
         {
             // instantiate fields
             IndicatorRanges = new List<int[]>[Indicators.Count];

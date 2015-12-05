@@ -14,6 +14,9 @@ namespace OpenTK
         private Dict<GLObject> scene = new Dict<GLObject>();
         public Dictionary<string, GLObject> Scene { get { return scene; } }
 
+        /// <summary>
+        /// Instantiate and initialize graphics control based on OpenTK.
+        /// </summary>
         public GraphicControl() : base()
         {
             Paint += new PaintEventHandler(OnPaint);
@@ -23,20 +26,28 @@ namespace OpenTK
             Resize += new EventHandler(OnResize);
         }
 
+        /// <summary>
+        /// Render scene.
+        /// </summary>
         public void Render()
         {
             MakeCurrent();
             scene.Where(x => x.Value is GLTech).Select(x => (GLTech)x.Value)
-                .Do(x => x.Exec(ClientSize.Width, ClientSize.Height));
+                 .Do(x => x.Exec(ClientSize.Width, ClientSize.Height));
             SwapBuffers();
         }
 
+        /// <summary>
+        /// Add a new object to the scene.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="includeDir"></param>
         public void AddObject(string block, string includeDir)
         {
             // PARSE CLASS INFO
-            string[] classDef = ExtraxtClassDef(block);
+            var classDef = ExtraxtClassDef(block);
             if (classDef.Length < 2)
-                throw new GLException(classDef[0]).Add("Invalid class definition.");
+                throw new CompileException(classDef[0]).Add("Invalid class definition.");
 
             // PARSE CLASS TEXT
             var start = block.IndexOf('{');
@@ -52,10 +63,10 @@ namespace OpenTK
 
             // check for errors
             if (type == null)
-                throw new GLException($"{classDef[0]} '{className}'")
+                throw new CompileException($"{classDef[0]} '{className}'")
                     .Add($"Class type '{classDef[0]}' not known.");
             if (scene.ContainsKey(className))
-                throw new GLException($"{classDef[0]} '{className}'")
+                throw new CompileException($"{classDef[0]} '{className}'")
                     .Add($"Class name '{className}' already exists.");
 
             // instantiate class
@@ -64,6 +75,9 @@ namespace OpenTK
             scene.Add(instance.name, instance);
         }
 
+        /// <summary>
+        /// Clear all scene objects.
+        /// </summary>
         public void ClearScene()
         {
             // call delete method of OpenGL resources

@@ -7,7 +7,7 @@ namespace App
         public GLShader(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
-            var err = new GLException($"shader '{name}'");
+            var err = new CompileException($"shader '{name}'");
 
             // CREATE OPENGL OBJECT
             ShaderType type;

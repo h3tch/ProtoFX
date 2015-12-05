@@ -6,6 +6,11 @@ namespace App
 {
     partial class CodeEditor
     {
+        /// <summary>
+        /// Show auto complete menu for the specified text position.
+        /// </summary>
+        /// <param name="curPosition">The text position for which 
+        /// to show the auto complete menu</param>
         public void AutoCShow(int curPosition)
         {
             // get the list of possible keywords from the current position

@@ -6,8 +6,8 @@ namespace App
     class GLFragoutput : GLObject
     {
         #region PROPERTIES
-        [GLField] public int width { get; protected set; }
-        [GLField] public int height { get; protected set; }
+        [Field] public int width { get; protected set; }
+        [Field] public int height { get; protected set; }
         #endregion
 
         #region FIELDS
@@ -33,10 +33,18 @@ namespace App
         };
         #endregion
 
+        /// <summary>
+        /// Create OpenGL framebuffer object for fragment output.
+        /// </summary>
+        /// <param name="dir">Directory of the tech-file.</param>
+        /// <param name="name">Name used to identify the object.</param>
+        /// <param name="annotation">Annotation used for special initialization.</param>
+        /// <param name="text">Text block specifying the object commands.</param>
+        /// <param name="classes">Collection of scene objects.</param>
         public GLFragoutput(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
-            var err = new GLException($"fragoutput '{name}'");
+            var err = new CompileException($"fragoutput '{name}'");
 
             // PARSE TEXT
             var body = new Commands(text, err);
@@ -94,7 +102,7 @@ namespace App
             }
         }
 
-        private void attatch(GLException err, string cmd, string[] args, Dict<GLObject> classes)
+        private void attatch(CompileException err, string cmd, string[] args, Dict<GLObject> classes)
         {
             // get OpenGL image
             GLImage glimg = classes.GetValue<GLImage>(args[0]);

@@ -11,10 +11,17 @@ namespace App
     class GLBuffer : GLObject
     {
         #region FIELDS
-        [GLField] public int size { get; private set; } = 0;
-        [GLField] public BufferUsageHint usage { get; private set; } = BufferUsageHint.StaticDraw;
+        [Field] public int size { get; private set; } = 0;
+        [Field] public BufferUsageHint usage { get; private set; } = BufferUsageHint.StaticDraw;
         #endregion
 
+        /// <summary>
+        /// Link GLBuffer to existing OpenGL buffer. Used
+        /// to provide debug information in the debug view.
+        /// </summary>
+        /// <param name="name">Name the buffer object.</param>
+        /// <param name="annotation">Annotate the buffer object.</param>
+        /// <param name="glname">OpenGL buffer object to like to.</param>
         public GLBuffer(string name, string annotation, int glname)
             : base(name, annotation)
         {
@@ -26,10 +33,18 @@ namespace App
             usage = (BufferUsageHint)u;
         }
 
+        /// <summary>
+        /// Create OpenGL object.
+        /// </summary>
+        /// <param name="dir">Directory of the tech-file.</param>
+        /// <param name="name">Name used to identify the object.</param>
+        /// <param name="annotation">Annotation used for special initialization.</param>
+        /// <param name="text">Text block specifying the object commands.</param>
+        /// <param name="classes">Collection of scene objects.</param>
         public GLBuffer(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
-            var err = new GLException($"buffer '{name}'");
+            var err = new CompileException($"buffer '{name}'");
 
             // PARSE TEXT TO COMMANDS
             var cmds = new Commands(text, err);
@@ -78,6 +93,10 @@ namespace App
                 throw err;
         }
 
+        /// <summary>
+        /// Read whole GPU buffer data.
+        /// </summary>
+        /// <returns>Return GPU buffer data as byte array.</returns>
         public byte[] Read()
         {
             if (size == 0)
@@ -109,7 +128,7 @@ namespace App
         }
 
         #region UTIL METHODS
-        private static byte[] LoadXml(GLException err, string dir, string[] cmd, Dict<GLObject> classes)
+        private static byte[] LoadXml(CompileException err, string dir, string[] cmd, Dict<GLObject> classes)
         {
             // Get text from file or text object
             string str = getText(dir, cmd[0], classes);
@@ -134,7 +153,7 @@ namespace App
                     {
                         filedata[i - 1] = DataXml.Load(document, cmd[i]);
                     }
-                    catch (GLException ex)
+                    catch (CompileException ex)
                     {
                         err.Add(ex.GetBaseException().Message);
                     }
@@ -152,7 +171,7 @@ namespace App
             return null;
         }
 
-        private static byte[] loadText(GLException err, string dir, string[] cmd, Dict<GLObject> classes)
+        private static byte[] loadText(CompileException err, string dir, string[] cmd, Dict<GLObject> classes)
         {
             // Get text from file or text object
             string str = getText(dir, cmd[0], classes);

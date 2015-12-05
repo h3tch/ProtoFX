@@ -5,7 +5,7 @@ namespace App
     abstract class GLObject
     {
         public int glname { get; protected set; }
-        [GLField] public string name { get; protected set; }
+        [Field] public string name { get; protected set; }
         public string anno { get; protected set; }
 
         public GLObject(string name, string annotation)
@@ -19,7 +19,7 @@ namespace App
 
         public override string ToString() => name;
         
-        static protected bool HasErrorOrGlError(GLException err)
+        static protected bool HasErrorOrGlError(CompileException err)
         {
             var errcode = GL.GetError();
             if (errcode != ErrorCode.NoError)

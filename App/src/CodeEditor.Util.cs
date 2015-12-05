@@ -35,7 +35,7 @@ namespace App
         }
 
         /// <summary>
-        /// Remove ... new line indicators.
+        /// Remove '...' new line indicators.
         /// </summary>
         /// <param name="text">String to remove new line indicators from.</param>
         /// <returns>String without new line indicators.</returns>
@@ -65,7 +65,7 @@ namespace App
 
                 // check if file exists
                 if (File.Exists(path) == false)
-                    throw new GLException($"The include file '{incfile}' could not be found.\n");
+                    throw new CompileException($"The include file '{incfile}' could not be found.\n");
 
                 // load the file and insert it, replacing #include
                 var content = File.ReadAllText(path);
@@ -135,7 +135,7 @@ namespace App
                 if (text[i] == '}' && --count == 0)
                     blockBr.Add(i);
                 if (count < 0)
-                    throw new GLException($"ERROR in line {nline}: Unexpected occurrence of '}}'.");
+                    throw new CompileException($"ERROR in line {nline}: Unexpected occurrence of '}}'.");
             }
 
             // find potential block positions

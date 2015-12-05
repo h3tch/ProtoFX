@@ -16,14 +16,14 @@ namespace App
     class GLImage : GLObject
     {
         #region FIELDS
-        [GLField] private string[] file = null;
-        [GLField] public int width = 1;
-        [GLField] public int height = 0;
-        [GLField] public int depth = 0;
-        [GLField] public int length = 0;
-        [GLField] public int mipmaps = 0;
-        [GLField] private TexTarget type = 0;
-        [GLField] private GpuColorFormat format = GpuColorFormat.Rgba;
+        [Field] private string[] file = null;
+        [Field] public int width = 1;
+        [Field] public int height = 0;
+        [Field] public int depth = 0;
+        [Field] public int length = 0;
+        [Field] public int mipmaps = 0;
+        [Field] private TexTarget type = 0;
+        [Field] private GpuColorFormat format = GpuColorFormat.Rgba;
         private CpuFormat fileFormat = CpuFormat.Format32bppArgb;
         private PixelType pxType = 0;
         private int pxSize = 0;
@@ -35,6 +35,13 @@ namespace App
         public GpuColorFormat gpuFormat { get { return format; } private set { format = value; } }
         #endregion
 
+        /// <summary>
+        /// Link GLBuffer to existing OpenGL image. Used
+        /// to provide debug information in the debug view.
+        /// </summary>
+        /// <param name="name">Name the object.</param>
+        /// <param name="annotation">Annotate the object.</param>
+        /// <param name="glname">OpenGL object to like to.</param>
         public GLImage(string name, string anno, int glname)
             : base(name, anno)
         {
@@ -54,10 +61,18 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Create OpenGL image object.
+        /// </summary>
+        /// <param name="dir">Directory of the tech-file.</param>
+        /// <param name="name">Name used to identify the object.</param>
+        /// <param name="annotation">Annotation used for special initialization.</param>
+        /// <param name="text">Text block specifying the object commands.</param>
+        /// <param name="classes">Collection of scene objects.</param>
         public GLImage(string dir, string name, string anno, string text, Dict<GLObject> classes)
             : base(name, anno)
         {
-            var err = new GLException($"image '{name}'");
+            var err = new CompileException($"image '{name}'");
 
             // PARSE TEXT
             var cmds = new Commands(text, err);
@@ -123,11 +138,24 @@ namespace App
                 throw err;
         }
 
+        /// <summary>
+        /// Read whole GPU image data.
+        /// </summary>
+        /// <param name="level">Mipmap level.</param>
+        /// <param name="index">Array index or texture depth index.</param>
+        /// <returns>Return GPU image data as bitmap.</returns>
         public Bitmap Read(int level, int index)
         {
             return Read(glname, level, index);
         }
 
+        /// <summary>
+        /// Read whole GPU image data.
+        /// </summary>
+        /// <param name="ID">OpenGL image ID.</param>
+        /// <param name="level">Mipmap level.</param>
+        /// <param name="index">Array index or texture depth index.</param>
+        /// <returns>Return GPU image data as bitmap.</returns>
         public static Bitmap Read(int ID, int level, int index)
         {
             int w, h, d, f;
@@ -165,7 +193,7 @@ namespace App
         }
 
         #region UTIL METHODS
-        private static byte[] loadImageFiles(GLException err, string dir, string[] filenames,
+        private static byte[] loadImageFiles(CompileException err, string dir, string[] filenames,
             ref int w, ref int h, ref int d, GpuColorFormat gpuformat, 
             out GpuFormat pixelformat, out PixelType pixeltype, out int pixelsize,
             out CpuFormat fileformat)
@@ -232,7 +260,7 @@ namespace App
             return data;
         }
 
-        public void TexImage(TexTarget target, int width, int height,
+        private void TexImage(TexTarget target, int width, int height,
             int depth, int length, GpuFormat format, PixelType type, IntPtr pixels)
         {
             switch (target)

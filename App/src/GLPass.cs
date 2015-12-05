@@ -14,14 +14,14 @@ namespace App
     {
         #region FIELDS
         private static CultureInfo culture = new CultureInfo("en");
-        [GLField] private string vert = null;
-        [GLField] private string tess = null;
-        [GLField] private string eval = null;
-        [GLField] private string geom = null;
-        [GLField] private string frag = null;
-        [GLField] private string comp = null;
-        [GLField] private string[] vertout = null;
-        [GLField] private string fragout = null;
+        [Field] private string vert = null;
+        [Field] private string tess = null;
+        [Field] private string eval = null;
+        [Field] private string geom = null;
+        [Field] private string frag = null;
+        [Field] private string comp = null;
+        [Field] private string[] vertout = null;
+        [Field] private string fragout = null;
         private GLObject glvert = null;
         private GLObject gltess = null;
         private GLObject gleval = null;
@@ -43,7 +43,7 @@ namespace App
         public GLPass(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
-            var err = new GLException($"pass '{name}'");
+            var err = new CompileException($"pass '{name}'");
 
             // PARSE TEXT
             var body = new Commands(text, err);
@@ -215,7 +215,7 @@ namespace App
         }
 
         #region PARSE COMMANDS
-        private void ParseDrawCall(GLException err, string[] cmd, Dict<GLObject> classes)
+        private void ParseDrawCall(CompileException err, string[] cmd, Dict<GLObject> classes)
         {
             List<int> arg = new List<int>();
             GLVertinput vertexin = null;
@@ -279,7 +279,7 @@ namespace App
             drawcalls.Add(multidrawcall);
         }
 
-        private void ParseComputeCall(GLException err, string[] cmd, Dict<GLObject> classes)
+        private void ParseComputeCall(CompileException err, string[] cmd, Dict<GLObject> classes)
         {
             // check for errors
             if (cmd.Length < 2 || cmd.Length > 3)
@@ -318,13 +318,13 @@ namespace App
 
                 compcalls.Add(call);
             }
-            catch (GLException ex)
+            catch (CompileException ex)
             {
                 err.Add(ex.Message);
             }
         }
 
-        private void ParseTexCmd(GLException err, string[] args, Dict<GLObject> classes)
+        private void ParseTexCmd(CompileException err, string[] args, Dict<GLObject> classes)
         {
             var types = new[] {
                 typeof(GLTexture),
@@ -344,7 +344,7 @@ namespace App
             }
         }
 
-        private void ParseSampCmd(GLException err, string[] args, Dict<GLObject> classes)
+        private void ParseSampCmd(CompileException err, string[] args, Dict<GLObject> classes)
         {
             var types = new[] {
                 typeof(GLSampler),
@@ -356,7 +356,7 @@ namespace App
         }
 
         private object[] ParseCmd(string[] args, Type[] types, int numMandatory,
-            Dict<GLObject> classes, GLException err)
+            Dict<GLObject> classes, CompileException err)
         {
             object[] values = new object[types.Length];
 
@@ -387,7 +387,7 @@ namespace App
             return values;
         }
 
-        private void ParseOpenGLCall(GLException err, string cmd, string[] args)
+        private void ParseOpenGLCall(CompileException err, string cmd, string[] args)
         {
             // find OpenGL method
             var mtype = FindMethod(cmd, args.Length);
@@ -414,7 +414,7 @@ namespace App
             glfunc.Add(new GLMethod(mtype, inval));
         }
 
-        private void ParseCsharpExec(GLException err, string cmd, string[] args, Dict<GLObject> classes)
+        private void ParseCsharpExec(CompileException err, string cmd, string[] args, Dict<GLObject> classes)
         {
             // check if command provides the correct amount of parameters
             if (args.Length == 0)
@@ -441,7 +441,7 @@ namespace App
             return methods.Count() > 0 ? methods.First() : null;
         }
 
-        private GLShader attach(GLException err, string sh, Dict<GLObject> classes)
+        private GLShader attach(CompileException err, string sh, Dict<GLObject> classes)
         {
             GLShader glsh = null;
 
@@ -452,7 +452,7 @@ namespace App
             return glsh;
         }
 
-        private void setVertexOutputVaryings(GLException err, string[] varyings)
+        private void setVertexOutputVaryings(CompileException err, string[] varyings)
         {
             // the vertout command needs at least 3 arguments
             if (varyings.Length < 3)

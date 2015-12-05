@@ -227,8 +227,8 @@ namespace App
 
             // show errors
             var errors =
-                from x in ex where x is GLException || x.InnerException is GLException
-                select (x is GLException ? x : x.InnerException) as GLException;
+                from x in ex where x is CompileException || x.InnerException is CompileException
+                select (x is CompileException ? x : x.InnerException) as CompileException;
             errors.Do(x => codeError.AppendText(x.Text));
 
             // SHOW SCENE

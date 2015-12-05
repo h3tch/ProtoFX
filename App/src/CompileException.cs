@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace App
 {
-    class GLException : Exception
+    class CompileException : Exception
     {
         private List<string> callstack;
         private List<string> messages = new List<string>();
@@ -16,48 +16,48 @@ namespace App
 
         public bool HasErrors() => messages.Count > 0;
 
-        public GLException() : this(new List<string>()) { }
+        public CompileException() : this(new List<string>()) { }
 
-        private GLException(List<string> callstack) : base()
+        private CompileException(List<string> callstack) : base()
         {
             this.callstack = callstack;
         }
 
-        private GLException(List<string> callstack, string callstackstring)
+        private CompileException(List<string> callstack, string callstackstring)
             : this(callstack)
         {
             callstack.Add(callstackstring);
         }
 
-        public GLException(string callstackstring) : this()
+        public CompileException(string callstackstring) : this()
         {
             callstack.Add(callstackstring);
         }
 
-        public GLException(GLException err, string callstackstring)
+        public CompileException(CompileException err, string callstackstring)
             : this(err.callstack, callstackstring)
         {
         }
 
-        public GLException Add(string message)
+        public CompileException Add(string message)
         {
             messages.Add(callstackstring + message);
             return this;
         }
 
-        public GLException PushCall(string text)
+        public CompileException PushCall(string text)
         {
             callstack.Add(text);
             return this;
         }
 
-        public GLException PopCall()
+        public CompileException PopCall()
         {
             callstack.UseIf(callstack.Count > 0)?.RemoveAt(callstack.Count - 1);
             return this;
         }
 
-        public static GLException operator +(GLException err, string callLevel)
-            => new GLException(err, callLevel);
+        public static CompileException operator +(CompileException err, string callLevel)
+            => new CompileException(err, callLevel);
     }
 }

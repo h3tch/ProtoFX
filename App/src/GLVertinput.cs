@@ -9,7 +9,7 @@ namespace App
         public GLVertinput(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
-            var err = new GLException($"vertinput '{name}'");
+            var err = new CompileException($"vertinput '{name}'");
 
             // PARSE TEXT
             var body = new Commands(text, err);
@@ -32,7 +32,7 @@ namespace App
                 throw err;
         }
 
-        private void attach(GLException err, int attrIdx, string[] args, string name, Dict<GLObject> classes)
+        private void attach(CompileException err, int attrIdx, string[] args, string name, Dict<GLObject> classes)
         {
             // check commands for errors
             if (args.Length < 3)

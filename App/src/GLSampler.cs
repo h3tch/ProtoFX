@@ -5,15 +5,15 @@ namespace App
     class GLSampler : GLObject
     {
         #region FIELDS
-        [GLField] private TextureMinFilter minfilter = TextureMinFilter.Nearest;
-        [GLField] private TextureMagFilter magfilter = TextureMagFilter.Nearest;
-        [GLField] private TextureWrapMode wrap = TextureWrapMode.ClampToEdge;
+        [Field] private TextureMinFilter minfilter = TextureMinFilter.Nearest;
+        [Field] private TextureMagFilter magfilter = TextureMagFilter.Nearest;
+        [Field] private TextureWrapMode wrap = TextureWrapMode.ClampToEdge;
         #endregion
 
         public GLSampler(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
-            var err = new GLException($"sampler '{name}'");
+            var err = new CompileException($"sampler '{name}'");
 
             // PARSE TEXT
             var body = new Commands(text, err);

@@ -13,15 +13,23 @@ namespace App
     class GLCsharp : GLObject
     {
         #region FIELDS
-        [GLField] private string version = null;
-        [GLField] private string[] file = null;
+        [Field] private string version = null;
+        [Field] private string[] file = null;
         private CompilerResults compilerresults;
         #endregion
 
+        /// <summary>
+        /// Create C# object compiler class.
+        /// </summary>
+        /// <param name="dir">Directory of the tech-file.</param>
+        /// <param name="name">Name used to identify the object.</param>
+        /// <param name="annotation">Annotation used for special initialization.</param>
+        /// <param name="text">Text block specifying the object commands.</param>
+        /// <param name="classes">Collection of scene objects.</param>
         public GLCsharp(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
-            var err = new GLException($"csharp '{name}'");
+            var err = new CompileException($"csharp '{name}'");
 
             // PARSE TEXT
             var cmds = new Commands(text, err);
@@ -88,8 +96,16 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Create an instance of a C# class.
+        /// </summary>
+        /// <param name="classname">Name of the class type (class classname { ... }).</param>
+        /// <param name="name">Name to identify the class instance.</param>
+        /// <param name="cmds">Commands to pass to the class constructor.</param>
+        /// <param name="err">[OPTIONAL] Error and exception collector.</param>
+        /// <returns></returns>
         public object CreateInstance(string classname, string name, Dictionary<string,string[]> cmds,
-            GLException err = null)
+            CompileException err = null)
         {
             // create main class from compiled files
             object instance = compilerresults.CompiledAssembly.CreateInstance(

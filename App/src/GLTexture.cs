@@ -6,10 +6,10 @@ namespace App
     class GLTexture : GLObject
     {
         #region FIELDS
-        [GLField] private string samp = null;
-        [GLField] private string buff = null;
-        [GLField] private string img = null;
-        [GLField] private SizedInternalFormat format = 0;
+        [Field] private string samp = null;
+        [Field] private string buff = null;
+        [Field] private string img = null;
+        [Field] private SizedInternalFormat format = 0;
         private GLSampler glsamp = null;
         private GLBuffer glbuff = null;
         private GLImage glimg = null;
@@ -18,7 +18,7 @@ namespace App
         public GLTexture(string dir, string name, string anno, string text, Dict<GLObject> classes)
             : base(name, anno)
         {
-            var err = new GLException($"texture '{name}'");
+            var err = new CompileException($"texture '{name}'");
 
             // PARSE TEXT
             var body = new Commands(text, err);

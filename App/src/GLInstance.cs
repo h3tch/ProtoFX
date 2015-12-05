@@ -12,10 +12,18 @@ namespace App
         private MethodInfo endpass = null;
         private MethodInfo delete = null;
 
+        /// <summary>
+        /// Create class instance of a C# class compiled through GLCSharp.
+        /// </summary>
+        /// <param name="dir">Directory of the tech-file.</param>
+        /// <param name="name">Name used to identify the object.</param>
+        /// <param name="annotation">Annotation used for special initialization.</param>
+        /// <param name="text">Text block specifying the object commands.</param>
+        /// <param name="classes">Collection of scene objects.</param>
         public GLInstance(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
-            var err = new GLException($"instance '{name}'");
+            var err = new CompileException($"instance '{name}'");
 
             // PARSE TEXT TO COMMANDS
             var body = new Commands(text, err);

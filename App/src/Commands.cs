@@ -15,12 +15,12 @@ namespace App
         public IEnumerable<Triple> this[int key] => cmds.Where(x => x.idx == key);
         public IEnumerable<Triple> this[string key] => cmds.Where(x => x.cmd == key);
 
-        public Commands(string body, GLException err = null)
+        public Commands(string body, CompileException err = null)
         {
             Text2Cmds(body, err);
         }
 
-        protected void Text2Cmds(string body, GLException err = null)
+        protected void Text2Cmds(string body, CompileException err = null)
         {
             // split into lines
             var lines = body.Split(new char[] { '\n' });
@@ -54,7 +54,7 @@ namespace App
             return dict;
         }
 
-        public void Cmds2Fields<T>(T clazz, GLException err = null)
+        public void Cmds2Fields<T>(T clazz, CompileException err = null)
         {
             var type = clazz.GetType();
             var removeKeys = new List<Triple>();
@@ -67,7 +67,7 @@ namespace App
                 MemberInfo member = (MemberInfo)field ?? prop;
 
                 // if no field could be found go to the next command
-                if (member == null || member.GetCustomAttributes(typeof(GLField), false).Length == 0)
+                if (member == null || member.GetCustomAttributes(typeof(Field), false).Length == 0)
                     continue;
 
                 // remove argument from array
@@ -85,7 +85,7 @@ namespace App
         }
 
         static private void SetValue<T>(T clazz, object field, Type fieldType,
-            string key, string[] value, GLException err = null)
+            string key, string[] value, CompileException err = null)
         {
             // check for errors
             if (!fieldType.IsArray && value.Length > 1)

@@ -101,7 +101,7 @@ namespace App
             {
                 if (exeptionMessage == null)
                     return default(TResult);
-                throw new GLException(exeptionMessage);
+                throw new CompileException(exeptionMessage);
             }
         }
 

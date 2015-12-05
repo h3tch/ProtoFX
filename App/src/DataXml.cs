@@ -36,12 +36,12 @@ namespace App
                     {
                         // get value type and check for errors
                         if (attr["type"] == null)
-                            throw new GLException($"{errstr}For non binary data a type has to be "
+                            throw new CompileException($"{errstr}For non binary data a type has to be "
                                 + $" specified(e.g. <{itemname} type='float'>).");
                         
                         type = Data.str2type[attr["type"].Value];
                         if (type == null)
-                            throw new GLException($"{errstr}Type '{attr["type"].Value}' not supported.");
+                            throw new CompileException($"{errstr}Type '{attr["type"].Value}' not supported.");
 
                         // convert values
                         var raw = Regex.Matches(node.InnerText, "(\\+|\\-)?[0-9\\.\\,]+");
@@ -60,7 +60,7 @@ namespace App
             }
             catch
             {
-                throw new GLException($"{errstr}Could not load item.");
+                throw new CompileException($"{errstr}Could not load item.");
             }
         }
 

@@ -24,7 +24,7 @@ namespace App
         /// </summary>
         /// <param name="index">Indicator index.</param>
         /// <param name="ranges">Indicator ranges in the text.</param>
-        private void AddIndicators(int index, IEnumerable<int[]> ranges)
+        public void AddIndicators(int index, IEnumerable<int[]> ranges)
         {
             // set active indicator
             IndicatorCurrent = index;

@@ -13,7 +13,7 @@ namespace App
         public GLVertoutput(string dir, string name, string annotation, string text, Dict<GLObject> classes)
             : base(name, annotation)
         {
-            var err = new GLException($"vertoutput '{name}'");
+            var err = new CompileException($"vertoutput '{name}'");
 
             // PARSE TEXT
             var body = new Commands(text, err);
@@ -71,7 +71,7 @@ namespace App
             }
         }
 
-        private void attach(GLException err, int unit, string[] cmd, Dict<GLObject> classes)
+        private void attach(CompileException err, int unit, string[] cmd, Dict<GLObject> classes)
         {
             if (cmd.Length == 0)
             {

@@ -96,7 +96,7 @@
     </Compile>
     <Compile Include="src\Commands.cs" />
     <Compile Include="src\Data.cs" />
-    <Compile Include="src\GLField.cs" />
+    <Compile Include="src\Field.cs" />
     <Compile Include="src\GLInstance.cs" />
     <Compile Include="src\GLReference.cs" />
     <Compile Include="src\GLText.cs" />
@@ -112,7 +112,7 @@
     <Compile Include="src\GLBuffer.cs" />
     <Compile Include="src\GLCSharp.cs" />
     <Compile Include="src\Dict.cs" />
-    <Compile Include="src\GLException.cs" />
+    <Compile Include="src\CompileException.cs" />
     <Compile Include="src\GraphicControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
