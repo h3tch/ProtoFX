@@ -10,6 +10,7 @@ using TexMinFilter = OpenTK.Graphics.OpenGL4.TextureMinFilter;
 using CpuFormat = System.Drawing.Imaging.PixelFormat;
 using GpuFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
 using GpuColorFormat = OpenTK.Graphics.OpenGL4.PixelInternalFormat;
+using TexParameter = OpenTK.Graphics.OpenGL4.GetTextureParameter;
 
 namespace App
 {
@@ -146,7 +147,7 @@ namespace App
         /// <returns>Return GPU image data as bitmap.</returns>
         public Bitmap Read(int level, int index)
         {
-            return Read(glname, level, index);
+            return ReadBmp(glname, level, index);
         }
 
         /// <summary>
@@ -156,31 +157,117 @@ namespace App
         /// <param name="level">Mipmap level.</param>
         /// <param name="index">Array index or texture depth index.</param>
         /// <returns>Return GPU image data as bitmap.</returns>
-        public static Bitmap Read(int ID, int level, int index)
+        public static Bitmap ReadBmp(int ID, int level, int index)
         {
             int w, h, d, f;
-            GL.GetTextureLevelParameter(ID, level, GetTextureParameter.TextureInternalFormat, out f);
-            GL.GetTextureLevelParameter(ID, level, GetTextureParameter.TextureWidth, out w);
-            GL.GetTextureLevelParameter(ID, level, GetTextureParameter.TextureHeight, out h);
-            GL.GetTextureLevelParameter(ID, level, GetTextureParameter.TextureDepth, out d);
+            GL.GetTextureLevelParameter(ID, level, TexParameter.TextureInternalFormat, out f);
+            GL.GetTextureLevelParameter(ID, level, TexParameter.TextureWidth, out w);
+            GL.GetTextureLevelParameter(ID, level, TexParameter.TextureHeight, out h);
+            GL.GetTextureLevelParameter(ID, level, TexParameter.TextureDepth, out d);
 
             // convert to actual types
             var format = (GpuColorFormat)f;
-            var isdepth = format.ToString().StartsWith("DepthComponent");
-            var pxSize = 4;
-            var bufSize = w * h * pxSize;
+            var isdepth = format.ToString().StartsWith("Depth");
             index = Math.Min(index, d);
-            
-            // allocate memory
-            IntPtr dataPtr = Marshal.AllocHGlobal(bufSize);
 
-            // get image data
-            GL.GetTextureSubImage(ID, level, 0, 0, index, w, h, 1,
+            // allocate memory
+            int size;
+            IntPtr dataPtr = GetSubImage(ID, level, 0, 0, index, w, h, 1,
                 isdepth ? GpuFormat.DepthComponent : GpuFormat.Bgra,
-                isdepth ? PixelType.Float : PixelType.UnsignedByte, bufSize, dataPtr);
+                isdepth ? PixelType.Float : PixelType.UnsignedByte, out size);
 
             // create bitmap from data
-            return new Bitmap(w, h, w * pxSize, CpuFormat.Format32bppArgb, dataPtr);
+            var pxSize = 4;
+            var bmp = new Bitmap(w, h, w * pxSize, CpuFormat.Format32bppArgb, dataPtr);
+            Marshal.FreeHGlobal(dataPtr);
+            return bmp;
+        }
+
+        public static byte[] Read(int ID, int level, int x, int y, int z, int w, int h, int d,
+            GpuFormat format, PixelType type)
+        {
+            int size;
+            IntPtr dataPtr = GetSubImage(ID, level, x, y, z, w, h, d, format, type, out size);
+            var data = new byte[size];
+            Marshal.Copy(dataPtr, data, 0, data.Length);
+            Marshal.FreeHGlobal(dataPtr);
+            return data;
+        }
+
+        public static float[] Readf(int ID, int level, int x, int y, int z, int w, int h, int d,
+            GpuFormat format, PixelType type)
+        {
+            int size;
+            IntPtr dataPtr = GetSubImage(ID, level, x, y, z, w, h, d, format, type, out size);
+            var data = new float[size / 4];
+            Marshal.Copy(dataPtr, data, 0, data.Length);
+            Marshal.FreeHGlobal(dataPtr);
+            return data;
+        }
+
+        private static IntPtr GetSubImage(int ID, int level, int x, int y, int z, int w, int h, int d,
+            GpuFormat format, PixelType type, out int size)
+        {
+            size = w * h * d * ColorChannels(format) * ColorBits(type) / 8;
+            IntPtr data = Marshal.AllocHGlobal(size);
+            GL.GetTextureSubImage(ID, level, x, y, z, w, h, d, format, type, size, data);
+            return data;
+        }
+
+        private static int ColorBits(PixelType type)
+        {
+            switch (type)
+            {
+                case PixelType.Byte:
+                case PixelType.UnsignedByte:
+                case PixelType.UnsignedByte233Reversed:
+                case PixelType.UnsignedByte332:
+                    return 8;
+                case PixelType.Short:
+                case PixelType.HalfFloat:
+                case PixelType.UnsignedShort:
+                case PixelType.UnsignedShort1555Reversed:
+                case PixelType.UnsignedShort4444:
+                case PixelType.UnsignedShort4444Reversed:
+                case PixelType.UnsignedShort5551:
+                case PixelType.UnsignedShort565:
+                case PixelType.UnsignedShort565Reversed:
+                    return 16;
+                default:
+                    return 32;
+            }
+        }
+
+        private static int ColorChannels(GpuFormat format)
+        {
+            switch (format)
+            {
+                case GpuFormat.Red:
+                case GpuFormat.RedInteger:
+                case GpuFormat.Green:
+                case GpuFormat.GreenInteger:
+                case GpuFormat.Blue:
+                case GpuFormat.BlueInteger:
+                case GpuFormat.Alpha:
+                case GpuFormat.AlphaInteger:
+                case GpuFormat.StencilIndex:
+                case GpuFormat.UnsignedInt:
+                case GpuFormat.UnsignedShort:
+                case GpuFormat.DepthComponent:
+                case GpuFormat.ColorIndex:
+                case GpuFormat.Luminance:
+                    return 1;
+                case GpuFormat.Rg:
+                case GpuFormat.RgInteger:
+                case GpuFormat.DepthStencil:
+                    return 2;
+                case GpuFormat.Rgb:
+                case GpuFormat.Bgr:
+                case GpuFormat.BgrInteger:
+                    return 3;
+                default:
+                    return 4;
+            }
         }
 
         public override void Delete()
