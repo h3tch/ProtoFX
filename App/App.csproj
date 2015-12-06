@@ -90,6 +90,15 @@
     <Compile Include="src\CodeEditor.Find.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="src\debug\DBShader.cs" />
+    <Compile Include="src\debug\ivec2.cs" />
+    <Compile Include="src\debug\ivec3.cs" />
+    <Compile Include="src\debug\ivec4.cs" />
+    <Compile Include="src\debug\mat4.cs" />
+    <Compile Include="src\debug\Samplers.cs" />
+    <Compile Include="src\debug\vec2.cs" />
+    <Compile Include="src\debug\vec3.cs" />
+    <Compile Include="src\debug\vec4.cs" />
     <Compile Include="src\Extensions.cs" />
     <Compile Include="src\CodeEditor.cs">
       <SubType>Component</SubType>
