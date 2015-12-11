@@ -178,6 +178,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="src\dbg\debugHeader.txt" />
     <None Include="resources\ImgOpen.png" />
     <None Include="resources\ImgSave.png" />
     <None Include="resources\ImgSaveAll.png" />

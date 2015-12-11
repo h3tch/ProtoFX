@@ -2441,162 +2441,227 @@ namespace App.debug
         }
         #endregion
         #region TEXTURE
-        vec4 texture(sampler1D sampler, float P, float bias = 0f)
-        {
-            return vec4();
-        }
+        vec4 texture(sampler1D sampler, float P, float bias = 0f) => textureOffset(sampler, P, 0, bias);
  
-        vec4 texture(sampler2D sampler, vec2 P, float bias = 0f)
+        vec4 texture(sampler2D sampler, vec2 P, float bias = 0f) => textureOffset(sampler, P, ivec2(0), bias);
+
+        vec4 texture(sampler3D sampler, vec3 P, float bias = 0f) => textureOffset(sampler, P, ivec3(0), bias);
+
+        vec4 texture(samplerCube sampler, vec3 P, float bias = 0f) => textureOffset(sampler, P, ivec3(0), bias);
+
+        vec4 texture(sampler1DArray sampler, vec2 P, float bias = 0f) => textureOffset(sampler, P, ivec2(0), bias);
+
+        vec4 texture(sampler2DArray sampler, vec3 P, float bias = 0f) => textureOffset(sampler, P, ivec3(0), bias);
+
+        vec4 texture(samplerCubeArray sampler, vec4 P, float bias = 0f) => textureOffset(sampler, P, ivec4(0), bias);
+
+        vec4 texture(sampler2DRect sampler, vec2 P) => textureOffset(sampler, P, ivec2(0));
+
+        ivec4 texture(isampler1D sampler, float P, float bias = 0f) => textureOffset(sampler, P, ivec3(0), bias);
+
+        ivec4 texture(isampler2D sampler, vec2 P, float bias = 0f) => textureOffset(sampler, P, ivec2(0), bias);
+
+        ivec4 texture(isampler3D sampler, vec3 P, float bias = 0f) => textureOffset(sampler, P, ivec3(0), bias);
+
+        ivec4 texture(isamplerCube sampler, vec3 P, float bias = 0f) => textureOffset(sampler, P, ivec3(0), bias);
+
+        ivec4 texture(isampler1DArray sampler, vec2 P, float bias = 0f) => textureOffset(sampler, P, ivec2(0), bias);
+
+        ivec4 texture(isampler2DArray sampler, vec3 P, float bias = 0f) => textureOffset(sampler, P, ivec3(0), bias);
+
+        ivec4 texture(isamplerCubeArray sampler, vec4 P, float bias = 0f) => textureOffset(sampler, P, ivec4(0), bias);
+
+        ivec4 texture(isampler2DRect sampler, vec2 P) => textureOffset(sampler, P, ivec2(0));
+
+        uvec4 texture(usampler1D sampler, float P, float bias = 0f) => textureOffset(sampler, P, ivec3(0), bias);
+
+        uvec4 texture(usampler2D sampler, vec2 P, float bias = 0f) => textureOffset(sampler, P, ivec2(0), bias);
+
+        uvec4 texture(usampler3D sampler, vec3 P, float bias = 0f) => textureOffset(sampler, P, ivec3(0), bias);
+
+        uvec4 texture(usamplerCube sampler, vec3 P, float bias = 0f) => textureOffset(sampler, P, ivec3(0), bias);
+
+        uvec4 texture(usampler1DArray sampler, vec2 P, float bias = 0f) => textureOffset(sampler, P, ivec2(0), bias);
+
+        uvec4 texture(usampler2DArray sampler, vec3 P, float bias = 0f) => textureOffset(sampler, P, ivec3(0), bias);
+
+        uvec4 texture(usamplerCubeArray sampler, vec4 P, float bias = 0f) => textureOffset(sampler, P, ivec4(0), bias);
+
+        uvec4 texture(usampler2DRect sampler, vec2 P) => textureOffset(sampler, P, ivec2(0));
+
+        float texture(sampler1DShadow sampler, vec3 P, float bias = 0f) => textureOffset(sampler, P, ivec3(0), bias);
+
+        float texture(sampler2DShadow sampler, vec3 P, float bias = 0f) => textureOffset(sampler, P, ivec3(0), bias);
+
+        float texture(samplerCubeShadow sampler, vec3 P, float bias = 0f) => textureOffset(sampler, P, ivec3(0), bias);
+
+        float texture(sampler1DArrayShadow sampler, vec3 P, float bias = 0f) => textureOffset(sampler, P, ivec3(0), bias);
+
+        float texture(sampler2DArrayShadow sampler, vec4 P, float bias = 0f) => textureOffset(sampler, P, ivec4(0), bias);
+
+        float texture(sampler2DRectShadow sampler, vec3 P) => textureOffset(sampler, P, ivec3(0));
+
+        float texture(samplerCubeArrayShadow sampler, vec4 P, float compare) => textureOffset(sampler, P, ivec4(0), compare);
+        #endregion
+        #region TEXTUREOFFSET
+        vec4 textureOffset(sampler1D sampler, float P, int offset, float bias = 0f)
         {
             return vec4();
         }
 
-        vec4 texture(sampler3D sampler, vec3 P, float bias = 0f)
+        vec4 textureOffset(sampler2D sampler, vec2 P, ivec2 offset, float bias = 0f)
         {
             return vec4();
         }
 
-        vec4 texture(samplerCube sampler, vec3 P, float bias = 0f)
+        vec4 textureOffset(sampler3D sampler, vec3 P, ivec3 offset, float bias = 0f)
         {
             return vec4();
         }
 
-        vec4 texture(sampler1DArray sampler, vec2 P, float bias = 0f)
+        vec4 textureOffset(samplerCube sampler, vec3 P, ivec3 offset, float bias = 0f)
         {
             return vec4();
         }
 
-        vec4 texture(sampler2DArray sampler, vec3 P, float bias = 0f)
+        vec4 textureOffset(sampler1DArray sampler, vec2 P, ivec2 offset, float bias = 0f)
         {
             return vec4();
         }
 
-        vec4 texture(samplerCubeArray sampler, vec4 P, float bias = 0f)
+        vec4 textureOffset(sampler2DArray sampler, vec3 P, ivec3 offset, float bias = 0f)
         {
             return vec4();
         }
 
-        vec4 texture(sampler2DRect sampler, vec2 P)
+        vec4 textureOffset(samplerCubeArray sampler, vec4 P, ivec4 offset, float bias = 0f)
         {
             return vec4();
         }
 
-        ivec4 texture(isampler1D sampler, float P, float bias = 0f)
+        vec4 textureOffset(sampler2DRect sampler, vec2 P, ivec2 offset)
+        {
+            return vec4();
+        }
+
+        ivec4 textureOffset(isampler1D sampler, float P, ivec3 offset, float bias = 0f)
         {
             return ivec4();
         }
 
-        ivec4 texture(isampler2D sampler, vec2 P, float bias = 0f)
+        ivec4 textureOffset(isampler2D sampler, vec2 P, ivec2 offset, float bias = 0f)
         {
             return ivec4();
         }
 
-        ivec4 texture(isampler3D sampler, vec3 P, float bias = 0f)
+        ivec4 textureOffset(isampler3D sampler, vec3 P, ivec3 offset, float bias = 0f)
         {
             return ivec4();
         }
 
-        ivec4 texture(isamplerCube sampler, vec3 P, float bias = 0f)
+        ivec4 textureOffset(isamplerCube sampler, vec3 P, ivec3 offset, float bias = 0f)
         {
             return ivec4();
         }
 
-        ivec4 texture(isampler1DArray sampler, vec2 P, float bias = 0f)
+        ivec4 textureOffset(isampler1DArray sampler, vec2 P, ivec2 offset, float bias = 0f)
         {
             return ivec4();
         }
 
-        ivec4 texture(isampler2DArray sampler, vec3 P, float bias = 0f)
+        ivec4 textureOffset(isampler2DArray sampler, vec3 P, ivec3 offset, float bias = 0f)
         {
             return ivec4();
         }
 
-        ivec4 texture(isamplerCubeArray sampler, vec4 P, float bias = 0f)
+        ivec4 textureOffset(isamplerCubeArray sampler, vec4 P, ivec4 offset, float bias = 0f)
         {
             return ivec4();
         }
 
-        ivec4 texture(isampler2DRect sampler, vec2 P)
+        ivec4 textureOffset(isampler2DRect sampler, vec2 P, ivec2 offset)
         {
             return ivec4();
         }
 
-        uvec4 texture(usampler1D sampler, float P, float bias = 0f)
+        uvec4 textureOffset(usampler1D sampler, float P, ivec3 offset, float bias = 0f)
         {
             return uvec4();
         }
 
-        uvec4 texture(usampler2D sampler, vec2 P, float bias = 0f)
+        uvec4 textureOffset(usampler2D sampler, vec2 P, ivec2 offset, float bias = 0f)
         {
             return uvec4();
         }
 
-        uvec4 texture(usampler3D sampler, vec3 P, float bias = 0f)
+        uvec4 textureOffset(usampler3D sampler, vec3 P, ivec3 offset, float bias = 0f)
         {
             return uvec4();
         }
 
-        uvec4 texture(usamplerCube sampler, vec3 P, float bias = 0f)
+        uvec4 textureOffset(usamplerCube sampler, vec3 P, ivec3 offset, float bias = 0f)
         {
             return uvec4();
         }
 
-        uvec4 texture(usampler1DArray sampler, vec2 P, float bias = 0f)
+        uvec4 textureOffset(usampler1DArray sampler, vec2 P, ivec2 offset, float bias = 0f)
         {
             return uvec4();
         }
 
-        uvec4 texture(usampler2DArray sampler, vec3 P, float bias = 0f)
+        uvec4 textureOffset(usampler2DArray sampler, vec3 P, ivec3 offset, float bias = 0f)
         {
             return uvec4();
         }
 
-        uvec4 texture(usamplerCubeArray sampler, vec4 P, float bias = 0f)
+        uvec4 textureOffset(usamplerCubeArray sampler, vec4 P, ivec4 offset, float bias = 0f)
         {
             return uvec4();
         }
 
-        uvec4 texture(usampler2DRect sampler, vec2 P)
+        uvec4 textureOffset(usampler2DRect sampler, vec2 P, ivec2 offset)
         {
             return uvec4();
         }
 
-        float texture(sampler1DShadow sampler, vec3 P, float bias = 0f)
+        float textureOffset(sampler1DShadow sampler, vec3 P, ivec3 offset, float bias = 0f)
         {
             return 0f;
         }
 
-        float texture(sampler2DShadow sampler, vec3 P, float bias = 0f)
+        float textureOffset(sampler2DShadow sampler, vec3 P, ivec3 offset, float bias = 0f)
         {
             return 0f;
         }
 
-        float texture(samplerCubeShadow sampler, vec3 P, float bias = 0f)
+        float textureOffset(samplerCubeShadow sampler, vec3 P, ivec3 offset, float bias = 0f)
         {
             return 0f;
         }
 
-        float texture(sampler1DArrayShadow sampler, vec3 P, float bias = 0f)
+        float textureOffset(sampler1DArrayShadow sampler, vec3 P, ivec3 offset, float bias = 0f)
         {
             return 0f;
         }
 
-        float texture(sampler2DArrayShadow sampler, vec4 P, float bias = 0f)
+        float textureOffset(sampler2DArrayShadow sampler, vec4 P, ivec4 offset, float bias = 0f)
         {
             return 0f;
         }
 
-        float texture(sampler2DRectShadow sampler, vec3 P)
+        float textureOffset(sampler2DRectShadow sampler, vec3 P, ivec3 offset)
         {
             return 0f;
         }
 
-        float texture(samplerCubeArrayShadow sampler, vec4 P, float compare)
+        float textureOffset(samplerCubeArrayShadow sampler, vec4 P, ivec4 offset, float compare)
         {
             return 0f;
         }
         #endregion
         #region TEXELFETCH
+        #endregion
+        #region TEXELFETCHOFFSET
         #endregion
         #region TEXTURESIZE
         ivec2 textureSize(int sampler)
