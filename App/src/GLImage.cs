@@ -40,11 +40,9 @@ namespace App
         /// Link GLBuffer to existing OpenGL image. Used
         /// to provide debug information in the debug view.
         /// </summary>
-        /// <param name="name">Name the object.</param>
-        /// <param name="annotation">Annotate the object.</param>
+        /// <param name="params">Input parameters for GLObject creation.</param>
         /// <param name="glname">OpenGL object to like to.</param>
-        public GLImage(string name, string anno, int glname)
-            : base(name, anno)
+        public GLImage(GLParams @params, int glname) : base(@params)
         {
             int f, t;
             this.glname = glname;
@@ -65,18 +63,13 @@ namespace App
         /// <summary>
         /// Create OpenGL image object.
         /// </summary>
-        /// <param name="dir">Directory of the tech-file.</param>
-        /// <param name="name">Name used to identify the object.</param>
-        /// <param name="annotation">Annotation used for special initialization.</param>
-        /// <param name="text">Text block specifying the object commands.</param>
-        /// <param name="classes">Collection of scene objects.</param>
-        public GLImage(string dir, string name, string anno, string text, Dict<GLObject> classes)
-            : base(name, anno)
+        /// <param name="params">Input parameters for GLObject creation.</param>
+        public GLImage(GLParams @params) : base(@params)
         {
-            var err = new CompileException($"image '{name}'");
+            var err = new CompileException($"image '{@params.name}'");
 
             // PARSE TEXT
-            var cmds = new Commands(text, err);
+            var cmds = new Commands(@params.text, err);
 
             // PARSE ARGUMENTS
             cmds.Cmds2Fields(this, err);
@@ -101,8 +94,8 @@ namespace App
             }
 
             // LOAD IMAGE DATA
-            var data = loadImageFiles(err, dir, file, ref width, ref height, ref depth, format,
-                out pxFormat, out pxType, out pxSize, out fileFormat);
+            var data = loadImageFiles(err, @params.dir, file, ref width, ref height, ref depth,
+                 format,out pxFormat, out pxType, out pxSize, out fileFormat);
 
             // on errors throw an exception
             if (err.HasErrors())

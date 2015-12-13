@@ -19,11 +19,9 @@ namespace App
         /// Link GLBuffer to existing OpenGL buffer. Used
         /// to provide debug information in the debug view.
         /// </summary>
-        /// <param name="name">Name the buffer object.</param>
-        /// <param name="annotation">Annotate the buffer object.</param>
+        /// <param name="params">Input parameters for GLObject creation.</param>
         /// <param name="glname">OpenGL buffer object to like to.</param>
-        public GLBuffer(string name, string annotation, int glname)
-            : base(name, annotation)
+        public GLBuffer(GLParams @params, int glname) : base(@params)
         {
             int s, u;
             this.glname = glname;
@@ -36,18 +34,13 @@ namespace App
         /// <summary>
         /// Create OpenGL object.
         /// </summary>
-        /// <param name="dir">Directory of the tech-file.</param>
-        /// <param name="name">Name used to identify the object.</param>
-        /// <param name="anno">Annotation used for special initialization.</param>
-        /// <param name="text">Text block specifying the object commands.</param>
-        /// <param name="classes">Collection of scene objects.</param>
-        public GLBuffer(string dir, string name, string anno, string text, Dict<GLObject> classes)
-            : base(name, anno)
+        /// <param name="params">Input parameters for GLObject creation.</param>
+        public GLBuffer(GLParams @params) : base(@params)
         {
-            var err = new CompileException($"buffer '{name}'");
+            var err = new CompileException($"buffer '{@params.name}'");
 
             // PARSE TEXT TO COMMANDS
-            var cmds = new Commands(text, err);
+            var cmds = new Commands(@params.text, err);
 
             // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
             cmds.Cmds2Fields(this, err);
@@ -56,10 +49,10 @@ namespace App
             List<byte[]> datalist = new List<byte[]>();
 
             foreach (var cmd in cmds["txt"])
-                datalist.Add(loadText(err + $"command {cmd.cmd} 'txt'", dir, cmd.args, classes));
+                datalist.Add(loadText(err + $"command {cmd.cmd} 'txt'", @params.dir, cmd.args, @params.scene));
 
             foreach (var cmd in cmds["xml"])
-                datalist.Add(LoadXml(err + $"command {cmd.cmd} 'xml'", dir, cmd.args, classes));
+                datalist.Add(LoadXml(err + $"command {cmd.cmd} 'xml'", @params.dir, cmd.args, @params.scene));
 
             if (err.HasErrors())
                 throw err;

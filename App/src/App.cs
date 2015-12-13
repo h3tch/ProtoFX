@@ -239,14 +239,14 @@ namespace App
                          where x.Value is GLImage select x.Value.glname;
             var glIDs = from x in Enumerable.Range(0, 64)
                         where !appIDs.Contains(x) && GL.IsTexture(x) select x;
-            glIDs.Do(x => glControl.Scene.Add("GLTex" + x, new GLImage("GLTex" + x, "tex", x)));
+            glIDs.Do(x => glControl.Scene.Add("GLTex" + x, new GLImage(new GLParams("GLTex" + x, "tex"), x)));
 
             // also add externally created buffers to the scene
             appIDs = from x in glControl.Scene
                      where x.Value is GLBuffer select x.Value.glname;
             glIDs = from x in Enumerable.Range(0, 64)
                     where !appIDs.Contains(x) && GL.IsBuffer(x) select x;
-            glIDs.Do(x => glControl.Scene.Add("GLBuf" + x, new GLBuffer("GLBuf" + x, "buf", x)));
+            glIDs.Do(x => glControl.Scene.Add("GLBuf" + x, new GLBuffer(new GLParams("GLBuf" + x, "buf"), x)));
 
             // UPDATE DEBUG DATA
             comboBuf.Items.Clear();
