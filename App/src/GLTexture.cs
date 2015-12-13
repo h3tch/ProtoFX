@@ -18,29 +18,25 @@ namespace App
         /// <summary>
         /// Create OpenGL object.
         /// </summary>
-        /// <param name="dir">Directory of the tech-file.</param>
-        /// <param name="name">Name used to identify the object.</param>
-        /// <param name="anno">Annotation used for special initialization.</param>
-        /// <param name="text">Text block specifying the object commands.</param>
-        /// <param name="classes">Collection of scene objects.</param>
-        public GLTexture(string dir, string name, string anno, string text, Dict<GLObject> classes)
-            : base(name, anno)
+        /// <param name="params">Input parameters for GLObject creation.</param>
+        public GLTexture(GLParams @params)
+            : base(@params)
         {
-            var err = new CompileException($"texture '{name}'");
+            var err = new CompileException($"texture '{@params.name}'");
 
             // PARSE TEXT
-            var body = new Commands(text, err);
+            var body = new Commands(@params.text, err);
 
             // PARSE ARGUMENTS
             body.Cmds2Fields(this, err);
 
             // GET REFERENCES
             if (samp != null)
-                classes.TryGetValue(samp, out glsamp, err);
+                @params.scene.TryGetValue(samp, out glsamp, err);
             if (buff != null)
-                classes.TryGetValue(buff, out glbuff, err);
+                @params.scene.TryGetValue(buff, out glbuff, err);
             if (img != null)
-                classes.TryGetValue(img, out glimg, err);
+                @params.scene.TryGetValue(img, out glimg, err);
             if (glbuff != null && glimg != null)
                 err.Add("Only an image or a buffer can be bound to a texture object.");
             if (glbuff == null && glimg == null)

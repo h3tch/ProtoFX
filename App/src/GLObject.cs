@@ -2,6 +2,39 @@
 
 namespace App
 {
+    struct GLParams
+    {
+        public string name;
+        public string anno;
+        public string text;
+        public string dir;
+        public Dict<GLObject> scene;
+        public GLParams(string name)
+        {
+            this.name = name;
+            this.anno = null;
+            this.text = null;
+            this.dir = null;
+            this.scene = null;
+        }
+        public GLParams(string name, string anno)
+        {
+            this.name = name;
+            this.anno = anno;
+            this.text = null;
+            this.dir = null;
+            this.scene = null;
+        }
+        public GLParams(string name, string anno, string text, string dir, Dict<GLObject> scene)
+        {
+            this.name = name;
+            this.anno = anno;
+            this.text = text;
+            this.dir = dir;
+            this.scene = scene;
+        }
+    }
+
     abstract class GLObject
     {
         public int glname { get; protected set; }
@@ -11,13 +44,12 @@ namespace App
         /// <summary>
         /// Instantiate and initialize object.
         /// </summary>
-        /// <param name="name">Name used to identify the object.</param>
-        /// <param name="annotation">Annotation used for special initialization.</param>
-        public GLObject(string name, string annotation)
+        /// <param name="params">Input parameters for GLObject creation.</param>
+        public GLObject(GLParams @params)
         {
             this.glname = 0;
-            this.name = name;
-            this.anno = annotation;
+            this.name = @params.name;
+            this.anno = @params.anno;
         }
 
         public abstract void Delete();

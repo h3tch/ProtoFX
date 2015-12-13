@@ -90,9 +90,6 @@
     <Compile Include="src\CodeEditor.Find.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="src\dbg\fun.cs" />
-    <Compile Include="src\dbg\sampler.cs" />
-    <Compile Include="src\dbg\vec.cs" />
     <Compile Include="src\Extensions.cs" />
     <Compile Include="src\CodeEditor.cs">
       <SubType>Component</SubType>

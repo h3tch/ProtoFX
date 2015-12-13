@@ -1,260 +1,240 @@
 ﻿
-#define DEBUG_TYPE_FLOAT 1
-#define DEBUG_TYPE_INT 2
-#define DEBUG_TYPE_UINT 3
+#define __DBG_BOOL 1
+#define __DBG_INT 2
+#define __DBG_UINT 3
+#define __DBG_FLOAT 4
+#define __i2f intBitsToFloat
+#define __u2f uintBitsToFloat
 
-uniform int debugVertInputIndex;
-uniform int debugContInputIndex;
-uniform int debugEvalInputIndex;
-uniform int debugGeomInputIndex;
-uniform ivec2 debugFragInputIndex;
-uniform int debugCompInputIndex;
-layout(rgba32f) uniform writeonly imageBuffer debugBuffer;
+uniform ivec2 __dbgVert;
+uniform int __dbgTess;
+uniform int __dbgEval;
+uniform ivec2 __dbgGeom;
+uniform ivec2 __dbgFrag;
+uniform int __dbgComp;
+layout(rgba32f) uniform writeonly imageBuffer __dbgBuffer;
 
-void debugStore(inout int i, vec4 val) {
-	imageStore(debugBuffer, i++, val);
+void __dbgStore(inout int i, vec4 val) {
+	imageStore(__dbgBuffer, i++, val);
 }
-void debugStore(inout int i, ivec4 val) {
-	debugStore(i, vec4(intBitsToFloat(val.x), intBitsToFloat(val.y), intBitsToFloat(val.z), intBitsToFloat(val.w)));
+void __dbgStore(inout int i, ivec4 val) {
+	__dbgStore(i, vec4(__i2f(val.x), __i2f(val.y), __i2f(val.z), __i2f(val.w)));
 }
-void debugStore(inout int i, uvec4 val) {
-	debugStore(i, vec4(uintBitsToFloat(val.x), uintBitsToFloat(val.y), uintBitsToFloat(val.z), uintBitsToFloat(val.w)));
+void __dbgStore(inout int i, uvec4 val) {
+	__dbgStore(i, vec4(__u2f(val.x), __u2f(val.y), __u2f(val.z), __u2f(val.w)));
 }
-
-void storeDebugType(inout int i, int type, int cols, int rows) {
-	debugStore(i, ivec4(type, cols, rows, 0));
+void __dbgStore(inout int i, bvec4 val) {
+	__dbgStore(i, vec4(int(val.x), int(val.y), int(val.z), int(val.w)));
+}
+void __dbgStore(inout int i, int type, int cols, int rows, int line) {
+	__dbgStore(i, ivec4(type, cols, rows, line));
 }
 
 // FLOAT
-void storeDebugVar(inout int i, float val) {
-	storeDebugType(i, DEBUG_TYPE_FLOAT, 1, 1);
-	debugStore(i, vec4(val, 0, 0, 0));
+void __dbgStoreVar(inout int i, float val, int line) {
+	__dbgStore(i, __DBG_FLOAT, 1, 1, line);
+	__dbgStore(i, vec4(val, 0, 0, 0));
 }
 
-void storeDebugVar(inout int i, vec2 val) {
-	storeDebugType(i, DEBUG_TYPE_FLOAT, 1, 2);
-	debugStore(i, vec4(val, 0, 0));
+void __dbgStoreVar(inout int i, vec2 val, int line) {
+	__dbgStore(i, __DBG_FLOAT, 1, 2, line);
+	__dbgStore(i, vec4(val, 0, 0));
 }
-void storeDebugVar(inout int i, vec3 val) {
-	storeDebugType(i, DEBUG_TYPE_FLOAT, 1, 3);
-	debugStore(i, vec4(val, 0));
+void __dbgStoreVar(inout int i, vec3 val, int line) {
+	__dbgStore(i, __DBG_FLOAT, 1, 3, line);
+	__dbgStore(i, vec4(val, 0));
 }
-void storeDebugVar(inout int i, vec4 val) {
-	storeDebugType(i, DEBUG_TYPE_FLOAT, 1, 4);
-	debugStore(i, val);
-}
-
-void storeDebugVar(inout int i, mat2 val) {
-	debugStore(i, DEBUG_TYPE_FLOAT, 2, 2);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-}
-void storeDebugVar(inout int i, mat2x3 val) {
-	debugStore(i, DEBUG_TYPE_FLOAT, 2, 3);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-}
-void storeDebugVar(inout int i, mat2x4 val) {
-	debugStore(i, DEBUG_TYPE_FLOAT, 2, 4);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
+void __dbgStoreVar(inout int i, vec4 val, int line) {
+	__dbgStore(i, __DBG_FLOAT, 1, 4, line);
+	__dbgStore(i, val);
 }
 
-void storeDebugVar(inout int i, mat3 val) {
-	debugStore(i, DEBUG_TYPE_FLOAT, 3, 3);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
+void __dbgStoreVar(inout int i, mat2 val, int line) {
+	__dbgStore(i, __DBG_FLOAT, 2, 2, line);
+	for (int c = 0; c < 2; c++) __dbgStore(i, val[c]);
 }
-void storeDebugVar(inout int i, mat3x2 val) {
-	debugStore(i, DEBUG_TYPE_FLOAT, 3, 2);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
+void __dbgStoreVar(inout int i, mat2x3 val, int line) {
+	__dbgStore(i, __DBG_FLOAT, 2, 3, line);
+	for (int c = 0; c < 2; c++) __dbgStore(i, val[c]);
 }
-void storeDebugVar(inout int i, mat3x4 val) {
-	debugStore(i, DEBUG_TYPE_FLOAT, 3, 4);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
+void __dbgStoreVar(inout int i, mat2x4 val, int line) {
+	__dbgStore(i, __DBG_FLOAT, 2, 4, line);
+	for (int c = 0; c < 2; c++) __dbgStore(i, val[c]);
 }
 
-void storeDebugVar(inout int i, mat4 val) {
-	debugStore(i, DEBUG_TYPE_FLOAT, 4, 4);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
-	debugStore(i, val[3]);
+void __dbgStoreVar(inout int i, mat3 val, int line) {
+	__dbgStore(i, __DBG_FLOAT, 3, 3, line);
+	for (int c = 0; c < 3; c++) __dbgStore(i, val[c]);
 }
-void storeDebugVar(inout int i, mat4x2 val) {
-	debugStore(i, DEBUG_TYPE_FLOAT, 4, 2);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
-	debugStore(i, val[3]);
+void __dbgStoreVar(inout int i, mat3x2 val, int line) {
+	__dbgStore(i, __DBG_FLOAT, 3, 2, line);
+	for (int c = 0; c < 3; c++) __dbgStore(i, val[c]);
 }
-void storeDebugVar(inout int i, mat4x3 val) {
-	debugStore(i, DEBUG_TYPE_FLOAT, 4, 3);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
-	debugStore(i, val[3]);
+void __dbgStoreVar(inout int i, mat3x4 val, int line) {
+	__dbgStore(i, __DBG_FLOAT, 3, 4, line);
+	for (int c = 0; c < 3; c++) __dbgStore(i, val[c]);
+}
+
+void __dbgStoreVar(inout int i, mat4 val, int line) {
+	__dbgStore(i, __DBG_FLOAT, 4, 4, line);
+	for (int c = 0; c < 4; c++) __dbgStore(i, val[c]);
+}
+void __dbgStoreVar(inout int i, mat4x2 val, int line) {
+	__dbgStore(i, __DBG_FLOAT, 4, 2, line);
+	for (int c = 0; c < 4; c++) __dbgStore(i, val[c]);
+}
+void __dbgStoreVar(inout int i, mat4x3 val, int line) {
+	__dbgStore(i, __DBG_FLOAT, 4, 3, line);
+	for (int c = 0; c < 4; c++) __dbgStore(i, val[c]);
 }
 
 // INT
-void storeDebugVar(inout int i, int val) {
-	storeDebugType(i, DEBUG_TYPE_INT, 1, 1);
-	debugStore(i, vec4(val, 0, 0, 0));
+void __dbgStoreVar(inout int i, int val, int line) {
+	__dbgStore(i, __DBG_INT, 1, 1, line);
+	__dbgStore(i, ivec4(val, 0, 0, 0));
 }
 
-void storeDebugVar(inout int i, ivec2 val) {
-	storeDebugType(i, DEBUG_TYPE_INT, 1, 2);
-	debugStore(i, ivec4(val, 0, 0));
+void __dbgStoreVar(inout int i, ivec2 val, int line) {
+	__dbgStore(i, __DBG_INT, 1, 2, line);
+	__dbgStore(i, ivec4(val, 0, 0));
 }
-void storeDebugVar(inout int i, ivec3 val) {
-	storeDebugType(i, DEBUG_TYPE_INT, 1, 3);
-	debugStore(i, ivec4(val, 0));
+void __dbgStoreVar(inout int i, ivec3 val, int line) {
+	__dbgStore(i, __DBG_INT, 1, 3, line);
+	__dbgStore(i, ivec4(val, 0));
 }
-void storeDebugVar(inout int i, ivec4 val) {
-	storeDebugType(i, DEBUG_TYPE_INT, 1, 4);
-	debugStore(i, val);
-}
-
-void storeDebugVar(inout int i, imat2 val) {
-	debugStore(i, DEBUG_TYPE_INT, 2, 2);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-}
-void storeDebugVar(inout int i, imat2x3 val) {
-	debugStore(i, DEBUG_TYPE_INT, 2, 3);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-}
-void storeDebugVar(inout int i, imat2x4 val) {
-	debugStore(i, DEBUG_TYPE_INT, 2, 4);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
+void __dbgStoreVar(inout int i, ivec4 val, int line) {
+	__dbgStore(i, __DBG_INT, 1, 4, line);
+	__dbgStore(i, val);
 }
 
-void storeDebugVar(inout int i, imat3 val) {
-	debugStore(i, DEBUG_TYPE_INT, 3, 3);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
+void __dbgStoreVar(inout int i, imat2 val, int line) {
+	__dbgStore(i, __DBG_INT, 2, 2, line);
+	for (int c = 0; c < 2; c++) __dbgStore(i, val[c]);
 }
-void storeDebugVar(inout int i, imat3x2 val) {
-	debugStore(i, DEBUG_TYPE_INT, 3, 2);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
+void __dbgStoreVar(inout int i, imat2x3 val, int line) {
+	__dbgStore(i, __DBG_INT, 2, 3, line);
+	for (int c = 0; c < 2; c++) __dbgStore(i, val[c]);
 }
-void storeDebugVar(inout int i, imat3x4 val) {
-	debugStore(i, DEBUG_TYPE_INT, 3, 4);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
+void __dbgStoreVar(inout int i, imat2x4 val, int line) {
+	__dbgStore(i, __DBG_INT, 2, 4, line);
+	for (int c = 0; c < 2; c++) __dbgStore(i, val[c]);
 }
 
-void storeDebugVar(inout int i, imat4 val) {
-	debugStore(i, DEBUG_TYPE_INT, 4, 4);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
-	debugStore(i, val[3]);
+void __dbgStoreVar(inout int i, imat3 val, int line) {
+	__dbgStore(i, __DBG_INT, 3, 3, line);
+	for (int c = 0; c < 3; c++) __dbgStore(i, val[c]);
 }
-void storeDebugVar(inout int i, imat4x2 val) {
-	debugStore(i, DEBUG_TYPE_INT, 4, 2);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
-	debugStore(i, val[3]);
+void __dbgStoreVar(inout int i, imat3x2 val, int line) {
+	__dbgStore(i, __DBG_INT, 3, 2, line);
+	for (int c = 0; c < 3; c++) __dbgStore(i, val[c]);
 }
-void storeDebugVar(inout int i, imat4x3 val) {
-	debugStore(i, DEBUG_TYPE_INT, 4, 3);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
-	debugStore(i, val[3]);
+void __dbgStoreVar(inout int i, imat3x4 val, int line) {
+	__dbgStore(i, __DBG_INT, 3, 4, line);
+	for (int c = 0; c < 3; c++) __dbgStore(i, val[c]);
+}
+
+void __dbgStoreVar(inout int i, imat4 val, int line) {
+	__dbgStore(i, __DBG_INT, 4, 4, line);
+	for (int c = 0; c < 4; c++) __dbgStore(i, val[c]);
+}
+void __dbgStoreVar(inout int i, imat4x2 val, int line) {
+	__dbgStore(i, __DBG_INT, 4, 2, line);
+	for (int c = 0; c < 4; c++) __dbgStore(i, val[c]);
+}
+void __dbgStoreVar(inout int i, imat4x3 val, int line) {
+	__dbgStore(i, __DBG_INT, 4, 3, line);
+	for (int c = 0; c < 4; c++) __dbgStore(i, val[c]);
 }
 
 // UINT
-void storeDebugVar(inout int i, uint val) {
-	storeDebugType(i, DEBUG_TYPE_UINT, 1, 1);
-	debugStore(i, vec4(val, 0, 0, 0));
+void __dbgStoreVar(inout int i, uint val, int line) {
+	__dbgStore(i, __DBG_UINT, 1, 1, line);
+	__dbgStore(i, uvec4(val, 0, 0, 0));
+}
+void __dbgStoreVar(inout int i, uvec2 val, int line) {
+	__dbgStore(i, __DBG_UINT, 1, 2, line);
+	__dbgStore(i, uvec4(val, 0, 0));
+}
+void __dbgStoreVar(inout int i, uvec3 val, int line) {
+	__dbgStore(i, __DBG_UINT, 1, 3, line);
+	__dbgStore(i, uvec4(val, 0));
+}
+void __dbgStoreVar(inout int i, uvec4 val, int line) {
+	__dbgStore(i, __DBG_UINT, 1, 4, line);
+	__dbgStore(i, val);
 }
 
-void storeDebugVar(inout int i, uvec2 val) {
-	storeDebugType(i, DEBUG_TYPE_UINT, 1, 2);
-	debugStore(i, ivec4(val, 0, 0));
+void __dbgStoreVar(inout int i, umat2 val, int line) {
+	__dbgStore(i, __DBG_UINT, 2, 2, line);
+	for (int c = 0; c < 2; c++) __dbgStore(i, val[c]);
 }
-void storeDebugVar(inout int i, uvec3 val) {
-	storeDebugType(i, DEBUG_TYPE_UINT, 1, 3);
-	debugStore(i, ivec4(val, 0));
+void __dbgStoreVar(inout int i, umat2x3 val, int line) {
+	__dbgStore(i, __DBG_UINT, 2, 3, line);
+	for (int c = 0; c < 2; c++) __dbgStore(i, val[c]);
 }
-void storeDebugVar(inout int i, uvec4 val) {
-	storeDebugType(i, DEBUG_TYPE_UINT, 1, 4);
-	debugStore(i, val);
-}
-
-void storeDebugVar(inout int i, umat2 val) {
-	debugStore(i, DEBUG_TYPE_UINT, 2, 2);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-}
-void storeDebugVar(inout int i, umat2x3 val) {
-	debugStore(i, DEBUG_TYPE_UINT, 2, 3);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-}
-void storeDebugVar(inout int i, umat2x4 val) {
-	debugStore(i, DEBUG_TYPE_UINT, 2, 4);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
+void __dbgStoreVar(inout int i, umat2x4 val, int line) {
+	__dbgStore(i, __DBG_UINT, 2, 4, line);
+	for (int c = 0; c < 2; c++) __dbgStore(i, val[c]);
 }
 
-void storeDebugVar(inout int i, umat3 val) {
-	debugStore(i, DEBUG_TYPE_UINT, 3, 3);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
+void __dbgStoreVar(inout int i, umat3 val, int line) {
+	__dbgStore(i, __DBG_UINT, 3, 3, line);
+	for (int c = 0; c < 3; c++) __dbgStore(i, val[c]);
 }
-void storeDebugVar(inout int i, umat3x2 val) {
-	debugStore(i, DEBUG_TYPE_UINT, 3, 2);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
+void __dbgStoreVar(inout int i, umat3x2 val, int line) {
+	__dbgStore(i, __DBG_UINT, 3, 2, line);
+	for (int c = 0; c < 3; c++) __dbgStore(i, val[c]);
 }
-void storeDebugVar(inout int i, umat3x4 val) {
-	debugStore(i, DEBUG_TYPE_UINT, 3, 4);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
+void __dbgStoreVar(inout int i, umat3x4 val, int line) {
+	__dbgStore(i, __DBG_UINT, 3, 4, line);
+	for (int c = 0; c < 3; c++) __dbgStore(i, val[c]);
 }
 
-void storeDebugVar(inout int i, umat4 val) {
-	debugStore(i, DEBUG_TYPE_UINT, 4, 4);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
-	debugStore(i, val[3]);
+void __dbgStoreVar(inout int i, umat4 val, int line) {
+	__dbgStore(i, __DBG_UINT, 4, 4, line);
+	for (int c = 0; c < 4; c++) __dbgStore(i, val[c]);
 }
-void storeDebugVar(inout int i, umat4x2 val) {
-	debugStore(i, DEBUG_TYPE_UINT, 4, 2);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
-	debugStore(i, val[3]);
+void __dbgStoreVar(inout int i, umat4x2 val, int line) {
+	__dbgStore(i, __DBG_UINT, 4, 2, line);
+	for (int c = 0; c < 4; c++) __dbgStore(i, val[c]);
 }
-void storeDebugVar(inout int i, umat4x3 val) {
-	debugStore(i, DEBUG_TYPE_UINT, 4, 3);
-	debugStore(i, val[0]);
-	debugStore(i, val[1]);
-	debugStore(i, val[2]);
-	debugStore(i, val[3]);
+void __dbgStoreVar(inout int i, umat4x3 val, int line) {
+	__dbgStore(i, __DBG_UINT, 4, 3, line);
+	for (int c = 0; c < 4; c++) __dbgStore(i, val[c]);
+}
+
+// BOOL
+void __dbgStoreVar(inout int i, bool val, int line) {
+	__dbgStore(i, __DBG_BOOL, 1, 1, line);
+	__dbgStore(i, bvec4(val, false, false, false));
+}
+void __dbgStoreVar(inout int i, bvec2 val, int line) {
+	__dbgStore(i, __DBG_BOOL, 1, 2, line);
+	__dbgStore(i, bvec4(val, false, false));
+}
+void __dbgStoreVar(inout int i, bvec3 val, int line) {
+	__dbgStore(i, __DBG_BOOL, 1, 3, line);
+	__dbgStore(i, bvec4(val, false));
+}
+void __dbgStoreVar(inout int i, bvec4 val, int line) {
+	__dbgStore(i, __DBG_BOOL, 1, 4, line);
+	__dbgStore(i, val);
 }
 
 
 // vertex shader debug command
-//if (debugVertexInputIndex == gl_VertexID) {
+//if (all(equal(__dbgVert, ivec2(gl_InstanceID, gl_VertexID)))) {
+//	__dbgStoreVar(i, var0, __LINE__);
+//}
+
+
+// geometry shader debug command
+//if (all(equal(__dbgGeom, ivec2(gl_PrimitiveIDIn, gl_InvocationID)))) {
+//	// store variables
+//}
+
+
+// fragment shader debug command
+//if (all(equal(__dbgFrag, ivec2(int(gl_FragCoord.x), int(gl_FragCoord.y))))) {
 //	// store variables
 //}

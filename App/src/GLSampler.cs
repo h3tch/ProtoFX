@@ -13,18 +13,13 @@ namespace App
         /// <summary>
         /// Create OpenGL object.
         /// </summary>
-        /// <param name="dir">Directory of the tech-file.</param>
-        /// <param name="name">Name used to identify the object.</param>
-        /// <param name="anno">Annotation used for special initialization.</param>
-        /// <param name="text">Text block specifying the object commands.</param>
-        /// <param name="classes">Collection of scene objects.</param>
-        public GLSampler(string dir, string name, string anno, string text, Dict<GLObject> classes)
-            : base(name, anno)
+        /// <param name="params">Input parameters for GLObject creation.</param>
+        public GLSampler(GLParams @params) : base(@params)
         {
-            var err = new CompileException($"sampler '{name}'");
+            var err = new CompileException($"sampler '{@params.name}'");
 
             // PARSE TEXT
-            var body = new Commands(text, err);
+            var body = new Commands(@params.text, err);
 
             // PARSE ARGUMENTS
             body.Cmds2Fields(this, err);

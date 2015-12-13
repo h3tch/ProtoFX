@@ -43,18 +43,13 @@ namespace App
         /// <summary>
         /// Create pass object.
         /// </summary>
-        /// <param name="dir">Directory of the tech-file.</param>
-        /// <param name="name">Name used to identify the object.</param>
-        /// <param name="annotation">Annotation used for special initialization.</param>
-        /// <param name="text">Text block specifying the object commands.</param>
-        /// <param name="classes">Collection of scene objects.</param>
-        public GLPass(string dir, string name, string annotation, string text, Dict<GLObject> classes)
-            : base(name, annotation)
+        /// <param name="params">Input parameters for GLObject creation.</param>
+        public GLPass(GLParams @params) : base(@params)
         {
             var err = new CompileException($"pass '{name}'");
 
             // PARSE TEXT
-            var body = new Commands(text, err);
+            var body = new Commands(@params.text, err);
 
             // PARSE ARGUMENTS
             body.Cmds2Fields(this, err);
@@ -65,11 +60,11 @@ namespace App
                 err.PushCall($"command {cmd.idx} '{cmd.cmd}'");
                 switch (cmd.cmd)
                 {
-                    case "draw": ParseDrawCall(err, cmd.args, classes); break;
-                    case "compute": ParseComputeCall(err, cmd.args, classes); break;
-                    case "tex": ParseTexCmd(err, cmd.args, classes); break;
-                    case "samp": ParseSampCmd(err, cmd.args, classes); break;
-                    case "exec": ParseCsharpExec(err, cmd.cmd, cmd.args, classes); break;
+                    case "draw": ParseDrawCall(err, cmd.args, @params.scene); break;
+                    case "compute": ParseComputeCall(err, cmd.args, @params.scene); break;
+                    case "tex": ParseTexCmd(err, cmd.args, @params.scene); break;
+                    case "samp": ParseSampCmd(err, cmd.args, @params.scene); break;
+                    case "exec": ParseCsharpExec(err, cmd.cmd, cmd.args, @params.scene); break;
                     default: ParseOpenGLCall(err, cmd.cmd, cmd.args); break;
                 }
                 err.PopCall();
@@ -77,9 +72,9 @@ namespace App
 
             // GET VERTEX AND FRAGMENT OUTPUT BINDINGS
             
-            if (fragout != null && !classes.TryGetValue(fragout, out glfragout))
+            if (fragout != null && !@params.scene.TryGetValue(fragout, out glfragout))
                 err.Add($"The name '{fragout}' does not reference an object of type 'fragout'.");
-            if (vertout != null && vertout.Length > 0 && !classes.TryGetValue(vertout[0], out glvertout))
+            if (vertout != null && vertout.Length > 0 && !@params.scene.TryGetValue(vertout[0], out glvertout))
                 err.Add($"The name '{vertout[0]}' does not reference an object of type 'vertout'.");
             if (err.HasErrors())
                 throw err;
@@ -92,13 +87,13 @@ namespace App
                 // Attach shader objects.
                 // First try attaching a compute shader. If that
                 // fails, try attaching the default shader pipeline.
-                if ((glcomp = attach(err, comp, classes)) == null)
+                if ((glcomp = attach(err, comp, @params.scene)) == null)
                 {
-                    glvert = attach(err, vert, classes);
-                    gltess = attach(err, tess, classes);
-                    gleval = attach(err, eval, classes);
-                    glgeom = attach(err, geom, classes);
-                    glfrag = attach(err, frag, classes);
+                    glvert = attach(err, vert, @params.scene);
+                    gltess = attach(err, tess, @params.scene);
+                    gleval = attach(err, eval, @params.scene);
+                    glgeom = attach(err, geom, @params.scene);
+                    glfrag = attach(err, frag, @params.scene);
                 }
 
                 // specify vertex output varyings of the shader program

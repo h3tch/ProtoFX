@@ -70,8 +70,8 @@ namespace OpenTK
                     .Add($"Class name '{className}' already exists.");
 
             // instantiate class
-            var instance = (GLObject)Activator.CreateInstance(
-                type, includeDir, className, classAnno, cmdStr, scene);
+            var @params = new GLParams(className, classAnno, cmdStr, includeDir, scene);
+            var instance = (GLObject)Activator.CreateInstance(type, @params);
             scene.Add(instance.name, instance);
         }
 
@@ -85,7 +85,7 @@ namespace OpenTK
             // clear list of classes
             scene.Clear();
             // add default OpenTK glControl
-            scene.Add(nullname, new GLReference(nullname, null, this));
+            scene.Add(nullname, new GLReference(new GLParams(nullname), this));
         }
 
         private static string[] ExtraxtClassDef(string objectblock)
