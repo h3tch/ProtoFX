@@ -26,6 +26,13 @@ buffer buf_idx {
 	xml "geom/cube.xml" data/index
 }
 
+image img_debug {
+	type texture1D
+	format rgba32f
+	width 512
+	height 1
+}
+
 /////////////////////////
 // DATA FORMAT OBJECTS //
 /////////////////////////
@@ -40,6 +47,10 @@ vertinput in_vert {
 	attr buf_col float 4
 }
 
+texture tex_debug {
+	img img_debug
+}
+
 /////////////
 // SHADERS //
 /////////////
@@ -48,7 +59,8 @@ vertinput in_vert {
 // vertex positions from model to perspective space
 shader vert vs_simple {
 	#version 440
-	//#debug 0 1
+	
+	layout(binding = 0, rgba32f) uniform writeonly image1D tex;
 	
 	// shader variable which will be set by "SimpleCamera.cs"
 	// (only uniform variables can be accessed outside the shader)
@@ -67,6 +79,8 @@ shader vert vs_simple {
 	{
 		gl_Position = camera.viewProj * in_pos;
 		vs_col = in_col;
+		if (gl_VertexID == 0)
+            imageStore(tex, 0, vec4(1, 0, 0, 1));
 	}
 }
 
@@ -116,6 +130,7 @@ pass pass_render {
 	// ATTATCH SHADERS
 	vert vs_simple
 	frag fs_simple
+	tex tex_debug 0 0 0 WriteOnly RGBA32f
 	
 	// OPENGL FUNCTIONS
 	// set clear color

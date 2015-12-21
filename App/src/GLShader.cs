@@ -1,4 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace App
 {
@@ -25,6 +27,10 @@ namespace App
                 default: throw err.Add($"Shader type '{@params.anno}' is not supported.");
             }
 
+            // ADD DEBUG INFORMATION
+            //if (@params.debuging)
+            //    @params.text = GLDebugger.AddDebugCode(@params.text, type).Merge("");
+
             // CREATE OPENGL OBJECT
             glname = GL.CreateShader(type);
             GL.ShaderSource(glname, @params.text);
@@ -34,7 +40,10 @@ namespace App
             int status;
             GL.GetShader(glname, ShaderParameter.CompileStatus, out status);
             if (status != 1)
-                throw err.Add("\n" + GL.GetShaderInfoLog(glname));
+            {
+                var compilerErrors = GL.GetShaderInfoLog(glname);
+                throw err.Add("\n" + compilerErrors);
+            }
             if (HasErrorOrGlError(err))
                 throw err;
         }

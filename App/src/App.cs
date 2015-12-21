@@ -226,9 +226,9 @@ namespace App
             var ex = blocks.Catch(x => glControl.AddObject(x, includeDir)).ToArray();
 
             // show errors
-            var errors =
-                from x in ex where x is CompileException || x.InnerException is CompileException
-                select (x is CompileException ? x : x.InnerException) as CompileException;
+            var errors = from x in ex
+                         where x is CompileException || x.InnerException is CompileException
+                         select (x is CompileException ? x : x.InnerException) as CompileException;
             errors.Do(x => codeError.AppendText(x.Text));
 
             // SHOW SCENE

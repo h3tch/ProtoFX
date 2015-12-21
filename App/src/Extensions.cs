@@ -32,6 +32,18 @@ namespace App
             return -1;
         }
 
+        public static int LastIndexOf<T>(this IEnumerable<T> ie, Func<T, bool> func)
+        {
+            int i = 0, rs = -1;
+            foreach (var e in ie)
+            {
+                if (func(e))
+                    rs = i;
+                i++;
+            }
+            return rs;
+        }
+
         public static IEnumerable<Exception> Catch<T>(this IEnumerable<T> ie, Action<T> func)
         {
             foreach (var e in ie)
@@ -71,6 +83,13 @@ namespace App
             foreach (var s in list)
                 str += s + separator;
             return str;
+        }
+
+        public static Match MatchBrace(this string s, char open, char close)
+        {
+            string oc = "" + open + close;
+            return Regex.Match(s, $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
+                $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
         }
 
         public static T UseIf<T>(this T obj, bool condition)

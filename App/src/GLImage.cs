@@ -8,7 +8,7 @@ using TexTarget = OpenTK.Graphics.OpenGL4.TextureTarget;
 using TexParamName = OpenTK.Graphics.OpenGL4.TextureParameterName;
 using TexMinFilter = OpenTK.Graphics.OpenGL4.TextureMinFilter;
 using CpuFormat = System.Drawing.Imaging.PixelFormat;
-using GpuFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
+using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
 using GpuColorFormat = OpenTK.Graphics.OpenGL4.PixelInternalFormat;
 using TexParameter = OpenTK.Graphics.OpenGL4.GetTextureParameter;
 
@@ -24,16 +24,12 @@ namespace App
         [Field] public int length = 0;
         [Field] public int mipmaps = 0;
         [Field] private TexTarget type = 0;
-        [Field] private GpuColorFormat format = GpuColorFormat.Rgba;
-        private CpuFormat fileFormat = CpuFormat.Format32bppArgb;
-        private PixelType pxType = 0;
-        private int pxSize = 0;
-        private GpuFormat pxFormat = 0;
+        [Field] private GpuFormat format = GpuFormat.Rgba8;
         #endregion
 
         #region PROPERTIES
         public TexTarget target { get { return type; } private set { type = value; } }
-        public GpuColorFormat gpuFormat { get { return format; } private set { format = value; } }
+        public GpuFormat gpuFormat { get { return format; } private set { format = value; } }
         #endregion
 
         /// <summary>
@@ -46,13 +42,13 @@ namespace App
         {
             int f, t;
             this.glname = glname;
-            GL.GetTextureParameter(glname, GetTextureParameter.TextureTarget, out t);
-            GL.GetTextureLevelParameter(glname, 0, GetTextureParameter.TextureInternalFormat, out f);
-            GL.GetTextureLevelParameter(glname, 0, GetTextureParameter.TextureWidth, out width);
-            GL.GetTextureLevelParameter(glname, 0, GetTextureParameter.TextureHeight, out height);
-            GL.GetTextureLevelParameter(glname, 0, GetTextureParameter.TextureDepth, out depth);
+            GL.GetTextureParameter(glname, TexParameter.TextureTarget, out t);
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureInternalFormat, out f);
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureWidth, out width);
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureHeight, out height);
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureDepth, out depth);
             type = (TexTarget)t;
-            format = (GpuColorFormat)f;
+            format = (GpuFormat)f;
             if (type != TexTarget.Texture3D)
             {
                 length = depth;
@@ -94,8 +90,7 @@ namespace App
             }
 
             // LOAD IMAGE DATA
-            var data = loadImageFiles(err, @params.dir, file, ref width, ref height, ref depth,
-                 format,out pxFormat, out pxType, out pxSize, out fileFormat);
+            var data = loadImageFiles(err, @params.dir, file, ref width, ref height, ref depth, format);
 
             // on errors throw an exception
             if (err.HasErrors())
@@ -111,17 +106,17 @@ namespace App
             GL.TexParameter(target, TexParamName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(target, TexParamName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(target, TexParamName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-
+            
             // ALLOCATE IMAGE MEMORY
             if (data != null)
             {
                 var dataPtr = Marshal.AllocHGlobal(data.Length);
                 Marshal.Copy(data, 0, dataPtr, data.Length);
-                TexImage(target, width, height, depth, length, pxFormat, pxType, dataPtr);
+                TexImage(target, width, height, depth, length, PixelFormat.Bgra, PixelType.UnsignedByte, dataPtr);
                 Marshal.FreeHGlobal(dataPtr);
             }
             else
-                TexImage(target, width, height, depth, length, pxFormat, pxType, IntPtr.Zero);
+                TexImage(target, width, height, depth, length, mipmaps > 0);
 
             // GENERATE MIPMAPS
             if (mipmaps > 0)
@@ -166,7 +161,7 @@ namespace App
             // allocate memory
             int size;
             IntPtr dataPtr = GetSubImage(ID, level, 0, 0, index, w, h, 1,
-                isdepth ? GpuFormat.DepthComponent : GpuFormat.Bgra,
+                isdepth ? PixelFormat.DepthComponent : PixelFormat.Bgra,
                 isdepth ? PixelType.Float : PixelType.UnsignedByte, out size);
 
             // create bitmap from data
@@ -177,7 +172,7 @@ namespace App
         }
 
         public static byte[] Read(int ID, int level, int x, int y, int z, int w, int h, int d,
-            GpuFormat format, PixelType type)
+            PixelFormat format, PixelType type)
         {
             int size;
             IntPtr dataPtr = GetSubImage(ID, level, x, y, z, w, h, d, format, type, out size);
@@ -188,7 +183,7 @@ namespace App
         }
 
         public static float[] Readf(int ID, int level, int x, int y, int z, int w, int h, int d,
-            GpuFormat format, PixelType type)
+            PixelFormat format, PixelType type)
         {
             int size;
             IntPtr dataPtr = GetSubImage(ID, level, x, y, z, w, h, d, format, type, out size);
@@ -199,7 +194,7 @@ namespace App
         }
 
         private static IntPtr GetSubImage(int ID, int level, int x, int y, int z, int w, int h, int d,
-            GpuFormat format, PixelType type, out int size)
+            PixelFormat format, PixelType type, out int size)
         {
             size = w * h * d * ColorChannels(format) * ColorBits(type) / 8;
             IntPtr data = Marshal.AllocHGlobal(size);
@@ -231,38 +226,38 @@ namespace App
             }
         }
 
-        private static int ColorChannels(GpuFormat format)
+        private static int ColorChannels(PixelFormat format)
         {
             switch (format)
             {
-                case GpuFormat.Red:
-                case GpuFormat.RedInteger:
-                case GpuFormat.Green:
-                case GpuFormat.GreenInteger:
-                case GpuFormat.Blue:
-                case GpuFormat.BlueInteger:
-                case GpuFormat.Alpha:
-                case GpuFormat.AlphaInteger:
-                case GpuFormat.StencilIndex:
-                case GpuFormat.UnsignedInt:
-                case GpuFormat.UnsignedShort:
-                case GpuFormat.DepthComponent:
-                case GpuFormat.ColorIndex:
-                case GpuFormat.Luminance:
+                case PixelFormat.Red:
+                case PixelFormat.RedInteger:
+                case PixelFormat.Green:
+                case PixelFormat.GreenInteger:
+                case PixelFormat.Blue:
+                case PixelFormat.BlueInteger:
+                case PixelFormat.Alpha:
+                case PixelFormat.AlphaInteger:
+                case PixelFormat.StencilIndex:
+                case PixelFormat.UnsignedInt:
+                case PixelFormat.UnsignedShort:
+                case PixelFormat.DepthComponent:
+                case PixelFormat.ColorIndex:
+                case PixelFormat.Luminance:
                     return 1;
-                case GpuFormat.Rg:
-                case GpuFormat.RgInteger:
-                case GpuFormat.DepthStencil:
+                case PixelFormat.Rg:
+                case PixelFormat.RgInteger:
+                case PixelFormat.DepthStencil:
                     return 2;
-                case GpuFormat.Rgb:
-                case GpuFormat.Bgr:
-                case GpuFormat.BgrInteger:
+                case PixelFormat.Rgb:
+                case PixelFormat.Bgr:
+                case PixelFormat.BgrInteger:
                     return 3;
                 default:
                     return 4;
             }
         }
-
+        
         public override void Delete()
         {
             if (glname > 0)
@@ -274,19 +269,14 @@ namespace App
 
         #region UTIL METHODS
         private static byte[] loadImageFiles(CompileException err, string dir, string[] filenames,
-            ref int w, ref int h, ref int d, GpuColorFormat gpuformat, 
-            out GpuFormat pixelformat, out PixelType pixeltype, out int pixelsize,
-            out CpuFormat fileformat)
+            ref int w, ref int h, ref int d, GpuFormat gpuformat)
         {
             // SET DEFAULT DATA FOR OUTPUTS
             byte[] data = null;
-            bool isdepth = gpuformat.ToString().StartsWith("DepthComponent");
-            // set default pixel data format and type
-            pixelformat = isdepth ? GpuFormat.DepthComponent : GpuFormat.Bgra;
-            pixeltype = isdepth ? PixelType.Float : PixelType.UnsignedByte;
+            bool isdepth = gpuformat.ToString().StartsWith("Depth");
             // set default file format and pixel size
-            fileformat = CpuFormat.Format32bppArgb;
-            pixelsize = Image.GetPixelFormatSize(fileformat) / 8;
+            var fileformat = CpuFormat.Format32bppArgb;
+            var pixelsize = Image.GetPixelFormatSize(fileformat) / 8;
 
             // LOAD IMAGA DATA FROM FILES
             if (filenames?.Length > 0 && !isdepth)
@@ -327,46 +317,151 @@ namespace App
                     Marshal.Copy(bits.Scan0, data, pixelsize * w * h * i, bits.Stride * bits.Height);
                     bmps[i].UnlockBits(bits);
                 }
-                
-                //// swap R and B color channel
-                //for (int r = 1, b = 3; r < data.Length; r += 4, b += 4)
-                //{
-                //    var tmp = data[r];
-                //    data[r] = data[b];
-                //    data[b] = tmp;
-                //}
             }
 
             return data;
         }
 
+        private void TexImage(TexTarget target, int width, int height, int depth, int length, bool mipmaps)
+        {
+            var levels = mipmaps ? MaxMipmapLevels(width, height) : 1;
+            switch (target)
+            {
+                case TexTarget.Texture1D:
+                    GL.TexStorage1D(TextureTarget1d.Texture1D,
+                        levels, (SizedInternalFormat)gpuFormat, width);
+                    break;
+                case TexTarget.Texture1DArray:
+                    GL.TexStorage2D(TextureTarget2d.Texture1DArray,
+                        levels, (SizedInternalFormat)gpuFormat, width, height);
+                    break;
+                case TexTarget.Texture2D:
+                    GL.TexStorage2D(TextureTarget2d.Texture2D,
+                        levels, (SizedInternalFormat)gpuFormat, width, height);
+                    break;
+                case TexTarget.Texture2DArray:
+                    GL.TexStorage3D(TextureTarget3d.Texture2DArray,
+                        levels, (SizedInternalFormat)gpuFormat, width, height, length);
+                    break;
+                case TexTarget.Texture3D:
+                    GL.TexStorage3D(TextureTarget3d.Texture3D,
+                        levels, (SizedInternalFormat)gpuFormat, width, height, depth);
+                    break;
+            }
+        }
+
         private void TexImage(TexTarget target, int width, int height,
-            int depth, int length, GpuFormat format, PixelType type, IntPtr pixels)
+            int depth, int length, PixelFormat format, PixelType type, IntPtr pixels)
         {
             switch (target)
             {
                 case TexTarget.Texture1D:
-                    GL.TexImage1D(target, 0, gpuFormat, width,
-                        0, pxFormat, pxType, pixels);
+                    GL.TexImage1D(target, 0, (GpuColorFormat)gpuFormat, width,
+                        0, format, type, pixels);
                     break;
                 case TexTarget.Texture1DArray:
-                    GL.TexImage2D(target, 0, gpuFormat, width, length,
-                        0, pxFormat, pxType, pixels);
+                    GL.TexImage2D(target, 0, (GpuColorFormat)gpuFormat, width, length,
+                        0, format, type, pixels);
                     break;
                 case TexTarget.Texture2D:
-                    GL.TexImage2D(target, 0, gpuFormat, width, height,
-                        0, pxFormat, pxType, pixels);
+                    GL.TexImage2D(target, 0, (GpuColorFormat)gpuFormat, width, height,
+                        0, format, type, pixels);
                     break;
                 case TexTarget.Texture2DArray:
-                    GL.TexImage3D(target, 0, gpuFormat, width, height, length,
-                        0, pxFormat, pxType, pixels);
+                    GL.TexImage3D(target, 0, (GpuColorFormat)gpuFormat, width, height, length,
+                        0, format, type, pixels);
                     break;
                 case TexTarget.Texture3D:
-                    GL.TexImage3D(target, 0, gpuFormat, width, height, depth,
-                        0, pxFormat, pxType, pixels);
+                    GL.TexImage3D(target, 0, (GpuColorFormat)gpuFormat, width, height, depth,
+                        0, format, type, pixels);
                     break;
             }
         }
+
+        private int MaxMipmapLevels(int width, int height)
+        {
+            int n = 0;
+            while (width > 1 || height > 1)
+            {
+                width = Math.Max(width / 2, 1);
+                height = Math.Max(height / 2, 1);
+                n++;
+            }
+            return n;
+        }
         #endregion
+    }
+    
+    public enum GpuFormat
+    {
+        Rgba8 = 32856,
+        Rgba16 = 32859,
+        R8 = 33321,
+        R16 = 33322,
+        Rg8 = 33323,
+        Rg16 = 33324,
+        R16f = 33325,
+        R32f = 33326,
+        Rg16f = 33327,
+        Rg32f = 33328,
+        R8i = 33329,
+        R8ui = 33330,
+        R16i = 33331,
+        R16ui = 33332,
+        R32i = 33333,
+        R32ui = 33334,
+        Rg8i = 33335,
+        Rg8ui = 33336,
+        Rg16i = 33337,
+        Rg16ui = 33338,
+        Rg32i = 33339,
+        Rg32ui = 33340,
+        Rgba32f = 34836,
+        Rgba16f = 34842,
+        Rgba32ui = 36208,
+        Rgba16ui = 36214,
+        Rgba8ui = 36220,
+        Rgba32i = 36226,
+        Rgba16i = 36232,
+        Rgba8i = 36238,
+        Depth16 = 33189,
+        Depth24 = 33190,
+        Depth32 = 33191,
+        Depth32f = 36012,
+        Depth24Stencil8 = 35056,
+        R3G3B2 = 10768,
+        Rgb2 = 32846,
+        Rgb4 = 32847,
+        Rgb5 = 32848,
+        Rgb8 = 32849,
+        Rgb10 = 32850,
+        Rgb12 = 32851,
+        Rgb16 = 32852,
+        Rgba2 = 32853,
+        Rgba4 = 32854,
+        Rgb5A1 = 32855,
+        Rgb10A2 = 32857,
+        Rgba12 = 32858,
+        Deptht24 = 33190,
+        Rgb32f = 34837,
+        Rgb16f = 34843,
+        R11fG11fB10f = 35898,
+        Rgb9E5 = 35901,
+        Depth32fStencil8 = 36013,
+        Rgb32ui = 36209,
+        Rgb16ui = 36215,
+        Rgb8ui = 36221,
+        Rgb32i = 36227,
+        Rgb16i = 36233,
+        Rgb8i = 36239,
+        R8Snorm = 36756,
+        Rg8Snorm = 36757,
+        Rgb8Snorm = 36758,
+        Rgba8Snorm = 36759,
+        R16Snorm = 36760,
+        Rg16Snorm = 36761,
+        Rgb16Snorm = 36762,
+        Rgba16Snorm = 36763,
+        Rgb10A2ui = 36975
     }
 }
