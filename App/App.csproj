@@ -97,6 +97,7 @@
     <Compile Include="src\Commands.cs" />
     <Compile Include="src\Data.cs" />
     <Compile Include="src\Field.cs" />
+    <Compile Include="src\GLDebugger.cs" />
     <Compile Include="src\GLInstance.cs" />
     <Compile Include="src\GLReference.cs" />
     <Compile Include="src\GLText.cs" />
@@ -175,7 +176,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="src\dbg\debugHeader.txt" />
+    <None Include="resources\dbg.txt" />
     <None Include="resources\ImgOpen.png" />
     <None Include="resources\ImgSave.png" />
     <None Include="resources\ImgSaveAll.png" />

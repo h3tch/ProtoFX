@@ -61,6 +61,34 @@ namespace App.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to #define __DBG_BOOL 1
+        ///#define __DBG_INT 2
+        ///#define __DBG_UINT 3
+        ///#define __DBG_FLOAT 4
+        ///#define __i2f intBitsToFloat
+        ///#define __u2f uintBitsToFloat
+        ///
+        ///uniform ivec2 __dbgVert;
+        ///uniform int __dbgTess;
+        ///uniform int __dbgEval;
+        ///uniform ivec2 __dbgGeom;
+        ///uniform ivec2 __dbgFrag;
+        ///uniform int __dbgComp;
+        ///layout(rgba32f) uniform writeonly imageBuffer __dbgBuffer;
+        ///
+        ///void __dbgStore(inout int i, vec4 val) {
+        ///	imageStore(__dbgBuffer, i++, val);
+        ///}
+        ///void __dbgStore(inout int i, ivec4 val) {
+        ///	__dbgStore(i, vec4(__i2 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string dbg {
+            get {
+                return ResourceManager.GetString("dbg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap ImgClose {

@@ -74,11 +74,11 @@ namespace App
                     size = data.Length;
                     var dataPtr = Marshal.AllocHGlobal(size);
                     Marshal.Copy(data, 0, dataPtr, size);
-                    GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)size, dataPtr, usage);
+                    GL.NamedBufferData(glname, size, dataPtr, usage);
                     Marshal.FreeHGlobal(dataPtr);
                 }
                 else
-                    GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)size, IntPtr.Zero, usage);
+                    GL.NamedBufferData(glname, size, IntPtr.Zero, usage);
             }
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);

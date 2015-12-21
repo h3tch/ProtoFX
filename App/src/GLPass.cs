@@ -175,9 +175,9 @@ namespace App
 
             // BIND TEXTURES
             foreach (var t in textures)
-                t.obj.Bind(t.unit);
+                t.obj.BindTex(t.unit);
             foreach (var t in texImages)
-                t.obj.Bind(t.unit, t.level, t.layer, t.access, t.format);
+                t.obj.BindImg(t.unit, t.level, t.layer, t.access, t.format);
             foreach (var s in sampler)
                 GL.BindSampler(s.unit, s.obj.glname);
             foreach (var e in csexec)
@@ -206,7 +206,9 @@ namespace App
 
             // UNBIND OPENGL OBJECTS
             foreach (var t in textures)
-                t.obj.Unbind(t.unit);
+                t.obj.UnbindTex(t.unit);
+            foreach (var t in texImages)
+                t.obj.UnbindImg(t.unit);
             foreach (var s in sampler)
                 GL.BindSampler(s.unit, 0);
             foreach (var e in csexec)
@@ -340,7 +342,7 @@ namespace App
                 typeof(int),
                 typeof(int),
                 typeof(TextureAccess),
-                typeof(SizedInternalFormat)
+                typeof(GpuFormat)
             };
             var values = ParseCmd(args, types, args.Length == 6 ? 6 : 2, classes, err);
             if (!err.HasErrors())
@@ -676,7 +678,7 @@ namespace App
             public int level;
             public int layer;
             public TextureAccess access;
-            public SizedInternalFormat format;
+            public GpuFormat format;
 
             public ResTexImg(object[] values) : base(values)
             {
@@ -687,7 +689,7 @@ namespace App
                 if (values[4] != null)
                     access = (TextureAccess)values[4];
                 if (values[5] != null)
-                    format = (SizedInternalFormat)values[5];
+                    format = (GpuFormat)values[5];
             }
         }
 

@@ -9,29 +9,21 @@ namespace App
         public string text;
         public string dir;
         public Dict<GLObject> scene;
-        public GLParams(string name)
-        {
-            this.name = name;
-            this.anno = null;
-            this.text = null;
-            this.dir = null;
-            this.scene = null;
-        }
-        public GLParams(string name, string anno)
-        {
-            this.name = name;
-            this.anno = anno;
-            this.text = null;
-            this.dir = null;
-            this.scene = null;
-        }
-        public GLParams(string name, string anno, string text, string dir, Dict<GLObject> scene)
+        public bool debuging;
+        public GLParams(
+            string name = null, 
+            string anno = null, 
+            string text = null, 
+            string dir = null, 
+            Dict<GLObject> scene = null,
+            bool debuging = false)
         {
             this.name = name;
             this.anno = anno;
             this.text = text;
             this.dir = dir;
             this.scene = scene;
+            this.debuging = debuging;
         }
     }
 
