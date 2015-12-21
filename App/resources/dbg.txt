@@ -1,0 +1,178 @@
+#define _DBG_BOOL 1
+#define _DBG_INT 2
+#define _DBG_UINT 3
+#define _DBG_FLOAT 4
+#define _i2f intBitsToFloat
+#define _u2f uintBitsToFloat
+
+uniform ivec2 _dbgVert;
+uniform ivec2 _dbgTess;
+uniform ivec2 _dbgEval;
+uniform ivec2 _dbgGeom;
+uniform ivec2 _dbgFrag;
+uniform ivec2 _dbgComp;
+layout(rgba32f) uniform writeonly image2D _dbgOut;
+
+void _dbgStore(int j, inout int i, vec4 val) {
+	imageStore(_dbgOut, ivec2(i++, j), val);
+}
+void _dbgStore(int j, inout int i, ivec4 val) {
+	_dbgStore(j, i, vec4(_i2f(val.x), _i2f(val.y), _i2f(val.z), _i2f(val.w)));
+}
+void _dbgStore(int j, inout int i, uvec4 val) {
+	_dbgStore(j, i, vec4(_u2f(val.x), _u2f(val.y), _u2f(val.z), _u2f(val.w)));
+}
+void _dbgStore(int j, inout int i, bvec4 val) {
+	_dbgStore(j, i, vec4(int(val.x), int(val.y), int(val.z), int(val.w)));
+}
+void _dbgStore(int j, inout int i, vec3 val) {
+	_dbgStore(j, i, vec4(val, 0));
+}
+void _dbgStore(int j, inout int i, ivec3 val) {
+	_dbgStore(j, i, ivec4(val, 0));
+}
+void _dbgStore(int j, inout int i, uvec3 val) {
+	_dbgStore(j, i, uvec4(val, 0));
+}
+void _dbgStore(int j, inout int i, bvec3 val) {
+	_dbgStore(j, i, bvec4(val, false));
+}
+void _dbgStore(int j, inout int i, vec2 val) {
+	_dbgStore(j, i, vec4(val, 0, 0));
+}
+void _dbgStore(int j, inout int i, ivec2 val) {
+	_dbgStore(j, i, ivec4(val, 0, 0));
+}
+void _dbgStore(int j, inout int i, uvec2 val) {
+	_dbgStore(j, i, uvec4(val, 0, 0));
+}
+void _dbgStore(int j, inout int i, bvec2 val) {
+	_dbgStore(j, i, bvec4(val, false, false));
+}
+void _dbgStore(int j, inout int i, float val) {
+	_dbgStore(j, i, vec4(val, 0, 0, 0));
+}
+void _dbgStore(int j, inout int i, int val) {
+	_dbgStore(j, i, ivec4(val, 0, 0, 0));
+}
+void _dbgStore(int j, inout int i, uint val) {
+	_dbgStore(j, i, uvec4(val, 0, 0, 0));
+}
+void _dbgStore(int j, inout int i, bool val) {
+	_dbgStore(j, i, bvec4(val, false, false, false));
+}
+void _dbgStore(int j, inout int i, int type, int cols, int rows, int line) {
+	_dbgStore(j, i, ivec4(type, cols, rows, line));
+}
+
+// FLOAT
+void _dbgStoreVar(int j, inout int i, float val, int line) {
+	_dbgStore(j, i, _DBG_FLOAT, 1, 1, line);
+	_dbgStore(j, i, val);
+}
+
+void _dbgStoreVar(int j, inout int i, vec2 val, int line) {
+	_dbgStore(j, i, _DBG_FLOAT, 1, 2, line);
+	_dbgStore(j, i, val);
+}
+void _dbgStoreVar(int j, inout int i, vec3 val, int line) {
+	_dbgStore(j, i, _DBG_FLOAT, 1, 3, line);
+	_dbgStore(j, i, val);
+}
+void _dbgStoreVar(int j, inout int i, vec4 val, int line) {
+	_dbgStore(j, i, _DBG_FLOAT, 1, 4, line);
+	_dbgStore(j, i, val);
+}
+
+void _dbgStoreVar(int j, inout int i, mat2 val, int line) {
+	_dbgStore(j, i, _DBG_FLOAT, 2, 2, line);
+	for (int c = 0; c < 2; c++) _dbgStore(j, i, val[c]);
+}
+void _dbgStoreVar(int j, inout int i, mat2x3 val, int line) {
+	_dbgStore(j, i, _DBG_FLOAT, 2, 3, line);
+	for (int c = 0; c < 2; c++) _dbgStore(j, i, val[c]);
+}
+void _dbgStoreVar(int j, inout int i, mat2x4 val, int line) {
+	_dbgStore(j, i, _DBG_FLOAT, 2, 4, line);
+	for (int c = 0; c < 2; c++) _dbgStore(j, i, val[c]);
+}
+
+void _dbgStoreVar(int j, inout int i, mat3 val, int line) {
+	_dbgStore(j, i, _DBG_FLOAT, 3, 3, line);
+	for (int c = 0; c < 3; c++) _dbgStore(j, i, val[c]);
+}
+void _dbgStoreVar(int j, inout int i, mat3x2 val, int line) {
+	_dbgStore(j, i, _DBG_FLOAT, 3, 2, line);
+	for (int c = 0; c < 3; c++) _dbgStore(j, i, val[c]);
+}
+void _dbgStoreVar(int j, inout int i, mat3x4 val, int line) {
+	_dbgStore(j, i, _DBG_FLOAT, 3, 4, line);
+	for (int c = 0; c < 3; c++) _dbgStore(j, i, val[c]);
+}
+
+void _dbgStoreVar(int j, inout int i, mat4 val, int line) {
+	_dbgStore(j, i, _DBG_FLOAT, 4, 4, line);
+	for (int c = 0; c < 4; c++) _dbgStore(j, i, val[c]);
+}
+void _dbgStoreVar(int j, inout int i, mat4x2 val, int line) {
+	_dbgStore(j, i, _DBG_FLOAT, 4, 2, line);
+	for (int c = 0; c < 4; c++) _dbgStore(j, i, val[c]);
+}
+void _dbgStoreVar(int j, inout int i, mat4x3 val, int line) {
+	_dbgStore(j, i, _DBG_FLOAT, 4, 3, line);
+	for (int c = 0; c < 4; c++) _dbgStore(j, i, val[c]);
+}
+
+// INT
+void _dbgStoreVar(int j, inout int i, int val, int line) {
+	_dbgStore(j, i, _DBG_INT, 1, 1, line);
+	_dbgStore(j, i, val);
+}
+void _dbgStoreVar(int j, inout int i, ivec2 val, int line) {
+	_dbgStore(j, i, _DBG_INT, 1, 2, line);
+	_dbgStore(j, i, val);
+}
+void _dbgStoreVar(int j, inout int i, ivec3 val, int line) {
+	_dbgStore(j, i, _DBG_INT, 1, 3, line);
+	_dbgStore(j, i, val);
+}
+void _dbgStoreVar(int j, inout int i, ivec4 val, int line) {
+	_dbgStore(j, i, _DBG_INT, 1, 4, line);
+	_dbgStore(j, i, val);
+}
+
+// UINT
+void _dbgStoreVar(int j, inout int i, uint val, int line) {
+	_dbgStore(j, i, _DBG_UINT, 1, 1, line);
+	_dbgStore(j, i, val);
+}
+void _dbgStoreVar(int j, inout int i, uvec2 val, int line) {
+	_dbgStore(j, i, _DBG_UINT, 1, 2, line);
+	_dbgStore(j, i, val);
+}
+void _dbgStoreVar(int j, inout int i, uvec3 val, int line) {
+	_dbgStore(j, i, _DBG_UINT, 1, 3, line);
+	_dbgStore(j, i, val);
+}
+void _dbgStoreVar(int j, inout int i, uvec4 val, int line) {
+	_dbgStore(j, i, _DBG_UINT, 1, 4, line);
+	_dbgStore(j, i, val);
+}
+
+// BOOL
+void _dbgStoreVar(int j, inout int i, bool val, int line) {
+	_dbgStore(j, i, _DBG_BOOL, 1, 1, line);
+	_dbgStore(j, i, val);
+}
+void _dbgStoreVar(int j, inout int i, bvec2 val, int line) {
+	_dbgStore(j, i, _DBG_BOOL, 1, 2, line);
+	_dbgStore(j, i, val);
+}
+void _dbgStoreVar(int j, inout int i, bvec3 val, int line) {
+	_dbgStore(j, i, _DBG_BOOL, 1, 3, line);
+	_dbgStore(j, i, val);
+}
+void _dbgStoreVar(int j, inout int i, bvec4 val, int line) {
+	_dbgStore(j, i, _DBG_BOOL, 1, 4, line);
+	_dbgStore(j, i, val);
+}
