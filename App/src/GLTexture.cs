@@ -16,30 +16,23 @@ namespace App
         #endregion
 
         /// <summary>
-        /// Link GLTexture to existing OpenGL image. Used
-        /// to provide debug information in the debug view.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        /// <param name="glname">OpenGL object to like to.</param>
-        public GLTexture(GLParams @params, int glname, string samp, string buff, string img)
+        /// <param name="params"></param>
+        /// <param name="samp"></param>
+        /// <param name="buff"></param>
+        /// <param name="img"></param>
+        public GLTexture(GLParams @params, GLSampler samp, GLBuffer buff, GLImage img)
             : base(@params)
         {
             var err = new CompileException($"texture '{@params.name}'");
 
             // set name
-            this.glname = glname;
+            this.glsamp = samp;
+            this.glbuff = buff;
+            this.glimg = img;
 
-            // get internal format
-            int f;
-            GL.GetTextureLevelParameter(glname, 0, GetTextureParameter.TextureInternalFormat, out f);
-            format = (GpuFormat)f;
-
-            // GET REFERENCES
-            GetReferences(this.samp = samp, this.buff = buff, this.img = img, @params, err);
-
-            // IF THERE ARE ERRORS THROW AND EXCEPTION
-            if (err.HasErrors())
-                throw err;
+            // final constructor steps
+            ctor(err);
         }
 
         /// <summary>
@@ -59,6 +52,12 @@ namespace App
             // GET REFERENCES
             GetReferences(samp, buff, img, @params, err);
 
+            // final constructor steps
+            ctor(err);
+        }
+
+        private void ctor(CompileException err)
+        {
             // IF THERE ARE ERRORS THROW AND EXCEPTION
             if (err.HasErrors())
                 throw err;
@@ -67,12 +66,16 @@ namespace App
             if (glimg != null)
             {
                 glname = glimg.glname;
+                // get internal format
+                int f;
+                GL.GetTextureLevelParameter(glname, 0, GetTextureParameter.TextureInternalFormat, out f);
+                format = (GpuFormat)f;
             }
             else if (glbuff != null)
             {
                 if (format == 0)
                     throw err.Add($"No texture buffer format defined " +
-                        "for buffer '{buff}' (e.g. format RGBA8).");
+                        $"for buffer '{buff}' (e.g. format RGBA8).");
                 // CREATE OPENGL OBJECT
                 glname = GL.GenTexture();
                 GL.BindTexture(TextureTarget.TextureBuffer, glname);
@@ -91,7 +94,7 @@ namespace App
         /// <param name="unit">Texture unit.</param>
         public void BindTex(int unit)
         {
-            if (samp != null)
+            if (glsamp != null)
                 GL.BindSampler(unit, glsamp.glname);
             GLDebugger.BindTex(unit, glimg != null ? glimg.target : TextureTarget.TextureBuffer, glname);
         }
@@ -102,7 +105,7 @@ namespace App
         /// <param name="unit">Texture unit.</param>
         public void UnbindTex(int unit)
         {
-            if (samp != null)
+            if (glsamp != null)
                 GL.BindSampler(unit, 0);
             GLDebugger.UnbindTex(unit, glimg != null ? glimg.target : TextureTarget.TextureBuffer);
         }
@@ -116,14 +119,9 @@ namespace App
         /// <param name="access">How the texture will be accessed by the shader.</param>
         /// <param name="format">Pixel format of texture pixels.</param>
         public void BindImg(int unit, int level, int layer, TextureAccess access, GpuFormat format)
-        {
-            GLDebugger.BindImg(unit, level, glimg?.length > 0, layer, access, format, glname);
-        }
+            => GLDebugger.BindImg(unit, level, glimg?.length > 0, layer, access, format, glname);
 
-        public void UnbindImg(int unit)
-        {
-            GLDebugger.UnindImg(unit);
-        }
+        public void UnbindImg(int unit) => GLDebugger.UnbindImg(unit);
 
         public override void Delete()
         {

@@ -7,91 +7,84 @@ namespace App
 {
     class GLDebugger
     {
-        public static string dbgImgKey = "__protogl__dbgimg";
-        public static string dbgTexKey = "__protogl__dbgtex";
-        public static GLPass activePass;
-        private static GLImage img;
-        private static GLTexture tex;
-        private static int[] texUnits;
-        private static int[] imgUnits;
-        private static int _dbgOut;
-        private static int _dbgVert;
-        private static int _dbgTess;
-        private static int _dbgEval;
-        private static int _dbgGeom;
-        private static int _dbgFrag;
-        private static int _dbgComp;
+        #region FIELDS
+        // debug resources definitions
+        private static string dbgImgKey = "__protogl__dbgimg";
+        private static string dbgTexKey = "__protogl__dbgtex";
+        private static string dbgImgDef = "type = texture2D\n" +
+                                          "format = RGBA32f\n" +
+                                          $"width = {1024}\n" +
+                                          $"height = {6}\n";
+        // allocate GPU resources
+        private static GLImage img = new GLImage(new GLParams(dbgImgKey, "dbg", dbgImgDef));
+        private static GLTexture tex = new GLTexture(new GLParams(dbgTexKey, "dbg"), null, null, img);
+        // allocate arrays for texture and image units
+        private static int[] texUnits = new int[GL.GetInteger((GetPName)All.MaxTextureImageUnits)];
+        private static int[] imgUnits = new int[GL.GetInteger((GetPName)All.MaxImageUnits)];
+        private static Dictionary<int, Uniforms> passes = new Dictionary<int, Uniforms>();
+        #endregion
 
-        public static void InitilizeDebuging(Dict<GLObject> scene)
+        public static void Initilize(Dict<GLObject> scene)
         {
-            var imgDef =
-                "type = texture2D\n" +
-                "format = RGBA32f\n" +
-                $"width = {1024}\n" +
-                $"height = {6}\n";
-            var texDef =
-                $"img = {dbgImgKey}\n";
-            img = new GLImage(new GLParams(dbgImgKey, "dbg", imgDef, null, scene));
+            // reset scene
             scene.Add(dbgImgKey, img);
-            tex = new GLTexture(new GLParams(dbgTexKey, "dbg", texDef, null, scene));
             scene.Add(dbgTexKey, tex);
-            texUnits = new int[GL.GetInteger((GetPName)All.MaxTextureImageUnits)];
-            imgUnits = new int[GL.GetInteger((GetPName)All.MaxImageUnits)];
+            passes.Clear();
         }
 
-        public static void Activate(GLPass pass)
+        public static void Bind(GLPass pass)
         {
-            activePass = pass;
-            _dbgOut = GL.GetUniformLocation(pass.glname, "_dbgOut");
-            _dbgVert = GL.GetUniformLocation(pass.glname, "_dbgVert");
-            _dbgTess = GL.GetUniformLocation(pass.glname, "_dbgTess");
-            _dbgEval = GL.GetUniformLocation(pass.glname, "_dbgEval");
-            _dbgGeom = GL.GetUniformLocation(pass.glname, "_dbgGeom");
-            _dbgFrag = GL.GetUniformLocation(pass.glname, "_dbgFrag");
-            _dbgComp = GL.GetUniformLocation(pass.glname, "_dbgComp");
+            // get debug uniforms for the pass
+            Uniforms unif;
+            if (!passes.TryGetValue(pass.glname, out unif))
+                passes.Add(pass.glname, unif = new Uniforms(pass));
+            // set shader debug uniforms
+            unif.Bind(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
         }
 
-        public static void Bind(GLPass caller)
+        #region TEXTURE AND IMAGE BINDING
+        public static void BindImg(int unit, int level, bool layered, int layer, TextureAccess access,
+            GpuFormat format, int name)
         {
-            if (caller != activePass || _dbgOut == 0)
-                return;
-
-            int freeUnit = GetBoundImages().LastIndexOf(x => x == 0);
-            if (freeUnit < 0)
-                return;
-
-            tex.BindTex(freeUnit);
-            GL.Uniform1(_dbgOut, freeUnit);
-
-            if (_dbgVert >= 0)
-                GL.Uniform2(_dbgVert, -1, -1);
-            if (_dbgTess >= 0)
-                GL.Uniform2(_dbgTess, -1, -1);
-            if (_dbgEval >= 0)
-                GL.Uniform2(_dbgEval, -1, -1);
-            if (_dbgGeom >= 0)
-                GL.Uniform2(_dbgGeom, -1, -1);
-            if (_dbgFrag >= 0)
-                GL.Uniform2(_dbgFrag, -1, -1);
-            if (_dbgComp >= 0)
-                GL.Uniform2(_dbgComp, -1, -1);
+            // bind image to image load/store unit
+            imgUnits[unit] = name;
+            GL.BindImageTexture(unit, name, level, layered, Math.Max(layer, 0), access,
+                (SizedInternalFormat)format);
+        }
+        
+        public static void BindTex(int unit, TextureTarget target, int name)
+        {
+            // bind texture to texture unit
+            texUnits[unit] = name;
+            GL.ActiveTexture(TextureUnit.Texture0 + unit);
+            GL.BindTexture(target, name);
         }
 
-        public static IEnumerable<string> AddDebugCode(string text, ShaderType type)
+        public static void UnbindImg(int unit) => imgUnits[unit] = 0;
+
+        public static void UnbindTex(int unit, TextureTarget target) => BindTex(unit, target, 0);
+
+        public static int[] GetBoundTextures() => texUnits;
+
+        public static int[] GetBoundImages() => imgUnits;
+        #endregion
+
+        #region DEBUG CODE GENERATION FOR GLSL SHADERS
+        public static IEnumerable<string> AddDebugCode(string glsl, ShaderType type)
         {
             // find main function and body
-            var main = Regex.Match(text, @"void\s+main\s*\(\s*\)");
-            var body = text.Substring(main.Index).MatchBrace('{', '}');
+            var main = Regex.Match(glsl, @"void\s+main\s*\(\s*\)");
+            var body = glsl.Substring(main.Index).MatchBrace('{', '}');
 
             // return everything up until the main function
-            yield return text.Substring(0, main.Index);
+            yield return glsl.Substring(0, main.Index);
             // return debug header
             yield return '\n' + Properties.Resources.dbg + '\n';
             // return everything up until the body of the main function
-            yield return text.Substring(main.Index, body.Index);
+            yield return glsl.Substring(main.Index, body.Index);
 
             // count number of lines before the main function body
-            var count = Regex.Matches(text.Substring(0, main.Index), "\n").Count;
+            var count = Regex.Matches(glsl.Substring(0, main.Index), "\n").Count;
 
             // add debug code to each line in the shader
             var lines = Regex.Split(body.Value, "\n");
@@ -102,7 +95,7 @@ namespace App
             }
 
             // return the rest of the shader code
-            yield return text.Substring(main.Index + body.Index + body.Length);
+            yield return glsl.Substring(main.Index + body.Index + body.Length);
         }
 
         private static string GetDebugLine(string line, int linenumber, ShaderType type)
@@ -163,41 +156,59 @@ namespace App
                     dbgLine += $"_dbgStoreVar({shaderIdx}, _dbgIdx, {word.Value}, {linenumber});";
             return dbgLine + "}";
         }
+        #endregion
 
-        public static void BindImg(int unit, int level, bool layered, int layer, TextureAccess access,
-            GpuFormat format, int name)
+        private struct Uniforms
         {
-            imgUnits[unit] = name;
-            if (name > 0)
-                GL.BindImageTexture(unit, name, level, layered, Math.Max(layer, 0),
-                    access, (SizedInternalFormat)format);
-        }
+            public int dbgOut;
+            public int dbgVert;
+            public int dbgTess;
+            public int dbgEval;
+            public int dbgGeom;
+            public int dbgFrag;
+            public int dbgComp;
 
-        public static void UnindImg(int unit)
-        {
-            imgUnits[unit] = 0;
-        }
+            public Uniforms(GLPass pass)
+            {
+                dbgOut = GL.GetUniformLocation(pass.glname, "_dbgOut");
+                dbgVert = GL.GetUniformLocation(pass.glname, "_dbgVert");
+                dbgTess = GL.GetUniformLocation(pass.glname, "_dbgTess");
+                dbgEval = GL.GetUniformLocation(pass.glname, "_dbgEval");
+                dbgGeom = GL.GetUniformLocation(pass.glname, "_dbgGeom");
+                dbgFrag = GL.GetUniformLocation(pass.glname, "_dbgFrag");
+                dbgComp = GL.GetUniformLocation(pass.glname, "_dbgComp");
+            }
 
-        public static void BindTex(int unit, TextureTarget target, int name)
-        {
-            texUnits[unit] = name;
-            GL.ActiveTexture(TextureUnit.Texture0 + unit);
-            GL.BindTexture(target, name);
-        }
+            public void Bind(
+                int vInstID, int vVertID,
+                int tPrimID, int tInvocID,
+                int ePrimID, int eInvocID,
+                int gPrimID, int gInvocID,
+                int fFragX, int fFragY)
+            {
+                if (dbgOut == 0)
+                    return;
 
-        public static void UnbindTex(int unit, TextureTarget target)
-        {
-            BindTex(unit, target, 0);
-        }
+                int freeUnit = GetBoundImages().LastIndexOf(x => x == 0);
+                if (freeUnit < 0)
+                    return;
 
-        public static int[] GetBoundTextures()
-        {
-            return texUnits;
-        }
+                tex.BindTex(freeUnit);
+                GL.Uniform1(dbgOut, freeUnit);
 
-        public static int[] GetBoundImages()
-        {
-            return imgUnits;
+                if (dbgVert >= 0)
+                    GL.Uniform2(dbgVert, vInstID, vVertID);
+                if (dbgTess >= 0)
+                    GL.Uniform2(dbgTess, tPrimID, tInvocID);
+                if (dbgEval >= 0)
+                    GL.Uniform2(dbgEval, ePrimID, eInvocID);
+                if (dbgGeom >= 0)
+                    GL.Uniform2(dbgGeom, gPrimID, gInvocID);
+                if (dbgFrag >= 0)
+                    GL.Uniform2(dbgFrag, fFragX, fFragY);
+                if (dbgComp >= 0)
+                    GL.Uniform2(dbgComp, -1, -1);
+            }
         }
     }
 }
