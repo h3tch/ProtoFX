@@ -26,13 +26,6 @@ buffer buf_idx {
 	xml "geom/cube.xml" data/index
 }
 
-image img_debug {
-	type texture1D
-	format rgba32f
-	width 512
-	height 1
-}
-
 /////////////////////////
 // DATA FORMAT OBJECTS //
 /////////////////////////
@@ -45,10 +38,6 @@ vertinput in_vert {
 	// bind vertex color buffer to attribute location 1
 	// (see in_col in vs_simple)
 	attr buf_col float 4
-}
-
-texture tex_debug {
-	img img_debug
 }
 
 /////////////
@@ -79,8 +68,6 @@ shader vert vs_simple {
 	{
 		gl_Position = camera.viewProj * in_pos;
 		vs_col = in_col;
-		if (gl_VertexID == 0)
-            imageStore(tex, 0, vec4(1, 0, 0, 1));
 	}
 }
 

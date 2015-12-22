@@ -133,6 +133,14 @@ namespace App
             return rs;
         }
 
+        public static TResult[] To<TResult>(this IntPtr data, int size)
+            where TResult : struct
+        {
+            var bytes = new byte[size];
+            Marshal.Copy(data, bytes, 0, bytes.Length);
+            return bytes.To<TResult>();
+        }
+
         public static Array To(this Array data, string typeName, out Type type)
         {
             type = Data.str2type[typeName];
@@ -161,5 +169,13 @@ namespace App
             foreach (Match match in matches)
                 yield return func(match);
         }
+
+        public static void CopyTo(this IntPtr src, IntPtr dst, int size)
+        {
+            CopyMemory(dst, src, (uint)size);
+        }
+
+        [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
+        private static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
     }
 }

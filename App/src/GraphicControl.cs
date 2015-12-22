@@ -87,7 +87,7 @@ namespace OpenTK
             scene.Clear();
             // add default OpenTK glControl
             scene.Add(nullname, new GLReference(new GLParams(nullname), this));
-            GLDebugger.InitilizeDebuging(scene);
+            GLDebugger.Initilize(scene);
         }
 
         private static string[] ExtraxtClassDef(string objectblock)
