@@ -1,6 +1,4 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace App
 {
@@ -28,8 +26,8 @@ namespace App
             }
 
             // ADD DEBUG INFORMATION
-            //if (@params.debuging)
-            //    @params.text = GLDebugger.AddDebugCode(@params.text, type).Merge("");
+            if (@params.debuging)
+                @params.text = GLDebugger.AddDebugCode(@params.text, type).Merge("");
 
             // CREATE OPENGL OBJECT
             glname = GL.CreateShader(type);

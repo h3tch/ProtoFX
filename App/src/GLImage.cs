@@ -144,6 +144,7 @@ namespace App
         /// <returns>Return GPU image data as bitmap.</returns>
         public static Bitmap ReadBmp(int ID, int level, int index)
         {
+            // get texture format, width, height and depth on the GPU
             int w, h, d, f;
             GL.GetTextureLevelParameter(ID, level, TexParameter.TextureInternalFormat, out f);
             GL.GetTextureLevelParameter(ID, level, TexParameter.TextureWidth, out w);
@@ -157,37 +158,58 @@ namespace App
 
             // allocate memory
             int size;
-            IntPtr dataPtr = ReadSubImage(ID, level, 0, 0, index, w, h, 1,
+            var data = ReadSubImage(ID, level, 0, 0, index, w, h, 1,
                 isdepth ? PixelFormat.DepthComponent : PixelFormat.Bgra,
                 isdepth ? PixelType.Float : PixelType.UnsignedByte, out size);
 
             // create bitmap from data
             var bmp = new Bitmap(w, h, CpuFormat.Format32bppArgb);
             var px = bmp.LockBits(new Rectangle(0, 0, w, h), LockMode.WriteOnly, CpuFormat.Format32bppRgb);
-            dataPtr.CopyTo(px.Scan0, size);
+            data.CopyTo(px.Scan0, size);
             bmp.UnlockBits(px);
 
             // free memory allocated by OpenGL
-            Marshal.FreeHGlobal(dataPtr);
+            Marshal.FreeHGlobal(data);
             return bmp;
         }
 
+        /// <summary>
+        /// Read GPU sub-image data.
+        /// </summary>
+        /// <typeparam name="T">return type</typeparam>
+        /// <param name="ID">OpenGL texture name</param>
+        /// <param name="level">texture mipmap level</param>
+        /// <param name="x">sub-image x offset</param>
+        /// <param name="y">sub-image y offset</param>
+        /// <param name="z">sub-image z offset (for texture arrays and 3D textures)</param>
+        /// <param name="w">sub-image width</param>
+        /// <param name="h">sub-image height</param>
+        /// <param name="d">sub-image depth</param>
+        /// <param name="format">returned pixel format (RGBA, BRGA, Red, Depth, ...)</param>
+        /// <param name="type">returned pixel type (UnsignedByte, Short, UnsignedInt, ...)</param>
+        /// <returns></returns>
         public static T[] Read<T>(int ID, int level, int x, int y, int z, int w, int h, int d,
-            PixelFormat format, PixelType type)
-            where T : struct
+            PixelFormat format, PixelType type) where T : struct
         {
             int size;
-            IntPtr dataPtr = ReadSubImage(ID, level, x, y, z, w, h, d, format, type, out size);
-            T[] data = dataPtr.To<T>(size);
-            Marshal.FreeHGlobal(dataPtr);
-            return data;
+
+            // read sub-image data and convert it to T[]
+            var data = ReadSubImage(ID, level, x, y, z, w, h, d, format, type, out size);
+            var ptr = data.To<T>(size);
+
+            // free memory allocated by OpenGL
+            Marshal.FreeHGlobal(data);
+            return ptr;
         }
 
         private static IntPtr ReadSubImage(int ID, int level, int x, int y, int z, int w, int h, int d,
             PixelFormat format, PixelType type, out int size)
         {
+            // compute size of the sub-image
             size = w * h * d * ColorChannels(format) * ColorBits(type) / 8;
-            IntPtr data = Marshal.AllocHGlobal(size);
+
+            // read image data from GPU
+            var data = Marshal.AllocHGlobal(size);
             GL.GetTextureSubImage(ID, level, x, y, z, w, h, d, format, type, size, data);
             return data;
         }
@@ -271,7 +293,7 @@ namespace App
             // LOAD IMAGA DATA FROM FILES
             if (filenames?.Length > 0 && !isdepth)
             {
-                // preload all files to get information
+                // pre-load all files to get information
                 // like minimal width and height
                 var bmps = new Bitmap[filenames.Length];
                 int imgW = int.MaxValue;
@@ -316,23 +338,23 @@ namespace App
         private void TexImage(TexTarget target, int width, int height, int depth, int length, int levels)
         {
             levels = levels <= 0 ? MaxMipmapLevels(width, height) : 1;
-            SizedInternalFormat colFormat = (SizedInternalFormat)gpuFormat;
+            var colFormat = (SizedInternalFormat)gpuFormat;
             switch (target)
             {
                 case TexTarget.Texture1D:
-                    GL.TexStorage1D(TextureTarget1d.Texture1D, levels, colFormat, width);
+                    GL.TexStorage1D((TextureTarget1d)target, levels, colFormat, width);
                     break;
                 case TexTarget.Texture1DArray:
-                    GL.TexStorage2D(TextureTarget2d.Texture1DArray, levels, colFormat, width, height);
+                    GL.TexStorage2D((TextureTarget2d)target, levels, colFormat, width, height);
                     break;
                 case TexTarget.Texture2D:
-                    GL.TexStorage2D(TextureTarget2d.Texture2D, levels, colFormat, width, height);
+                    GL.TexStorage2D((TextureTarget2d)target, levels, colFormat, width, height);
                     break;
                 case TexTarget.Texture2DArray:
-                    GL.TexStorage3D(TextureTarget3d.Texture2DArray, levels, colFormat, width, height, length);
+                    GL.TexStorage3D((TextureTarget3d)target, levels, colFormat, width, height, length);
                     break;
                 case TexTarget.Texture3D:
-                    GL.TexStorage3D(TextureTarget3d.Texture3D, levels, colFormat, width, height, depth);
+                    GL.TexStorage3D((TextureTarget3d)target, levels, colFormat, width, height, depth);
                     break;
             }
         }
@@ -340,7 +362,7 @@ namespace App
         private void TexImage(TexTarget target, int width, int height, int depth, int length,
             PixelFormat format, PixelType type, IntPtr pixels)
         {
-            GpuColorFormat colFormat = (GpuColorFormat)gpuFormat;
+            var colFormat = (GpuColorFormat)gpuFormat;
             switch (target)
             {
                 case TexTarget.Texture1D:
@@ -361,7 +383,7 @@ namespace App
             }
         }
 
-        private int MaxMipmapLevels(int width, int height)
+        private static int MaxMipmapLevels(int width, int height)
         {
             int n = 0;
             while (width > 1 || height > 1)

@@ -117,7 +117,6 @@ pass pass_render {
 	// ATTATCH SHADERS
 	vert vs_simple
 	frag fs_simple
-	tex tex_debug 0 0 0 WriteOnly RGBA32f
 	
 	// OPENGL FUNCTIONS
 	// set clear color
