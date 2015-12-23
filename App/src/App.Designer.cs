@@ -45,8 +45,13 @@
             this.toolBtnSaveAll = new System.Windows.Forms.ToolStripButton();
             this.toolBtnSaveAs = new System.Windows.Forms.ToolStripButton();
             this.toolBtnRun = new System.Windows.Forms.ToolStripButton();
+            this.tabOutput = new System.Windows.Forms.TabControl();
+            this.tabCompile = new System.Windows.Forms.TabPage();
             this.codeError = new System.Windows.Forms.RichTextBox();
-            this.tabDebug = new System.Windows.Forms.TabPage();
+            this.tabDebugger = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.dataViewDebugger = new System.Windows.Forms.DataGridView();
+            this.tabResources = new System.Windows.Forms.TabPage();
             this.tabData = new System.Windows.Forms.TabControl();
             this.tabDataImg = new System.Windows.Forms.TabPage();
             this.tableLayoutImages = new System.Windows.Forms.TableLayoutPanel();
@@ -66,9 +71,7 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.comboProp = new System.Windows.Forms.ComboBox();
-            this.tabOutput = new System.Windows.Forms.TabControl();
-            this.tabCompile = new System.Windows.Forms.TabPage();
-            this.tabDebugger = new System.Windows.Forms.TabPage();
+            this.propertyDebugger = new System.Windows.Forms.PropertyGrid();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
             this.splitRenderCoding.Panel1.SuspendLayout();
             this.splitRenderCoding.Panel2.SuspendLayout();
@@ -84,7 +87,12 @@
             this.toolStripContainer.RightToolStripPanel.SuspendLayout();
             this.toolStripContainer.SuspendLayout();
             this.toolStrip.SuspendLayout();
-            this.tabDebug.SuspendLayout();
+            this.tabOutput.SuspendLayout();
+            this.tabCompile.SuspendLayout();
+            this.tabDebugger.SuspendLayout();
+            this.tableLayoutPanel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataViewDebugger)).BeginInit();
+            this.tabResources.SuspendLayout();
             this.tabData.SuspendLayout();
             this.tabDataImg.SuspendLayout();
             this.tableLayoutImages.SuspendLayout();
@@ -99,8 +107,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.numBufDim)).BeginInit();
             this.tabProperties.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            this.tabOutput.SuspendLayout();
-            this.tabCompile.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitRenderCoding
@@ -137,7 +143,7 @@
             // tabControl
             // 
             this.tabControl.Controls.Add(this.tabCode);
-            this.tabControl.Controls.Add(this.tabDebug);
+            this.tabControl.Controls.Add(this.tabResources);
             this.tabControl.Controls.Add(this.tabProperties);
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -310,6 +316,28 @@
             this.toolBtnRun.Text = "Run (F5)";
             this.toolBtnRun.Click += new System.EventHandler(this.toolBtnRun_Click);
             // 
+            // tabOutput
+            // 
+            this.tabOutput.Controls.Add(this.tabCompile);
+            this.tabOutput.Controls.Add(this.tabDebugger);
+            this.tabOutput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabOutput.Location = new System.Drawing.Point(0, 0);
+            this.tabOutput.Name = "tabOutput";
+            this.tabOutput.SelectedIndex = 0;
+            this.tabOutput.Size = new System.Drawing.Size(948, 238);
+            this.tabOutput.TabIndex = 1;
+            // 
+            // tabCompile
+            // 
+            this.tabCompile.Controls.Add(this.codeError);
+            this.tabCompile.Location = new System.Drawing.Point(4, 31);
+            this.tabCompile.Name = "tabCompile";
+            this.tabCompile.Padding = new System.Windows.Forms.Padding(3);
+            this.tabCompile.Size = new System.Drawing.Size(940, 203);
+            this.tabCompile.TabIndex = 0;
+            this.tabCompile.Text = "Compiler";
+            this.tabCompile.UseVisualStyleBackColor = true;
+            // 
             // codeError
             // 
             this.codeError.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -324,16 +352,54 @@
             this.codeError.Text = "";
             this.codeError.WordWrap = false;
             // 
-            // tabDebug
+            // tabDebugger
             // 
-            this.tabDebug.Controls.Add(this.tabData);
-            this.tabDebug.Location = new System.Drawing.Point(4, 31);
-            this.tabDebug.Name = "tabDebug";
-            this.tabDebug.Padding = new System.Windows.Forms.Padding(3);
-            this.tabDebug.Size = new System.Drawing.Size(954, 1202);
-            this.tabDebug.TabIndex = 1;
-            this.tabDebug.Text = "Debug";
-            this.tabDebug.UseVisualStyleBackColor = true;
+            this.tabDebugger.Controls.Add(this.tableLayoutPanel2);
+            this.tabDebugger.Location = new System.Drawing.Point(4, 31);
+            this.tabDebugger.Name = "tabDebugger";
+            this.tabDebugger.Padding = new System.Windows.Forms.Padding(3);
+            this.tabDebugger.Size = new System.Drawing.Size(940, 203);
+            this.tabDebugger.TabIndex = 1;
+            this.tabDebugger.Text = "Debugger";
+            this.tabDebugger.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.ColumnCount = 2;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 65F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 35F));
+            this.tableLayoutPanel2.Controls.Add(this.dataViewDebugger, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.propertyDebugger, 1, 0);
+            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 1;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(934, 197);
+            this.tableLayoutPanel2.TabIndex = 1;
+            // 
+            // dataViewDebugger
+            // 
+            this.dataViewDebugger.BackgroundColor = System.Drawing.SystemColors.Window;
+            this.dataViewDebugger.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dataViewDebugger.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataViewDebugger.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataViewDebugger.Location = new System.Drawing.Point(3, 3);
+            this.dataViewDebugger.Name = "dataViewDebugger";
+            this.dataViewDebugger.RowTemplate.Height = 28;
+            this.dataViewDebugger.Size = new System.Drawing.Size(601, 191);
+            this.dataViewDebugger.TabIndex = 0;
+            // 
+            // tabResources
+            // 
+            this.tabResources.Controls.Add(this.tabData);
+            this.tabResources.Location = new System.Drawing.Point(4, 31);
+            this.tabResources.Name = "tabResources";
+            this.tabResources.Padding = new System.Windows.Forms.Padding(3);
+            this.tabResources.Size = new System.Drawing.Size(954, 1202);
+            this.tabResources.TabIndex = 1;
+            this.tabResources.Text = "Resources";
+            this.tabResources.UseVisualStyleBackColor = true;
             // 
             // tabData
             // 
@@ -436,7 +502,7 @@
             this.tabDataBuf.Location = new System.Drawing.Point(4, 31);
             this.tabDataBuf.Name = "tabDataBuf";
             this.tabDataBuf.Padding = new System.Windows.Forms.Padding(3);
-            this.tabDataBuf.Size = new System.Drawing.Size(940, 976);
+            this.tabDataBuf.Size = new System.Drawing.Size(940, 1161);
             this.tabDataBuf.TabIndex = 1;
             this.tabDataBuf.Text = "Buffers";
             this.tabDataBuf.UseVisualStyleBackColor = true;
@@ -453,7 +519,7 @@
             this.tableLayoutBufferDef.RowCount = 2;
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutBufferDef.Size = new System.Drawing.Size(934, 970);
+            this.tableLayoutBufferDef.Size = new System.Drawing.Size(934, 1155);
             this.tableLayoutBufferDef.TabIndex = 0;
             // 
             // tableBuf
@@ -466,7 +532,7 @@
             this.tableBuf.Name = "tableBuf";
             this.tableBuf.ReadOnly = true;
             this.tableBuf.RowTemplate.Height = 28;
-            this.tableBuf.Size = new System.Drawing.Size(928, 1018);
+            this.tableBuf.Size = new System.Drawing.Size(928, 1109);
             this.tableBuf.TabIndex = 1;
             // 
             // tableLayoutBuffers
@@ -590,37 +656,15 @@
             this.comboProp.TabIndex = 0;
             this.comboProp.SelectedIndexChanged += new System.EventHandler(this.comboProp_SelectedIndexChanged);
             // 
-            // tabOutput
+            // propertyDebugger
             // 
-            this.tabOutput.Controls.Add(this.tabCompile);
-            this.tabOutput.Controls.Add(this.tabDebugger);
-            this.tabOutput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabOutput.Location = new System.Drawing.Point(0, 0);
-            this.tabOutput.Name = "tabOutput";
-            this.tabOutput.SelectedIndex = 0;
-            this.tabOutput.Size = new System.Drawing.Size(948, 238);
-            this.tabOutput.TabIndex = 1;
-            // 
-            // tabCompile
-            // 
-            this.tabCompile.Controls.Add(this.codeError);
-            this.tabCompile.Location = new System.Drawing.Point(4, 31);
-            this.tabCompile.Name = "tabCompile";
-            this.tabCompile.Padding = new System.Windows.Forms.Padding(3);
-            this.tabCompile.Size = new System.Drawing.Size(940, 203);
-            this.tabCompile.TabIndex = 0;
-            this.tabCompile.Text = "Compiler";
-            this.tabCompile.UseVisualStyleBackColor = true;
-            // 
-            // tabDebugger
-            // 
-            this.tabDebugger.Location = new System.Drawing.Point(4, 31);
-            this.tabDebugger.Name = "tabDebugger";
-            this.tabDebugger.Padding = new System.Windows.Forms.Padding(3);
-            this.tabDebugger.Size = new System.Drawing.Size(940, 203);
-            this.tabDebugger.TabIndex = 1;
-            this.tabDebugger.Text = "Debugger";
-            this.tabDebugger.UseVisualStyleBackColor = true;
+            this.propertyDebugger.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.propertyDebugger.HelpVisible = false;
+            this.propertyDebugger.Location = new System.Drawing.Point(610, 3);
+            this.propertyDebugger.Name = "propertyDebugger";
+            this.propertyDebugger.Size = new System.Drawing.Size(321, 191);
+            this.propertyDebugger.TabIndex = 1;
+            this.propertyDebugger.ToolbarVisible = false;
             // 
             // App
             // 
@@ -654,7 +698,12 @@
             this.toolStripContainer.PerformLayout();
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
-            this.tabDebug.ResumeLayout(false);
+            this.tabOutput.ResumeLayout(false);
+            this.tabCompile.ResumeLayout(false);
+            this.tabDebugger.ResumeLayout(false);
+            this.tableLayoutPanel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataViewDebugger)).EndInit();
+            this.tabResources.ResumeLayout(false);
             this.tabData.ResumeLayout(false);
             this.tabDataImg.ResumeLayout(false);
             this.tableLayoutImages.ResumeLayout(false);
@@ -670,8 +719,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.numBufDim)).EndInit();
             this.tabProperties.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
-            this.tabOutput.ResumeLayout(false);
-            this.tabCompile.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -684,7 +731,7 @@
         private System.Windows.Forms.TabPage tabCode;
         private System.Windows.Forms.SplitContainer splitCodeError;
         private System.Windows.Forms.RichTextBox codeError;
-        private System.Windows.Forms.TabPage tabDebug;
+        private System.Windows.Forms.TabPage tabResources;
         private System.Windows.Forms.TabControl tabData;
         private System.Windows.Forms.TabPage tabDataImg;
         private System.Windows.Forms.TabPage tabDataBuf;
@@ -718,5 +765,8 @@
         private System.Windows.Forms.TabControl tabOutput;
         private System.Windows.Forms.TabPage tabCompile;
         private System.Windows.Forms.TabPage tabDebugger;
+        private System.Windows.Forms.DataGridView dataViewDebugger;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+        private System.Windows.Forms.PropertyGrid propertyDebugger;
     }
 }

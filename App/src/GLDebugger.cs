@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text.RegularExpressions;
 
 namespace App
@@ -209,6 +210,89 @@ namespace App
                 if (dbgComp >= 0)
                     GL.Uniform2(dbgComp, -1, -1);
             }
+        }
+
+        public class DebugSettings
+        {
+            public VertexShaderSettings VertexShader { get; set; } = new VertexShaderSettings();
+            public TesselationShaderSettings TesselationShader { get; set; } = new TesselationShaderSettings();
+            public EvaluationShaderSettings EvaluationShader { get; set; } = new EvaluationShaderSettings();
+            public GeometryShaderSettings GeometryShader { get; set; } = new GeometryShaderSettings();
+            public FragmentShaderSettings FragmentShader { get; set; } = new FragmentShaderSettings();
+            public ComputeShaderSettings ComputeShader { get; set; } = new ComputeShaderSettings();
+        }
+
+        public class VertexShaderSettings
+        {
+            [Description("the index of the current instance when doing some form of instanced " +
+                "rendering. The instance count always starts at 0, even when using base instance " +
+                "calls. When not using instanced rendering, this value will be 0.")]
+            public int gl_InstanceID { get; set; }
+
+            [Description("the index of the vertex currently being processed. When using non-indexed " +
+                "rendering, it is the effective index of the current vertex (the number of vertices " +
+                "processed + the first​ value). For indexed rendering, it is the index used to fetch " +
+                "this vertex from the buffer.")]
+            public int gl_VertexID { get; set; }
+        }
+
+        public class TesselationShaderSettings
+        {
+            [Description("the index of the shader invocation within this patch. An invocation " +
+                "writes to per-vertex output variables by using this to index them.")]
+            public int gl_InvocationID { get; set; }
+
+            [Description("the index of the current patch within this rendering command.")]
+            public int gl_PrimitiveID { get; set; }
+        }
+
+        public class EvaluationShaderSettings
+        {
+            [Description("the index of the current patch in the series of patches being processed " +
+                "for this draw call. Primitive Restart, if used, has no effect on the primitive ID.")]
+            public int gl_PrimitiveID { get; set; }
+        }
+
+        public class GeometryShaderSettings
+        {
+            [Description("the current instance, as defined when instancing geometry shaders.")]
+            public int gl_InvocationID { get; set; }
+
+            [Description("the current input primitive's ID, based on the number of primitives " +
+                "processed by the GS since the current drawing command started.")]
+            public int gl_PrimitiveIDIn { get; set; }
+        }
+
+        public class FragmentShaderSettings
+        {
+            [Description("The location of the fragment in window space. The X and Y components " +
+                "are the window-space position of the fragment.")]
+            public int[] gl_FragCoord { get; set; } = new int[2];
+
+            [Description("This value is the index of the current primitive being rendered by this " +
+                "drawing command. This includes any tessellation applied to the mesh, so each " +
+                "individual primitive will have a unique index. However, if a Geometry Shader is " +
+                "active, then the gl_PrimitiveID​ is exactly and only what the GS provided as output. " +
+                "Normally, gl_PrimitiveID​ is guaranteed to be unique, so if two FS invocations have " +
+                "the same primitive ID, they come from the same primitive. But if a GS is active and " +
+                "outputs non - unique values, then different fragment shader invocations for different " +
+                "primitives will get the same value.If the GS did not output a value for gl_PrimitiveID​, " +
+                "then the fragment shader gets an undefined value.")]
+            public int gl_PrimitiveID { get; set; }
+
+            [Description("is either 0 or the layer number for this primitive output by the Geometry Shader.")]
+            public int gl_Layer { get; set; }
+
+            [Description("is either 0 or the viewport index for this primitive output by the Geometry Shader.")]
+            public int gl_ViewportIndex { get; set; }
+        }
+
+        public class ComputeShaderSettings
+        {
+            [Description("uniquely identifies this particular invocation of the compute shader " +
+                "among all invocations of this compute dispatch call. It's a short-hand for the " +
+                "math computation: gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID;")]
+            public uint[] gl_GlobalInvocationID { get; set; } = new uint[3];
         }
     }
 }

@@ -81,9 +81,11 @@ namespace App
             if (comboImg.SelectedItem == null || !(comboImg.SelectedItem is GLImage))
                 return;
 
+            // get selected image
             var img = (GLImage)comboImg.SelectedItem;
             numImgLayer.Maximum = Math.Max(Math.Max(img.length, img.depth) - 1, 0);
 
+            // read image data from GPU
             glControl.MakeCurrent();
             var bmp = img.Read((int)numImgLayer.Value, 0);
             bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
@@ -97,25 +99,24 @@ namespace App
         #region Debug Buffer
         private void comboBuf_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBuf.SelectedItem == null
-                || comboBuf.SelectedItem.GetType() != typeof(GLBuffer))
+            if (comboBuf.SelectedItem == null || !(comboBuf.SelectedItem is GLBuffer))
                 return;
 
             // gather needed info
-            GLBuffer buf = (GLBuffer)comboBuf.SelectedItem;
-            string type = (string)comboBufType.SelectedItem;
-            int dim = (int)numBufDim.Value;
+            var buf = (GLBuffer)comboBuf.SelectedItem;
+            var type = (string)comboBufType.SelectedItem;
+            var dim = (int)numBufDim.Value;
 
             // read data from GPU
             glControl.MakeCurrent();
-            byte[] data = buf.Read();
+            var data = buf.Read();
 
             // convert data to specified type
             Type colType;
             Array da = data.To(type, out colType);
 
             // CREATE TABLE
-            DataTable dt = new DataTable(buf.name);
+            var dt = new DataTable(buf.name);
             // create columns
             for (int i = 0; i < dim; i++)
                 dt.Columns.Add(i.ToString(), colType);
@@ -129,7 +130,7 @@ namespace App
             }
 
             // update GUI
-            DataSet ds = new DataSet(buf.name);
+            var ds = new DataSet(buf.name);
             ds.Tables.Add(dt);
             tableBuf.DataSource = ds;
             tableBuf.DataMember = buf.name;
@@ -145,8 +146,7 @@ namespace App
         #region Debug Properties
         private void comboProp_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboProp.SelectedItem == null
-                || comboProp.SelectedItem.GetType() != typeof(GLInstance))
+            if (comboProp.SelectedItem == null || !(comboProp.SelectedItem is GLInstance))
                 return;
 
             // gather needed info
@@ -173,7 +173,7 @@ namespace App
         private void toolBtnOpen_Click(object sender, EventArgs e)
         {
             // create file dialog
-            OpenFileDialog openDlg = new OpenFileDialog();
+            var openDlg = new OpenFileDialog();
             openDlg.Filter = "Text Files (.tech)|*.tech|All Files (*.*)|*.*";
             openDlg.FilterIndex = 1;
             openDlg.Multiselect = true;
