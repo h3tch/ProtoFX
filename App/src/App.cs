@@ -16,12 +16,19 @@ namespace App
         public App()
         {
             InitializeComponent();
+        }
 
+        #region App Control
+        private void App_Load(object sender, EventArgs e)
+        {
             // select 'float' as the default buffer value type
             comboBufType.SelectedIndex = 8;
+
+            // link property viewer to debug settings
+            GLDebugger.Instantiate();
+            debugProperty.SelectedObject = GLDebugger.settings;
         }
-        
-        #region App Control
+
         private void App_FormClosing(object sender, FormClosingEventArgs e)
         {
             // check if there are any files with changes
@@ -51,6 +58,10 @@ namespace App
                 case Keys.F5:
                     // Compile and run
                     toolBtnRun_Click(sender, null);
+                    break;
+                case Keys.F6:
+                    // Compile and run
+                    toolBtnRun_Click(toolBtnDbg, null);
                     break;
                 case Keys.S:
                     if (e.Control && e.Shift)
@@ -199,6 +210,7 @@ namespace App
         {
             codeError.Text = "";
             glControl.ClearScene();
+            bool debugging = sender == toolBtnDbg;
 
             // if no tab page is selected nothing needs to be compiled
             var sourceTab = (TabPage)tabSource.SelectedTab;
@@ -223,7 +235,7 @@ namespace App
             var blocks = CodeEditor.GetBlocks(code);
 
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
-            var ex = blocks.Catch(x => glControl.AddObject(x, includeDir)).ToArray();
+            var ex = blocks.Catch(x => glControl.AddObject(x, includeDir, debugging)).ToArray();
 
             // show errors
             var errors = from x in ex
