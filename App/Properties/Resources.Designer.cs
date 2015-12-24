@@ -61,26 +61,26 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to #define __DBG_BOOL 1
-        ///#define __DBG_INT 2
-        ///#define __DBG_UINT 3
-        ///#define __DBG_FLOAT 4
-        ///#define __i2f intBitsToFloat
-        ///#define __u2f uintBitsToFloat
+        ///   Looks up a localized string similar to #define _DBG_BOOL 1
+        ///#define _DBG_INT 2
+        ///#define _DBG_UINT 3
+        ///#define _DBG_FLOAT 4
+        ///#define _i2f intBitsToFloat
+        ///#define _u2f uintBitsToFloat
         ///
-        ///uniform ivec2 __dbgVert;
-        ///uniform int __dbgTess;
-        ///uniform int __dbgEval;
-        ///uniform ivec2 __dbgGeom;
-        ///uniform ivec2 __dbgFrag;
-        ///uniform int __dbgComp;
-        ///layout(rgba32f) uniform writeonly imageBuffer __dbgBuffer;
+        ///uniform ivec2 _dbgVert;
+        ///uniform ivec2 _dbgTess;
+        ///uniform ivec2 _dbgEval;
+        ///uniform ivec2 _dbgGeom;
+        ///uniform ivec2 _dbgFrag;
+        ///uniform ivec2 _dbgComp;
+        ///layout(rgba32f) uniform writeonly image2D _dbgOut;
         ///
-        ///void __dbgStore(inout int i, vec4 val) {
-        ///	imageStore(__dbgBuffer, i++, val);
+        ///void _dbgStore(int j, inout int i, vec4 val) {
+        ///	imageStore(_dbgOut, ivec2(i++, j), val);
         ///}
-        ///void __dbgStore(inout int i, ivec4 val) {
-        ///	__dbgStore(i, vec4(__i2 [rest of string was truncated]&quot;;.
+        ///void _dbgStore(int j, inout int i, ivec4 val) {
+        ///	_dbgStore(j, i, vec [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string dbg {
             get {
@@ -94,6 +94,16 @@ namespace App.Properties {
         internal static System.Drawing.Bitmap ImgClose {
             get {
                 object obj = ResourceManager.GetObject("ImgClose", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ImgDbg {
+            get {
+                object obj = ResourceManager.GetObject("ImgDbg", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

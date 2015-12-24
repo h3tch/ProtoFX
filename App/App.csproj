@@ -176,6 +176,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\ImgDbg.png" />
     <None Include="resources\dbg.txt" />
     <None Include="resources\ImgOpen.png" />
     <None Include="resources\ImgSave.png" />

@@ -10,20 +10,37 @@ namespace App
     {
         #region FIELDS
         // debug resources definitions
-        private static string dbgImgKey = "__protogl__dbgimg";
-        private static string dbgTexKey = "__protogl__dbgtex";
-        private static string dbgImgDef = "type = texture2D\n" +
-                                          "format = RGBA32f\n" +
-                                          $"width = {1024}\n" +
-                                          $"height = {6}\n";
+        private static string dbgImgKey;
+        private static string dbgTexKey;
+        private static string dbgImgDef;
         // allocate GPU resources
-        private static GLImage img = new GLImage(new GLParams(dbgImgKey, "dbg", dbgImgDef));
-        private static GLTexture tex = new GLTexture(new GLParams(dbgTexKey, "dbg"), null, null, img);
+        private static GLImage img;
+        private static GLTexture tex;
         // allocate arrays for texture and image units
-        private static int[] texUnits = new int[GL.GetInteger((GetPName)All.MaxTextureImageUnits)];
-        private static int[] imgUnits = new int[GL.GetInteger((GetPName)All.MaxImageUnits)];
-        private static Dictionary<int, Uniforms> passes = new Dictionary<int, Uniforms>();
+        private static int[] texUnits;
+        private static int[] imgUnits;
+        private static Dictionary<int, Uniforms> passes;
+        public static DebugSettings settings;
         #endregion
+
+        public static void Instantiate()
+        {
+            // debug resources definitions
+            dbgImgKey = "__protogl__dbgimg";
+            dbgTexKey = "__protogl__dbgtex";
+            dbgImgDef = "type = texture2D\n" +
+                        "format = RGBA32f\n" +
+                        $"width = {1024}\n" +
+                        $"height = {6}\n";
+            // allocate GPU resources
+            img = new GLImage(new GLParams(dbgImgKey, "dbg", dbgImgDef));
+            tex = new GLTexture(new GLParams(dbgTexKey, "dbg"), null, null, img);
+            // allocate arrays for texture and image units
+            texUnits = new int[GL.GetInteger((GetPName)All.MaxTextureImageUnits)];
+            imgUnits = new int[GL.GetInteger((GetPName)All.MaxImageUnits)];
+            passes = new Dictionary<int, Uniforms>();
+            settings = new DebugSettings();
+        }
 
         public static void Initilize(Dict<GLObject> scene)
         {
@@ -159,6 +176,7 @@ namespace App
         }
         #endregion
 
+        #region DEBUG SETTINGS
         private struct Uniforms
         {
             public int dbgOut;
@@ -214,62 +232,44 @@ namespace App
 
         public class DebugSettings
         {
-            public VertexShaderSettings VertexShader { get; set; } = new VertexShaderSettings();
-            public TesselationShaderSettings TesselationShader { get; set; } = new TesselationShaderSettings();
-            public EvaluationShaderSettings EvaluationShader { get; set; } = new EvaluationShaderSettings();
-            public GeometryShaderSettings GeometryShader { get; set; } = new GeometryShaderSettings();
-            public FragmentShaderSettings FragmentShader { get; set; } = new FragmentShaderSettings();
-            public ComputeShaderSettings ComputeShader { get; set; } = new ComputeShaderSettings();
-        }
-
-        public class VertexShaderSettings
-        {
-            [Description("the index of the current instance when doing some form of instanced " +
+            [Category("Vertex Shader"), DisplayName("gl_InstanceID"),
+             Description("the index of the current instance when doing some form of instanced " +
                 "rendering. The instance count always starts at 0, even when using base instance " +
                 "calls. When not using instanced rendering, this value will be 0.")]
-            public int gl_InstanceID { get; set; }
+            public int vs_InstanceID { get; set; } = 0;
 
-            [Description("the index of the vertex currently being processed. When using non-indexed " +
+            [Category("Vertex Shader"), DisplayName("gl_VertexID"),
+             Description("the index of the vertex currently being processed. When using non-indexed " +
                 "rendering, it is the effective index of the current vertex (the number of vertices " +
                 "processed + the first​ value). For indexed rendering, it is the index used to fetch " +
                 "this vertex from the buffer.")]
-            public int gl_VertexID { get; set; }
-        }
+            public int vs_VertexID { get; set; } = 0;
 
-        public class TesselationShaderSettings
-        {
-            [Description("the index of the shader invocation within this patch. An invocation " +
+            [Category("Tesselation"), DisplayName("gl_InvocationID"),
+             Description("the index of the shader invocation within this patch. An invocation " +
                 "writes to per-vertex output variables by using this to index them.")]
-            public int gl_InvocationID { get; set; }
+            public int ts_InvocationID { get; set; } = 0;
 
-            [Description("the index of the current patch within this rendering command.")]
-            public int gl_PrimitiveID { get; set; }
-        }
+            [Category("Tesselation"), DisplayName("gl_PrimitiveID"),
+             Description("the index of the current patch within this rendering command.")]
+            public int ts_PrimitiveID { get; set; } = 0;
 
-        public class EvaluationShaderSettings
-        {
-            [Description("the index of the current patch in the series of patches being processed " +
-                "for this draw call. Primitive Restart, if used, has no effect on the primitive ID.")]
-            public int gl_PrimitiveID { get; set; }
-        }
+            [Category("Geometry Shader"), DisplayName("gl_InvocationID"),
+             Description("the current instance, as defined when instancing geometry shaders.")]
+            public int gs_InvocationID { get; set; } = 0;
 
-        public class GeometryShaderSettings
-        {
-            [Description("the current instance, as defined when instancing geometry shaders.")]
-            public int gl_InvocationID { get; set; }
-
-            [Description("the current input primitive's ID, based on the number of primitives " +
+            [Category("Geometry Shader"), DisplayName("gl_PrimitiveIDIn"),
+             Description("the current input primitive's ID, based on the number of primitives " +
                 "processed by the GS since the current drawing command started.")]
-            public int gl_PrimitiveIDIn { get; set; }
-        }
+            public int gs_PrimitiveIDIn { get; set; } = 0;
 
-        public class FragmentShaderSettings
-        {
-            [Description("The location of the fragment in window space. The X and Y components " +
+            [Category("Fragment Shader"), DisplayName("gl_FragCoord"),
+             Description("The location of the fragment in window space. The X and Y components " +
                 "are the window-space position of the fragment.")]
-            public int[] gl_FragCoord { get; set; } = new int[2];
+            public int[] fs_FragCoord { get; set; } = new int[2] { 0, 0 };
 
-            [Description("This value is the index of the current primitive being rendered by this " +
+            [Category("Fragment Shader"), DisplayName("gl_PrimitiveID"),
+             Description("This value is the index of the current primitive being rendered by this " +
                 "drawing command. This includes any tessellation applied to the mesh, so each " +
                 "individual primitive will have a unique index. However, if a Geometry Shader is " +
                 "active, then the gl_PrimitiveID​ is exactly and only what the GS provided as output. " +
@@ -278,21 +278,22 @@ namespace App
                 "outputs non - unique values, then different fragment shader invocations for different " +
                 "primitives will get the same value.If the GS did not output a value for gl_PrimitiveID​, " +
                 "then the fragment shader gets an undefined value.")]
-            public int gl_PrimitiveID { get; set; }
+            public int fs_PrimitiveID { get; set; } = 0;
 
-            [Description("is either 0 or the layer number for this primitive output by the Geometry Shader.")]
-            public int gl_Layer { get; set; }
+            [Category("Fragment Shader"), DisplayName("gl_Layer"),
+             Description("is either 0 or the layer number for this primitive output by the Geometry Shader.")]
+            public int fs_Layer { get; set; } = 0;
 
-            [Description("is either 0 or the viewport index for this primitive output by the Geometry Shader.")]
-            public int gl_ViewportIndex { get; set; }
-        }
+            [Category("Fragment Shader"), DisplayName("gl_ViewportIndex"),
+             Description("is either 0 or the viewport index for this primitive output by the Geometry Shader.")]
+            public int fs_ViewportIndex { get; set; } = 0;
 
-        public class ComputeShaderSettings
-        {
-            [Description("uniquely identifies this particular invocation of the compute shader " +
+            [Category("Compute Shader"), DisplayName("gl_GlobalInvocationID"),
+             Description("uniquely identifies this particular invocation of the compute shader " +
                 "among all invocations of this compute dispatch call. It's a short-hand for the " +
                 "math computation: gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID;")]
-            public uint[] gl_GlobalInvocationID { get; set; } = new uint[3];
+            public int[] cs_GlobalInvocationID { get; set; } = new int[3] { 0, 0, 0 };
         }
+        #endregion
     }
 }
