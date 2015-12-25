@@ -30,6 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(App));
             this.splitRenderCoding = new System.Windows.Forms.SplitContainer();
+            this.glControl = new OpenTK.GraphicControl();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabCode = new System.Windows.Forms.TabPage();
             this.splitCodeError = new System.Windows.Forms.SplitContainer();
@@ -49,6 +50,7 @@
             this.tabCompile = new System.Windows.Forms.TabPage();
             this.codeError = new System.Windows.Forms.RichTextBox();
             this.tabDebugger = new System.Windows.Forms.TabPage();
+            this.splitContainerDebug = new System.Windows.Forms.SplitContainer();
             this.debugDataView = new System.Windows.Forms.DataGridView();
             this.debugProperty = new System.Windows.Forms.PropertyGrid();
             this.tabResources = new System.Windows.Forms.TabPage();
@@ -71,8 +73,6 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.comboProp = new System.Windows.Forms.ComboBox();
-            this.splitContainerDebug = new System.Windows.Forms.SplitContainer();
-            this.glControl = new OpenTK.GraphicControl();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
             this.splitRenderCoding.Panel1.SuspendLayout();
             this.splitRenderCoding.Panel2.SuspendLayout();
@@ -91,6 +91,10 @@
             this.tabOutput.SuspendLayout();
             this.tabCompile.SuspendLayout();
             this.tabDebugger.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerDebug)).BeginInit();
+            this.splitContainerDebug.Panel1.SuspendLayout();
+            this.splitContainerDebug.Panel2.SuspendLayout();
+            this.splitContainerDebug.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.debugDataView)).BeginInit();
             this.tabResources.SuspendLayout();
             this.tabData.SuspendLayout();
@@ -107,10 +111,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.numBufDim)).BeginInit();
             this.tabProperties.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainerDebug)).BeginInit();
-            this.splitContainerDebug.Panel1.SuspendLayout();
-            this.splitContainerDebug.Panel2.SuspendLayout();
-            this.splitContainerDebug.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitRenderCoding
@@ -129,6 +129,18 @@
             this.splitRenderCoding.Size = new System.Drawing.Size(1343, 684);
             this.splitRenderCoding.SplitterDistance = 697;
             this.splitRenderCoding.TabIndex = 0;
+            // 
+            // glControl
+            // 
+            this.glControl.BackColor = System.Drawing.Color.Black;
+            this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.glControl.Location = new System.Drawing.Point(0, 0);
+            this.glControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.glControl.Name = "glControl";
+            this.glControl.Size = new System.Drawing.Size(697, 684);
+            this.glControl.TabIndex = 0;
+            this.glControl.VSync = false;
+            this.glControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.propertyGrid_MouseUp);
             // 
             // tabControl
             // 
@@ -370,6 +382,23 @@
             this.tabDebugger.Text = "Debugger";
             this.tabDebugger.UseVisualStyleBackColor = true;
             // 
+            // splitContainerDebug
+            // 
+            this.splitContainerDebug.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainerDebug.Location = new System.Drawing.Point(2, 2);
+            this.splitContainerDebug.Name = "splitContainerDebug";
+            // 
+            // splitContainerDebug.Panel1
+            // 
+            this.splitContainerDebug.Panel1.Controls.Add(this.debugDataView);
+            // 
+            // splitContainerDebug.Panel2
+            // 
+            this.splitContainerDebug.Panel2.Controls.Add(this.debugProperty);
+            this.splitContainerDebug.Size = new System.Drawing.Size(618, 98);
+            this.splitContainerDebug.SplitterDistance = 350;
+            this.splitContainerDebug.TabIndex = 0;
+            // 
             // debugDataView
             // 
             this.debugDataView.BackgroundColor = System.Drawing.SystemColors.Window;
@@ -536,7 +565,7 @@
             this.tableLayoutBufferDef.RowCount = 2;
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutBufferDef.Size = new System.Drawing.Size(618, 622);
+            this.tableLayoutBufferDef.Size = new System.Drawing.Size(618, 620);
             this.tableLayoutBufferDef.TabIndex = 0;
             // 
             // tableBuf
@@ -550,7 +579,7 @@
             this.tableBuf.Name = "tableBuf";
             this.tableBuf.ReadOnly = true;
             this.tableBuf.RowTemplate.Height = 28;
-            this.tableBuf.Size = new System.Drawing.Size(614, 727);
+            this.tableBuf.Size = new System.Drawing.Size(614, 590);
             this.tableBuf.TabIndex = 1;
             // 
             // tableLayoutBuffers
@@ -681,35 +710,6 @@
             this.comboProp.TabIndex = 0;
             this.comboProp.SelectedIndexChanged += new System.EventHandler(this.comboProp_SelectedIndexChanged);
             // 
-            // splitContainerDebug
-            // 
-            this.splitContainerDebug.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainerDebug.Location = new System.Drawing.Point(2, 2);
-            this.splitContainerDebug.Name = "splitContainerDebug";
-            // 
-            // splitContainerDebug.Panel1
-            // 
-            this.splitContainerDebug.Panel1.Controls.Add(this.debugDataView);
-            // 
-            // splitContainerDebug.Panel2
-            // 
-            this.splitContainerDebug.Panel2.Controls.Add(this.debugProperty);
-            this.splitContainerDebug.Size = new System.Drawing.Size(618, 98);
-            this.splitContainerDebug.SplitterDistance = 350;
-            this.splitContainerDebug.TabIndex = 0;
-            // 
-            // glControl
-            // 
-            this.glControl.BackColor = System.Drawing.Color.Black;
-            this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.glControl.Location = new System.Drawing.Point(0, 0);
-            this.glControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.glControl.Name = "glControl";
-            this.glControl.Size = new System.Drawing.Size(697, 684);
-            this.glControl.TabIndex = 0;
-            this.glControl.VSync = false;
-            this.glControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.propertyGrid_MouseUp);
-            // 
             // App
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -745,6 +745,10 @@
             this.tabOutput.ResumeLayout(false);
             this.tabCompile.ResumeLayout(false);
             this.tabDebugger.ResumeLayout(false);
+            this.splitContainerDebug.Panel1.ResumeLayout(false);
+            this.splitContainerDebug.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerDebug)).EndInit();
+            this.splitContainerDebug.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.debugDataView)).EndInit();
             this.tabResources.ResumeLayout(false);
             this.tabData.ResumeLayout(false);
@@ -762,10 +766,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.numBufDim)).EndInit();
             this.tabProperties.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
-            this.splitContainerDebug.Panel1.ResumeLayout(false);
-            this.splitContainerDebug.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainerDebug)).EndInit();
-            this.splitContainerDebug.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }

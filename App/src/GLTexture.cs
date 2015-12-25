@@ -1,5 +1,4 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using System;
 
 namespace App
 {
@@ -21,25 +20,8 @@ namespace App
         /// <param name="samp"></param>
         /// <param name="buff"></param>
         /// <param name="img"></param>
-        public GLTexture(GLParams @params, GLSampler samp, GLBuffer buff, GLImage img)
+        public GLTexture(GLParams @params, GLSampler glsamp, GLBuffer glbuff, GLImage glimg)
             : base(@params)
-        {
-            var err = new CompileException($"texture '{@params.name}'");
-
-            // set name
-            this.glsamp = samp;
-            this.glbuff = buff;
-            this.glimg = img;
-
-            // final constructor steps
-            ctor(err);
-        }
-
-        /// <summary>
-        /// Create OpenGL object.
-        /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLTexture(GLParams @params) : base(@params)
         {
             var err = new CompileException($"texture '{@params.name}'");
 
@@ -49,15 +31,14 @@ namespace App
             // PARSE ARGUMENTS
             body.Cmds2Fields(this, err);
 
+            // set name
+            this.glsamp = glsamp;
+            this.glbuff = glbuff;
+            this.glimg = glimg;
+
             // GET REFERENCES
             GetReferences(samp, buff, img, @params, err);
 
-            // final constructor steps
-            ctor(err);
-        }
-
-        private void ctor(CompileException err)
-        {
             // IF THERE ARE ERRORS THROW AND EXCEPTION
             if (err.HasErrors())
                 throw err;
@@ -86,6 +67,14 @@ namespace App
 
             if (err.HasErrors())
                 throw err;
+        }
+
+        /// <summary>
+        /// Create OpenGL object.
+        /// </summary>
+        /// <param name="params">Input parameters for GLObject creation.</param>
+        public GLTexture(GLParams @params) : this(@params, null, null, null)
+        {
         }
 
         /// <summary>

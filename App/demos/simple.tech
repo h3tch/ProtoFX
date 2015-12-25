@@ -49,8 +49,6 @@ vertinput in_vert {
 shader vert vs_simple {
 	#version 440
 	
-	layout(binding = 0, rgba32f) uniform writeonly image1D tex;
-	
 	// shader variable which will be set by "SimpleCamera.cs"
 	// (only uniform variables can be accessed outside the shader)
 	layout(binding = 0) uniform SimpleCamera {
@@ -67,6 +65,7 @@ shader vert vs_simple {
 	void main ()
 	{
 		gl_Position = camera.viewProj * in_pos;
+		<<<gl_Position>>> <<<camera.viewProj>>> <<<in_pos>>>
 		vs_col = in_col;
 	}
 }
@@ -85,6 +84,7 @@ shader frag fs_simple {
 	void main ()
 	{
 		color = gs_col;
+		<<<color>>>
 	}
 }
 

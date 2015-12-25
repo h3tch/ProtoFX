@@ -1,0 +1,18 @@
+﻿uniform <<<debug uniform>>>;
+
+void _dbgMain() {
+	int _dbgIdx = 1;
+	<<<debug code>>>
+	_dbgStoreVar(0, _dbgIdx-1, -1);
+}
+
+void _runMain() {
+	<<<runtime code>>>
+}
+
+void main() {
+	if (<<<debug condition>>>)
+		_dbgMain();
+	else
+		_runMain();
+}

@@ -25,9 +25,8 @@ namespace App
                 default: throw err.Add($"Shader type '{@params.anno}' is not supported.");
             }
 
-            // ADD DEBUG INFORMATION
-            if (@params.debuging)
-                @params.text = GLDebugger.AddDebugCode(@params.text, type).Merge("");
+            // ADD OR REMOVE DEBUG INFORMATION
+            @params.text = GLDebugger.AddDebugCode(@params.text, type, @params.debuging);
 
             // CREATE OPENGL OBJECT
             glname = GL.CreateShader(type);

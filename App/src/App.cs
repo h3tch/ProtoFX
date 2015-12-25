@@ -208,14 +208,14 @@ namespace App
 
         private void toolBtnRun_Click(object sender, EventArgs e)
         {
-            codeError.Text = "";
-            glControl.ClearScene();
-            bool debugging = sender == toolBtnDbg;
-
             // if no tab page is selected nothing needs to be compiled
             var sourceTab = (TabPage)tabSource.SelectedTab;
             if (sourceTab == null)
                 return;
+
+            // clear scene and output
+            codeError.Text = "";
+            glControl.ClearScene();
             
             // get include directory
             var includeDir = sourceTab.filepath != null ?
@@ -224,6 +224,8 @@ namespace App
             
             // get code text form tab page
             var text = ((CodeEditor)sourceTab.Controls[0]).Text;
+            // generate debug information?
+            var debugging = sender == toolBtnDbg;
 
             // remove comments
             var code = CodeEditor.RemoveComments(text);
