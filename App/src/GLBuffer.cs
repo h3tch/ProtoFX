@@ -54,9 +54,6 @@ namespace App
             foreach (var cmd in cmds["xml"])
                 datalist.Add(LoadXml(err + $"command {cmd.cmd} 'xml'", @params.dir, cmd.args, @params.scene));
 
-            if (err.HasErrors())
-                throw err;
-
             // merge data into a single array
             var iter = datalist.Join();
             var data = iter.Take(size == 0 ? iter.Count() : size).ToArray();
@@ -66,7 +63,7 @@ namespace App
             // CREATE OPENGL OBJECT
             glname = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
-            
+
             // ALLOCATE (AND WRITE) GPU MEMORY
             if (size > 0)
             {

@@ -182,7 +182,7 @@ namespace App
                 GL.BindSampler(s.unit, s.obj.glname);
             foreach (var e in csexec)
                 e.Update(glname, width, height, fbWidth, fbHeight);
-
+            
             GLDebugger.Bind(this);
 
             // EXECUTE DRAW CALLS
@@ -192,7 +192,7 @@ namespace App
             // EXECUTE COMPUTE CALLS
             foreach (var call in compcalls)
                 call.compute();
-
+            
             GLDebugger.Unbind(this);
 
             // UNBIND OUTPUT BUFFERS
