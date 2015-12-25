@@ -10,42 +10,46 @@ namespace App
     {
         #region FIELDS
         // debug resources definitions
-        private static string dbgImgKey;
+        private static string dbgBufKey;
         private static string dbgTexKey;
-        private static string dbgImgDef;
+        private static string dbgBufDef;
+        private static string dbgTexDef;
         // allocate GPU resources
-        private static GLImage img;
+        private static GLBuffer buf;
         private static GLTexture tex;
         // allocate arrays for texture and image units
         private static int[] texUnits;
         private static int[] imgUnits;
         private static Dictionary<int, Uniforms> passes;
         public static DebugSettings settings;
+        // watch count for indexing
+        private static int watchCount;
         #endregion
 
         public static void Instantiate()
         {
             // debug resources definitions
-            dbgImgKey = "__protogl__dbgimg";
+            dbgBufKey = "__protogl__dbgbuf";
             dbgTexKey = "__protogl__dbgtex";
-            dbgImgDef = "type = texture2D\n" +
-                        "format = RGBA32f\n" +
-                        $"width = {1024}\n" +
-                        $"height = {6}\n";
-            // allocate GPU resources
-            img = new GLImage(new GLParams(dbgImgKey, "dbg", dbgImgDef));
-            tex = new GLTexture(new GLParams(dbgTexKey, "dbg"), null, null, img);
+            dbgBufDef = "usage DynamicRead\n" +
+                        $"size {1024*6*16}\n";
+            dbgTexDef = "format RGBA32f\n";
             // allocate arrays for texture and image units
             texUnits = new int[GL.GetInteger((GetPName)All.MaxTextureImageUnits)];
             imgUnits = new int[GL.GetInteger((GetPName)All.MaxImageUnits)];
             passes = new Dictionary<int, Uniforms>();
             settings = new DebugSettings();
+            // reset watch count for indexing in debug mode
+            watchCount = 0;
         }
 
         public static void Initilize(Dict<GLObject> scene)
         {
+            // allocate GPU resources
+            buf = new GLBuffer(new GLParams(dbgBufKey, "dbg", dbgBufDef));
+            tex = new GLTexture(new GLParams(dbgTexKey, "dbg", dbgTexDef), null, buf, null);
             // reset scene
-            scene.Add(dbgImgKey, img);
+            scene.Add(dbgBufKey, buf);
             scene.Add(dbgTexKey, tex);
             passes.Clear();
         }
@@ -57,7 +61,14 @@ namespace App
             if (!passes.TryGetValue(pass.glname, out unif))
                 passes.Add(pass.glname, unif = new Uniforms(pass));
             // set shader debug uniforms
-            unif.Bind(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1);
+            unif.Bind(settings);
+        }
+
+        public static void Unbind(GLPass pass)
+        {
+            Uniforms unif;
+            if (passes.TryGetValue(pass.glname, out unif))
+                unif.Unbind();
         }
 
         #region TEXTURE AND IMAGE BINDING
@@ -88,96 +99,78 @@ namespace App
         #endregion
 
         #region DEBUG CODE GENERATION FOR GLSL SHADERS
-        public static IEnumerable<string> AddDebugCode(string glsl, ShaderType type)
+        public static string AddDebugCode(string glsl, ShaderType type, bool debug)
         {
             // find main function and body
             var main = Regex.Match(glsl, @"void\s+main\s*\(\s*\)");
+            var head = glsl.Substring(0, main.Index);
             var body = glsl.Substring(main.Index).MatchBrace('{', '}');
 
-            // return everything up until the main function
-            yield return glsl.Substring(0, main.Index);
-            // return debug header
-            yield return '\n' + Properties.Resources.dbg + '\n';
-            // return everything up until the body of the main function
-            yield return glsl.Substring(main.Index, body.Index);
+            // replace WATCH functions
+            var watch = Regex.Matches(body.Value, @"<<<[\w\d_\.\[\]]*>>>");
+            if (watch.Count == 0)
+                return glsl;
 
-            // count number of lines before the main function body
-            var count = Regex.Matches(glsl.Substring(0, main.Index), "\n").Count;
-
-            // add debug code to each line in the shader
-            var lines = Regex.Split(body.Value, "\n");
-            for (int l = 0; l < lines.Length; l++)
+            // replace WATCH functions
+            var runBody = body.Value;
+            var dbgBody = string.Copy(body.Value);
+            foreach (Match match in watch)
             {
-                yield return (l == 0 ? lines[l].Insert(1, "int _dbgIdx = 0;") : lines[l]) + '\n';
-                yield return GetDebugLine(lines[l], count + l, type) + '\n';
+                var v = match.Value.Substring(3, match.Value.Length - 6);
+                // remove watch function from runtime code
+                runBody = runBody.Replace(match.Value, "");
+                // replace watch function with actual store function in debug code
+                if (debug)
+                    dbgBody = dbgBody.Replace(match.Value,
+                        $"_dbgIdx = _dbgStoreVar(_dbgIdx, {v}, {watchCount++});");
             }
 
-            // return the rest of the shader code
-            yield return glsl.Substring(main.Index + body.Index + body.Length);
-        }
+            if (debug == false)
+                return head + main.Value + runBody;
 
-        private static string GetDebugLine(string line, int linenumber, ShaderType type)
-        {
-            var ignore = new HashSet<string>(new[] {
-                "bool", "int", "uint", "float", "double", "bvec2", "ivec2", "uvec2", "vec2", "dvec2",
-                "bvec3", "ivec3", "uvec3", "vec3", "dvec3", "bvec4", "ivec4", "uvec4", "vec4", "dvec4",
-                "mat2", "mat3", "mat4", "mat2x3", "mat2x4", "mat3x2", "mat3x4", "mat4x2", "mat4x3",
-                "true", "false",
-            });
-
-            // var: word = \w[\w\d]*
-            // array: <var> [...] [...] [...] [...] = <var>(\s*\[.*\])*
-            // class: <array>.<array> = <array>(\s*\.\s*<array>)*
-            // ignore func: <var> ( ... ) = <var>\s*\(.*\)
-
-            // find all variables (TODO: ignore functions)
-            var regexWord = @"\b\w[\w\d]*\b";
-            var regexArray = regexWord + @"(\b*\[[\b\w\d\[\]]*\])*";
-            var words = Regex.Matches(line, regexArray);
-            if (words.Count == 0)
-                return "";
-
-            // if statement
-            int shaderIdx = -1;
-            string dbgLine = "if (all(equal(";
+            // gather debug information
+            int stage_index;
+            string[] debug_uniform = new[]
+            {
+                "ivec2 _dbgVert", "ivec2 _dbgTess", "int _dbgEval",
+                "ivec2 _dbgGeom", "ivec4 _dbgFrag", "uvec3 _dbgComp"
+            };
+            string[] debug_condition = new[]
+            {
+                "all(equal(_dbgVert, ivec2(gl_InstanceID, gl_VertexID)))",
+                "all(equal(_dbgTess, ivec2(gl_InvocationID, gl_PrimitiveID)))",
+                "_dbgEval == gl_PrimitiveID",
+                "all(equal(_dbgGeom, ivec2(gl_PrimitiveIDIn, gl_InvocationID)))",
+                "all(equal(_dbgFrag, ivec4(int(gl_FragCoord.x), int(gl_FragCoord.y), gl_Layer, gl_ViewportIndex)))",
+                "all(equal(_dbgComp, gl_GlobalInvocationID))"
+            };
             switch (type)
             {
-                case ShaderType.VertexShader:
-                    shaderIdx = 0;
-                    dbgLine += "_dbgVert, ivec2(gl_InstanceID, gl_VertexID)";
-                    break;
-                case ShaderType.TessControlShader:
-                    shaderIdx = 1;
-                    break;
-                case ShaderType.TessEvaluationShader:
-                    shaderIdx = 2;
-                    break;
-                case ShaderType.GeometryShader:
-                    shaderIdx = 3;
-                    dbgLine += "_dbgGeom, ivec2(gl_PrimitiveIDIn, gl_InvocationID)";
-                    break;
-                case ShaderType.FragmentShader:
-                    shaderIdx = 4;
-                    dbgLine += "_dbgFrag, ivec2(int(gl_FragCoord.x), int(gl_FragCoord.y))";
-                    break;
-                case ShaderType.ComputeShader:
-                    shaderIdx = 5;
-                    break;
-                default:
-                    return "";
+                case ShaderType.VertexShader: stage_index = 0; break;
+                case ShaderType.TessControlShader: stage_index = 1; break;
+                case ShaderType.TessEvaluationShader: stage_index = 2; break;
+                case ShaderType.GeometryShader: stage_index = 3; break;
+                case ShaderType.FragmentShader: stage_index = 4; break;
+                case ShaderType.ComputeShader: stage_index = 5; break;
+                default: throw new InvalidEnumArgumentException();
             }
-            dbgLine += "))) {";
 
-            // store debug variables
-            foreach (Match word in words)
-                if (!ignore.Contains(word.Value))
-                    dbgLine += $"_dbgStoreVar({shaderIdx}, _dbgIdx, {word.Value}, {linenumber});";
-            return dbgLine + "}";
+            // insert debug information
+            var rsHead = Properties.Resources.dbg
+                .Replace("<<<stage index>>>", stage_index.ToString());
+            var rsBody = Properties.Resources.dbgBody
+                .Replace("<<<debug uniform>>>", debug_uniform[stage_index])
+                .Replace("<<<debug condition>>>", debug_condition[stage_index])
+                .Replace("<<<stage index>>>", stage_index.ToString())
+                .Replace("<<<debug code>>>", dbgBody)
+                .Replace("<<<runtime code>>>", runBody);
+            
+            return head + '\n' + rsHead + '\n' + rsBody;
         }
         #endregion
 
         #region DEBUG SETTINGS
-        private struct Uniforms
+        private class Uniforms
         {
             public int dbgOut;
             public int dbgVert;
@@ -186,6 +179,7 @@ namespace App
             public int dbgGeom;
             public int dbgFrag;
             public int dbgComp;
+            private int unit;
 
             public Uniforms(GLPass pass)
             {
@@ -196,37 +190,43 @@ namespace App
                 dbgGeom = GL.GetUniformLocation(pass.glname, "_dbgGeom");
                 dbgFrag = GL.GetUniformLocation(pass.glname, "_dbgFrag");
                 dbgComp = GL.GetUniformLocation(pass.glname, "_dbgComp");
+                unit = -1;
             }
 
-            public void Bind(
-                int vInstID, int vVertID,
-                int tPrimID, int tInvocID,
-                int ePrimID, int eInvocID,
-                int gPrimID, int gInvocID,
-                int fFragX, int fFragY)
+            public void Bind(DebugSettings settings)
             {
-                if (dbgOut == 0)
+                if (dbgOut <= 0)
                     return;
 
-                int freeUnit = GetBoundImages().LastIndexOf(x => x == 0);
-                if (freeUnit < 0)
+                unit = GetBoundImages().LastIndexOf(x => x == 0);
+                if (unit < 0)
                     return;
 
-                tex.BindTex(freeUnit);
-                GL.Uniform1(dbgOut, freeUnit);
+                tex.BindImg(unit, 0, 0, TextureAccess.WriteOnly, GpuFormat.Rgba32f);
+                GL.Uniform1(dbgOut, unit);
 
                 if (dbgVert >= 0)
-                    GL.Uniform2(dbgVert, vInstID, vVertID);
+                    GL.Uniform2(dbgVert, settings.vs_InstanceID, settings.vs_VertexID);
                 if (dbgTess >= 0)
-                    GL.Uniform2(dbgTess, tPrimID, tInvocID);
+                    GL.Uniform2(dbgTess, settings.ts_InvocationID, settings.ts_PrimitiveID);
                 if (dbgEval >= 0)
-                    GL.Uniform2(dbgEval, ePrimID, eInvocID);
+                    GL.Uniform1(dbgEval, settings.ts_PrimitiveID);
                 if (dbgGeom >= 0)
-                    GL.Uniform2(dbgGeom, gPrimID, gInvocID);
+                    GL.Uniform2(dbgGeom, settings.gs_InvocationID, settings.gs_PrimitiveIDIn);
                 if (dbgFrag >= 0)
-                    GL.Uniform2(dbgFrag, fFragX, fFragY);
+                    GL.Uniform4(dbgFrag, settings.fs_FragCoord[0], settings.fs_FragCoord[1],
+                        settings.fs_Layer, settings.fs_ViewportIndex);
                 if (dbgComp >= 0)
-                    GL.Uniform2(dbgComp, -1, -1);
+                    GL.Uniform3(dbgComp,
+                        (uint)settings.cs_GlobalInvocationID[0],
+                        (uint)settings.cs_GlobalInvocationID[1],
+                        (uint)settings.cs_GlobalInvocationID[2]);
+            }
+
+            public void Unbind()
+            {
+                if (unit >= 0)
+                    tex.UnbindImg(unit);
             }
         }
 
@@ -268,17 +268,17 @@ namespace App
                 "are the window-space position of the fragment.")]
             public int[] fs_FragCoord { get; set; } = new int[2] { 0, 0 };
 
-            [Category("Fragment Shader"), DisplayName("gl_PrimitiveID"),
-             Description("This value is the index of the current primitive being rendered by this " +
-                "drawing command. This includes any tessellation applied to the mesh, so each " +
-                "individual primitive will have a unique index. However, if a Geometry Shader is " +
-                "active, then the gl_PrimitiveID​ is exactly and only what the GS provided as output. " +
-                "Normally, gl_PrimitiveID​ is guaranteed to be unique, so if two FS invocations have " +
-                "the same primitive ID, they come from the same primitive. But if a GS is active and " +
-                "outputs non - unique values, then different fragment shader invocations for different " +
-                "primitives will get the same value.If the GS did not output a value for gl_PrimitiveID​, " +
-                "then the fragment shader gets an undefined value.")]
-            public int fs_PrimitiveID { get; set; } = 0;
+            //[Category("Fragment Shader"), DisplayName("gl_PrimitiveID"),
+            // Description("This value is the index of the current primitive being rendered by this " +
+            //    "drawing command. This includes any tessellation applied to the mesh, so each " +
+            //    "individual primitive will have a unique index. However, if a Geometry Shader is " +
+            //    "active, then the gl_PrimitiveID​ is exactly and only what the GS provided as output. " +
+            //    "Normally, gl_PrimitiveID​ is guaranteed to be unique, so if two FS invocations have " +
+            //    "the same primitive ID, they come from the same primitive. But if a GS is active and " +
+            //    "outputs non - unique values, then different fragment shader invocations for different " +
+            //    "primitives will get the same value.If the GS did not output a value for gl_PrimitiveID​, " +
+            //    "then the fragment shader gets an undefined value.")]
+            //public int fs_PrimitiveID { get; set; } = 0;
 
             [Category("Fragment Shader"), DisplayName("gl_Layer"),
              Description("is either 0 or the layer number for this primitive output by the Geometry Shader.")]

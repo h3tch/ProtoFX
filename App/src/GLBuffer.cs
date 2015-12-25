@@ -60,7 +60,8 @@ namespace App
             // merge data into a single array
             var iter = datalist.Join();
             var data = iter.Take(size == 0 ? iter.Count() : size).ToArray();
-            size = data.Length;
+            if (size == 0)
+                size = data.Length;
 
             // CREATE OPENGL OBJECT
             glname = GL.GenBuffer();
@@ -69,7 +70,7 @@ namespace App
             // ALLOCATE (AND WRITE) GPU MEMORY
             if (size > 0)
             {
-                if (data != null)
+                if (data.Length > 0)
                 {
                     size = data.Length;
                     var dataPtr = Marshal.AllocHGlobal(size);

@@ -12,7 +12,7 @@ namespace App
         public bool debuging;
         public GLParams(
             string name = null, 
-            string anno = null, 
+            string anno = null,
             string text = null, 
             string dir = null, 
             Dict<GLObject> scene = null,

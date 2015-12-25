@@ -68,23 +68,47 @@ namespace App.Properties {
         ///#define _i2f intBitsToFloat
         ///#define _u2f uintBitsToFloat
         ///
-        ///uniform ivec2 _dbgVert;
-        ///uniform ivec2 _dbgTess;
-        ///uniform ivec2 _dbgEval;
-        ///uniform ivec2 _dbgGeom;
-        ///uniform ivec2 _dbgFrag;
-        ///uniform ivec2 _dbgComp;
         ///layout(rgba32f) uniform writeonly image2D _dbgOut;
         ///
-        ///void _dbgStore(int j, inout int i, vec4 val) {
-        ///	imageStore(_dbgOut, ivec2(i++, j), val);
+        ///void _dbgStore(int stage, inout int i, vec4 val) {
+        ///	imageStore(_dbgOut, ivec2(i++, stage), val);
         ///}
-        ///void _dbgStore(int j, inout int i, ivec4 val) {
-        ///	_dbgStore(j, i, vec [rest of string was truncated]&quot;;.
+        ///void _dbgStore(int stage, inout int i, ivec4 val) {
+        ///	_dbgStore(stage, i, vec4(_i2f(val.x), _i2f(val.y), _i2f(val.z), _i2f(val.w)));
+        ///}
+        ///void _dbgStore(int stage, inout int i, uvec4 val) {
+        ///	_dbgStore(stage, i,  [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string dbg {
             get {
                 return ResourceManager.GetString("dbg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to uniform &lt;&lt;&lt;debug uniform&gt;&gt;&gt;;
+        ///
+        ///void main() {
+        ///	if (&lt;&lt;&lt;debug condition&gt;&gt;&gt;)
+        ///		_dbgMain();
+        ///	else
+        ///		_runMain();
+        ///}
+        ///
+        ///void _dbgMain() {
+        ///	int _dbgIdx = 1;
+        ///	const int _stageIdx = &lt;&lt;&lt;stage index&gt;&gt;&gt;;
+        ///	&lt;&lt;&lt;debug code&gt;&gt;&gt;
+        ///	_dbgStoreVar(_stageIdx, 0, _dbgIdx-1, -1);
+        ///}
+        ///
+        ///void _runMain() {
+        ///	&lt;&lt;&lt;runtime code&gt;&gt;&gt;
+        ///}.
+        /// </summary>
+        internal static string dbgBody {
+            get {
+                return ResourceManager.GetString("dbgBody", resourceCulture);
             }
         }
         

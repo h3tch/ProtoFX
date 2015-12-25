@@ -183,6 +183,8 @@ namespace App
             foreach (var e in csexec)
                 e.Update(glname, width, height, fbWidth, fbHeight);
 
+            GLDebugger.Bind(this);
+
             // EXECUTE DRAW CALLS
             foreach (var call in drawcalls)
                 call.draw();
@@ -190,6 +192,8 @@ namespace App
             // EXECUTE COMPUTE CALLS
             foreach (var call in compcalls)
                 call.compute();
+
+            GLDebugger.Unbind(this);
 
             // UNBIND OUTPUT BUFFERS
             if (glfragout != null)
