@@ -3,7 +3,7 @@
 void _dbgMain() {
 	int _dbgIdx = 1;
 	<<<debug code>>>
-	_dbgStoreVar(0, _dbgIdx-1, -1);
+	_dbgStore(0, _dbgIdx-1);
 }
 
 void _runMain() {

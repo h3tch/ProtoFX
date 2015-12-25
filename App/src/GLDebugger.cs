@@ -23,6 +23,7 @@ namespace App
         private static Dictionary<int, Uniforms> passes;
         public static DebugSettings settings;
         // watch count for indexing
+        private const int stage_size = 1024;
         private static int watchCount;
         #endregion
 
@@ -32,7 +33,7 @@ namespace App
             dbgBufKey = "__protogl__dbgbuf";
             dbgTexKey = "__protogl__dbgtex";
             dbgBufDef = "usage DynamicRead\n" +
-                        $"size {1024*6*16}\n";
+                        $"size {stage_size * 6 * 16}\n";
             dbgTexDef = "format RGBA32f\n";
             // allocate arrays for texture and image units
             texUnits = new int[GL.GetInteger((GetPName)All.MaxTextureImageUnits)];
@@ -107,7 +108,7 @@ namespace App
             var body = glsl.Substring(main.Index).MatchBrace('{', '}');
 
             // replace WATCH functions
-            var watch = Regex.Matches(body.Value, @"<<<[\w\d_\.\[\]]*>>>");
+            var watch = Regex.Matches(body.Value, @"<<<[\s\w\d_\.\[\]]*>>>");
             if (watch.Count == 0)
                 return glsl;
 
@@ -157,11 +158,10 @@ namespace App
 
             // insert debug information
             var rsHead = Properties.Resources.dbg
-                .Replace("<<<stage index>>>", stage_index.ToString());
+                .Replace("<<<stage offset>>>", (stage_size * stage_index).ToString());
             var rsBody = Properties.Resources.dbgBody
                 .Replace("<<<debug uniform>>>", debug_uniform[stage_index])
                 .Replace("<<<debug condition>>>", debug_condition[stage_index])
-                .Replace("<<<stage index>>>", stage_index.ToString())
                 .Replace("<<<debug code>>>", dbgBody)
                 .Replace("<<<runtime code>>>", runBody);
             

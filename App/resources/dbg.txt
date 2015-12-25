@@ -4,13 +4,13 @@
 #define _DBG_FLOAT 4
 #define _i2f intBitsToFloat
 #define _u2f uintBitsToFloat
-const int _dbgStage = <<<stage index>>>;
+const int _dbgStageOffset = <<<stage offset>>>;
 
 layout(rgba32f) uniform writeonly imageBuffer _dbgOut;
 
 int _dbgStore(int idx, vec4 val) {
-	imageStore(_dbgOut, 1024*_dbgStage + idx, val);
-	return idx++;
+	imageStore(_dbgOut, _dbgStageOffset + idx, val);
+	return ++idx;
 }
 int _dbgStore(int idx, ivec4 val) {
 	return _dbgStore(idx, vec4(_i2f(val.x), _i2f(val.y), _i2f(val.z), _i2f(val.w)));
@@ -63,21 +63,17 @@ int _dbgStore(int idx, int type, int cols, int rows, int ID) {
 
 // FLOAT
 int _dbgStoreVar(int idx, float val, int ID) {
-	idx =  _dbgStore(idx, _DBG_FLOAT, 1, 1, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_FLOAT, 1, 1, ID), val);
 }
 
 int _dbgStoreVar(int idx, vec2 val, int ID) {
-	idx =  _dbgStore(idx, _DBG_FLOAT, 1, 2, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_FLOAT, 1, 2, ID), val);
 }
 int _dbgStoreVar(int idx, vec3 val, int ID) {
-	idx =  _dbgStore(idx, _DBG_FLOAT, 1, 3, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_FLOAT, 1, 3, ID), val);
 }
 int _dbgStoreVar(int idx, vec4 val, int ID) {
-	idx =  _dbgStore(idx, _DBG_FLOAT, 1, 4, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_FLOAT, 1, 4, ID), val);
 }
 
 int _dbgStoreVar(int idx, mat2 val, int ID) {
@@ -130,54 +126,42 @@ int _dbgStoreVar(int idx, mat4x3 val, int ID) {
 
 // INT
 int _dbgStoreVar(int idx, int val, int ID) {
-	idx =  _dbgStore(idx, _DBG_INT, 1, 1, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_INT, 1, 1, ID), val);
 }
 int _dbgStoreVar(int idx, ivec2 val, int ID) {
-	idx =  _dbgStore(idx, _DBG_INT, 1, 2, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_INT, 1, 2, ID), val);
 }
 int _dbgStoreVar(int idx, ivec3 val, int ID) {
-	idx =  _dbgStore(idx, _DBG_INT, 1, 3, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_INT, 1, 3, ID), val);
 }
 int _dbgStoreVar(int idx, ivec4 val, int ID) {
-	idx =  _dbgStore(idx, _DBG_INT, 1, 4, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_INT, 1, 4, ID), val);
 }
 
 // UINT
 int _dbgStoreVar(int idx, uint val, int ID) {
-	idx =  _dbgStore(idx, _DBG_UINT, 1, 1, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_UINT, 1, 1, ID), val);
 }
 int _dbgStoreVar(int idx, uvec2 val, int ID) {
-	idx =  _dbgStore(idx, _DBG_UINT, 1, 2, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_UINT, 1, 2, ID), val);
 }
 int _dbgStoreVar(int idx, uvec3 val, int ID) {
-	idx =  _dbgStore(idx, _DBG_UINT, 1, 3, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_UINT, 1, 3, ID), val);
 }
 int _dbgStoreVar(int idx, uvec4 val, int ID) {
-	idx =  _dbgStore(idx, _DBG_UINT, 1, 4, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_UINT, 1, 4, ID), val);
 }
 
 // BOOL
 int _dbgStoreVar(int idx, bool val, int ID) {
-	idx =  _dbgStore(idx, _DBG_BOOL, 1, 1, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_BOOL, 1, 1, ID), val);
 }
 int _dbgStoreVar(int idx, bvec2 val, int ID) {
-	idx =  _dbgStore(idx, _DBG_BOOL, 1, 2, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_BOOL, 1, 2, ID), val);
 }
 int _dbgStoreVar(int idx, bvec3 val, int ID) {
-	idx =  _dbgStore(idx, _DBG_BOOL, 1, 3, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_BOOL, 1, 3, ID), val);
 }
 int _dbgStoreVar(int idx, bvec4 val, int ID) {
-	idx =  _dbgStore(idx, _DBG_BOOL, 1, 4, ID);
-	return _dbgStore(idx, val);
+	return _dbgStore(_dbgStore(idx, _DBG_BOOL, 1, 4, ID), val);
 }
