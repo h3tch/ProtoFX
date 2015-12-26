@@ -9,6 +9,7 @@ namespace App
     class GLDebugger
     {
         #region FIELDS
+        public static string regexDbgVar = @"<<<[\s\w\d_\.\[\]]*>>>";
         // debug resources definitions
         private static string dbgBufKey;
         private static string dbgTexKey;
@@ -72,7 +73,7 @@ namespace App
                 unif.Unbind();
         }
 
-        public static object pickWatchVar(int ID)
+        public static Array PickWatchVar(int ID)
         {
             // for each pass
             foreach (Uniforms unif in passes.Values)
@@ -94,34 +95,33 @@ namespace App
                     // for each debug variable in this stage
                     while (offset < end)
                     {
-                        int rows = BitConverter.ToInt32(unif.data, offset + 8);
+                        int type = BitConverter.ToInt32(unif.data, offset);
+                        int rows = BitConverter.ToInt32(unif.data, offset + 4);
+                        int cols = BitConverter.ToInt32(unif.data, offset + 8);
                         int watchID = BitConverter.ToInt32(unif.data, offset + 12);
                         offset += 16;
 
                         // if this is the debug variable we want
                         if (watchID == ID)
                         {
-                            int type = BitConverter.ToInt32(unif.data, offset);
-                            int cols = BitConverter.ToInt32(unif.data, offset + 4);
-
                             // convert and return the debug variable
                             switch (type)
                             {
                                 case 1: // BOOL
                                 case 2: // INT
-                                    int[,] vi = new int[cols, rows];
+                                    int[,] vi = new int[rows, cols];
                                     for (int y = 0; y < rows; y++)
                                         for (int x = 0; x < cols; x++)
                                             vi[y, x] = BitConverter.ToInt32(unif.data, offset + 16 * y + 4 * x);
                                     return vi;
                                 case 3: // UINT
-                                    uint[,] vu = new uint[cols, rows];
+                                    uint[,] vu = new uint[rows, cols];
                                     for (int y = 0; y < rows; y++)
                                         for (int x = 0; x < cols; x++)
                                             vu[y, x] = BitConverter.ToUInt32(unif.data, offset + 16 * y + 4 * x);
                                     return vu;
                                 case 4: // FLOAT
-                                    float[,] vf = new float[cols, rows];
+                                    float[,] vf = new float[rows, cols];
                                     for (int y = 0; y < rows; y++)
                                         for (int x = 0; x < cols; x++)
                                             vf[y, x] = BitConverter.ToSingle(unif.data, offset + 16 * y + 4 * x);
@@ -172,7 +172,7 @@ namespace App
             var body = glsl.Substring(main.Index).MatchBrace('{', '}');
 
             // replace WATCH functions
-            var watch = Regex.Matches(body.Value, @"<<<[\s\w\d_\.\[\]]*>>>");
+            var watch = Regex.Matches(body.Value, regexDbgVar);
             if (watch.Count == 0)
                 return glsl;
 

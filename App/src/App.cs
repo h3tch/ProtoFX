@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace App
@@ -345,7 +346,7 @@ namespace App
 
             // create new tab objects
             var tabSourcePage = new TabPage(path);
-            var tabSourcePageText = new CodeEditor(text);
+            var tabSourcePageText = new CodeEditor(debugListView, text);
 
             // tabSourcePage
             tabSourcePage.Controls.Add(tabSourcePageText);

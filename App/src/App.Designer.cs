@@ -51,7 +51,12 @@
             this.codeError = new System.Windows.Forms.RichTextBox();
             this.tabDebugger = new System.Windows.Forms.TabPage();
             this.splitContainerDebug = new System.Windows.Forms.SplitContainer();
-            this.debugDataView = new System.Windows.Forms.DataGridView();
+            this.debugListView = new System.Windows.Forms.ListView();
+            this.Variable = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.X = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Y = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Z = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.W = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.debugProperty = new System.Windows.Forms.PropertyGrid();
             this.tabResources = new System.Windows.Forms.TabPage();
             this.tabData = new System.Windows.Forms.TabControl();
@@ -95,7 +100,6 @@
             this.splitContainerDebug.Panel1.SuspendLayout();
             this.splitContainerDebug.Panel2.SuspendLayout();
             this.splitContainerDebug.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.debugDataView)).BeginInit();
             this.tabResources.SuspendLayout();
             this.tabData.SuspendLayout();
             this.tabDataImg.SuspendLayout();
@@ -390,7 +394,7 @@
             // 
             // splitContainerDebug.Panel1
             // 
-            this.splitContainerDebug.Panel1.Controls.Add(this.debugDataView);
+            this.splitContainerDebug.Panel1.Controls.Add(this.debugListView);
             // 
             // splitContainerDebug.Panel2
             // 
@@ -399,18 +403,46 @@
             this.splitContainerDebug.SplitterDistance = 350;
             this.splitContainerDebug.TabIndex = 0;
             // 
-            // debugDataView
+            // debugListView
             // 
-            this.debugDataView.BackgroundColor = System.Drawing.SystemColors.Window;
-            this.debugDataView.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.debugDataView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.debugDataView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.debugDataView.Location = new System.Drawing.Point(0, 0);
-            this.debugDataView.Margin = new System.Windows.Forms.Padding(2);
-            this.debugDataView.Name = "debugDataView";
-            this.debugDataView.RowTemplate.Height = 28;
-            this.debugDataView.Size = new System.Drawing.Size(350, 98);
-            this.debugDataView.TabIndex = 0;
+            this.debugListView.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.debugListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.Variable,
+            this.X,
+            this.Y,
+            this.Z,
+            this.W});
+            this.debugListView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.debugListView.Location = new System.Drawing.Point(0, 0);
+            this.debugListView.Name = "debugListView";
+            this.debugListView.Size = new System.Drawing.Size(350, 98);
+            this.debugListView.TabIndex = 0;
+            this.debugListView.UseCompatibleStateImageBehavior = false;
+            // 
+            // Variable
+            // 
+            this.Variable.Text = "Variable";
+            this.Variable.Width = 80;
+            // 
+            // X
+            // 
+            this.X.Text = "X";
+            this.X.Width = 50;
+            // 
+            // Y
+            // 
+            this.Y.Text = "Y";
+            this.Y.Width = 50;
+            // 
+            // Z
+            // 
+            this.Z.Text = "Z";
+            this.Z.Width = 50;
+            // 
+            // W
+            // 
+            this.W.Text = "W";
+            this.W.Width = 50;
             // 
             // debugProperty
             // 
@@ -751,7 +783,6 @@
             this.splitContainerDebug.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerDebug)).EndInit();
             this.splitContainerDebug.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.debugDataView)).EndInit();
             this.tabResources.ResumeLayout(false);
             this.tabData.ResumeLayout(false);
             this.tabDataImg.ResumeLayout(false);
@@ -814,9 +845,14 @@
         private System.Windows.Forms.TabControl tabOutput;
         private System.Windows.Forms.TabPage tabCompile;
         private System.Windows.Forms.TabPage tabDebugger;
-        private System.Windows.Forms.DataGridView debugDataView;
         private System.Windows.Forms.PropertyGrid debugProperty;
         private System.Windows.Forms.ToolStripButton toolBtnDbg;
         private System.Windows.Forms.SplitContainer splitContainerDebug;
+        private System.Windows.Forms.ListView debugListView;
+        private System.Windows.Forms.ColumnHeader Variable;
+        private System.Windows.Forms.ColumnHeader X;
+        private System.Windows.Forms.ColumnHeader Y;
+        private System.Windows.Forms.ColumnHeader Z;
+        private System.Windows.Forms.ColumnHeader W;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using ScintillaNET;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -10,13 +11,16 @@ namespace App
     {
         private static int HighlightIndicatorIndex = 8;
         private List<int[]>[] IndicatorRanges;
+        private ListView debugListView;
 
         /// <summary>
         /// Instantiate and initialize ScintillaNET based code editor for ProtoGL.
         /// </summary>
         /// <param name="text">[OPTIONAL] Initialize code editor with text.</param>
-        public CodeEditor(string text = null)
+        public CodeEditor(ListView debugListView, string text = null)
         {
+            this.debugListView = debugListView;
+
             // instantiate fields
             IndicatorRanges = new List<int[]>[Indicators.Count];
             for (int i = 0; i < Indicators.Count; i++)
