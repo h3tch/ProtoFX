@@ -1,6 +1,8 @@
 ﻿using ScintillaNET;
 using System;
+using System.Data;
 using System.Drawing;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -78,6 +80,57 @@ namespace App
                 // highlight all selected words
                 editor.ClearIndicators(HighlightIndicatorIndex);
                 editor.AddIndicators(HighlightIndicatorIndex, ranges);
+                // handle additional caret changed events
+                CaretPositionChanged(sender, e);
+            }
+        }
+        
+        private void CaretPositionChanged(object sender, EventArgs e)
+        {
+            // get class references
+            var editor = (CodeEditor)sender;
+
+            var dbgVarMatches = Regex.Matches(editor.Text, GLDebugger.regexDbgVar);
+            var dbgLine = editor.LineFromPosition(editor.CurrentPosition);
+
+            // CREATE TABLE
+            debugListView.Clear();
+            debugListView.View = View.Details;
+            debugListView.FullRowSelect = true;
+            debugListView.Columns.Add("Variable", 80);
+            debugListView.Columns.Add("X", 60);
+            debugListView.Columns.Add("Y", 60);
+            debugListView.Columns.Add("Z", 60);
+            debugListView.Columns.Add("W", 60);
+
+            int ID = 0;
+            foreach (Match dbgVarMatch in dbgVarMatches)
+            {
+                var line = editor.LineFromPosition(dbgVarMatch.Index);
+
+                // next watch ID
+                ID++;
+                if (line < dbgLine)
+                    continue;
+                if (line > dbgLine)
+                    break;
+
+                // try to find the watch ID
+                var val = GLDebugger.PickWatchVar(ID - 1);
+                if (val == null)
+                    continue;
+
+                // create rows
+                int rows = val.GetLength(0);
+                int cols = val.GetLength(1);
+                var name = dbgVarMatch.Value;
+                for (int r = 0; r < rows; r++)
+                {
+                    var args = from c in Enumerable.Range(0, cols + 1)
+                               select c == 0 ? (r == 0 ? name.Substring(3, name.Length - 6) : "") :
+                               string.Format(App.culture, "{0:0.000}", val.GetValue(new int[] { r, c - 1 }));
+                    debugListView.Items.Add(new ListViewItem(args.ToArray()));
+                }
             }
         }
 
