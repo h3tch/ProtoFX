@@ -23,7 +23,7 @@ namespace App
         private static Dictionary<int, Uniforms> passes;
         public static DebugSettings settings;
         // watch count for indexing
-        private const int stage_size = 1024;
+        private const int stage_size = 128;
         private static int watchCount;
         #endregion
 
@@ -72,6 +72,70 @@ namespace App
                 unif.Unbind();
         }
 
+        public static object pickWatchVar(int ID)
+        {
+            // for each pass
+            foreach (Uniforms unif in passes.Values)
+            {
+                if (unif.data == null)
+                    continue;
+
+                // for each shader stage
+                for (int stage = 0, offset; stage < 6; stage++)
+                {
+                    // offset of the current stage
+                    offset = 16 * stage_size * stage;
+
+                    // number of debug variables generated in this stage
+                    int end = BitConverter.ToInt32(unif.data, offset);
+                    offset += 16;
+                    end = offset + end * 16;
+
+                    // for each debug variable in this stage
+                    while (offset < end)
+                    {
+                        int rows = BitConverter.ToInt32(unif.data, offset + 8);
+                        int watchID = BitConverter.ToInt32(unif.data, offset + 12);
+                        offset += 16;
+
+                        // if this is the debug variable we want
+                        if (watchID == ID)
+                        {
+                            int type = BitConverter.ToInt32(unif.data, offset);
+                            int cols = BitConverter.ToInt32(unif.data, offset + 4);
+
+                            // convert and return the debug variable
+                            switch (type)
+                            {
+                                case 1: // BOOL
+                                case 2: // INT
+                                    int[,] vi = new int[cols, rows];
+                                    for (int y = 0; y < rows; y++)
+                                        for (int x = 0; x < cols; x++)
+                                            vi[y, x] = BitConverter.ToInt32(unif.data, offset + 16 * y + 4 * x);
+                                    return vi;
+                                case 3: // UINT
+                                    uint[,] vu = new uint[cols, rows];
+                                    for (int y = 0; y < rows; y++)
+                                        for (int x = 0; x < cols; x++)
+                                            vu[y, x] = BitConverter.ToUInt32(unif.data, offset + 16 * y + 4 * x);
+                                    return vu;
+                                case 4: // FLOAT
+                                    float[,] vf = new float[cols, rows];
+                                    for (int y = 0; y < rows; y++)
+                                        for (int x = 0; x < cols; x++)
+                                            vf[y, x] = BitConverter.ToSingle(unif.data, offset + 16 * y + 4 * x);
+                                    return vf;
+                            }
+                        }
+                        offset += 16 * rows;
+                    }
+                }
+            }
+            
+            return null;
+        }
+
         #region TEXTURE AND IMAGE BINDING
         public static void BindImg(int unit, int level, bool layered, int layer, TextureAccess access,
             GpuFormat format, int name)
@@ -112,22 +176,29 @@ namespace App
             if (watch.Count == 0)
                 return glsl;
 
-            // replace WATCH functions
-            var runBody = body.Value;
-            var dbgBody = string.Copy(body.Value);
-            foreach (Match match in watch)
-            {
-                var v = match.Value.Substring(3, match.Value.Length - 6);
-                // remove watch function from runtime code
-                runBody = runBody.Replace(match.Value, "");
-                // replace watch function with actual store function in debug code
-                if (debug)
-                    dbgBody = dbgBody.Replace(match.Value,
-                        $"_dbgIdx = _dbgStoreVar(_dbgIdx, {v}, {watchCount++});");
-            }
+            // remove WATCH indicators for runtime code
+            var runBody = body.Value.Replace("<<<", "").Replace(">>>", "");
 
+            // if debugging is disabled, there is no need to generate debug code
             if (debug == false)
                 return head + main.Value + runBody;
+
+            var dbgBody = string.Copy(body.Value);
+            int insertOffset = 0;
+            foreach (Match match in watch)
+            {
+                // get debug variable name
+                var varname = match.Value.Substring(3, match.Value.Length - 6);
+                // get next newline-indicator
+                int newline = dbgBody.IndexOf('\n', match.Index + insertOffset);
+                if (dbgBody[newline - 1] == '\r')
+                    newline--;
+                // insert debug code before newline-indicator
+                var insertString = $"_dbgIdx = _dbgStoreVar(_dbgIdx, {varname}, {watchCount++});";
+                dbgBody = dbgBody.Insert(newline, insertString);
+                insertOffset += insertString.Length;
+            }
+            dbgBody = dbgBody.Replace("<<<", "").Replace(">>>", "");
 
             // gather debug information
             int stage_index;
@@ -179,6 +250,7 @@ namespace App
             public int dbgGeom;
             public int dbgFrag;
             public int dbgComp;
+            public byte[] data;
             private int unit;
 
             public Uniforms(GLPass pass)
@@ -191,6 +263,7 @@ namespace App
                 dbgFrag = GL.GetUniformLocation(pass.glname, "_dbgFrag");
                 dbgComp = GL.GetUniformLocation(pass.glname, "_dbgComp");
                 unit = -1;
+                data = null;
             }
 
             public void Bind(DebugSettings settings)
@@ -198,13 +271,16 @@ namespace App
                 if (dbgOut <= 0)
                     return;
 
+                // get last free unused image unit
                 unit = GetBoundImages().LastIndexOf(x => x == 0);
                 if (unit < 0)
                     return;
 
+                // bind texture to image unit
                 tex.BindImg(unit, 0, 0, TextureAccess.WriteOnly, GpuFormat.Rgba32f);
                 GL.Uniform1(dbgOut, unit);
 
+                // set debug uniform
                 if (dbgVert >= 0)
                     GL.Uniform2(dbgVert, settings.vs_InstanceID, settings.vs_VertexID);
                 if (dbgTess >= 0)
@@ -225,8 +301,13 @@ namespace App
 
             public void Unbind()
             {
-                if (unit >= 0)
-                    tex.UnbindImg(unit);
+                // if the texture buffer was bound to a unit
+                if (unit < 0)
+                    return;
+                // unbind texture buffer
+                tex.UnbindImg(unit);
+                // read generated debug information
+                buf.Read(ref data);
             }
         }
 

@@ -90,23 +90,44 @@ namespace App
         /// <returns>Return GPU buffer data as byte array.</returns>
         public byte[] Read()
         {
-            if (size == 0)
-                return "Buffer is empty".ToCharArray().ToBytes();
+            // allocate buffer memory
+            byte[] data = null;
+            Read(ref data);
+            return data;
+        }
 
+        /// <summary>
+        /// Read whole GPU buffer data.
+        /// </summary>
+        /// <returns>Return GPU buffer data as byte array.</returns>
+        public void Read(ref byte[] data, int offset = 0)
+        {
+            // check buffer size
+            if (size == 0)
+            {
+                var rs = "Buffer is empty".ToCharArray().ToBytes();
+                if (data == null) data = rs; else rs.CopyTo(data, 0);
+                return;
+            }
+
+            // check read flag of the buffer
             int flags;
             GL.GetNamedBufferParameter(glname, BufferParameterName.BufferStorageFlags, out flags);
             if ((flags & (int)BufferStorageFlags.MapReadBit) == 0)
-                return "Buffer cannot be read".ToCharArray().ToBytes();
+            {
+                var rs = "Buffer cannot be read".ToCharArray().ToBytes();
+                if (data == null) data = rs; else rs.CopyTo(data, 0);
+                return;
+            }
 
-            // allocate buffer memory
-            byte[] data = new byte[size];
-            
+            // if necessary allocate bytes
+            if (data == null)
+                data = new byte[size];
+
             // map buffer and copy data to CPU memory
             IntPtr dataPtr = GL.MapNamedBuffer(glname, BufferAccess.ReadOnly);
-            Marshal.Copy(dataPtr, data, 0, size);
+            Marshal.Copy(dataPtr, data, offset, Math.Min(size, data.Length));
             GL.UnmapNamedBuffer(glname);
-            
-            return data;
         }
 
         public override void Delete()
