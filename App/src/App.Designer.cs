@@ -353,7 +353,7 @@
             this.tabCompile.Padding = new System.Windows.Forms.Padding(2);
             this.tabCompile.Size = new System.Drawing.Size(622, 102);
             this.tabCompile.TabIndex = 0;
-            this.tabCompile.Text = "Compiler";
+            this.tabCompile.Text = "Compiler Output";
             this.tabCompile.UseVisualStyleBackColor = true;
             // 
             // codeError
@@ -379,7 +379,7 @@
             this.tabDebugger.Padding = new System.Windows.Forms.Padding(2);
             this.tabDebugger.Size = new System.Drawing.Size(622, 102);
             this.tabDebugger.TabIndex = 1;
-            this.tabDebugger.Text = "Debugger";
+            this.tabDebugger.Text = "Debug Variables";
             this.tabDebugger.UseVisualStyleBackColor = true;
             // 
             // splitContainerDebug
@@ -572,6 +572,8 @@
             // 
             this.tableBuf.AllowUserToAddRows = false;
             this.tableBuf.AllowUserToDeleteRows = false;
+            this.tableBuf.BackgroundColor = System.Drawing.SystemColors.Window;
+            this.tableBuf.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tableBuf.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.tableBuf.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableBuf.Location = new System.Drawing.Point(2, 28);
@@ -579,7 +581,7 @@
             this.tableBuf.Name = "tableBuf";
             this.tableBuf.ReadOnly = true;
             this.tableBuf.RowTemplate.Height = 28;
-            this.tableBuf.Size = new System.Drawing.Size(614, 590);
+            this.tableBuf.Size = new System.Drawing.Size(614, 592);
             this.tableBuf.TabIndex = 1;
             // 
             // tableLayoutBuffers
