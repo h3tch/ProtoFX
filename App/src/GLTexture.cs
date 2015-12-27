@@ -44,15 +44,15 @@ namespace App
                 throw err;
 
             // INCASE THIS IS A TEXTURE OBJECT
-            if (glimg != null)
+            if (this.glimg != null)
             {
-                glname = glimg.glname;
+                glname = this.glimg.glname;
                 // get internal format
                 int f;
                 GL.GetTextureLevelParameter(glname, 0, GetTextureParameter.TextureInternalFormat, out f);
                 format = (GpuFormat)f;
             }
-            else if (glbuff != null)
+            else if (this.glbuff != null)
             {
                 if (format == 0)
                     throw err.Add($"No texture buffer format defined " +
@@ -60,12 +60,11 @@ namespace App
                 // CREATE OPENGL OBJECT
                 glname = GL.GenTexture();
                 GL.BindTexture(TextureTarget.TextureBuffer, glname);
-                GL.TexBuffer(TextureBufferTarget.TextureBuffer, (SizedInternalFormat)format, glbuff.glname);
+                GL.TexBuffer(TextureBufferTarget.TextureBuffer, (SizedInternalFormat)format, this.glbuff.glname);
                 GL.BindTexture(TextureTarget.TextureBuffer, 0);
-                HasErrorOrGlError(err);
             }
 
-            if (err.HasErrors())
+            if (HasErrorOrGlError(err))
                 throw err;
         }
 

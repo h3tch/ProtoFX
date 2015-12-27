@@ -71,7 +71,7 @@ shader vert vs_shadowmap {
 	void main ()
 	{
 		// transform vertex to light projection space
-		gl_Position = light.viewProj * in_pos;
+		<<<gl_Position>>> = light.viewProj * in_pos;
 	}
 }
 
