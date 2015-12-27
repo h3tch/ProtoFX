@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -72,18 +73,12 @@ namespace App
         }
 
         public void Update(int program, int width, int height, int widthTex, int heightTex)
-        {
-            update?.Invoke(instance, new object[] { program, width, height, widthTex, heightTex });
-        }
+            => update?.Invoke(instance, new object[] { program, width, height, widthTex, heightTex });
 
         public void EndPass(int program)
-        {
-            endpass?.Invoke(instance, new object[] { program });
-        }
+            => endpass?.Invoke(instance, new object[] { program });
 
         public override void Delete()
-        {
-            delete?.Invoke(instance, null);
-        }
+            => delete?.Invoke(instance, null);
     }
 }

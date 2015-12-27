@@ -26,13 +26,17 @@ namespace csharp
         {
             // get uniform block binding unit and size
             int block = GL.GetUniformBlockIndex(program, name);
+            if (block < 0)
+                throw new Exception("Could not find uniform block '" + name + "'.");
             GL.GetActiveUniformBlock(program, block,
                 ActiveUniformBlockParameter.UniformBlockBinding, out unit);
             GL.GetActiveUniformBlock(program, block,
                 ActiveUniformBlockParameter.UniformBlockDataSize, out size);
+            if (size <= 0)
+                throw new Exception("Uniform block '" + name + "' size of '" + size + "' is invalid.");
 
             // allocate memory for uniform block uniforms
-            string[] names = Enum.GetNames(typeof(Names)).Select(v => name + "." + v).ToArray();
+            var names = Enum.GetNames(typeof(Names)).Select(v => name + "." + v).ToArray();
             location = Enumerable.Repeat(-1, names.Length).ToArray();
             length = new int[names.Length];
             offset = new int[names.Length];
@@ -75,6 +79,10 @@ namespace csharp
             GL.BindBuffer(BufferTarget.UniformBuffer, glbuf); // Note: needs to be bound once!
             GL.NamedBufferStorage(glbuf, size, IntPtr.Zero, flags);
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+
+            // attach OpenGL object label
+            name = "P" + program + ": " + name;
+            GL.ObjectLabel(ObjectLabelIdentifier.Buffer, glbuf, name.Length, name);
         }
 
         public void Bind()

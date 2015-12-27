@@ -39,7 +39,7 @@ image img_color {
 	width 1024
 	height 768
 	// pixel format is (red,green,blue,alpha)
-	format RGBA
+	format RGBA8
 }
 
 // 32 bit floatingpoint depth image (used as a render target)

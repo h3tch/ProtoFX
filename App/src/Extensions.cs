@@ -207,5 +207,17 @@ namespace App
             return array;
         }
         #endregion
+
+        #region WinForm Control Extensions
+        public static IEnumerable<Control> FindParent(this Control control, string name)
+        {
+            while (control.Parent != null)
+            {
+                control = control.Parent;
+                if (control.Name == name)
+                    yield return control;
+            }
+        }
+        #endregion
     }
 }
