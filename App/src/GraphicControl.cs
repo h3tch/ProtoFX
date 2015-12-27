@@ -10,7 +10,7 @@ namespace OpenTK
 {
     class GraphicControl : GLControl
     {
-        public static string nullname = "__protogl_control__";
+        public static string nullname = "__control__";
         private bool render = false;
         private Dict<GLObject> scene = new Dict<GLObject>();
         public Dictionary<string, GLObject> Scene { get { return scene; } }

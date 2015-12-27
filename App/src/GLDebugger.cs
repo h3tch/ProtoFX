@@ -274,16 +274,16 @@ namespace App
             {
                 if (dbgOut <= 0)
                     return;
-
+                
                 // get last free unused image unit
                 unit = GetBoundImages().LastIndexOf(x => x == 0);
                 if (unit < 0)
                     return;
-
+                
                 // bind texture to image unit
                 tex.BindImg(unit, 0, 0, TextureAccess.WriteOnly, GpuFormat.Rgba32f);
                 GL.Uniform1(dbgOut, unit);
-
+                
                 // set debug uniform
                 if (dbgVert >= 0)
                     GL.Uniform2(dbgVert, settings.vs_InstanceID, settings.vs_VertexID);

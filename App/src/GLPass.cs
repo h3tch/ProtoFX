@@ -144,6 +144,14 @@ namespace App
         /// <param name="height">Height of the OpenGL control.</param>
         public void Exec(int width, int height, int frame)
         {
+#if DEBUG
+            // in debug mode check if the
+            // OpenGL sate is valid
+            var errcode = GL.GetError();
+            if (errcode != ErrorCode.NoError)
+                throw new Exception("OpenGL error.");
+#endif
+
             int fbWidth = width;
             int fbHeight = height;
 
@@ -183,8 +191,10 @@ namespace App
             foreach (var e in csexec)
                 e.Update(glname, width, height, fbWidth, fbHeight);
             
-            GLDebugger.Bind(this, frame);
-
+            // BIND DEBUGGER
+            if (glname > 0)
+                GLDebugger.Bind(this, frame);
+            
             // EXECUTE DRAW CALLS
             foreach (var call in drawcalls)
                 call.draw();
@@ -192,8 +202,10 @@ namespace App
             // EXECUTE COMPUTE CALLS
             foreach (var call in compcalls)
                 call.compute();
-            
-            GLDebugger.Unbind(this);
+
+            // UNBIND DEBUGGER
+            if (glname > 0)
+                GLDebugger.Unbind(this);
 
             // UNBIND OUTPUT BUFFERS
             if (glfragout != null)
@@ -217,6 +229,12 @@ namespace App
                 GL.BindSampler(s.unit, 0);
             foreach (var e in csexec)
                 e.EndPass(glname);
+#if DEBUG
+            // in debug mode check if the pass
+            // left a valid OpenGL sate
+            if ((errcode = GL.GetError()) != ErrorCode.NoError)
+                throw new Exception("OpenGL error.");
+#endif
         }
 
         public override void Delete()
