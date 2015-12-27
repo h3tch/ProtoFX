@@ -1,9 +1,10 @@
 ﻿uniform <<<debug uniform>>>;
+uniform <<<debug frame>>>;
 
 void _dbgMain() {
 	int _dbgIdx = 1;
 	<<<debug code>>>
-	_dbgStore(0, _dbgIdx-1);
+	_dbgStore(0, ivec2(_dbgIdx-1, _dbgFrame));
 }
 
 void _runMain() {

@@ -34,9 +34,11 @@ namespace OpenTK
         {
             MakeCurrent();
             scene.Where(x => x.Value is GLTech).Select(x => (GLTech)x.Value)
-                 .Do(x => x.Exec(ClientSize.Width, ClientSize.Height));
+                 .Do(x => x.Exec(ClientSize.Width, ClientSize.Height, Frame));
             SwapBuffers();
+            Frame++;
         }
+        public int Frame { get; private set; } = 0;
 
         /// <summary>
         /// Add a new object to the scene.

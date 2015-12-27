@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace App
 {
-    partial class CodeEditor
+    public partial class CodeEditor
     {
         private bool DisableEditing = false;
 
@@ -81,67 +81,7 @@ namespace App
                 editor.ClearIndicators(HighlightIndicatorIndex);
                 editor.AddIndicators(HighlightIndicatorIndex, ranges);
                 // handle additional caret changed events
-                HandleCaretPositionChanged(sender, e);
-            }
-        }
-        
-        private void HandleCaretPositionChanged(object sender, EventArgs e)
-        {
-            // get class references
-            var editor = (CodeEditor)sender;
-
-            // find all debug variables
-            var dbgVarMatches = Regex.Matches(editor.Text, GLDebugger.regexDbgVar);
-
-            // get line of where the caret is placed
-            var dbgLine = editor.LineFromPosition(editor.CurrentPosition);
-
-            // RESET DEBUG LIST VIEW
-            debugListView.Clear();
-            debugListView.View = View.Details;
-            debugListView.FullRowSelect = true;
-            debugListView.Columns.Add("Variable", 80);
-            debugListView.Columns.Add("X", 60);
-            debugListView.Columns.Add("Y", 60);
-            debugListView.Columns.Add("Z", 60);
-            debugListView.Columns.Add("W", 60);
-
-            int ID = 0;
-            foreach (Match dbgVarMatch in dbgVarMatches)
-            {
-                // next debug variable ID
-                ID++;
-
-                // get line of the debug variable
-                var line = editor.LineFromPosition(dbgVarMatch.Index);
-
-                // is the debug variable in the same line
-                if (line < dbgLine)
-                    continue;
-                if (line > dbgLine)
-                    break;
-
-                // try to find the debug variable ID
-                var val = GLDebugger.GetDebugVariable(ID - 1);
-                if (val == null)
-                    continue;
-
-                // CREATE LIST VIEW ROWS
-
-                int rows = val.GetLength(0);
-                int cols = val.GetLength(1);
-                // debug variable name
-                var name = dbgVarMatch.Value.Substring(3, dbgVarMatch.Value.Length - 6);
-                for (int r = 0; r < rows; r++)
-                {
-                    // convert row of debug variable to string array
-                    var row = from c in Enumerable.Range(0, cols + 1)
-                               select c == 0
-                                   ? (r == 0 ? name : "")
-                                   : string.Format(App.culture, "{0:0.000}", val.GetValue(r, c - 1));
-                    // add row to list view
-                    debugListView.Items.Add(new ListViewItem(row.ToArray()));
-                }
+                owner.UpdateDebugListView(editor);
             }
         }
 
@@ -204,9 +144,6 @@ namespace App
 
         private void HandleKeyDown(object sender, KeyEventArgs e)
         {
-            if (!e.Control)
-                return;
-
             switch (e.KeyCode)
             {
                 // disable editing if Ctrl+<Key> is pressed
@@ -214,8 +151,11 @@ namespace App
                 case Keys.R: // replace
                 case Keys.S: // save/save all/save as
                 case Keys.Space: // auto complete menu
-                    e.SuppressKeyPress = true;
-                    DisableEditing = true;
+                    if (e.Control)
+                    {
+                        e.SuppressKeyPress = true;
+                        DisableEditing = true;
+                    }
                     break;
             }
         }
@@ -223,26 +163,35 @@ namespace App
         private void HandleKeyUp(object sender, KeyEventArgs e)
         {
             // only disable editin if Ctrl is pressed
-            DisableEditing = e.Control;
-
-            if (!e.Control)
-                return;
-
+            DisableEditing = false;
+            
             var editor = (CodeEditor)sender;
             switch (e.KeyCode)
             {
                 case Keys.F:
-                    // start text search
-                    editor.FindText.Clear();
-                    editor.FindText.Focus();
+                    if (e.Control)
+                    {
+                        // start text search
+                        DisableEditing = true;
+                        editor.FindText.Clear();
+                        editor.FindText.Focus();
+                    }
                     break;
                 case Keys.R:
-                    // select all indicator to allow text replacement
-                    editor.SelectIndicators(HighlightIndicatorIndex);
+                    if (e.Control)
+                    {
+                        // select all indicator to allow text replacement
+                        DisableEditing = true;
+                        editor.SelectIndicators(HighlightIndicatorIndex);
+                    }
                     break;
                 case Keys.Space:
-                    // show auto complete menu
-                    editor.AutoCShow(editor.CurrentPosition);
+                    if (e.Control)
+                    {
+                        // show auto complete menu
+                        DisableEditing = true;
+                        editor.AutoCShow(editor.CurrentPosition);
+                    }
                     break;
             }
         }

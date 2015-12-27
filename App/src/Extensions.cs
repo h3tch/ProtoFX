@@ -33,6 +33,12 @@ namespace App
         #region Extensions For All Types
         public static T UseIf<T>(this T obj, bool condition)
             => condition ? obj : default(T);
+
+        public static void Do<T>(this T obj, Action<T> func)
+            => func(obj);
+
+        public static TResult Do<T, TResult>(this T obj, Func<T, TResult> func)
+            => func(obj);
         #endregion
 
         #region IEnumerable<T> Extensions

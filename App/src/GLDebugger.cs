@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
 namespace App
@@ -27,14 +26,14 @@ namespace App
         public static DebugSettings settings;
         // watch count for indexing
         private const int stage_size = 128;
-        private static int watchCount;
+        private static int dbgVarCount;
         #endregion
 
         public static void Instantiate()
         {
             // debug resources definitions
-            dbgBufKey = "__protogl__dbgbuf";
-            dbgTexKey = "__protogl__dbgtex";
+            dbgBufKey = "__dbgbuf__";
+            dbgTexKey = "__dbgtex__";
             dbgBufDef = "usage DynamicRead\n" +
                         $"size {stage_size * 6 * 16}\n";
             dbgTexDef = "format RGBA32f\n";
@@ -43,8 +42,6 @@ namespace App
             imgUnits = new int[GL.GetInteger((GetPName)All.MaxImageUnits)];
             passes = new Dictionary<int, Uniforms>();
             settings = new DebugSettings();
-            // reset watch count for indexing in debug mode
-            watchCount = 0;
         }
 
         public static void Initilize(Dict<GLObject> scene)
@@ -56,16 +53,18 @@ namespace App
             scene.Add(dbgBufKey, buf);
             scene.Add(dbgTexKey, tex);
             passes.Clear();
+            // reset watch count for indexing in debug mode
+            dbgVarCount = 0;
         }
 
-        public static void Bind(GLPass pass)
+        public static void Bind(GLPass pass, int frame)
         {
             // get debug uniforms for the pass
             Uniforms unif;
             if (!passes.TryGetValue(pass.glname, out unif))
                 passes.Add(pass.glname, unif = new Uniforms(pass));
             // set shader debug uniforms
-            unif.Bind(settings);
+            unif.Bind(settings, frame);
         }
 
         public static void Unbind(GLPass pass)
@@ -75,7 +74,7 @@ namespace App
                 unif.Unbind();
         }
 
-        public static Array GetDebugVariable(int ID)
+        public static Array GetDebugVariable(int ID, int frame)
         {
             // for each pass
             foreach (Uniforms unif in passes.Values)
@@ -97,7 +96,13 @@ namespace App
                     // READ DEBUG BUFFER HEADER
                     // number of debug rows (vec4)
                     int numDbgRows = mem.ReadInt32();
-                    mem.Seek(12);
+                    int dbgFrame = mem.ReadInt32();
+                    mem.Seek(8);
+
+                    // no debug information for
+                    // this stage in this frame
+                    if (frame != dbgFrame)
+                        continue;
 
                     // for each debug variable in this stage
                     // -- i += 1 + rows ... one header row + <rows> data rows
@@ -190,7 +195,7 @@ namespace App
                 if (dbgBody[newline - 1] == '\r')
                     newline--;
                 // insert debug code before newline-indicator
-                var insertString = $"_dbgIdx = _dbgStoreVar(_dbgIdx, {varname}, {watchCount++});";
+                var insertString = $"_dbgIdx = _dbgStoreVar(_dbgIdx, {varname}, {dbgVarCount++});";
                 dbgBody = dbgBody.Insert(newline, insertString);
                 insertOffset += insertString.Length;
             }
@@ -228,6 +233,7 @@ namespace App
                 .Replace("<<<stage offset>>>", (stage_size * stage_index).ToString());
             var rsBody = Properties.Resources.dbgBody
                 .Replace("<<<debug uniform>>>", debug_uniform[stage_index])
+                .Replace("<<<debug frame>>>", "int _dbgFrame")
                 .Replace("<<<debug condition>>>", debug_condition[stage_index])
                 .Replace("<<<debug code>>>", dbgBody)
                 .Replace("<<<runtime code>>>", runBody);
@@ -246,6 +252,7 @@ namespace App
             public int dbgGeom;
             public int dbgFrag;
             public int dbgComp;
+            public int dbgFrame;
             public byte[] data;
             private int unit;
 
@@ -258,11 +265,12 @@ namespace App
                 dbgGeom = GL.GetUniformLocation(pass.glname, "_dbgGeom");
                 dbgFrag = GL.GetUniformLocation(pass.glname, "_dbgFrag");
                 dbgComp = GL.GetUniformLocation(pass.glname, "_dbgComp");
+                dbgFrame = GL.GetUniformLocation(pass.glname, "_dbgFrame");
                 unit = -1;
                 data = null;
             }
 
-            public void Bind(DebugSettings settings)
+            public void Bind(DebugSettings settings, int frame)
             {
                 if (dbgOut <= 0)
                     return;
@@ -293,6 +301,8 @@ namespace App
                         (uint)settings.cs_GlobalInvocationID[0],
                         (uint)settings.cs_GlobalInvocationID[1],
                         (uint)settings.cs_GlobalInvocationID[2]);
+                if (dbgFrame >= 0)
+                    GL.Uniform1(dbgFrame, frame);
             }
 
             public void Unbind()
