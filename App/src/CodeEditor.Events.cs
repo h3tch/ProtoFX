@@ -81,19 +81,22 @@ namespace App
                 editor.ClearIndicators(HighlightIndicatorIndex);
                 editor.AddIndicators(HighlightIndicatorIndex, ranges);
                 // handle additional caret changed events
-                CaretPositionChanged(sender, e);
+                HandleCaretPositionChanged(sender, e);
             }
         }
         
-        private void CaretPositionChanged(object sender, EventArgs e)
+        private void HandleCaretPositionChanged(object sender, EventArgs e)
         {
             // get class references
             var editor = (CodeEditor)sender;
 
+            // find all debug variables
             var dbgVarMatches = Regex.Matches(editor.Text, GLDebugger.regexDbgVar);
+
+            // get line of where the caret is placed
             var dbgLine = editor.LineFromPosition(editor.CurrentPosition);
 
-            // CREATE TABLE
+            // RESET DEBUG LIST VIEW
             debugListView.Clear();
             debugListView.View = View.Details;
             debugListView.FullRowSelect = true;
@@ -106,30 +109,38 @@ namespace App
             int ID = 0;
             foreach (Match dbgVarMatch in dbgVarMatches)
             {
+                // next debug variable ID
+                ID++;
+
+                // get line of the debug variable
                 var line = editor.LineFromPosition(dbgVarMatch.Index);
 
-                // next watch ID
-                ID++;
+                // is the debug variable in the same line
                 if (line < dbgLine)
                     continue;
                 if (line > dbgLine)
                     break;
 
-                // try to find the watch ID
-                var val = GLDebugger.PickWatchVar(ID - 1);
+                // try to find the debug variable ID
+                var val = GLDebugger.GetDebugVariable(ID - 1);
                 if (val == null)
                     continue;
 
-                // create rows
+                // CREATE LIST VIEW ROWS
+
                 int rows = val.GetLength(0);
                 int cols = val.GetLength(1);
-                var name = dbgVarMatch.Value;
+                // debug variable name
+                var name = dbgVarMatch.Value.Substring(3, dbgVarMatch.Value.Length - 6);
                 for (int r = 0; r < rows; r++)
                 {
-                    var args = from c in Enumerable.Range(0, cols + 1)
-                               select c == 0 ? (r == 0 ? name.Substring(3, name.Length - 6) : "") :
-                               string.Format(App.culture, "{0:0.000}", val.GetValue(new int[] { r, c - 1 }));
-                    debugListView.Items.Add(new ListViewItem(args.ToArray()));
+                    // convert row of debug variable to string array
+                    var row = from c in Enumerable.Range(0, cols + 1)
+                               select c == 0
+                                   ? (r == 0 ? name : "")
+                                   : string.Format(App.culture, "{0:0.000}", val.GetValue(r, c - 1));
+                    // add row to list view
+                    debugListView.Items.Add(new ListViewItem(row.ToArray()));
                 }
             }
         }
