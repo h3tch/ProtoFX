@@ -75,12 +75,18 @@ namespace App
             // handle selection changed events
             if (e.Change == UpdateChange.Selection)
             {
-                // get whole words from selections and get ranges from these words
-                var ranges = editor.FindWordRanges(editor.GetWordsFromSelections());
-                // highlight all selected words
-                editor.ClearIndicators(HighlightIndicatorIndex);
-                editor.AddIndicators(HighlightIndicatorIndex, ranges);
-                // handle additional caret changed events
+                // Update indicators only if the editor is in focus. This
+                // is necessary, because they are also used by 'Find & Replace'.
+                if (editor.Focused)
+                {
+                    // get whole words from selections and get ranges from these words
+                    var ranges = editor.FindWordRanges(editor.GetWordsFromSelections());
+                    // highlight all selected words
+                    editor.ClearIndicators(HighlightIndicatorIndex);
+                    editor.AddIndicators(HighlightIndicatorIndex, ranges);
+                }
+
+                // Update debug list view
                 owner.UpdateDebugListView(editor);
             }
         }
