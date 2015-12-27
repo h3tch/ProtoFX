@@ -28,6 +28,7 @@ namespace App
             // link property viewer to debug settings
             GLDebugger.Instantiate();
             debugProperty.SelectedObject = GLDebugger.settings;
+            debugProperty.CollapseAllGridItems();
         }
 
         private void App_FormClosing(object sender, FormClosingEventArgs e)

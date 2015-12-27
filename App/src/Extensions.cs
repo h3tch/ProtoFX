@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -20,6 +21,21 @@ namespace App
             return -1;
         }
 
+        #region String Extensions
+        public static Match BraceMatch(this string s, char open, char close)
+        {
+            string oc = "" + open + close;
+            return Regex.Match(s, $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
+                $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
+        }
+        #endregion
+
+        #region Extensions For All Types
+        public static T UseIf<T>(this T obj, bool condition)
+            => condition ? obj : default(T);
+        #endregion
+
+        #region IEnumerable<T> Extensions
         public static int IndexOf<T>(this IEnumerable<T> ie, Func<T, bool> func)
         {
             int i = 0;
@@ -85,22 +101,14 @@ namespace App
             return str;
         }
 
-        public static Match MatchBrace(this string s, char open, char close)
-        {
-            string oc = "" + open + close;
-            return Regex.Match(s, $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
-                $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
-        }
-
-        public static T UseIf<T>(this T obj, bool condition)
-            => condition ? obj : default(T);
-
         public static void Do<T>(this IEnumerable<T> ie, Action<T> func)
         {
             foreach (var e in ie)
                 func(e);
         }
+        #endregion
 
+        #region Convert Types
         public static byte[] ToBytes(this Array src)
         {
             var ellType = src.GetType().GetElementType();
@@ -163,19 +171,35 @@ namespace App
 
             throw new ArgumentException("ERROR: Could not convert buffer data to specified type.");
         }
+        #endregion
 
-        public static IEnumerable<TResult> Select<TResult>(this MatchCollection matches, Func<Match, TResult> func)
-        {
-            foreach (Match match in matches)
-                yield return func(match);
-        }
-
+        #region Copy Extensions
         public static void CopyTo(this IntPtr src, IntPtr dst, int size)
-        {
-            CopyMemory(dst, src, (uint)size);
-        }
+            => CopyMemory(dst, src, (uint)size);
 
         [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
         private static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
+        #endregion
+
+        #region BinaryReader Extensions
+        public static long Seek(this BinaryReader reader, int offset, SeekOrigin origin = SeekOrigin.Current)
+            => reader.BaseStream.Seek(offset, origin);
+
+        public static Array ReadArray<T>(this BinaryReader reader, int rows, int cols, int stride)
+            where T : struct
+        {
+            // create array of type and find suitable read-method
+            Array array = new T[rows, cols];
+            var Read = reader.GetType().GetMethod("Read" + typeof(T).Name);
+            int skip = stride - cols * Marshal.SizeOf<T>();
+
+            // read types from mem and store them in the array
+            for (int y = 0; y < rows; y++)
+                for (int x = 0; x < cols; x++, reader.Seek(skip))
+                    array.SetValue(Read.Invoke(reader, null), y, x);
+
+            return array;
+        }
+        #endregion
     }
 }

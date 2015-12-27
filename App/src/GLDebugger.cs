@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
 namespace App
@@ -73,62 +75,56 @@ namespace App
                 unif.Unbind();
         }
 
-        public static Array PickWatchVar(int ID)
+        public static Array GetDebugVariable(int ID)
         {
             // for each pass
             foreach (Uniforms unif in passes.Values)
             {
+                // not debug output in this pass?
                 if (unif.data == null)
                     continue;
 
+                // to be able to read basic types the binary array
+                // needs to be converted into a BinaryReader
+                var mem = new BinaryReader(new MemoryStream(unif.data));
+
                 // for each shader stage
-                for (int stage = 0, offset; stage < 6; stage++)
+                for (int stage = 0; stage < 6; stage++)
                 {
                     // offset of the current stage
-                    offset = 16 * stage_size * stage;
+                    mem.Seek(16 * stage_size * stage, SeekOrigin.Begin);
 
-                    // number of debug variables generated in this stage
-                    int end = BitConverter.ToInt32(unif.data, offset);
-                    offset += 16;
-                    end = offset + end * 16;
+                    // READ DEBUG BUFFER HEADER
+                    // number of debug rows (vec4)
+                    int numDbgRows = mem.ReadInt32();
+                    mem.Seek(12);
 
                     // for each debug variable in this stage
-                    while (offset < end)
+                    // -- i += 1 + rows ... one header row + <rows> data rows
+                    for (int i = 0, rows; i < numDbgRows; i += 1 + rows)
                     {
-                        int type = BitConverter.ToInt32(unif.data, offset);
-                        int rows = BitConverter.ToInt32(unif.data, offset + 4);
-                        int cols = BitConverter.ToInt32(unif.data, offset + 8);
-                        int watchID = BitConverter.ToInt32(unif.data, offset + 12);
-                        offset += 16;
+                        // READ DEBUG VAR HEADER
+                        int type = mem.ReadInt32();
+                        rows = mem.ReadInt32();
+                        int cols = mem.ReadInt32();
+                        int varID = mem.ReadInt32();
 
-                        // if this is the debug variable we want
-                        if (watchID == ID)
+                        // this is not the debug variable we want
+                        if (varID != ID)
                         {
-                            // convert and return the debug variable
-                            switch (type)
-                            {
-                                case 1: // BOOL
-                                case 2: // INT
-                                    int[,] vi = new int[rows, cols];
-                                    for (int y = 0; y < rows; y++)
-                                        for (int x = 0; x < cols; x++)
-                                            vi[y, x] = BitConverter.ToInt32(unif.data, offset + 16 * y + 4 * x);
-                                    return vi;
-                                case 3: // UINT
-                                    uint[,] vu = new uint[rows, cols];
-                                    for (int y = 0; y < rows; y++)
-                                        for (int x = 0; x < cols; x++)
-                                            vu[y, x] = BitConverter.ToUInt32(unif.data, offset + 16 * y + 4 * x);
-                                    return vu;
-                                case 4: // FLOAT
-                                    float[,] vf = new float[rows, cols];
-                                    for (int y = 0; y < rows; y++)
-                                        for (int x = 0; x < cols; x++)
-                                            vf[y, x] = BitConverter.ToSingle(unif.data, offset + 16 * y + 4 * x);
-                                    return vf;
-                            }
+                            // skip debug variable
+                            mem.Seek(16 * rows);
+                            continue;
                         }
-                        offset += 16 * rows;
+
+                        // convert and return the debug variable
+                        switch (type)
+                        {
+                            case 1/*BOOL */:
+                            case 2/*INT  */: return mem.ReadArray<int>(rows, cols, 16);
+                            case 3/*UINT */: return mem.ReadArray<uint>(rows, cols, 16);
+                            case 4/*FLOAT*/: return mem.ReadArray<float>(rows, cols, 16);
+                        }
                     }
                 }
             }
@@ -169,7 +165,7 @@ namespace App
             // find main function and body
             var main = Regex.Match(glsl, @"void\s+main\s*\(\s*\)");
             var head = glsl.Substring(0, main.Index);
-            var body = glsl.Substring(main.Index).MatchBrace('{', '}');
+            var body = glsl.Substring(main.Index).BraceMatch('{', '}');
 
             // replace WATCH functions
             var watch = Regex.Matches(body.Value, regexDbgVar);
@@ -240,7 +236,7 @@ namespace App
         }
         #endregion
 
-        #region DEBUG SETTINGS
+        #region DEBUG UNIFORMS
         private class Uniforms
         {
             public int dbgOut;
@@ -310,66 +306,56 @@ namespace App
                 buf.Read(ref data);
             }
         }
+        #endregion
 
+        #region DEBUG SETTINGS
         public class DebugSettings
         {
-            [Category("Vertex Shader"), DisplayName("gl_InstanceID"),
+            [Category("Vertex Shader"), DisplayName("InstanceID"),
              Description("the index of the current instance when doing some form of instanced " +
                 "rendering. The instance count always starts at 0, even when using base instance " +
                 "calls. When not using instanced rendering, this value will be 0.")]
             public int vs_InstanceID { get; set; } = 0;
 
-            [Category("Vertex Shader"), DisplayName("gl_VertexID"),
+            [Category("Vertex Shader"), DisplayName("VertexID"),
              Description("the index of the vertex currently being processed. When using non-indexed " +
                 "rendering, it is the effective index of the current vertex (the number of vertices " +
                 "processed + the first​ value). For indexed rendering, it is the index used to fetch " +
                 "this vertex from the buffer.")]
             public int vs_VertexID { get; set; } = 0;
 
-            [Category("Tesselation"), DisplayName("gl_InvocationID"),
+            [Category("Tesselation"), DisplayName("InvocationID"),
              Description("the index of the shader invocation within this patch. An invocation " +
                 "writes to per-vertex output variables by using this to index them.")]
             public int ts_InvocationID { get; set; } = 0;
 
-            [Category("Tesselation"), DisplayName("gl_PrimitiveID"),
+            [Category("Tesselation"), DisplayName("PrimitiveID"),
              Description("the index of the current patch within this rendering command.")]
             public int ts_PrimitiveID { get; set; } = 0;
 
-            [Category("Geometry Shader"), DisplayName("gl_InvocationID"),
+            [Category("Geometry Shader"), DisplayName("InvocationID"),
              Description("the current instance, as defined when instancing geometry shaders.")]
             public int gs_InvocationID { get; set; } = 0;
 
-            [Category("Geometry Shader"), DisplayName("gl_PrimitiveIDIn"),
+            [Category("Geometry Shader"), DisplayName("PrimitiveIDIn"),
              Description("the current input primitive's ID, based on the number of primitives " +
                 "processed by the GS since the current drawing command started.")]
             public int gs_PrimitiveIDIn { get; set; } = 0;
 
-            [Category("Fragment Shader"), DisplayName("gl_FragCoord"),
+            [Category("Fragment Shader"), DisplayName("FragCoord"),
              Description("The location of the fragment in window space. The X and Y components " +
                 "are the window-space position of the fragment.")]
             public int[] fs_FragCoord { get; set; } = new int[2] { 0, 0 };
 
-            //[Category("Fragment Shader"), DisplayName("gl_PrimitiveID"),
-            // Description("This value is the index of the current primitive being rendered by this " +
-            //    "drawing command. This includes any tessellation applied to the mesh, so each " +
-            //    "individual primitive will have a unique index. However, if a Geometry Shader is " +
-            //    "active, then the gl_PrimitiveID​ is exactly and only what the GS provided as output. " +
-            //    "Normally, gl_PrimitiveID​ is guaranteed to be unique, so if two FS invocations have " +
-            //    "the same primitive ID, they come from the same primitive. But if a GS is active and " +
-            //    "outputs non - unique values, then different fragment shader invocations for different " +
-            //    "primitives will get the same value.If the GS did not output a value for gl_PrimitiveID​, " +
-            //    "then the fragment shader gets an undefined value.")]
-            //public int fs_PrimitiveID { get; set; } = 0;
-
-            [Category("Fragment Shader"), DisplayName("gl_Layer"),
+            [Category("Fragment Shader"), DisplayName("Layer"),
              Description("is either 0 or the layer number for this primitive output by the Geometry Shader.")]
             public int fs_Layer { get; set; } = 0;
 
-            [Category("Fragment Shader"), DisplayName("gl_ViewportIndex"),
+            [Category("Fragment Shader"), DisplayName("ViewportIndex"),
              Description("is either 0 or the viewport index for this primitive output by the Geometry Shader.")]
             public int fs_ViewportIndex { get; set; } = 0;
 
-            [Category("Compute Shader"), DisplayName("gl_GlobalInvocationID"),
+            [Category("Compute Shader"), DisplayName("GlobalInvocationID"),
              Description("uniquely identifies this particular invocation of the compute shader " +
                 "among all invocations of this compute dispatch call. It's a short-hand for the " +
                 "math computation: gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID;")]
