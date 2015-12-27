@@ -32,10 +32,19 @@ namespace OpenTK
         /// </summary>
         public void Render()
         {
-            MakeCurrent();
-            scene.Where(x => x.Value is GLTech).Select(x => (GLTech)x.Value)
-                 .Do(x => x.Exec(ClientSize.Width, ClientSize.Height, Frame));
-            SwapBuffers();
+            try
+            {
+                MakeCurrent();
+                scene.Where(x => x.Value is GLTech).Select(x => (GLTech)x.Value)
+                     .Do(x => x.Exec(ClientSize.Width, ClientSize.Height, Frame));
+                SwapBuffers();
+            }
+            catch (Exception ex)
+            {
+                ex = ex.InnerException != null ? ex.InnerException : ex;
+                var codeError = (RichTextBox)FindForm().Controls.Find("codeError", true).First();
+                codeError.AppendText(ex.Message + '\n');
+            }
             Frame++;
         }
         public int Frame { get; private set; } = 0;

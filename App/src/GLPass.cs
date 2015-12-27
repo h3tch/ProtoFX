@@ -188,6 +188,8 @@ namespace App
                 t.obj.BindImg(t.unit, t.level, t.layer, t.access, t.format);
             foreach (var s in sampler)
                 GL.BindSampler(s.unit, s.obj.glname);
+
+            // EXECUTE EXTERNAL CODE
             foreach (var e in csexec)
                 e.Update(glname, width, height, fbWidth, fbHeight);
             
