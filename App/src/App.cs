@@ -59,11 +59,11 @@ namespace App
             {
                 case Keys.F5:
                     // Compile and run
-                    toolBtnRun_Click(sender, null);
+                    toolBtnRunDebug_Click(sender, null);
                     break;
                 case Keys.F6:
                     // Compile and run
-                    toolBtnRun_Click(toolBtnDbg, null);
+                    toolBtnRunDebug_Click(toolBtnDbg, null);
                     break;
                 case Keys.S:
                     if (e.Control && e.Shift)
@@ -82,6 +82,12 @@ namespace App
                         toolBtnOpen_Click(sender, null);
                     break;
             }
+        }
+
+        private void glControl_MouseUp(object sender, EventArgs e)
+        {
+            propertyGrid.Refresh();
+            GetSelectedEditor()?.Do(x => UpdateDebugListView(x));
         }
         #endregion
         
@@ -169,11 +175,80 @@ namespace App
         private void propertyGrid_Click(object sender, EventArgs e)
             => propertyGrid.SelectedObject = propertyGrid.SelectedObject;
 
-        private void propertyGrid_MouseUp(object sender, MouseEventArgs e)
-            => propertyGrid.Refresh();
-
         private void propertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
-            => glControl.Render();
+        {
+            glControl.Render();
+            GetSelectedEditor()?.Do(x => UpdateDebugListView(x));
+        }
+        #endregion
+
+        #region Debug Variables
+        public void UpdateDebugListView(CodeEditor editor)
+        {
+            // RESET DEBUG LIST VIEW
+            debugListView.Clear();
+            debugListView.View = View.Details;
+            debugListView.FullRowSelect = true;
+            debugListView.Columns.Add("X", 80);
+            debugListView.Columns.Add("Y", 80);
+            debugListView.Columns.Add("Z", 80);
+            debugListView.Columns.Add("W", 80);
+
+            // if the code has been edited no debug information can
+            // be shown, because debug variables might have been
+            // added or removed, which leads to invalid debug output
+            if (((TabPage)editor.Parent).Text.EndsWith("*"))
+                return;
+
+            // find all debug variables
+            var dbgVarMatches = Regex.Matches(editor.Text, GLDebugger.regexDbgVar);
+
+            // get line of where the caret is placed
+            var dbgLine = editor.LineFromPosition(editor.CurrentPosition);
+
+            int ID = 0;
+            foreach (Match dbgVarMatch in dbgVarMatches)
+            {
+                // next debug variable ID
+                ID++;
+
+                // get line of the debug variable
+                var line = editor.LineFromPosition(dbgVarMatch.Index);
+
+                // is the debug variable in the same line
+                if (line < dbgLine)
+                    continue;
+                if (line > dbgLine)
+                    break;
+
+                // try to find the debug variable ID
+                var val = GLDebugger.GetDebugVariable(ID - 1, glControl.Frame - 1);
+                if (val == null)
+                    continue;
+
+                // CREATE LIST VIEW ROWS
+
+                int rows = val.GetLength(0);
+                int cols = val.GetLength(1);
+                // debug variable name
+                var name = dbgVarMatch.Value.Substring(3, dbgVarMatch.Value.Length - 6);
+
+                // add list group for this debug variable
+                var dbgVarGroup = new ListViewGroup(name);
+                debugListView.Groups.Add(dbgVarGroup);
+
+                for (int r = 0; r < rows; r++)
+                {
+                    // convert row of debug variable to string array
+                    var row = from c in Enumerable.Range(0, cols)
+                              select string.Format(culture, "{0:0.000}", val.GetValue(r, c));
+                    // add row to list view
+                    var item = new ListViewItem(row.ToArray());
+                    item.Group = dbgVarGroup;
+                    debugListView.Items.Add(item);
+                }
+            }
+        }
         #endregion
 
         #region Tool Buttons
@@ -208,12 +283,16 @@ namespace App
             }
         }
 
-        private void toolBtnRun_Click(object sender, EventArgs e)
+        private void toolBtnRunDebug_Click(object sender, EventArgs e)
         {
             // if no tab page is selected nothing needs to be compiled
             var sourceTab = (TabPage)tabSource.SelectedTab;
             if (sourceTab == null)
                 return;
+            var editor = (CodeEditor)sourceTab.Controls[0];
+            
+            // save code
+            toolBtnSave_Click(sender, null);
 
             // clear scene and output
             codeError.Text = "";
@@ -223,14 +302,13 @@ namespace App
             var includeDir = sourceTab.filepath != null ?
                 Path.GetDirectoryName(sourceTab.filepath) : Directory.GetCurrentDirectory();
             includeDir += '\\';
-            
+
             // get code text form tab page
-            var text = ((CodeEditor)sourceTab.Controls[0]).Text;
             // generate debug information?
             var debugging = sender == toolBtnDbg;
 
             // remove comments
-            var code = CodeEditor.RemoveComments(text);
+            var code = CodeEditor.RemoveComments(editor.Text);
             code = CodeEditor.RemoveNewLineIndicators(code);
             code = CodeEditor.IncludeFiles(code, includeDir);
             code = CodeEditor.ResolvePreprocessorDefinitions(code);
@@ -275,6 +353,10 @@ namespace App
             glControl.Scene.Where(x => x.Value is GLBuffer).Do(x => comboBuf.Items.Add(x.Value));
             glControl.Scene.Where(x => x.Value is GLImage).Do(x => comboImg.Items.Add(x.Value));
             glControl.Scene.Where(x => x.Value is GLInstance).Do(x => comboProp.Items.Add(x.Value));
+
+            // UPDATE DEBUG INFORMATION IF NECESSARY
+            if (debugging)
+                UpdateDebugListView(editor);
         }
 
         private void toolBtnSave_Click(object sender, EventArgs e)
@@ -347,7 +429,7 @@ namespace App
 
             // create new tab objects
             var tabSourcePage = new TabPage(path);
-            var tabSourcePageText = new CodeEditor(debugListView, text);
+            var tabSourcePageText = new CodeEditor(this, text);
 
             // tabSourcePage
             tabSourcePage.Controls.Add(tabSourcePageText);
@@ -361,6 +443,14 @@ namespace App
             // add tab
             tabSource.Controls.Add(tabSourcePage);
             
+        }
+
+        private CodeEditor GetSelectedEditor()
+        {
+            var sourceTab = (TabPage)tabSource.SelectedTab;
+            if (sourceTab == null)
+                return null;
+            return (CodeEditor)sourceTab.Controls[0];
         }
         #endregion
     }

@@ -142,7 +142,7 @@ namespace App
         /// </summary>
         /// <param name="width">Width of the OpenGL control.</param>
         /// <param name="height">Height of the OpenGL control.</param>
-        public void Exec(int width, int height)
+        public void Exec(int width, int height, int frame)
         {
             int fbWidth = width;
             int fbHeight = height;
@@ -183,7 +183,7 @@ namespace App
             foreach (var e in csexec)
                 e.Update(glname, width, height, fbWidth, fbHeight);
             
-            GLDebugger.Bind(this);
+            GLDebugger.Bind(this, frame);
 
             // EXECUTE DRAW CALLS
             foreach (var call in drawcalls)

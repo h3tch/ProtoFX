@@ -77,50 +77,59 @@ int _dbgStoreVar(int idx, vec4 val, int ID) {
 }
 
 int _dbgStoreVar(int idx, mat2 val, int ID) {
+	val = transpose(val);
 	idx = _dbgStore(idx, _DBG_FLOAT, 2, 2, ID);
 	for (int c = 0; c < 2; c++) idx = _dbgStore(idx, val[c]);
 	return idx;
 }
 int _dbgStoreVar(int idx, mat2x3 val, int ID) {
+	mat3x2 valT = transpose(val);
 	idx = _dbgStore(idx, _DBG_FLOAT, 2, 3, ID);
-	for (int c = 0; c < 2; c++) idx = _dbgStore(idx, val[c]);
+	for (int c = 0; c < 2; c++) idx = _dbgStore(idx, valT[c]);
 	return idx;
 }
 int _dbgStoreVar(int idx, mat2x4 val, int ID) {
+	mat4x2 valT = transpose(val);
 	idx = _dbgStore(idx, _DBG_FLOAT, 2, 4, ID);
-	for (int c = 0; c < 2; c++) idx = _dbgStore(idx, val[c]);
+	for (int c = 0; c < 2; c++) idx = _dbgStore(idx, valT[c]);
 	return idx;
 }
 
 int _dbgStoreVar(int idx, mat3 val, int ID) {
+	val = transpose(val);
 	idx = _dbgStore(idx, _DBG_FLOAT, 3, 3, ID);
 	for (int c = 0; c < 3; c++) idx = _dbgStore(idx, val[c]);
 	return idx;
 }
 int _dbgStoreVar(int idx, mat3x2 val, int ID) {
+	mat2x3 valT = transpose(val);
 	idx = _dbgStore(idx, _DBG_FLOAT, 3, 2, ID);
-	for (int c = 0; c < 3; c++) idx = _dbgStore(idx, val[c]);
+	for (int c = 0; c < 3; c++) idx = _dbgStore(idx, valT[c]);
 	return idx;
 }
 int _dbgStoreVar(int idx, mat3x4 val, int ID) {
+	mat4x3 valT = transpose(val);
 	idx = _dbgStore(idx, _DBG_FLOAT, 3, 4, ID);
-	for (int c = 0; c < 3; c++) idx = _dbgStore(idx, val[c]);
+	for (int c = 0; c < 3; c++) idx = _dbgStore(idx, valT[c]);
 	return idx;
 }
 
 int _dbgStoreVar(int idx, mat4 val, int ID) {
+	val = transpose(val);
 	idx = _dbgStore(idx, _DBG_FLOAT, 4, 4, ID);
 	for (int c = 0; c < 4; c++) idx = _dbgStore(idx, val[c]);
 	return idx;
 }
 int _dbgStoreVar(int idx, mat4x2 val, int ID) {
+	mat2x4 valT = transpose(val);
 	idx = _dbgStore(idx, _DBG_FLOAT, 4, 2, ID);
-	for (int c = 0; c < 4; c++) idx = _dbgStore(idx, val[c]);
+	for (int c = 0; c < 4; c++) idx = _dbgStore(idx, valT[c]);
 	return idx;
 }
 int _dbgStoreVar(int idx, mat4x3 val, int ID) {
+	mat3x4 valT = transpose(val);
 	idx = _dbgStore(idx, _DBG_FLOAT, 4, 3, ID);
-	for (int c = 0; c < 4; c++) idx = _dbgStore(idx, val[c]);
+	for (int c = 0; c < 4; c++) idx = _dbgStore(idx, valT[c]);
 	return idx;
 }
 

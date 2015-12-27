@@ -28,7 +28,8 @@ namespace App
                 throw err;
         }
 
-        public void Exec(int width, int height) => passes.ForEach(x => x.Exec(width, height));
+        public void Exec(int width, int height, int frame)
+            => passes.ForEach(x => x.Exec(width, height, frame));
 
         public override void Delete() { }
     }

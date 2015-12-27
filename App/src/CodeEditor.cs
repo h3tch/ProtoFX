@@ -10,16 +10,16 @@ namespace App
     {
         private static int HighlightIndicatorIndex = 8;
         private List<int[]>[] IndicatorRanges;
-        private ListView debugListView;
+        private App owner;
         
         /// <summary>
         /// Instantiate and initialize ScintillaNET based code editor for ProtoGL.
         /// </summary>
         /// <param name="debugListView"></param>
         /// <param name="text">[OPTIONAL] Initialize code editor with text.</param>
-        public CodeEditor(ListView debugListView, string text = null)
+        public CodeEditor(App owner, string text = null)
         {
-            this.debugListView = debugListView;
+            this.owner = owner;
 
             // instantiate fields
             IndicatorRanges = new List<int[]>[Indicators.Count];
