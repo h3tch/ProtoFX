@@ -279,6 +279,10 @@ namespace App
             }
         }
 
+        public string GetLable() => GetLable(glname);
+
+        public static string GetLable(int glname) => GetLable(ObjectLabelIdentifier.Texture, glname);
+
         #region UTIL METHODS
         private static byte[] LoadImageFiles(CompileException err, string dir, string[] filenames,
             ref int w, ref int h, ref int d, GpuFormat gpuformat)

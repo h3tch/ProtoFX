@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace App
 {
@@ -138,6 +139,10 @@ namespace App
                 glname = 0;
             }
         }
+
+        public string GetLable() => GetLable(glname);
+
+        public static string GetLable(int glname) => GetLable(ObjectLabelIdentifier.Buffer, glname);
 
         #region UTIL METHODS
         private static byte[] LoadXml(CompileException err, string dir, string[] cmd, Dict<GLObject> classes)

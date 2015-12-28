@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using System.Text;
 
 namespace App
 {
@@ -42,6 +43,14 @@ namespace App
             this.glname = 0;
             this.name = @params.name;
             this.anno = @params.anno;
+        }
+
+        protected static string GetLable(ObjectLabelIdentifier type, int glname)
+        {
+            int length = 64;
+            var label = new StringBuilder(length);
+            GL.GetObjectLabel(type, glname, length, out length, label);
+            return label.ToString();
         }
 
         public abstract void Delete();

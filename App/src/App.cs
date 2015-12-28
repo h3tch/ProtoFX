@@ -25,6 +25,10 @@ namespace App
             // select 'float' as the default buffer value type
             comboBufType.SelectedIndex = 8;
 
+            // place splitters by percentage
+            splitCodeError.SplitterDistance = (int)(0.7 * splitCodeError.Height);
+            splitDebug.SplitterDistance = (int)(0.45 * splitDebug.Width);
+
             // link property viewer to debug settings
             GLDebugger.Instantiate();
             debugProperty.SelectedObject = GLDebugger.settings;
@@ -329,22 +333,26 @@ namespace App
             glControl.Render();
 
             // also add externally created textures to the scene
-            var appIDs = from x in glControl.Scene
-                         where x.Value is GLImage || x.Value is GLTexture
-                         select x.Value.glname;
-            var glIDs = from x in Enumerable.Range(0, 64)
-                        where !appIDs.Contains(x) && GL.IsTexture(x)
-                        select x;
-            glIDs.Do(x => glControl.Scene.Add("GLTex" + x,
-                new GLImage(new GLParams("GLTex" + x, "tex"), x)));
+            var internID = from x in glControl.Scene
+                           where x.Value is GLImage || x.Value is GLTexture
+                           select x.Value.glname;
+            var externID = from x in Enumerable.Range(0, 64)
+                           where !internID.Contains(x) && GL.IsTexture(x)
+                           select x;
+            externID
+                .Select(x => new GLImage(new GLParams($"GLTex{x}: {GLImage.GetLable(x)}", "tex"), x))
+                .Do(x => glControl.Scene.Add(x.name, x));
 
             // also add externally created buffers to the scene
-            appIDs = from x in glControl.Scene
-                     where x.Value is GLBuffer select x.Value.glname;
-            glIDs = from x in Enumerable.Range(0, 64)
-                    where !appIDs.Contains(x) && GL.IsBuffer(x) select x;
-            glIDs.Do(x => glControl.Scene.Add("GLBuf" + x,
-                new GLBuffer(new GLParams("GLBuf" + x, "buf"), x)));
+            internID = from x in glControl.Scene
+                       where x.Value is GLBuffer
+                       select x.Value.glname;
+            externID = from x in Enumerable.Range(0, 64)
+                       where !internID.Contains(x) && GL.IsBuffer(x)
+                       select x;
+            externID
+                .Select(x => new GLBuffer(new GLParams($"GLBuf{x}: {GLBuffer.GetLable(x)}", "buf"), x))
+                .Do(x => glControl.Scene.Add(x.name, x));
 
             // UPDATE DEBUG DATA
             comboBuf.Items.Clear();

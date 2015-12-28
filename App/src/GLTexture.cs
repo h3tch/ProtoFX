@@ -134,5 +134,9 @@ namespace App
             if (glbuff == null && glimg == null)
                 err.Add("Ether an image or a buffer has to be bound to a texture object.");
         }
+
+        public string GetLable() => GetLable(glname);
+
+        public static string GetLable(int glname) => GetLable(ObjectLabelIdentifier.Texture, glname);
     }
 }
