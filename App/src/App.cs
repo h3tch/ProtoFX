@@ -204,53 +204,35 @@ namespace App
             if (((TabPage)editor.Parent).Text.EndsWith("*"))
                 return;
 
-            // find all debug variables
-            var dbgVarMatches = Regex.Matches(editor.Text, GLDebugger.regexDbgVar);
-
-            // get line of where the caret is placed
+            // get debug variables of the line where the caret is placed
             var dbgLine = editor.LineFromPosition(editor.CurrentPosition);
+            var dbgVars = from x in GLDebugger.GetLineDebugVariables(editor, dbgLine)
+                          select x;
+            dbgVars.Select(Var => GLDebugger.GetDebugVariable(Var.Key, glControl.Frame - 1))
+                   .Zip(dbgVars, (Val, Var) => { if (Val != null) NewItem(Var.Value, Val); });
+        }
 
-            int ID = 0;
-            foreach (Match dbgVarMatch in dbgVarMatches)
+        private void NewItem(string groupName, Array val)
+        {
+            // CREATE LIST VIEW ROWS
+
+            int rows = val.GetLength(0);
+            int cols = val.GetLength(1);
+
+            // add list group for this debug variable
+            // -- dbgVar.Value ... debug variable name
+            var dbgVarGroup = new ListViewGroup(groupName);
+            debugListView.Groups.Add(dbgVarGroup);
+
+            for (int r = 0; r < rows; r++)
             {
-                // next debug variable ID
-                ID++;
-
-                // get line of the debug variable
-                var line = editor.LineFromPosition(dbgVarMatch.Index);
-
-                // is the debug variable in the same line
-                if (line < dbgLine)
-                    continue;
-                if (line > dbgLine)
-                    break;
-
-                // try to find the debug variable ID
-                var val = GLDebugger.GetDebugVariable(ID - 1, glControl.Frame - 1);
-                if (val == null)
-                    continue;
-
-                // CREATE LIST VIEW ROWS
-
-                int rows = val.GetLength(0);
-                int cols = val.GetLength(1);
-                // debug variable name
-                var name = dbgVarMatch.Value.Substring(3, dbgVarMatch.Value.Length - 6);
-
-                // add list group for this debug variable
-                var dbgVarGroup = new ListViewGroup(name);
-                debugListView.Groups.Add(dbgVarGroup);
-
-                for (int r = 0; r < rows; r++)
-                {
-                    // convert row of debug variable to string array
-                    var row = from c in Enumerable.Range(0, cols)
-                              select string.Format(culture, "{0:0.000}", val.GetValue(r, c));
-                    // add row to list view
-                    var item = new ListViewItem(row.ToArray());
-                    item.Group = dbgVarGroup;
-                    debugListView.Items.Add(item);
-                }
+                // convert row of debug variable to string array
+                var row = from c in Enumerable.Range(0, cols)
+                          select string.Format(culture, "{0:0.000}", val.GetValue(r, c));
+                // add row to list view
+                var item = new ListViewItem(row.ToArray());
+                item.Group = dbgVarGroup;
+                debugListView.Items.Add(item);
             }
         }
         #endregion

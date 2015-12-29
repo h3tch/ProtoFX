@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -31,14 +32,13 @@ namespace App
         #endregion
 
         #region Extensions For All Types
-        public static T UseIf<T>(this T obj, bool condition)
-            => condition ? obj : default(T);
+        public static T UseIf<T>(this T obj, bool condition) => condition ? obj : default(T);
 
-        public static void Do<T>(this T obj, Action<T> func)
-            => func(obj);
+        public static bool IsDefault<T>(this T obj) => obj.Equals(default(T));
 
-        public static TResult Do<T, TResult>(this T obj, Func<T, TResult> func)
-            => func(obj);
+        public static void Do<T>(this T obj, Action<T> func) => func(obj);
+
+        public static TResult Do<T, TResult>(this T obj, Func<T, TResult> func) => func(obj);
         #endregion
 
         #region IEnumerable<T> Extensions
@@ -105,6 +105,17 @@ namespace App
             foreach (var s in list)
                 str += s + separator;
             return str;
+        }
+
+        public static void Zip<T1,T2>(this IEnumerable<T1> ie, IEnumerable<T2> other, Action<T1,T2> func)
+        {
+            var enumerator = other.GetEnumerator();
+            enumerator.MoveNext();
+            foreach (var e in ie)
+            {
+                func(e, enumerator.Current);
+                enumerator.MoveNext();
+            }
         }
 
         public static void Do<T>(this IEnumerable<T> ie, Action<T> func)
@@ -175,7 +186,64 @@ namespace App
                 case "double": return bytes.To<double>();
             }
 
-            throw new ArgumentException("ERROR: Could not convert buffer data to specified type.");
+            throw new ArgumentException($"ERROR: Could not convert buffer data to type '{typeName}'.");
+        }
+
+        public static IEnumerable<TResult> ForEach<TResult>(this Array src, Func<object,TResult> func)
+        {
+            // output all values
+            foreach (var x in ForEach(src, new int[src.Rank]))
+                yield return func(x);
+        }
+
+        public static IEnumerable<object> ForEach(Array src, int[] idx, int curDim = 0)
+        {
+            // get size of current dimension
+            int dimSize = src.GetLength(curDim);
+
+            // for each element in this dimension
+            for (int i = 0; i < dimSize; i++)
+            {
+                // set index of current dimension
+                idx[curDim] = i;
+                // if the array has another dimension
+                if (src.Rank > curDim + 1)
+                    // output all values of this dimension
+                    foreach (var x in ForEach(src, idx, curDim + 1))
+                        yield return x;
+                else
+                    // write value to output
+                    yield return src.GetValue(idx);
+            }
+        }
+
+        public static Array ToStringArray(this Array src, string format)
+        {
+            var size = Enumerable.Range(0, src.Rank).Select(x => src.GetLength(x)).ToArray();
+            var dst = Array.CreateInstance(typeof(string), size);
+            var idx = new int[src.Rank];
+            ToStringArray(dst, src, format, idx);
+            return dst;
+        }
+
+        private static void ToStringArray(Array dst, Array src, string format, int[] idx, int curDim = 0)
+        {
+            // get size of current dimension
+            int dimSize = src.GetLength(curDim);
+
+            // for each element in this dimension
+            for (int i = 0; i < dimSize; i++)
+            {
+                // set index of current dimension
+                idx[curDim] = i;
+                // if the array has another dimension
+                if (src.Rank > curDim + 1)
+                    // output all values of this dimension
+                    ToStringArray(dst, src, format, idx, curDim + 1);
+                else
+                    // write value to output
+                    dst.SetValue(string.Format(App.culture, format, src.GetValue(idx)), idx);
+            }
         }
         #endregion
 
@@ -205,18 +273,6 @@ namespace App
                     array.SetValue(Read.Invoke(reader, null), y, x);
 
             return array;
-        }
-        #endregion
-
-        #region WinForm Control Extensions
-        public static IEnumerable<Control> FindParent(this Control control, string name)
-        {
-            while (control.Parent != null)
-            {
-                control = control.Parent;
-                if (control.Name == name)
-                    yield return control;
-            }
         }
         #endregion
     }
