@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace App
@@ -72,6 +74,82 @@ namespace App
             Uniforms unif;
             if (passes.TryGetValue(pass.glname, out unif))
                 unif.Unbind();
+        }
+
+        public static string ArrayToReadableString(Array array)
+        {
+            string[] titles = null;
+            if (array.Rank == 3)
+                titles = new[] { "Depth {0}\n" };
+
+            // convert array to string array
+            var ellType = array.GetType().GetElementType();
+            var strArray = array.ToStringArray(
+                ellType == typeof(float) || ellType == typeof(double) ? "{0:0.0000}" : "{0}");
+            var max = strArray.ForEach(x => x).Select(x => ((string)x).Length).Max();
+
+            var str = new StringBuilder((max + 5) * array.Length);
+            ArrayToReadableString(str, max + 4, strArray, new int[array.Rank], titles);
+            return str.ToString();
+        }
+
+        private static void ArrayToReadableString(StringBuilder output, int colWidth, Array array,
+            int[] idx, string[] titles = null, int curDim = 0)
+        {
+            // get size of current dimension
+            int dimSize = array.GetLength(curDim);
+
+            // for each element in this dimension
+            for (int i = 0; i < dimSize; i++)
+            {
+                // add a title to the dimension if one has been specified
+                if (titles != null && curDim < titles.Length && titles[curDim] != null)
+                    output.Append(string.Format(titles[curDim], i));
+
+                // set index of current dimension
+                idx[curDim] = i;
+
+                // if the array has another dimension
+                if (array.Rank > curDim + 1)
+                {
+                    // output all values of this dimension
+                    ArrayToReadableString(output, colWidth, array, idx, titles, curDim + 1);
+                    output.UseIf(i + 1 < dimSize)?.Append('\n');
+                }
+                else
+                {
+                    // write value to output
+                    string val = (string)array.GetValue(idx);
+                    output.Append(new string(' ', i != 0 ? colWidth - val.Length : 0) + val);
+                }
+            }
+        }
+
+        public static KeyValuePair<int, string> GetPositionDebugVariable(CodeEditor editor, int position)
+        {
+            // find all debug variables
+            var vars = Regex.Matches(editor.Text, regexDbgVar);
+
+            for (int i = 0; i < vars.Count; i++)
+                // is the debug variable in the same line
+                if (vars[i].Index <= position && position <= vars[i].Index + vars[i].Length)
+                    return new KeyValuePair<int, string>(
+                        /* key   = */ i,
+                        /* value = */ vars[i].Value.Substring(3, vars[i].Value.Length - 6));
+            return default(KeyValuePair<int, string>);
+        }
+
+        public static IEnumerable<KeyValuePair<int, string>> GetLineDebugVariables(CodeEditor editor, int line)
+        {
+            // find all debug variables
+            var vars = Regex.Matches(editor.Text, regexDbgVar);
+            
+            for (int i = 0; i < vars.Count; i++)
+                // is the debug variable in the same line
+                if (editor.LineFromPosition(vars[i].Index) == line)
+                    yield return new KeyValuePair<int, string>(
+                        /* key   = */ i,
+                        /* value = */ vars[i].Value.Substring(3, vars[i].Value.Length - 6));
         }
 
         public static Array GetDebugVariable(int ID, int frame)
