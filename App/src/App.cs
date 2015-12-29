@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace App
@@ -183,6 +182,18 @@ namespace App
         {
             glControl.Render();
             GetSelectedEditor()?.Do(x => UpdateDebugListView(x));
+        }
+
+        private void glControl_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (toolBtnPick.Checked)
+            {
+                GLDebugger.settings.fs_FragCoord[0] = e.X;
+                GLDebugger.settings.fs_FragCoord[1] = glControl.Height - e.Y;
+                debugProperty.Refresh();
+                glControl.Cursor = Cursors.Default;
+                toolBtnPick.Checked = false;
+            }
         }
         #endregion
 
@@ -386,6 +397,14 @@ namespace App
                     SaveTabPage(tabSourcePage, false);
             }
             tabSource.TabPages.RemoveAt(tabSource.SelectedIndex);
+        }
+
+        private void toolBtnPick_CheckedChanged(object sender, EventArgs e)
+        {
+            if (toolBtnPick.Checked)
+                glControl.Cursor = Cursors.Cross;
+            else
+                glControl.Cursor = Cursors.Default;
         }
         #endregion
         
