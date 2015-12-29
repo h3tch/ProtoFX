@@ -67,17 +67,18 @@ namespace App.Properties {
         ///#define _DBG_FLOAT 4
         ///#define _i2f intBitsToFloat
         ///#define _u2f uintBitsToFloat
+        ///const int _dbgStageOffset = &lt;&lt;&lt;stage offset&gt;&gt;&gt;;
         ///
-        ///layout(rgba32f) uniform writeonly image2D _dbgOut;
+        ///layout(rgba32f) uniform writeonly imageBuffer _dbgOut;
         ///
-        ///void _dbgStore(int stage, inout int i, vec4 val) {
-        ///	imageStore(_dbgOut, ivec2(i++, stage), val);
+        ///int _dbgStore(int idx, vec4 val) {
+        ///	imageStore(_dbgOut, _dbgStageOffset + idx, val);
+        ///	return ++idx;
         ///}
-        ///void _dbgStore(int stage, inout int i, ivec4 val) {
-        ///	_dbgStore(stage, i, vec4(_i2f(val.x), _i2f(val.y), _i2f(val.z), _i2f(val.w)));
+        ///int _dbgStore(int idx, ivec4 val) {
+        ///	return _dbgStore(idx, vec4(_i2f(val.x), _i2f(val.y), _i2f(val.z), _i2f(val.w)));
         ///}
-        ///void _dbgStore(int stage, inout int i, uvec4 val) {
-        ///	_dbgStore(stage, i,  [rest of string was truncated]&quot;;.
+        ///int _dbgStore(int idx, uvec4 va [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string dbg {
             get {
@@ -87,23 +88,23 @@ namespace App.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to uniform &lt;&lt;&lt;debug uniform&gt;&gt;&gt;;
+        ///uniform &lt;&lt;&lt;debug frame&gt;&gt;&gt;;
+        ///
+        ///void _dbgMain() {
+        ///	int _dbgIdx = 1;
+        ///	&lt;&lt;&lt;debug code&gt;&gt;&gt;
+        ///	_dbgStore(0, ivec2(_dbgIdx-1, _dbgFrame));
+        ///}
+        ///
+        ///void _runMain() {
+        ///	&lt;&lt;&lt;runtime code&gt;&gt;&gt;
+        ///}
         ///
         ///void main() {
         ///	if (&lt;&lt;&lt;debug condition&gt;&gt;&gt;)
         ///		_dbgMain();
         ///	else
         ///		_runMain();
-        ///}
-        ///
-        ///void _dbgMain() {
-        ///	int _dbgIdx = 1;
-        ///	const int _stageIdx = &lt;&lt;&lt;stage index&gt;&gt;&gt;;
-        ///	&lt;&lt;&lt;debug code&gt;&gt;&gt;
-        ///	_dbgStoreVar(_stageIdx, 0, _dbgIdx-1, -1);
-        ///}
-        ///
-        ///void _runMain() {
-        ///	&lt;&lt;&lt;runtime code&gt;&gt;&gt;
         ///}.
         /// </summary>
         internal static string dbgBody {
@@ -148,6 +149,16 @@ namespace App.Properties {
         internal static System.Drawing.Bitmap ImgOpen {
             get {
                 object obj = ResourceManager.GetObject("ImgOpen", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ImgPick {
+            get {
+                object obj = ResourceManager.GetObject("ImgPick", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

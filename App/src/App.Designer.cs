@@ -46,6 +46,9 @@
             this.toolBtnSaveAs = new System.Windows.Forms.ToolStripButton();
             this.toolBtnRun = new System.Windows.Forms.ToolStripButton();
             this.toolBtnDbg = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolBtnPick = new System.Windows.Forms.ToolStripButton();
             this.tabOutput = new System.Windows.Forms.TabControl();
             this.tabCompile = new System.Windows.Forms.TabPage();
             this.codeError = new System.Windows.Forms.RichTextBox();
@@ -244,10 +247,13 @@
             this.toolBtnSaveAll,
             this.toolBtnSaveAs,
             this.toolBtnRun,
-            this.toolBtnDbg});
+            this.toolBtnDbg,
+            this.toolStripSeparator1,
+            this.toolStripSeparator2,
+            this.toolBtnPick});
             this.toolStrip.Location = new System.Drawing.Point(0, 3);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(37, 323);
+            this.toolStrip.Size = new System.Drawing.Size(37, 374);
             this.toolStrip.TabIndex = 0;
             // 
             // toolBtnClose
@@ -329,6 +335,27 @@
             this.toolBtnDbg.Size = new System.Drawing.Size(35, 36);
             this.toolBtnDbg.Text = "Debug (F6)";
             this.toolBtnDbg.Click += new System.EventHandler(this.toolBtnRunDebug_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(35, 6);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(35, 6);
+            // 
+            // toolBtnPick
+            // 
+            this.toolBtnPick.CheckOnClick = true;
+            this.toolBtnPick.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnPick.Image = global::App.Properties.Resources.ImgPick;
+            this.toolBtnPick.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnPick.Name = "toolBtnPick";
+            this.toolBtnPick.Size = new System.Drawing.Size(35, 36);
+            this.toolBtnPick.Text = "Debug Fragment";
+            this.toolBtnPick.CheckedChanged += new System.EventHandler(this.toolBtnPick_CheckedChanged);
             // 
             // tabOutput
             // 
@@ -563,7 +590,7 @@
             this.tableBuf.Name = "tableBuf";
             this.tableBuf.ReadOnly = true;
             this.tableBuf.RowTemplate.Height = 28;
-            this.tableBuf.Size = new System.Drawing.Size(929, 1004);
+            this.tableBuf.Size = new System.Drawing.Size(929, 1006);
             this.tableBuf.TabIndex = 1;
             // 
             // tableLayoutBuffers
@@ -793,5 +820,8 @@
         private System.Windows.Forms.ToolStripButton toolBtnDbg;
         private System.Windows.Forms.SplitContainer splitDebug;
         private System.Windows.Forms.ListView debugListView;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripButton toolBtnPick;
     }
 }
