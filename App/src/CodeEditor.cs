@@ -11,19 +11,13 @@ namespace App
     {
         private static int HighlightIndicatorIndex = 8;
         private List<int[]>[] IndicatorRanges;
-        private App owner;
-        private GraphicControl glControl;
 
         /// <summary>
         /// Instantiate and initialize ScintillaNET based code editor for ProtoGL.
         /// </summary>
-        /// <param name="debugListView"></param>
         /// <param name="text">[OPTIONAL] Initialize code editor with text.</param>
-        public CodeEditor(App owner, string text = null)
+        public CodeEditor(string text = null)
         {
-            this.owner = owner;
-            glControl = (GraphicControl)owner.Controls.Find("glControl", true)[0];
-
             // instantiate fields
             IndicatorRanges = new List<int[]>[Indicators.Count];
             for (int i = 0; i < Indicators.Count; i++)
@@ -109,7 +103,6 @@ namespace App
             TabIndex = 0;
             TextChanged += new EventHandler(HandleTextChanged);
             UpdateUI += new EventHandler<UpdateUIEventArgs>(HandleUpdateUI);
-            MouseMove += new MouseEventHandler(HandleMouseMove);
 
             // auto completion settings
             AutoCMaxHeight = 9;

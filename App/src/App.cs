@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using ScintillaNET;
 using System;
 using System.Data;
 using System.Drawing;
@@ -12,6 +13,7 @@ namespace App
     public partial class App : Form
     {
         public static CultureInfo culture = new CultureInfo("en");
+        public CodeEditor compiledEditor = null;
 
         public App()
         {
@@ -86,14 +88,30 @@ namespace App
                     break;
             }
         }
+        #endregion
 
-        private void glControl_MouseUp(object sender, EventArgs e)
+        #region glControl Events
+        private void glControl_MouseUp(object sender, MouseEventArgs e)
         {
-            propertyGrid.Refresh();
-            GetSelectedEditor()?.Do(x => UpdateDebugListView(x));
+            if (toolBtnPick.Checked)
+            {
+                GLDebugger.settings.fs_FragCoord[0] = e.X;
+                GLDebugger.settings.fs_FragCoord[1] = glControl.Height - e.Y;
+                debugProperty.Refresh();
+                toolBtnPick.Checked = false;
+                glControl.Cursor = Cursors.Default;
+            }
+            DebugRender();
+        }
+
+        private void DebugRender()
+        {
+            glControl.Render();
+            if (compiledEditor == GetSelectedEditor())
+                UpdateDebugListView(compiledEditor);
         }
         #endregion
-        
+
         #region Debug Image
         private void comboImg_SelectedIndexChanged(object sender, EventArgs e)
             => pictureImg_Click(sender, e);
@@ -179,25 +197,49 @@ namespace App
             => propertyGrid.SelectedObject = propertyGrid.SelectedObject;
 
         private void propertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
-        {
-            glControl.Render();
-            GetSelectedEditor()?.Do(x => UpdateDebugListView(x));
-        }
-
-        private void glControl_MouseUp(object sender, MouseEventArgs e)
-        {
-            if (toolBtnPick.Checked)
-            {
-                GLDebugger.settings.fs_FragCoord[0] = e.X;
-                GLDebugger.settings.fs_FragCoord[1] = glControl.Height - e.Y;
-                debugProperty.Refresh();
-                glControl.Cursor = Cursors.Default;
-                toolBtnPick.Checked = false;
-            }
-        }
+            => DebugRender();
         #endregion
 
-        #region Debug Variables
+        #region Debug Shader
+        private void editor_UpdateUI(object sender, UpdateUIEventArgs e)
+        {
+            // get class references
+            var editor = (CodeEditor)sender;
+
+            // handle selection changed event, but only
+            // update debug information for the compiled editor
+            if (e.Change == UpdateChange.Selection && compiledEditor == editor)
+                UpdateDebugListView(editor);
+        }
+
+        private void editor_MouseMove(object sender, MouseEventArgs e)
+        {
+            // get class references
+            var editor = (CodeEditor)sender;
+
+            // only update debug information for the compiled editor
+            if (compiledEditor != editor)
+                return;
+
+            // convert cursor position to text position
+            int pos = editor.CharPositionFromPoint(e.X, e.Y);
+
+            // get debug variable information from position
+            var dbgVar = GLDebugger.GetPositionDebugVariable(editor, pos);
+            // no debug variable found
+            if (dbgVar.IsDefault())
+            {
+                editor.CallTipCancel();
+                return;
+            }
+
+            // get debug variable value
+            var dbgVal = GLDebugger.GetDebugVariable(dbgVar.Key, glControl.Frame - 1);
+            editor.CallTipShow(pos, dbgVal == null
+                ? "No debug information."
+                : GLDebugger.ArrayToReadableString(dbgVal));
+        }
+
         public void UpdateDebugListView(CodeEditor editor)
         {
             // RESET DEBUG LIST VIEW
@@ -217,8 +259,7 @@ namespace App
 
             // get debug variables of the line where the caret is placed
             var dbgLine = editor.LineFromPosition(editor.CurrentPosition);
-            var dbgVars = from x in GLDebugger.GetLineDebugVariables(editor, dbgLine)
-                          select x;
+            var dbgVars = GLDebugger.GetLineDebugVariables(editor, dbgLine).Select(x => x);
             dbgVars.Select(Var => GLDebugger.GetDebugVariable(Var.Key, glControl.Frame - 1))
                    .Zip(dbgVars, (Val, Var) => { if (Val != null) NewItem(Var.Value, Val); });
         }
@@ -286,7 +327,7 @@ namespace App
             var sourceTab = (TabPage)tabSource.SelectedTab;
             if (sourceTab == null)
                 return;
-            var editor = (CodeEditor)sourceTab.Controls[0];
+            compiledEditor = (CodeEditor)sourceTab.Controls[0];
             
             // save code
             toolBtnSave_Click(sender, null);
@@ -305,7 +346,7 @@ namespace App
             var debugging = sender == toolBtnDbg;
 
             // remove comments
-            var code = CodeEditor.RemoveComments(editor.Text);
+            var code = CodeEditor.RemoveComments(compiledEditor.Text);
             code = CodeEditor.RemoveNewLineIndicators(code);
             code = CodeEditor.IncludeFiles(code, includeDir);
             code = CodeEditor.ResolvePreprocessorDefinitions(code);
@@ -357,7 +398,7 @@ namespace App
 
             // UPDATE DEBUG INFORMATION IF NECESSARY
             if (debugging)
-                UpdateDebugListView(editor);
+                UpdateDebugListView(compiledEditor);
         }
 
         private void toolBtnSave_Click(object sender, EventArgs e)
@@ -438,10 +479,12 @@ namespace App
 
             // create new tab objects
             var tabSourcePage = new TabPage(path);
-            var tabSourcePageText = new CodeEditor(this, text);
+            var editor = new CodeEditor(text);
+            editor.UpdateUI += new EventHandler<UpdateUIEventArgs>(editor_UpdateUI);
+            editor.MouseMove += new MouseEventHandler(editor_MouseMove);
 
             // tabSourcePage
-            tabSourcePage.Controls.Add(tabSourcePageText);
+            tabSourcePage.Controls.Add(editor);
             tabSourcePage.Location = new Point(4, 31);
             tabSourcePage.Margin = new Padding(0);
             tabSourcePage.Padding = new Padding(3);
