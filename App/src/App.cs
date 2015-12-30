@@ -103,13 +103,6 @@ namespace App
             }
             DebugRender();
         }
-
-        private void DebugRender()
-        {
-            glControl.Render();
-            if (compiledEditor == GetSelectedEditor())
-                UpdateDebugListView(compiledEditor);
-        }
         #endregion
 
         #region Debug Image
@@ -240,7 +233,7 @@ namespace App
                 : GLDebugger.ArrayToReadableString(dbgVal));
         }
 
-        public void UpdateDebugListView(CodeEditor editor)
+        private void UpdateDebugListView(CodeEditor editor)
         {
             // RESET DEBUG LIST VIEW
             debugListView.Clear();
@@ -503,6 +496,13 @@ namespace App
             if (sourceTab == null)
                 return null;
             return (CodeEditor)sourceTab.Controls[0];
+        }
+
+        private void DebugRender()
+        {
+            glControl.Render();
+            if (compiledEditor == GetSelectedEditor())
+                UpdateDebugListView(compiledEditor);
         }
         #endregion
     }
