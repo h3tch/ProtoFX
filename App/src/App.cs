@@ -28,7 +28,7 @@ namespace App
 
             // place splitters by percentage
             splitCodeError.SplitterDistance = (int)(0.7 * splitCodeError.Height);
-            splitDebug.SplitterDistance = (int)(0.45 * splitDebug.Width);
+            splitDebug.SplitterDistance = (int)(0.55 * splitDebug.Width);
 
             // link property viewer to debug settings
             GLDebugger.Instantiate();

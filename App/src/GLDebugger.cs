@@ -279,6 +279,12 @@ namespace App
             }
             dbgBody = dbgBody.Replace("<<<", "").Replace(">>>", "");
 
+            // replace 'return' keyword with '{store(info); return;}'
+            dbgBody = dbgBody.Replace("return", "{_dbgStore(0, ivec2(_dbgIdx-1, _dbgFrame));return;}");
+
+            // replace 'discard' keyword with '{store(discard info); return;}'
+            dbgBody = dbgBody.Replace("discard", "{_dbgStore(0, ivec2(0, _dbgFrame));discard;}");
+
             // gather debug information
             int stage_index;
             string[] debug_uniform = new[]
