@@ -85,33 +85,7 @@ namespace App
                     editor.ClearIndicators(HighlightIndicatorIndex);
                     editor.AddIndicators(HighlightIndicatorIndex, ranges);
                 }
-
-                // Update debug list view
-                owner.UpdateDebugListView(editor);
             }
-        }
-
-        private void HandleMouseMove(object sender, MouseEventArgs e)
-        {
-            var editor = (CodeEditor)sender;
-
-            // convert cursor position to text position
-            int pos = editor.CharPositionFromPoint(e.X, e.Y);
-
-            // get debug variable information from position
-            var dbgVar = GLDebugger.GetPositionDebugVariable(editor, pos);
-            // no debug variable found
-            if (dbgVar.IsDefault())
-            {
-                CallTipCancel();
-                return;
-            }
-
-            // get debug variable value
-            var dbgVal = GLDebugger.GetDebugVariable(dbgVar.Key, glControl.Frame - 1);
-            CallTipShow(pos, dbgVal == null
-                ? "No debug information."
-                : GLDebugger.ArrayToReadableString(dbgVal));
         }
 
         private void HandleDragOver(object sender, DragEventArgs e)
