@@ -128,9 +128,12 @@ namespace App
         #region Convert Types
         public static byte[] ToBytes(this Array src)
         {
+            // get source type size
             var ellType = src.GetType().GetElementType();
             var ellSize = ellType == typeof(char) ? 2 : Marshal.SizeOf(ellType);
+            // allocate byte array
             byte[] dst = new byte[ellSize * src.Length];
+            // copy source data to output array
             Buffer.BlockCopy(src, 0, dst, 0, dst.Length);
             return dst;
         }
@@ -149,44 +152,34 @@ namespace App
             }
         }
 
-        public static TResult[] To<TResult>(this byte[] data)
-            where TResult : struct
+        public static Array To(this byte[] data, Type type)
         {
-            var ellSize = typeof(TResult) == typeof(char) ? 2 : Marshal.SizeOf(typeof(TResult));
-            TResult[] rs = new TResult[(data.Length + ellSize - 1) / ellSize];
+            // get the size of the output type
+            var ellSize = type == typeof(char) ? 2 : Marshal.SizeOf(type);
+            // allocate output array
+            var rs = Array.CreateInstance(type, (data.Length + ellSize - 1) / ellSize);
+            // copy data to output array
             Buffer.BlockCopy(data, 0, rs, 0, data.Length);
             return rs;
         }
 
+        public static TResult[] To<TResult>(this byte[] data) => (TResult[])data.To(typeof(TResult));
+
         public static TResult[] To<TResult>(this IntPtr data, int size)
-            where TResult : struct
         {
+            // copy input data to byte array
             var bytes = new byte[size];
             Marshal.Copy(data, bytes, 0, bytes.Length);
+            // convert bytes to output type
             return bytes.To<TResult>();
         }
 
         public static Array To(this Array data, string typeName, out Type type)
         {
-            type = Data.str2type[typeName];
-            var bytes = data.GetType().GetElementType() == typeof(byte) ?
-                (byte[])data : data.ToBytes();
-
-            // convert data to specified type
-            switch (typeName)
-            {
-                case "char":   return bytes.To<char>();
-                case "short":  return bytes.To<short>();
-                case "ushort": return bytes.To<ushort>();
-                case "int":    return bytes.To<int>();
-                case "uint":   return bytes.To<uint>();
-                case "long":   return bytes.To<long>();
-                case "ulong":  return bytes.To<ulong>();
-                case "float":  return bytes.To<float>();
-                case "double": return bytes.To<double>();
-            }
-
-            throw new ArgumentException($"ERROR: Could not convert buffer data to type '{typeName}'.");
+            // convert input type to bytes
+            var bytes = data.GetType().GetElementType() == typeof(byte) ? (byte[])data : data.ToBytes();
+            // convert bytes to output type
+            return bytes.To(type = Data.str2type[typeName]);
         }
 
         public static IEnumerable<TResult> ForEach<TResult>(this Array src, Func<object,TResult> func)
@@ -219,14 +212,16 @@ namespace App
 
         public static Array ToStringArray(this Array src, string format)
         {
+            // get array size for each dimension
             var size = Enumerable.Range(0, src.Rank).Select(x => src.GetLength(x)).ToArray();
+            // allocate string array
             var dst = Array.CreateInstance(typeof(string), size);
-            var idx = new int[src.Rank];
-            ToStringArray(dst, src, format, idx);
+            // convert each element to a string
+            ToStringArray(dst, src, format, new int[src.Rank]);
             return dst;
         }
 
-        private static void ToStringArray(Array dst, Array src, string format, int[] idx, int curDim = 0)
+        private static void ToStringArray(Array src, Array dst, string dstFomrat, int[] idx, int curDim = 0)
         {
             // get size of current dimension
             int dimSize = src.GetLength(curDim);
@@ -239,10 +234,10 @@ namespace App
                 // if the array has another dimension
                 if (src.Rank > curDim + 1)
                     // output all values of this dimension
-                    ToStringArray(dst, src, format, idx, curDim + 1);
+                    ToStringArray(src, dst, dstFomrat, idx, curDim + 1);
                 else
                     // write value to output
-                    dst.SetValue(string.Format(App.culture, format, src.GetValue(idx)), idx);
+                    dst.SetValue(string.Format(App.culture, dstFomrat, src.GetValue(idx)), idx);
             }
         }
         #endregion
