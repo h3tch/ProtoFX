@@ -46,14 +46,20 @@ namespace App
             settings = new DebugSettings();
         }
 
+#if DEBUG
         public static void Initilize(Dict<GLObject> scene)
+#else
+        public static void Initilize()
+#endif
         {
             // allocate GPU resources
             buf = new GLBuffer(new GLParams(dbgBufKey, "dbg", dbgBufDef));
             tex = new GLTexture(new GLParams(dbgTexKey, "dbg", dbgTexDef), null, buf, null);
-            // reset scene
+
+#if DEBUG   // add to scene for debug inspection
             scene.Add(dbgBufKey, buf);
             scene.Add(dbgTexKey, tex);
+#endif
             passes.Clear();
             // reset watch count for indexing in debug mode
             dbgVarCount = 0;
@@ -76,24 +82,71 @@ namespace App
                 unif.Unbind();
         }
 
-        public static string ArrayToReadableString(Array array)
+#region TEXTURE AND IMAGE BINDING
+        public static void BindImg(int unit, int level, bool layered, int layer, TextureAccess access,
+            GpuFormat format, int name)
+        {
+            // bind image to image load/store unit
+            imgUnits[unit] = name;
+            GL.BindImageTexture(unit, name, level, layered, Math.Max(layer, 0), access,
+                (SizedInternalFormat)format);
+        }
+        
+        public static void BindTex(int unit, TextureTarget target, int name)
+        {
+            // bind texture to texture unit
+            texUnits[unit] = name;
+            GL.ActiveTexture(TextureUnit.Texture0 + unit);
+            GL.BindTexture(target, name);
+        }
+
+        public static void UnbindImg(int unit) => imgUnits[unit] = 0;
+
+        public static void UnbindTex(int unit, TextureTarget target) => BindTex(unit, target, 0);
+
+        public static int[] GetBoundTextures() => texUnits;
+
+        public static int[] GetBoundImages() => imgUnits;
+#endregion
+
+#region DEBUG VARIABLE
+        /// <summary>
+        /// Convert debug variable into a readable string.
+        /// </summary>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static string DebugVariableToString(Array array, string floatFomat = "{0:0.0000}")
         {
             string[] titles = null;
             if (array.Rank == 3)
                 titles = new[] { "Depth {0}\n" };
 
+            // is the element type a floating point type
+            var isFloat = new[] { typeof(float), typeof(double) }
+                .Select(x => x == array.GetType().GetElementType())
+                .Any(x => x);
+
             // convert array to string array
-            var ellType = array.GetType().GetElementType();
-            var strArray = array.ToStringArray(
-                ellType == typeof(float) || ellType == typeof(double) ? "{0:0.0000}" : "{0}");
+            var strArray = array.ToStringArray(isFloat ? floatFomat : "{0}");
             var max = strArray.ForEach(x => x).Select(x => ((string)x).Length).Max();
 
+            // recursively convert each dimension of the array into a string
             var str = new StringBuilder((max + 5) * array.Length);
-            ArrayToReadableString(str, max + 4, strArray, new int[array.Rank], titles);
+            DebugVariableToString(str, max + 4, strArray, new int[array.Rank], titles);
             return str.ToString();
         }
 
-        private static void ArrayToReadableString(StringBuilder output, int colWidth, Array array,
+        /// <summary>
+        /// Recursive method to convert a (possibly) multi
+        /// dimensional debug variable into a readable string.
+        /// </summary>
+        /// <param name="output">Output string.</param>
+        /// <param name="colWidth">Minimum column with of the strings.</param>
+        /// <param name="array">Debug variable to be converted.</param>
+        /// <param name="idx">Current index vector into the multi dim. array.</param>
+        /// <param name="titles">Titles for each dimension.</param>
+        /// <param name="curDim">Current dimension to convert.</param>
+        private static void DebugVariableToString(StringBuilder output, int colWidth, Array array,
             int[] idx, string[] titles = null, int curDim = 0)
         {
             // get size of current dimension
@@ -113,8 +166,9 @@ namespace App
                 if (array.Rank > curDim + 1)
                 {
                     // output all values of this dimension
-                    ArrayToReadableString(output, colWidth, array, idx, titles, curDim + 1);
-                    output.UseIf(i + 1 < dimSize)?.Append('\n');
+                    DebugVariableToString(output, colWidth, array, idx, titles, curDim + 1);
+                    if (i + 1 < dimSize)
+                        output.Append('\n');
                 }
                 else
                 {
@@ -125,34 +179,64 @@ namespace App
             }
         }
 
-        public static KeyValuePair<int, string> GetPositionDebugVariable(CodeEditor editor, int position)
+        /// <summary>
+        /// Get debug variable from the specified text position in the code editor.
+        /// </summary>
+        /// <param name="editor">Source code editor.</param>
+        /// <param name="position">Position in the code.</param>
+        /// <returns>Returns the debug variable at the specified position or
+        /// the default value if no debug variable could be found.</returns>
+        public static DbgVar GetDebugVariableFromPosition(CodeEditor editor, int position)
         {
             // find all debug variables
             var vars = Regex.Matches(editor.Text, regexDbgVar);
 
             for (int i = 0; i < vars.Count; i++)
+            {
+
                 // is the debug variable in the same line
                 if (vars[i].Index <= position && position <= vars[i].Index + vars[i].Length)
-                    return new KeyValuePair<int, string>(
-                        /* key   = */ i,
-                        /* value = */ vars[i].Value.Substring(3, vars[i].Value.Length - 6));
-            return default(KeyValuePair<int, string>);
+                    return new DbgVar
+                    {
+                        ID = i,
+                        Name = vars[i].Value.Substring(3, vars[i].Value.Length - 6)
+                    };
+            }
+            return default(DbgVar);
         }
 
-        public static IEnumerable<KeyValuePair<int, string>> GetLineDebugVariables(CodeEditor editor, int line)
+        /// <summary>
+        /// Get debug variable from the specified text line in the code editor.
+        /// </summary>
+        /// <param name="editor">Source code editor.</param>
+        /// <param name="line">Zero-based line number in the code.</param>
+        /// <returns>Returns all debug variables in the specified line or
+        /// <code>null</code> if no debug variable could be found.</returns>
+        public static IEnumerable<DbgVar> GetDebugVariablesFromLine(CodeEditor editor, int line)
         {
             // find all debug variables
             var vars = Regex.Matches(editor.Text, regexDbgVar);
-            
+
             for (int i = 0; i < vars.Count; i++)
+            {
                 // is the debug variable in the same line
                 if (editor.LineFromPosition(vars[i].Index) == line)
-                    yield return new KeyValuePair<int, string>(
-                        /* key   = */ i,
-                        /* value = */ vars[i].Value.Substring(3, vars[i].Value.Length - 6));
+                    yield return new DbgVar
+                    {
+                        ID = i,
+                        Name = vars[i].Value.Substring(3, vars[i].Value.Length - 6)
+                    };
+            }
         }
 
-        public static Array GetDebugVariable(int ID, int frame)
+        /// <summary>
+        /// Get debug variable value from the specified frame.
+        /// </summary>
+        /// <param name="ID">Debug variable ID.</param>
+        /// <param name="frame">[OPTIONAL] The frame in which the debug variable was
+        /// created. If <code>frame</code> is negative this value will be ignored.</param>
+        /// <returns>Returns the debug variable as a multi-dimensional array.</returns>
+        public static Array GetDebugVariableValue(int ID, int frame = -1)
         {
             // for each pass
             foreach (Uniforms unif in passes.Values)
@@ -179,7 +263,7 @@ namespace App
 
                     // no debug information for
                     // this stage in this frame
-                    if (frame != dbgFrame)
+                    if (frame >= 0 && frame != dbgFrame)
                         continue;
 
                     // for each debug variable in this stage
@@ -214,35 +298,17 @@ namespace App
             
             return null;
         }
+#endregion
 
-        #region TEXTURE AND IMAGE BINDING
-        public static void BindImg(int unit, int level, bool layered, int layer, TextureAccess access,
-            GpuFormat format, int name)
-        {
-            // bind image to image load/store unit
-            imgUnits[unit] = name;
-            GL.BindImageTexture(unit, name, level, layered, Math.Max(layer, 0), access,
-                (SizedInternalFormat)format);
-        }
-        
-        public static void BindTex(int unit, TextureTarget target, int name)
-        {
-            // bind texture to texture unit
-            texUnits[unit] = name;
-            GL.ActiveTexture(TextureUnit.Texture0 + unit);
-            GL.BindTexture(target, name);
-        }
-
-        public static void UnbindImg(int unit) => imgUnits[unit] = 0;
-
-        public static void UnbindTex(int unit, TextureTarget target) => BindTex(unit, target, 0);
-
-        public static int[] GetBoundTextures() => texUnits;
-
-        public static int[] GetBoundImages() => imgUnits;
-        #endregion
-
-        #region DEBUG CODE GENERATION FOR GLSL SHADERS
+#region DEBUG CODE GENERATION FOR GLSL SHADERS
+        /// <summary>
+        /// Add debug code to GLSL shader.
+        /// </summary>
+        /// <param name="glsl">GLSL shader code.</param>
+        /// <param name="type">GLSL shader type.</param>
+        /// <param name="debug">Add debug information if true.
+        /// Otherwise remove debug indicators.</param>
+        /// <returns>Returns the new GLSL code with debug code added.</returns>
         public static string AddDebugCode(string glsl, ShaderType type, bool debug)
         {
             // find main function and body
@@ -324,9 +390,9 @@ namespace App
             
             return head + '\n' + rsHead + '\n' + rsBody;
         }
-        #endregion
+#endregion
 
-        #region DEBUG UNIFORMS
+#region DEBUG UNIFORMS
         private class Uniforms
         {
             public int dbgOut;
@@ -400,9 +466,9 @@ namespace App
                 buf.Read(ref data);
             }
         }
-        #endregion
+#endregion
 
-        #region DEBUG SETTINGS
+#region DEBUG SETTINGS
         public class DebugSettings
         {
             [Category("Vertex Shader"), DisplayName("InstanceID"),
@@ -455,6 +521,12 @@ namespace App
                 "math computation: gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID;")]
             public int[] cs_GlobalInvocationID { get; set; } = new int[3] { 0, 0, 0 };
         }
-        #endregion
+#endregion
+
+        public struct DbgVar
+        {
+            public int ID;
+            public string Name;
+        }
     }
 }

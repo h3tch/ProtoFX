@@ -35,10 +35,6 @@ namespace App
         public static T UseIf<T>(this T obj, bool condition) => condition ? obj : default(T);
 
         public static bool IsDefault<T>(this T obj) => obj.Equals(default(T));
-
-        public static void Do<T>(this T obj, Action<T> func) => func(obj);
-
-        public static TResult Do<T, TResult>(this T obj, Func<T, TResult> func) => func(obj);
         #endregion
 
         #region IEnumerable<T> Extensions
@@ -179,7 +175,7 @@ namespace App
             // convert input type to bytes
             var bytes = data.GetType().GetElementType() == typeof(byte) ? (byte[])data : data.ToBytes();
             // convert bytes to output type
-            return bytes.To(type = Data.str2type[typeName]);
+            return bytes.To(type = str2type[typeName]);
         }
 
         public static IEnumerable<TResult> ForEach<TResult>(this Array src, Func<object,TResult> func)
@@ -217,7 +213,7 @@ namespace App
             // allocate string array
             var dst = Array.CreateInstance(typeof(string), size);
             // convert each element to a string
-            ToStringArray(dst, src, format, new int[src.Rank]);
+            ToStringArray(src, dst, format, new int[src.Rank]);
             return dst;
         }
 
@@ -240,6 +236,24 @@ namespace App
                     dst.SetValue(string.Format(App.culture, dstFomrat, src.GetValue(idx)), idx);
             }
         }
+
+        public static Dictionary<string, Type> str2type = new Dictionary<string, Type>
+        {
+            {"bool"    , typeof(bool)   },
+            {"byte"    , typeof(byte)   },
+            {"sbyte"   , typeof(sbyte)  },
+            {"char"    , typeof(char)   },
+            {"decimal" , typeof(decimal)},
+            {"double"  , typeof(double) },
+            {"float"   , typeof(float)  },
+            {"int"     , typeof(int)    },
+            {"uint"    , typeof(uint)   },
+            {"long"    , typeof(long)   },
+            {"ulong"   , typeof(ulong)  },
+            {"object"  , typeof(object) },
+            {"short"   , typeof(short)  },
+            {"ushort"  , typeof(ushort) },
+        };
         #endregion
 
         #region Copy Extensions
