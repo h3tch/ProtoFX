@@ -11,7 +11,6 @@ namespace App
     class Commands : IEnumerable<Commands.Triple>
     {
         private List<Triple> cmds = new List<Triple>();
-
         public IEnumerable<Triple> this[int key] => cmds.Where(x => x.idx == key);
         public IEnumerable<Triple> this[string key] => cmds.Where(x => x.cmd == key);
 
@@ -108,7 +107,9 @@ namespace App
 
         #region IEnumerable Interface
         public IEnumerator<Triple> GetEnumerator() => cmds.GetEnumerator();
+
         IEnumerator<Triple> IEnumerable<Triple>.GetEnumerator() => cmds.GetEnumerator();
+
         IEnumerator IEnumerable.GetEnumerator() => cmds.GetEnumerator();
         #endregion
 

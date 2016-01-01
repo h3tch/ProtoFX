@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -15,18 +16,13 @@ namespace App
         /// <summary>
         /// Create class instance of a C# class compiled through GLCSharp.
         /// </summary>
-        /// <param name="dir">Directory of the tech-file.</param>
-        /// <param name="name">Name used to identify the object.</param>
-        /// <param name="annotation">Annotation used for special initialization.</param>
-        /// <param name="text">Text block specifying the object commands.</param>
-        /// <param name="classes">Collection of scene objects.</param>
-        public GLInstance(string dir, string name, string annotation, string text, Dict<GLObject> classes)
-            : base(name, annotation)
+        /// <param name="params">Input parameters for GLObject creation.</param>
+        public GLInstance(GLParams @params) : base(@params)
         {
-            var err = new CompileException($"instance '{name}'");
+            var err = new CompileException($"instance '{@params.name}'");
 
             // PARSE TEXT TO COMMANDS
-            var body = new Commands(text, err);
+            var body = new Commands(@params.text, err);
 
             // GET CLASS COMMAND
             var cmds = body["class"].ToList();
@@ -36,7 +32,7 @@ namespace App
             var cmd = cmds.First();
 
             // FIND CSHARP CLASS DEFINITION
-            var csharp = classes.GetValue<GLCsharp>(cmd.args[0]);
+            var csharp = @params.scene.GetValue<GLCsharp>(cmd.args[0]);
             if (csharp == null)
             {
                 err.Add($"Could not find csharp code '{cmd.args[0]}' of command '{cmd.cmd} "
@@ -62,7 +58,7 @@ namespace App
 
             // get all public methods and check whether
             // they can be used as event handlers for glControl
-            GLReference reference = classes.GetValue<GLReference>(GraphicControl.nullname);
+            GLReference reference = @params.scene.GetValue<GLReference>(GraphicControl.nullname);
             GraphicControl glControl = (GraphicControl)reference.reference;
             var methods = instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
             foreach (var method in methods)
@@ -77,18 +73,12 @@ namespace App
         }
 
         public void Update(int program, int width, int height, int widthTex, int heightTex)
-        {
-            update?.Invoke(instance, new object[] { program, width, height, widthTex, heightTex });
-        }
+            => update?.Invoke(instance, new object[] { program, width, height, widthTex, heightTex });
 
         public void EndPass(int program)
-        {
-            endpass?.Invoke(instance, new object[] { program });
-        }
+            => endpass?.Invoke(instance, new object[] { program });
 
         public override void Delete()
-        {
-            delete?.Invoke(instance, null);
-        }
+            => delete?.Invoke(instance, null);
     }
 }

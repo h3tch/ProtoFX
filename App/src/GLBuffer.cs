@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace App
 {
@@ -19,11 +20,9 @@ namespace App
         /// Link GLBuffer to existing OpenGL buffer. Used
         /// to provide debug information in the debug view.
         /// </summary>
-        /// <param name="name">Name the buffer object.</param>
-        /// <param name="annotation">Annotate the buffer object.</param>
+        /// <param name="params">Input parameters for GLObject creation.</param>
         /// <param name="glname">OpenGL buffer object to like to.</param>
-        public GLBuffer(string name, string annotation, int glname)
-            : base(name, annotation)
+        public GLBuffer(GLParams @params, int glname) : base(@params)
         {
             int s, u;
             this.glname = glname;
@@ -36,18 +35,13 @@ namespace App
         /// <summary>
         /// Create OpenGL object.
         /// </summary>
-        /// <param name="dir">Directory of the tech-file.</param>
-        /// <param name="name">Name used to identify the object.</param>
-        /// <param name="anno">Annotation used for special initialization.</param>
-        /// <param name="text">Text block specifying the object commands.</param>
-        /// <param name="classes">Collection of scene objects.</param>
-        public GLBuffer(string dir, string name, string anno, string text, Dict<GLObject> classes)
-            : base(name, anno)
+        /// <param name="params">Input parameters for GLObject creation.</param>
+        public GLBuffer(GLParams @params) : base(@params)
         {
-            var err = new CompileException($"buffer '{name}'");
+            var err = new CompileException($"buffer '{@params.name}'");
 
             // PARSE TEXT TO COMMANDS
-            var cmds = new Commands(text, err);
+            var cmds = new Commands(@params.text, err);
 
             // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
             cmds.Cmds2Fields(this, err);
@@ -56,36 +50,34 @@ namespace App
             List<byte[]> datalist = new List<byte[]>();
 
             foreach (var cmd in cmds["txt"])
-                datalist.Add(loadText(err + $"command {cmd.cmd} 'txt'", dir, cmd.args, classes));
+                datalist.Add(loadText(err + $"command {cmd.cmd} 'txt'", @params.dir, cmd.args, @params.scene));
 
             foreach (var cmd in cmds["xml"])
-                datalist.Add(LoadXml(err + $"command {cmd.cmd} 'xml'", dir, cmd.args, classes));
-
-            if (err.HasErrors())
-                throw err;
+                datalist.Add(LoadXml(err + $"command {cmd.cmd} 'xml'", @params.dir, cmd.args, @params.scene));
 
             // merge data into a single array
             var iter = datalist.Join();
             var data = iter.Take(size == 0 ? iter.Count() : size).ToArray();
-            size = data.Length;
+            if (size == 0)
+                size = data.Length;
 
             // CREATE OPENGL OBJECT
             glname = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
-            
+
             // ALLOCATE (AND WRITE) GPU MEMORY
             if (size > 0)
             {
-                if (data != null)
+                if (data.Length > 0)
                 {
                     size = data.Length;
                     var dataPtr = Marshal.AllocHGlobal(size);
                     Marshal.Copy(data, 0, dataPtr, size);
-                    GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)size, dataPtr, usage);
+                    GL.NamedBufferData(glname, size, dataPtr, usage);
                     Marshal.FreeHGlobal(dataPtr);
                 }
                 else
-                    GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)size, IntPtr.Zero, usage);
+                    GL.NamedBufferData(glname, size, IntPtr.Zero, usage);
             }
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -99,23 +91,44 @@ namespace App
         /// <returns>Return GPU buffer data as byte array.</returns>
         public byte[] Read()
         {
-            if (size == 0)
-                return "Buffer is empty".ToCharArray().ToBytes();
+            // allocate buffer memory
+            byte[] data = null;
+            Read(ref data);
+            return data;
+        }
 
+        /// <summary>
+        /// Read whole GPU buffer data.
+        /// </summary>
+        /// <returns>Return GPU buffer data as byte array.</returns>
+        public void Read(ref byte[] data, int offset = 0)
+        {
+            // check buffer size
+            if (size == 0)
+            {
+                var rs = "Buffer is empty".ToCharArray().ToBytes();
+                if (data == null) data = rs; else rs.CopyTo(data, 0);
+                return;
+            }
+
+            // check read flag of the buffer
             int flags;
             GL.GetNamedBufferParameter(glname, BufferParameterName.BufferStorageFlags, out flags);
             if ((flags & (int)BufferStorageFlags.MapReadBit) == 0)
-                return "Buffer cannot be read".ToCharArray().ToBytes();
+            {
+                var rs = "Buffer cannot be read".ToCharArray().ToBytes();
+                if (data == null) data = rs; else rs.CopyTo(data, 0);
+                return;
+            }
 
-            // allocate buffer memory
-            byte[] data = new byte[size];
-            
+            // if necessary allocate bytes
+            if (data == null)
+                data = new byte[size];
+
             // map buffer and copy data to CPU memory
             IntPtr dataPtr = GL.MapNamedBuffer(glname, BufferAccess.ReadOnly);
-            Marshal.Copy(dataPtr, data, 0, size);
+            Marshal.Copy(dataPtr, data, offset, Math.Min(size, data.Length));
             GL.UnmapNamedBuffer(glname);
-            
-            return data;
         }
 
         public override void Delete()
@@ -126,6 +139,10 @@ namespace App
                 glname = 0;
             }
         }
+
+        public string GetLable() => GetLable(glname);
+
+        public static string GetLable(int glname) => GetLable(ObjectLabelIdentifier.Buffer, glname);
 
         #region UTIL METHODS
         private static byte[] LoadXml(CompileException err, string dir, string[] cmd, Dict<GLObject> classes)

@@ -1,4 +1,5 @@
-﻿using ScintillaNET;
+﻿using OpenTK;
+using ScintillaNET;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -143,6 +144,20 @@ namespace App
             "image3D        " +
             "image3DArray   " +
             "imageCube      " +
+            "iimage1D       " +
+            "iimage1DArray  " +
+            "iimage2D       " +
+            "iimage2DArray  " +
+            "iimage3D       " +
+            "iimage3DArray  " +
+            "iimageCube     " +
+            "uimage1D       " +
+            "uimage1DArray  " +
+            "uimage2D       " +
+            "uimage2DArray  " +
+            "uimage3D       " +
+            "uimage3DArray  " +
+            "uimageCube     " +
             "in             " +
             "instance       " +
             "int            " +

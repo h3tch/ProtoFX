@@ -7,19 +7,14 @@ namespace App
         /// <summary>
         /// Create OpenGL object.
         /// </summary>
-        /// <param name="dir">Directory of the tech-file.</param>
-        /// <param name="name">Name used to identify the object.</param>
-        /// <param name="anno">Annotation used for special initialization.</param>
-        /// <param name="text">Text block specifying the object commands.</param>
-        /// <param name="classes">Collection of scene objects.</param>
-        public GLShader(string dir, string name, string anno, string text, Dict<GLObject> classes)
-            : base(name, anno)
+        /// <param name="params">Input parameters for GLObject creation.</param>
+        public GLShader(GLParams @params) : base(@params)
         {
-            var err = new CompileException($"shader '{name}'");
+            var err = new CompileException($"shader '{@params.name}'");
 
             // CREATE OPENGL OBJECT
             ShaderType type;
-            switch (anno)
+            switch (@params.anno)
             {
                 case "vert": type = ShaderType.VertexShader; break;
                 case "tess": type = ShaderType.TessControlShader; break;
@@ -27,20 +22,25 @@ namespace App
                 case "geom": type = ShaderType.GeometryShader; break;
                 case "frag": type = ShaderType.FragmentShader; break;
                 case "comp": type = ShaderType.ComputeShader; break;
-                default:
-                    throw err.Add($"Shader type '{anno}' is not supported.");
+                default: throw err.Add($"Shader type '{@params.anno}' is not supported.");
             }
+
+            // ADD OR REMOVE DEBUG INFORMATION
+            @params.text = GLDebugger.AddDebugCode(@params.text, type, @params.debuging);
 
             // CREATE OPENGL OBJECT
             glname = GL.CreateShader(type);
-            GL.ShaderSource(glname, text);
+            GL.ShaderSource(glname, @params.text);
             GL.CompileShader(glname);
 
             // CHECK FOR ERRORS
             int status;
             GL.GetShader(glname, ShaderParameter.CompileStatus, out status);
             if (status != 1)
-                throw err.Add("\n" + GL.GetShaderInfoLog(glname));
+            {
+                var compilerErrors = GL.GetShaderInfoLog(glname);
+                throw err.Add("\n" + compilerErrors);
+            }
             if (HasErrorOrGlError(err))
                 throw err;
         }

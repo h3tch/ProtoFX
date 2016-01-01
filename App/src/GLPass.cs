@@ -43,18 +43,13 @@ namespace App
         /// <summary>
         /// Create pass object.
         /// </summary>
-        /// <param name="dir">Directory of the tech-file.</param>
-        /// <param name="name">Name used to identify the object.</param>
-        /// <param name="annotation">Annotation used for special initialization.</param>
-        /// <param name="text">Text block specifying the object commands.</param>
-        /// <param name="classes">Collection of scene objects.</param>
-        public GLPass(string dir, string name, string annotation, string text, Dict<GLObject> classes)
-            : base(name, annotation)
+        /// <param name="params">Input parameters for GLObject creation.</param>
+        public GLPass(GLParams @params) : base(@params)
         {
             var err = new CompileException($"pass '{name}'");
 
             // PARSE TEXT
-            var body = new Commands(text, err);
+            var body = new Commands(@params.text, err);
 
             // PARSE ARGUMENTS
             body.Cmds2Fields(this, err);
@@ -65,11 +60,11 @@ namespace App
                 err.PushCall($"command {cmd.idx} '{cmd.cmd}'");
                 switch (cmd.cmd)
                 {
-                    case "draw": ParseDrawCall(err, cmd.args, classes); break;
-                    case "compute": ParseComputeCall(err, cmd.args, classes); break;
-                    case "tex": ParseTexCmd(err, cmd.args, classes); break;
-                    case "samp": ParseSampCmd(err, cmd.args, classes); break;
-                    case "exec": ParseCsharpExec(err, cmd.cmd, cmd.args, classes); break;
+                    case "draw": ParseDrawCall(err, cmd.args, @params.scene); break;
+                    case "compute": ParseComputeCall(err, cmd.args, @params.scene); break;
+                    case "tex": ParseTexCmd(err, cmd.args, @params.scene); break;
+                    case "samp": ParseSampCmd(err, cmd.args, @params.scene); break;
+                    case "exec": ParseCsharpExec(err, cmd.cmd, cmd.args, @params.scene); break;
                     default: ParseOpenGLCall(err, cmd.cmd, cmd.args); break;
                 }
                 err.PopCall();
@@ -77,9 +72,9 @@ namespace App
 
             // GET VERTEX AND FRAGMENT OUTPUT BINDINGS
             
-            if (fragout != null && !classes.TryGetValue(fragout, out glfragout))
+            if (fragout != null && !@params.scene.TryGetValue(fragout, out glfragout))
                 err.Add($"The name '{fragout}' does not reference an object of type 'fragout'.");
-            if (vertout != null && vertout.Length > 0 && !classes.TryGetValue(vertout[0], out glvertout))
+            if (vertout != null && vertout.Length > 0 && !@params.scene.TryGetValue(vertout[0], out glvertout))
                 err.Add($"The name '{vertout[0]}' does not reference an object of type 'vertout'.");
             if (err.HasErrors())
                 throw err;
@@ -92,13 +87,13 @@ namespace App
                 // Attach shader objects.
                 // First try attaching a compute shader. If that
                 // fails, try attaching the default shader pipeline.
-                if ((glcomp = attach(err, comp, classes)) == null)
+                if ((glcomp = attach(err, comp, @params.scene)) == null)
                 {
-                    glvert = attach(err, vert, classes);
-                    gltess = attach(err, tess, classes);
-                    gleval = attach(err, eval, classes);
-                    glgeom = attach(err, geom, classes);
-                    glfrag = attach(err, frag, classes);
+                    glvert = attach(err, vert, @params.scene);
+                    gltess = attach(err, tess, @params.scene);
+                    gleval = attach(err, eval, @params.scene);
+                    glgeom = attach(err, geom, @params.scene);
+                    glfrag = attach(err, frag, @params.scene);
                 }
 
                 // specify vertex output varyings of the shader program
@@ -147,8 +142,16 @@ namespace App
         /// </summary>
         /// <param name="width">Width of the OpenGL control.</param>
         /// <param name="height">Height of the OpenGL control.</param>
-        public void Exec(int width, int height)
+        public void Exec(int width, int height, int frame)
         {
+#if DEBUG
+            // in debug mode check if the
+            // OpenGL sate is valid
+            var errcode = GL.GetError();
+            if (errcode != ErrorCode.NoError)
+                throw new Exception("OpenGL error.");
+#endif
+
             int fbWidth = width;
             int fbHeight = height;
 
@@ -180,14 +183,20 @@ namespace App
 
             // BIND TEXTURES
             foreach (var t in textures)
-                t.obj.Bind(t.unit);
+                t.obj.BindTex(t.unit);
             foreach (var t in texImages)
-                t.obj.Bind(t.unit, t.level, t.layer, t.access, t.format);
+                t.obj.BindImg(t.unit, t.level, t.layer, t.access, t.format);
             foreach (var s in sampler)
                 GL.BindSampler(s.unit, s.obj.glname);
+
+            // EXECUTE EXTERNAL CODE
             foreach (var e in csexec)
                 e.Update(glname, width, height, fbWidth, fbHeight);
-
+            
+            // BIND DEBUGGER
+            if (glname > 0)
+                GLDebugger.Bind(this, frame);
+            
             // EXECUTE DRAW CALLS
             foreach (var call in drawcalls)
                 call.draw();
@@ -195,6 +204,10 @@ namespace App
             // EXECUTE COMPUTE CALLS
             foreach (var call in compcalls)
                 call.compute();
+
+            // UNBIND DEBUGGER
+            if (glname > 0)
+                GLDebugger.Unbind(this);
 
             // UNBIND OUTPUT BUFFERS
             if (glfragout != null)
@@ -211,11 +224,19 @@ namespace App
 
             // UNBIND OPENGL OBJECTS
             foreach (var t in textures)
-                t.obj.Unbind(t.unit);
+                t.obj.UnbindTex(t.unit);
+            foreach (var t in texImages)
+                t.obj.UnbindImg(t.unit);
             foreach (var s in sampler)
                 GL.BindSampler(s.unit, 0);
             foreach (var e in csexec)
                 e.EndPass(glname);
+#if DEBUG
+            // in debug mode check if the pass
+            // left a valid OpenGL sate
+            if ((errcode = GL.GetError()) != ErrorCode.NoError)
+                throw new Exception("OpenGL error.");
+#endif
         }
 
         public override void Delete()
@@ -345,7 +366,7 @@ namespace App
                 typeof(int),
                 typeof(int),
                 typeof(TextureAccess),
-                typeof(SizedInternalFormat)
+                typeof(GpuFormat)
             };
             var values = ParseCmd(args, types, args.Length == 6 ? 6 : 2, classes, err);
             if (!err.HasErrors())
@@ -681,7 +702,7 @@ namespace App
             public int level;
             public int layer;
             public TextureAccess access;
-            public SizedInternalFormat format;
+            public GpuFormat format;
 
             public ResTexImg(object[] values) : base(values)
             {
@@ -692,7 +713,7 @@ namespace App
                 if (values[4] != null)
                     access = (TextureAccess)values[4];
                 if (values[5] != null)
-                    format = (SizedInternalFormat)values[5];
+                    format = (GpuFormat)values[5];
             }
         }
 

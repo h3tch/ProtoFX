@@ -21,18 +21,13 @@ namespace App
         /// <summary>
         /// Create C# object compiler class.
         /// </summary>
-        /// <param name="dir">Directory of the tech-file.</param>
-        /// <param name="name">Name used to identify the object.</param>
-        /// <param name="annotation">Annotation used for special initialization.</param>
-        /// <param name="text">Text block specifying the object commands.</param>
-        /// <param name="classes">Collection of scene objects.</param>
-        public GLCsharp(string dir, string name, string annotation, string text, Dict<GLObject> classes)
-            : base(name, annotation)
+        /// <param name="params">Input parameters for GLObject creation.</param>
+        public GLCsharp(GLParams @params) : base(@params)
         {
-            var err = new CompileException($"csharp '{name}'");
+            var err = new CompileException($"csharp '{@params.name}'");
 
             // PARSE TEXT
-            var cmds = new Commands(text, err);
+            var cmds = new Commands(@params.text, err);
 
             // PARSE ARGUMENTS
             cmds.Cmds2Fields(this, err);
@@ -51,7 +46,7 @@ namespace App
                 path = path.Select(x => x.Replace(placeholder[0], placeholder[1]));
 
             // convert relative file paths to absolut file paths
-            path = path.Select(x => Path.IsPathRooted(x) ? x : dir + x);
+            path = path.Select(x => Path.IsPathRooted(x) ? x : @params.dir + x);
 
             // use '\\' file paths instead of '/' and set absolute directory path
             if (Path.DirectorySeparatorChar != '/')

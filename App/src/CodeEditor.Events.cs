@@ -1,12 +1,14 @@
 ﻿using ScintillaNET;
 using System;
+using System.Data;
 using System.Drawing;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace App
 {
-    partial class CodeEditor
+    public partial class CodeEditor
     {
         private bool DisableEditing = false;
 
@@ -73,11 +75,16 @@ namespace App
             // handle selection changed events
             if (e.Change == UpdateChange.Selection)
             {
-                // get whole words from selections and get ranges from these words
-                var ranges = editor.FindWordRanges(editor.GetWordsFromSelections());
-                // highlight all selected words
-                editor.ClearIndicators(HighlightIndicatorIndex);
-                editor.AddIndicators(HighlightIndicatorIndex, ranges);
+                // Update indicators only if the editor is in focus. This
+                // is necessary, because they are also used by 'Find & Replace'.
+                if (editor.Focused)
+                {
+                    // get whole words from selections and get ranges from these words
+                    var ranges = editor.FindWordRanges(editor.GetWordsFromSelections());
+                    // highlight all selected words
+                    editor.ClearIndicators(HighlightIndicatorIndex);
+                    editor.AddIndicators(HighlightIndicatorIndex, ranges);
+                }
             }
         }
 
@@ -140,9 +147,6 @@ namespace App
 
         private void HandleKeyDown(object sender, KeyEventArgs e)
         {
-            if (!e.Control)
-                return;
-
             switch (e.KeyCode)
             {
                 // disable editing if Ctrl+<Key> is pressed
@@ -150,8 +154,11 @@ namespace App
                 case Keys.R: // replace
                 case Keys.S: // save/save all/save as
                 case Keys.Space: // auto complete menu
-                    e.SuppressKeyPress = true;
-                    DisableEditing = true;
+                    if (e.Control)
+                    {
+                        e.SuppressKeyPress = true;
+                        DisableEditing = true;
+                    }
                     break;
             }
         }
@@ -159,26 +166,35 @@ namespace App
         private void HandleKeyUp(object sender, KeyEventArgs e)
         {
             // only disable editin if Ctrl is pressed
-            DisableEditing = e.Control;
-
-            if (!e.Control)
-                return;
-
+            DisableEditing = false;
+            
             var editor = (CodeEditor)sender;
             switch (e.KeyCode)
             {
                 case Keys.F:
-                    // start text search
-                    editor.FindText.Clear();
-                    editor.FindText.Focus();
+                    if (e.Control)
+                    {
+                        // start text search
+                        DisableEditing = true;
+                        editor.FindText.Clear();
+                        editor.FindText.Focus();
+                    }
                     break;
                 case Keys.R:
-                    // select all indicator to allow text replacement
-                    editor.SelectIndicators(HighlightIndicatorIndex);
+                    if (e.Control)
+                    {
+                        // select all indicator to allow text replacement
+                        DisableEditing = true;
+                        editor.SelectIndicators(HighlightIndicatorIndex);
+                    }
                     break;
                 case Keys.Space:
-                    // show auto complete menu
-                    editor.AutoCShow(editor.CurrentPosition);
+                    if (e.Control)
+                    {
+                        // show auto complete menu
+                        DisableEditing = true;
+                        editor.AutoCShow(editor.CurrentPosition);
+                    }
                     break;
             }
         }

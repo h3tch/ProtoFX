@@ -53,10 +53,9 @@ vertinput in_projvert {
 shader vert vs_transform {
 	#version 440
 	
-	struct SimpleCamera {
+	uniform SimpleCamera {
 		mat4 viewProj;
-	};
-	uniform SimpleCamera Camera;
+	} camera;
 	
 	layout(location = 0) in vec4 in_pos;
 	
@@ -64,7 +63,8 @@ shader vert vs_transform {
 	
 	void main ()
 	{
-		out_pos = Camera.viewProj * in_pos;
+		int i = 0;
+		out_pos = camera.viewProj * in_pos;
 	}
 }
 
@@ -101,12 +101,14 @@ shader frag fs_render {
 //////////////
 
 csharp cs_util {
-	file "<csharp>/StaticCamera.cs" "<csharp>/SimpleCamera.cs"
+	file "<csharp>/StaticCamera.cs" ...
+	     "<csharp>/SimpleCamera.cs" ...
+	     "<csharp>/UniformBlock.cs"
 }
 
 instance cs_camera {
 	class cs_util csharp.SimpleCamera
-	name Camera
+	name SimpleCamera
 	pos 0 0 5
 }
 

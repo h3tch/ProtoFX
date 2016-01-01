@@ -9,21 +9,22 @@ namespace OpenTK
 {
     class GraphicControl : GLControl
     {
-        public static string nullname = "__protogl_control__";
+        public static string nullname = "__control__";
         private bool render = false;
         private Dict<GLObject> scene = new Dict<GLObject>();
         public Dictionary<string, GLObject> Scene { get { return scene; } }
+        public int Frame { get; private set; } = 0;
 
         /// <summary>
         /// Instantiate and initialize graphics control based on OpenTK.
         /// </summary>
         public GraphicControl() : base()
         {
-            Paint += new PaintEventHandler(OnPaint);
-            MouseDown += new MouseEventHandler(OnMouseDown);
+            Paint += new PaintEventHandler(HandlePaint);
+            MouseDown += new MouseEventHandler(HandleMouseDown);
             MouseMove += new MouseEventHandler(OnMouseMove);
-            MouseUp += new MouseEventHandler(OnMouseUp);
-            Resize += new EventHandler(OnResize);
+            MouseUp += new MouseEventHandler(HandleMouseUp);
+            Resize += new EventHandler(HandleResize);
         }
 
         /// <summary>
@@ -31,10 +32,20 @@ namespace OpenTK
         /// </summary>
         public void Render()
         {
-            MakeCurrent();
-            scene.Where(x => x.Value is GLTech).Select(x => (GLTech)x.Value)
-                 .Do(x => x.Exec(ClientSize.Width, ClientSize.Height));
-            SwapBuffers();
+            try
+            {
+                MakeCurrent();
+                scene.Where(x => x.Value is GLTech).Select(x => (GLTech)x.Value)
+                     .Do(x => x.Exec(ClientSize.Width, ClientSize.Height, Frame));
+                SwapBuffers();
+            }
+            catch (Exception ex)
+            {
+                ex = ex.InnerException != null ? ex.InnerException : ex;
+                var codeError = (RichTextBox)FindForm().Controls.Find("codeError", true).First();
+                codeError.AppendText(ex.Message + '\n');
+            }
+            Frame++;
         }
 
         /// <summary>
@@ -42,7 +53,7 @@ namespace OpenTK
         /// </summary>
         /// <param name="block"></param>
         /// <param name="includeDir"></param>
-        public void AddObject(string block, string includeDir)
+        public void AddObject(string block, string includeDir, bool debuging)
         {
             // PARSE CLASS INFO
             var classDef = ExtraxtClassDef(block);
@@ -70,8 +81,8 @@ namespace OpenTK
                     .Add($"Class name '{className}' already exists.");
 
             // instantiate class
-            var instance = (GLObject)Activator.CreateInstance(
-                type, includeDir, className, classAnno, cmdStr, scene);
+            var @params = new GLParams(className, classAnno, cmdStr, includeDir, scene, debuging);
+            var instance = (GLObject)Activator.CreateInstance(type, @params);
             scene.Add(instance.name, instance);
         }
 
@@ -85,7 +96,13 @@ namespace OpenTK
             // clear list of classes
             scene.Clear();
             // add default OpenTK glControl
-            scene.Add(nullname, new GLReference(nullname, null, this));
+            scene.Add(nullname, new GLReference(new GLParams(nullname), this));
+            // (re)initialize OpenGL/GLSL debugger
+#if DEBUG
+            GLDebugger.Initilize(scene);
+#else
+            GLDebugger.Initilize();
+#endif
         }
 
         private static string[] ExtraxtClassDef(string objectblock)
@@ -96,13 +113,13 @@ namespace OpenTK
                 .First().Cast<Match>().Select(x => x.Value).ToArray();
         }
 
-        private void OnResize(object sender, EventArgs e) => Render();
+        private void HandleResize(object sender, EventArgs e) => Render();
 
-        private void OnPaint(object sender, PaintEventArgs e) => Render();
+        private void HandlePaint(object sender, PaintEventArgs e) => Render();
 
-        private void OnMouseDown(object sender, MouseEventArgs e) => render = true;
+        private void HandleMouseDown(object sender, MouseEventArgs e) => render = true;
 
-        private void OnMouseUp(object sender, MouseEventArgs e) => render = false;
+        private void HandleMouseUp(object sender, MouseEventArgs e) => render = false;
 
         private void OnMouseMove(object sender, MouseEventArgs e) => this.UseIf(render)?.Render();
     }

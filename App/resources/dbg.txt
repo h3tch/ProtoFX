@@ -1,0 +1,176 @@
+#define _DBG_BOOL 1
+#define _DBG_INT 2
+#define _DBG_UINT 3
+#define _DBG_FLOAT 4
+#define _i2f intBitsToFloat
+#define _u2f uintBitsToFloat
+const int _dbgStageOffset = <<<stage offset>>>;
+
+layout(rgba32f) uniform writeonly imageBuffer _dbgOut;
+
+int _dbgStore(int idx, vec4 val) {
+	imageStore(_dbgOut, _dbgStageOffset + idx, val);
+	return ++idx;
+}
+int _dbgStore(int idx, ivec4 val) {
+	return _dbgStore(idx, vec4(_i2f(val.x), _i2f(val.y), _i2f(val.z), _i2f(val.w)));
+}
+int _dbgStore(int idx, uvec4 val) {
+	return _dbgStore(idx, vec4(_u2f(val.x), _u2f(val.y), _u2f(val.z), _u2f(val.w)));
+}
+int _dbgStore(int idx, bvec4 val) {
+	return _dbgStore(idx, vec4(int(val.x), int(val.y), int(val.z), int(val.w)));
+}
+int _dbgStore(int idx, vec3 val) {
+	return _dbgStore(idx, vec4(val, 0));
+}
+int _dbgStore(int idx, ivec3 val) {
+	return _dbgStore(idx, ivec4(val, 0));
+}
+int _dbgStore(int idx, uvec3 val) {
+	return _dbgStore(idx, uvec4(val, 0));
+}
+int _dbgStore(int idx, bvec3 val) {
+	return _dbgStore(idx, bvec4(val, false));
+}
+int _dbgStore(int idx, vec2 val) {
+	return _dbgStore(idx, vec4(val, 0, 0));
+}
+int _dbgStore(int idx, ivec2 val) {
+	return _dbgStore(idx, ivec4(val, 0, 0));
+}
+int _dbgStore(int idx, uvec2 val) {
+	return _dbgStore(idx, uvec4(val, 0, 0));
+}
+int _dbgStore(int idx, bvec2 val) {
+	return _dbgStore(idx, bvec4(val, false, false));
+}
+int _dbgStore(int idx, float val) {
+	return _dbgStore(idx, vec4(val, 0, 0, 0));
+}
+int _dbgStore(int idx, int val) {
+	return _dbgStore(idx, ivec4(val, 0, 0, 0));
+}
+int _dbgStore(int idx, uint val) {
+	return _dbgStore(idx, uvec4(val, 0, 0, 0));
+}
+int _dbgStore(int idx, bool val) {
+	return _dbgStore(idx, bvec4(val, false, false, false));
+}
+int _dbgStore(int idx, int type, int cols, int rows, int ID) {
+	return _dbgStore(idx, ivec4(type, cols, rows, ID));
+}
+
+// FLOAT
+int _dbgStoreVar(int idx, float val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_FLOAT, 1, 1, ID), val);
+}
+
+int _dbgStoreVar(int idx, vec2 val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_FLOAT, 1, 2, ID), val);
+}
+int _dbgStoreVar(int idx, vec3 val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_FLOAT, 1, 3, ID), val);
+}
+int _dbgStoreVar(int idx, vec4 val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_FLOAT, 1, 4, ID), val);
+}
+
+int _dbgStoreVar(int idx, mat2 val, int ID) {
+	val = transpose(val);
+	idx = _dbgStore(idx, _DBG_FLOAT, 2, 2, ID);
+	for (int c = 0; c < 2; c++) idx = _dbgStore(idx, val[c]);
+	return idx;
+}
+int _dbgStoreVar(int idx, mat2x3 val, int ID) {
+	mat3x2 valT = transpose(val);
+	idx = _dbgStore(idx, _DBG_FLOAT, 2, 3, ID);
+	for (int c = 0; c < 2; c++) idx = _dbgStore(idx, valT[c]);
+	return idx;
+}
+int _dbgStoreVar(int idx, mat2x4 val, int ID) {
+	mat4x2 valT = transpose(val);
+	idx = _dbgStore(idx, _DBG_FLOAT, 2, 4, ID);
+	for (int c = 0; c < 2; c++) idx = _dbgStore(idx, valT[c]);
+	return idx;
+}
+
+int _dbgStoreVar(int idx, mat3 val, int ID) {
+	val = transpose(val);
+	idx = _dbgStore(idx, _DBG_FLOAT, 3, 3, ID);
+	for (int c = 0; c < 3; c++) idx = _dbgStore(idx, val[c]);
+	return idx;
+}
+int _dbgStoreVar(int idx, mat3x2 val, int ID) {
+	mat2x3 valT = transpose(val);
+	idx = _dbgStore(idx, _DBG_FLOAT, 3, 2, ID);
+	for (int c = 0; c < 3; c++) idx = _dbgStore(idx, valT[c]);
+	return idx;
+}
+int _dbgStoreVar(int idx, mat3x4 val, int ID) {
+	mat4x3 valT = transpose(val);
+	idx = _dbgStore(idx, _DBG_FLOAT, 3, 4, ID);
+	for (int c = 0; c < 3; c++) idx = _dbgStore(idx, valT[c]);
+	return idx;
+}
+
+int _dbgStoreVar(int idx, mat4 val, int ID) {
+	val = transpose(val);
+	idx = _dbgStore(idx, _DBG_FLOAT, 4, 4, ID);
+	for (int c = 0; c < 4; c++) idx = _dbgStore(idx, val[c]);
+	return idx;
+}
+int _dbgStoreVar(int idx, mat4x2 val, int ID) {
+	mat2x4 valT = transpose(val);
+	idx = _dbgStore(idx, _DBG_FLOAT, 4, 2, ID);
+	for (int c = 0; c < 4; c++) idx = _dbgStore(idx, valT[c]);
+	return idx;
+}
+int _dbgStoreVar(int idx, mat4x3 val, int ID) {
+	mat3x4 valT = transpose(val);
+	idx = _dbgStore(idx, _DBG_FLOAT, 4, 3, ID);
+	for (int c = 0; c < 4; c++) idx = _dbgStore(idx, valT[c]);
+	return idx;
+}
+
+// INT
+int _dbgStoreVar(int idx, int val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_INT, 1, 1, ID), val);
+}
+int _dbgStoreVar(int idx, ivec2 val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_INT, 1, 2, ID), val);
+}
+int _dbgStoreVar(int idx, ivec3 val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_INT, 1, 3, ID), val);
+}
+int _dbgStoreVar(int idx, ivec4 val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_INT, 1, 4, ID), val);
+}
+
+// UINT
+int _dbgStoreVar(int idx, uint val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_UINT, 1, 1, ID), val);
+}
+int _dbgStoreVar(int idx, uvec2 val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_UINT, 1, 2, ID), val);
+}
+int _dbgStoreVar(int idx, uvec3 val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_UINT, 1, 3, ID), val);
+}
+int _dbgStoreVar(int idx, uvec4 val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_UINT, 1, 4, ID), val);
+}
+
+// BOOL
+int _dbgStoreVar(int idx, bool val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_BOOL, 1, 1, ID), val);
+}
+int _dbgStoreVar(int idx, bvec2 val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_BOOL, 1, 2, ID), val);
+}
+int _dbgStoreVar(int idx, bvec3 val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_BOOL, 1, 3, ID), val);
+}
+int _dbgStoreVar(int idx, bvec4 val, int ID) {
+	return _dbgStore(_dbgStore(idx, _DBG_BOOL, 1, 4, ID), val);
+}

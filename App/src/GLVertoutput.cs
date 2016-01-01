@@ -14,18 +14,13 @@ namespace App
         /// <summary>
         /// Create OpenGL object.
         /// </summary>
-        /// <param name="dir">Directory of the tech-file.</param>
-        /// <param name="name">Name used to identify the object.</param>
-        /// <param name="anno">Annotation used for special initialization.</param>
-        /// <param name="text">Text block specifying the object commands.</param>
-        /// <param name="classes">Collection of scene objects.</param>
-        public GLVertoutput(string dir, string name, string anno, string text, Dict<GLObject> classes)
-            : base(name, anno)
+        /// <param name="params">Input parameters for GLObject creation.</param>
+        public GLVertoutput(GLParams @params) : base(@params)
         {
-            var err = new CompileException($"vertoutput '{name}'");
+            var err = new CompileException($"vertoutput '{@params.name}'");
 
             // PARSE TEXT
-            var body = new Commands(text, err);
+            var body = new Commands(@params.text, err);
 
             // PARSE ARGUMENTS
             body.Cmds2Fields(this, err);
@@ -37,7 +32,7 @@ namespace App
             // parse commands
             int numbindings = 0;
             foreach (var cmd in body["buff"])
-                attach(err + $"command {cmd.idx} 'buff'", numbindings++, cmd.args, classes);
+                attach(err + $"command {cmd.idx} 'buff'", numbindings++, cmd.args, @params.scene);
 
             // if errors occurred throw exception
             if (err.HasErrors())
