@@ -97,7 +97,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\Commands.cs" />
-    <Compile Include="src\Data.cs" />
     <Compile Include="src\Field.cs" />
     <Compile Include="src\GLDebugger.cs" />
     <Compile Include="src\GLInstance.cs" />

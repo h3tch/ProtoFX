@@ -218,7 +218,7 @@ namespace App
             int pos = editor.CharPositionFromPoint(e.X, e.Y);
 
             // get debug variable information from position
-            var dbgVar = GLDebugger.GetPositionDebugVariable(editor, pos);
+            var dbgVar = GLDebugger.GetDebugVariableFromPosition(editor, pos);
             // no debug variable found
             if (dbgVar.IsDefault())
             {
@@ -227,10 +227,10 @@ namespace App
             }
 
             // get debug variable value
-            var dbgVal = GLDebugger.GetDebugVariable(dbgVar.Key, glControl.Frame - 1);
+            var dbgVal = GLDebugger.GetDebugVariableValue(dbgVar.ID, glControl.Frame - 1);
             editor.CallTipShow(pos, dbgVal == null
                 ? "No debug information."
-                : GLDebugger.ArrayToReadableString(dbgVal));
+                : GLDebugger.DebugVariableToString(dbgVal));
         }
 
         private void UpdateDebugListView(CodeEditor editor)
@@ -252,9 +252,9 @@ namespace App
 
             // get debug variables of the line where the caret is placed
             var dbgLine = editor.LineFromPosition(editor.CurrentPosition);
-            var dbgVars = GLDebugger.GetLineDebugVariables(editor, dbgLine).Select(x => x);
-            dbgVars.Select(Var => GLDebugger.GetDebugVariable(Var.Key, glControl.Frame - 1))
-                   .Zip(dbgVars, (Val, Var) => { if (Val != null) NewItem(Var.Value, Val); });
+            var dbgVars = GLDebugger.GetDebugVariablesFromLine(editor, dbgLine).Select(x => x);
+            dbgVars.Select(Var => GLDebugger.GetDebugVariableValue(Var.ID, glControl.Frame - 1))
+                   .Zip(dbgVars, (Val, Var) => { if (Val != null) NewItem(Var.Name, Val); });
         }
 
         private void NewItem(string groupName, Array val)

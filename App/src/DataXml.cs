@@ -39,7 +39,7 @@ namespace App
                             throw new CompileException($"{errstr}For non binary data a type has to be "
                                 + $" specified(e.g. <{itemname} type='float'>).");
                         
-                        type = Data.str2type[attr["type"].Value];
+                        type = Extensions.str2type[attr["type"].Value];
                         if (type == null)
                             throw new CompileException($"{errstr}Type '{attr["type"].Value}' not supported.");
 
@@ -62,14 +62,6 @@ namespace App
             {
                 throw new CompileException($"{errstr}Could not load item.");
             }
-        }
-
-        public static byte[] Load(string filename, string itemname)
-        {
-            // load XML file
-            var xmlDoc = new XmlDocument();
-            xmlDoc.Load(filename);
-            return Load(xmlDoc, itemname);
         }
     }
 }

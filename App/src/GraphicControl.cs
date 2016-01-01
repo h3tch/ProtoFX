@@ -13,17 +13,18 @@ namespace OpenTK
         private bool render = false;
         private Dict<GLObject> scene = new Dict<GLObject>();
         public Dictionary<string, GLObject> Scene { get { return scene; } }
+        public int Frame { get; private set; } = 0;
 
         /// <summary>
         /// Instantiate and initialize graphics control based on OpenTK.
         /// </summary>
         public GraphicControl() : base()
         {
-            Paint += new PaintEventHandler(OnPaint);
-            MouseDown += new MouseEventHandler(OnMouseDown);
+            Paint += new PaintEventHandler(HandlePaint);
+            MouseDown += new MouseEventHandler(HandleMouseDown);
             MouseMove += new MouseEventHandler(OnMouseMove);
-            MouseUp += new MouseEventHandler(OnMouseUp);
-            Resize += new EventHandler(OnResize);
+            MouseUp += new MouseEventHandler(HandleMouseUp);
+            Resize += new EventHandler(HandleResize);
         }
 
         /// <summary>
@@ -46,7 +47,6 @@ namespace OpenTK
             }
             Frame++;
         }
-        public int Frame { get; private set; } = 0;
 
         /// <summary>
         /// Add a new object to the scene.
@@ -97,7 +97,12 @@ namespace OpenTK
             scene.Clear();
             // add default OpenTK glControl
             scene.Add(nullname, new GLReference(new GLParams(nullname), this));
+            // (re)initialize OpenGL/GLSL debugger
+#if DEBUG
             GLDebugger.Initilize(scene);
+#else
+            GLDebugger.Initilize();
+#endif
         }
 
         private static string[] ExtraxtClassDef(string objectblock)
@@ -108,13 +113,13 @@ namespace OpenTK
                 .First().Cast<Match>().Select(x => x.Value).ToArray();
         }
 
-        private void OnResize(object sender, EventArgs e) => Render();
+        private void HandleResize(object sender, EventArgs e) => Render();
 
-        private void OnPaint(object sender, PaintEventArgs e) => Render();
+        private void HandlePaint(object sender, PaintEventArgs e) => Render();
 
-        private void OnMouseDown(object sender, MouseEventArgs e) => render = true;
+        private void HandleMouseDown(object sender, MouseEventArgs e) => render = true;
 
-        private void OnMouseUp(object sender, MouseEventArgs e) => render = false;
+        private void HandleMouseUp(object sender, MouseEventArgs e) => render = false;
 
         private void OnMouseMove(object sender, MouseEventArgs e) => this.UseIf(render)?.Render();
     }
