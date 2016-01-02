@@ -3,6 +3,13 @@ using System.Text;
 
 namespace App
 {
+    /// <summary>
+    /// The <code>Field</code> attribute class is used to identify
+    /// fields that can receive values from the application at compile time.
+    /// </summary>
+    [System.AttributeUsage(System.AttributeTargets.Field | System.AttributeTargets.Property)]
+    public class Field : System.Attribute { }
+
     struct GLParams
     {
         public string name;

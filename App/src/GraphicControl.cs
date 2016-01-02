@@ -22,7 +22,7 @@ namespace OpenTK
         {
             Paint += new PaintEventHandler(HandlePaint);
             MouseDown += new MouseEventHandler(HandleMouseDown);
-            MouseMove += new MouseEventHandler(OnMouseMove);
+            MouseMove += new MouseEventHandler(HandleMouseMove);
             MouseUp += new MouseEventHandler(HandleMouseUp);
             Resize += new EventHandler(HandleResize);
         }
@@ -98,11 +98,7 @@ namespace OpenTK
             // add default OpenTK glControl
             scene.Add(nullname, new GLReference(new GLParams(nullname), this));
             // (re)initialize OpenGL/GLSL debugger
-#if DEBUG
             GLDebugger.Initilize(scene);
-#else
-            GLDebugger.Initilize();
-#endif
         }
 
         private static string[] ExtraxtClassDef(string objectblock)
@@ -121,6 +117,6 @@ namespace OpenTK
 
         private void HandleMouseUp(object sender, MouseEventArgs e) => render = false;
 
-        private void OnMouseMove(object sender, MouseEventArgs e) => this.UseIf(render)?.Render();
+        private void HandleMouseMove(object sender, MouseEventArgs e) => this.UseIf(render)?.Render();
     }
 }

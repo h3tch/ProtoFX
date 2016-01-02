@@ -53,7 +53,7 @@ namespace App
             
             // PARSE COMMANDS
             foreach (var cmd in body)
-                attatch(err + $"command {cmd.idx} '{cmd.cmd}'", cmd.cmd, cmd.args, @params.scene);
+                Attatch(err + $"command {cmd.idx} '{cmd.cmd}'", cmd.cmd, cmd.args, @params.scene);
 
             // if any errors occurred throw exception
             if (err.HasErrors())
@@ -97,7 +97,7 @@ namespace App
             }
         }
 
-        private void attatch(CompileException err, string cmd, string[] args, Dict<GLObject> classes)
+        private void Attatch(CompileException err, string cmd, string[] args, Dict<GLObject> classes)
         {
             // get OpenGL image
             GLImage glimg = classes.GetValue<GLImage>(args[0]);

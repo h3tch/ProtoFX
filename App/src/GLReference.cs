@@ -14,7 +14,6 @@
             this.reference = reference;
         }
 
-        public override void Delete()
-        { }
+        public override void Delete() { }
     }
 }

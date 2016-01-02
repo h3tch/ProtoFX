@@ -31,6 +31,10 @@ namespace App
         private static int dbgVarCount;
         #endregion
 
+        /// <summary>
+        /// Setup debugger. Needs to be called 
+        /// after the OpenGL context was created.
+        /// </summary>
         public static void Instantiate()
         {
             // debug resources definitions
@@ -45,12 +49,13 @@ namespace App
             passes = new Dictionary<int, Uniforms>();
             settings = new DebugSettings();
         }
-
-#if DEBUG
+        
+        /// <summary>
+        /// (Re)initialize the debugger. This method must
+        /// be called whenever a program is compiled.
+        /// </summary>
+        /// <param name="scene"></param>
         public static void Initilize(Dict<GLObject> scene)
-#else
-        public static void Initilize()
-#endif
         {
             // allocate GPU resources
             buf = new GLBuffer(new GLParams(dbgBufKey, "dbg", dbgBufDef));
@@ -65,6 +70,11 @@ namespace App
             dbgVarCount = 0;
         }
 
+        /// <summary>
+        /// Bind <code>GLPass</code> for debugging.
+        /// </summary>
+        /// <param name="pass">The pass to bind for debugging.</param>
+        /// <param name="frame">The current frame ID to generate debug information for.</param>
         public static void Bind(GLPass pass, int frame)
         {
             // get debug uniforms for the pass
@@ -75,6 +85,11 @@ namespace App
             unif.Bind(settings, frame);
         }
 
+        /// <summary>
+        /// End debugging of the specified pass. Must be
+        /// the same as when calling <code>Bind</code>.
+        /// </summary>
+        /// <param name="pass">The pass specified when calling <code>Bind</code>.</param>
         public static void Unbind(GLPass pass)
         {
             Uniforms unif;

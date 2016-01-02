@@ -32,7 +32,7 @@ namespace App
             // parse commands
             int numbindings = 0;
             foreach (var cmd in body["buff"])
-                attach(err + $"command {cmd.idx} 'buff'", numbindings++, cmd.args, @params.scene);
+                Attach(err + $"command {cmd.idx} 'buff'", numbindings++, cmd.args, @params.scene);
 
             // if errors occurred throw exception
             if (err.HasErrors())
@@ -82,7 +82,7 @@ namespace App
             }
         }
 
-        private void attach(CompileException err, int unit, string[] cmd, Dict<GLObject> classes)
+        private void Attach(CompileException err, int unit, string[] cmd, Dict<GLObject> classes)
         {
             if (cmd.Length == 0)
             {

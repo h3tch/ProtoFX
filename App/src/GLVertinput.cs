@@ -23,7 +23,7 @@ namespace App
 
             int numAttr = 0;
             foreach (var cmd in body["attr"])
-                attach(err + $"command {cmd.idx} 'attr'", numAttr++, cmd.args, @params.name, @params.scene);
+                Attach(err + $"command {cmd.idx} 'attr'", numAttr++, cmd.args, @params.name, @params.scene);
 
             // if errors occurred throw exception
             if (err.HasErrors())
@@ -35,7 +35,7 @@ namespace App
                 throw err;
         }
 
-        private void attach(CompileException err, int attrIdx, string[] args, string name, Dict<GLObject> classes)
+        private void Attach(CompileException err, int attrIdx, string[] args, string name, Dict<GLObject> classes)
         {
             // check commands for errors
             if (args.Length < 3)

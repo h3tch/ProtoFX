@@ -46,7 +46,6 @@
             this.toolBtnSaveAs = new System.Windows.Forms.ToolStripButton();
             this.toolBtnRun = new System.Windows.Forms.ToolStripButton();
             this.toolBtnDbg = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolBtnPick = new System.Windows.Forms.ToolStripButton();
             this.tabOutput = new System.Windows.Forms.TabControl();
@@ -76,6 +75,7 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.comboProp = new System.Windows.Forms.ComboBox();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
             this.splitRenderCoding.Panel1.SuspendLayout();
             this.splitRenderCoding.Panel2.SuspendLayout();
@@ -246,9 +246,9 @@
             this.toolBtnSave,
             this.toolBtnSaveAll,
             this.toolBtnSaveAs,
+            this.toolStripSeparator3,
             this.toolBtnRun,
             this.toolBtnDbg,
-            this.toolStripSeparator1,
             this.toolStripSeparator2,
             this.toolBtnPick});
             this.toolStrip.Location = new System.Drawing.Point(0, 3);
@@ -335,11 +335,6 @@
             this.toolBtnDbg.Size = new System.Drawing.Size(35, 36);
             this.toolBtnDbg.Text = "Debug (F6)";
             this.toolBtnDbg.Click += new System.EventHandler(this.toolBtnRunDebug_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(35, 6);
             // 
             // toolStripSeparator2
             // 
@@ -714,6 +709,11 @@
             this.comboProp.TabIndex = 0;
             this.comboProp.SelectedIndexChanged += new System.EventHandler(this.comboProp_SelectedIndexChanged);
             // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(35, 6);
+            // 
             // App
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -820,8 +820,8 @@
         private System.Windows.Forms.ToolStripButton toolBtnDbg;
         private System.Windows.Forms.SplitContainer splitDebug;
         private System.Windows.Forms.ListView debugListView;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton toolBtnPick;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
     }
 }

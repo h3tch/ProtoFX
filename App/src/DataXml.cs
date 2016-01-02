@@ -14,7 +14,9 @@ namespace App
 
             try
             {
+                // find all nodes with the specified item name
                 var nodes = xmlDoc.SelectNodes(itemname);
+                // allocate output array
                 var data = new byte[nodes.Count][];
                 int i = 0;
 
@@ -36,9 +38,10 @@ namespace App
                     {
                         // get value type and check for errors
                         if (attr["type"] == null)
-                            throw new CompileException($"{errstr}For non binary data a type has to be "
-                                + $" specified(e.g. <{itemname} type='float'>).");
+                            throw new CompileException($"{errstr}For non binary data a type has "
+                                + $" to be specified(e.g. <{itemname} type='float'>).");
                         
+                        // convert type name to Type
                         type = Extensions.str2type[attr["type"].Value];
                         if (type == null)
                             throw new CompileException($"{errstr}Type '{attr["type"].Value}' not supported.");
@@ -56,6 +59,7 @@ namespace App
                     i++;
                 }
 
+                // join the data of all nodes
                 return data.Join().ToArray();
             }
             catch
