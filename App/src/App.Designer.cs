@@ -44,13 +44,14 @@
             this.toolBtnSave = new System.Windows.Forms.ToolStripButton();
             this.toolBtnSaveAll = new System.Windows.Forms.ToolStripButton();
             this.toolBtnSaveAs = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.toolBtnRun = new System.Windows.Forms.ToolStripButton();
             this.toolBtnDbg = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolBtnPick = new System.Windows.Forms.ToolStripButton();
             this.tabOutput = new System.Windows.Forms.TabControl();
             this.tabCompile = new System.Windows.Forms.TabPage();
-            this.codeError = new System.Windows.Forms.RichTextBox();
+            this.output = new System.Windows.Forms.ListView();
             this.tabDebugger = new System.Windows.Forms.TabPage();
             this.splitDebug = new System.Windows.Forms.SplitContainer();
             this.debugListView = new System.Windows.Forms.ListView();
@@ -75,7 +76,6 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.comboProp = new System.Windows.Forms.ComboBox();
-            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
             this.splitRenderCoding.Panel1.SuspendLayout();
             this.splitRenderCoding.Panel2.SuspendLayout();
@@ -316,6 +316,11 @@
             this.toolBtnSaveAs.Text = "Save as (Alt + S)";
             this.toolBtnSaveAs.Click += new System.EventHandler(this.toolBtnSaveAs_Click);
             // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(35, 6);
+            // 
             // toolBtnRun
             // 
             this.toolBtnRun.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -365,7 +370,7 @@
             // 
             // tabCompile
             // 
-            this.tabCompile.Controls.Add(this.codeError);
+            this.tabCompile.Controls.Add(this.output);
             this.tabCompile.Location = new System.Drawing.Point(4, 31);
             this.tabCompile.Name = "tabCompile";
             this.tabCompile.Padding = new System.Windows.Forms.Padding(3);
@@ -374,19 +379,17 @@
             this.tabCompile.Text = "Compiler Output";
             this.tabCompile.UseVisualStyleBackColor = true;
             // 
-            // codeError
+            // output
             // 
-            this.codeError.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.codeError.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.codeError.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.codeError.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.codeError.Location = new System.Drawing.Point(3, 3);
-            this.codeError.Margin = new System.Windows.Forms.Padding(0);
-            this.codeError.Name = "codeError";
-            this.codeError.Size = new System.Drawing.Size(935, 223);
-            this.codeError.TabIndex = 0;
-            this.codeError.Text = "";
-            this.codeError.WordWrap = false;
+            this.output.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.output.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.output.FullRowSelect = true;
+            this.output.Location = new System.Drawing.Point(3, 3);
+            this.output.Name = "output";
+            this.output.Size = new System.Drawing.Size(935, 223);
+            this.output.TabIndex = 1;
+            this.output.UseCompatibleStateImageBehavior = false;
+            this.output.View = System.Windows.Forms.View.Details;
             // 
             // tabDebugger
             // 
@@ -709,11 +712,6 @@
             this.comboProp.TabIndex = 0;
             this.comboProp.SelectedIndexChanged += new System.EventHandler(this.comboProp_SelectedIndexChanged);
             // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(35, 6);
-            // 
             // App
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -781,7 +779,6 @@
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabCode;
         private System.Windows.Forms.SplitContainer splitCodeError;
-        private System.Windows.Forms.RichTextBox codeError;
         private System.Windows.Forms.TabPage tabResources;
         private System.Windows.Forms.TabControl tabData;
         private System.Windows.Forms.TabPage tabDataImg;
@@ -823,5 +820,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton toolBtnPick;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ListView output;
     }
 }

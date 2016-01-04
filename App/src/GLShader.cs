@@ -26,11 +26,11 @@ namespace App
             }
 
             // ADD OR REMOVE DEBUG INFORMATION
-            @params.text = GLDebugger.AddDebugCode(@params.text, type, @params.debuging);
+            @params.cmdText = GLDebugger.AddDebugCode(@params.cmdText, type, @params.debuging);
 
             // CREATE OPENGL OBJECT
             glname = GL.CreateShader(type);
-            GL.ShaderSource(glname, @params.text);
+            GL.ShaderSource(glname, @params.cmdText);
             GL.CompileShader(glname);
 
             // CHECK FOR ERRORS

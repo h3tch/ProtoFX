@@ -14,21 +14,24 @@ namespace App
     {
         public string name;
         public string anno;
-        public string text;
+        public string cmdText;
+        public int cmdPos;
         public string dir;
         public Dict<GLObject> scene;
         public bool debuging;
         public GLParams(
             string name = null, 
             string anno = null,
-            string text = null, 
+            string cmdText = null,
+            int cmdPos = -1,
             string dir = null, 
             Dict<GLObject> scene = null,
             bool debuging = false)
         {
             this.name = name;
             this.anno = anno;
-            this.text = text;
+            this.cmdText = cmdText;
+            this.cmdPos = cmdPos;
             this.dir = dir;
             this.scene = scene;
             this.debuging = debuging;

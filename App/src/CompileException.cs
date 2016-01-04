@@ -6,6 +6,7 @@ namespace App
     class CompileException : Exception
     {
         private List<string> callstack;
+        private List<int> positions = new List<int>();
         private List<string> messages = new List<string>();
 
         // compile call stack into a single string
@@ -13,6 +14,8 @@ namespace App
 
         // compile all messages into a single string
         public string Text => messages.Merge("\n");
+
+        public int Pos => positions.Count > 0 ? positions[0] : -1;
 
         public bool HasErrors() => messages.Count > 0;
 
@@ -39,9 +42,10 @@ namespace App
         {
         }
 
-        public CompileException Add(string message)
+        public CompileException Add(string message, int pos = -1)
         {
             messages.Add(callstackstring + message);
+            positions.Add(pos);
             return this;
         }
 

@@ -1,12 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace App
 {
     partial class CodeEditor
     {
+        public static int LineFromPosition(int position, int[] newLine)
+            => newLine.IndexOf(x => x >= position) + 1;
+
+        /// <summary>
+        /// Find all new-line positions in a text.
+        /// </summary>
+        /// <param name="text">The string to process.</param>
+        /// <returns>Returns an array of new-line positions.</returns>
+        public static int[] GetNewLines(string text)
+        {
+            var matches = Regex.Matches(text, "(\r\n|\n|\r)");
+            var newLine = new int[matches.Count + 1];
+
+            newLine[0] = 0;
+            for (int i = 1; i <= matches.Count; i++)
+                newLine[i] = matches[i - 1].Index;
+
+            return newLine;
+        }
+
         /// <summary>
         /// Remove /*...*/ and // comments.
         /// </summary>
@@ -21,15 +42,15 @@ namespace App
             var newLineLen = Environment.NewLine.Length;
             return Regex.Replace(text,
                 $"{blockComments}|{lineComments}|{strings}|{verbatimStrings}",
-                me =>
+                x =>
                 {
                     // replace comments with spaces
-                    if (me.Value.StartsWith("/*"))
-                        return new string(' ', me.Length);
-                    if (me.Value.StartsWith("//"))
-                        return new string(' ', me.Length - newLineLen) + Environment.NewLine;
+                    if (x.Value.StartsWith("/*"))
+                        return new string(' ', x.Length);
+                    if (x.Value.StartsWith("//"))
+                        return new string(' ', x.Length - newLineLen) + Environment.NewLine;
                     // Keep the literal strings
-                    return me.Value;
+                    return x.Value;
                 },
                 RegexOptions.Singleline);
         }
@@ -40,7 +61,9 @@ namespace App
         /// <param name="text">String to remove new line indicators from.</param>
         /// <returns>String without new line indicators.</returns>
         public static string RemoveNewLineIndicators(string text)
-            => Regex.Replace(text, @"\.\.\.(\s?)(\n|\r|\r\n)", " ");
+            => Regex.Replace(text, @"\.\.\.(\s?)(\n|\r|\r\n)", 
+                x => new string(' ', x.Value.Length),
+                RegexOptions.None);
 
         /// <summary>
         /// Include preprocessor #include files.
@@ -48,34 +71,48 @@ namespace App
         /// <param name="text">String to add included files to.</param>
         /// <param name="dir">The directory of the *.tech file.</param>
         /// <returns>String including include files.</returns>
-        public static string IncludeFiles(string text, string dir)
+        public static string IncludeFiles(string text, string dir, int[] newLine = null)
         {
-            // find include files
-            var matches = Regex.Matches(text, @"#include \""[^""]*\""");
-
-            // insert all include files
-            int offset = 0;
-            foreach (Match match in matches)
+            MatchCollection matches;
+            
+            do
             {
-                // get file path
-                var include = text.Substring(match.Index + offset, match.Length);
-                var startidx = include.IndexOf('"');
-                var incfile = include.Substring(startidx + 1, include.LastIndexOf('"') - startidx - 1);
-                var path = Path.IsPathRooted(incfile) ? incfile : dir + incfile;
+                // find include files
+                matches = Regex.Matches(text, @"#include \""[^""]*\""");
 
-                // check if file exists
-                if (File.Exists(path) == false)
-                    throw new CompileException($"The include file '{incfile}' could not be found.\n");
+                // insert all include files
+                int offset = 0;
+                foreach (Match match in matches)
+                {
+                    // get file path
+                    var include = text.Substring(match.Index + offset, match.Length);
+                    var startidx = include.IndexOf('"');
+                    var incfile = include.Substring(startidx + 1, include.LastIndexOf('"') - startidx - 1);
+                    var path = Path.IsPathRooted(incfile) ? incfile : dir + incfile;
 
-                // load the file and insert it, replacing #include
-                var content = File.ReadAllText(path);
-                text = text.Substring(0, match.Index + offset)
-                    + content + text.Substring(match.Index + offset + match.Length);
+                    // check if file exists
+                    if (File.Exists(path) == false)
+                        throw new CompileException($"The include file '{incfile}' could not be found.\n");
 
-                // because the string now has a different 
-                // length, we need to remember the offset
-                offset += content.Length - match.Length;
+                    // load the file and insert it, replacing #include
+                    var content = File.ReadAllText(path);
+                    text = text.Substring(0, match.Index + offset)
+                        + content + text.Substring(match.Index + offset + match.Length);
+
+                    // because the string now has a different 
+                    // length, we need to remember the offset
+                    offset += content.Length - match.Length;
+
+                    // update new line positions
+                    int i = newLine.IndexOf(x => x >= match.Index);
+                    if (i >= 0)
+                    {
+                        for (; i < newLine.Length; i++)
+                            newLine[i] += offset;
+                    }
+                }
             }
+            while (matches.Count > 0);
 
             return text;
         }
@@ -85,7 +122,7 @@ namespace App
         /// </summary>
         /// <param name="text">String to resolve.</param>
         /// <returns>String with resolved #global definitions.</returns>
-        public static string ResolvePreprocessorDefinitions(string text)
+        public static string ResolvePreprocessorDefinitions(string text, int[] newLine = null)
         {
             // find include files
             var matches = Regex.Matches(text, @"#global(\s+\w+){2}");
@@ -109,6 +146,14 @@ namespace App
                     // because the string now has a different 
                     // length, we need to remember the offset
                     offset += value.Length - m.Length;
+
+                    // update new line positions
+                    int i = newLine.IndexOf(x => x >= m.Index);
+                    if (i >= 0)
+                    {
+                        for (; i < newLine.Length; i++)
+                            newLine[i] += offset;
+                    }
                 }
 
             }
@@ -156,11 +201,23 @@ namespace App
         /// </summary>
         /// <param name="text">String to process.</param>
         /// <returns>Returns an enumerable of all block strings.</returns>
-        public static IEnumerable<string> GetBlocks(string text)
+        public static IEnumerable<Block> GetBlocks(string text, int[] newLine = null)
         {
             // return block text from block positions
             foreach (var block in GetBlockPositions(text))
-                yield return text.Substring(block[0], block[2] - block[0] + 1);
+                yield return new Block(block[0], text.Substring(block[0], block[2] - block[0] + 1));
+        }
+
+        public struct Block
+        {
+            public int pos;
+            public string text;
+
+            public Block(int pos, string text)
+            {
+                this.pos = pos;
+                this.text = text;
+            }
         }
     }
 }

@@ -154,7 +154,9 @@ namespace App
             toolBtnSave_Click(sender, null);
 
             // clear scene and output
-            codeError.Text = "";
+            output.Clear();
+            output.Columns.Add("Line", (int)(output.Width * 0.1));
+            output.Columns.Add("Description", (int)(output.Width * 0.85));
             glControl.ClearScene();
 
             // get include directory
@@ -167,22 +169,28 @@ namespace App
             var debugging = sender == toolBtnDbg;
 
             // remove comments
+            var newLines = CodeEditor.GetNewLines(compiledEditor.Text);
             var code = CodeEditor.RemoveComments(compiledEditor.Text);
             code = CodeEditor.RemoveNewLineIndicators(code);
-            code = CodeEditor.IncludeFiles(code, includeDir);
-            code = CodeEditor.ResolvePreprocessorDefinitions(code);
+            code = CodeEditor.IncludeFiles(code, includeDir, newLines);
+            code = CodeEditor.RemoveComments(code);
+            code = CodeEditor.ResolvePreprocessorDefinitions(code, newLines);
 
             // FIND PROTOGL CLASS BLOCKS (find "TYPE name { ... }")
             var blocks = CodeEditor.GetBlocks(code);
 
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
-            var ex = blocks.Catch(x => glControl.AddObject(x, includeDir, debugging)).ToArray();
+            var ex = blocks
+                .Catch(x => glControl.AddObject(x.text, x.pos, includeDir, debugging))
+                .ToArray();
 
             // show errors
             var errors = from x in ex
                          where x is CompileException || x.InnerException is CompileException
                          select (x is CompileException ? x : x.InnerException) as CompileException;
-            errors.Do(x => codeError.AppendText(x.Text));
+            errors.Do(x => output.Items.Add(new ListViewItem(new[] {
+                x.Pos >= 0 ? "" + CodeEditor.LineFromPosition(x.Pos, newLines) : "", x.Text
+            })));
 
             // SHOW SCENE
             glControl.Render();

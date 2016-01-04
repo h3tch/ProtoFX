@@ -22,7 +22,7 @@ namespace App
             var err = new CompileException($"instance '{@params.name}'");
 
             // PARSE TEXT TO COMMANDS
-            var body = new Commands(@params.text, err);
+            var body = new Commands(@params.cmdText, @params.cmdPos, err);
 
             // GET CLASS COMMAND
             var cmds = body["class"].ToList();

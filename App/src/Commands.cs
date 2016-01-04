@@ -14,37 +14,32 @@ namespace App
         public IEnumerable<Triple> this[int key] => cmds.Where(x => x.idx == key);
         public IEnumerable<Triple> this[string key] => cmds.Where(x => x.cmd == key);
 
-        public Commands(string body, CompileException err = null)
-        {
-            Text2Cmds(body, err);
-        }
-
-        protected void Text2Cmds(string body, CompileException err = null)
+        public Commands(string body, int pos, CompileException err = null)
         {
             // split into lines
-            var lines = body.Split(new char[] { '\n' });
+            var linePos = CodeEditor.GetNewLines(body);
+            var lines = body.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
 
             // for each line
-            int command = 1;
-            foreach (var line in lines)
+            for (int i = 0, cmd = 1; i < lines.Length; i++)
             {
                 // parse words, numbers and so on
-                MatchCollection matches = Regex.Matches(line, "[\\w./|\\-:<>]+");
+                MatchCollection matches = Regex.Matches(lines[i], "[\\w./|\\-:<>]+");
                 // an command must have at least two arguments
                 if (matches.Count >= 2)
                 {
                     var args = matches.Cast<Match>().Select(m => m.Value);
-                    cmds.Add(new Triple(command++, args.First(), args.Skip(1).ToArray()));
+                    cmds.Add(new Triple(cmd++, args.First(), args.Skip(1).ToArray()));
                 }
                 else if (matches.Count > 0)
                 {
-                    err?.Add($"Command {command} must specify at least one argument.");
-                    command++;
+                    err?.Add($"Command[{cmd++}] '{matches[0].Value}' must specify at least " +
+                        "one argument.", pos + linePos[i]);
                 }
             }
         }
 
-        internal Dictionary<string,string[]> ToDict()
+        internal Dictionary<string, string[]> ToDict()
         {
             // convert triple to dict of string arrays
             var dict = new Dictionary<string, string[]>();

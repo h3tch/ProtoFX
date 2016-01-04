@@ -53,7 +53,7 @@ namespace OpenTK
         /// </summary>
         /// <param name="block"></param>
         /// <param name="includeDir"></param>
-        public void AddObject(string block, string includeDir, bool debuging)
+        public void AddObject(string block, int pos, string includeDir, bool debuging)
         {
             // PARSE CLASS INFO
             var classDef = ExtraxtClassDef(block);
@@ -61,27 +61,27 @@ namespace OpenTK
                 throw new CompileException(classDef[0]).Add("Invalid class definition.");
 
             // PARSE CLASS TEXT
-            var start = block.IndexOf('{');
-            var cmdStr = block.Substring(start + 1, block.LastIndexOf('}') - start - 1);
+            var cmdPos = block.IndexOf('{') + 1;
+            var cmdStr = block.Substring(cmdPos, block.LastIndexOf('}') - cmdPos - 2);
 
             // GET CLASS TYPE, ANNOTATION AND NAME
-            var classType = "App.GL"
+            var typeStr = "App.GL"
                 + classDef[0].First().ToString().ToUpper()
                 + classDef[0].Substring(1);
-            var classAnno = classDef[classDef.Length - 2];
-            var className = classDef[classDef.Length - 1];
-            var type = Type.GetType(classType);
+            var anno = classDef[classDef.Length - 2];
+            var name = classDef[classDef.Length - 1];
+            var type = Type.GetType(typeStr);
 
             // check for errors
             if (type == null)
-                throw new CompileException($"{classDef[0]} '{className}'")
-                    .Add($"Class type '{classDef[0]}' not known.");
-            if (scene.ContainsKey(className))
-                throw new CompileException($"{classDef[0]} '{className}'")
-                    .Add($"Class name '{className}' already exists.");
+                throw new CompileException($"{classDef[0]} '{name}'")
+                    .Add($"Class type '{classDef[0]}' not known.", pos);
+            if (scene.ContainsKey(name))
+                throw new CompileException($"{classDef[0]} '{name}'")
+                    .Add($"Class name '{name}' already exists.", pos);
 
             // instantiate class
-            var @params = new GLParams(className, classAnno, cmdStr, includeDir, scene, debuging);
+            var @params = new GLParams(name, anno, cmdStr, pos + cmdPos, includeDir, scene, debuging);
             var instance = (GLObject)Activator.CreateInstance(type, @params);
             scene.Add(instance.name, instance);
         }

@@ -41,7 +41,7 @@ namespace App
             var err = new CompileException($"buffer '{@params.name}'");
 
             // PARSE TEXT TO COMMANDS
-            var cmds = new Commands(@params.text, err);
+            var cmds = new Commands(@params.cmdText, @params.cmdPos, err);
 
             // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
             cmds.Cmds2Fields(this, err);

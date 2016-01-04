@@ -26,7 +26,7 @@ namespace App
             var err = new CompileException($"texture '{@params.name}'");
 
             // PARSE TEXT
-            var body = new Commands(@params.text, err);
+            var body = new Commands(@params.cmdText, @params.cmdPos, err);
 
             // PARSE ARGUMENTS
             body.Cmds2Fields(this, err);

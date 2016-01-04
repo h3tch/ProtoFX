@@ -15,7 +15,7 @@ namespace App
             var err = new CompileException($"tech '{@params.name}'");
 
             // PARSE TEXT
-            var body = new Commands(@params.text, err);
+            var body = new Commands(@params.cmdText, @params.cmdPos, err);
 
             // PARSE COMMANDS
             GLPass pass;
