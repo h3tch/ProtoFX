@@ -390,6 +390,7 @@
             this.output.TabIndex = 1;
             this.output.UseCompatibleStateImageBehavior = false;
             this.output.View = System.Windows.Forms.View.Details;
+            this.output.DoubleClick += new System.EventHandler(this.output_DoubleClick);
             // 
             // tabDebugger
             // 

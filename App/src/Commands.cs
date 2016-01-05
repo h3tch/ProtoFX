@@ -8,11 +8,11 @@ using static System.Reflection.BindingFlags;
 
 namespace App
 {
-    class Commands : IEnumerable<Commands.Triple>
+    class Commands : IEnumerable<Commands.Cmd>
     {
-        private List<Triple> cmds = new List<Triple>();
-        public IEnumerable<Triple> this[int key] => cmds.Where(x => x.idx == key);
-        public IEnumerable<Triple> this[string key] => cmds.Where(x => x.cmd == key);
+        private List<Cmd> cmds = new List<Cmd>();
+        public IEnumerable<Cmd> this[int key] => cmds.Where(x => x.idx == key);
+        public IEnumerable<Cmd> this[string key] => cmds.Where(x => x.cmd == key);
 
         public Commands(string body, int pos, CompileException err = null)
         {
@@ -29,12 +29,12 @@ namespace App
                 if (matches.Count >= 2)
                 {
                     var args = matches.Cast<Match>().Select(m => m.Value);
-                    cmds.Add(new Triple(cmd++, args.First(), args.Skip(1).ToArray()));
+                    cmds.Add(new Cmd(cmd++, args.First(), args.Skip(1).ToArray()));
                 }
                 else if (matches.Count > 0)
                 {
                     err?.Add($"Command[{cmd++}] '{matches[0].Value}' must specify at least " +
-                        "one argument.", pos + linePos[i]);
+                        "one argument.", pos + linePos[i] + matches[0].Index);
                 }
             }
         }
@@ -51,7 +51,7 @@ namespace App
         public void Cmds2Fields<T>(T clazz, CompileException err = null)
         {
             var type = clazz.GetType();
-            var removeKeys = new List<Triple>();
+            var removeKeys = new List<Cmd>();
 
             foreach (var triple in cmds)
             {
@@ -101,17 +101,17 @@ namespace App
         }
 
         #region IEnumerable Interface
-        public IEnumerator<Triple> GetEnumerator() => cmds.GetEnumerator();
+        public IEnumerator<Cmd> GetEnumerator() => cmds.GetEnumerator();
 
-        IEnumerator<Triple> IEnumerable<Triple>.GetEnumerator() => cmds.GetEnumerator();
+        IEnumerator<Cmd> IEnumerable<Cmd>.GetEnumerator() => cmds.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => cmds.GetEnumerator();
         #endregion
 
         #region INNER CLASSES
-        public struct Triple
+        public struct Cmd
         {
-            public Triple(int idx, string cmd, string[] args)
+            public Cmd(int idx, string cmd, string[] args)
             {
                 this.idx = idx;
                 this.cmd = cmd;

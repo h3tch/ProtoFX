@@ -10,6 +10,7 @@ namespace App
     partial class CodeEditor : Scintilla
     {
         private static int HighlightIndicatorIndex = 8;
+        public static int DebugIndicatorIndex = 9;
         private List<int[]>[] IndicatorRanges;
 
         /// <summary>
@@ -76,6 +77,15 @@ namespace App
                 Markers[i].SetBackColor(SystemColors.ControlDark);
             }
             AutomaticFold = (AutomaticFold.Show | AutomaticFold.Click | AutomaticFold.Change);
+
+            // setup indicator colors
+            Indicators[HighlightIndicatorIndex].Style = IndicatorStyle.StraightBox;
+            Indicators[HighlightIndicatorIndex].Under = true;
+            Indicators[HighlightIndicatorIndex].ForeColor = Color.Crimson;
+            Indicators[HighlightIndicatorIndex].OutlineAlpha = 60;
+            Indicators[HighlightIndicatorIndex].Alpha = 40;
+            Indicators[DebugIndicatorIndex].ForeColor = Color.Red;
+            Indicators[DebugIndicatorIndex].Style = IndicatorStyle.Squiggle;
 
             // setup multi line selection
             MultipleSelection = true;

@@ -2,6 +2,7 @@
 using System;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -137,6 +138,24 @@ namespace App
                 : GLDebugger.DebugVariableToString(dbgVal));
         }
 
+        private void output_DoubleClick(object sender, EventArgs e)
+        {
+            // if no item is selected and no code compiled, return
+            var view = (ListView)sender;
+            if (view.SelectedItems.Count == 0 || compiledEditor == null)
+                return;
+
+            // get line from selected item
+            int line;
+            var text = view.SelectedItems[0].SubItems[0].Text;
+            if (!int.TryParse(text, NumberStyles.Integer, culture, out line))
+                return;
+
+            // scroll to line
+            line = Math.Max(1, line - compiledEditor.LinesOnScreen / 2);
+            compiledEditor.LineScroll(line - compiledEditor.FirstVisibleLine - 1, 0);
+        }
+
         private void UpdateDebugListView(CodeEditor editor)
         {
             // RESET DEBUG LIST VIEW
@@ -158,10 +177,10 @@ namespace App
             var dbgLine = editor.LineFromPosition(editor.CurrentPosition);
             var dbgVars = GLDebugger.GetDebugVariablesFromLine(editor, dbgLine).Select(x => x);
             dbgVars.Select(Var => GLDebugger.GetDebugVariableValue(Var.ID, glControl.Frame - 1))
-                   .Zip(dbgVars, (Val, Var) => { if (Val != null) NewItem(Var.Name, Val); });
+                   .Zip(dbgVars, (Val, Var) => { if (Val != null) NewVariableItem(Var.Name, Val); });
         }
 
-        private void NewItem(string groupName, Array val)
+        private void NewVariableItem(string groupName, Array val)
         {
             // CREATE LIST VIEW ROWS
 
@@ -184,8 +203,11 @@ namespace App
                 debugListView.Items.Add(item);
             }
         }
+
+        private void AddOutputItem(int line, string msg)
+            => output.Items.Add(new ListViewItem(new[] { line > 0 ? line.ToString(culture) : "", msg }));
         #endregion
-        
+
         private void DebugRender()
         {
             // render the scene

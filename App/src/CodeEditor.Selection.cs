@@ -28,14 +28,7 @@ namespace App
         {
             // set active indicator
             IndicatorCurrent = index;
-
-            // Update indicator appearance
-            Indicators[index].Style = IndicatorStyle.StraightBox;
-            Indicators[index].Under = true;
-            Indicators[index].ForeColor = Color.Crimson;
-            Indicators[index].OutlineAlpha = 60;
-            Indicators[index].Alpha = 40;
-
+            
             foreach (var range in ranges)
             {
                 // add indicator range

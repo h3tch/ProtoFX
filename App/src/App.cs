@@ -169,12 +169,12 @@ namespace App
             var debugging = sender == toolBtnDbg;
 
             // remove comments
-            var newLines = CodeEditor.GetNewLines(compiledEditor.Text);
+            var nl = CodeEditor.GetNewLines(compiledEditor.Text);
             var code = CodeEditor.RemoveComments(compiledEditor.Text);
             code = CodeEditor.RemoveNewLineIndicators(code);
-            code = CodeEditor.IncludeFiles(code, includeDir, newLines);
+            code = CodeEditor.IncludeFiles(code, includeDir, nl);
             code = CodeEditor.RemoveComments(code);
-            code = CodeEditor.ResolvePreprocessorDefinitions(code, newLines);
+            code = CodeEditor.ResolvePreprocessorDefinitions(code, nl);
 
             // FIND PROTOGL CLASS BLOCKS (find "TYPE name { ... }")
             var blocks = CodeEditor.GetBlocks(code);
@@ -188,9 +188,14 @@ namespace App
             var errors = from x in ex
                          where x is CompileException || x.InnerException is CompileException
                          select (x is CompileException ? x : x.InnerException) as CompileException;
-            errors.Do(x => output.Items.Add(new ListViewItem(new[] {
-                x.Pos >= 0 ? "" + CodeEditor.LineFromPosition(x.Pos, newLines) : "", x.Text
-            })));
+            errors.Do(x => AddOutputItem(CodeEditor.LineFromPosition(x.Pos, nl), x.Text));
+
+            // underline all debug errors
+            var ranges = errors
+                .Select(x => compiledEditor.GetWordFromPosition(x.Pos).Length)
+                .Zip(errors, (len, err) => new int[] { err.Pos, err.Pos + len });
+            compiledEditor.ClearIndicators(CodeEditor.DebugIndicatorIndex);
+            compiledEditor.AddIndicators(CodeEditor.DebugIndicatorIndex, ranges);
 
             // SHOW SCENE
             glControl.Render();

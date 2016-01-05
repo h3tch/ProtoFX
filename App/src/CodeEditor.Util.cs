@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace App
@@ -9,7 +8,7 @@ namespace App
     partial class CodeEditor
     {
         public static int LineFromPosition(int position, int[] newLine)
-            => newLine.IndexOf(x => x >= position) + 1;
+            => newLine.IndexOf(x => x >= position);
 
         /// <summary>
         /// Find all new-line positions in a text.
@@ -22,8 +21,8 @@ namespace App
             var newLine = new int[matches.Count + 1];
 
             newLine[0] = 0;
-            for (int i = 1; i <= matches.Count; i++)
-                newLine[i] = matches[i - 1].Index;
+            for (int i = 0; i < matches.Count; i++)
+                newLine[i + 1] = matches[i].Index + matches[i].Length;
 
             return newLine;
         }
