@@ -50,10 +50,10 @@ namespace App
             List<byte[]> datalist = new List<byte[]>();
 
             foreach (var cmd in cmds["txt"])
-                datalist.Add(loadText(err + $"command {cmd.cmd} 'txt'", @params.dir, cmd.args, @params.scene));
+                datalist.Add(loadText(err + $"command {cmd.cmd} 'txt'", @params.dir, cmd, @params.scene));
 
             foreach (var cmd in cmds["xml"])
-                datalist.Add(LoadXml(err + $"command {cmd.cmd} 'xml'", @params.dir, cmd.args, @params.scene));
+                datalist.Add(LoadXml(err + $"command {cmd.cmd} 'xml'", @params.dir, cmd, @params.scene));
 
             // merge data into a single array
             var iter = datalist.Join();
@@ -81,7 +81,7 @@ namespace App
             }
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            if (HasErrorOrGlError(err))
+            if (HasErrorOrGlError(err, @params.namePos))
                 throw err;
         }
 
@@ -145,14 +145,14 @@ namespace App
         public static string GetLable(int glname) => GetLable(ObjectLabelIdentifier.Buffer, glname);
 
         #region UTIL METHODS
-        private static byte[] LoadXml(CompileException err, string dir, string[] cmd, Dict<GLObject> classes)
+        private static byte[] LoadXml(CompileException err, string dir, Commands.Cmd cmd, Dict<GLObject> classes)
         {
             // Get text from file or text object
-            string str = getText(dir, cmd[0], classes);
+            string str = getText(dir, cmd.args[0], classes);
             if (str == null)
             {
-                err.Add("Could not process command. Second argument "
-                    + "must be a name to a text object or a filename.");
+                err.Add("Could not process command. Second argument must "
+                    + "be a name to a text object or a filename.", cmd.pos);
                 return null;
             }
 
@@ -163,16 +163,16 @@ namespace App
                 document.LoadXml(str);
 
                 // Load data from XML
-                byte[][] filedata = new byte[cmd.Length - 1][];
-                for (int i = 1; i < cmd.Length; i++)
+                byte[][] filedata = new byte[cmd.args.Length - 1][];
+                for (int i = 1; i < cmd.args.Length; i++)
                 {
                     try
                     {
-                        filedata[i - 1] = DataXml.Load(document, cmd[i]);
+                        filedata[i - 1] = DataXml.Load(document, cmd.args[i]);
                     }
                     catch (CompileException ex)
                     {
-                        err.Add(ex.GetBaseException().Message);
+                        err.Add(ex.GetBaseException().Message, cmd.pos);
                     }
                 }
 
@@ -182,20 +182,20 @@ namespace App
             }
             catch (Exception ex)
             {
-                err.Add(ex.GetBaseException().Message);
+                err.Add(ex.GetBaseException().Message, cmd.pos);
             }
 
             return null;
         }
 
-        private static byte[] loadText(CompileException err, string dir, string[] cmd, Dict<GLObject> classes)
+        private static byte[] loadText(CompileException err, string dir, Commands.Cmd cmd, Dict<GLObject> classes)
         {
             // Get text from file or text object
-            string str = getText(dir, cmd[0], classes);
+            string str = getText(dir, cmd.args[0], classes);
             if (str == null)
             {
-                err.Add("Could not process command. Second argument "
-                    + "must be a name to a text object or a filename.");
+                err.Add("Could not process command. Second argument must "
+                    + "be a name to a text object or a filename.", cmd.pos);
                 return null;
             }
 

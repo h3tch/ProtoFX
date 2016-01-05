@@ -20,7 +20,7 @@ namespace App
             return default(TResult);
         }
 
-        public bool TryGetValue<TResult>(string key, out TResult obj, CompileException err = null)
+        public bool TryGetValue<TResult>(string key, out TResult obj, int pos = -1, CompileException err = null)
             where TResult : T
         {
             // try to find the object instance
@@ -30,7 +30,7 @@ namespace App
             // get class name of object type
             var classname = typeof(TResult).Name.Substring(2).ToLower();
             err?.Add($"The name '{key}' could not be found or "
-                + $"does not reference an object of type '{classname}'.");
+                + $"does not reference an object of type '{classname}'.", pos);
             return false;
         }
 

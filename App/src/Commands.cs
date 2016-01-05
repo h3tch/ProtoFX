@@ -21,21 +21,29 @@ namespace App
             var lines = body.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
 
             // for each line
-            for (int i = 0, cmd = 1; i < lines.Length; i++)
+            for (int i = 0, idx = 1; i < lines.Length; i++)
             {
                 // parse words, numbers and so on
                 MatchCollection matches = Regex.Matches(lines[i], "[\\w./|\\-:<>]+");
+                if (matches.Count == 0)
+                    continue;
+                // command position in the text
+                var cmdPos = pos + linePos[i] + matches[0].Index;
                 // an command must have at least two arguments
                 if (matches.Count >= 2)
                 {
                     var args = matches.Cast<Match>().Select(m => m.Value);
-                    cmds.Add(new Cmd(cmd++, args.First(), args.Skip(1).ToArray()));
+                    cmds.Add(new Cmd
+                    {
+                        idx = idx++,
+                        pos = cmdPos,
+                        cmd = args.First(),
+                        args = args.Skip(1).ToArray()
+                    });
                 }
-                else if (matches.Count > 0)
-                {
-                    err?.Add($"Command[{cmd++}] '{matches[0].Value}' must specify at least " +
-                        "one argument.", pos + linePos[i] + matches[0].Index);
-                }
+                else
+                    err?.Add($"Command[{idx++}] '{matches[0].Value}' " +
+                        "must specify at least one argument.", cmdPos);
             }
         }
 
@@ -53,11 +61,11 @@ namespace App
             var type = clazz.GetType();
             var removeKeys = new List<Cmd>();
 
-            foreach (var triple in cmds)
+            foreach (var cmd in cmds)
             {
                 // try to find a field with the respective name
-                var field = type.GetField(triple.cmd, Instance | Public | NonPublic);
-                var prop = type.GetProperty(triple.cmd, Instance | Public | NonPublic);
+                var field = type.GetField(cmd.cmd, Instance | Public | NonPublic);
+                var prop = type.GetProperty(cmd.cmd, Instance | Public | NonPublic);
                 MemberInfo member = (MemberInfo)field ?? prop;
 
                 // if no field could be found go to the next command
@@ -65,12 +73,12 @@ namespace App
                     continue;
 
                 // remove argument from array
-                removeKeys.Add(triple);
+                removeKeys.Add(cmd);
 
                 // set value of field
                 object val = (object)field ?? prop;
                 Type valtype = field?.FieldType ?? prop?.PropertyType;
-                SetValue(clazz, val, valtype, triple.cmd, triple.args, err);
+                SetValue(clazz, val, valtype, cmd, err);
             }
             
             // remove all commands that could be used to set a field
@@ -79,20 +87,20 @@ namespace App
         }
 
         static private void SetValue<T>(T clazz, object field, Type fieldType,
-            string key, string[] value, CompileException err = null)
+            Cmd cmd, CompileException err = null)
         {
             // check for errors
-            if (!fieldType.IsArray && value.Length > 1)
-                err?.Add($"Command '{key}' has too many arguments (more than one).");
+            if (!fieldType.IsArray && cmd.args.Length > 1)
+                err?.Add($"Command '{cmd.cmd}' has too many arguments (more than one).", cmd.pos);
             
             var val = fieldType.IsArray ?
                 // if this is an array pass the arguments as string
-                value :
+                cmd.args :
                 fieldType.IsEnum ?
                     // if this is an enum, convert the string to an enum value
-                    Convert.ChangeType(Enum.Parse(fieldType, value[0], true), fieldType) :
+                    Convert.ChangeType(Enum.Parse(fieldType, cmd.args[0], true), fieldType) :
                     // else try to convert it to the field type
-                    Convert.ChangeType(value[0], fieldType, App.culture);
+                    Convert.ChangeType(cmd.args[0], fieldType, App.culture);
             
             var SetValue = field.GetType().GetMethod(
                 "SetValue", new Type[] { typeof(object), typeof(object) });
@@ -111,13 +119,15 @@ namespace App
         #region INNER CLASSES
         public struct Cmd
         {
-            public Cmd(int idx, string cmd, string[] args)
+            public Cmd(int idx, int pos, string cmd, string[] args)
             {
                 this.idx = idx;
+                this.pos = pos;
                 this.cmd = cmd;
                 this.args = args;
             }
             public int idx;
+            public int pos;
             public string cmd;
             public string[] args;
         }

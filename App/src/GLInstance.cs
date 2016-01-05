@@ -28,7 +28,7 @@ namespace App
             var cmds = body["class"].ToList();
             if (cmds.Count == 0)
                 throw err.Add("Instance must specify a 'class' command " +
-                    "(e.g., class csharp_name class_name).");
+                    "(e.g., class csharp_name class_name).", @params.namePos);
             var cmd = cmds.First();
 
             // FIND CSHARP CLASS DEFINITION
@@ -36,12 +36,12 @@ namespace App
             if (csharp == null)
             {
                 err.Add($"Could not find csharp code '{cmd.args[0]}' of command '{cmd.cmd} "
-                    + string.Join(" ", cmd.args) + "'.");
+                    + string.Join(" ", cmd.args) + "'.", cmd.pos);
                 return;
             }
 
             // INSTANTIATE CSHARP CLASS
-            instance = csharp.CreateInstance(cmd.args[1], name, body.ToDict(), err);
+            instance = csharp.CreateInstance(cmd.args[1], name, body.ToDict(), cmd.pos, err);
             if (err.HasErrors())
                 throw err;
 

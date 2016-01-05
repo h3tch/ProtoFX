@@ -23,7 +23,7 @@ namespace App
 
             int numAttr = 0;
             foreach (var cmd in body["attr"])
-                Attach(err + $"command {cmd.idx} 'attr'", numAttr++, cmd.args, @params.name, @params.scene);
+                Attach(err + $"command {cmd.idx} 'attr'", numAttr++, cmd, @params.name, @params.scene);
 
             // if errors occurred throw exception
             if (err.HasErrors())
@@ -31,29 +31,29 @@ namespace App
 
             // unbind object and check for errors
             GL.BindVertexArray(0);
-            if (HasErrorOrGlError(err))
+            if (HasErrorOrGlError(err, @params.namePos))
                 throw err;
         }
 
-        private void Attach(CompileException err, int attrIdx, string[] args, string name, Dict<GLObject> classes)
+        private void Attach(CompileException err, int attrIdx, Commands.Cmd cmd, string name, Dict<GLObject> classes)
         {
             // check commands for errors
-            if (args.Length < 3)
+            if (cmd.args.Length < 3)
             {
                 err.Add("Command attr needs at least 3 attributes (e.g. 'attr buff_name float 4')");
                 return;
             }
 
             // parse command arguments
-            string buffname = args[0];
-            string typename = args[1];
-            int length  = int.Parse(args[2]);
-            int stride  = args.Length > 3 ? int.Parse(args[3]) : 0;
-            int offset  = args.Length > 4 ? int.Parse(args[4]) : 0;
-            int divisor = args.Length > 5 ? int.Parse(args[5]) : 0;
+            string buffname = cmd.args[0];
+            string typename = cmd.args[1];
+            int length  = int.Parse(cmd.args[2]);
+            int stride  = cmd.args.Length > 3 ? int.Parse(cmd.args[3]) : 0;
+            int offset  = cmd.args.Length > 4 ? int.Parse(cmd.args[4]) : 0;
+            int divisor = cmd.args.Length > 5 ? int.Parse(cmd.args[5]) : 0;
             
             GLBuffer buff;
-            if (classes.TryGetValue(buffname, out buff, err) == false)
+            if (classes.TryGetValue(buffname, out buff, cmd.pos, err) == false)
             {
                 err.Add($"Buffer '{buffname}' could not be found.");
                 return;

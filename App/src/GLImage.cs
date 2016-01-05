@@ -70,6 +70,10 @@ namespace App
             // PARSE ARGUMENTS
             cmds.Cmds2Fields(this, err);
 
+            // on errors throw an exception
+            if (err.HasErrors())
+                throw err;
+
             // if type was not specified
             if (target == 0)
             {
@@ -85,16 +89,12 @@ namespace App
                     target = TexTarget.Texture3D;
                 else
                     err.Add("Texture type could not be derived from 'width', 'height', "
-                        + "'depth' and 'length'. Please check these parameters "
-                        + "or specify the type directly (e.g. 'type = texture2D').");
+                        + "'depth' and 'length'. Please check these parameters or specify "
+                        + "the type directly (e.g. 'type = texture2D').", @params.namePos);
             }
 
             // LOAD IMAGE DATA
-            var data = LoadImageFiles(err, @params.dir, file, ref width, ref height, ref depth, format);
-
-            // on errors throw an exception
-            if (err.HasErrors())
-                throw err;
+            var data = LoadImageFiles(@params.dir, file, ref width, ref height, ref depth, format);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenTexture();
@@ -123,7 +123,7 @@ namespace App
                 GL.GenerateMipmap((GenerateMipmapTarget)target);
 
             GL.BindTexture(target, 0);
-            if (HasErrorOrGlError(err))
+            if (HasErrorOrGlError(err, @params.namePos))
                 throw err;
         }
 
@@ -284,7 +284,7 @@ namespace App
         public static string GetLable(int glname) => GetLable(ObjectLabelIdentifier.Texture, glname);
 
         #region UTIL METHODS
-        private static byte[] LoadImageFiles(CompileException err, string dir, string[] filenames,
+        private static byte[] LoadImageFiles(string dir, string[] filenames,
             ref int w, ref int h, ref int d, GpuFormat gpuformat)
         {
             // SET DEFAULT DATA FOR OUTPUTS

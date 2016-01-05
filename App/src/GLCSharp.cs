@@ -78,7 +78,7 @@ namespace App
             }
             catch (DirectoryNotFoundException ex)
             {
-                throw err.Add(ex.Message);
+                throw err.Add(ex.Message, @params.namePos);
             }
 
             // check for compiler errors
@@ -87,7 +87,7 @@ namespace App
                 string msg = "";
                 foreach (var message in compilerresults.Errors)
                     msg += "\n" + message;
-                throw err.Add(msg);
+                throw err.Add(msg, @params.namePos);
             }
         }
 
@@ -100,18 +100,18 @@ namespace App
         /// <param name="err">[OPTIONAL] Error and exception collector.</param>
         /// <returns></returns>
         public object CreateInstance(string classname, string name, Dictionary<string,string[]> cmds,
-            CompileException err = null)
+            int pos, CompileException err)
         {
             // create main class from compiled files
-            object instance = compilerresults.CompiledAssembly.CreateInstance(
+            var instance = compilerresults.CompiledAssembly.CreateInstance(
                 classname, false, BindingFlags.Default, null,
                 new object[] { name, cmds }, App.culture, null);
 
-            if (instance == null && err != null)
-                throw err.Add($"Main class '{classname}' could not be found.");
+            if (instance == null)
+                throw err.Add($"Main class '{classname}' could not be found.", pos);
             
             List<string> errors = InvokeMethod<List<string>>(instance, "GetErrors");
-            errors?.ForEach(msg => err?.Add(msg));
+            errors?.ForEach(msg => err.Add(msg, pos));
 
             return instance;
         }

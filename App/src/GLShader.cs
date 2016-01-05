@@ -22,7 +22,7 @@ namespace App
                 case "geom": type = ShaderType.GeometryShader; break;
                 case "frag": type = ShaderType.FragmentShader; break;
                 case "comp": type = ShaderType.ComputeShader; break;
-                default: throw err.Add($"Shader type '{@params.anno}' is not supported.");
+                default: throw err.Add($"Shader type '{@params.anno}' is not supported.", @params.namePos);
             }
 
             // ADD OR REMOVE DEBUG INFORMATION
@@ -39,9 +39,9 @@ namespace App
             if (status != 1)
             {
                 var compilerErrors = GL.GetShaderInfoLog(glname);
-                throw err.Add("\n" + compilerErrors);
+                throw err.Add("\n" + compilerErrors, @params.namePos);
             }
-            if (HasErrorOrGlError(err))
+            if (HasErrorOrGlError(err, @params.namePos))
                 throw err;
         }
 

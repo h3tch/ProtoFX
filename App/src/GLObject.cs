@@ -15,6 +15,7 @@ namespace App
         public string name;
         public string anno;
         public string cmdText;
+        public int namePos;
         public int cmdPos;
         public string dir;
         public Dict<GLObject> scene;
@@ -23,6 +24,7 @@ namespace App
             string name = null, 
             string anno = null,
             string cmdText = null,
+            int namePos = -1,
             int cmdPos = -1,
             string dir = null, 
             Dict<GLObject> scene = null,
@@ -31,6 +33,7 @@ namespace App
             this.name = name;
             this.anno = anno;
             this.cmdText = cmdText;
+            this.namePos = namePos;
             this.cmdPos = cmdPos;
             this.dir = dir;
             this.scene = scene;
@@ -67,12 +70,12 @@ namespace App
 
         public override string ToString() => name;
         
-        static protected bool HasErrorOrGlError(CompileException err)
+        static protected bool HasErrorOrGlError(CompileException err, int pos = -1)
         {
             var errcode = GL.GetError();
             if (errcode != ErrorCode.NoError)
             {
-                err?.Add($"OpenGL error '{errcode}' occurred during buffer allocation.");
+                err?.Add($"OpenGL error '{errcode}' occurred.", pos);
                 return true;
             }
             return err != null ? err.HasErrors() : false;

@@ -55,8 +55,8 @@ namespace App
             else if (this.glbuff != null)
             {
                 if (format == 0)
-                    throw err.Add($"No texture buffer format defined " +
-                        $"for buffer '{buff}' (e.g. format RGBA8).");
+                    throw err.Add($"No texture buffer format defined for " +
+                        $"buffer '{buff}' (e.g. format RGBA8).", @params.namePos);
                 // CREATE OPENGL OBJECT
                 glname = GL.GenTexture();
                 GL.BindTexture(TextureTarget.TextureBuffer, glname);
@@ -64,7 +64,7 @@ namespace App
                 GL.BindTexture(TextureTarget.TextureBuffer, 0);
             }
 
-            if (HasErrorOrGlError(err))
+            if (HasErrorOrGlError(err, @params.namePos))
                 throw err;
         }
 
@@ -124,11 +124,11 @@ namespace App
         {
             // GET REFERENCES
             if (samp != null)
-                @params.scene.TryGetValue(samp, out glsamp, err);
+                @params.scene.TryGetValue(samp, out glsamp, @params.namePos, err);
             if (buff != null)
-                @params.scene.TryGetValue(buff, out glbuff, err);
+                @params.scene.TryGetValue(buff, out glbuff, @params.namePos, err);
             if (img != null)
-                @params.scene.TryGetValue(img, out glimg, err);
+                @params.scene.TryGetValue(img, out glimg, @params.namePos, err);
             if (glbuff != null && glimg != null)
                 err.Add("Only an image or a buffer can be bound to a texture object.");
             if (glbuff == null && glimg == null)

@@ -32,7 +32,7 @@ namespace App
             // parse commands
             int numbindings = 0;
             foreach (var cmd in body["buff"])
-                Attach(err + $"command {cmd.idx} 'buff'", numbindings++, cmd.args, @params.scene);
+                Attach(err + $"command {cmd.idx} 'buff'", numbindings++, cmd, @params.scene);
 
             // if errors occurred throw exception
             if (err.HasErrors())
@@ -40,7 +40,7 @@ namespace App
 
             // unbind object and check for errors
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, 0);
-            if (HasErrorOrGlError(err))
+            if (HasErrorOrGlError(err, @params.namePos))
                 throw err;
         }
 
@@ -82,25 +82,25 @@ namespace App
             }
         }
 
-        private void Attach(CompileException err, int unit, string[] cmd, Dict<GLObject> classes)
+        private void Attach(CompileException err, int unit, Commands.Cmd cmd, Dict<GLObject> classes)
         {
-            if (cmd.Length == 0)
+            if (cmd.args.Length == 0)
             {
                 err.Add("Command buff needs at least one attribute (e.g. 'buff buff_name')");
                 return;
             }
 
             // get buffer
-            GLBuffer buf = classes.GetValue<GLBuffer>(cmd[0]);
+            GLBuffer buf = classes.GetValue<GLBuffer>(cmd.args[0]);
             if (buf == null)
             {
-                err.Add($"The name '{cmd[0]}' does not reference an object of type 'buffer'.");
+                err.Add($"The name '{cmd.args[0]}' does not reference an object of type 'buffer'.");
                 return;
             }
 
             // parse offset
             int offset = 0;
-            if (cmd.Length > 1 && int.TryParse(cmd[1], out offset) == false)
+            if (cmd.args.Length > 1 && int.TryParse(cmd.args[1], out offset) == false)
             {
                 err.Add($"The second parameter (offset) of buff {unit} is invalid.");
                 return;
@@ -108,7 +108,7 @@ namespace App
 
             // parse size
             int size = buf.size;
-            if (cmd.Length > 2 && int.TryParse(cmd[2], out size) == false)
+            if (cmd.args.Length > 2 && int.TryParse(cmd.args[2], out size) == false)
             {
                 err.Add($"The third parameter (size) of buff {unit} is invalid.");
                 return;
