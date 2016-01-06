@@ -156,6 +156,21 @@ namespace App
             compiledEditor.LineScroll(line - compiledEditor.FirstVisibleLine - 1, 0);
         }
 
+        private void output_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
+        {
+            var shift = (e.Bounds.Height - e.Font.Size - 3) / 2f;
+            e.Graphics.FillRectangle(SystemBrushes.ControlLight,
+                e.Bounds.X + 1, e.Bounds.Y + 1, e.Bounds.Width - 2, e.Bounds.Height - 2);
+            e.Graphics.DrawString(e.Header.Text,
+                new Font(e.Font.FontFamily, e.Font.SizeInPoints, FontStyle.Regular),
+                SystemBrushes.ControlText, e.Bounds.X + shift, e.Bounds.Y + shift);
+        }
+
+        private void output_DrawItem(object sender, DrawListViewItemEventArgs e)
+        {
+            e.DrawDefault = true;
+        }
+
         private void UpdateDebugListView(CodeEditor editor)
         {
             // RESET DEBUG LIST VIEW
@@ -205,7 +220,9 @@ namespace App
         }
 
         private void AddOutputItem(int line, string msg)
-            => output.Items.Add(new ListViewItem(new[] { line > 0 ? line.ToString(culture) : "", msg }));
+            => output.Items.Add(new ListViewItem(new[] {
+                line > 0 ? line.ToString(culture) : "", msg
+            }));
         #endregion
 
         private void DebugRender()
@@ -215,7 +232,7 @@ namespace App
 
             // only use debugging if the selected editor
             // was used to generate the debug information
-            if (compiledEditor == GetSelectedEditor())
+            if (compiledEditor == GetSelectedEditor() && compiledEditor != null)
                 UpdateDebugListView(compiledEditor);
         }
     }

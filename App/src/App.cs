@@ -155,8 +155,8 @@ namespace App
 
             // clear scene and output
             output.Clear();
-            output.Columns.Add("Line", (int)(output.Width * 0.1));
-            output.Columns.Add("Description", (int)(output.Width * 0.85));
+            output.Columns.Add("Line", (int)(output.Width * 0.08));
+            output.Columns.Add("Description", (int)(output.Width * 0.88));
             glControl.ClearScene();
 
             // get include directory
