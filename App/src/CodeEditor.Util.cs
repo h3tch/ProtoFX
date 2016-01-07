@@ -72,37 +72,35 @@ namespace App
         /// <returns>String including include files.</returns>
         public static string IncludeFiles(string text, string dir, int[] newLine = null)
         {
-            MatchCollection matches;
-            
-            do
+            // find include files
+            var matches = Regex.Matches(text, @"^\s*#include \""[^""]*\""", RegexOptions.Multiline);
+
+            // insert all include files
+            int offset = 0;
+            foreach (Match match in matches)
             {
-                // find include files
-                matches = Regex.Matches(text, @"#include \""[^""]*\""");
+                // get file path
+                var include = text.Substring(match.Index + offset, match.Length);
+                var startidx = include.IndexOf('"');
+                var incfile = include.Substring(startidx + 1, include.LastIndexOf('"') - startidx - 1);
+                var path = Path.IsPathRooted(incfile) ? incfile : dir + incfile;
 
-                // insert all include files
-                int offset = 0;
-                foreach (Match match in matches)
+                // check if file exists
+                if (File.Exists(path) == false)
+                    throw new CompileException($"The include file '{incfile}' could not be found.\n");
+
+                // load the file and insert it, replacing #include
+                var content = IncludeFiles(File.ReadAllText(path), Path.GetDirectoryName(path));
+                text = text.Substring(0, match.Index + offset) + content
+                    + text.Substring(match.Index + offset + match.Length);
+
+                // because the string now has a different 
+                // length, we need to remember the offset
+                offset += content.Length - match.Length;
+
+                // update new line positions
+                if (newLine != null)
                 {
-                    // get file path
-                    var include = text.Substring(match.Index + offset, match.Length);
-                    var startidx = include.IndexOf('"');
-                    var incfile = include.Substring(startidx + 1, include.LastIndexOf('"') - startidx - 1);
-                    var path = Path.IsPathRooted(incfile) ? incfile : dir + incfile;
-
-                    // check if file exists
-                    if (File.Exists(path) == false)
-                        throw new CompileException($"The include file '{incfile}' could not be found.\n");
-
-                    // load the file and insert it, replacing #include
-                    var content = File.ReadAllText(path);
-                    text = text.Substring(0, match.Index + offset)
-                        + content + text.Substring(match.Index + offset + match.Length);
-
-                    // because the string now has a different 
-                    // length, we need to remember the offset
-                    offset += content.Length - match.Length;
-
-                    // update new line positions
                     int i = newLine.IndexOf(x => x >= match.Index);
                     if (i >= 0)
                     {
@@ -111,7 +109,6 @@ namespace App
                     }
                 }
             }
-            while (matches.Count > 0);
 
             return text;
         }

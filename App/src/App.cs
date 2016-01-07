@@ -154,9 +154,7 @@ namespace App
             toolBtnSave_Click(sender, null);
 
             // clear scene and output
-            output.Clear();
-            output.Columns.Add("Line", (int)(output.Width * 0.08));
-            output.Columns.Add("Description", (int)(output.Width * 0.88));
+            output.Rows.Clear();
             glControl.ClearScene();
 
             // get include directory
@@ -170,10 +168,9 @@ namespace App
 
             // remove comments
             var nl = CodeEditor.GetNewLines(compiledEditor.Text);
-            var code = CodeEditor.RemoveComments(compiledEditor.Text);
-            code = CodeEditor.RemoveNewLineIndicators(code);
-            code = CodeEditor.IncludeFiles(code, includeDir, nl);
+            var code = CodeEditor.IncludeFiles(compiledEditor.Text, includeDir, nl);
             code = CodeEditor.RemoveComments(code);
+            code = CodeEditor.RemoveNewLineIndicators(code);
             code = CodeEditor.ResolvePreprocessorDefinitions(code, nl);
 
             // FIND PROTOGL CLASS BLOCKS (find "TYPE name { ... }")
@@ -185,15 +182,18 @@ namespace App
                 .ToArray();
 
             // show errors
-            var errors = from x in ex
-                         where x is CompileException || x.InnerException is CompileException
-                         select (x is CompileException ? x : x.InnerException) as CompileException;
-            errors.Do(x => AddOutputItem(CodeEditor.LineFromPosition(x.Pos, nl), x.Text));
+            var exc = from x in ex
+                      where x is CompileException || x.InnerException is CompileException
+                      select (x is CompileException ? x : x.InnerException) as CompileException;
+            var err = from x in exc
+                      from y in x
+                      select y;
+            err.Do(x => AddOutputItem(CodeEditor.LineFromPosition(x.Pos, nl), x.Msg));
 
             // underline all debug errors
-            var ranges = errors
+            var ranges = err
                 .Select(x => compiledEditor.GetWordFromPosition(x.Pos).Length)
-                .Zip(errors, (len, err) => new int[] { err.Pos, err.Pos + len });
+                .Zip(err, (len, x) => new int[] { x.Pos, x.Pos + len });
             compiledEditor.ClearIndicators(CodeEditor.DebugIndicatorIndex);
             compiledEditor.AddIndicators(CodeEditor.DebugIndicatorIndex, ranges);
 

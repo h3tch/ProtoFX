@@ -141,13 +141,13 @@ namespace App
         private void output_DoubleClick(object sender, EventArgs e)
         {
             // if no item is selected and no code compiled, return
-            var view = (ListView)sender;
-            if (view.SelectedItems.Count == 0 || compiledEditor == null)
+            var view = (DataGridView)sender;
+            if (view.SelectedRows.Count == 0 || compiledEditor == null)
                 return;
 
             // get line from selected item
             int line;
-            var text = view.SelectedItems[0].SubItems[0].Text;
+            var text = view.SelectedRows[0].Cells[0].Value as string;
             if (!int.TryParse(text, NumberStyles.Integer, culture, out line))
                 return;
 
@@ -158,9 +158,12 @@ namespace App
 
         private void output_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
         {
-            var shift = (e.Bounds.Height - e.Font.Size - 3) / 2f;
+            // draw header background
             e.Graphics.FillRectangle(SystemBrushes.ControlLight,
                 e.Bounds.X + 1, e.Bounds.Y + 1, e.Bounds.Width - 2, e.Bounds.Height - 2);
+
+            // draw header text
+            var shift = Math.Max(e.Bounds.Height - e.Font.Size - 4, 0f) / 2;
             e.Graphics.DrawString(e.Header.Text,
                 new Font(e.Font.FontFamily, e.Font.SizeInPoints, FontStyle.Regular),
                 SystemBrushes.ControlText, e.Bounds.X + shift, e.Bounds.Y + shift);
@@ -220,9 +223,7 @@ namespace App
         }
 
         private void AddOutputItem(int line, string msg)
-            => output.Items.Add(new ListViewItem(new[] {
-                line > 0 ? line.ToString(culture) : "", msg
-            }));
+            => output.Rows.Add(new[] { line > 0 ? line.ToString(culture) : "", msg });
         #endregion
 
         private void DebugRender()

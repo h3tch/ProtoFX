@@ -1,21 +1,16 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace App
 {
-    class CompileException : Exception
+    class CompileException : Exception, IEnumerable<CompileException.Err>
     {
         private List<string> callstack;
-        private List<int> positions = new List<int>();
-        private List<string> messages = new List<string>();
+        private List<Err> messages = new List<Err>();
 
         // compile call stack into a single string
         private string callstackstring => callstack.Merge(": ");
-
-        // compile all messages into a single string
-        public string Text => messages.Merge("\n");
-
-        public int Pos => positions.Count > 0 ? positions[0] : -1;
 
         public bool HasErrors() => messages.Count > 0;
 
@@ -44,8 +39,7 @@ namespace App
 
         public CompileException Add(string message, int pos = -1)
         {
-            messages.Add(callstackstring + message);
-            positions.Add(pos);
+            messages.Add(new Err(pos, callstackstring + message));
             return this;
         }
 
@@ -63,5 +57,26 @@ namespace App
 
         public static CompileException operator +(CompileException err, string callLevel)
             => new CompileException(err, callLevel);
+
+        #region IEnumerable Interface
+        public IEnumerator<Err> GetEnumerator() => messages.GetEnumerator();
+
+        IEnumerator<Err> IEnumerable<Err>.GetEnumerator() => messages.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => messages.GetEnumerator();
+        #endregion
+
+        #region INNER CLASSES
+        public struct Err
+        {
+            public Err(int pos, string msg)
+            {
+                this.Pos = pos;
+                this.Msg = msg;
+            }
+            public int Pos;
+            public string Msg;
+        }
+        #endregion
     }
 }

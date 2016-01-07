@@ -28,8 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(App));
             this.splitRenderCoding = new System.Windows.Forms.SplitContainer();
+            this.glControl = new OpenTK.GraphicControl();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabCode = new System.Windows.Forms.TabPage();
             this.splitCodeError = new System.Windows.Forms.SplitContainer();
@@ -50,7 +52,9 @@
             this.toolBtnPick = new System.Windows.Forms.ToolStripButton();
             this.tabOutput = new System.Windows.Forms.TabControl();
             this.tabCompile = new System.Windows.Forms.TabPage();
-            this.output = new System.Windows.Forms.ListView();
+            this.output = new System.Windows.Forms.DataGridView();
+            this.Line = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabDebugger = new System.Windows.Forms.TabPage();
             this.splitDebug = new System.Windows.Forms.SplitContainer();
             this.debugListView = new System.Windows.Forms.ListView();
@@ -75,7 +79,6 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.comboProp = new System.Windows.Forms.ComboBox();
-            this.glControl = new OpenTK.GraphicControl();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
             this.splitRenderCoding.Panel1.SuspendLayout();
             this.splitRenderCoding.Panel2.SuspendLayout();
@@ -93,6 +96,7 @@
             this.toolStrip.SuspendLayout();
             this.tabOutput.SuspendLayout();
             this.tabCompile.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.output)).BeginInit();
             this.tabDebugger.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitDebug)).BeginInit();
             this.splitDebug.Panel1.SuspendLayout();
@@ -131,6 +135,18 @@
             this.splitRenderCoding.Size = new System.Drawing.Size(1343, 684);
             this.splitRenderCoding.SplitterDistance = 696;
             this.splitRenderCoding.TabIndex = 0;
+            // 
+            // glControl
+            // 
+            this.glControl.BackColor = System.Drawing.Color.Black;
+            this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.glControl.Location = new System.Drawing.Point(0, 0);
+            this.glControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.glControl.Name = "glControl";
+            this.glControl.Size = new System.Drawing.Size(696, 684);
+            this.glControl.TabIndex = 0;
+            this.glControl.VSync = false;
+            this.glControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseUp);
             // 
             // tabControl
             // 
@@ -370,22 +386,49 @@
             this.tabCompile.Text = "Compiler Output";
             this.tabCompile.UseVisualStyleBackColor = true;
             // 
-            // output
+            // output2
             // 
+            this.output.AllowUserToAddRows = false;
+            this.output.AllowUserToDeleteRows = false;
+            this.output.AllowUserToOrderColumns = true;
+            this.output.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.output.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
+            this.output.BackgroundColor = System.Drawing.SystemColors.Control;
             this.output.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.output.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.output.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Line,
+            this.Description});
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.output.DefaultCellStyle = dataGridViewCellStyle1;
             this.output.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.output.FullRowSelect = true;
             this.output.Location = new System.Drawing.Point(2, 2);
-            this.output.Margin = new System.Windows.Forms.Padding(2);
-            this.output.Name = "output";
-            this.output.OwnerDraw = true;
+            this.output.Name = "output2";
+            this.output.RowHeadersVisible = false;
+            this.output.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.output.Size = new System.Drawing.Size(619, 126);
             this.output.TabIndex = 1;
-            this.output.UseCompatibleStateImageBehavior = false;
-            this.output.View = System.Windows.Forms.View.Details;
-            this.output.DrawColumnHeader += new System.Windows.Forms.DrawListViewColumnHeaderEventHandler(this.output_DrawColumnHeader);
-            this.output.DrawItem += new System.Windows.Forms.DrawListViewItemEventHandler(this.output_DrawItem);
             this.output.DoubleClick += new System.EventHandler(this.output_DoubleClick);
+            // 
+            // Line
+            // 
+            this.Line.FillWeight = 10F;
+            this.Line.HeaderText = "Line";
+            this.Line.Name = "Line";
+            this.Line.ReadOnly = true;
+            // 
+            // Description
+            // 
+            this.Description.FillWeight = 90F;
+            this.Description.HeaderText = "Description";
+            this.Description.Name = "Description";
+            this.Description.ReadOnly = true;
             // 
             // tabDebugger
             // 
@@ -412,7 +455,7 @@
             // splitDebug.Panel2
             // 
             this.splitDebug.Panel2.Controls.Add(this.debugProperty);
-            this.splitDebug.Size = new System.Drawing.Size(619, 128);
+            this.splitDebug.Size = new System.Drawing.Size(619, 126);
             this.splitDebug.SplitterDistance = 349;
             this.splitDebug.TabIndex = 0;
             // 
@@ -422,7 +465,7 @@
             this.debugListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.debugListView.Location = new System.Drawing.Point(0, 0);
             this.debugListView.Name = "debugListView";
-            this.debugListView.Size = new System.Drawing.Size(349, 128);
+            this.debugListView.Size = new System.Drawing.Size(349, 126);
             this.debugListView.TabIndex = 0;
             this.debugListView.UseCompatibleStateImageBehavior = false;
             // 
@@ -434,9 +477,10 @@
             this.debugProperty.Margin = new System.Windows.Forms.Padding(2);
             this.debugProperty.Name = "debugProperty";
             this.debugProperty.PropertySort = System.Windows.Forms.PropertySort.Categorized;
-            this.debugProperty.Size = new System.Drawing.Size(266, 128);
+            this.debugProperty.Size = new System.Drawing.Size(266, 126);
             this.debugProperty.TabIndex = 1;
             this.debugProperty.ToolbarVisible = false;
+            this.debugProperty.ViewBorderColor = System.Drawing.SystemColors.Control;
             this.debugProperty.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid_PropertyValueChanged);
             // 
             // tabResources
@@ -579,7 +623,7 @@
             this.tableLayoutBufferDef.RowCount = 2;
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutBufferDef.Size = new System.Drawing.Size(619, 622);
+            this.tableLayoutBufferDef.Size = new System.Drawing.Size(619, 620);
             this.tableLayoutBufferDef.TabIndex = 0;
             // 
             // tableBuf
@@ -712,6 +756,7 @@
             this.propertyGrid.Name = "propertyGrid";
             this.propertyGrid.Size = new System.Drawing.Size(627, 622);
             this.propertyGrid.TabIndex = 0;
+            this.propertyGrid.ViewBorderColor = System.Drawing.SystemColors.Control;
             this.propertyGrid.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid_PropertyValueChanged);
             this.propertyGrid.Click += new System.EventHandler(this.propertyGrid_Click);
             // 
@@ -725,18 +770,6 @@
             this.comboProp.Size = new System.Drawing.Size(627, 23);
             this.comboProp.TabIndex = 0;
             this.comboProp.SelectedIndexChanged += new System.EventHandler(this.comboProp_SelectedIndexChanged);
-            // 
-            // glControl
-            // 
-            this.glControl.BackColor = System.Drawing.Color.Black;
-            this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.glControl.Location = new System.Drawing.Point(0, 0);
-            this.glControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.glControl.Name = "glControl";
-            this.glControl.Size = new System.Drawing.Size(696, 684);
-            this.glControl.TabIndex = 0;
-            this.glControl.VSync = false;
-            this.glControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseUp);
             // 
             // App
             // 
@@ -772,6 +805,7 @@
             this.toolStrip.PerformLayout();
             this.tabOutput.ResumeLayout(false);
             this.tabCompile.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.output)).EndInit();
             this.tabDebugger.ResumeLayout(false);
             this.splitDebug.Panel1.ResumeLayout(false);
             this.splitDebug.Panel2.ResumeLayout(false);
@@ -845,6 +879,8 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton toolBtnPick;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
-        private System.Windows.Forms.ListView output;
+        private System.Windows.Forms.DataGridView output;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Line;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Description;
     }
 }
