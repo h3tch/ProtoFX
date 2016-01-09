@@ -167,11 +167,11 @@ namespace App
             var debugging = sender == toolBtnDbg;
 
             // remove comments
-            var nl = CodeEditor.GetNewLines(compiledEditor.Text);
-            var code = CodeEditor.IncludeFiles(compiledEditor.Text, includeDir, nl);
+            var linePos = CodeEditor.GetLinePositions(compiledEditor.Text);
+            var code = CodeEditor.IncludeFiles(compiledEditor.Text, includeDir, linePos);
             code = CodeEditor.RemoveComments(code);
             code = CodeEditor.RemoveNewLineIndicators(code);
-            code = CodeEditor.ResolvePreprocessorDefinitions(code, nl);
+            code = CodeEditor.ResolvePreprocessorDefinitions(code, linePos);
 
             // FIND PROTOGL CLASS BLOCKS (find "TYPE name { ... }")
             var blocks = CodeEditor.GetBlocks(code);
@@ -185,15 +185,15 @@ namespace App
             var exc = from x in ex
                       where x is CompileException || x.InnerException is CompileException
                       select (x is CompileException ? x : x.InnerException) as CompileException;
-            var err = from x in exc
-                      from y in x
-                      select y;
-            err.Do(x => AddOutputItem(CodeEditor.LineFromPosition(x.Pos, nl), x.Msg));
+            var err = from x in exc from y in x select y;
+            var lineIdx = err.Select(x => linePos.IndexOf(y => y >= x.Pos));
+            err.Zip(lineIdx, (x, idx) => AddOutputItem(idx + 1, x.Msg));
 
             // underline all debug errors
-            var ranges = err
-                .Select(x => compiledEditor.GetWordFromPosition(x.Pos).Length)
-                .Zip(err, (len, x) => new int[] { x.Pos, x.Pos + len });
+            var ranges = lineIdx.Select(x => new[] {
+                compiledEditor.Lines[x].Position,
+                compiledEditor.Lines[x].EndPosition
+            });
             compiledEditor.ClearIndicators(CodeEditor.DebugIndicatorIndex);
             compiledEditor.AddIndicators(CodeEditor.DebugIndicatorIndex, ranges);
 

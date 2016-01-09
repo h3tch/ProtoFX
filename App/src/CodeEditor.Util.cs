@@ -7,24 +7,21 @@ namespace App
 {
     partial class CodeEditor
     {
-        public static int LineFromPosition(int position, int[] newLine)
-            => newLine.IndexOf(x => x >= position);
-
         /// <summary>
         /// Find all new-line positions in a text.
         /// </summary>
         /// <param name="text">The string to process.</param>
         /// <returns>Returns an array of new-line positions.</returns>
-        public static int[] GetNewLines(string text)
+        public static int[] GetLinePositions(string text)
         {
             var matches = Regex.Matches(text, "(\r\n|\n|\r)");
-            var newLine = new int[matches.Count + 1];
+            var linePos = new int[matches.Count + 1];
 
-            newLine[0] = 0;
+            linePos[0] = 0;
             for (int i = 0; i < matches.Count; i++)
-                newLine[i + 1] = matches[i].Index + matches[i].Length;
+                linePos[i + 1] = matches[i].Index + matches[i].Length;
 
-            return newLine;
+            return linePos;
         }
 
         /// <summary>
@@ -60,7 +57,7 @@ namespace App
         /// <param name="text">String to remove new line indicators from.</param>
         /// <returns>String without new line indicators.</returns>
         public static string RemoveNewLineIndicators(string text)
-            => Regex.Replace(text, @"\.\.\.(\s?)(\n|\r|\r\n)", 
+            => Regex.Replace(text, @"\.\.\.(\s?)(\r\n|\n|\r)", 
                 x => new string(' ', x.Value.Length),
                 RegexOptions.None);
 
@@ -70,7 +67,7 @@ namespace App
         /// <param name="text">String to add included files to.</param>
         /// <param name="dir">The directory of the *.tech file.</param>
         /// <returns>String including include files.</returns>
-        public static string IncludeFiles(string text, string dir, int[] newLine = null)
+        public static string IncludeFiles(string text, string dir, int[] linePos = null)
         {
             // find include files
             var matches = Regex.Matches(text, @"^\s*#include \""[^""]*\""", RegexOptions.Multiline);
@@ -99,13 +96,13 @@ namespace App
                 offset += content.Length - match.Length;
 
                 // update new line positions
-                if (newLine != null)
+                if (linePos != null)
                 {
-                    int i = newLine.IndexOf(x => x >= match.Index);
+                    int i = linePos.IndexOf(x => x >= match.Index);
                     if (i >= 0)
                     {
-                        for (; i < newLine.Length; i++)
-                            newLine[i] += offset;
+                        for (; i < linePos.Length; i++)
+                            linePos[i] += offset;
                     }
                 }
             }
@@ -118,7 +115,7 @@ namespace App
         /// </summary>
         /// <param name="text">String to resolve.</param>
         /// <returns>String with resolved #global definitions.</returns>
-        public static string ResolvePreprocessorDefinitions(string text, int[] newLine = null)
+        public static string ResolvePreprocessorDefinitions(string text, int[] linePos = null)
         {
             // find include files
             var matches = Regex.Matches(text, @"#global(\s+\w+){2}");
@@ -144,11 +141,11 @@ namespace App
                     offset += value.Length - m.Length;
 
                     // update new line positions
-                    int i = newLine.IndexOf(x => x >= m.Index);
+                    int i = linePos.IndexOf(x => x >= m.Index);
                     if (i >= 0)
                     {
-                        for (; i < newLine.Length; i++)
-                            newLine[i] += offset;
+                        for (; i < linePos.Length; i++)
+                            linePos[i] += offset;
                     }
                 }
 
@@ -197,7 +194,7 @@ namespace App
         /// </summary>
         /// <param name="text">String to process.</param>
         /// <returns>Returns an enumerable of all block strings.</returns>
-        public static IEnumerable<Block> GetBlocks(string text, int[] newLine = null)
+        public static IEnumerable<Block> GetBlocks(string text, int[] linePos = null)
         {
             // return block text from block positions
             foreach (var block in GetBlockPositions(text))

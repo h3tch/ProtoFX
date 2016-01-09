@@ -386,7 +386,7 @@
             this.tabCompile.Text = "Compiler Output";
             this.tabCompile.UseVisualStyleBackColor = true;
             // 
-            // output2
+            // output
             // 
             this.output.AllowUserToAddRows = false;
             this.output.AllowUserToDeleteRows = false;
@@ -395,6 +395,7 @@
             this.output.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.output.BackgroundColor = System.Drawing.SystemColors.Control;
             this.output.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.output.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.output.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.output.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Line,
@@ -408,8 +409,10 @@
             dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.output.DefaultCellStyle = dataGridViewCellStyle1;
             this.output.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.output.GridColor = System.Drawing.SystemColors.ControlLight;
             this.output.Location = new System.Drawing.Point(2, 2);
-            this.output.Name = "output2";
+            this.output.Margin = new System.Windows.Forms.Padding(1);
+            this.output.Name = "output";
             this.output.RowHeadersVisible = false;
             this.output.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.output.Size = new System.Drawing.Size(619, 126);

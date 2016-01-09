@@ -11,6 +11,8 @@ namespace OpenTK
     {
         public static string nullname = "__control__";
         private bool render = false;
+        private int renderExceptions = 0;
+        private DataGridView output;
         private Dict<GLObject> scene = new Dict<GLObject>();
         public Dictionary<string, GLObject> Scene { get { return scene; } }
         public int Frame { get; private set; } = 0;
@@ -25,15 +27,28 @@ namespace OpenTK
             MouseMove += new MouseEventHandler(HandleMouseMove);
             MouseUp += new MouseEventHandler(HandleMouseUp);
             Resize += new EventHandler(HandleResize);
+            Load += new EventHandler(HandleLoad);
         }
+
+
 
         /// <summary>
         /// Render scene.
         /// </summary>
         public void Render()
         {
+            // clear existing render exeptions
+            if (renderExceptions > 0)
+            {
+                for (int i = 0; i < output.Rows.Count; i++)
+                    if ((string)output.Rows[i].Cells[0].Value == "render")
+                        output.Rows.RemoveAt(i--);
+                renderExceptions = 0;
+            }
+
             try
             {
+                // render the scene
                 MakeCurrent();
                 scene.Where(x => x.Value is GLTech).Select(x => (GLTech)x.Value)
                      .Do(x => x.Exec(ClientSize.Width, ClientSize.Height, Frame));
@@ -41,10 +56,13 @@ namespace OpenTK
             }
             catch (Exception ex)
             {
+                // add exception to output
                 ex = ex.InnerException != null ? ex.InnerException : ex;
-                var codeError = (RichTextBox)FindForm().Controls.Find("codeError", true).First();
-                codeError.AppendText(ex.Message + '\n');
+                output.Rows.Add(new[] { "render", ex.Message });
+                renderExceptions++;
             }
+
+            // increase render frame
             Frame++;
         }
 
@@ -107,6 +125,11 @@ namespace OpenTK
             var lines = objectblock.Split(new char[] { '\n' });
             return lines.Select(x => Regex.Matches(x, "[\\w.]+")).Where(x => x.Count > 0)
                 .First().Cast<Match>().Select(x => x.Value).ToArray();
+        }
+
+        private void HandleLoad(object sender, EventArgs e)
+        {
+            output = (DataGridView)FindForm().Controls.Find("output", true).First();
         }
 
         private void HandleResize(object sender, EventArgs e) => Render();

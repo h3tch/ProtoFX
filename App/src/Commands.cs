@@ -17,7 +17,7 @@ namespace App
         public Commands(string body, int pos, CompileException err = null)
         {
             // split into lines
-            var linePos = CodeEditor.GetNewLines(body);
+            var linePos = CodeEditor.GetLinePositions(body);
             var lines = body.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
 
             // for each line
