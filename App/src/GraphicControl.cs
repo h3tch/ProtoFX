@@ -29,9 +29,7 @@ namespace OpenTK
             Resize += new EventHandler(HandleResize);
             Load += new EventHandler(HandleLoad);
         }
-
-
-
+        
         /// <summary>
         /// Render scene.
         /// </summary>
@@ -128,9 +126,7 @@ namespace OpenTK
         }
 
         private void HandleLoad(object sender, EventArgs e)
-        {
-            output = (DataGridView)FindForm().Controls.Find("output", true).First();
-        }
+            => output = (DataGridView)FindForm()?.Controls.Find("output", true).FirstOrDefault();
 
         private void HandleResize(object sender, EventArgs e) => Render();
 

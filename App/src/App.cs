@@ -158,9 +158,9 @@ namespace App
             glControl.ClearScene();
 
             // get include directory
-            var includeDir = sourceTab.filepath != null ?
-                Path.GetDirectoryName(sourceTab.filepath) : Directory.GetCurrentDirectory();
-            includeDir += '\\';
+            var includeDir = (sourceTab.filepath != null
+                ? Path.GetDirectoryName(sourceTab.filepath)
+                : Directory.GetCurrentDirectory()) + '\\';
 
             // get code text form tab page
             // generate debug information?

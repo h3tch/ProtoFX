@@ -53,6 +53,7 @@ namespace App
             Styles[Style.Cpp.Word2].ForeColor = Color.FromArgb(30, 120, 255);
             Styles[Style.Cpp.Verbatim].ForeColor = Color.FromArgb(163, 21, 21);
             Styles[Style.Cpp.StringEol].BackColor = Color.Pink;
+            Styles[Style.LineNumber].ForeColor = Color.Gray;
             Lexer = Lexer.Cpp;
             for (int i = 0; i < keywords.Length; i++)
                 SetKeywords(i, keywords[i]);
