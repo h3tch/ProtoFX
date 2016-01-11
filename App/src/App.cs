@@ -187,7 +187,7 @@ namespace App
                       select (x is CompileException ? x : x.InnerException) as CompileException;
             var err = from x in exc from y in x select y;
             var lineIdx = err.Select(x => linePos.IndexOf(y => y >= x.Pos));
-            err.Zip(lineIdx, (x, idx) => AddOutputItem(idx + 1, x.Msg));
+            err.Zip(lineIdx, (x, idx) => AddOutputItem(x.File, idx, x.Msg));
 
             // underline all debug errors
             var ranges = lineIdx.Select(x => new[] {

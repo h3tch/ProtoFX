@@ -147,7 +147,7 @@ namespace App
 
             // get line from selected item
             int line;
-            var text = view.SelectedRows[0].Cells[0].Value as string;
+            var text = view.SelectedRows[0].Cells[1].Value as string;
             if (!int.TryParse(text, NumberStyles.Integer, culture, out line))
                 return;
 
@@ -222,8 +222,8 @@ namespace App
             }
         }
 
-        private void AddOutputItem(int line, string msg)
-            => output.Rows.Add(new[] { line > 0 ? line.ToString(culture) : "", msg });
+        private void AddOutputItem(string file, int line, string msg)
+            => output.Rows.Add(new[] { file, line > 0 ? line.ToString(culture) : "", msg });
         #endregion
 
         private void DebugRender()

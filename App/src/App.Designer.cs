@@ -53,8 +53,6 @@
             this.tabOutput = new System.Windows.Forms.TabControl();
             this.tabCompile = new System.Windows.Forms.TabPage();
             this.output = new System.Windows.Forms.DataGridView();
-            this.Line = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabDebugger = new System.Windows.Forms.TabPage();
             this.splitDebug = new System.Windows.Forms.SplitContainer();
             this.debugListView = new System.Windows.Forms.ListView();
@@ -79,6 +77,9 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.comboProp = new System.Windows.Forms.ComboBox();
+            this.OutputFile = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.OutputLine = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.OutputDescription = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
             this.splitRenderCoding.Panel1.SuspendLayout();
             this.splitRenderCoding.Panel2.SuspendLayout();
@@ -169,7 +170,7 @@
             this.tabCode.Controls.Add(this.splitCodeError);
             this.tabCode.Location = new System.Drawing.Point(4, 31);
             this.tabCode.Name = "tabCode";
-            this.tabCode.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabCode.Padding = new System.Windows.Forms.Padding(3);
             this.tabCode.Size = new System.Drawing.Size(957, 1017);
             this.tabCode.TabIndex = 0;
             this.tabCode.Text = "Code";
@@ -207,7 +208,7 @@
             this.tabCodeTableLayout.Name = "tabCodeTableLayout";
             this.tabCodeTableLayout.RowCount = 1;
             this.tabCodeTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tabCodeTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 754F));
+            this.tabCodeTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 759F));
             this.tabCodeTableLayout.Size = new System.Drawing.Size(951, 759);
             this.tabCodeTableLayout.TabIndex = 1;
             // 
@@ -217,7 +218,7 @@
             // toolStripContainer.ContentPanel
             // 
             this.toolStripContainer.ContentPanel.Controls.Add(this.tabSource);
-            this.toolStripContainer.ContentPanel.Size = new System.Drawing.Size(908, 715);
+            this.toolStripContainer.ContentPanel.Size = new System.Drawing.Size(908, 728);
             this.toolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolStripContainer.Location = new System.Drawing.Point(3, 3);
             this.toolStripContainer.Name = "toolStripContainer";
@@ -236,7 +237,7 @@
             this.tabSource.Margin = new System.Windows.Forms.Padding(0);
             this.tabSource.Name = "tabSource";
             this.tabSource.SelectedIndex = 0;
-            this.tabSource.Size = new System.Drawing.Size(908, 715);
+            this.tabSource.Size = new System.Drawing.Size(908, 728);
             this.tabSource.TabIndex = 0;
             // 
             // toolStrip
@@ -377,7 +378,7 @@
             this.tabCompile.Controls.Add(this.output);
             this.tabCompile.Location = new System.Drawing.Point(4, 31);
             this.tabCompile.Name = "tabCompile";
-            this.tabCompile.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabCompile.Padding = new System.Windows.Forms.Padding(3);
             this.tabCompile.Size = new System.Drawing.Size(943, 211);
             this.tabCompile.TabIndex = 0;
             this.tabCompile.Text = "Compiler Output";
@@ -395,8 +396,9 @@
             this.output.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this.output.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.output.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.Line,
-            this.Description});
+            this.OutputFile,
+            this.OutputLine,
+            this.OutputDescription});
             dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
             dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -408,7 +410,7 @@
             this.output.Dock = System.Windows.Forms.DockStyle.Fill;
             this.output.GridColor = System.Drawing.SystemColors.ControlLight;
             this.output.Location = new System.Drawing.Point(3, 3);
-            this.output.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.output.Margin = new System.Windows.Forms.Padding(2);
             this.output.Name = "output";
             this.output.RowHeadersVisible = false;
             this.output.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
@@ -416,27 +418,13 @@
             this.output.TabIndex = 1;
             this.output.DoubleClick += new System.EventHandler(this.output_DoubleClick);
             // 
-            // Line
-            // 
-            this.Line.FillWeight = 10F;
-            this.Line.HeaderText = "Line";
-            this.Line.Name = "Line";
-            this.Line.ReadOnly = true;
-            // 
-            // Description
-            // 
-            this.Description.FillWeight = 90F;
-            this.Description.HeaderText = "Description";
-            this.Description.Name = "Description";
-            this.Description.ReadOnly = true;
-            // 
             // tabDebugger
             // 
             this.tabDebugger.Controls.Add(this.splitDebug);
             this.tabDebugger.Location = new System.Drawing.Point(4, 31);
             this.tabDebugger.Name = "tabDebugger";
-            this.tabDebugger.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.tabDebugger.Size = new System.Drawing.Size(938, 208);
+            this.tabDebugger.Padding = new System.Windows.Forms.Padding(3);
+            this.tabDebugger.Size = new System.Drawing.Size(943, 211);
             this.tabDebugger.TabIndex = 1;
             this.tabDebugger.Text = "Debug Variables";
             this.tabDebugger.UseVisualStyleBackColor = true;
@@ -455,8 +443,8 @@
             // splitDebug.Panel2
             // 
             this.splitDebug.Panel2.Controls.Add(this.debugProperty);
-            this.splitDebug.Size = new System.Drawing.Size(932, 202);
-            this.splitDebug.SplitterDistance = 525;
+            this.splitDebug.Size = new System.Drawing.Size(937, 205);
+            this.splitDebug.SplitterDistance = 527;
             this.splitDebug.SplitterWidth = 6;
             this.splitDebug.TabIndex = 0;
             // 
@@ -467,7 +455,7 @@
             this.debugListView.Location = new System.Drawing.Point(0, 0);
             this.debugListView.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.debugListView.Name = "debugListView";
-            this.debugListView.Size = new System.Drawing.Size(525, 202);
+            this.debugListView.Size = new System.Drawing.Size(527, 205);
             this.debugListView.TabIndex = 0;
             this.debugListView.UseCompatibleStateImageBehavior = false;
             // 
@@ -478,7 +466,7 @@
             this.debugProperty.Location = new System.Drawing.Point(0, 0);
             this.debugProperty.Name = "debugProperty";
             this.debugProperty.PropertySort = System.Windows.Forms.PropertySort.Categorized;
-            this.debugProperty.Size = new System.Drawing.Size(401, 202);
+            this.debugProperty.Size = new System.Drawing.Size(404, 205);
             this.debugProperty.TabIndex = 1;
             this.debugProperty.ToolbarVisible = false;
             this.debugProperty.ViewBorderColor = System.Drawing.SystemColors.Control;
@@ -489,7 +477,7 @@
             this.tabResources.Controls.Add(this.tabData);
             this.tabResources.Location = new System.Drawing.Point(4, 31);
             this.tabResources.Name = "tabResources";
-            this.tabResources.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabResources.Padding = new System.Windows.Forms.Padding(3);
             this.tabResources.Size = new System.Drawing.Size(957, 1017);
             this.tabResources.TabIndex = 1;
             this.tabResources.Text = "Resources";
@@ -511,7 +499,7 @@
             this.tabDataImg.Controls.Add(this.tableLayoutImages);
             this.tabDataImg.Location = new System.Drawing.Point(4, 31);
             this.tabDataImg.Name = "tabDataImg";
-            this.tabDataImg.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabDataImg.Padding = new System.Windows.Forms.Padding(3);
             this.tabDataImg.Size = new System.Drawing.Size(943, 976);
             this.tabDataImg.TabIndex = 0;
             this.tabDataImg.Text = "Images";
@@ -595,8 +583,8 @@
             this.tabDataBuf.Controls.Add(this.tableLayoutBufferDef);
             this.tabDataBuf.Location = new System.Drawing.Point(4, 31);
             this.tabDataBuf.Name = "tabDataBuf";
-            this.tabDataBuf.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.tabDataBuf.Size = new System.Drawing.Size(938, 968);
+            this.tabDataBuf.Padding = new System.Windows.Forms.Padding(3);
+            this.tabDataBuf.Size = new System.Drawing.Size(943, 976);
             this.tabDataBuf.TabIndex = 1;
             this.tabDataBuf.Text = "Buffers";
             this.tabDataBuf.UseVisualStyleBackColor = true;
@@ -613,7 +601,7 @@
             this.tableLayoutBufferDef.RowCount = 2;
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutBufferDef.Size = new System.Drawing.Size(932, 962);
+            this.tableLayoutBufferDef.Size = new System.Drawing.Size(937, 970);
             this.tableLayoutBufferDef.TabIndex = 0;
             // 
             // tableBuf
@@ -628,7 +616,7 @@
             this.tableBuf.Name = "tableBuf";
             this.tableBuf.ReadOnly = true;
             this.tableBuf.RowTemplate.Height = 28;
-            this.tableBuf.Size = new System.Drawing.Size(926, 1012);
+            this.tableBuf.Size = new System.Drawing.Size(931, 1012);
             this.tableBuf.TabIndex = 1;
             // 
             // tableLayoutBuffers
@@ -646,7 +634,7 @@
             this.tableLayoutBuffers.Name = "tableLayoutBuffers";
             this.tableLayoutBuffers.RowCount = 1;
             this.tableLayoutBuffers.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutBuffers.Size = new System.Drawing.Size(932, 40);
+            this.tableLayoutBuffers.Size = new System.Drawing.Size(937, 40);
             this.tableLayoutBuffers.TabIndex = 2;
             // 
             // comboBuf
@@ -655,7 +643,7 @@
             this.comboBuf.FormattingEnabled = true;
             this.comboBuf.Location = new System.Drawing.Point(3, 3);
             this.comboBuf.Name = "comboBuf";
-            this.comboBuf.Size = new System.Drawing.Size(553, 30);
+            this.comboBuf.Size = new System.Drawing.Size(556, 30);
             this.comboBuf.TabIndex = 0;
             this.comboBuf.SelectedIndexChanged += new System.EventHandler(this.comboBuf_SelectedIndexChanged);
             // 
@@ -674,9 +662,9 @@
             "ulong",
             "float",
             "double"});
-            this.comboBufType.Location = new System.Drawing.Point(562, 3);
+            this.comboBufType.Location = new System.Drawing.Point(565, 3);
             this.comboBufType.Name = "comboBufType";
-            this.comboBufType.Size = new System.Drawing.Size(180, 30);
+            this.comboBufType.Size = new System.Drawing.Size(181, 30);
             this.comboBufType.TabIndex = 1;
             this.comboBufType.SelectedIndexChanged += new System.EventHandler(this.comboBufType_SelectedIndexChanged);
             // 
@@ -684,7 +672,7 @@
             // 
             this.numBufDim.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numBufDim.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numBufDim.Location = new System.Drawing.Point(748, 3);
+            this.numBufDim.Location = new System.Drawing.Point(752, 3);
             this.numBufDim.Maximum = new decimal(new int[] {
             512,
             0,
@@ -696,7 +684,7 @@
             0,
             0});
             this.numBufDim.Name = "numBufDim";
-            this.numBufDim.Size = new System.Drawing.Size(181, 28);
+            this.numBufDim.Size = new System.Drawing.Size(182, 28);
             this.numBufDim.TabIndex = 2;
             this.numBufDim.Value = new decimal(new int[] {
             4,
@@ -710,8 +698,8 @@
             this.tabProperties.Controls.Add(this.tableLayoutPanel1);
             this.tabProperties.Location = new System.Drawing.Point(4, 31);
             this.tabProperties.Name = "tabProperties";
-            this.tabProperties.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.tabProperties.Size = new System.Drawing.Size(956, 1017);
+            this.tabProperties.Padding = new System.Windows.Forms.Padding(3);
+            this.tabProperties.Size = new System.Drawing.Size(957, 1017);
             this.tabProperties.TabIndex = 2;
             this.tabProperties.Text = "Properties";
             this.tabProperties.UseVisualStyleBackColor = true;
@@ -728,7 +716,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(950, 1011);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(951, 1011);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // propertyGrid
@@ -737,7 +725,7 @@
             this.propertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propertyGrid.Location = new System.Drawing.Point(3, 43);
             this.propertyGrid.Name = "propertyGrid";
-            this.propertyGrid.Size = new System.Drawing.Size(944, 965);
+            this.propertyGrid.Size = new System.Drawing.Size(945, 965);
             this.propertyGrid.TabIndex = 0;
             this.propertyGrid.ViewBorderColor = System.Drawing.SystemColors.Control;
             this.propertyGrid.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid_PropertyValueChanged);
@@ -749,9 +737,29 @@
             this.comboProp.FormattingEnabled = true;
             this.comboProp.Location = new System.Drawing.Point(3, 3);
             this.comboProp.Name = "comboProp";
-            this.comboProp.Size = new System.Drawing.Size(944, 30);
+            this.comboProp.Size = new System.Drawing.Size(945, 30);
             this.comboProp.TabIndex = 0;
             this.comboProp.SelectedIndexChanged += new System.EventHandler(this.comboProp_SelectedIndexChanged);
+            // 
+            // File
+            // 
+            this.OutputFile.FillWeight = 12F;
+            this.OutputFile.HeaderText = "File";
+            this.OutputFile.Name = "File";
+            // 
+            // Line
+            // 
+            this.OutputLine.FillWeight = 8F;
+            this.OutputLine.HeaderText = "Line";
+            this.OutputLine.Name = "Line";
+            this.OutputLine.ReadOnly = true;
+            // 
+            // Description
+            // 
+            this.OutputDescription.FillWeight = 80F;
+            this.OutputDescription.HeaderText = "Description";
+            this.OutputDescription.Name = "Description";
+            this.OutputDescription.ReadOnly = true;
             // 
             // App
             // 
@@ -863,7 +871,8 @@
         private System.Windows.Forms.ToolStripButton toolBtnPick;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.DataGridView output;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Line;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Description;
+        private System.Windows.Forms.DataGridViewTextBoxColumn OutputFile;
+        private System.Windows.Forms.DataGridViewTextBoxColumn OutputDescription;
+        private System.Windows.Forms.DataGridViewTextBoxColumn OutputLine;
     }
 }
