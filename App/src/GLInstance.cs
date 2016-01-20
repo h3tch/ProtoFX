@@ -1,6 +1,5 @@
 ﻿using OpenTK;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -22,13 +21,13 @@ namespace App
             var err = new CompileException($"instance '{@params.name}'");
 
             // PARSE TEXT TO COMMANDS
-            var body = new Commands(@params.cmdText, @params.cmdPos, err);
+            var body = new Commands(@params.text, @params.file, @params.cmdLine, @params.cmdPos, err);
 
             // GET CLASS COMMAND
             var cmds = body["class"].ToList();
             if (cmds.Count == 0)
-                throw err.Add("Instance must specify a 'class' command " +
-                    "(e.g., class csharp_name class_name).", @params.namePos);
+                throw err.Add("Instance must specify a 'class' command (e.g., class csharp_name " +
+                    "class_name).", @params.file, @params.nameLine, @params.namePos);
             var cmd = cmds.First();
 
             // FIND CSHARP CLASS DEFINITION
@@ -36,12 +35,12 @@ namespace App
             if (csharp == null)
             {
                 err.Add($"Could not find csharp code '{cmd.args[0]}' of command '{cmd.cmd} "
-                    + string.Join(" ", cmd.args) + "'.", cmd.pos);
+                    + string.Join(" ", cmd.args) + "'.", cmd.file, cmd.line, cmd.pos);
                 return;
             }
 
             // INSTANTIATE CSHARP CLASS
-            instance = csharp.CreateInstance(cmd.args[1], name, body.ToDict(), cmd.pos, err);
+            instance = csharp.CreateInstance(cmd.args[1], name, body.ToDict(), cmd.file, cmd.line, cmd.pos, err);
             if (err.HasErrors())
                 throw err;
 

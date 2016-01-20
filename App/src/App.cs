@@ -166,6 +166,8 @@ namespace App
             // generate debug information?
             var debugging = sender == toolBtnDbg;
 
+            var root = Compiler.Compile(sourceTab.filepath);
+
             // remove comments
             var linePos = CodeEditor.GetLinePositions(compiledEditor.Text);
             var code = CodeEditor.IncludeFiles(compiledEditor.Text, includeDir, linePos);
@@ -178,7 +180,7 @@ namespace App
 
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
             var ex = blocks
-                .Catch(x => glControl.AddObject(x.text, x.pos, includeDir, debugging))
+                .Catch(x => glControl.AddObject(x.Text, x.File, x.Line, x.Pos, includeDir, debugging))
                 .ToArray();
 
             // show errors

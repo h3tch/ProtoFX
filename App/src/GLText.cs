@@ -10,7 +10,7 @@
         /// <param name="params">Input parameters for GLObject creation.</param>
         public GLText(GLParams @params) : base(@params)
         {
-            text = @params.cmdText;
+            text = @params.text;
         }
 
         public override void Delete() { }

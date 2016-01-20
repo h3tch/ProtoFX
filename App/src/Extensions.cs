@@ -29,6 +29,48 @@ namespace App
             return Regex.Match(s, $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
                 $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
         }
+
+        public static int LineFromPosition(this string s, int position)
+        {
+            int lineCount = 0;
+
+            for (int i = 0; i < position; i++)
+            {
+                if (s[i] == '\n')
+                {
+                    lineCount++;
+                }
+                else if (s[i] == '\r')
+                {
+                    if (s[i + 1] == '\n')
+                        i++;
+                    lineCount++;
+                }
+            }
+
+            return lineCount;
+        }
+
+        public static int PositionFromLine(this string s, int line)
+        {
+            int i = 0;
+
+            for (int l = 0; i < s.Length && l < line; i++)
+            {
+                if (s[i] == '\n')
+                {
+                    l++;
+                }
+                else if (s[i] == '\r')
+                {
+                    if (s[i + 1] == '\n')
+                        i++;
+                    l++;
+                }
+            }
+
+            return i;
+        }
         #endregion
 
         #region Extensions For All Types
@@ -38,6 +80,18 @@ namespace App
         #endregion
 
         #region IEnumerable<T> Extensions
+        public static T FindOrDefault<T>(this IEnumerable<T> ie, Func<T, bool> func)
+        {
+            int i = 0;
+            foreach (var e in ie)
+            {
+                if (func(e))
+                    return e;
+                i++;
+            }
+            return default(T);
+        }
+
         public static int IndexOf<T>(this IEnumerable<T> ie, Func<T, bool> func)
         {
             int i = 0;

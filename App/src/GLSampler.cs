@@ -19,7 +19,7 @@ namespace App
             var err = new CompileException($"sampler '{@params.name}'");
 
             // PARSE TEXT
-            var body = new Commands(@params.cmdText, @params.cmdPos, err);
+            var body = new Commands(@params.text, @params.file, @params.cmdLine, @params.cmdPos, err);
 
             // PARSE ARGUMENTS
             body.Cmds2Fields(this, err);
@@ -35,7 +35,7 @@ namespace App
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapS, ref wrapi);
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapT, ref wrapi);
 
-            HasErrorOrGlError(err, @params.namePos);
+            HasErrorOrGlError(err, @params.file, @params.nameLine, @params.namePos);
             if (err.HasErrors())
                 throw err;
         }

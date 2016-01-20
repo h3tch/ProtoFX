@@ -42,7 +42,7 @@ namespace App
             var err = new CompileException($"fragoutput '{@params.name}'");
 
             // PARSE TEXT
-            var body = new Commands(@params.cmdText, @params.cmdPos, err);
+            var body = new Commands(@params.text, @params.file, @params.cmdLine, @params.cmdPos, err);
 
             // PARSE ARGUMENTS
             body.Cmds2Fields(this, err);
@@ -53,7 +53,7 @@ namespace App
             
             // PARSE COMMANDS
             foreach (var cmd in body)
-                Attatch(err + $"command {cmd.idx} '{cmd.cmd}'", cmd, @params.scene);
+                Attach(err + $"command {cmd.idx} '{cmd.cmd}'", cmd, @params.scene);
 
             // if any errors occurred throw exception
             if (err.HasErrors())
@@ -65,10 +65,11 @@ namespace App
             Unbind();
 
             // final error checks
-            if (HasErrorOrGlError(err, @params.namePos))
+            if (HasErrorOrGlError(err, @params.file, @params.nameLine, @params.namePos))
                 throw err;
             if (status != FramebufferErrorCode.FramebufferComplete)
-                throw err.Add("Could not be created due to an unknown error.");
+                throw err.Add("Could not be created due to an unknown error.",
+                    @params.file, @params.nameLine, @params.namePos);
         }
         
         public void Bind()
@@ -97,14 +98,14 @@ namespace App
             }
         }
 
-        private void Attatch(CompileException err, Commands.Cmd cmd, Dict<GLObject> classes)
+        private void Attach(CompileException err, Commands.Cmd cmd, Dict<GLObject> classes)
         {
             // get OpenGL image
             GLImage glimg = classes.GetValue<GLImage>(cmd.args[0]);
             if (glimg == null)
             {
-                err.Add($"The name '{cmd.args[0]}' does not " +
-                    "reference an object of type 'image'.", cmd.pos);
+                err.Add($"The name '{cmd.args[0]}' does not reference " +
+                    "an object of type 'image'.", cmd.file, cmd.line, cmd.pos);
                 return;
             }
 
@@ -125,7 +126,7 @@ namespace App
                 $"{cmd.cmd}attachment{(cmd.cmd.Equals("color") ? "" + numAttachments++ : "")}",
                 true, out attachment))
             {
-                err.Add($"Invalid attachment point '{cmd.cmd}'.", cmd.pos);
+                err.Add($"Invalid attachment point '{cmd.cmd}'.", cmd.file, cmd.line, cmd.pos);
                 return;
             }
 
@@ -147,8 +148,8 @@ namespace App
                         attachment, glimg.target, glimg.glname, mipmap);
                     break;
                 default:
-                    err.Add($"The texture type '{glimg.target}' of image " +
-                        "'{cmd.args[0]}' is not supported.", cmd.pos);
+                    err.Add($"The texture type '{glimg.target}' of image '{cmd.args[0]}' " +
+                        "is not supported.", cmd.file, cmd.line, cmd.pos);
                     break;
             }
         }

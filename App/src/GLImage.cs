@@ -65,7 +65,7 @@ namespace App
             var err = new CompileException($"image '{@params.name}'");
 
             // PARSE TEXT
-            var cmds = new Commands(@params.cmdText, @params.cmdPos, err);
+            var cmds = new Commands(@params.text, @params.file, @params.cmdLine, @params.cmdPos, err);
 
             // PARSE ARGUMENTS
             cmds.Cmds2Fields(this, err);
@@ -90,7 +90,8 @@ namespace App
                 else
                     err.Add("Texture type could not be derived from 'width', 'height', "
                         + "'depth' and 'length'. Please check these parameters or specify "
-                        + "the type directly (e.g. 'type = texture2D').", @params.namePos);
+                        + "the type directly (e.g. 'type = texture2D').",
+                        @params.file, @params.nameLine, @params.namePos);
             }
 
             // LOAD IMAGE DATA
@@ -123,7 +124,7 @@ namespace App
                 GL.GenerateMipmap((GenerateMipmapTarget)target);
 
             GL.BindTexture(target, 0);
-            if (HasErrorOrGlError(err, @params.namePos))
+            if (HasErrorOrGlError(err, @params.file, @params.nameLine, @params.namePos))
                 throw err;
         }
 

@@ -15,13 +15,14 @@ namespace App
             var err = new CompileException($"tech '{@params.name}'");
 
             // PARSE TEXT
-            var body = new Commands(@params.cmdText, @params.cmdPos, err);
+            var body = new Commands(@params.text, @params.file, @params.cmdLine, @params.cmdPos, err);
 
             // PARSE COMMANDS
             GLPass pass;
             foreach (var cmd in body["pass"])
                 if (@params.scene.TryGetValue(cmd.args[0], out pass,
-                    @params.namePos, err + $"command {cmd.idx} 'pass'"))
+                    @params.file, @params.nameLine, @params.namePos,
+                    err + $"command {cmd.idx} 'pass'"))
                     passes.Add(pass);
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION

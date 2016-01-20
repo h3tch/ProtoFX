@@ -37,9 +37,9 @@ namespace App
         {
         }
 
-        public CompileException Add(string message, int pos = -1, string file = "")
+        public CompileException Add(string message, string file, int line, int pos)
         {
-            messages.Add(new Err(file, pos, callstackstring + message));
+            messages.Add(new Err(file, line, pos, callstackstring + message));
             return this;
         }
 
@@ -69,13 +69,15 @@ namespace App
         #region INNER CLASSES
         public struct Err
         {
-            public Err(string file, int pos, string msg)
+            public Err(string file, int line, int pos, string msg)
             {
                 File = file;
+                Line = line;
                 Pos = pos;
                 Msg = msg;
             }
             public string File;
+            public int Line;
             public int Pos;
             public string Msg;
         }

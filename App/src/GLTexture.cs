@@ -26,7 +26,7 @@ namespace App
             var err = new CompileException($"texture '{@params.name}'");
 
             // PARSE TEXT
-            var body = new Commands(@params.cmdText, @params.cmdPos, err);
+            var body = new Commands(@params.text, @params.file, @params.cmdLine, @params.cmdPos, err);
 
             // PARSE ARGUMENTS
             body.Cmds2Fields(this, err);
@@ -55,8 +55,8 @@ namespace App
             else if (this.glbuff != null)
             {
                 if (format == 0)
-                    throw err.Add($"No texture buffer format defined for " +
-                        $"buffer '{buff}' (e.g. format RGBA8).", @params.namePos);
+                    throw err.Add($"No texture buffer format defined for buffer '{buff}' " +
+                        "(e.g. format RGBA8).", @params.file, @params.nameLine, @params.namePos);
                 // CREATE OPENGL OBJECT
                 glname = GL.GenTexture();
                 GL.BindTexture(TextureTarget.TextureBuffer, glname);
@@ -64,7 +64,7 @@ namespace App
                 GL.BindTexture(TextureTarget.TextureBuffer, 0);
             }
 
-            if (HasErrorOrGlError(err, @params.namePos))
+            if (HasErrorOrGlError(err, @params.file, @params.nameLine, @params.namePos))
                 throw err;
         }
 
@@ -124,15 +124,17 @@ namespace App
         {
             // GET REFERENCES
             if (samp != null)
-                @params.scene.TryGetValue(samp, out glsamp, @params.namePos, err);
+                @params.scene.TryGetValue(samp, out glsamp, @params.file, @params.nameLine, @params.namePos, err);
             if (buff != null)
-                @params.scene.TryGetValue(buff, out glbuff, @params.namePos, err);
+                @params.scene.TryGetValue(buff, out glbuff, @params.file, @params.nameLine, @params.namePos, err);
             if (img != null)
-                @params.scene.TryGetValue(img, out glimg, @params.namePos, err);
+                @params.scene.TryGetValue(img, out glimg, @params.file, @params.nameLine, @params.namePos, err);
             if (glbuff != null && glimg != null)
-                err.Add("Only an image or a buffer can be bound to a texture object.");
+                err.Add("Only an image or a buffer can be bound to a texture object.",
+                    @params.file, @params.nameLine, @params.namePos);
             if (glbuff == null && glimg == null)
-                err.Add("Ether an image or a buffer has to be bound to a texture object.");
+                err.Add("Ether an image or a buffer has to be bound to a texture object.",
+                    @params.file, @params.nameLine, @params.namePos);
         }
 
         public string GetLable() => GetLable(glname);

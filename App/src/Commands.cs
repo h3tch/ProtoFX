@@ -14,7 +14,7 @@ namespace App
         public IEnumerable<Cmd> this[int key] => cmds.Where(x => x.idx == key);
         public IEnumerable<Cmd> this[string key] => cmds.Where(x => x.cmd == key);
 
-        public Commands(string body, int pos, CompileException err = null)
+        public Commands(string body, string file, int line, int pos, CompileException err)
         {
             // split into lines
             var linePos = CodeEditor.GetLinePositions(body);
@@ -36,6 +36,8 @@ namespace App
                     cmds.Add(new Cmd
                     {
                         idx = idx++,
+                        file = file,
+                        line = line + i,
                         pos = cmdPos,
                         cmd = args.First(),
                         args = args.Skip(1).ToArray()
@@ -43,7 +45,7 @@ namespace App
                 }
                 else
                     err?.Add($"Command[{idx++}] '{matches[0].Value}' " +
-                        "must specify at least one argument.", cmdPos);
+                        "must specify at least one argument.", file, line + i, cmdPos);
             }
         }
 
@@ -91,7 +93,8 @@ namespace App
         {
             // check for errors
             if (!fieldType.IsArray && cmd.args.Length > 1)
-                err?.Add($"Command '{cmd.cmd}' has too many arguments (more than one).", cmd.pos);
+                err?.Add($"Command '{cmd.cmd}' has too many arguments (more than one).",
+                    cmd.file, cmd.line, cmd.pos);
             
             var val = fieldType.IsArray ?
                 // if this is an array pass the arguments as string
@@ -119,14 +122,9 @@ namespace App
         #region INNER CLASSES
         public struct Cmd
         {
-            public Cmd(int idx, int pos, string cmd, string[] args)
-            {
-                this.idx = idx;
-                this.pos = pos;
-                this.cmd = cmd;
-                this.args = args;
-            }
             public int idx;
+            public string file;
+            public int line;
             public int pos;
             public string cmd;
             public string[] args;

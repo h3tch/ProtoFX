@@ -15,7 +15,7 @@ namespace App
             var err = new CompileException($"vertinput '{@params.name}'");
 
             // PARSE TEXT
-            var body = new Commands(@params.cmdText, @params.cmdPos, err);
+            var body = new Commands(@params.text, @params.file, @params.cmdLine, @params.cmdPos, err);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenVertexArray();
@@ -31,7 +31,7 @@ namespace App
 
             // unbind object and check for errors
             GL.BindVertexArray(0);
-            if (HasErrorOrGlError(err, @params.namePos))
+            if (HasErrorOrGlError(err, @params.file, @params.nameLine, @params.namePos))
                 throw err;
         }
 
@@ -40,7 +40,8 @@ namespace App
             // check commands for errors
             if (cmd.args.Length < 3)
             {
-                err.Add("Command attr needs at least 3 attributes (e.g. 'attr buff_name float 4')");
+                err.Add("Command attr needs at least 3 attributes (e.g. 'attr buff_name float 4')",
+                    cmd.file, cmd.line, cmd.pos);
                 return;
             }
 
@@ -53,9 +54,9 @@ namespace App
             int divisor = cmd.args.Length > 5 ? int.Parse(cmd.args[5]) : 0;
             
             GLBuffer buff;
-            if (classes.TryGetValue(buffname, out buff, cmd.pos, err) == false)
+            if (classes.TryGetValue(buffname, out buff, cmd.file, cmd.line, cmd.pos, err) == false)
             {
-                err.Add($"Buffer '{buffname}' could not be found.");
+                err.Add($"Buffer '{buffname}' could not be found.", cmd.file, cmd.line, cmd.pos);
                 return;
             }
 
@@ -71,7 +72,7 @@ namespace App
             else if (Enum.TryParse(typename, true, out typef))
                 GL.VertexAttribPointer(attrIdx, length, typef, false, stride, offset);
             else
-                err.Add($"Type '{typename}' is not supported.");
+                err.Add($"Type '{typename}' is not supported.", cmd.file, cmd.line, cmd.pos);
             
             if (divisor > 0)
                 GL.VertexAttribDivisor(attrIdx, divisor);

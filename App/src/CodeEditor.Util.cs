@@ -25,6 +25,29 @@ namespace App
         }
 
         /// <summary>
+        /// Find all new-line positions in a text.
+        /// </summary>
+        /// <param name="text">The string to process.</param>
+        /// <returns>Returns an array of new-line positions.</returns>
+        public static Inc[] GetIncludeInfo(string text)
+        {
+            var matches = Regex.Matches(text, @"^\s*#include \""[^""]*\""", RegexOptions.Multiline);
+            var incPos = new Inc[matches.Count];
+            
+            for (int i = 0; i < matches.Count; i++)
+            {
+                var file = Regex.Match(matches[i].Value, @"\""[^""]*\""").Value;
+                incPos[i] = new Inc(
+                    file.Substring(1, file.Length-2),
+                    matches[i].Index,
+                    matches[i].Index + matches[i].Length);
+
+            }
+
+            return incPos;
+        }
+
+        /// <summary>
         /// Remove /*...*/ and // comments.
         /// </summary>
         /// <param name="text">String to remove comments from.</param>
@@ -67,7 +90,7 @@ namespace App
         /// <param name="text">String to add included files to.</param>
         /// <param name="dir">The directory of the *.tech file.</param>
         /// <returns>String including include files.</returns>
-        public static string IncludeFiles(string text, string dir, int[] linePos = null)
+        public static string IncludeFiles(string text, string dir, int[] linePos = null, Inc[] incPos = null)
         {
             // find include files
             var matches = Regex.Matches(text, @"^\s*#include \""[^""]*\""", RegexOptions.Multiline);
@@ -115,7 +138,7 @@ namespace App
         /// </summary>
         /// <param name="text">String to resolve.</param>
         /// <returns>String with resolved #global definitions.</returns>
-        public static string ResolvePreprocessorDefinitions(string text, int[] linePos = null)
+        public static string ResolvePreprocessorDefinitions(string text, int[] linePos = null, Inc[] incPos = null)
         {
             // find include files
             var matches = Regex.Matches(text, @"#global(\s+\w+){2}");
@@ -194,22 +217,58 @@ namespace App
         /// </summary>
         /// <param name="text">String to process.</param>
         /// <returns>Returns an enumerable of all block strings.</returns>
-        public static IEnumerable<Block> GetBlocks(string text, int[] linePos = null)
+        public static IEnumerable<Block> GetBlocks(string text)
         {
             // return block text from block positions
             foreach (var block in GetBlockPositions(text))
-                yield return new Block(block[0], text.Substring(block[0], block[2] - block[0] + 1));
+                yield return new Block(null, -1, block[0], text.Substring(block[0], block[2] - block[0] + 1));
         }
 
-        public struct Block
+        public IEnumerable<Block> Compile(string dir)
         {
-            public int pos;
-            public string text;
-
-            public Block(int pos, string text)
+            var linePos = GetLinePositions(Text);
+            var incInfo = GetIncludeInfo(Text);
+            var code = IncludeFiles(Text, dir, linePos, incInfo);
+            code = RemoveComments(code);
+            code = RemoveNewLineIndicators(code);
+            code = ResolvePreprocessorDefinitions(code, linePos, incInfo);
+            var blocks = GetBlocks(code);
+            foreach (var block in blocks)
             {
-                this.pos = pos;
-                this.text = text;
+                block.File = incInfo.FindOrDefault(x => x.StartPos <= block.Pos && block.Pos < x.EndPos)?.File;
+                block.Line = linePos.IndexOf(x => x <= block.Pos);
+                block.Pos -= linePos[block.Line];
+            }
+            return blocks;
+        }
+
+        public class Block
+        {
+            public string File;
+            public int Line;
+            public int Pos;
+            public string Text;
+
+            public Block(string file, int line, int pos, string text)
+            {
+                File = file;
+                Line = line;
+                Pos = pos;
+                Text = text;
+            }
+        }
+
+        public class Inc
+        {
+            public string File;
+            public int StartPos;
+            public int EndPos;
+
+            public Inc(string file, int startpos, int endpos)
+            {
+                File = file;
+                StartPos = startpos;
+                EndPos = endpos;
             }
         }
     }

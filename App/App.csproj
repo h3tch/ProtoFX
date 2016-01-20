@@ -95,6 +95,7 @@
     <Compile Include="src\CodeEditor.Find.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="src\Compiler.cs" />
     <Compile Include="src\Extensions.cs" />
     <Compile Include="src\CodeEditor.cs">
       <SubType>Component</SubType>

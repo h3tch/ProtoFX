@@ -41,7 +41,7 @@ namespace App
             var err = new CompileException($"buffer '{@params.name}'");
 
             // PARSE TEXT TO COMMANDS
-            var cmds = new Commands(@params.cmdText, @params.cmdPos, err);
+            var cmds = new Commands(@params.text, @params.file, @params.cmdLine, @params.cmdPos, err);
 
             // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
             cmds.Cmds2Fields(this, err);
@@ -81,7 +81,7 @@ namespace App
             }
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            if (HasErrorOrGlError(err, @params.namePos))
+            if (HasErrorOrGlError(err, @params.file, @params.nameLine, @params.namePos))
                 throw err;
         }
 
@@ -148,11 +148,11 @@ namespace App
         private static byte[] LoadXml(CompileException err, string dir, Commands.Cmd cmd, Dict<GLObject> classes)
         {
             // Get text from file or text object
-            string str = getText(dir, cmd.args[0], classes);
+            string str = GetText(dir, classes, cmd, err);
             if (str == null)
             {
                 err.Add("Could not process command. Second argument must "
-                    + "be a name to a text object or a filename.", cmd.pos);
+                    + "be a name to a text object or a filename.", cmd.file, cmd.line, cmd.pos);
                 return null;
             }
 
@@ -172,7 +172,7 @@ namespace App
                     }
                     catch (CompileException ex)
                     {
-                        err.Add(ex.GetBaseException().Message, cmd.pos);
+                        err.Add(ex.GetBaseException().Message, cmd.file, cmd.line, cmd.pos);
                     }
                 }
 
@@ -182,7 +182,7 @@ namespace App
             }
             catch (Exception ex)
             {
-                err.Add(ex.GetBaseException().Message, cmd.pos);
+                err.Add(ex.GetBaseException().Message, cmd.file, cmd.line, cmd.pos);
             }
 
             return null;
@@ -191,11 +191,11 @@ namespace App
         private static byte[] loadText(CompileException err, string dir, Commands.Cmd cmd, Dict<GLObject> classes)
         {
             // Get text from file or text object
-            string str = getText(dir, cmd.args[0], classes);
+            string str = GetText(dir, classes, cmd, err);
             if (str == null)
             {
                 err.Add("Could not process command. Second argument must "
-                    + "be a name to a text object or a filename.", cmd.pos);
+                    + "be a name to a text object or a filename.", cmd.file, cmd.line, cmd.pos);
                 return null;
             }
 
@@ -203,15 +203,15 @@ namespace App
             return str.ToCharArray().ToBytes();
         }
 
-        private static string getText(string dir, string name, Dict<GLObject> classes)
+        private static string GetText(string dir, Dict<GLObject> classes, Commands.Cmd cmd, CompileException err)
         {
             GLText text;
-            if (classes.TryGetValue(name, out text))
+            if (classes.TryGetValue(cmd.args[0], out text, cmd.file, cmd.line, cmd.pos, err))
                 return text.text.Trim();
-            else if (File.Exists(name))
-                return File.ReadAllText(name);
-            else if (File.Exists(dir + name))
-                return File.ReadAllText(dir + name);
+            else if (File.Exists(cmd.args[0]))
+                return File.ReadAllText(cmd.args[0]);
+            else if (File.Exists(dir + cmd.args[0]))
+                return File.ReadAllText(dir + cmd.args[0]);
             return null;
         }
         #endregion

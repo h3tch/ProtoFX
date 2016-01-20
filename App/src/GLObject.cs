@@ -14,8 +14,11 @@ namespace App
     {
         public string name;
         public string anno;
-        public string cmdText;
+        public string text;
+        public int nameLine;
         public int namePos;
+        public string file;
+        public int cmdLine;
         public int cmdPos;
         public string dir;
         public Dict<GLObject> scene;
@@ -23,8 +26,11 @@ namespace App
         public GLParams(
             string name = null, 
             string anno = null,
-            string cmdText = null,
+            string text = null,
+            string file = null,
+            int nameLine = -1,
             int namePos = -1,
+            int cmdLine = -1,
             int cmdPos = -1,
             string dir = null, 
             Dict<GLObject> scene = null,
@@ -32,8 +38,11 @@ namespace App
         {
             this.name = name;
             this.anno = anno;
-            this.cmdText = cmdText;
+            this.text = text;
+            this.nameLine = nameLine;
             this.namePos = namePos;
+            this.file = file;
+            this.cmdLine = cmdLine;
             this.cmdPos = cmdPos;
             this.dir = dir;
             this.scene = scene;
@@ -70,15 +79,15 @@ namespace App
 
         public override string ToString() => name;
         
-        static protected bool HasErrorOrGlError(CompileException err, int pos = -1)
+        static protected bool HasErrorOrGlError(CompileException err, string file, int line, int pos)
         {
             var errcode = GL.GetError();
             if (errcode != ErrorCode.NoError)
             {
-                err?.Add($"OpenGL error '{errcode}' occurred.", pos);
+                err.Add($"OpenGL error '{errcode}' occurred.", file, line, pos);
                 return true;
             }
-            return err != null ? err.HasErrors() : false;
+            return err.HasErrors();
         }
     }
 }

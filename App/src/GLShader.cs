@@ -22,15 +22,16 @@ namespace App
                 case "geom": type = ShaderType.GeometryShader; break;
                 case "frag": type = ShaderType.FragmentShader; break;
                 case "comp": type = ShaderType.ComputeShader; break;
-                default: throw err.Add($"Shader type '{@params.anno}' is not supported.", @params.namePos);
+                default: throw err.Add($"Shader type '{@params.anno}' is not supported.",
+                    @params.file, @params.nameLine, @params.namePos);
             }
 
             // ADD OR REMOVE DEBUG INFORMATION
-            @params.cmdText = GLDebugger.AddDebugCode(@params.cmdText, type, @params.debuging);
+            @params.text = GLDebugger.AddDebugCode(@params.text, type, @params.debuging);
 
             // CREATE OPENGL OBJECT
             glname = GL.CreateShader(type);
-            GL.ShaderSource(glname, @params.cmdText);
+            GL.ShaderSource(glname, @params.text);
             GL.CompileShader(glname);
 
             // CHECK FOR ERRORS
@@ -39,9 +40,9 @@ namespace App
             if (status != 1)
             {
                 var compilerErrors = GL.GetShaderInfoLog(glname);
-                throw err.Add("\n" + compilerErrors, @params.namePos);
+                throw err.Add("\n" + compilerErrors, @params.file, @params.nameLine, @params.namePos);
             }
-            if (HasErrorOrGlError(err, @params.namePos))
+            if (HasErrorOrGlError(err, @params.file, @params.nameLine, @params.namePos))
                 throw err;
         }
 

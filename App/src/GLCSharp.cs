@@ -27,7 +27,7 @@ namespace App
             var err = new CompileException($"csharp '{@params.name}'");
 
             // PARSE TEXT
-            var cmds = new Commands(@params.cmdText, @params.cmdPos, err);
+            var cmds = new Commands(@params.text, @params.file, @params.cmdLine, @params.cmdPos, err);
 
             // PARSE ARGUMENTS
             cmds.Cmds2Fields(this, err);
@@ -78,7 +78,7 @@ namespace App
             }
             catch (DirectoryNotFoundException ex)
             {
-                throw err.Add(ex.Message, @params.namePos);
+                throw err.Add(ex.Message, @params.file, @params.nameLine, @params.namePos);
             }
 
             // check for compiler errors
@@ -87,7 +87,7 @@ namespace App
                 string msg = "";
                 foreach (var message in compilerresults.Errors)
                     msg += "\n" + message;
-                throw err.Add(msg, @params.namePos);
+                throw err.Add(msg, @params.file, @params.nameLine, @params.namePos);
             }
         }
 
@@ -100,7 +100,7 @@ namespace App
         /// <param name="err">[OPTIONAL] Error and exception collector.</param>
         /// <returns></returns>
         public object CreateInstance(string classname, string name, Dictionary<string,string[]> cmds,
-            int pos, CompileException err)
+            string file, int line, int pos, CompileException err)
         {
             // create main class from compiled files
             var instance = compilerresults.CompiledAssembly.CreateInstance(
@@ -108,10 +108,10 @@ namespace App
                 new object[] { name, cmds }, App.culture, null);
 
             if (instance == null)
-                throw err.Add($"Main class '{classname}' could not be found.", pos);
+                throw err.Add($"Main class '{classname}' could not be found.", file, line, pos);
             
             List<string> errors = InvokeMethod<List<string>>(instance, "GetErrors");
-            errors?.ForEach(msg => err.Add(msg, pos));
+            errors?.ForEach(msg => err.Add(msg, file, line, pos));
 
             return instance;
         }

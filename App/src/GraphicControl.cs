@@ -69,12 +69,12 @@ namespace OpenTK
         /// </summary>
         /// <param name="block"></param>
         /// <param name="incDir"></param>
-        public void AddObject(string block, int pos, string incDir, bool debuging)
+        public void AddObject(string block, string file, int line, int pos, string incDir, bool debuging)
         {
             // PARSE CLASS INFO
             var classDef = ExtraxtClassDef(block);
             if (classDef.Length < 2)
-                throw new CompileException(classDef[0]).Add("Invalid class definition.");
+                throw new CompileException(classDef[0]).Add("Invalid class definition.", file, line, pos);
 
             // PARSE CLASS TEXT
             var cmdPos = block.IndexOf('{') + 1;
@@ -91,13 +91,13 @@ namespace OpenTK
             // check for errors
             if (type == null)
                 throw new CompileException($"{classDef[0]} '{name}'")
-                    .Add($"Class type '{classDef[0]}' not known.", pos);
+                    .Add($"Class type '{classDef[0]}' not known.", file, line, pos);
             if (scene.ContainsKey(name))
                 throw new CompileException($"{classDef[0]} '{name}'")
-                    .Add($"Class name '{name}' already exists.", pos);
+                    .Add($"Class name '{name}' already exists.", file, line, pos);
 
             // instantiate class
-            var @params = new GLParams(name, anno, cmdStr, pos, pos + cmdPos, incDir, scene, debuging);
+            var @params = new GLParams(name, anno, cmdStr, file, line, pos, line, pos + cmdPos, incDir, scene, debuging);
             var instance = (GLObject)Activator.CreateInstance(type, @params);
             scene.Add(instance.name, instance);
         }
