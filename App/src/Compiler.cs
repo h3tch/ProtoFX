@@ -37,6 +37,25 @@ namespace App
                 block = ProcessBlocks().ToArray();
             }
 
+            public IEnumerable<Block> GetBlocks(bool includeIncludeFiles = true)
+            {
+                for (int iInc = 0, iBlock = 0; (includeIncludeFiles && iInc < include.Length) || iBlock < block.Length;)
+                {
+                    if (iBlock < block.Length)
+                        if (includeIncludeFiles && iInc < include.Length)
+                            if (include[iInc].position < block[iBlock].position)
+                                foreach (var b in include[iInc++].GetBlocks().ToArray())
+                                    yield return b;
+                            else
+                                yield return block[iBlock++];
+                        else
+                            yield return block[iBlock++];
+                    else if(includeIncludeFiles)
+                        foreach (var b in include[iInc++].GetBlocks().ToArray())
+                            yield return b;
+                }
+            }
+
             private IEnumerable<File> ProcessIncludes()
             {
                 // get directory form path
@@ -111,6 +130,13 @@ namespace App
                 commands = ProcessCommands().ToArray();
             }
 
+            public IEnumerable<Command> GetCommands(string type = null)
+            {
+                foreach (var cmd in commands)
+                    if (type == null || cmd.argument[0].text == type)
+                        yield return cmd;
+            }
+
             private IEnumerable<Command> ProcessCommands()
             {
                 // split the command body of the block into lines
@@ -161,7 +187,7 @@ namespace App
                 {
                     if (chars[i] == '"')
                         inQuote = !inQuote;
-                    if (!inQuote && (chars[i] == ' ' || chars[i] == '\t' || chars[i] == '\r'))
+                    if (!inQuote && new[] { ' ', '\t', '\r' }.Any(x => x == chars[i]))
                         chars[i] = '\n';
                 }
                 var commandLine = new string(chars);
