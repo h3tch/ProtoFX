@@ -6,6 +6,24 @@ namespace App
     {
         private List<GLPass> passes = new List<GLPass>();
 
+        public GLTech(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+            : base(block.Name, block.Anno)
+        {
+            var err = new CompileException($"tech '{name}'");
+
+            // PARSE COMMANDS
+            GLPass pass;
+            foreach (var cmd in block["pass"])
+                if (scene.TryGetValue(cmd[0].Text, out pass,
+                    block.File, block.Line, block.Position,
+                    err + $"command '{cmd.Text}'"))
+                    passes.Add(pass);
+
+            // IF THERE ARE ERRORS THROW AND EXCEPTION
+            if (err.HasErrors())
+                throw err;
+        }
+
         /// <summary>
         /// Create OpenGL object.
         /// </summary>

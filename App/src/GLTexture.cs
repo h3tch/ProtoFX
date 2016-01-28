@@ -13,13 +13,57 @@ namespace App
         private GLBuffer glbuff = null;
         private GLImage glimg = null;
         #endregion
+        
+        public GLTexture(Compiler.Block block, Dict<GLObject> scene, GLSampler glsamp, GLBuffer glbuff, GLImage glimg)
+            : base(block.Name, block.Anno)
+        {
+            var err = new CompileException($"texture '{name}'");
 
-        /// <summary>
-        /// </summary>
-        /// <param name="params"></param>
-        /// <param name="samp"></param>
-        /// <param name="buff"></param>
-        /// <param name="img"></param>
+            // PARSE ARGUMENTS
+            Cmds2Fields(this, block, err);
+
+            // set name
+            this.glsamp = glsamp;
+            this.glbuff = glbuff;
+            this.glimg = glimg;
+
+            // GET REFERENCES
+            GetReferences(samp, buff, img, block, scene, err);
+
+            // IF THERE ARE ERRORS THROW AND EXCEPTION
+            if (err.HasErrors())
+                throw err;
+
+            // INCASE THIS IS A TEXTURE OBJECT
+            if (this.glimg != null)
+            {
+                glname = this.glimg.glname;
+                // get internal format
+                int f;
+                GL.GetTextureLevelParameter(glname, 0, GetTextureParameter.TextureInternalFormat, out f);
+                format = (GpuFormat)f;
+            }
+            else if (this.glbuff != null)
+            {
+                if (format == 0)
+                    throw err.Add($"No texture buffer format defined for buffer '{buff}' " +
+                        "(e.g. format RGBA8).", block.File, block.Line, block.Position);
+                // CREATE OPENGL OBJECT
+                glname = GL.GenTexture();
+                GL.BindTexture(TextureTarget.TextureBuffer, glname);
+                GL.TexBuffer(TextureBufferTarget.TextureBuffer, (SizedInternalFormat)format, this.glbuff.glname);
+                GL.BindTexture(TextureTarget.TextureBuffer, 0);
+            }
+
+            if (HasErrorOrGlError(err, block.File, block.Line, block.Position))
+                throw err;
+        }
+
+        public GLTexture(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+            : this(block, scene, null, null, null)
+        {
+        }
+
         public GLTexture(GLParams @params, GLSampler glsamp, GLBuffer glbuff, GLImage glimg)
             : base(@params)
         {
@@ -135,6 +179,24 @@ namespace App
             if (glbuff == null && glimg == null)
                 err.Add("Ether an image or a buffer has to be bound to a texture object.",
                     @params.file, @params.nameLine, @params.namePos);
+        }
+
+        public void GetReferences(string samp, string buff, string img, Compiler.Block block,
+            Dict<GLObject> scene, CompileException err)
+        {
+            // GET REFERENCES
+            if (samp != null)
+                scene.TryGetValue(samp, out glsamp, block.File, block.Line, block.Position, err);
+            if (buff != null)
+                scene.TryGetValue(buff, out glbuff, block.File, block.Line, block.Position, err);
+            if (img != null)
+                scene.TryGetValue(img, out glimg, block.File, block.Line, block.Position, err);
+            if (glbuff != null && glimg != null)
+                err.Add("Only an image or a buffer can be bound to a texture object.",
+                    block.File, block.Line, block.Position);
+            if (glbuff == null && glimg == null)
+                err.Add("Ether an image or a buffer has to be bound to a texture object.",
+                    block.File, block.Line, block.Position);
         }
 
         public string GetLable() => GetLable(glname);

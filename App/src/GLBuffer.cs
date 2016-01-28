@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Xml;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace App
 {
@@ -15,6 +14,73 @@ namespace App
         [Field] public int size { get; private set; } = 0;
         [Field] public BufferUsageHint usage { get; private set; } = BufferUsageHint.StaticDraw;
         #endregion
+
+        /// <summary>
+        /// Link GLBuffer to existing OpenGL buffer. Used
+        /// to provide debug information in the debug view.
+        /// </summary>
+        /// <param name="params">Input parameters for GLObject creation.</param>
+        /// <param name="glname">OpenGL buffer object to like to.</param>
+        public GLBuffer(Compiler.Block block, int glname) : base(block.Name, block.Anno)
+        {
+            int s, u;
+            this.glname = glname;
+            GL.GetNamedBufferParameter(glname, BufferParameterName.BufferSize, out s);
+            GL.GetNamedBufferParameter(glname, BufferParameterName.BufferUsage, out u);
+            size = s;
+            usage = (BufferUsageHint)u;
+        }
+
+        /// <summary>
+        /// Create OpenGL object.
+        /// </summary>
+        /// <param name="params">Input parameters for GLObject creation.</param>
+        public GLBuffer(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+            : base(block.Name, block.Anno)
+        {
+            var err = new CompileException($"buffer '{block.Name}'");
+
+            // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
+            Cmds2Fields(this, block, err);
+
+            // PARSE COMMANDS
+            List<byte[]> datalist = new List<byte[]>();
+
+            foreach (var cmd in block["txt"])
+                datalist.Add(loadText(err + $"command {cmd.Name} 'txt'", cmd, scene));
+
+            foreach (var cmd in block["xml"])
+                datalist.Add(LoadXml(err + $"command {cmd.Name} 'xml'", cmd, scene));
+
+            // merge data into a single array
+            var iter = datalist.Join();
+            var data = iter.Take(size == 0 ? iter.Count() : size).ToArray();
+            if (size == 0)
+                size = data.Length;
+
+            // CREATE OPENGL OBJECT
+            glname = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
+
+            // ALLOCATE (AND WRITE) GPU MEMORY
+            if (size > 0)
+            {
+                if (data.Length > 0)
+                {
+                    size = data.Length;
+                    var dataPtr = Marshal.AllocHGlobal(size);
+                    Marshal.Copy(data, 0, dataPtr, size);
+                    GL.NamedBufferData(glname, size, dataPtr, usage);
+                    Marshal.FreeHGlobal(dataPtr);
+                }
+                else
+                    GL.NamedBufferData(glname, size, IntPtr.Zero, usage);
+            }
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            if (HasErrorOrGlError(err, block.File, block.Line, block.Position))
+                throw err;
+        }
 
         /// <summary>
         /// Link GLBuffer to existing OpenGL buffer. Used
@@ -188,6 +254,49 @@ namespace App
             return null;
         }
 
+        private static byte[] LoadXml(CompileException err, Compiler.Command cmd, Dict<GLObject> scene)
+        {
+            // Get text from file or text object
+            string str = GetText(scene, cmd, err);
+            if (str == null)
+            {
+                err.Add("Could not process command. Second argument must "
+                    + "be a name to a text object or a filename.", cmd.File, cmd.Line, cmd.Position);
+                return null;
+            }
+
+            try
+            {
+                // Parse XML string
+                var document = new XmlDocument();
+                document.LoadXml(str);
+
+                // Load data from XML
+                byte[][] filedata = new byte[cmd.ArgCount - 1][];
+                for (int i = 1; i < cmd.ArgCount; i++)
+                {
+                    try
+                    {
+                        filedata[i - 1] = DataXml.Load(document, cmd[i].Text);
+                    }
+                    catch (CompileException ex)
+                    {
+                        err.Add(ex.GetBaseException().Message, cmd.File, cmd.Line, cmd.Position);
+                    }
+                }
+
+                // Merge data
+                if (!err.HasErrors())
+                    return filedata.Join().ToArray();
+            }
+            catch (Exception ex)
+            {
+                err.Add(ex.GetBaseException().Message, cmd.File, cmd.Line, cmd.Position);
+            }
+
+            return null;
+        }
+
         private static byte[] loadText(CompileException err, string dir, Commands.Cmd cmd, Dict<GLObject> classes)
         {
             // Get text from file or text object
@@ -196,6 +305,21 @@ namespace App
             {
                 err.Add("Could not process command. Second argument must "
                     + "be a name to a text object or a filename.", cmd.file, cmd.line, cmd.pos);
+                return null;
+            }
+
+            // Convert text to byte array
+            return str.ToCharArray().ToBytes();
+        }
+
+        private static byte[] loadText(CompileException err, Compiler.Command cmd, Dict<GLObject> scene)
+        {
+            // Get text from file or text object
+            string str = GetText(scene, cmd, err);
+            if (str == null)
+            {
+                err.Add("Could not process command. Second argument must "
+                    + "be a name to a text object or a filename.", cmd.File, cmd.Line, cmd.Position);
                 return null;
             }
 
@@ -212,6 +336,19 @@ namespace App
                 return File.ReadAllText(cmd.args[0]);
             else if (File.Exists(dir + cmd.args[0]))
                 return File.ReadAllText(dir + cmd.args[0]);
+            return null;
+        }
+
+        private static string GetText(Dict<GLObject> scene, Compiler.Command cmd, CompileException err)
+        {
+            GLText text;
+            string dir = Path.GetDirectoryName(cmd.File) + Path.DirectorySeparatorChar;
+            if (scene.TryGetValue(cmd[0].Text, out text, cmd.File, cmd.Line, cmd.Position, err))
+                return text.text.Trim();
+            else if (File.Exists(cmd[0].Text))
+                return File.ReadAllText(cmd[0].Text);
+            else if (File.Exists(dir + cmd[0].Text))
+                return File.ReadAllText(dir + cmd[0].Text);
             return null;
         }
         #endregion

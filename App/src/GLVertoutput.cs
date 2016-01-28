@@ -15,15 +15,13 @@ namespace App
         /// Create OpenGL object.
         /// </summary>
         /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLVertoutput(GLParams @params) : base(@params)
+        public GLVertoutput(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+            : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"vertoutput '{@params.name}'");
-
-            // PARSE TEXT
-            var body = new Commands(@params.text, @params.file, @params.cmdLine, @params.cmdPos, err);
+            var err = new CompileException($"vertoutput '{name}'");
 
             // PARSE ARGUMENTS
-            body.Cmds2Fields(this, err);
+            Cmds2Fields(this, block, err);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenTransformFeedback();
@@ -31,8 +29,8 @@ namespace App
 
             // parse commands
             int numbindings = 0;
-            foreach (var cmd in body["buff"])
-                Attach(err + $"command {cmd.idx} 'buff'", numbindings++, cmd, @params.scene);
+            foreach (var cmd in block["buff"])
+                Attach(err + $"command '{cmd.Text}'", numbindings++, cmd, scene);
 
             // if errors occurred throw exception
             if (err.HasErrors())
@@ -40,7 +38,7 @@ namespace App
 
             // unbind object and check for errors
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, 0);
-            if (HasErrorOrGlError(err, @params.file, @params.nameLine, @params.namePos))
+            if (HasErrorOrGlError(err, block.File, block.Line, block.Position))
                 throw err;
         }
 
@@ -80,6 +78,47 @@ namespace App
                 GL.DeleteTransformFeedback(glname);
                 glname = 0;
             }
+        }
+
+        private void Attach(CompileException err, int unit, Compiler.Command cmd, Dict<GLObject> classes)
+        {
+            if (cmd.ArgCount == 0)
+            {
+                err.Add("Command buff needs at least one attribute (e.g. 'buff buff_name')",
+                    cmd.File, cmd.Line, cmd.Position);
+                return;
+            }
+
+            // get buffer
+            GLBuffer buf = classes.GetValue<GLBuffer>(cmd[0].Text);
+            if (buf == null)
+            {
+                err.Add($"The name '{cmd[0]}' does not reference an object of type 'buffer'.",
+                    cmd.File, cmd.Line, cmd.Position);
+                return;
+            }
+
+            // parse offset
+            int offset = 0;
+            if (cmd.ArgCount > 1 && int.TryParse(cmd[1].Text, out offset) == false)
+            {
+                err.Add($"The second parameter (offset) of buff {unit} is invalid.",
+                    cmd.File, cmd.Line, cmd.Position);
+                return;
+            }
+
+            // parse size
+            int size = buf.size;
+            if (cmd.ArgCount > 2 && int.TryParse(cmd[2].Text, out size) == false)
+            {
+                err.Add($"The third parameter (size) of buff {unit} is invalid.",
+                    cmd.File, cmd.Line, cmd.Position);
+                return;
+            }
+
+            // bind buffer to transform feedback
+            GL.BindBufferRange(BufferRangeTarget.TransformFeedbackBuffer,
+                unit, buf.glname, (IntPtr)offset, (IntPtr)size);
         }
 
         private void Attach(CompileException err, int unit, Commands.Cmd cmd, Dict<GLObject> classes)

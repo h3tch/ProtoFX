@@ -3,6 +3,11 @@
     class GLReference : GLObject
     {
         public object reference { get; }
+        
+        public GLReference(Compiler.Block block, object reference) : base(block.Name, block.Anno)
+        {
+            this.reference = reference;
+        }
 
         /// <summary>
         /// Instantiate and initialize object.

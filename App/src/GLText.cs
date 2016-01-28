@@ -4,6 +4,12 @@
     {
         public string text { get; private set; }
 
+        public GLText(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+            : base(block.Name, block.Anno)
+        {
+            text = block.Text;
+        }
+
         /// <summary>
         /// Create OpenGL object.
         /// </summary>

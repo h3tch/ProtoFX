@@ -69,7 +69,7 @@ namespace OpenTK
         /// </summary>
         /// <param name="block"></param>
         /// <param name="incDir"></param>
-        public void AddObject(string block, string file, int line, int pos, string incDir, bool debuging)
+        public void AddObject(string block, string file, int line, int pos, string incDir, bool debugging)
         {
             // PARSE CLASS INFO
             var classDef = ExtraxtClassDef(block);
@@ -97,7 +97,7 @@ namespace OpenTK
                     .Add($"Class name '{name}' already exists.", file, line, pos);
 
             // instantiate class
-            var @params = new GLParams(name, anno, cmdStr, file, line, pos, line, pos + cmdPos, incDir, scene, debuging);
+            var @params = new GLParams(name, anno, cmdStr, file, line, pos, line, pos + cmdPos, incDir, scene, debugging);
             var instance = (GLObject)Activator.CreateInstance(type, @params);
             scene.Add(instance.name, instance);
         }

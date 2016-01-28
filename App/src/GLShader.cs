@@ -4,6 +4,58 @@ namespace App
 {
     class GLShader : GLObject
     {
+        public GLShader(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+            : base(block.Name, block.Anno)
+        {
+            var err = new CompileException($"shader '{name}'");
+
+            // CREATE OPENGL OBJECT
+            ShaderType type;
+            switch (anno)
+            {
+                case "vert":
+                    type = ShaderType.VertexShader;
+                    break;
+                case "tess":
+                    type = ShaderType.TessControlShader;
+                    break;
+                case "eval":
+                    type = ShaderType.TessEvaluationShader;
+                    break;
+                case "geom":
+                    type = ShaderType.GeometryShader;
+                    break;
+                case "frag":
+                    type = ShaderType.FragmentShader;
+                    break;
+                case "comp":
+                    type = ShaderType.ComputeShader;
+                    break;
+                default:
+                    throw err.Add($"Shader type '{anno}' is not supported.",
+                        block.File, block.Line, block.Position);
+            }
+
+            // ADD OR REMOVE DEBUG INFORMATION
+            var text = GLDebugger.AddDebugCode(block.Text, type, debugging);
+
+            // CREATE OPENGL OBJECT
+            glname = GL.CreateShader(type);
+            GL.ShaderSource(glname, text);
+            GL.CompileShader(glname);
+
+            // CHECK FOR ERRORS
+            int status;
+            GL.GetShader(glname, ShaderParameter.CompileStatus, out status);
+            if (status != 1)
+            {
+                var compilerErrors = GL.GetShaderInfoLog(glname);
+                throw err.Add("\n" + compilerErrors, block.File, block.Line, block.Position);
+            }
+            if (HasErrorOrGlError(err, block.File, block.Line, block.Position))
+                throw err;
+        }
+
         /// <summary>
         /// Create OpenGL object.
         /// </summary>
@@ -27,7 +79,7 @@ namespace App
             }
 
             // ADD OR REMOVE DEBUG INFORMATION
-            @params.text = GLDebugger.AddDebugCode(@params.text, type, @params.debuging);
+            @params.text = GLDebugger.AddDebugCode(@params.text, type, @params.debugging);
 
             // CREATE OPENGL OBJECT
             glname = GL.CreateShader(type);

@@ -1,5 +1,10 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text;
+using static System.Reflection.BindingFlags;
 
 namespace App
 {
@@ -22,7 +27,7 @@ namespace App
         public int cmdPos;
         public string dir;
         public Dict<GLObject> scene;
-        public bool debuging;
+        public bool debugging;
         public GLParams(
             string name = null, 
             string anno = null,
@@ -34,7 +39,7 @@ namespace App
             int cmdPos = -1,
             string dir = null, 
             Dict<GLObject> scene = null,
-            bool debuging = false)
+            bool debugging = false)
         {
             this.name = name;
             this.anno = anno;
@@ -46,7 +51,7 @@ namespace App
             this.cmdPos = cmdPos;
             this.dir = dir;
             this.scene = scene;
-            this.debuging = debuging;
+            this.debugging = debugging;
         }
     }
 
@@ -55,6 +60,13 @@ namespace App
         public int glname { get; protected set; }
         [Field] public string name { get; protected set; }
         public string anno { get; protected set; }
+
+        public GLObject(string name, string anno)
+        {
+            this.glname = 0;
+            this.name = name;
+            this.anno = anno;
+        }
 
         /// <summary>
         /// Instantiate and initialize object.
@@ -88,6 +100,51 @@ namespace App
                 return true;
             }
             return err.HasErrors();
+        }
+
+        protected void Cmds2Fields<T>(T clazz, Compiler.Block block, CompileException err = null)
+        {
+            var type = clazz.GetType();
+
+            foreach (var cmd in block)
+            {
+                // try to find a field with the respective name
+                var field = type.GetField(cmd.Name, Instance | Public | NonPublic);
+                var prop = type.GetProperty(cmd.Name, Instance | Public | NonPublic);
+                MemberInfo member = (MemberInfo)field ?? prop;
+
+                // if no field could be found go to the next command
+                if (member == null || member.GetCustomAttributes(typeof(Field), false).Length == 0)
+                    continue;
+
+                // set value of field
+                object val = (object)field ?? prop;
+                Type valtype = field?.FieldType ?? prop?.PropertyType;
+                SetValue(clazz, val, valtype, cmd, err);
+            }
+        }
+
+        static private void SetValue<T>(T clazz, object field, Type fieldType,
+            Compiler.Command cmd, CompileException err = null)
+        {
+            // check for errors
+            if (!fieldType.IsArray && cmd.ArgCount > 1)
+                err?.Add($"Command '{cmd.Name}' has too many arguments (more than one).",
+                    cmd.File, cmd.Line, cmd.Position);
+
+            var val = fieldType.IsArray ?
+                // if this is an array pass the arguments as string
+                cmd.Select(x => x.Text).ToArray() :
+                fieldType.IsEnum ?
+                    // if this is an enum, convert the string to an enum value
+                    Convert.ChangeType(Enum.Parse(fieldType, cmd[0].Text, true), fieldType) :
+                    // else try to convert it to the field type
+                    Convert.ChangeType(cmd[0], fieldType, App.culture);
+
+            var SetValue = field.GetType().GetMethod(
+                "SetValue", new Type[] { typeof(object), typeof(object) });
+
+            SetValue.Invoke(field, new object[] { clazz, val });
         }
     }
 }

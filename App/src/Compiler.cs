@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,8 +11,17 @@ namespace App
     {
         public static File Compile(string path) => new File(path);
 
-        public class File
+        public class File : IEnumerable<Block>
         {
+            public File owner { get; private set; }
+            public string path { get; private set; }
+            public int position { get; private set; }
+            public int line { get; private set; }
+            public string text { get; private set; }
+            public File[] include { get; private set; }
+            public Block[] block { get; private set; }
+            private static HashSet<string> incpath = new HashSet<string>();
+
             public File(string path, File owner = null, int position = 0, int line = 0)
             {
                 this.owner = owner;
@@ -19,7 +29,7 @@ namespace App
                 this.line = line;
                 this.path = path;
 
-
+                // does the include file exist
                 if (!System.IO.File.Exists(path))
                     throw new FileNotFoundException("Compilation aborted " +
                         $"because '{path}' could not be found.");
@@ -37,20 +47,37 @@ namespace App
                 block = ProcessBlocks().ToArray();
             }
 
+            /// <summary>
+            /// Get all blocks related to this file.
+            /// </summary>
+            /// <param name="includeIncludeFiles">Include included file blocks.</param>
+            /// <returns>Returns a list of blocks sorted by occurrence.</returns>
             public IEnumerable<Block> GetBlocks(bool includeIncludeFiles = true)
             {
-                for (int iInc = 0, iBlock = 0; (includeIncludeFiles && iInc < include.Length) || iBlock < block.Length;)
+                int iInc = 0, iBlock = 0;
+                // iterate through the sorted block lists
+                while ((includeIncludeFiles && iInc < include.Length) || iBlock < block.Length)
                 {
+                    // DECIDE WHETHER TO READ THE NEXT BLOCK OR THE NEXT INCLUDE FILE
+
+                    // if there is any block left
                     if (iBlock < block.Length)
+                        // if include files should be included and there is any include file left
                         if (includeIncludeFiles && iInc < include.Length)
-                            if (include[iInc].position < block[iBlock].position)
+                            // which one is the next in the code
+                            if (include[iInc].position < block[iBlock].Position)
+                                // return include file blocks
                                 foreach (var b in include[iInc++].GetBlocks().ToArray())
                                     yield return b;
                             else
+                                // return block
                                 yield return block[iBlock++];
                         else
+                            // return block
                             yield return block[iBlock++];
-                    else if(includeIncludeFiles)
+                    // if include files should be included
+                    else if (includeIncludeFiles)
+                        // return include file blocks
                         foreach (var b in include[iInc++].GetBlocks().ToArray())
                             yield return b;
                 }
@@ -91,97 +118,122 @@ namespace App
                         text.LineFromPosition(match.Index), match.Value);
             }
 
-            public File owner;
-            public string path;
-            public int position;
-            public int line;
-            public string text;
-            public File[] include;
-            public Block[] block;
-            private static HashSet<string> incpath = new HashSet<string>();
+            #region IEnumerable Interface
+            public IEnumerator<Block> GetEnumerator() => GetBlocks().GetEnumerator();
+
+            IEnumerator<Block> IEnumerable<Block>.GetEnumerator() => GetBlocks().GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => GetBlocks().GetEnumerator();
+            #endregion
         }
 
-        public class Block
+        public class Block : IEnumerable<Command>
         {
+            public File Owner { get; private set; }
+            public int Position { get; private set; }
+            public int Line { get; private set; }
+            public string Text { get; private set; }
+            public string Type { get; private set; }
+            public string Name { get; private set; }
+            public string Anno { get; private set; }
+            public string File { get { return Owner.path; } }
+            public Command[] Cmds { get; private set; }
+            public Command this[int i] { get { return Cmds[i]; } }
+            public IEnumerable<Command> this[string name] { get { return GetCommands(name); } }
+
             public Block(File owner, int position, int line, string text)
             {
-                this.owner = owner;
-                this.position = position;
-                this.line = line;
-                this.text = text;
+                this.Owner = owner;
+                this.Position = position;
+                this.Line = line;
+                this.Text = text;
 
                 // find all words before the brace
                 var matches = Regex.Matches(text.Substring(0, text.IndexOf('{')), @"\w+");
 
                 // first word is the block type
                 if (matches.Count > 0)
-                    type = matches[0].Value;
+                    Type = matches[0].Value;
                 // if there are more than 2 words
                 // an annotation was provided
                 if (matches.Count > 2)
                 {
-                    anno = matches[1].Value;
-                    name = matches[2].Value;
+                    Anno = matches[1].Value;
+                    Name = matches[2].Value;
                 }
                 else if (matches.Count > 1)
-                    name = matches[1].Value;
+                    Name = matches[1].Value;
 
                 // process command body of the block
-                commands = ProcessCommands().ToArray();
+                Cmds = ProcessCommands().ToArray();
             }
-
-            public IEnumerable<Command> GetCommands(string type = null)
+            
+            /// <summary>
+            /// Get all commands of the parent block.
+            /// </summary>
+            /// <param name="name">Restrict the search to certain commands.</param>
+            /// <returns>Returns all commands sorted by occurrence.</returns>
+            public IEnumerable<Command> GetCommands(string name = null)
             {
-                foreach (var cmd in commands)
-                    if (type == null || cmd.argument[0].text == type)
+                foreach (var cmd in Cmds)
+                    if (name == null || cmd.Name == name)
                         yield return cmd;
             }
 
             private IEnumerable<Command> ProcessCommands()
             {
                 // split the command body of the block into lines
-                var braceOpen = text.IndexOf('{');
-                var braceClose = text.LastIndexOf('}');
-                var body = text.Substring(braceOpen + 1, braceClose - braceOpen - 2);
+                var braceOpen = Text.IndexOf('{');
+                var braceClose = Text.LastIndexOf('}');
+                var body = Text.Substring(braceOpen + 1, braceClose - braceOpen - 2);
                 var lines = body.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
 
                 // process each line for possible commands
                 for (int i = 0; i < lines.Length; i++)
                 {
-                    var cmd = new Command(this, text.PositionFromLine(i), i, lines[i]);
+                    var cmd = new Command(this, Text.PositionFromLine(i), i, lines[i]);
                     // only return valid commands
-                    if (cmd.argument.Length > 0)
+                    if (cmd.ArgCount > 0)
                         yield return cmd;
                 }
             }
 
-            public File owner;
-            public int position;
-            public int line;
-            public string text;
-            public string type;
-            public string name;
-            public string anno;
-            public Command[] commands;
+            #region IEnumerable Interface
+            public IEnumerator<Command> GetEnumerator() => GetCommands().GetEnumerator();
+
+            IEnumerator<Command> IEnumerable<Command>.GetEnumerator() => GetCommands().GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => GetCommands().GetEnumerator();
+            #endregion
         }
 
-        public class Command
+        public class Command : IEnumerable<Argument>
         {
+            public Block Owner { get; private set; }
+            public int Position { get; private set; }
+            public int Line { get; private set; }
+            public string Text { get; private set; }
+            private Argument[] Args { get; set; }
+            public string File { get { return Owner.Owner.path; } }
+            public string Name { get { return Args[0].Text; } }
+            public int ArgCount { get { return Args.Length - 1; } }
+            public Argument this[int i] { get { return Args[i + 1]; } }
+
             public Command(Block owner, int position, int line, string text)
             {
-                this.owner = owner;
-                this.position = position;
-                this.line = line;
-                this.text = text;
+                Owner = owner;
+                Position = position;
+                Line = line;
+                Text = text;
 
                 // process arguments in the command line
-                argument = ProcessArguments().ToArray();
+                Args = ProcessArguments().ToArray();
             }
             
             private IEnumerable<Argument> ProcessArguments()
             {
                 // replace all non word characters with \n
-                char[] chars = text.ToCharArray();
+                char[] chars = Text.ToCharArray();
                 bool inQuote = false;
                 for (int i = 0; i < chars.Length; i++)
                 {
@@ -200,26 +252,28 @@ namespace App
                     yield return new Argument(this, match.Index, 0, match.Value);
             }
 
-            public Block owner;
-            public int position;
-            public int line;
-            public string text;
-            public Argument[] argument;
+            #region IEnumerable Interface
+            public IEnumerator<Argument> GetEnumerator() => Args.Skip(1).GetEnumerator();
+
+            IEnumerator<Argument> IEnumerable<Argument>.GetEnumerator() => Args.Skip(1).GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => Args.Skip(1).GetEnumerator();
+            #endregion
         }
 
         public class Argument
         {
-            public Command owner;
-            public int position;
-            public int line;
-            public string text;
+            public Command Owner { get; private set; }
+            public int Position { get; private set; }
+            public int Line { get; private set; }
+            public string Text { get; private set; }
 
             public Argument(Command owner, int position, int line, string text)
             {
-                this.owner = owner;
-                this.position = position;
-                this.line = line;
-                this.text = text;
+                Owner = owner;
+                Position = position;
+                Line = line;
+                Text = text;
             }
         }
 
