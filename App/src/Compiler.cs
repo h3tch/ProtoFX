@@ -41,6 +41,7 @@ namespace App
 
                 // remove comments
                 Text = RemoveComments(System.IO.File.ReadAllText(path));
+                Text = ResolvePreprocessorDefinitions(Text);
                 Text = RemoveNewLineIndicators(Text);
 
                 // process all include files in the file
@@ -285,7 +286,7 @@ namespace App
         /// </summary>
         /// <param name="text">String to remove comments from.</param>
         /// <returns>String without comments.</returns>
-        private static string RemoveComments(string text)
+        public static string RemoveComments(string text)
         {
             var blockComments = @"/\*(.*?)\*/";
             var lineComments = @"//(.*?)\r?\n";
@@ -312,7 +313,7 @@ namespace App
         /// </summary>
         /// <param name="text">String to remove new line indicators from.</param>
         /// <returns>String without new line indicators.</returns>
-        private static string RemoveNewLineIndicators(string text)
+        public static string RemoveNewLineIndicators(string text)
             => Regex.Replace(text, @"\.\.\.(\s?)(\r\n|\n|\r)",
                 x => new string(' ', x.Value.Length),
                 RegexOptions.None);
@@ -354,6 +355,41 @@ namespace App
             }
 
             return text;
+        }
+
+        /// <summary>
+        /// Find all block positions in the string.
+        /// </summary>
+        /// <param name="text">String to process.</param>
+        /// <returns>Returns an enumerable with block positions
+        /// [class type index, '{' index, '}' index]</returns>
+        public static IEnumerable<int[]> GetBlockPositions(string text)
+        {
+            // find all '{' that potentially indicate a block
+            var blockBr = new List<int>();
+            for (int i = 0, count = 0, nline = 0; i < text.Length; i++)
+            {
+                if (text[i] == '\n')
+                    nline++;
+                if (text[i] == '{' && count++ == 0)
+                    blockBr.Add(i);
+                if (text[i] == '}' && --count == 0)
+                    blockBr.Add(i);
+                if (count < 0)
+                    throw new CompileException($"ERROR in line {nline}: Unexpected occurrence of '}}'.");
+            }
+
+            // find potential block positions
+            var matches = Regex.Matches(text, @"(\w+\s*){2,3}\{");
+
+            // where 'matches' and 'blockBr' are aligned we have a block
+            var blocks = new List<int[]>();
+            foreach (Match match in matches)
+            {
+                int idx = blockBr.IndexOf(match.Index + match.Length - 1);
+                if (idx >= 0)
+                    yield return new[] { match.Index, blockBr[idx], blockBr[idx + 1] };
+            }
         }
     }
 }

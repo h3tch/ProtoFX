@@ -22,7 +22,7 @@ namespace App
         private IEnumerable<string> SelectKeywords(int curPosition)
         {
             // get necessary information for keyword search
-            var text = RemoveComments(Text);
+            var text = Compiler.RemoveComments(Text);
             var block = BlockDef(text, curPosition).FirstOrDefault();
             var prev = PrecedingWord(text, curPosition);
             IEnumerable<string> result = null;
@@ -52,7 +52,7 @@ namespace App
         private IEnumerable<string> BlockDef(string text, int curPosition)
         {
             // find surrounding block
-            var block = (from x in GetBlockPositions(text)
+            var block = (from x in Compiler.GetBlockPositions(text)
                          where x[1] < curPosition && curPosition < x[2]
                          select x).FirstOrDefault();
 
