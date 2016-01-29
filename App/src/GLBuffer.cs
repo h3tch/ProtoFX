@@ -14,14 +14,37 @@ namespace App
         [Field] public int size { get; private set; } = 0;
         [Field] public BufferUsageHint usage { get; private set; } = BufferUsageHint.StaticDraw;
         #endregion
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="anno"></param>
+        /// <param name="usage"></param>
+        /// <param name="size"></param>
+        /// <param name="data"></param>
+        public GLBuffer(string name, string anno, BufferUsageHint usage, int size, byte[] data = null)
+            : base(name, anno)
+        {
+            var err = new CompileException($"buffer '{name}'");
+
+            this.size = size;
+            this.usage = usage;
+
+            // CREATE OPENGL OBJECT
+            CreateBuffer(data);
+            if (HasErrorOrGlError(err, "", -1, -1))
+                throw err;
+        }
 
         /// <summary>
         /// Link GLBuffer to existing OpenGL buffer. Used
         /// to provide debug information in the debug view.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        /// <param name="glname">OpenGL buffer object to like to.</param>
-        public GLBuffer(Compiler.Block block, int glname) : base(block.Name, block.Anno)
+        /// <param name="name"></param>
+        /// <param name="anno"></param>
+        /// <param name="glname">OpenGL object to like to.</param>
+        public GLBuffer(string name, string anno, int glname) : base(name, anno)
         {
             int s, u;
             this.glname = glname;
@@ -59,98 +82,11 @@ namespace App
                 size = data.Length;
 
             // CREATE OPENGL OBJECT
-            glname = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
-
-            // ALLOCATE (AND WRITE) GPU MEMORY
-            if (size > 0)
-            {
-                if (data.Length > 0)
-                {
-                    size = data.Length;
-                    var dataPtr = Marshal.AllocHGlobal(size);
-                    Marshal.Copy(data, 0, dataPtr, size);
-                    GL.NamedBufferData(glname, size, dataPtr, usage);
-                    Marshal.FreeHGlobal(dataPtr);
-                }
-                else
-                    GL.NamedBufferData(glname, size, IntPtr.Zero, usage);
-            }
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            CreateBuffer(data);
             if (HasErrorOrGlError(err, block))
                 throw err;
         }
-
-        /// <summary>
-        /// Link GLBuffer to existing OpenGL buffer. Used
-        /// to provide debug information in the debug view.
-        /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        /// <param name="glname">OpenGL buffer object to like to.</param>
-        public GLBuffer(GLParams @params, int glname) : base(@params)
-        {
-            int s, u;
-            this.glname = glname;
-            GL.GetNamedBufferParameter(glname, BufferParameterName.BufferSize, out s);
-            GL.GetNamedBufferParameter(glname, BufferParameterName.BufferUsage, out u);
-            size = s;
-            usage = (BufferUsageHint)u;
-        }
-
-        /// <summary>
-        /// Create OpenGL object.
-        /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLBuffer(GLParams @params) : base(@params)
-        {
-            var err = new CompileException($"buffer '{@params.name}'");
-
-            // PARSE TEXT TO COMMANDS
-            var cmds = new Commands(@params.text, @params.file, @params.cmdLine, @params.cmdPos, err);
-
-            // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
-            cmds.Cmds2Fields(this, err);
-            
-            // PARSE COMMANDS
-            List<byte[]> datalist = new List<byte[]>();
-
-            foreach (var cmd in cmds["txt"])
-                datalist.Add(loadText(err + $"command {cmd.cmd} 'txt'", @params.dir, cmd, @params.scene));
-
-            foreach (var cmd in cmds["xml"])
-                datalist.Add(LoadXml(err + $"command {cmd.cmd} 'xml'", @params.dir, cmd, @params.scene));
-
-            // merge data into a single array
-            var iter = datalist.Join();
-            var data = iter.Take(size == 0 ? iter.Count() : size).ToArray();
-            if (size == 0)
-                size = data.Length;
-
-            // CREATE OPENGL OBJECT
-            glname = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
-
-            // ALLOCATE (AND WRITE) GPU MEMORY
-            if (size > 0)
-            {
-                if (data.Length > 0)
-                {
-                    size = data.Length;
-                    var dataPtr = Marshal.AllocHGlobal(size);
-                    Marshal.Copy(data, 0, dataPtr, size);
-                    GL.NamedBufferData(glname, size, dataPtr, usage);
-                    Marshal.FreeHGlobal(dataPtr);
-                }
-                else
-                    GL.NamedBufferData(glname, size, IntPtr.Zero, usage);
-            }
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            if (HasErrorOrGlError(err, @params.file, @params.nameLine, @params.namePos))
-                throw err;
-        }
-
+        
         /// <summary>
         /// Read whole GPU buffer data.
         /// </summary>
@@ -211,49 +147,30 @@ namespace App
         public static string GetLable(int glname) => GetLable(ObjectLabelIdentifier.Buffer, glname);
 
         #region UTIL METHODS
-        private static byte[] LoadXml(CompileException err, string dir, Commands.Cmd cmd, Dict<GLObject> classes)
+        private void CreateBuffer(byte[] data)
         {
-            // Get text from file or text object
-            string str = GetText(dir, classes, cmd, err);
-            if (str == null)
-            {
-                err.Add("Could not process command. Second argument must "
-                    + "be a name to a text object or a filename.", cmd.file, cmd.line, cmd.pos);
-                return null;
-            }
+            // CREATE OPENGL OBJECT
+            glname = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
 
-            try
+            // ALLOCATE (AND WRITE) GPU MEMORY
+            if (size > 0)
             {
-                // Parse XML string
-                var document = new XmlDocument();
-                document.LoadXml(str);
-
-                // Load data from XML
-                byte[][] filedata = new byte[cmd.args.Length - 1][];
-                for (int i = 1; i < cmd.args.Length; i++)
+                if (data != null && data.Length > 0)
                 {
-                    try
-                    {
-                        filedata[i - 1] = DataXml.Load(document, cmd.args[i]);
-                    }
-                    catch (CompileException ex)
-                    {
-                        err.Add(ex.GetBaseException().Message, cmd.file, cmd.line, cmd.pos);
-                    }
+                    size = data.Length;
+                    var dataPtr = Marshal.AllocHGlobal(size);
+                    Marshal.Copy(data, 0, dataPtr, size);
+                    GL.NamedBufferData(glname, size, dataPtr, usage);
+                    Marshal.FreeHGlobal(dataPtr);
                 }
-
-                // Merge data
-                if (!err.HasErrors())
-                    return filedata.Join().ToArray();
-            }
-            catch (Exception ex)
-            {
-                err.Add(ex.GetBaseException().Message, cmd.file, cmd.line, cmd.pos);
+                else
+                    GL.NamedBufferData(glname, size, IntPtr.Zero, usage);
             }
 
-            return null;
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
-
+        
         private static byte[] LoadXml(CompileException err, Compiler.Command cmd, Dict<GLObject> scene)
         {
             // Get text from file or text object
@@ -296,22 +213,7 @@ namespace App
 
             return null;
         }
-
-        private static byte[] loadText(CompileException err, string dir, Commands.Cmd cmd, Dict<GLObject> classes)
-        {
-            // Get text from file or text object
-            string str = GetText(dir, classes, cmd, err);
-            if (str == null)
-            {
-                err.Add("Could not process command. Second argument must "
-                    + "be a name to a text object or a filename.", cmd.file, cmd.line, cmd.pos);
-                return null;
-            }
-
-            // Convert text to byte array
-            return str.ToCharArray().ToBytes();
-        }
-
+        
         private static byte[] loadText(CompileException err, Compiler.Command cmd, Dict<GLObject> scene)
         {
             // Get text from file or text object
@@ -326,19 +228,7 @@ namespace App
             // Convert text to byte array
             return str.ToCharArray().ToBytes();
         }
-
-        private static string GetText(string dir, Dict<GLObject> classes, Commands.Cmd cmd, CompileException err)
-        {
-            GLText text;
-            if (classes.TryGetValue(cmd.args[0], out text, cmd.file, cmd.line, cmd.pos, err))
-                return text.text.Trim();
-            else if (File.Exists(cmd.args[0]))
-                return File.ReadAllText(cmd.args[0]);
-            else if (File.Exists(dir + cmd.args[0]))
-                return File.ReadAllText(dir + cmd.args[0]);
-            return null;
-        }
-
+        
         private static string GetText(Dict<GLObject> scene, Compiler.Command cmd)
         {
             GLText text;

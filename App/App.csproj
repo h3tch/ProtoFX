@@ -100,7 +100,6 @@
     <Compile Include="src\CodeEditor.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="src\Commands.cs" />
     <Compile Include="src\GLDebugger.cs" />
     <Compile Include="src\GLInstance.cs" />
     <Compile Include="src\GLReference.cs" />

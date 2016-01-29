@@ -116,46 +116,5 @@ namespace App
             GL.BindBufferRange(BufferRangeTarget.TransformFeedbackBuffer,
                 unit, buf.glname, (IntPtr)offset, (IntPtr)size);
         }
-
-        private void Attach(CompileException err, int unit, Commands.Cmd cmd, Dict<GLObject> classes)
-        {
-            if (cmd.args.Length == 0)
-            {
-                err.Add("Command buff needs at least one attribute (e.g. 'buff buff_name')",
-                    cmd.file, cmd.line, cmd.pos);
-                return;
-            }
-
-            // get buffer
-            GLBuffer buf = classes.GetValue<GLBuffer>(cmd.args[0]);
-            if (buf == null)
-            {
-                err.Add($"The name '{cmd.args[0]}' does not reference an object of type 'buffer'.",
-                    cmd.file, cmd.line, cmd.pos);
-                return;
-            }
-
-            // parse offset
-            int offset = 0;
-            if (cmd.args.Length > 1 && int.TryParse(cmd.args[1], out offset) == false)
-            {
-                err.Add($"The second parameter (offset) of buff {unit} is invalid.",
-                    cmd.file, cmd.line, cmd.pos);
-                return;
-            }
-
-            // parse size
-            int size = buf.size;
-            if (cmd.args.Length > 2 && int.TryParse(cmd.args[2], out size) == false)
-            {
-                err.Add($"The third parameter (size) of buff {unit} is invalid.",
-                    cmd.file, cmd.line, cmd.pos);
-                return;
-            }
-
-            // bind buffer to transform feedback
-            GL.BindBufferRange(BufferRangeTarget.TransformFeedbackBuffer,
-                unit, buf.glname, (IntPtr)offset, (IntPtr)size);
-        }
     }
 }

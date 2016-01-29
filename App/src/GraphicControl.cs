@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace OpenTK
@@ -64,6 +63,11 @@ namespace OpenTK
             Frame++;
         }
 
+        /// <summary>
+        /// Add a new object to the scene.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="debugging"></param>
         public void AddObject(Compiler.Block block, bool debugging)
         {
             // GET CLASS TYPE, ANNOTATION AND NAME
@@ -82,45 +86,7 @@ namespace OpenTK
             var instance = (GLObject)Activator.CreateInstance(type, block, scene, debugging);
             scene.Add(instance.name, instance);
         }
-
-        /// <summary>
-        /// Add a new object to the scene.
-        /// </summary>
-        /// <param name="block"></param>
-        /// <param name="incDir"></param>
-        public void AddObject(string block, string file, int line, int pos, string incDir, bool debugging)
-        {
-            // PARSE CLASS INFO
-            var classDef = ExtraxtClassDef(block);
-            if (classDef.Length < 2)
-                throw new CompileException(classDef[0]).Add("Invalid class definition.", file, line, pos);
-
-            // PARSE CLASS TEXT
-            var cmdPos = block.IndexOf('{') + 1;
-            var cmdStr = block.Substring(cmdPos, block.LastIndexOf('}') - cmdPos - 2);
-
-            // GET CLASS TYPE, ANNOTATION AND NAME
-            var typeStr = "App.GL"
-                + classDef[0].First().ToString().ToUpper()
-                + classDef[0].Substring(1);
-            var anno = classDef[classDef.Length - 2];
-            var name = classDef[classDef.Length - 1];
-            var type = Type.GetType(typeStr);
-
-            // check for errors
-            if (type == null)
-                throw new CompileException($"{classDef[0]} '{name}'")
-                    .Add($"Class type '{classDef[0]}' not known.", file, line, pos);
-            if (scene.ContainsKey(name))
-                throw new CompileException($"{classDef[0]} '{name}'")
-                    .Add($"Class name '{name}' already exists.", file, line, pos);
-
-            // instantiate class
-            var @params = new GLParams(name, anno, cmdStr, file, line, pos, line, pos + cmdPos, incDir, scene, debugging);
-            var instance = (GLObject)Activator.CreateInstance(type, @params);
-            scene.Add(instance.name, instance);
-        }
-
+        
         /// <summary>
         /// Clear all scene objects.
         /// </summary>
@@ -131,19 +97,11 @@ namespace OpenTK
             // clear list of classes
             scene.Clear();
             // add default OpenTK glControl
-            scene.Add(nullname, new GLReference(new GLParams(nullname), this));
+            scene.Add(nullname, new GLReference(nullname, "internal", this));
             // (re)initialize OpenGL/GLSL debugger
             GLDebugger.Initilize(scene);
         }
-
-        private static string[] ExtraxtClassDef(string objectblock)
-        {
-            // parse class info
-            var lines = objectblock.Split(new char[] { '\n' });
-            return lines.Select(x => Regex.Matches(x, "[\\w.]+")).Where(x => x.Count > 0)
-                .First().Cast<Match>().Select(x => x.Value).ToArray();
-        }
-
+        
         private void HandleLoad(object sender, EventArgs e)
             => output = (DataGridView)FindForm()?.Controls.Find("output", true).FirstOrDefault();
 

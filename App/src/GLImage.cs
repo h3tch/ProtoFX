@@ -36,9 +36,10 @@ namespace App
         /// Link GLBuffer to existing OpenGL image. Used
         /// to provide debug information in the debug view.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
+        /// <param name="name"></param>
+        /// <param name="anno"></param>
         /// <param name="glname">OpenGL object to like to.</param>
-        public GLImage(Compiler.Block block, int glname) : base(block.Name, block.Anno)
+        public GLImage(string name, string anno, int glname) : base(name, anno)
         {
             int f, t;
             this.glname = glname;
@@ -125,103 +126,7 @@ namespace App
             if (HasErrorOrGlError(err, block))
                 throw err;
         }
-
-        /// <summary>
-        /// Link GLBuffer to existing OpenGL image. Used
-        /// to provide debug information in the debug view.
-        /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        /// <param name="glname">OpenGL object to like to.</param>
-        public GLImage(GLParams @params, int glname) : base(@params)
-        {
-            int f, t;
-            this.glname = glname;
-            GL.GetTextureParameter(glname, TexParameter.TextureTarget, out t);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureInternalFormat, out f);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureWidth, out width);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureHeight, out height);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureDepth, out depth);
-            type = (TexTarget)t;
-            format = (GpuFormat)f;
-            if (type != TexTarget.Texture3D)
-            {
-                length = depth;
-                depth = 0;
-            }
-        }
-
-        /// <summary>
-        /// Create OpenGL image object.
-        /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLImage(GLParams @params) : base(@params)
-        {
-            var err = new CompileException($"image '{@params.name}'");
-
-            // PARSE TEXT
-            var cmds = new Commands(@params.text, @params.file, @params.cmdLine, @params.cmdPos, err);
-
-            // PARSE ARGUMENTS
-            cmds.Cmds2Fields(this, err);
-
-            // on errors throw an exception
-            if (err.HasErrors())
-                throw err;
-
-            // if type was not specified
-            if (target == 0)
-            {
-                if (width > 0 && height == 1 && depth == 0 && length == 0)
-                    target = TexTarget.Texture1D;
-                else if (width > 0 && height == 1 && depth == 0 && length > 0)
-                    target = TexTarget.Texture1DArray;
-                else if (width > 0 && height > 1 && depth == 0 && length == 0)
-                    target = TexTarget.Texture2D;
-                else if (width > 0 && height > 1 && depth == 0 && length > 0)
-                    target = TexTarget.Texture2DArray;
-                else if (width > 0 && height > 1 && depth > 0 && length == 0)
-                    target = TexTarget.Texture3D;
-                else
-                    err.Add("Texture type could not be derived from 'width', 'height', "
-                        + "'depth' and 'length'. Please check these parameters or specify "
-                        + "the type directly (e.g. 'type = texture2D').",
-                        @params.file, @params.nameLine, @params.namePos);
-            }
-
-            // LOAD IMAGE DATA
-            var data = LoadImageFiles(@params.dir, file, ref width, ref height, ref depth, format);
-
-            // CREATE OPENGL OBJECT
-            glname = GL.GenTexture();
-            GL.BindTexture(target, glname);
-            GL.TexParameter(target, TexParamName.TextureMinFilter,
-                (int)(mipmaps > 0 ? TexMinFilter.NearestMipmapNearest : TexMinFilter.Nearest));
-            GL.TexParameter(target, TexParamName.TextureMagFilter,
-                (int)(mipmaps > 0 ? TexMinFilter.NearestMipmapNearest : TexMinFilter.Nearest));
-            GL.TexParameter(target, TexParamName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(target, TexParamName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(target, TexParamName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            
-            // ALLOCATE IMAGE MEMORY
-            if (data != null)
-            {
-                var dataPtr = Marshal.AllocHGlobal(data.Length);
-                Marshal.Copy(data, 0, dataPtr, data.Length);
-                TexImage(target, width, height, depth, length, PixelFormat.Bgra, PixelType.UnsignedByte, dataPtr);
-                Marshal.FreeHGlobal(dataPtr);
-            }
-            else
-                TexImage(target, width, height, depth, length, mipmaps);
-
-            // GENERATE MIPMAPS
-            if (mipmaps > 0)
-                GL.GenerateMipmap((GenerateMipmapTarget)target);
-
-            GL.BindTexture(target, 0);
-            if (HasErrorOrGlError(err, @params.file, @params.nameLine, @params.namePos))
-                throw err;
-        }
-
+        
         /// <summary>
         /// Read whole GPU image data.
         /// </summary>

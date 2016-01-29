@@ -66,18 +66,7 @@ namespace App
             this.name = name;
             this.anno = anno;
         }
-
-        /// <summary>
-        /// Instantiate and initialize object.
-        /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLObject(GLParams @params)
-        {
-            this.glname = 0;
-            this.name = @params.name;
-            this.anno = @params.anno;
-        }
-
+        
         protected static string GetLable(ObjectLabelIdentifier type, int glname)
         {
             int length = 64;

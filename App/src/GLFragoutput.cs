@@ -68,45 +68,6 @@ namespace App
             if (status != FramebufferErrorCode.FramebufferComplete)
                 throw err.Add("Could not be created due to an unknown error.", block);
         }
-
-        /// <summary>
-        /// Create OpenGL framebuffer object for fragment output.
-        /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLFragoutput(GLParams @params) : base(@params)
-        {
-            var err = new CompileException($"fragoutput '{@params.name}'");
-
-            // PARSE TEXT
-            var body = new Commands(@params.text, @params.file, @params.cmdLine, @params.cmdPos, err);
-
-            // PARSE ARGUMENTS
-            body.Cmds2Fields(this, err);
-
-            // CREATE OPENGL OBJECT
-            glname = GL.GenFramebuffer();
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, glname);
-            
-            // PARSE COMMANDS
-            foreach (var cmd in body)
-                Attach(err + $"command {cmd.idx} '{cmd.cmd}'", cmd, @params.scene);
-
-            // if any errors occurred throw exception
-            if (err.HasErrors())
-                throw err;
-
-            // CHECK FOR OPENGL ERRORS
-            Bind();
-            var status = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
-            Unbind();
-
-            // final error checks
-            if (HasErrorOrGlError(err, @params.file, @params.nameLine, @params.namePos))
-                throw err;
-            if (status != FramebufferErrorCode.FramebufferComplete)
-                throw err.Add("Could not be created due to an unknown error.",
-                    @params.file, @params.nameLine, @params.namePos);
-        }
         
         public void Bind()
         {
@@ -185,62 +146,6 @@ namespace App
                 default:
                     err.Add($"The texture type '{glimg.target}' of image " +
                         $"'{cmd[0].Text}' is not supported.", cmd);
-                    break;
-            }
-        }
-
-        private void Attach(CompileException err, Commands.Cmd cmd, Dict<GLObject> classes)
-        {
-            // get OpenGL image
-            GLImage glimg = classes.GetValue<GLImage>(cmd.args[0]);
-            if (glimg == null)
-            {
-                err.Add($"The name '{cmd.args[0]}' does not reference " +
-                    "an object of type 'image'.", cmd.file, cmd.line, cmd.pos);
-                return;
-            }
-
-            // set width and height for GLPass to set the right viewport size
-            if (width == 0 && height == 0)
-            {
-                width = glimg.width;
-                height = glimg.height;
-            }
-
-            // get additional optional parameters
-            int mipmap = cmd.args.Length > 1 ? int.Parse(cmd.args[1]) : 0;
-            int layer = cmd.args.Length > 2 ? int.Parse(cmd.args[2]) : 0;
-
-            // get attachment point
-            FramebufferAttachment attachment;
-            if (!Enum.TryParse(
-                $"{cmd.cmd}attachment{(cmd.cmd.Equals("color") ? "" + numAttachments++ : "")}",
-                true, out attachment))
-            {
-                err.Add($"Invalid attachment point '{cmd.cmd}'.", cmd.file, cmd.line, cmd.pos);
-                return;
-            }
-
-            // attach texture to framebuffer
-            switch (glimg.target)
-            {
-                case TextureTarget.Texture2DArray:
-                case TextureTarget.Texture3D:
-                    GL.FramebufferTexture3D(FramebufferTarget.Framebuffer,
-                        attachment, glimg.target, glimg.glname, mipmap, layer);
-                    break;
-                case TextureTarget.Texture1DArray:
-                case TextureTarget.Texture2D:
-                    GL.FramebufferTexture2D(FramebufferTarget.Framebuffer,
-                        attachment, glimg.target, glimg.glname, mipmap);
-                    break;
-                case TextureTarget.Texture1D:
-                    GL.FramebufferTexture1D(FramebufferTarget.Framebuffer,
-                        attachment, glimg.target, glimg.glname, mipmap);
-                    break;
-                default:
-                    err.Add($"The texture type '{glimg.target}' of image '{cmd.args[0]}' " +
-                        "is not supported.", cmd.file, cmd.line, cmd.pos);
                     break;
             }
         }

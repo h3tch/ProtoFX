@@ -16,8 +16,6 @@ namespace App
         // debug resources definitions
         private static string dbgBufKey;
         private static string dbgTexKey;
-        private static string dbgBufDef;
-        private static string dbgTexDef;
         // allocate GPU resources
         private static GLBuffer buf;
         private static GLTexture tex;
@@ -40,9 +38,6 @@ namespace App
             // debug resources definitions
             dbgBufKey = "__dbgbuf__";
             dbgTexKey = "__dbgtex__";
-            dbgBufDef = "usage DynamicRead\n" +
-                        $"size {stage_size * 6 * 16}\n";
-            dbgTexDef = "format RGBA32f\n";
             // allocate arrays for texture and image units
             texUnits = new int[GL.GetInteger((GetPName)All.MaxTextureImageUnits)];
             imgUnits = new int[GL.GetInteger((GetPName)All.MaxImageUnits)];
@@ -58,8 +53,8 @@ namespace App
         public static void Initilize(Dict<GLObject> scene)
         {
             // allocate GPU resources
-            buf = new GLBuffer(new GLParams(dbgBufKey, "dbg", dbgBufDef));
-            tex = new GLTexture(new GLParams(dbgTexKey, "dbg", dbgTexDef), null, buf, null);
+            buf = new GLBuffer(dbgBufKey, "dbg", BufferUsageHint.DynamicRead, stage_size * 6 * 16);
+            tex = new GLTexture(dbgTexKey, "dbg", GpuFormat.Rgba32f, null, buf, null);
 
 #if DEBUG   // add to scene for debug inspection
             scene.Add(dbgBufKey, buf);

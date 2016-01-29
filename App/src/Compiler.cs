@@ -41,11 +41,14 @@ namespace App
                     throw new NotSupportedException("Compilation aborted " +
                         $"because of a recursiveinclusion of '{path}'.");
                 incpath.Add(path);
+
                 // remove comments
                 Text = RemoveComments(System.IO.File.ReadAllText(path));
-                Text = RemoveNewLineIndicators (Text);
+                Text = RemoveNewLineIndicators(Text);
+
                 // process all include files in the file
                 Include = ProcessIncludes().ToArray();
+
                 // process all blocks in the file
                 Block = ProcessBlocks().ToArray();
             }
@@ -322,9 +325,48 @@ namespace App
         /// </summary>
         /// <param name="text">String to remove new line indicators from.</param>
         /// <returns>String without new line indicators.</returns>
-        public static string RemoveNewLineIndicators(string text)
+        private static string RemoveNewLineIndicators(string text)
             => Regex.Replace(text, @"\.\.\.(\s?)(\r\n|\n|\r)",
                 x => new string(' ', x.Value.Length),
                 RegexOptions.None);
+
+        /// <summary>
+        /// Resolve preprocessor #global definitions.
+        /// </summary>
+        /// <param name="text">String to resolve.</param>
+        /// <returns>String with resolved #global definitions.</returns>
+        public static string ResolvePreprocessorDefinitions(string text, int[] linePos = null)
+        {
+            // find include files
+            var matches = Regex.Matches(text, @"#global(\s+\w+){2}");
+
+            // insert all include files
+            foreach (Match match in matches)
+            {
+                // get defined preprocessor string
+                var definitions = Regex.Split(match.Value, @"[ ]+");
+                var key = definitions[1];
+                var value = definitions[2];
+                text = text.Substring(0, match.Index) + text.Substring(match.Index + match.Length);
+
+                int offset = 0;
+                foreach (Match m in Regex.Matches(text, key))
+                {
+                    // replace preprocessor definition with defined preprocessor string
+                    text = text.Substring(0, m.Index + offset) + value
+                         + text.Substring(m.Index + offset + m.Length);
+
+                    // because the string now has a different 
+                    // length, we need to remember the offset
+                    offset += value.Length - m.Length;
+
+                    // update new line positions
+                    for (int i = linePos.IndexOf(x => x >= m.Index); i >= 0 && i < linePos.Length; i++)
+                        linePos[i] += offset;
+                }
+            }
+
+            return text;
+        }
     }
 }

@@ -251,71 +251,6 @@ namespace App
         }
 
         #region PARSE COMMANDS
-        private void ParseDrawCall(CompileException err, Commands.Cmd cmd, Dict<GLObject> classes)
-        {
-            List<int> arg = new List<int>();
-            GLVertinput vertexin = null;
-            GLVertoutput vertout = null;
-            GLBuffer indexbuf = null;
-            GLBuffer indirect = null;
-            bool modeIsSet = false;
-            bool typeIsSet = false;
-            PrimType primitive = 0;
-            ElementType indextype = 0;
-            int val;
-
-            // parse draw call arguments
-            for (var i = 0; i < cmd.args.Length; i++)
-            {
-                if (classes.TryGetValue(cmd.args[i], ref vertexin)) continue;
-                if (classes.TryGetValue(cmd.args[i], ref vertout)) continue;
-                if (classes.TryGetValue(cmd.args[i], ref indexbuf)) continue;
-                if (classes.TryGetValue(cmd.args[i], ref indirect)) continue;
-                if (int.TryParse(cmd.args[i], out val))
-                    arg.Add(val);
-                else if (typeIsSet == false && Enum.TryParse(cmd.args[i], true, out indextype))
-                    typeIsSet = true;
-                else if (modeIsSet == false && Enum.TryParse(cmd.args[i], true, out primitive))
-                    modeIsSet = true;
-            }
-
-            // a draw call must specify a primitive type
-            if (modeIsSet == false)
-            {
-                err.Add("Draw call must specify a primitive type (e.g. triangles, "
-                    + "trianglefan, lines, points, ...).", cmd.file, cmd.line, cmd.pos);
-                return;
-            }
-
-            // determine the right draw call function
-            int bits = (vertout != null ? 1 : 0) 
-                | (indexbuf != null ? 2 : 0)
-                | (indirect != null ? 4 : 0)
-                | (typeIsSet ? 8 : 0);
-
-            if (!Enum.IsDefined(typeof(DrawFunc), bits))
-            {
-                err.Add("Draw call function not recognized or ambiguous.",
-                    cmd.file, cmd.line, cmd.pos);
-                return;
-            }
-
-            DrawFunc drawfunc = (DrawFunc)bits;
-                 
-            // get index buffer object (if present) and find existing MultiDraw class
-            MultiDrawCall multidrawcall = drawcalls.Find(
-                x => x.vertexin == (vertexin != null ? vertexin.glname : 0)
-                  && x.indexbuf == (indexbuf != null ? indexbuf.glname : 0)
-                  && x.vertout  == (vertout  != null ?  vertout.glname : 0)
-                  && x.indirect == (indirect != null ? indirect.glname : 0))
-                ?? new MultiDrawCall(drawfunc, vertexin, vertout, indexbuf, indirect);
-
-            // add new draw command to the MultiDraw class
-            multidrawcall.cmd.Add(new DrawCall(drawfunc, primitive, indextype, arg));
-            
-            drawcalls.Add(multidrawcall);
-        }
-
         private void ParseDrawCall(CompileException err, Compiler.Command cmd, Dict<GLObject> classes)
         {
             List<int> args = new List<int>();
@@ -383,52 +318,7 @@ namespace App
 
             drawcalls.Add(multidrawcall);
         }
-
-        private void ParseComputeCall(CompileException err, Commands.Cmd cmd, Dict<GLObject> classes)
-        {
-            // check for errors
-            if (cmd.args.Length < 2 || cmd.args.Length > 3)
-            {
-                err.Add("Compute command does not provide enough arguments "
-                    + "(e.g., 'compute num_groups_X num_groups_y num_groups_z' or "
-                    + "'compute buffer_name indirect_pointer').", cmd.file, cmd.line, cmd.pos);
-                return;
-            }
-
-            try
-            {
-                CompCall call = new CompCall();
-
-                // this is an indirect compute call
-                if (cmd.args.Length == 2)
-                {
-                    // indirect compute call buffer
-                    call.numGroupsX = (uint)classes.GetValue<GLBuffer>(cmd.args[0],
-                        "First argument of compute command must be a buffer name").glname;
-                    // indirect compute call buffer pointer
-                    call.numGroupsY = cmd.args[1].To<uint>("Argument must be an unsigned integer, "
-                        + "specifying a pointer into the indirect compute call buffer.");
-                }
-                // this is a normal compute call
-                else
-                {
-                    // number of compute groups
-                    call.numGroupsX = cmd.args[0].To<uint>("Argument must be an unsigned integer, "
-                        + "specifying the number of compute groups in X.");
-                    call.numGroupsY = cmd.args[1].To<uint>("Argument must be an unsigned integer, "
-                        + "specifying the number of compute groups in Y.");
-                    call.numGroupsZ = cmd.args[2].To<uint>("Argument must be an unsigned integer, "
-                        + "specifying the number of compute groups in Z.");
-                }
-
-                compcalls.Add(call);
-            }
-            catch (CompileException ex)
-            {
-                err.Add(ex.Message, cmd.file, cmd.line, cmd.pos);
-            }
-        }
-
+        
         private void ParseComputeCall(CompileException err, Compiler.Command cmd, Dict<GLObject> classes)
         {
             // check for errors
@@ -473,27 +363,7 @@ namespace App
                 err.Add(ex.Message, cmd);
             }
         }
-
-        private void ParseTexCmd(CompileException err, Commands.Cmd cmd, Dict<GLObject> classes)
-        {
-            var types = new[] {
-                typeof(GLTexture),
-                typeof(int),
-                typeof(int),
-                typeof(int),
-                typeof(TextureAccess),
-                typeof(GpuFormat)
-            };
-            var values = ParseCmd(cmd, types, cmd.args.Length == 6 ? 6 : 2, classes, err);
-            if (!err.HasErrors())
-            {
-                if (cmd.args.Length == 6)
-                    texImages.Add(new ResTexImg(values));
-                else
-                    textures.Add(new Res<GLTexture>(values));
-            }
-        }
-
+        
         private void ParseTexCmd(CompileException err, Compiler.Command cmd, Dict<GLObject> classes)
         {
             var types = new[] {
@@ -513,18 +383,7 @@ namespace App
                     textures.Add(new Res<GLTexture>(values));
             }
         }
-
-        private void ParseSampCmd(CompileException err, Commands.Cmd cmd, Dict<GLObject> classes)
-        {
-            var types = new[] {
-                typeof(GLSampler),
-                typeof(int),
-            };
-            var values = ParseCmd(cmd, types, 2, classes, err);
-            if (!err.HasErrors())
-                sampler.Add(new Res<GLSampler>(values));
-        }
-
+        
         private void ParseSampCmd(CompileException err, Compiler.Command cmd, Dict<GLObject> classes)
         {
             var types = new[] {
@@ -535,39 +394,7 @@ namespace App
             if (!err.HasErrors())
                 sampler.Add(new Res<GLSampler>(values));
         }
-
-        private object[] ParseCmd(Commands.Cmd cmd, Type[] types, int numMandatory,
-            Dict<GLObject> classes, CompileException err)
-        {
-            object[] values = new object[types.Length];
-
-            // parse command arguments
-            foreach (string arg in cmd.args)
-            {
-                for (int i = values.IndexOf(x => x == null); i < 0 || i < types.Length; i++)
-                {
-                    try
-                    {
-                        values[i] = types[i].IsSubclassOf(typeof(GLObject))
-                            ? classes.GetValue<GLObject>(arg)
-                            : types[i].IsEnum
-                                ? Enum.Parse(types[i], arg, true)
-                                : Convert.ChangeType(arg, types[i], App.culture);
-                        if (values[i] != null)
-                            break;
-                    }
-                    catch { }
-                }
-            }
-            
-            // check for errors
-            for (int i = 0; i < Math.Min(numMandatory, values.Length); i++)
-                if (values[i] == null)
-                    err?.Add($"Error parsing argument {i}.", cmd.file, cmd.line, cmd.pos);
-
-            return values;
-        }
-
+        
         private object[] ParseCmd(Compiler.Command cmd, Type[] types, int numMandatory,
             Dict<GLObject> classes, CompileException err)
         {
@@ -599,34 +426,7 @@ namespace App
 
             return values;
         }
-
-        private void ParseOpenGLCall(CompileException err, Commands.Cmd cmd)
-        {
-            // find OpenGL method
-            var mtype = FindMethod(cmd.cmd, cmd.args.Length);
-            if (mtype == null)
-            {
-                err.Add("Unknown command " + string.Join(" ", cmd.args) + ".", cmd.file, cmd.line, cmd.pos);
-                return;
-            }
-
-            // get method parameter types
-            var param = mtype.GetParameters();
-            object[] inval = new object[param.Length];
-            // convert strings to parameter types
-            for (int i = 0; i < param.Length; i++)
-            {
-                if (param[i].ParameterType.IsEnum)
-                    inval[i] = Convert.ChangeType(
-                        Enum.Parse(param[i].ParameterType, cmd.args[i], true),
-                        param[i].ParameterType);
-                else
-                    inval[i] = Convert.ChangeType(cmd.args[i], param[i].ParameterType, App.culture);
-            }
-            
-            glfunc.Add(new GLMethod(mtype, inval));
-        }
-
+        
         private void ParseOpenGLCall(CompileException err, Compiler.Command cmd)
         {
             // find OpenGL method
@@ -653,24 +453,7 @@ namespace App
 
             glfunc.Add(new GLMethod(mtype, inval));
         }
-
-        private void ParseCsharpExec(CompileException err, Commands.Cmd cmd, Dict<GLObject> classes)
-        {
-            // check if command provides the correct amount of parameters
-            if (cmd.args.Length == 0)
-            {
-                err.Add("Not enough arguments for exec command.", cmd.file, cmd.line, cmd.pos);
-                return;
-            }
-
-            // get instance
-            GLInstance instance;
-            if (classes.TryGetValue(cmd.args[0], out instance, cmd.file, cmd.line, cmd.pos, err) == false)
-                return;
-
-            csexec.Add(instance);
-        }
-
+        
         private void ParseCsharpExec(CompileException err, Compiler.Command cmd, Dict<GLObject> classes)
         {
             // check if command provides the correct amount of parameters

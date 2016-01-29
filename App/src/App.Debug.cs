@@ -155,25 +155,7 @@ namespace App
             line = Math.Max(1, line - compiledEditor.LinesOnScreen / 2);
             compiledEditor.LineScroll(line - compiledEditor.FirstVisibleLine - 1, 0);
         }
-
-        private void output_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
-        {
-            // draw header background
-            e.Graphics.FillRectangle(SystemBrushes.ControlLight,
-                e.Bounds.X + 1, e.Bounds.Y + 1, e.Bounds.Width - 2, e.Bounds.Height - 2);
-
-            // draw header text
-            var shift = Math.Max(e.Bounds.Height - e.Font.Size - 4, 0f) / 2;
-            e.Graphics.DrawString(e.Header.Text,
-                new Font(e.Font.FontFamily, e.Font.SizeInPoints, FontStyle.Regular),
-                SystemBrushes.ControlText, e.Bounds.X + shift, e.Bounds.Y + shift);
-        }
-
-        private void output_DrawItem(object sender, DrawListViewItemEventArgs e)
-        {
-            e.DrawDefault = true;
-        }
-
+        
         private void UpdateDebugListView(CodeEditor editor)
         {
             // RESET DEBUG LIST VIEW
