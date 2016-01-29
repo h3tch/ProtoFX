@@ -7,7 +7,7 @@
 // Vertex positions
 buffer buf_pos {
 	// we will only read the data
-	usage 
+	usage staticDraw
 	// load data <position> from cube.xml
 	xml "geom/cube.xml" data/position
 }

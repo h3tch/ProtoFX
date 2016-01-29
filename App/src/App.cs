@@ -142,7 +142,7 @@ namespace App
             }
         }
 
-        private void toolBtnRunDebug_Click(object sender, EventArgs e)
+        private void toolBtnRunDebug_Click(object sender, EventArgs ev)
         {
             // if no tab page is selected nothing needs to be compiled
             var sourceTab = (TabPage)tabSource.SelectedTab;
@@ -160,7 +160,7 @@ namespace App
             // get include directory
             var includeDir = (sourceTab.filepath != null
                 ? Path.GetDirectoryName(sourceTab.filepath)
-                : Directory.GetCurrentDirectory()) + '\\';
+                : Directory.GetCurrentDirectory()) + Path.DirectorySeparatorChar;
 
             // get code text form tab page
             // generate debug information?
@@ -178,7 +178,7 @@ namespace App
                       select (x is CompileException ? x : x.InnerException) as CompileException;
             var err = from x in exc from y in x select y;
             var line = err.Select(x => x.Line);
-            err.Zip(line, (x, idx) => AddOutputItem(x.File, idx, x.Msg));
+            err.Zip(line, (e, l) => AddOutputItem(includeDir, e.File, l + 1, e.Msg));
 
             // underline all debug errors
             var ranges = line.Select(x => new[] {

@@ -9,7 +9,13 @@ namespace App
 {
     class Compiler
     {
-        public static File Compile(string path) => new File(path);
+        private static HashSet<string> incpath = new HashSet<string>();
+
+        public static File Compile(string path)
+        {
+            incpath.Clear();
+            return new File(path);
+        }
 
         public class File : IEnumerable<Block>
         {
@@ -20,7 +26,6 @@ namespace App
             public string Text { get; private set; }
             public File[] Include { get; private set; }
             public Block[] Block { get; private set; }
-            private static HashSet<string> incpath = new HashSet<string>();
 
             public File(string path, File owner = null, int line = 0)
             {
@@ -36,7 +41,7 @@ namespace App
                 // do not allow recursive inclusion of files
                 if (incpath.Contains(path))
                     throw new NotSupportedException("Compilation aborted " +
-                        $"because of a recursiveinclusion of '{path}'.");
+                        $"because of a recursive inclusion of '{path}'.");
                 incpath.Add(path);
 
                 // remove comments
@@ -193,7 +198,7 @@ namespace App
                 // process each line for possible commands
                 for (int i = 0; i < lines.Length; i++)
                 {
-                    var cmd = new Command(this, Text.PositionFromLine(i), lines[i]);
+                    var cmd = new Command(this, i, lines[i]);
                     // only return valid commands
                     if (cmd.ArgCount >= 0)
                         yield return cmd;
@@ -323,7 +328,7 @@ namespace App
         /// </summary>
         /// <param name="text">String to resolve.</param>
         /// <returns>String with resolved #global definitions.</returns>
-        public static string ResolvePreprocessorDefinitions(string text, int[] linePos = null)
+        public static string ResolvePreprocessorDefinitions(string text)
         {
             // find include files
             var matches = Regex.Matches(text, @"#global(\s+\w+){2}");
@@ -347,10 +352,6 @@ namespace App
                     // because the string now has a different 
                     // length, we need to remember the offset
                     offset += value.Length - m.Length;
-
-                    // update new line positions
-                    for (int i = linePos.IndexOf(x => x >= m.Index); i >= 0 && i < linePos.Length; i++)
-                        linePos[i] += offset;
                 }
             }
 

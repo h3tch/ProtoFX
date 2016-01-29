@@ -204,8 +204,13 @@ namespace App
             }
         }
 
-        private void AddOutputItem(string file, int line, string msg)
-            => output.Rows.Add(new[] { file, line > 0 ? line.ToString(culture) : "", msg });
+        private void AddOutputItem(string refDir, string filePath, int line, string msg)
+        {
+            var refUri = new Uri(refDir);
+            var fileUri = new Uri(filePath);
+            var relPath = refUri.MakeRelativeUri(fileUri).ToString();
+            output.Rows.Add(new[] { relPath, line > 0 ? line.ToString(culture) : "", msg });
+        }
         #endregion
 
         private void DebugRender()
