@@ -26,8 +26,8 @@ namespace App
             this.glimg = glimg;
 
             // INCASE THIS IS A TEXTURE OBJECT
-            LinkToTexture(err);
-            if (HasErrorOrGlError(err, "", -1, -1))
+            LinkToTexture("", -1, err);
+            if (HasErrorOrGlError(err, "", -1))
                 throw err;
         }
 
@@ -52,7 +52,7 @@ namespace App
                 throw err;
 
             // INCASE THIS IS A TEXTURE OBJECT
-            LinkToTexture(err);
+            LinkToTexture(block.File, block.LineInFile, err);
             if (HasErrorOrGlError(err, block))
                 throw err;
         }
@@ -122,7 +122,7 @@ namespace App
                 err.Add("Ether an image or a buffer has to be bound to a texture object.", block);
         }
 
-        private void LinkToTexture(CompileException err)
+        private void LinkToTexture(string file, int line, CompileException err)
         {
             // INCASE THIS IS A TEXTURE OBJECT
             if (glimg != null)
@@ -138,7 +138,7 @@ namespace App
             {
                 if (format == 0)
                     throw err.Add($"No texture buffer format defined for " +
-                        "buffer '{buff}' (e.g. format RGBA8).", "", -1, -1);
+                        "buffer '{buff}' (e.g. format RGBA8).", file, line);
                 // CREATE OPENGL OBJECT
                 glname = GL.GenTexture();
                 GL.BindTexture(TextureTarget.TextureBuffer, glname);

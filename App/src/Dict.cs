@@ -22,13 +22,13 @@ namespace App
 
         public bool TryGetValue<TResult>(string key, out TResult obj, Compiler.Command cmd, CompileException err = null)
             where TResult : T
-            => TryGetValue(key, out obj, cmd.File, cmd.LineInFile, cmd.PositionInFile);
+            => TryGetValue(key, out obj, cmd.File, cmd.LineInFile);
 
         public bool TryGetValue<TResult>(string key, out TResult obj, Compiler.Block block, CompileException err = null)
             where TResult : T
-            => TryGetValue(key, out obj, block.File, block.LineInFile, block.PositionInFile);
+            => TryGetValue(key, out obj, block.File, block.LineInFile);
 
-        public bool TryGetValue<TResult>(string key, out TResult obj, string file, int line, int pos,
+        public bool TryGetValue<TResult>(string key, out TResult obj, string file, int line,
             CompileException err = null)
             where TResult : T
         {
@@ -38,8 +38,8 @@ namespace App
 
             // get class name of object type
             var classname = typeof(TResult).Name.Substring(2).ToLower();
-            err?.Add($"The name '{key}' could not be found or "
-                + $"does not reference an object of type '{classname}'.", file, line, pos);
+            err?.Add($"The name '{key}' could not be found or does not "
+                + $"reference an object of type '{classname}'.", file, line);
             return false;
         }
 

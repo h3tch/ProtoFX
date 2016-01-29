@@ -116,32 +116,7 @@ namespace App
                 dict.Add(cmd.Name, cmd.Select(x => x.Text).ToArray());
             return dict;
         }
-
-        /// <summary>
-        /// Create an instance of a C# class.
-        /// </summary>
-        /// <param name="classname">Name of the class type (class classname { ... }).</param>
-        /// <param name="name">Name to identify the class instance.</param>
-        /// <param name="cmds">Commands to pass to the class constructor.</param>
-        /// <param name="err">[OPTIONAL] Error and exception collector.</param>
-        /// <returns></returns>
-        public object CreateInstance(string classname, string name, Dictionary<string, string[]> cmds,
-            string file, int line, int pos, CompileException err)
-        {
-            // create main class from compiled files
-            var instance = compilerresults.CompiledAssembly.CreateInstance(
-                classname, false, BindingFlags.Default, null,
-                new object[] { name, cmds }, App.culture, null);
-
-            if (instance == null)
-                throw err.Add($"Main class '{classname}' could not be found.", file, line, pos);
-
-            List<string> errors = InvokeMethod<List<string>>(instance, "GetErrors");
-            errors?.ForEach(msg => err.Add(msg, file, line, pos));
-
-            return instance;
-        }
-
+        
         private T InvokeMethod<T>(object instance, string valuename)
         {
             var value = instance.GetType().GetMethod(valuename)?.Invoke(instance, new object[] { });

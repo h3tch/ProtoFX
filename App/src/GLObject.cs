@@ -90,12 +90,12 @@ namespace App
             return err.HasErrors();
         }
 
-        static protected bool HasErrorOrGlError(CompileException err, string file, int line, int pos)
+        static protected bool HasErrorOrGlError(CompileException err, string file, int line)
         {
             var errcode = GL.GetError();
             if (errcode != ErrorCode.NoError)
             {
-                err.Add($"OpenGL error '{errcode}' occurred.", file, line, pos);
+                err.Add($"OpenGL error '{errcode}' occurred.", file, line);
                 return true;
             }
             return err.HasErrors();

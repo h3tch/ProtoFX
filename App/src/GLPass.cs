@@ -58,7 +58,7 @@ namespace App
                 if (attr?.Length > 0)
                     continue;
 
-                err.PushCall($"command '{cmd.Name}' line {cmd.Line}");
+                err.PushCall($"command '{cmd.Name}' line {cmd.LineInFile}");
                 switch (cmd.Name)
                 {
                     case "draw": ParseDrawCall(err, cmd, scene); break;

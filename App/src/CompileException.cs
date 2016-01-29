@@ -38,14 +38,14 @@ namespace App
         }
 
         public CompileException Add(string message, Compiler.Block block)
-            => Add(message, block.File, block.LineInFile, block.PositionInFile);
+            => Add(message, block.File, block.LineInFile);
 
         public CompileException Add(string message, Compiler.Command cmd)
-            => Add(message, cmd.File, cmd.LineInFile, cmd.PositionInFile);
+            => Add(message, cmd.File, cmd.LineInFile);
 
-        public CompileException Add(string message, string file, int line, int pos)
+        public CompileException Add(string message, string file, int line)
         {
-            messages.Add(new Err(file, line, pos, callstackstring + message));
+            messages.Add(new Err(file, line, callstackstring + message));
             return this;
         }
 
@@ -75,16 +75,14 @@ namespace App
         #region INNER CLASSES
         public struct Err
         {
-            public Err(string file, int line, int pos, string msg)
+            public Err(string file, int line, string msg)
             {
                 File = file;
                 Line = line;
-                Pos = pos;
                 Msg = msg;
             }
             public string File;
             public int Line;
-            public int Pos;
             public string Msg;
         }
         #endregion

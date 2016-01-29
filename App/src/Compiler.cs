@@ -15,8 +15,6 @@ namespace App
         {
             public File Owner { get; private set; }
             public string Path { get; private set; }
-            public int Position { get; private set; }
-            public int PositionInFile => Position;
             public int Line { get; private set; }
             public int LineInFile => Line;
             public string Text { get; private set; }
@@ -24,10 +22,9 @@ namespace App
             public Block[] Block { get; private set; }
             private static HashSet<string> incpath = new HashSet<string>();
 
-            public File(string path, File owner = null, int position = 0, int line = 0)
+            public File(string path, File owner = null, int line = 0)
             {
                 Owner = owner;
-                Position = position;
                 Line = line;
                 Path = path;
 
@@ -71,7 +68,7 @@ namespace App
                         // if include files should be included and there is any include file left
                         if (includeIncludeFiles && iInc < Include.Length)
                             // which one is the next in the code
-                            if (Include[iInc].Position < Block[iBlock].Position)
+                            if (Include[iInc].Line < Block[iBlock].Line)
                                 // return include file blocks
                                 foreach (var b in Include[iInc++].GetBlocks().ToArray())
                                     yield return b;
@@ -92,7 +89,7 @@ namespace App
             private IEnumerable<File> ProcessIncludes()
             {
                 // get directory form path
-                var dir = System.IO.Path.GetDirectoryName(Path) + '/';
+                var dir = System.IO.Path.GetDirectoryName(Path) + System.IO.Path.DirectorySeparatorChar;
                 // find #include statements
                 var matches = Regex.Matches(Text, @"^\s*#include \""[^""]*\""", RegexOptions.Multiline);
 
@@ -103,7 +100,7 @@ namespace App
                     var incfile = Regex.Match(matches[i].Value, @"\""[^""]*\""").Value;
                     // load and process file
                     yield return new File(dir + incfile.Substring(1, incfile.Length - 2),
-                        this, matches[i].Index, Text.LineFromPosition(matches[i].Index));
+                        this, Text.LineFromPosition(matches[i].Index));
                 }
             }
 
@@ -120,8 +117,7 @@ namespace App
 
                 // process found block strings
                 foreach (Match match in matches)
-                    yield return new Block(this, match.Index,
-                        Text.LineFromPosition(match.Index), match.Value);
+                    yield return new Block(this, Text.LineFromPosition(match.Index), match.Value);
             }
 
             #region IEnumerable Interface
@@ -136,8 +132,6 @@ namespace App
         public class Block : IEnumerable<Command>
         {
             public File Owner { get; private set; }
-            public int Position { get; private set; }
-            public int PositionInFile => Position;
             public int Line { get; private set; }
             public int LineInFile => Line;
             public string Text { get; private set; }
@@ -149,10 +143,9 @@ namespace App
             public Command this[int i] { get { return Cmds[i]; } }
             public IEnumerable<Command> this[string name] { get { return GetCommands(name); } }
 
-            public Block(File owner, int position, int line, string text)
+            public Block(File owner, int line, string text)
             {
                 Owner = owner;
-                Position = position;
                 Line = line;
                 Text = text.Trim();
 
@@ -199,7 +192,7 @@ namespace App
                 // process each line for possible commands
                 for (int i = 0; i < lines.Length; i++)
                 {
-                    var cmd = new Command(this, Text.PositionFromLine(i), i, lines[i]);
+                    var cmd = new Command(this, Text.PositionFromLine(i), lines[i]);
                     // only return valid commands
                     if (cmd.ArgCount >= 0)
                         yield return cmd;
@@ -218,8 +211,6 @@ namespace App
         public class Command : IEnumerable<Argument>
         {
             public Block Owner { get; private set; }
-            public int Position { get; private set; }
-            public int PositionInFile => Owner.PositionInFile + Position;
             public int Line { get; private set; }
             public int LineInFile => Owner.LineInFile + Line;
             public string Text { get; private set; }
@@ -229,10 +220,9 @@ namespace App
             public int ArgCount { get { return Args.Length - 1; } }
             public Argument this[int i] { get { return Args[i + 1]; } }
 
-            public Command(Block owner, int position, int line, string text)
+            public Command(Block owner, int line, string text)
             {
                 Owner = owner;
-                Position = position;
                 Line = line;
                 Text = text.Trim();
 
@@ -262,7 +252,7 @@ namespace App
                 {
                     var arg = match.Value;
                     int s = arg[0] == '"' && arg[arg.Length - 1] == '"' ? 1 : 0;
-                    yield return new Argument(this, match.Index, 0, arg.Substring(s, arg.Length - s * 2));
+                    yield return new Argument(this, 0, arg.Substring(s, arg.Length - s * 2));
                 }
             }
 
@@ -278,16 +268,13 @@ namespace App
         public class Argument
         {
             public Command Owner { get; private set; }
-            public int Position { get; private set; }
-            public int PositionInFile => Owner.PositionInFile + Position;
             public int Line { get; private set; }
             public int LineInFile => Owner.LineInFile + Line;
             public string Text { get; private set; }
 
-            public Argument(Command owner, int position, int line, string text)
+            public Argument(Command owner, int line, string text)
             {
                 Owner = owner;
-                Position = position;
                 Line = line;
                 Text = text.Trim();
             }

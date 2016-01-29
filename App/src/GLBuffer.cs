@@ -33,7 +33,7 @@ namespace App
 
             // CREATE OPENGL OBJECT
             CreateBuffer(data);
-            if (HasErrorOrGlError(err, "", -1, -1))
+            if (HasErrorOrGlError(err, "", -1))
                 throw err;
         }
 
