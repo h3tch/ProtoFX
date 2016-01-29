@@ -25,7 +25,7 @@ namespace App
 
             // unbind object and check for errors
             GL.BindVertexArray(0);
-            if (HasErrorOrGlError(err, block.File, block.Line, block.Position))
+            if (HasErrorOrGlError(err, block))
                 throw err;
         }
 
@@ -63,8 +63,7 @@ namespace App
             // check commands for errors
             if (cmd.ArgCount < 3)
             {
-                err.Add("Command attr needs at least 3 attributes (e.g. 'attr buff_name float 4')",
-                    cmd.File, cmd.Line, cmd.Position);
+                err.Add("Command attr needs at least 3 attributes (e.g. 'attr buff_name float 4')", cmd);
                 return;
             }
 
@@ -77,9 +76,9 @@ namespace App
             int divisor = cmd.ArgCount > 5 ? int.Parse(cmd[5].Text) : 0;
 
             GLBuffer buff;
-            if (classes.TryGetValue(buffname, out buff, cmd.File, cmd.Line, cmd.Position, err) == false)
+            if (classes.TryGetValue(buffname, out buff, cmd, err) == false)
             {
-                err.Add($"Buffer '{buffname}' could not be found.", cmd.File, cmd.Line, cmd.Position);
+                err.Add($"Buffer '{buffname}' could not be found.", cmd);
                 return;
             }
 
@@ -95,7 +94,7 @@ namespace App
             else if (Enum.TryParse(typename, true, out typef))
                 GL.VertexAttribPointer(attrIdx, length, typef, false, stride, offset);
             else
-                err.Add($"Type '{typename}' is not supported.", cmd.File, cmd.Line, cmd.Position);
+                err.Add($"Type '{typename}' is not supported.", cmd);
 
             if (divisor > 0)
                 GL.VertexAttribDivisor(attrIdx, divisor);

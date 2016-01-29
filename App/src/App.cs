@@ -166,33 +166,22 @@ namespace App
             // generate debug information?
             var debugging = sender == toolBtnDbg;
 
+            // COMPILE THE CURRENTLY SELECTED FILE
             var root = Compiler.Compile(sourceTab.filepath);
 
-            // remove comments
-            var linePos = CodeEditor.GetLinePositions(compiledEditor.Text);
-            var code = CodeEditor.IncludeFiles(compiledEditor.Text, includeDir, linePos);
-            code = CodeEditor.RemoveComments(code);
-            code = CodeEditor.RemoveNewLineIndicators(code);
-            code = CodeEditor.ResolvePreprocessorDefinitions(code, linePos);
-
-            // FIND PROTOGL CLASS BLOCKS (find "TYPE name { ... }")
-            var blocks = CodeEditor.GetBlocks(code);
-
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
-            var ex = blocks
-                .Catch(x => glControl.AddObject(x.Text, x.File, x.Line, x.Pos, includeDir, debugging))
-                .ToArray();
+            var ex = root.Catch(x => glControl.AddObject(x, debugging)).ToArray();
 
             // show errors
             var exc = from x in ex
                       where x is CompileException || x.InnerException is CompileException
                       select (x is CompileException ? x : x.InnerException) as CompileException;
             var err = from x in exc from y in x select y;
-            var lineIdx = err.Select(x => linePos.IndexOf(y => y >= x.Pos));
-            err.Zip(lineIdx, (x, idx) => AddOutputItem(x.File, idx, x.Msg));
+            var line = err.Select(x => x.Line);
+            err.Zip(line, (x, idx) => AddOutputItem(x.File, idx, x.Msg));
 
             // underline all debug errors
-            var ranges = lineIdx.Select(x => new[] {
+            var ranges = line.Select(x => new[] {
                 compiledEditor.Lines[x].Position,
                 compiledEditor.Lines[x].EndPosition
             });

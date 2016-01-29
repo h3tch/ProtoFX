@@ -77,7 +77,7 @@ namespace App
             }
             catch (DirectoryNotFoundException ex)
             {
-                throw err.Add(ex.Message, block.File, block.Line, block.Position);
+                throw err.Add(ex.Message, block);
             }
 
             // check for compiler errors
@@ -86,7 +86,7 @@ namespace App
                 string msg = "";
                 foreach (var message in compilerresults.Errors)
                     msg += "\n" + message;
-                throw err.Add(msg, block.File, block.Line, block.Position);
+                throw err.Add(msg, block);
             }
         }
 
@@ -173,10 +173,10 @@ namespace App
                 new object[] { block.Name, ToDict(block) }, App.culture, null);
 
             if (instance == null)
-                throw err.Add($"Main class '{classname}' could not be found.", cmd.File, cmd.Line, cmd.Position);
+                throw err.Add($"Main class '{classname}' could not be found.", cmd);
             
             List<string> errors = InvokeMethod<List<string>>(instance, "GetErrors");
-            errors?.ForEach(msg => err.Add(msg, cmd.File, cmd.Line, cmd.Position));
+            errors?.ForEach(msg => err.Add(msg, cmd));
 
             return instance;
         }

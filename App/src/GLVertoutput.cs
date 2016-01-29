@@ -38,7 +38,7 @@ namespace App
 
             // unbind object and check for errors
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, 0);
-            if (HasErrorOrGlError(err, block.File, block.Line, block.Position))
+            if (HasErrorOrGlError(err, block))
                 throw err;
         }
 
@@ -84,8 +84,7 @@ namespace App
         {
             if (cmd.ArgCount == 0)
             {
-                err.Add("Command buff needs at least one attribute (e.g. 'buff buff_name')",
-                    cmd.File, cmd.Line, cmd.Position);
+                err.Add("Command buff needs at least one attribute (e.g. 'buff buff_name')", cmd);
                 return;
             }
 
@@ -93,8 +92,7 @@ namespace App
             GLBuffer buf = classes.GetValue<GLBuffer>(cmd[0].Text);
             if (buf == null)
             {
-                err.Add($"The name '{cmd[0]}' does not reference an object of type 'buffer'.",
-                    cmd.File, cmd.Line, cmd.Position);
+                err.Add($"The name '{cmd[0]}' does not reference an object of type 'buffer'.", cmd);
                 return;
             }
 
@@ -102,8 +100,7 @@ namespace App
             int offset = 0;
             if (cmd.ArgCount > 1 && int.TryParse(cmd[1].Text, out offset) == false)
             {
-                err.Add($"The second parameter (offset) of buff {unit} is invalid.",
-                    cmd.File, cmd.Line, cmd.Position);
+                err.Add($"The second parameter (offset) of buff {unit} is invalid.", cmd);
                 return;
             }
 
@@ -111,8 +108,7 @@ namespace App
             int size = buf.size;
             if (cmd.ArgCount > 2 && int.TryParse(cmd[2].Text, out size) == false)
             {
-                err.Add($"The third parameter (size) of buff {unit} is invalid.",
-                    cmd.File, cmd.Line, cmd.Position);
+                err.Add($"The third parameter (size) of buff {unit} is invalid.", cmd);
                 return;
             }
 

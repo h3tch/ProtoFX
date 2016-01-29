@@ -78,7 +78,7 @@ namespace App
             }
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            if (HasErrorOrGlError(err, block.File, block.Line, block.Position))
+            if (HasErrorOrGlError(err, block))
                 throw err;
         }
 
@@ -257,11 +257,11 @@ namespace App
         private static byte[] LoadXml(CompileException err, Compiler.Command cmd, Dict<GLObject> scene)
         {
             // Get text from file or text object
-            string str = GetText(scene, cmd, err);
+            string str = GetText(scene, cmd);
             if (str == null)
             {
                 err.Add("Could not process command. Second argument must "
-                    + "be a name to a text object or a filename.", cmd.File, cmd.Line, cmd.Position);
+                    + "be a name to a text object or a filename.", cmd);
                 return null;
             }
 
@@ -281,7 +281,7 @@ namespace App
                     }
                     catch (CompileException ex)
                     {
-                        err.Add(ex.GetBaseException().Message, cmd.File, cmd.Line, cmd.Position);
+                        err.Add(ex.GetBaseException().Message, cmd);
                     }
                 }
 
@@ -291,7 +291,7 @@ namespace App
             }
             catch (Exception ex)
             {
-                err.Add(ex.GetBaseException().Message, cmd.File, cmd.Line, cmd.Position);
+                err.Add(ex.GetBaseException().Message, cmd);
             }
 
             return null;
@@ -315,11 +315,11 @@ namespace App
         private static byte[] loadText(CompileException err, Compiler.Command cmd, Dict<GLObject> scene)
         {
             // Get text from file or text object
-            string str = GetText(scene, cmd, err);
+            string str = GetText(scene, cmd);
             if (str == null)
             {
                 err.Add("Could not process command. Second argument must "
-                    + "be a name to a text object or a filename.", cmd.File, cmd.Line, cmd.Position);
+                    + "be a name to a text object or a filename.", cmd);
                 return null;
             }
 
@@ -339,11 +339,11 @@ namespace App
             return null;
         }
 
-        private static string GetText(Dict<GLObject> scene, Compiler.Command cmd, CompileException err)
+        private static string GetText(Dict<GLObject> scene, Compiler.Command cmd)
         {
             GLText text;
             string dir = Path.GetDirectoryName(cmd.File) + Path.DirectorySeparatorChar;
-            if (scene.TryGetValue(cmd[0].Text, out text, cmd.File, cmd.Line, cmd.Position, err))
+            if (scene.TryGetValue(cmd[0].Text, out text, cmd))
                 return text.text.Trim();
             else if (File.Exists(cmd[0].Text))
                 return File.ReadAllText(cmd[0].Text);

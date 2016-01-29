@@ -88,8 +88,7 @@ namespace App
                 else
                     err.Add("Texture type could not be derived from 'width', 'height', "
                         + "'depth' and 'length'. Please check these parameters or specify "
-                        + "the type directly (e.g. 'type = texture2D').",
-                        block.File, block.Line, block.Position);
+                        + "the type directly (e.g. 'type = texture2D').", block);
             }
 
             // LOAD IMAGE DATA
@@ -123,7 +122,7 @@ namespace App
                 GL.GenerateMipmap((GenerateMipmapTarget)target);
 
             GL.BindTexture(target, 0);
-            if (HasErrorOrGlError(err, block.File, block.Line, block.Position))
+            if (HasErrorOrGlError(err, block))
                 throw err;
         }
 

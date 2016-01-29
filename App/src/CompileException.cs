@@ -37,6 +37,12 @@ namespace App
         {
         }
 
+        public CompileException Add(string message, Compiler.Block block)
+            => Add(message, block.File, block.LineInFile, block.PositionInFile);
+
+        public CompileException Add(string message, Compiler.Command cmd)
+            => Add(message, cmd.File, cmd.LineInFile, cmd.PositionInFile);
+
         public CompileException Add(string message, string file, int line, int pos)
         {
             messages.Add(new Err(file, line, pos, callstackstring + message));

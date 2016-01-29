@@ -25,15 +25,14 @@ namespace App
             var cmds = block["class"].ToList();
             if (cmds.Count == 0)
                 throw err.Add("Instance must specify a 'class' command (e.g., class csharp_name " +
-                    "class_name).", block.File, block.Line, block.Position);
+                    "class_name).", block);
             var cmd = cmds.First();
 
             // FIND CSHARP CLASS DEFINITION
             var csharp = scene.GetValue<GLCsharp>(cmd[0].Text);
             if (csharp == null)
             {
-                err.Add($"Could not find csharp code '{cmd[0].Text}' of command '{cmd.Text}' ",
-                    cmd.File, cmd.Line, cmd.Position);
+                err.Add($"Could not find csharp code '{cmd[0].Text}' of command '{cmd.Text}' ", cmd);
                 return;
             }
 

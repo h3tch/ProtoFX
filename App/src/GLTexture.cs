@@ -47,7 +47,7 @@ namespace App
             {
                 if (format == 0)
                     throw err.Add($"No texture buffer format defined for buffer '{buff}' " +
-                        "(e.g. format RGBA8).", block.File, block.Line, block.Position);
+                        "(e.g. format RGBA8).", block);
                 // CREATE OPENGL OBJECT
                 glname = GL.GenTexture();
                 GL.BindTexture(TextureTarget.TextureBuffer, glname);
@@ -55,7 +55,7 @@ namespace App
                 GL.BindTexture(TextureTarget.TextureBuffer, 0);
             }
 
-            if (HasErrorOrGlError(err, block.File, block.Line, block.Position))
+            if (HasErrorOrGlError(err, block))
                 throw err;
         }
 
@@ -186,17 +186,15 @@ namespace App
         {
             // GET REFERENCES
             if (samp != null)
-                scene.TryGetValue(samp, out glsamp, block.File, block.Line, block.Position, err);
+                scene.TryGetValue(samp, out glsamp, block, err);
             if (buff != null)
-                scene.TryGetValue(buff, out glbuff, block.File, block.Line, block.Position, err);
+                scene.TryGetValue(buff, out glbuff, block, err);
             if (img != null)
-                scene.TryGetValue(img, out glimg, block.File, block.Line, block.Position, err);
+                scene.TryGetValue(img, out glimg, block, err);
             if (glbuff != null && glimg != null)
-                err.Add("Only an image or a buffer can be bound to a texture object.",
-                    block.File, block.Line, block.Position);
+                err.Add("Only an image or a buffer can be bound to a texture object.", block);
             if (glbuff == null && glimg == null)
-                err.Add("Ether an image or a buffer has to be bound to a texture object.",
-                    block.File, block.Line, block.Position);
+                err.Add("Ether an image or a buffer has to be bound to a texture object.", block);
         }
 
         public string GetLable() => GetLable(glname);

@@ -63,11 +63,10 @@ namespace App
             Unbind();
 
             // final error checks
-            if (HasErrorOrGlError(err, block.File, block.Line, block.Position))
+            if (HasErrorOrGlError(err, block))
                 throw err;
             if (status != FramebufferErrorCode.FramebufferComplete)
-                throw err.Add("Could not be created due to an unknown error.",
-                    block.File, block.Line, block.Position);
+                throw err.Add("Could not be created due to an unknown error.", block);
         }
 
         /// <summary>
@@ -141,8 +140,7 @@ namespace App
             GLImage glimg = classes.GetValue<GLImage>(cmd[0].Text);
             if (glimg == null)
             {
-                err.Add($"The name '{cmd[0].Text}' does not reference " +
-                    "an object of type 'image'.", cmd.File, cmd.Line, cmd.Position);
+                err.Add($"The name '{cmd[0].Text}' does not reference an object of type 'image'.", cmd);
                 return;
             }
 
@@ -163,7 +161,7 @@ namespace App
                 $"{cmd.Name}attachment{(cmd.Name.Equals("color") ? "" + numAttachments++ : "")}",
                 true, out attachment))
             {
-                err.Add($"Invalid attachment point '{cmd.Name}'.", cmd.File, cmd.Line, cmd.Position);
+                err.Add($"Invalid attachment point '{cmd.Name}'.", cmd);
                 return;
             }
 
@@ -185,8 +183,8 @@ namespace App
                         attachment, glimg.target, glimg.glname, mipmap);
                     break;
                 default:
-                    err.Add($"The texture type '{glimg.target}' of image '{cmd[0].Text}' " +
-                        "is not supported.", cmd.File, cmd.Line, cmd.Position);
+                    err.Add($"The texture type '{glimg.target}' of image " +
+                        $"'{cmd[0].Text}' is not supported.", cmd);
                     break;
             }
         }

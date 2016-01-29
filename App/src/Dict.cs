@@ -20,7 +20,16 @@ namespace App
             return default(TResult);
         }
 
-        public bool TryGetValue<TResult>(string key, out TResult obj, string file, int line, int pos, CompileException err)
+        public bool TryGetValue<TResult>(string key, out TResult obj, Compiler.Command cmd, CompileException err = null)
+            where TResult : T
+            => TryGetValue(key, out obj, cmd.File, cmd.LineInFile, cmd.PositionInFile);
+
+        public bool TryGetValue<TResult>(string key, out TResult obj, Compiler.Block block, CompileException err = null)
+            where TResult : T
+            => TryGetValue(key, out obj, block.File, block.LineInFile, block.PositionInFile);
+
+        public bool TryGetValue<TResult>(string key, out TResult obj, string file, int line, int pos,
+            CompileException err = null)
             where TResult : T
         {
             // try to find the object instance

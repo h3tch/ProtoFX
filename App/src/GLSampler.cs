@@ -29,7 +29,7 @@ namespace App
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapS, ref wrapi);
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapT, ref wrapi);
 
-            HasErrorOrGlError(err, block.File, block.Line, block.Position);
+            HasErrorOrGlError(err, block);
             if (err.HasErrors())
                 throw err;
         }

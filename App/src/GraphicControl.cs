@@ -64,6 +64,25 @@ namespace OpenTK
             Frame++;
         }
 
+        public void AddObject(Compiler.Block block, bool debugging)
+        {
+            // GET CLASS TYPE, ANNOTATION AND NAME
+            var typeStr = "App.GL" + block.Type[0].ToString().ToUpper() + block.Type.Substring(1);
+            var type = Type.GetType(typeStr);
+
+            // check for errors
+            if (type == null)
+                throw new CompileException($"{block.Type} '{block.Name}'")
+                    .Add($"Class type '{block.Type}' not known.", block);
+            if (scene.ContainsKey(block.Name))
+                throw new CompileException($"{block.Type} '{block.Name}'")
+                    .Add($"Class name '{block.Name}' already exists.", block);
+
+            // instantiate class
+            var instance = (GLObject)Activator.CreateInstance(type, block, scene, debugging);
+            scene.Add(instance.name, instance);
+        }
+
         /// <summary>
         /// Add a new object to the scene.
         /// </summary>

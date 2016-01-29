@@ -1,6 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -90,7 +89,18 @@ namespace App
         public abstract void Delete();
 
         public override string ToString() => name;
-        
+
+        static protected bool HasErrorOrGlError(CompileException err, Compiler.Block block)
+        {
+            var errcode = GL.GetError();
+            if (errcode != ErrorCode.NoError)
+            {
+                err.Add($"OpenGL error '{errcode}' occurred.", block);
+                return true;
+            }
+            return err.HasErrors();
+        }
+
         static protected bool HasErrorOrGlError(CompileException err, string file, int line, int pos)
         {
             var errcode = GL.GetError();
@@ -128,9 +138,12 @@ namespace App
             Compiler.Command cmd, CompileException err = null)
         {
             // check for errors
+            if (cmd.ArgCount == 0)
+                err?.Add($"Command '{cmd.Text}' has no arguments (must have at least one).", cmd);
             if (!fieldType.IsArray && cmd.ArgCount > 1)
-                err?.Add($"Command '{cmd.Name}' has too many arguments (more than one).",
-                    cmd.File, cmd.Line, cmd.Position);
+                err?.Add($"Command '{cmd.Text}' has too many arguments (more than one).", cmd);
+            if (err != null && err.HasErrors())
+                return;
 
             var val = fieldType.IsArray ?
                 // if this is an array pass the arguments as string
@@ -139,7 +152,7 @@ namespace App
                     // if this is an enum, convert the string to an enum value
                     Convert.ChangeType(Enum.Parse(fieldType, cmd[0].Text, true), fieldType) :
                     // else try to convert it to the field type
-                    Convert.ChangeType(cmd[0], fieldType, App.culture);
+                    Convert.ChangeType(cmd[0].Text, fieldType, App.culture);
 
             var SetValue = field.GetType().GetMethod(
                 "SetValue", new Type[] { typeof(object), typeof(object) });

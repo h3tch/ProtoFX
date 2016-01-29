@@ -7,6 +7,7 @@ using System.Reflection;
 using PrimType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 using VertoutPrimType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
 using ElementType = OpenTK.Graphics.OpenGL4.DrawElementsType;
+using static System.Reflection.BindingFlags;
 
 namespace App
 {
@@ -45,9 +46,18 @@ namespace App
         {
             var err = new CompileException($"pass '{name}'");
 
+            // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
+            Cmds2Fields(this, block, err);
+
             // PARSE COMMANDS
             foreach (var cmd in block)
             {
+                // ignore class fields
+                var field = GetType().GetField(cmd.Name, Instance | Public | NonPublic);
+                var attr = field?.GetCustomAttributes(typeof(Field), false);
+                if (attr?.Length > 0)
+                    continue;
+
                 err.PushCall($"command '{cmd.Name}' line {cmd.Line}");
                 switch (cmd.Name)
                 {
@@ -63,14 +73,10 @@ namespace App
 
             // GET VERTEX AND FRAGMENT OUTPUT BINDINGS
 
-            if (fragout != null && !scene.TryGetValue(fragout, out glfragout,
-                block.File, block.Line, block.Position, err))
-                err.Add($"The name '{fragout}' does not reference an object of type 'fragout'.",
-                    block.File, block.Line, block.Position);
-            if (vertout != null && vertout.Length > 0 && !scene.TryGetValue(vertout[0], out glvertout,
-                block.File, block.Line, block.Position, err))
-                err.Add($"The name '{vertout[0]}' does not reference an object of type 'vertout'.",
-                    block.File, block.Line, block.Position);
+            if (fragout != null && !scene.TryGetValue(fragout, out glfragout, block, err))
+                err.Add($"The name '{fragout}' does not reference an object of type 'fragout'.", block);
+            if (vertout != null && vertout.Length > 0 && !scene.TryGetValue(vertout[0], out glvertout, block, err))
+                err.Add($"The name '{vertout[0]}' does not reference an object of type 'vertout'.", block);
             if (err.HasErrors())
                 throw err;
 
@@ -82,18 +88,18 @@ namespace App
                 // Attach shader objects.
                 // First try attaching a compute shader. If that
                 // fails, try attaching the default shader pipeline.
-                if ((glcomp = Attach(err, block.File, block.Line, block.Position, comp, scene)) == null)
+                if ((glcomp = Attach(err, block, comp, scene)) == null)
                 {
-                    glvert = Attach(err, block.File, block.Line, block.Position, vert, scene);
-                    gltess = Attach(err, block.File, block.Line, block.Position, tess, scene);
-                    gleval = Attach(err, block.File, block.Line, block.Position, eval, scene);
-                    glgeom = Attach(err, block.File, block.Line, block.Position, geom, scene);
-                    glfrag = Attach(err, block.File, block.Line, block.Position, frag, scene);
+                    glvert = Attach(err, block, vert, scene);
+                    gltess = Attach(err, block, tess, scene);
+                    gleval = Attach(err, block, eval, scene);
+                    glgeom = Attach(err, block, geom, scene);
+                    glfrag = Attach(err, block, frag, scene);
                 }
 
                 // specify vertex output varyings of the shader program
                 if (glvertout != null)
-                    SetVertexOutputVaryings(err, block.File, block.Line, block.Position, vertout);
+                    SetVertexOutputVaryings(err, block, vertout);
 
                 // link program
                 GL.LinkProgram(glname);
@@ -122,119 +128,17 @@ namespace App
                 {
                     var msg = GL.GetProgramInfoLog(glname);
                     if (msg != null && msg.Length > 0)
-                        err.Add("\n" + msg, block.File, block.Line, block.Position);
+                        err.Add("\n" + msg, block);
                 }
             }
 
             if (GL.GetError() != ErrorCode.NoError)
-                err.Add($"OpenGL error '{GL.GetError()}' occurred during shader program creation.",
-                    block.File, block.Line, block.Position);
+                err.Add($"OpenGL error '{GL.GetError()}' occurred " +
+                    "during shader program creation.", block);
             if (err.HasErrors())
                 throw err;
         }
-
-        /// <summary>
-        /// Create pass object.
-        /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLPass(GLParams @params) : base(@params)
-        {
-            var err = new CompileException($"pass '{name}'");
-
-            // PARSE TEXT
-            var body = new Commands(@params.text, @params.file, @params.cmdLine, @params.cmdPos, err);
-
-            // PARSE ARGUMENTS
-            body.Cmds2Fields(this, err);
-
-            // PARSE COMMANDS
-            foreach (var cmd in body)
-            {
-                err.PushCall($"command {cmd.idx} '{cmd.cmd}'");
-                switch (cmd.cmd)
-                {
-                    case "draw": ParseDrawCall(err, cmd, @params.scene); break;
-                    case "compute": ParseComputeCall(err, cmd, @params.scene); break;
-                    case "tex": ParseTexCmd(err, cmd, @params.scene); break;
-                    case "samp": ParseSampCmd(err, cmd, @params.scene); break;
-                    case "exec": ParseCsharpExec(err, cmd, @params.scene); break;
-                    default: ParseOpenGLCall(err, cmd); break;
-                }
-                err.PopCall();
-            }
-
-            // GET VERTEX AND FRAGMENT OUTPUT BINDINGS
-            
-            if (fragout != null && !@params.scene.TryGetValue(fragout, out glfragout,
-                @params.file, @params.nameLine, @params.namePos, err))
-                err.Add($"The name '{fragout}' does not reference an object of type 'fragout'.",
-                    @params.file, @params.nameLine, @params.namePos);
-            if (vertout != null && vertout.Length > 0 && !@params.scene.TryGetValue(vertout[0], out glvertout,
-                @params.file, @params.nameLine, @params.namePos, err))
-                err.Add($"The name '{vertout[0]}' does not reference an object of type 'vertout'.",
-                    @params.file, @params.nameLine, @params.namePos);
-            if (err.HasErrors())
-                throw err;
-
-            // CREATE OPENGL OBJECT
-            if (vert != null || comp != null)
-            {
-                glname = GL.CreateProgram();
-
-                // Attach shader objects.
-                // First try attaching a compute shader. If that
-                // fails, try attaching the default shader pipeline.
-                if ((glcomp = Attach(err, @params.file, @params.nameLine, @params.namePos, comp, @params.scene)) == null)
-                {
-                    glvert = Attach(err, @params.file, @params.nameLine, @params.namePos, vert, @params.scene);
-                    gltess = Attach(err, @params.file, @params.nameLine, @params.namePos, tess, @params.scene);
-                    gleval = Attach(err, @params.file, @params.nameLine, @params.namePos, eval, @params.scene);
-                    glgeom = Attach(err, @params.file, @params.nameLine, @params.namePos, geom, @params.scene);
-                    glfrag = Attach(err, @params.file, @params.nameLine, @params.namePos, frag, @params.scene);
-                }
-
-                // specify vertex output varyings of the shader program
-                if (glvertout != null)
-                    SetVertexOutputVaryings(err, @params.file, @params.nameLine, @params.namePos, vertout);
-
-                // link program
-                GL.LinkProgram(glname);
-
-                // detach shader objects
-                if (glcomp != null)
-                    GL.DetachShader(glname, glcomp.glname);
-                else
-                {
-                    if (glvert != null)
-                        GL.DetachShader(glname, glvert.glname);
-                    if (gltess != null)
-                        GL.DetachShader(glname, gltess.glname);
-                    if (gleval != null)
-                        GL.DetachShader(glname, gleval.glname);
-                    if (glgeom != null)
-                        GL.DetachShader(glname, glgeom.glname);
-                    if (glfrag != null)
-                        GL.DetachShader(glname, glfrag.glname);
-                }
-
-                // check for link errors
-                int status;
-                GL.GetProgram(glname, GetProgramParameterName.LinkStatus, out status);
-                if (status != 1)
-                {
-                    var msg = GL.GetProgramInfoLog(glname);
-                    if (msg != null && msg.Length > 0)
-                        err.Add("\n" + msg, @params.file, @params.nameLine, @params.namePos);
-                }
-            }
-
-            if (GL.GetError() != ErrorCode.NoError)
-                err.Add($"OpenGL error '{GL.GetError()}' occurred during shader program creation.",
-                    @params.file, @params.nameLine, @params.namePos);
-            if (err.HasErrors())
-                throw err;
-        }
-
+        
         /// <summary>
         /// Execute pass.
         /// </summary>
@@ -448,7 +352,7 @@ namespace App
             if (modeIsSet == false)
             {
                 err.Add("Draw call must specify a primitive type (e.g. triangles, "
-                    + "trianglefan, lines, points, ...).", cmd.File, cmd.Line, cmd.Position);
+                    + "trianglefan, lines, points, ...).", cmd);
                 return;
             }
 
@@ -460,8 +364,7 @@ namespace App
 
             if (!Enum.IsDefined(typeof(DrawFunc), bits))
             {
-                err.Add("Draw call function not recognized or ambiguous.",
-                    cmd.File, cmd.Line, cmd.Position);
+                err.Add("Draw call function not recognized or ambiguous.", cmd);
                 return;
             }
 
@@ -533,7 +436,7 @@ namespace App
             {
                 err.Add("Compute command does not provide enough arguments "
                     + "(e.g., 'compute num_groups_X num_groups_y num_groups_z' or "
-                    + "'compute buffer_name indirect_pointer').", cmd.File, cmd.Line, cmd.Position);
+                    + "'compute buffer_name indirect_pointer').", cmd);
                 return;
             }
 
@@ -567,7 +470,7 @@ namespace App
             }
             catch (CompileException ex)
             {
-                err.Add(ex.Message, cmd.File, cmd.Line, cmd.Position);
+                err.Add(ex.Message, cmd);
             }
         }
 
@@ -692,7 +595,7 @@ namespace App
             // check for errors
             for (int i = 0; i < Math.Min(numMandatory, values.Length); i++)
                 if (values[i] == null)
-                    err?.Add($"Error parsing argument {i}.", cmd.File, cmd.Line, cmd.Position);
+                    err?.Add($"Error parsing argument {i}.", cmd);
 
             return values;
         }
@@ -730,7 +633,7 @@ namespace App
             var mtype = FindMethod(cmd.Name, cmd.ArgCount);
             if (mtype == null)
             {
-                err.Add("Unknown command '" + cmd.Text + "'", cmd.File, cmd.Line, cmd.Position);
+                err.Add("Unknown command '" + cmd.Text + "'", cmd);
                 return;
             }
 
@@ -773,13 +676,13 @@ namespace App
             // check if command provides the correct amount of parameters
             if (cmd.ArgCount == 0)
             {
-                err.Add("Not enough arguments for exec command.", cmd.File, cmd.Line, cmd.Position);
+                err.Add("Not enough arguments for exec command.", cmd);
                 return;
             }
 
             // get instance
             GLInstance instance;
-            if (!classes.TryGetValue(cmd[0].Text, out instance, cmd.File, cmd.Line, cmd.Position, err))
+            if (!classes.TryGetValue(cmd[0].Text, out instance, cmd, err))
                 return;
 
             csexec.Add(instance);
@@ -795,30 +698,29 @@ namespace App
             return methods.Count() > 0 ? methods.First() : null;
         }
 
-        private GLShader Attach(CompileException err, string file, int line, int pos, string sh, Dict<GLObject> classes)
+        private GLShader Attach(CompileException err, Compiler.Block block, string sh, Dict<GLObject> classes)
         {
             GLShader glsh = null;
 
             // get shader from class list
-            if (sh != null && classes.TryGetValue(sh, out glsh, file, line, pos, err))
+            if (sh != null && classes.TryGetValue(sh, out glsh, block, err))
                 GL.AttachShader(glname, glsh.glname);
 
             return glsh;
         }
 
-        private void SetVertexOutputVaryings(CompileException err, string file, int line, int pos, string[] varyings)
+        private void SetVertexOutputVaryings(CompileException err, Compiler.Block block, string[] varyings)
         {
             // the vertout command needs at least 3 arguments
             if (varyings.Length < 3)
                 throw err.Add("vertout command does not have enough arguments "
-                    + "(e.g. vertout vertout_name points varying_name).", file, line, pos);
+                    + "(e.g. vertout vertout_name points varying_name).", block);
 
             // parse vertex output primitive type
             if (!Enum.TryParse(varyings[1], true, out vertoutPrim))
                 throw err.Add("vertout command does not support "
                     + $"the specified primitive type '{varyings[1]}' "
-                    + "(must be 'points', 'lines' or 'triangles').",
-                    file, line, pos);
+                    + "(must be 'points', 'lines' or 'triangles').", block);
 
             // get vertex output varying specification
             int skip = 2;
@@ -844,7 +746,7 @@ namespace App
             }
             else
                 throw err.Add("vertout command does not specify shader output varying names "
-                    + "(e.g. vertout vertout_name points varying_name).", file, line, pos);
+                    + "(e.g. vertout vertout_name points varying_name).", block);
         }
         #endregion
 

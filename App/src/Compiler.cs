@@ -13,21 +13,23 @@ namespace App
 
         public class File : IEnumerable<Block>
         {
-            public File owner { get; private set; }
-            public string path { get; private set; }
-            public int position { get; private set; }
-            public int line { get; private set; }
-            public string text { get; private set; }
-            public File[] include { get; private set; }
-            public Block[] block { get; private set; }
+            public File Owner { get; private set; }
+            public string Path { get; private set; }
+            public int Position { get; private set; }
+            public int PositionInFile => Position;
+            public int Line { get; private set; }
+            public int LineInFile => Line;
+            public string Text { get; private set; }
+            public File[] Include { get; private set; }
+            public Block[] Block { get; private set; }
             private static HashSet<string> incpath = new HashSet<string>();
 
             public File(string path, File owner = null, int position = 0, int line = 0)
             {
-                this.owner = owner;
-                this.position = position;
-                this.line = line;
-                this.path = path;
+                Owner = owner;
+                Position = position;
+                Line = line;
+                Path = path;
 
                 // does the include file exist
                 if (!System.IO.File.Exists(path))
@@ -40,11 +42,12 @@ namespace App
                         $"because of a recursiveinclusion of '{path}'.");
                 incpath.Add(path);
                 // remove comments
-                text = RemoveComments(System.IO.File.ReadAllText(path));
+                Text = RemoveComments(System.IO.File.ReadAllText(path));
+                Text = RemoveNewLineIndicators (Text);
                 // process all include files in the file
-                include = ProcessIncludes().ToArray();
+                Include = ProcessIncludes().ToArray();
                 // process all blocks in the file
-                block = ProcessBlocks().ToArray();
+                Block = ProcessBlocks().ToArray();
             }
 
             /// <summary>
@@ -56,29 +59,29 @@ namespace App
             {
                 int iInc = 0, iBlock = 0;
                 // iterate through the sorted block lists
-                while ((includeIncludeFiles && iInc < include.Length) || iBlock < block.Length)
+                while ((includeIncludeFiles && iInc < Include.Length) || iBlock < Block.Length)
                 {
                     // DECIDE WHETHER TO READ THE NEXT BLOCK OR THE NEXT INCLUDE FILE
 
                     // if there is any block left
-                    if (iBlock < block.Length)
+                    if (iBlock < Block.Length)
                         // if include files should be included and there is any include file left
-                        if (includeIncludeFiles && iInc < include.Length)
+                        if (includeIncludeFiles && iInc < Include.Length)
                             // which one is the next in the code
-                            if (include[iInc].position < block[iBlock].Position)
+                            if (Include[iInc].Position < Block[iBlock].Position)
                                 // return include file blocks
-                                foreach (var b in include[iInc++].GetBlocks().ToArray())
+                                foreach (var b in Include[iInc++].GetBlocks().ToArray())
                                     yield return b;
                             else
                                 // return block
-                                yield return block[iBlock++];
+                                yield return Block[iBlock++];
                         else
                             // return block
-                            yield return block[iBlock++];
+                            yield return Block[iBlock++];
                     // if include files should be included
                     else if (includeIncludeFiles)
                         // return include file blocks
-                        foreach (var b in include[iInc++].GetBlocks().ToArray())
+                        foreach (var b in Include[iInc++].GetBlocks().ToArray())
                             yield return b;
                 }
             }
@@ -86,9 +89,9 @@ namespace App
             private IEnumerable<File> ProcessIncludes()
             {
                 // get directory form path
-                var dir = Path.GetDirectoryName(path) + '/';
+                var dir = System.IO.Path.GetDirectoryName(Path) + '/';
                 // find #include statements
-                var matches = Regex.Matches(text, @"^\s*#include \""[^""]*\""", RegexOptions.Multiline);
+                var matches = Regex.Matches(Text, @"^\s*#include \""[^""]*\""", RegexOptions.Multiline);
 
                 // load all include files
                 for (int i = 0; i < matches.Count; i++)
@@ -97,7 +100,7 @@ namespace App
                     var incfile = Regex.Match(matches[i].Value, @"\""[^""]*\""").Value;
                     // load and process file
                     yield return new File(dir + incfile.Substring(1, incfile.Length - 2),
-                        this, matches[i].Index, text.LineFromPosition(matches[i].Index));
+                        this, matches[i].Index, Text.LineFromPosition(matches[i].Index));
                 }
             }
 
@@ -108,14 +111,14 @@ namespace App
                 var close = "}";
                 var header = @"(\w+[ \t]*){2,3}";
                 var oc = "" + open + close;
-                var matches = Regex.Matches(text, header +
+                var matches = Regex.Matches(Text, header +
                     $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
                     $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
 
                 // process found block strings
                 foreach (Match match in matches)
                     yield return new Block(this, match.Index,
-                        text.LineFromPosition(match.Index), match.Value);
+                        Text.LineFromPosition(match.Index), match.Value);
             }
 
             #region IEnumerable Interface
@@ -131,22 +134,24 @@ namespace App
         {
             public File Owner { get; private set; }
             public int Position { get; private set; }
+            public int PositionInFile => Position;
             public int Line { get; private set; }
+            public int LineInFile => Line;
             public string Text { get; private set; }
             public string Type { get; private set; }
             public string Name { get; private set; }
             public string Anno { get; private set; }
-            public string File { get { return Owner.path; } }
+            public string File { get { return Owner.Path; } }
             public Command[] Cmds { get; private set; }
             public Command this[int i] { get { return Cmds[i]; } }
             public IEnumerable<Command> this[string name] { get { return GetCommands(name); } }
 
             public Block(File owner, int position, int line, string text)
             {
-                this.Owner = owner;
-                this.Position = position;
-                this.Line = line;
-                this.Text = text;
+                Owner = owner;
+                Position = position;
+                Line = line;
+                Text = text.Trim();
 
                 // find all words before the brace
                 var matches = Regex.Matches(text.Substring(0, text.IndexOf('{')), @"\w+");
@@ -193,7 +198,7 @@ namespace App
                 {
                     var cmd = new Command(this, Text.PositionFromLine(i), i, lines[i]);
                     // only return valid commands
-                    if (cmd.ArgCount > 0)
+                    if (cmd.ArgCount >= 0)
                         yield return cmd;
                 }
             }
@@ -211,10 +216,12 @@ namespace App
         {
             public Block Owner { get; private set; }
             public int Position { get; private set; }
+            public int PositionInFile => Owner.PositionInFile + Position;
             public int Line { get; private set; }
+            public int LineInFile => Owner.LineInFile + Line;
             public string Text { get; private set; }
             private Argument[] Args { get; set; }
-            public string File { get { return Owner.Owner.path; } }
+            public string File { get { return Owner.Owner.Path; } }
             public string Name { get { return Args[0].Text; } }
             public int ArgCount { get { return Args.Length - 1; } }
             public Argument this[int i] { get { return Args[i + 1]; } }
@@ -224,7 +231,7 @@ namespace App
                 Owner = owner;
                 Position = position;
                 Line = line;
-                Text = text;
+                Text = text.Trim();
 
                 // process arguments in the command line
                 Args = ProcessArguments().ToArray();
@@ -249,7 +256,11 @@ namespace App
 
                 // convert them to arguments
                 foreach (Match match in matches)
-                    yield return new Argument(this, match.Index, 0, match.Value);
+                {
+                    var arg = match.Value;
+                    int s = arg[0] == '"' && arg[arg.Length - 1] == '"' ? 1 : 0;
+                    yield return new Argument(this, match.Index, 0, arg.Substring(s, arg.Length - s * 2));
+                }
             }
 
             #region IEnumerable Interface
@@ -265,7 +276,9 @@ namespace App
         {
             public Command Owner { get; private set; }
             public int Position { get; private set; }
+            public int PositionInFile => Owner.PositionInFile + Position;
             public int Line { get; private set; }
+            public int LineInFile => Owner.LineInFile + Line;
             public string Text { get; private set; }
 
             public Argument(Command owner, int position, int line, string text)
@@ -273,7 +286,7 @@ namespace App
                 Owner = owner;
                 Position = position;
                 Line = line;
-                Text = text;
+                Text = text.Trim();
             }
         }
 
@@ -303,5 +316,15 @@ namespace App
                 },
                 RegexOptions.Singleline);
         }
+
+        /// <summary>
+        /// Remove '...' new line indicators.
+        /// </summary>
+        /// <param name="text">String to remove new line indicators from.</param>
+        /// <returns>String without new line indicators.</returns>
+        public static string RemoveNewLineIndicators(string text)
+            => Regex.Replace(text, @"\.\.\.(\s?)(\r\n|\n|\r)",
+                x => new string(' ', x.Value.Length),
+                RegexOptions.None);
     }
 }
