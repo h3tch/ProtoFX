@@ -10,7 +10,7 @@ namespace App
         [Field] private TextureWrapMode wrap = TextureWrapMode.ClampToEdge;
         #endregion
         
-        public GLSampler(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+        public GLSampler(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"sampler '{name}'");

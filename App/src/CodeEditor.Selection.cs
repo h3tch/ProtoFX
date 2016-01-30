@@ -1,6 +1,4 @@
-﻿using ScintillaNET;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace App

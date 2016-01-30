@@ -31,7 +31,7 @@ namespace App
                 throw err;
         }
 
-        public GLTexture(Compiler.Block block, Dict<GLObject> scene, GLSampler glsamp, GLBuffer glbuff, GLImage glimg)
+        public GLTexture(Compiler.Block block, Dict scene, GLSampler glsamp, GLBuffer glbuff, GLImage glimg)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"texture '{name}'");
@@ -57,7 +57,7 @@ namespace App
                 throw err;
         }
 
-        public GLTexture(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+        public GLTexture(Compiler.Block block, Dict scene, bool debugging)
             : this(block, scene, null, null, null)
         {
         }
@@ -107,7 +107,7 @@ namespace App
         }
         
         private void GetReferences(string samp, string buff, string img, Compiler.Block block,
-            Dict<GLObject> scene, CompileException err)
+            Dict scene, CompileException err)
         {
             // GET REFERENCES
             if (samp != null)

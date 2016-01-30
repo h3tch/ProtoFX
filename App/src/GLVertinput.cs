@@ -6,7 +6,7 @@ namespace App
 {
     class GLVertinput : GLObject
     {
-        public GLVertinput(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+        public GLVertinput(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"vertinput '{name}'");
@@ -29,7 +29,7 @@ namespace App
                 throw err;
         }
         
-        private void Attach(CompileException err, int attrIdx, Compiler.Command cmd, string name, Dict<GLObject> classes)
+        private void Attach(CompileException err, int attrIdx, Compiler.Command cmd, string name, Dict classes)
         {
             // check commands for errors
             if (cmd.ArgCount < 3)

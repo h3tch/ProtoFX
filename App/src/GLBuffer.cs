@@ -58,7 +58,7 @@ namespace App
         /// Create OpenGL object.
         /// </summary>
         /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLBuffer(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+        public GLBuffer(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"buffer '{block.Name}'");
@@ -171,7 +171,7 @@ namespace App
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
         
-        private static byte[] LoadXml(CompileException err, Compiler.Command cmd, Dict<GLObject> scene)
+        private static byte[] LoadXml(CompileException err, Compiler.Command cmd, Dict scene)
         {
             // Get text from file or text object
             string str = GetText(scene, cmd);
@@ -214,7 +214,7 @@ namespace App
             return null;
         }
         
-        private static byte[] loadText(CompileException err, Compiler.Command cmd, Dict<GLObject> scene)
+        private static byte[] loadText(CompileException err, Compiler.Command cmd, Dict scene)
         {
             // Get text from file or text object
             string str = GetText(scene, cmd);
@@ -229,7 +229,7 @@ namespace App
             return str.ToCharArray().ToBytes();
         }
         
-        private static string GetText(Dict<GLObject> scene, Compiler.Command cmd)
+        private static string GetText(Dict scene, Compiler.Command cmd)
         {
             GLText text;
             string dir = Path.GetDirectoryName(cmd.File) + Path.DirectorySeparatorChar;

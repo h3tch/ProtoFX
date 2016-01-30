@@ -15,7 +15,7 @@ namespace App
         /// Create OpenGL object.
         /// </summary>
         /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLVertoutput(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+        public GLVertoutput(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"vertoutput '{name}'");
@@ -80,7 +80,7 @@ namespace App
             }
         }
 
-        private void Attach(CompileException err, int unit, Compiler.Command cmd, Dict<GLObject> classes)
+        private void Attach(CompileException err, int unit, Compiler.Command cmd, Dict classes)
         {
             if (cmd.ArgCount == 0)
             {

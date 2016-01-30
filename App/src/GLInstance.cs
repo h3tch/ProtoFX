@@ -16,7 +16,7 @@ namespace App
         /// Create class instance of a C# class compiled through GLCSharp.
         /// </summary>
         /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLInstance(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+        public GLInstance(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"instance '{name}'");
@@ -71,10 +71,8 @@ namespace App
         public void Update(int program, int width, int height, int widthTex, int heightTex)
             => update?.Invoke(instance, new object[] { program, width, height, widthTex, heightTex });
 
-        public void EndPass(int program)
-            => endpass?.Invoke(instance, new object[] { program });
+        public void EndPass(int program) => endpass?.Invoke(instance, new object[] { program });
 
-        public override void Delete()
-            => delete?.Invoke(instance, null);
+        public override void Delete() => delete?.Invoke(instance, null);
     }
 }

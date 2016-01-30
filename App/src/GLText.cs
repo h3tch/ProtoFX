@@ -4,7 +4,7 @@
     {
         public string text { get; private set; }
 
-        public GLText(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+        public GLText(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             text = block.Text;

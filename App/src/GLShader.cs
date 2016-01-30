@@ -4,7 +4,7 @@ namespace App
 {
     class GLShader : GLObject
     {
-        public GLShader(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+        public GLShader(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"shader '{name}'");

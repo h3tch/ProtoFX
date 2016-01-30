@@ -8,6 +8,13 @@ namespace App
 {
     class DataXml
     {
+        /// <summary>
+        /// Load a specific item from a xml document.
+        /// </summary>
+        /// <param name="xmlDoc">Xml document to parse.</param>
+        /// <param name="itemname">Item to load.</param>
+        /// <returns>Return item data as byte array. Note that if a <code>type</code> attribute
+        /// is provided, the method will try to convert the string into this type.</returns>
         public static byte[] Load(XmlDocument xmlDoc, string itemname)
         {
             string errstr = $"<{itemname}>: ";

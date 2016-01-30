@@ -12,7 +12,7 @@ namespace OpenTK
         private bool render = false;
         private int renderExceptions = 0;
         private DataGridView output;
-        private Dict<GLObject> scene = new Dict<GLObject>();
+        private Dict scene = new Dict();
         public Dictionary<string, GLObject> Scene { get { return scene; } }
         public int Frame { get; private set; } = 0;
 

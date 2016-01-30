@@ -22,7 +22,7 @@ namespace App
         /// Create C# object compiler class.
         /// </summary>
         /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLCsharp(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+        public GLCsharp(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"csharp '{name}'");

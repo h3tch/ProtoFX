@@ -27,6 +27,12 @@ namespace App
             public File[] Include { get; private set; }
             public Block[] Block { get; private set; }
 
+            /// <summary>
+            /// Parse file and extract block data.
+            /// </summary>
+            /// <param name="path">File to be compiled.</param>
+            /// <param name="owner">An owner file indicates that this is an included file.</param>
+            /// <param name="line">The preprocessor line of the included file.</param>
             public File(string path, File owner = null, int line = 0)
             {
                 Owner = owner;
@@ -149,6 +155,12 @@ namespace App
             public Command this[int i] { get { return Cmds[i]; } }
             public IEnumerable<Command> this[string name] { get { return GetCommands(name); } }
 
+            /// <summary>
+            /// Parse block string and extract commands.
+            /// </summary>
+            /// <param name="owner">File which owns the block string.</param>
+            /// <param name="line">Line in the owner file where the block string is located.</param>
+            /// <param name="text">The block string to be parsed.</param>
             public Block(File owner, int line, string text)
             {
                 Owner = owner;
@@ -226,6 +238,12 @@ namespace App
             public int ArgCount { get { return Args.Length - 1; } }
             public Argument this[int i] { get { return Args[i + 1]; } }
 
+            /// <summary>
+            /// Parse command line for arguments.
+            /// </summary>
+            /// <param name="owner">Block owning the command line.</param>
+            /// <param name="line">Line in the block string where the command line is located.</param>
+            /// <param name="text">The command line text.</param>
             public Command(Block owner, int line, string text)
             {
                 Owner = owner;
@@ -258,7 +276,7 @@ namespace App
                 {
                     var arg = match.Value;
                     int s = arg[0] == '"' && arg[arg.Length - 1] == '"' ? 1 : 0;
-                    yield return new Argument(this, 0, arg.Substring(s, arg.Length - s * 2));
+                    yield return new Argument(this, arg.Substring(s, arg.Length - s * 2));
                 }
             }
 
@@ -274,14 +292,18 @@ namespace App
         public class Argument
         {
             public Command Owner { get; private set; }
-            public int Line { get; private set; }
+            public int Line => 0;
             public int LineInFile => Owner.LineInFile + Line;
             public string Text { get; private set; }
 
-            public Argument(Command owner, int line, string text)
+            /// <summary>
+            /// Store argument string.
+            /// </summary>
+            /// <param name="owner">Command line owning the argument.</param>
+            /// <param name="text">Argument string.</param>
+            public Argument(Command owner, string text)
             {
                 Owner = owner;
-                Line = line;
                 Text = text.Trim();
             }
         }

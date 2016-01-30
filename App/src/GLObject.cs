@@ -25,7 +25,7 @@ namespace App
         public int cmdLine;
         public int cmdPos;
         public string dir;
-        public Dict<GLObject> scene;
+        public Dict scene;
         public bool debugging;
         public GLParams(
             string name = null, 
@@ -37,7 +37,7 @@ namespace App
             int cmdLine = -1,
             int cmdPos = -1,
             string dir = null, 
-            Dict<GLObject> scene = null,
+            Dict scene = null,
             bool debugging = false)
         {
             this.name = name;

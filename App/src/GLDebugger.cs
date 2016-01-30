@@ -50,7 +50,7 @@ namespace App
         /// be called whenever a program is compiled.
         /// </summary>
         /// <param name="scene"></param>
-        public static void Initilize(Dict<GLObject> scene)
+        public static void Initilize(Dict scene)
         {
             // allocate GPU resources
             buf = new GLBuffer(dbgBufKey, "dbg", BufferUsageHint.DynamicRead, stage_size * 6 * 16);

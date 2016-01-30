@@ -6,59 +6,54 @@ namespace App
     /// <summary>
     /// Specialized dictionary to handle OpenGL objects.
     /// </summary>
-    /// <typeparam name="T">
+    /// <typeparam name="TValue">
     /// Type to be stored in the dictionary. Has to be a GLObject type.</typeparam>
-    class Dict<T> : Dictionary<string, T>
-        where T : GLObject
+    class Dict : Dictionary<string, GLObject>
     {
-        public TResult GetValue<TResult>(string key)
-            where TResult : T
+        public T GetValue<T>(string key) where T : GLObject
         {
-            T obj = default(T);
-            if (key != null && base.TryGetValue(key, out obj) && obj is TResult)
-                return (TResult)obj;
-            return default(TResult);
+            GLObject obj = default(GLObject);
+            if (key != null && TryGetValue(key, out obj) && obj is T)
+                return (T)obj;
+            return default(T);
         }
 
-        public bool TryGetValue<TResult>(string key, out TResult obj, Compiler.Command cmd, CompileException err = null)
-            where TResult : T
+        public bool TryGetValue<T>(string key, out T obj, Compiler.Command cmd, CompileException err = null)
+            where T : GLObject
             => TryGetValue(key, out obj, cmd.File, cmd.LineInFile);
 
-        public bool TryGetValue<TResult>(string key, out TResult obj, Compiler.Block block, CompileException err = null)
-            where TResult : T
+        public bool TryGetValue<T>(string key, out T obj, Compiler.Block block, CompileException err = null)
+            where T : GLObject
             => TryGetValue(key, out obj, block.File, block.LineInFile);
 
-        public bool TryGetValue<TResult>(string key, out TResult obj, string file, int line,
-            CompileException err = null)
-            where TResult : T
+        public bool TryGetValue<T>(string key, out T obj, string file, int line, CompileException err = null)
+            where T : GLObject
         {
             // try to find the object instance
-            if ((obj = GetValue<TResult>(key)) != null)
+            if ((obj = GetValue<T>(key)) != null)
                 return true;
 
             // get class name of object type
-            var classname = typeof(TResult).Name.Substring(2).ToLower();
+            var classname = typeof(T).Name.Substring(2).ToLower();
             err?.Add($"The name '{key}' could not be found or does not "
                 + $"reference an object of type '{classname}'.", file, line);
             return false;
         }
 
-        public TResult GetValue<TResult>(string key, string info)
-            where TResult : T
+        public T GetValue<T>(string key, string info) where T : GLObject
         {
-            T tmp = default(T);
-            if (base.TryGetValue(key, out tmp) && tmp is TResult)
-                return (TResult)tmp;
+            GLObject tmp = default(GLObject);
+            if (TryGetValue(key, out tmp) && tmp is T)
+                return (T)tmp;
             throw new CompileException(info);
         }
 
-        public bool TryGetValue<TResult>(string key, ref TResult obj)
-            where TResult : T
+        public bool TryGetValue<T>(string key, ref T obj) where T : GLObject
         {
-            T tmp;
-            if (obj != null || !base.TryGetValue(key, out tmp) || !(tmp is TResult))
+            GLObject tmp;
+            if (obj != null || !TryGetValue(key, out tmp) || !(tmp is T))
                 return false;
-            obj = (TResult)tmp;
+            obj = (T)tmp;
             return true;
         }
     }

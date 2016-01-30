@@ -1,5 +1,4 @@
-﻿using OpenTK;
-using ScintillaNET;
+﻿using ScintillaNET;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

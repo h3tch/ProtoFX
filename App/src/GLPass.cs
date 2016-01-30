@@ -41,7 +41,7 @@ namespace App
         private List<GLInstance> csexec = new List<GLInstance>();
         #endregion
 
-        public GLPass(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+        public GLPass(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"pass '{name}'");
@@ -251,7 +251,7 @@ namespace App
         }
 
         #region PARSE COMMANDS
-        private void ParseDrawCall(CompileException err, Compiler.Command cmd, Dict<GLObject> classes)
+        private void ParseDrawCall(CompileException err, Compiler.Command cmd, Dict classes)
         {
             List<int> args = new List<int>();
             GLVertinput vertexin = null;
@@ -319,7 +319,7 @@ namespace App
             drawcalls.Add(multidrawcall);
         }
         
-        private void ParseComputeCall(CompileException err, Compiler.Command cmd, Dict<GLObject> classes)
+        private void ParseComputeCall(CompileException err, Compiler.Command cmd, Dict classes)
         {
             // check for errors
             if (cmd.ArgCount < 2 || cmd.ArgCount > 3)
@@ -364,7 +364,7 @@ namespace App
             }
         }
         
-        private void ParseTexCmd(CompileException err, Compiler.Command cmd, Dict<GLObject> classes)
+        private void ParseTexCmd(CompileException err, Compiler.Command cmd, Dict classes)
         {
             var types = new[] {
                 typeof(GLTexture),
@@ -384,7 +384,7 @@ namespace App
             }
         }
         
-        private void ParseSampCmd(CompileException err, Compiler.Command cmd, Dict<GLObject> classes)
+        private void ParseSampCmd(CompileException err, Compiler.Command cmd, Dict classes)
         {
             var types = new[] {
                 typeof(GLSampler),
@@ -396,7 +396,7 @@ namespace App
         }
         
         private object[] ParseCmd(Compiler.Command cmd, Type[] types, int numMandatory,
-            Dict<GLObject> classes, CompileException err)
+            Dict classes, CompileException err)
         {
             object[] values = new object[types.Length];
 
@@ -454,7 +454,7 @@ namespace App
             glfunc.Add(new GLMethod(mtype, inval));
         }
         
-        private void ParseCsharpExec(CompileException err, Compiler.Command cmd, Dict<GLObject> classes)
+        private void ParseCsharpExec(CompileException err, Compiler.Command cmd, Dict classes)
         {
             // check if command provides the correct amount of parameters
             if (cmd.ArgCount == 0)
@@ -481,7 +481,7 @@ namespace App
             return methods.Count() > 0 ? methods.First() : null;
         }
 
-        private GLShader Attach(CompileException err, Compiler.Block block, string sh, Dict<GLObject> classes)
+        private GLShader Attach(CompileException err, Compiler.Block block, string sh, Dict classes)
         {
             GLShader glsh = null;
 
@@ -667,10 +667,8 @@ namespace App
             public uint numGroupsX;
             public uint numGroupsY;
             public uint numGroupsZ;
-            public int indirect
-            { get { return (int)numGroupsX; } }
-            public IntPtr indirectPtr
-            { get { return (IntPtr)numGroupsY; } }
+            public int indirect { get { return (int)numGroupsX; } }
+            public IntPtr indirectPtr { get { return (IntPtr)numGroupsY; } }
 
             public void compute()
             {

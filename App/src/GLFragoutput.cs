@@ -37,7 +37,7 @@ namespace App
         /// Create OpenGL framebuffer object for fragment output.
         /// </summary>
         /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLFragoutput(Compiler.Block block, Dict<GLObject> scene, bool debugging)
+        public GLFragoutput(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"fragoutput '{name}'");
@@ -95,7 +95,7 @@ namespace App
             }
         }
 
-        private void Attach(CompileException err, Compiler.Command cmd, Dict<GLObject> classes)
+        private void Attach(CompileException err, Compiler.Command cmd, Dict classes)
         {
             // get OpenGL image
             GLImage glimg = classes.GetValue<GLImage>(cmd[0].Text);

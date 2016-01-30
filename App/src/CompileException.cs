@@ -4,10 +4,10 @@ using System.Collections.Generic;
 
 namespace App
 {
-    class CompileException : Exception, IEnumerable<CompileException.Err>
+    class CompileException : Exception, IEnumerable<CompileException.Error>
     {
         private List<string> callstack;
-        private List<Err> messages = new List<Err>();
+        private List<Error> messages = new List<Error>();
 
         // compile call stack into a single string
         private string callstackstring => callstack.Merge(": ");
@@ -45,7 +45,7 @@ namespace App
 
         public CompileException Add(string message, string file, int line)
         {
-            messages.Add(new Err(file, line, callstackstring + message));
+            messages.Add(new Error(file, line, callstackstring + message));
             return this;
         }
 
@@ -65,17 +65,17 @@ namespace App
             => new CompileException(err, callLevel);
 
         #region IEnumerable Interface
-        public IEnumerator<Err> GetEnumerator() => messages.GetEnumerator();
+        public IEnumerator<Error> GetEnumerator() => messages.GetEnumerator();
 
-        IEnumerator<Err> IEnumerable<Err>.GetEnumerator() => messages.GetEnumerator();
+        IEnumerator<Error> IEnumerable<Error>.GetEnumerator() => messages.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => messages.GetEnumerator();
         #endregion
 
         #region INNER CLASSES
-        public struct Err
+        public struct Error
         {
-            public Err(string file, int line, string msg)
+            public Error(string file, int line, string msg)
             {
                 File = file;
                 Line = line;
