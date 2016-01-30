@@ -293,14 +293,14 @@ namespace App
                 tabPage.Text = Path.GetFileName(saveDlg.FileName);
             }
 
-            File.WriteAllText(tabPage.filepath, editor.Text);
+            System.IO.File.WriteAllText(tabPage.filepath, editor.Text);
         }
 
         private void AddSourceTab(string path)
         {
             // load file
             string filename = path != null ? Path.GetFileName(path) : "unnamed.tech";
-            string text = path != null ? File.ReadAllText(path) : "// Unnamed ProtoGL file";
+            string text = path != null ? System.IO.File.ReadAllText(path) : "// Unnamed file";
 
             // create new tab objects
             var tabSourcePage = new TabPage(path);
