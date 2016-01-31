@@ -21,7 +21,7 @@ namespace App
             var err = new CompileException($"vertoutput '{name}'");
 
             // PARSE ARGUMENTS
-            Cmds2Fields(this, block, err);
+            Cmds2Fields(block, err);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenTransformFeedback();
@@ -30,7 +30,7 @@ namespace App
             // parse commands
             int numbindings = 0;
             foreach (var cmd in block["buff"])
-                Attach(err + $"command '{cmd.Text}'", numbindings++, cmd, scene);
+                Attach(numbindings++, cmd, scene, err + $"command '{cmd.Text}'");
 
             // if errors occurred throw exception
             if (err.HasErrors())
@@ -80,7 +80,7 @@ namespace App
             }
         }
 
-        private void Attach(CompileException err, int unit, Compiler.Command cmd, Dict classes)
+        private void Attach(int unit, Compiler.Command cmd, Dict classes, CompileException err)
         {
             if (cmd.ArgCount == 0)
             {

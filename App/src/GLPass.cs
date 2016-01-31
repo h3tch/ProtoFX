@@ -47,7 +47,7 @@ namespace App
             var err = new CompileException($"pass '{name}'");
 
             // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
-            Cmds2Fields(this, block, err);
+            Cmds2Fields(block, err);
 
             // PARSE COMMANDS
             foreach (var cmd in block)
@@ -61,12 +61,12 @@ namespace App
                 err.PushCall($"command '{cmd.Name}' line {cmd.LineInFile}");
                 switch (cmd.Name)
                 {
-                    case "draw": ParseDrawCall(err, cmd, scene); break;
-                    case "compute": ParseComputeCall(err, cmd, scene); break;
-                    case "tex": ParseTexCmd(err, cmd, scene); break;
-                    case "samp": ParseSampCmd(err, cmd, scene); break;
-                    case "exec": ParseCsharpExec(err, cmd, scene); break;
-                    default: ParseOpenGLCall(err, cmd); break;
+                    case "draw": ParseDrawCall(cmd, scene, err); break;
+                    case "compute": ParseComputeCall(cmd, scene, err); break;
+                    case "tex": ParseTexCmd(cmd, scene, err); break;
+                    case "samp": ParseSampCmd(cmd, scene, err); break;
+                    case "exec": ParseCsharpExec(cmd, scene, err); break;
+                    default: ParseOpenGLCall(cmd, err); break;
                 }
                 err.PopCall();
             }
@@ -88,18 +88,18 @@ namespace App
                 // Attach shader objects.
                 // First try attaching a compute shader. If that
                 // fails, try attaching the default shader pipeline.
-                if ((glcomp = Attach(err, block, comp, scene)) == null)
+                if ((glcomp = Attach(block, comp, scene, err)) == null)
                 {
-                    glvert = Attach(err, block, vert, scene);
-                    gltess = Attach(err, block, tess, scene);
-                    gleval = Attach(err, block, eval, scene);
-                    glgeom = Attach(err, block, geom, scene);
-                    glfrag = Attach(err, block, frag, scene);
+                    glvert = Attach(block, vert, scene, err);
+                    gltess = Attach(block, tess, scene, err);
+                    gleval = Attach(block, eval, scene, err);
+                    glgeom = Attach(block, geom, scene, err);
+                    glfrag = Attach(block, frag, scene, err);
                 }
 
                 // specify vertex output varyings of the shader program
                 if (glvertout != null)
-                    SetVertexOutputVaryings(err, block, vertout);
+                    SetVertexOutputVaryings(block, vertout, err);
 
                 // link program
                 GL.LinkProgram(glname);
@@ -251,7 +251,7 @@ namespace App
         }
 
         #region PARSE COMMANDS
-        private void ParseDrawCall(CompileException err, Compiler.Command cmd, Dict classes)
+        private void ParseDrawCall(Compiler.Command cmd, Dict classes, CompileException err)
         {
             List<int> args = new List<int>();
             GLVertinput vertexin = null;
@@ -319,7 +319,7 @@ namespace App
             drawcalls.Add(multidrawcall);
         }
         
-        private void ParseComputeCall(CompileException err, Compiler.Command cmd, Dict classes)
+        private void ParseComputeCall(Compiler.Command cmd, Dict classes, CompileException err)
         {
             // check for errors
             if (cmd.ArgCount < 2 || cmd.ArgCount > 3)
@@ -364,7 +364,7 @@ namespace App
             }
         }
         
-        private void ParseTexCmd(CompileException err, Compiler.Command cmd, Dict classes)
+        private void ParseTexCmd(Compiler.Command cmd, Dict classes, CompileException err)
         {
             var types = new[] {
                 typeof(GLTexture),
@@ -384,7 +384,7 @@ namespace App
             }
         }
         
-        private void ParseSampCmd(CompileException err, Compiler.Command cmd, Dict classes)
+        private void ParseSampCmd(Compiler.Command cmd, Dict classes, CompileException err)
         {
             var types = new[] {
                 typeof(GLSampler),
@@ -427,7 +427,7 @@ namespace App
             return values;
         }
         
-        private void ParseOpenGLCall(CompileException err, Compiler.Command cmd)
+        private void ParseOpenGLCall(Compiler.Command cmd, CompileException err)
         {
             // find OpenGL method
             var mtype = FindMethod(cmd.Name, cmd.ArgCount);
@@ -454,7 +454,7 @@ namespace App
             glfunc.Add(new GLMethod(mtype, inval));
         }
         
-        private void ParseCsharpExec(CompileException err, Compiler.Command cmd, Dict classes)
+        private void ParseCsharpExec(Compiler.Command cmd, Dict classes, CompileException err)
         {
             // check if command provides the correct amount of parameters
             if (cmd.ArgCount == 0)
@@ -481,7 +481,7 @@ namespace App
             return methods.Count() > 0 ? methods.First() : null;
         }
 
-        private GLShader Attach(CompileException err, Compiler.Block block, string sh, Dict classes)
+        private GLShader Attach(Compiler.Block block, string sh, Dict classes, CompileException err)
         {
             GLShader glsh = null;
 
@@ -492,7 +492,7 @@ namespace App
             return glsh;
         }
 
-        private void SetVertexOutputVaryings(CompileException err, Compiler.Block block, string[] varyings)
+        private void SetVertexOutputVaryings(Compiler.Block block, string[] varyings, CompileException err)
         {
             // the vertout command needs at least 3 arguments
             if (varyings.Length < 3)

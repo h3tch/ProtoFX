@@ -67,7 +67,7 @@ namespace App
             var err = new CompileException($"image '{name}'");
 
             // PARSE ARGUMENTS
-            Cmds2Fields(this, block, err);
+            Cmds2Fields(block, err);
 
             // on errors throw an exception
             if (err.HasErrors())

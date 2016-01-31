@@ -28,7 +28,7 @@ namespace App
             var err = new CompileException($"csharp '{name}'");
 
             // PARSE ARGUMENTS
-            Cmds2Fields(this, block, err);
+            Cmds2Fields(block, err);
 
             // check for errors
             if (err.HasErrors())

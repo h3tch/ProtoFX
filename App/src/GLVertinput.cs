@@ -1,6 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Linq;
 
 namespace App
 {
@@ -17,7 +16,7 @@ namespace App
 
             int numAttr = 0;
             foreach (var cmd in block["attr"])
-                Attach(err + $"command '{cmd.Text}'", numAttr++, cmd, name, scene);
+                Attach(numAttr++, cmd, name, scene, err + $"command '{cmd.Text}'");
 
             // if errors occurred throw exception
             if (err.HasErrors())
@@ -29,7 +28,7 @@ namespace App
                 throw err;
         }
         
-        private void Attach(CompileException err, int attrIdx, Compiler.Command cmd, string name, Dict classes)
+        private void Attach(int attrIdx, Compiler.Command cmd, string name, Dict classes, CompileException err)
         {
             // check commands for errors
             if (cmd.ArgCount < 3)

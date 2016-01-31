@@ -16,7 +16,7 @@ namespace App
             var err = new CompileException($"sampler '{name}'");
 
             // PARSE ARGUMENTS
-            Cmds2Fields(this, block, err);
+            Cmds2Fields(block, err);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenSampler();

@@ -37,7 +37,7 @@ namespace App
             var err = new CompileException($"texture '{name}'");
 
             // PARSE ARGUMENTS
-            Cmds2Fields(this, block, err);
+            Cmds2Fields(block, err);
 
             // set name
             this.glsamp = glsamp;

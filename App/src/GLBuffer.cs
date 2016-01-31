@@ -14,15 +14,15 @@ namespace App
         [Field] public int size { get; private set; } = 0;
         [Field] public BufferUsageHint usage { get; private set; } = BufferUsageHint.StaticDraw;
         #endregion
-        
+
         /// <summary>
-        /// 
+        /// Construct GLBuffer object.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="anno"></param>
-        /// <param name="usage"></param>
-        /// <param name="size"></param>
-        /// <param name="data"></param>
+        /// <param name="name">Name of the object.</param>
+        /// <param name="anno">Annotation of the object.</param>
+        /// <param name="usage">How the buffer should be used by the program.</param>
+        /// <param name="size">The memory size to be allocated in bytes.</param>
+        /// <param name="data">Optionally initialize the buffer object with the specified data.</param>
         public GLBuffer(string name, string anno, BufferUsageHint usage, int size, byte[] data = null)
             : base(name, anno)
         {
@@ -41,8 +41,8 @@ namespace App
         /// Link GLBuffer to existing OpenGL buffer. Used
         /// to provide debug information in the debug view.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="anno"></param>
+        /// <param name="name">Name of the object.</param>
+        /// <param name="anno">Annotation of the object.</param>
         /// <param name="glname">OpenGL object to like to.</param>
         public GLBuffer(string name, string anno, int glname) : base(name, anno)
         {
@@ -64,7 +64,7 @@ namespace App
             var err = new CompileException($"buffer '{block.Name}'");
 
             // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
-            Cmds2Fields(this, block, err);
+            Cmds2Fields(block, err);
 
             // PARSE COMMANDS
             List<byte[]> datalist = new List<byte[]>();

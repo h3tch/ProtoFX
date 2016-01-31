@@ -23,6 +23,17 @@ namespace App
         #region App Control
         private void App_Load(object sender, EventArgs e)
         {
+            // load previous window state
+            if (System.IO.File.Exists(Properties.Resources.WINDOW_SETTINGS_FILE))
+            {
+                var settings = XmlSerializer.Load<WindowSettings>(Properties.Resources.WINDOW_SETTINGS_FILE);
+                this.Left = Math.Max(0, settings.Left);
+                this.Top = Math.Max(0, settings.Top);
+                this.Width = settings.Width;
+                this.Height = settings.Height;
+                this.WindowState = settings.WindowState;
+            }
+
             // select 'float' as the default buffer value type
             comboBufType.SelectedIndex = 8;
 
@@ -39,7 +50,7 @@ namespace App
         private void App_FormClosing(object sender, FormClosingEventArgs e)
         {
             // check if there are any files with changes
-            foreach (TabPage tab in this.tabSource.TabPages)
+            foreach (TabPage tab in tabSource.TabPages)
             {
                 if (!tab.Text.EndsWith("*"))
                     continue;
@@ -56,8 +67,37 @@ namespace App
 
             // delete OpenGL objects
             glControl.ClearScene();
-        }
 
+            // save current window state
+            
+            // do not save window in a minimized state
+            if (this.WindowState == FormWindowState.Minimized)
+                this.WindowState = FormWindowState.Normal;
+
+            // get current window state
+            var settings = new WindowSettings
+            {
+                Left = this.Left,
+                Top = this.Top,
+                Width = this.Width,
+                Height = this.Height,
+                WindowState = this.WindowState
+            };
+
+            // if the state is not normal, make it normal
+            if (this.WindowState != FormWindowState.Normal)
+            {
+                this.WindowState = FormWindowState.Normal;
+                settings.Left = this.Left;
+                settings.Top = this.Top;
+                settings.Width = this.Width;
+                settings.Height = this.Height;
+            }
+
+            // save to file
+            XmlSerializer.Save(settings, Properties.Resources.WINDOW_SETTINGS_FILE);
+        }
+        
         private void App_KeyUp(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -330,5 +370,11 @@ namespace App
             return (CodeEditor)sourceTab.Controls[0];
         }
         #endregion
+
+        public struct WindowSettings
+        {
+            public int Left, Top, Width, Height;
+            public FormWindowState WindowState;
+        }
     }
 }

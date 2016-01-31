@@ -11,6 +11,11 @@ namespace App
     {
         private static HashSet<string> incpath = new HashSet<string>();
 
+        /// <summary>
+        /// Compile file.
+        /// </summary>
+        /// <param name="path">Path to the file that should be compiled.</param>
+        /// <returns>Returns the root of the compiled tree.</returns>
         public static File Compile(string path)
         {
             incpath.Clear();
@@ -19,6 +24,7 @@ namespace App
 
         public class File : IEnumerable<Block>
         {
+            #region FIELDS
             public File Owner { get; private set; }
             public string Path { get; private set; }
             public int Line { get; private set; }
@@ -26,6 +32,7 @@ namespace App
             public string Text { get; private set; }
             public File[] Include { get; private set; }
             public Block[] Block { get; private set; }
+            #endregion
 
             /// <summary>
             /// Parse file and extract block data.
@@ -143,6 +150,7 @@ namespace App
 
         public class Block : IEnumerable<Command>
         {
+            #region FIELD
             public File Owner { get; private set; }
             public int Line { get; private set; }
             public int LineInFile => Line;
@@ -154,6 +162,7 @@ namespace App
             public Command[] Cmds { get; private set; }
             public Command this[int i] { get { return Cmds[i]; } }
             public IEnumerable<Command> this[string name] { get { return GetCommands(name); } }
+            #endregion
 
             /// <summary>
             /// Parse block string and extract commands.
@@ -228,6 +237,7 @@ namespace App
 
         public class Command : IEnumerable<Argument>
         {
+            #region FIELD
             public Block Owner { get; private set; }
             public int Line { get; private set; }
             public int LineInFile => Owner.LineInFile + Line;
@@ -237,6 +247,7 @@ namespace App
             public string Name { get { return Args[0].Text; } }
             public int ArgCount { get { return Args.Length - 1; } }
             public Argument this[int i] { get { return Args[i + 1]; } }
+            #endregion
 
             /// <summary>
             /// Parse command line for arguments.
@@ -291,10 +302,12 @@ namespace App
 
         public class Argument
         {
+            #region FIELD
             public Command Owner { get; private set; }
             public int Line => 0;
             public int LineInFile => Owner.LineInFile + Line;
             public string Text { get; private set; }
+            #endregion
 
             /// <summary>
             /// Store argument string.
@@ -308,6 +321,7 @@ namespace App
             }
         }
 
+        #region PROCESS CODE STRING
         /// <summary>
         /// Remove /*...*/ and // comments.
         /// </summary>
@@ -414,5 +428,6 @@ namespace App
                     yield return new[] { match.Index, blockBr[idx], blockBr[idx + 1] };
             }
         }
+        #endregion
     }
 }

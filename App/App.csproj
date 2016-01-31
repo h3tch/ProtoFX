@@ -133,6 +133,7 @@
     <Compile Include="src\TabPage.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="src\XmlSerializer.cs" />
     <EmbeddedResource Include="src\App.resx">
       <DependentUpon>App.cs</DependentUpon>
     </EmbeddedResource>

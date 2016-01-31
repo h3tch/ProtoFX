@@ -43,7 +43,7 @@ namespace App
             var err = new CompileException($"fragoutput '{name}'");
 
             // PARSE ARGUMENTS
-            Cmds2Fields(this, block, err);
+            Cmds2Fields(block, err);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenFramebuffer();
@@ -51,7 +51,7 @@ namespace App
 
             // PARSE COMMANDS
             foreach (var cmd in block)
-                Attach(err + $"command '{cmd.Name}'", cmd, scene);
+                Attach(cmd, scene, err + $"command '{cmd.Name}'");
 
             // if any errors occurred throw exception
             if (err.HasErrors())
@@ -95,7 +95,7 @@ namespace App
             }
         }
 
-        private void Attach(CompileException err, Compiler.Command cmd, Dict classes)
+        private void Attach(Compiler.Command cmd, Dict classes, CompileException err)
         {
             // get OpenGL image
             GLImage glimg = classes.GetValue<GLImage>(cmd[0].Text);

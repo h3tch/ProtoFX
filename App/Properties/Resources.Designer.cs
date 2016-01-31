@@ -202,5 +202,14 @@ namespace App.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to window.settings.xml.
+        /// </summary>
+        public static string WINDOW_SETTINGS_FILE {
+            get {
+                return "window.settings.xml";
+            }
+        }
     }
 }
