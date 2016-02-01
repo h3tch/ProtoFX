@@ -163,7 +163,7 @@ namespace App
 
         private void HandleKeyUp(object sender, KeyEventArgs e)
         {
-            // only disable editin if Ctrl is pressed
+            // only disable editing if Ctrl is pressed
             DisableEditing = false;
             
             var editor = (CodeEditor)sender;

@@ -26,12 +26,16 @@ namespace App
             // load previous window state
             if (System.IO.File.Exists(Properties.Resources.WINDOW_SETTINGS_FILE))
             {
-                var settings = XmlSerializer.Load<WindowSettings>(Properties.Resources.WINDOW_SETTINGS_FILE);
-                this.Left = Math.Max(0, settings.Left);
-                this.Top = Math.Max(0, settings.Top);
-                this.Width = settings.Width;
-                this.Height = settings.Height;
-                this.WindowState = settings.WindowState;
+                // load settings
+                var settings = XmlSerializer.Load<FormSettings>(Properties.Resources.WINDOW_SETTINGS_FILE);
+                // place form completely inside a screen
+                settings.PlaceOnScreen();
+                // update window
+                Left = Math.Max(0, settings.Left);
+                Top = Math.Max(0, settings.Top);
+                Width = settings.Width;
+                Height = settings.Height;
+                WindowState = settings.WindowState;
             }
 
             // select 'float' as the default buffer value type
@@ -71,27 +75,23 @@ namespace App
             // save current window state
             
             // do not save window in a minimized state
-            if (this.WindowState == FormWindowState.Minimized)
-                this.WindowState = FormWindowState.Normal;
+            if (WindowState == FormWindowState.Minimized)
+                WindowState = FormWindowState.Normal;
 
             // get current window state
-            var settings = new WindowSettings
+            var settings = new FormSettings
             {
-                Left = this.Left,
-                Top = this.Top,
-                Width = this.Width,
-                Height = this.Height,
-                WindowState = this.WindowState
+                Left = Left, Top = Top, Width = Width, Height = Height, WindowState = WindowState
             };
 
             // if the state is not normal, make it normal
-            if (this.WindowState != FormWindowState.Normal)
+            if (WindowState != FormWindowState.Normal)
             {
-                this.WindowState = FormWindowState.Normal;
-                settings.Left = this.Left;
-                settings.Top = this.Top;
-                settings.Width = this.Width;
-                settings.Height = this.Height;
+                WindowState = FormWindowState.Normal;
+                settings.Left = Left;
+                settings.Top = Top;
+                settings.Width = Width;
+                settings.Height = Height;
             }
 
             // save to file
@@ -371,10 +371,46 @@ namespace App
         }
         #endregion
 
-        public struct WindowSettings
+        public struct FormSettings
         {
             public int Left, Top, Width, Height;
             public FormWindowState WindowState;
+
+            /// <summary>
+            /// Place the form rectangle completely inside the nearest screen.
+            /// </summary>
+            public void PlaceOnScreen()
+            {
+                int L1 = int.MaxValue;
+                int X = Left, Y = Top, W = Width, H = Height;
+
+                // place the rect completely inside each screen
+                // and store the result that changes the least
+                foreach (var screen in Screen.AllScreens)
+                {
+                    var b = screen.Bounds;
+                    int w = Math.Min(Math.Max(Width, 0), b.Size.Width);
+                    int h = Math.Min(Math.Max(Height, 0), b.Size.Height);
+                    int x = Math.Min(Math.Max(Left, b.Left), b.Right - Width);
+                    int y = Math.Min(Math.Max(Top, b.Top), b.Bottom - Height);
+                    int l1 = Math.Abs(x - Left) + Math.Abs(y - Top);
+                    if (l1 < L1)
+                    {
+                        X = x;
+                        Y = y;
+                        W = w;
+                        H = h;
+                        L1 = l1;
+                    }
+                }
+
+                // return rectangle with 
+                // minimally changed position
+                Left = X;
+                Top = Y;
+                Width = W;
+                Height = H;
+            }
         }
     }
 }
