@@ -371,6 +371,7 @@ namespace App
         }
         #endregion
 
+        #region Inner Classes
         public struct FormSettings
         {
             public int Left, Top, Width, Height;
@@ -412,5 +413,6 @@ namespace App
                 Height = H;
             }
         }
+        #endregion
     }
 }
