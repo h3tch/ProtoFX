@@ -105,6 +105,7 @@ namespace App
             // image
             "image",
             "image.depth",
+            "image.file",
             "image.format",
             "image.format.depth",
             "image.format.depth16",
@@ -156,6 +157,12 @@ namespace App
             "image.format.rgba32f",
             "image.height",
             "image.length",
+            "image.type",
+            "image.type.texture1D",
+            "image.type.texture2D",
+            "image.type.texture3D",
+            "image.type.texture1DArray",
+            "image.type.texture2DArray",
             "image.width",
             // instance
             "instance",
@@ -380,7 +387,12 @@ namespace App
             "texture.samp",
             // vertinput
             "vertinput",
-            "vertinput.attr"
+            "vertinput.attr",
+            // vertoutput
+            "vertoutput",
+            "vertoutput.buff",
+            "vertoutput.pause",
+            "vertoutput.resume"
         };
         #endregion
     }
