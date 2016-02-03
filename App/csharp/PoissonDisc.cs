@@ -57,8 +57,7 @@ namespace csharp
             }
 
             // CREATE POISSON DISK
-
-            //var points = PoissonDiscSampler.Disc(minRadius);
+            
             var points = new Disc(minRadius).Points;
 
             // SORT POISSON DISK POINTS BY DESCENDING DISTANCE TO EACH OTHER
