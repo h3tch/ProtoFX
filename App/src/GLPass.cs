@@ -306,7 +306,7 @@ namespace App
             DrawFunc drawfunc = (DrawFunc)bits;
 
             // get index buffer object (if present) and find existing MultiDraw class
-            MultiDrawCall multidrawcall = drawcalls.Find(
+            var multidrawcall = drawcalls.Find(
                 x => x.vertexin == (vertexin != null ? vertexin.glname : 0)
                   && x.indexbuf == (indexbuf != null ? indexbuf.glname : 0)
                   && x.vertout == (vertout != null ? vertout.glname : 0)
