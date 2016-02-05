@@ -10,6 +10,18 @@ namespace App
     class Compiler
     {
         private static HashSet<string> incpath = new HashSet<string>();
+        private static Regex regexBlock;
+
+        static Compiler()
+        {
+            var open = "{";
+            var close = "}";
+            var header = @"(\w+[ \t]*){2,3}";
+            var oc = "" + open + close;
+            regexBlock = new Regex(header +
+                $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
+                $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
+        }
 
         /// <summary>
         /// Compile file.
@@ -125,17 +137,8 @@ namespace App
 
             private IEnumerable<Block> ProcessBlocks()
             {
-                // find block definitions
-                var open = "{";
-                var close = "}";
-                var header = @"(\w+[ \t]*){2,3}";
-                var oc = "" + open + close;
-                var matches = Regex.Matches(Text, header +
-                    $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
-                    $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
-
                 // process found block strings
-                foreach (Match match in matches)
+                foreach (Match match in regexBlock.Matches(Text))
                     yield return new Block(this, Text.LineFromPosition(match.Index), match.Value);
             }
 
@@ -400,33 +403,10 @@ namespace App
         /// <param name="text">String to process.</param>
         /// <returns>Returns an enumerable with block positions
         /// [class type index, '{' index, '}' index]</returns>
-        public static IEnumerable<int[]> GetBlockPositions(string text)
+        public static IEnumerable<Match> GetBlockPositions(string text)
         {
-            // find all '{' that potentially indicate a block
-            var blockBr = new List<int>();
-            for (int i = 0, count = 0, nline = 0; i < text.Length; i++)
-            {
-                if (text[i] == '\n')
-                    nline++;
-                if (text[i] == '{' && count++ == 0)
-                    blockBr.Add(i);
-                if (text[i] == '}' && --count == 0)
-                    blockBr.Add(i);
-                if (count < 0)
-                    throw new CompileException($"ERROR in line {nline}: Unexpected occurrence of '}}'.");
-            }
-
-            // find potential block positions
-            var matches = Regex.Matches(text, @"(\w+\s*){2,3}\{");
-
-            // where 'matches' and 'blockBr' are aligned we have a block
-            var blocks = new List<int[]>();
-            foreach (Match match in matches)
-            {
-                int idx = blockBr.IndexOf(match.Index + match.Length - 1);
-                if (idx >= 0)
-                    yield return new[] { match.Index, blockBr[idx], blockBr[idx + 1] };
-            }
+            foreach (Match match in regexBlock.Matches(text))
+                yield return match;
         }
         #endregion
     }

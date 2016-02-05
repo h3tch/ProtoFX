@@ -9,7 +9,7 @@ namespace App
     partial class CodeEditor : Scintilla
     {
         private static int HighlightIndicatorIndex = 8;
-        public static int DebugIndicatorIndex = 9;
+        public static int DebugIndicatorIndex { get; } = 9;
         private List<int[]>[] IndicatorRanges;
 
         /// <summary>
@@ -122,6 +122,9 @@ namespace App
             UpdateLineNumbers();
         }
 
+        /// <summary>
+        /// Update line number of the text editor.
+        /// </summary>
         private void UpdateLineNumbers()
         {
             // UPDATE LINE NUMBERS

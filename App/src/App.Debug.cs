@@ -11,9 +11,19 @@ namespace App
     partial class App
     {
         #region Debug Image
+        /// <summary>
+        /// Raised when another image is selected for inspection.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void comboImg_SelectedIndexChanged(object sender, EventArgs e)
             => pictureImg_Click(sender, e);
 
+        /// <summary>
+        /// Raised when another layer of the image is selected for inspection.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void numImgLayer_ValueChanged(object sender, EventArgs e)
         {
             if (comboImg.SelectedItem == null || !(comboImg.SelectedItem is GLImage))
@@ -30,11 +40,21 @@ namespace App
             pictureImg.Image = bmp;
         }
 
+        /// <summary>
+        /// Update image when clicking on it.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void pictureImg_Click(object sender, EventArgs e)
             => numImgLayer_ValueChanged(sender, e);
         #endregion
 
         #region Debug Buffer
+        /// <summary>
+        /// Raised when another buffer is selected for inspection.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void comboBuf_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (comboBuf.SelectedItem == null || !(comboBuf.SelectedItem is GLBuffer))
@@ -74,14 +94,29 @@ namespace App
             tableBuf.DataMember = buf.name;
         }
 
+        /// <summary>
+        /// Update the buffer if the type is changed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void comboBufType_SelectedIndexChanged(object sender, EventArgs e)
             => comboBuf_SelectedIndexChanged(sender, e);
 
+        /// <summary>
+        /// Update the buffer if the dimension is changed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void numBufDim_ValueChanged(object sender, EventArgs e)
             => comboBuf_SelectedIndexChanged(sender, null);
         #endregion
 
         #region Debug Properties
+        /// <summary>
+        /// Raised when another ProtoFX "instance-object" is selected for inspection.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void comboProp_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (comboProp.SelectedItem == null || !(comboProp.SelectedItem is GLInstance))
@@ -91,14 +126,69 @@ namespace App
             propertyGrid.SelectedObject = ((GLInstance)comboProp.SelectedItem).instance;
         }
 
+        /// <summary>
+        /// Update property grid when clicking on it.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void propertyGrid_Click(object sender, EventArgs e)
             => propertyGrid.SelectedObject = propertyGrid.SelectedObject;
 
+        /// <summary>
+        /// Rerender the scene when a value in the property grid changed.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
         private void propertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
             => DebugRender();
         #endregion
 
+        #region Compiler Output
+        /// <summary>
+        /// On double clicking on a compiler error, jump to the line where the error happened.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void output_DoubleClick(object sender, EventArgs e)
+        {
+            // if no item is selected and no code compiled, return
+            var view = (DataGridView)sender;
+            if (view.SelectedRows.Count == 0 || compiledEditor == null)
+                return;
+
+            // get line from selected item
+            int line;
+            var text = view.SelectedRows[0].Cells[1].Value as string;
+            if (!int.TryParse(text, NumberStyles.Integer, culture, out line))
+                return;
+
+            // scroll to line
+            line = Math.Max(1, line - compiledEditor.LinesOnScreen / 2);
+            compiledEditor.LineScroll(line - compiledEditor.FirstVisibleLine - 1, 0);
+        }
+
+        /// <summary>
+        /// Add an error to the compiler output tab.
+        /// </summary>
+        /// <param name="refDir"></param>
+        /// <param name="filePath"></param>
+        /// <param name="line"></param>
+        /// <param name="msg"></param>
+        private void AddOutputItem(string refDir, string filePath, int line, string msg)
+        {
+            var refUri = new Uri(refDir);
+            var fileUri = new Uri(filePath);
+            var relPath = refUri.MakeRelativeUri(fileUri).ToString();
+            output.Rows.Add(new[] { relPath, line > 0 ? line.ToString(culture) : "", msg });
+        }
+        #endregion
+
         #region Debug Shader
+        /// <summary>
+        /// When the selection (caret) changed update the debug tab.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void editor_UpdateUI(object sender, UpdateUIEventArgs e)
         {
             // get class references
@@ -110,6 +200,12 @@ namespace App
                 UpdateDebugListView(editor);
         }
 
+        /// <summary>
+        /// On mouse move check whether the mouse hovers over a debug variable.
+        /// If so, show a popup with the variables value (if possible).
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void editor_MouseMove(object sender, MouseEventArgs e)
         {
             // get class references
@@ -138,24 +234,10 @@ namespace App
                 : GLDebugger.DebugVariableToString(dbgVal));
         }
 
-        private void output_DoubleClick(object sender, EventArgs e)
-        {
-            // if no item is selected and no code compiled, return
-            var view = (DataGridView)sender;
-            if (view.SelectedRows.Count == 0 || compiledEditor == null)
-                return;
-
-            // get line from selected item
-            int line;
-            var text = view.SelectedRows[0].Cells[1].Value as string;
-            if (!int.TryParse(text, NumberStyles.Integer, culture, out line))
-                return;
-
-            // scroll to line
-            line = Math.Max(1, line - compiledEditor.LinesOnScreen / 2);
-            compiledEditor.LineScroll(line - compiledEditor.FirstVisibleLine - 1, 0);
-        }
-        
+        /// <summary>
+        /// Show variables of the currently selected line in the editor.
+        /// </summary>
+        /// <param name="editor"></param>
         private void UpdateDebugListView(CodeEditor editor)
         {
             // RESET DEBUG LIST VIEW
@@ -180,6 +262,11 @@ namespace App
                    .Zip(dbgVars, (Val, Var) => { if (Val != null) NewVariableItem(Var.Name, Val); });
         }
 
+        /// <summary>
+        /// Add variable to debug list view item of the debug tab.
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="val"></param>
         private void NewVariableItem(string groupName, Array val)
         {
             // CREATE LIST VIEW ROWS
@@ -202,14 +289,6 @@ namespace App
                 item.Group = dbgVarGroup;
                 debugListView.Items.Add(item);
             }
-        }
-
-        private void AddOutputItem(string refDir, string filePath, int line, string msg)
-        {
-            var refUri = new Uri(refDir);
-            var fileUri = new Uri(filePath);
-            var relPath = refUri.MakeRelativeUri(fileUri).ToString();
-            output.Rows.Add(new[] { relPath, line > 0 ? line.ToString(culture) : "", msg });
         }
         #endregion
 

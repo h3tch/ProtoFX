@@ -10,6 +10,11 @@ namespace App
     {
         private bool DisableEditing = false;
 
+        /// <summary>
+        /// On insert text event, auto format the text.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleInsertCheck(object sender, InsertCheckEventArgs e)
         {
             var editor = (CodeEditor)sender;
@@ -32,6 +37,11 @@ namespace App
             }
         }
         
+        /// <summary>
+        /// Wait for char add event to handle auto intent and auto complete.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleCharAdded(object sender, CharAddedEventArgs e)
         {
             var editor = (CodeEditor)sender;
@@ -51,6 +61,11 @@ namespace App
                 editor.AutoCShow(editor.CurrentPosition);
         }
 
+        /// <summary>
+        /// Handle text change event to mark tabs that need to be saved.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleTextChanged(object sender, EventArgs e)
         {
             // get class references
@@ -65,6 +80,11 @@ namespace App
             editor.UpdateLineNumbers();
         }
 
+        /// <summary>
+        /// Handle selection change events (when the caret changes the position).
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleUpdateUI(object sender, UpdateUIEventArgs e)
         {
             // get class references
@@ -86,6 +106,11 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Handle drag and drop of text parts in the editor.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleDragOver(object sender, DragEventArgs e)
         {
             var editor = (CodeEditor)sender;
@@ -116,6 +141,11 @@ namespace App
             e.Effect = DragDropEffects.Move;
         }
 
+        /// <summary>
+        /// Handle drag and drop of text parts in the editor.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleDragDrop(object sender, DragEventArgs e)
         {
             var editor = (CodeEditor)sender;
@@ -143,6 +173,11 @@ namespace App
             editor.Paste();
         }
 
+        /// <summary>
+        /// Handle key down events of the code editor component.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleKeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -161,6 +196,11 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Handle key up events of the code editor component.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleKeyUp(object sender, KeyEventArgs e)
         {
             // only disable editing if Ctrl is pressed

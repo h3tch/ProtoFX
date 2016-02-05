@@ -12,6 +12,12 @@ namespace App
     {
         private TextBox FindText;
 
+        /// <summary>
+        /// Find all ranges of the specified strings.
+        /// </summary>
+        /// <param name="words">Must be a dictionary of strings (keys) to search for and
+        /// whether these strings represent whole words (true or false value).</param>
+        /// <returns></returns>
         private IEnumerable<int[]> FindWordRanges(Dictionary<string, bool> words)
         {
             foreach (var word in words)
@@ -19,6 +25,12 @@ namespace App
                     yield return tupel;
         }
 
+        /// <summary>
+        /// Find all ranges of the specified string.
+        /// </summary>
+        /// <param name="word">String to search for.</param>
+        /// <param name="wholeWord">Only search for whole words if true.</param>
+        /// <returns></returns>
         private IEnumerable<int[]> FindWordRanges(string word, bool wholeWord)
         {
             // Search the document
@@ -35,6 +47,13 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Goto next range closest to the current position of the caret.
+        /// </summary>
+        /// <param name="ranges">The ranges to check.</param>
+        /// <param name="skip">How many ranges should be skipped? E.g., if the caret
+        /// is inside a range and you want to find the next one, skip should be 1.
+        /// If the caret should stay at that position skip has to be 0 (default).</param>
         private void GotoNextRange(IEnumerable<int[]> ranges, int skip = 0)
         {
             var count = ranges.Count();
@@ -52,6 +71,11 @@ namespace App
                 GotoPosition(range[0]);
         }
 
+        /// <summary>
+        /// Update highlights and go to closest word matching the search string.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleFindTextChanged(object sender, EventArgs e)
         {
             var textbox = (TextBox)sender;
@@ -80,6 +104,11 @@ namespace App
             GotoNextRange(ranges, 0);
         }
 
+        /// <summary>
+        /// Switch to find-mode if the search box receives focus.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleFindGotFocus(object sender, EventArgs e)
         {
             // on focus color the caret red
@@ -89,6 +118,11 @@ namespace App
             editor.CaretForeColor = Color.Red;
         }
 
+        /// <summary>
+        /// Find-mode needs to be exited when any event occurs that changes the focus.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleFindLostFocus(object sender, EventArgs e)
         {
             // on lost focus color the caret black
@@ -98,6 +132,11 @@ namespace App
             editor.CaretForeColor = Color.Black;
         }
 
+        /// <summary>
+        /// Handle key events in find-mode.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleFindKeyUp(object sender, KeyEventArgs e)
         {
             var textbox = (TextBox)sender;

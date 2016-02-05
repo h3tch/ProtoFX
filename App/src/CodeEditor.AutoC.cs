@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -19,12 +20,17 @@ namespace App
             AutoCShow(curPosition - wordPos, keywords.Merge(" "));
         }
 
-        private IEnumerable<string> SelectKeywords(int curPosition)
+        /// <summary>
+        /// Select all keywords that can be used at the specified text position.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        private IEnumerable<string> SelectKeywords(int position)
         {
             // get necessary information for keyword search
             var text = Compiler.RemoveComments(Text);
-            var block = BlockDef(text, curPosition).FirstOrDefault();
-            var prev = PrecedingWord(text, curPosition);
+            var block = BlockHeader(text, position).FirstOrDefault();
+            var prev = PrecedingWord(text, position);
             IEnumerable<string> result = null;
 
             // has a word before it
@@ -41,6 +47,11 @@ namespace App
                    select x;
         }
 
+        /// <summary>
+        /// Search for all words starting with the specified string.
+        /// </summary>
+        /// <param name="searchString"></param>
+        /// <returns>A list of keywords starting with the specified string.</returns>
         private IEnumerable<string> KeywordsStartingWith(string searchString)
         {
             // search for all keywords starting with <searchString>
@@ -49,28 +60,42 @@ namespace App
                    select x.Substring(searchString.Length);
         }
 
-        private IEnumerable<string> BlockDef(string text, int curPosition)
+        /// <summary>
+        /// Get header of the block surrounding the specified text position.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="position"></param>
+        /// <returns>Returns a list of words making up the header or nothing.</returns>
+        private IEnumerable<string> BlockHeader(string text, int position)
         {
             // find surrounding block
-            var block = (from x in Compiler.GetBlockPositions(text)
-                         where x[1] < curPosition && curPosition < x[2]
-                         select x).FirstOrDefault();
+            var blocks = from x in Compiler.GetBlockPositions(text)
+                         select new[] { x.Index, x.Index + x.Value.IndexOf('{'), x.Index + x.Length };
 
-            // surrounding block found
-            if (block != null)
-            {
-                // return all words before the open brace '{'
-                var blockDef = text.Substring(block[0], block[1] - block[0]);
-                foreach (Match match in Regex.Matches(blockDef, @"\w+"))
+            // get headers of the block surrounding the text position
+            var headers = from x in blocks
+                          where x[1] < position && position < x[2]
+                          select text.Substring(x[0], x[1] - x[0]);
+            
+            // return all words before the open brace '{'
+            foreach (var header in headers)
+                foreach (Match match in Regex.Matches(header, @"\w+"))
                     yield return match.Value;
-            }
         }
 
-        private static string PrecedingWord(string text, int textPosition)
+        /// <summary>
+        /// Get the word previous to the specified position.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="position"></param>
+        /// <returns>The preceding word.</returns>
+        private static string PrecedingWord(string text, int position)
         {
+            // preselect line string
+            var line = text.Substring(Math.Max(0, text.LastIndexOf('\n', position, 1)), position);
             // find all words
-            var matches = Regex.Matches(text.Substring(0, textPosition), @"\w+\s*");
-            // return the las word
+            var matches = Regex.Matches(line, @"\w+\s*");
+            // return the last word
             return matches.Count > 0 ? matches[matches.Count - 1].Value.Trim() : null;
         }
 
