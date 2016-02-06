@@ -20,7 +20,12 @@ namespace App
             InitializeComponent();
         }
 
-        #region App Control
+        #region Form Control
+        /// <summary>
+        /// On loading the app, load form settings and instantiate GLSL debugger.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void App_Load(object sender, EventArgs e)
         {
             // load previous window state
@@ -51,6 +56,12 @@ namespace App
             debugProperty.CollapseAllGridItems();
         }
 
+        /// <summary>
+        /// On form closing, save all source files, delete
+        /// all OpenGL objects and save form state.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void App_FormClosing(object sender, FormClosingEventArgs e)
         {
             // check if there are any files with changes
@@ -98,6 +109,11 @@ namespace App
             XmlSerializer.Save(settings, Properties.Resources.WINDOW_SETTINGS_FILE);
         }
         
+        /// <summary>
+        /// Handle key events of the form.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void App_KeyUp(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -131,6 +147,11 @@ namespace App
         #endregion
 
         #region glControl Events
+        /// <summary>
+        /// Handle mouse up events of the glCotrol.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void glControl_MouseUp(object sender, MouseEventArgs e)
         {
             // if pick tool button is checked, set
@@ -151,12 +172,22 @@ namespace App
         #endregion
 
         #region Tool Buttons
+        /// <summary>
+        /// Open new tab.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void toolBtnNew_Click(object sender, EventArgs e)
         {
-            AddSourceTab(null);
+            AddTab(null);
             tabSource.SelectedIndex = tabSource.TabPages.Count-1;
         }
 
+        /// <summary>
+        /// Open file.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void toolBtnOpen_Click(object sender, EventArgs e)
         {
             // create file dialog
@@ -176,12 +207,17 @@ namespace App
                 if (i < 0)
                 {
                     i = tabSource.TabPages.Count;
-                    AddSourceTab(path);
+                    AddTab(path);
                 }
                 tabSource.SelectedIndex = i;
             }
         }
 
+        /// <summary>
+        /// Run or debug the currently active tab.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="ev"></param>
         private void toolBtnRunDebug_Click(object sender, EventArgs ev)
         {
             // if no tab page is selected nothing needs to be compiled
@@ -266,6 +302,11 @@ namespace App
                 UpdateDebugListView(compiledEditor);
         }
 
+        /// <summary>
+        /// Save the currently active tab.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void toolBtnSave_Click(object sender, EventArgs e)
         {
             TabPage tab = (TabPage)tabSource.SelectedTab;
@@ -275,6 +316,11 @@ namespace App
             tab.Text = tab.Text.Substring(0, tab.Text.Length - 1);
         }
 
+        /// <summary>
+        /// Save all the tabs.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void toolBtnSaveAll_Click(object sender, EventArgs e)
         {
             foreach (TabPage tab in tabSource.TabPages)
@@ -286,9 +332,19 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Save currently active tab as a new file.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void toolBtnSaveAs_Click(object sender, EventArgs e)
             => SaveTabPage((TabPage)tabSource.SelectedTab, true);
 
+        /// <summary>
+        /// Close the currently active tab, but open the save dialog if there have been changes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void toolBtnClose_Click(object sender, EventArgs e)
         {
             if (tabSource.SelectedIndex < 0 || tabSource.SelectedIndex >= tabSource.TabPages.Count)
@@ -305,6 +361,11 @@ namespace App
             tabSource.TabPages.RemoveAt(tabSource.SelectedIndex);
         }
 
+        /// <summary>
+        /// Pick a debug pixel in the glControl.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void toolBtnPick_CheckedChanged(object sender, EventArgs e)
         {
             if (toolBtnPick.Checked)
@@ -315,6 +376,11 @@ namespace App
         #endregion
         
         #region UTIL
+        /// <summary>
+        /// Save tab.
+        /// </summary>
+        /// <param name="tabPage"></param>
+        /// <param name="newfile"></param>
         private void SaveTabPage(TabPage tabPage, bool newfile)
         {
             var editor = (CodeEditor)tabPage.Controls[0];
@@ -336,7 +402,11 @@ namespace App
             System.IO.File.WriteAllText(tabPage.filepath, editor.Text);
         }
 
-        private void AddSourceTab(string path)
+        /// <summary>
+        /// Add new tab.
+        /// </summary>
+        /// <param name="path"></param>
+        private void AddTab(string path)
         {
             // load file
             string filename = path != null ? Path.GetFileName(path) : "unnamed.tech";
@@ -362,6 +432,10 @@ namespace App
             
         }
 
+        /// <summary>
+        /// Get code editor of the currently active tab.
+        /// </summary>
+        /// <returns></returns>
         private CodeEditor GetSelectedEditor()
         {
             var sourceTab = (TabPage)tabSource.SelectedTab;

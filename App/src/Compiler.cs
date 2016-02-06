@@ -12,6 +12,7 @@ namespace App
         private static HashSet<string> incpath = new HashSet<string>();
         private static Regex regexBlock;
 
+        // initialize static members
         static Compiler()
         {
             var open = "{";
@@ -34,6 +35,7 @@ namespace App
             return new File(path);
         }
 
+        #region Compiler classes
         public class File : IEnumerable<Block>
         {
             #region FIELDS
@@ -117,6 +119,10 @@ namespace App
                 }
             }
 
+            /// <summary>
+            /// Find all include definitions and process those files to build the object tree.
+            /// </summary>
+            /// <returns>Returns a list of processed include files.</returns>
             private IEnumerable<File> ProcessIncludes()
             {
                 // get directory form path
@@ -135,6 +141,10 @@ namespace App
                 }
             }
 
+            /// <summary>
+            /// Search for and process all object blocks in the file.
+            /// </summary>
+            /// <returns></returns>
             private IEnumerable<Block> ProcessBlocks()
             {
                 // process found block strings
@@ -211,6 +221,10 @@ namespace App
                         yield return cmd;
             }
 
+            /// <summary>
+            /// Process each line of an object block for commands.
+            /// </summary>
+            /// <returns>Returns a list of commands.</returns>
             private IEnumerable<Command> ProcessCommands()
             {
                 // split the command body of the block into lines
@@ -268,6 +282,10 @@ namespace App
                 Args = ProcessArguments().ToArray();
             }
             
+            /// <summary>
+            /// Split command into arguments. The first argument is the command itself.
+            /// </summary>
+            /// <returns></returns>
             private IEnumerable<Argument> ProcessArguments()
             {
                 // replace all non word characters with \n
@@ -323,6 +341,7 @@ namespace App
                 Text = text.Trim();
             }
         }
+        #endregion
 
         #region PROCESS CODE STRING
         /// <summary>
@@ -409,5 +428,19 @@ namespace App
                 yield return match;
         }
         #endregion
+    }
+
+    // convenience extension to the Dict class
+    static class CompilerDictExtensions
+    {
+        public static bool TryGetValue<T>(this Dict dict, string key, out T obj,
+            Compiler.Command cmd, CompileException err = null)
+            where T : GLObject
+            => dict.TryGetValue(key, out obj, cmd.File, cmd.LineInFile);
+
+        public static bool TryGetValue<T>(this Dict dict, string key, out T obj,
+            Compiler.Block block, CompileException err = null)
+            where T : GLObject
+            => dict.TryGetValue(key, out obj, block.File, block.LineInFile);
     }
 }

@@ -29,7 +29,7 @@ namespace App
             var cmd = cmds.First();
 
             // FIND CSHARP CLASS DEFINITION
-            var csharp = scene.GetValue<GLCsharp>(cmd[0].Text);
+            var csharp = scene.GetValueOrDefault<GLCsharp>(cmd[0].Text);
             if (csharp == null)
             {
                 err.Add($"Could not find csharp code '{cmd[0].Text}' of command '{cmd.Text}' ", cmd);
@@ -54,7 +54,7 @@ namespace App
 
             // get all public methods and check whether
             // they can be used as event handlers for glControl
-            GLReference reference = scene.GetValue<GLReference>(GraphicControl.nullname);
+            GLReference reference = scene.GetValueOrDefault<GLReference>(GraphicControl.nullname);
             GraphicControl glControl = (GraphicControl)reference.reference;
             var methods = instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
             foreach (var method in methods)

@@ -98,7 +98,7 @@ namespace App
         private void Attach(Compiler.Command cmd, Dict classes, CompileException err)
         {
             // get OpenGL image
-            GLImage glimg = classes.GetValue<GLImage>(cmd[0].Text);
+            GLImage glimg = classes.GetValueOrDefault<GLImage>(cmd[0].Text);
             if (glimg == null)
             {
                 err.Add($"The name '{cmd[0].Text}' does not reference an object of type 'image'.", cmd);

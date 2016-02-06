@@ -8,13 +8,21 @@ namespace OpenTK
 {
     class GraphicControl : GLControl
     {
+        #region FIELDS
         public static string nullname = "__control__";
+        // indicates if rendering should be enabled
         private bool render = false;
+        // number of exceptions thrown in the previous rendering pass
         private int renderExceptions = 0;
+        // reference to compiler output
         private DataGridView output;
+        // a collection of all objects making up the scene
         private Dict scene = new Dict();
+        // returns scene as a dictionary
         public Dictionary<string, GLObject> Scene { get { return scene; } }
+        // get the current render frame
         public int Frame { get; private set; } = 0;
+        #endregion
 
         /// <summary>
         /// Instantiate and initialize graphics control based on OpenTK.
@@ -34,7 +42,7 @@ namespace OpenTK
         /// </summary>
         public void Render()
         {
-            // clear existing render exeptions
+            // clear existing render exceptions
             if (renderExceptions > 0)
             {
                 for (int i = 0; i < output.Rows.Count; i++)
@@ -47,7 +55,8 @@ namespace OpenTK
             {
                 // render the scene
                 MakeCurrent();
-                scene.Where(x => x.Value is GLTech).Select(x => (GLTech)x.Value)
+                scene.Where(x => x.Value is GLTech)
+                     .Select(x => (GLTech)x.Value)
                      .Do(x => x.Exec(ClientSize.Width, ClientSize.Height, Frame));
                 SwapBuffers();
             }
@@ -101,7 +110,8 @@ namespace OpenTK
             // (re)initialize OpenGL/GLSL debugger
             GLDebugger.Initilize(scene);
         }
-        
+
+        #region EVENTS
         private void HandleLoad(object sender, EventArgs e)
             => output = (DataGridView)FindForm()?.Controls.Find("output", true).FirstOrDefault();
 
@@ -114,5 +124,6 @@ namespace OpenTK
         private void HandleMouseUp(object sender, MouseEventArgs e) => render = false;
 
         private void HandleMouseMove(object sender, MouseEventArgs e) => this.UseIf(render)?.Render();
+        #endregion
     }
 }

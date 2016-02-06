@@ -29,7 +29,7 @@ namespace App
         }
 
         /// <summary>
-        /// Deserializes an xml file into an object list
+        /// Deserializes an xml file into an object list.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="fileName"></param>
@@ -39,17 +39,18 @@ namespace App
             if (string.IsNullOrEmpty(fileName))
                 return default(T);
 
-            T objectOut = default(T);
-            
-            string attributeXml = string.Empty;
+            var objectOut = default(T);
+            var attributeXml = string.Empty;
 
+            // load xml file
             var xmlDocument = new System.Xml.XmlDocument();
             xmlDocument.Load(fileName);
             string xmlString = xmlDocument.OuterXml;
 
+            // deserialize string to object
             using (var read = new StringReader(xmlString))
             {
-                Type outType = typeof(T);
+                var outType = typeof(T);
 
                 var serializer = new System.Xml.Serialization.XmlSerializer(outType);
                 using (var reader = new System.Xml.XmlTextReader(read))

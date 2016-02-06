@@ -408,7 +408,7 @@ namespace App
                     try
                     {
                         values[i] = types[i].IsSubclassOf(typeof(GLObject))
-                            ? classes.GetValue<GLObject>(arg.Text)
+                            ? classes.GetValueOrDefault<GLObject>(arg.Text)
                             : types[i].IsEnum
                                 ? Enum.Parse(types[i], arg.Text, true)
                                 : Convert.ChangeType(arg.Text, types[i], App.culture);
@@ -474,12 +474,9 @@ namespace App
 
         #region UTIL METHODS
         private MethodInfo FindMethod(string name, int nparam)
-        {
-            var methods = from method in typeof(GL).GetMethods()
-                          where method.Name == name && method.GetParameters().Length == nparam
-                          select method;
-            return methods.Count() > 0 ? methods.First() : null;
-        }
+            => (from method in typeof(GL).GetMethods()
+                where method.Name == name && method.GetParameters().Length == nparam
+                select method).FirstOrDefault();
 
         private GLShader Attach(Compiler.Block block, string sh, Dict classes, CompileException err)
         {
