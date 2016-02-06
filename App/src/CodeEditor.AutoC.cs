@@ -91,8 +91,9 @@ namespace App
         /// <returns>The preceding word.</returns>
         private static string PrecedingWord(string text, int position)
         {
+            var nl = Math.Max(0, text.LastIndexOf('\n', Math.Min(position, text.Length-1), 1));
             // preselect line string
-            var line = text.Substring(Math.Max(0, text.LastIndexOf('\n', position, 1)), position);
+            var line = text.Substring(nl, position - nl);
             // find all words
             var matches = Regex.Matches(line, @"\w+\s*");
             // return the last word
