@@ -5,6 +5,12 @@ namespace App
 {
     class GLVertinput : GLObject
     {
+        /// <summary>
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
         public GLVertinput(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
@@ -16,7 +22,7 @@ namespace App
 
             int numAttr = 0;
             foreach (var cmd in block["attr"])
-                Attach(numAttr++, cmd, name, scene, err + $"command '{cmd.Text}'");
+                Attach(numAttr++, cmd, scene, err + $"command '{cmd.Text}'");
 
             // if errors occurred throw exception
             if (err.HasErrors())
@@ -27,8 +33,16 @@ namespace App
             if (HasErrorOrGlError(err, block))
                 throw err;
         }
-        
-        private void Attach(int attrIdx, Compiler.Command cmd, string name, Dict classes, CompileException err)
+
+        /// <summary>
+        /// Parse command line and attach the buffer object
+        /// to the specified unit (input stream).
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <param name="cmd"></param>
+        /// <param name="scene"></param>
+        /// <param name="err"></param>
+        private void Attach(int unit, Compiler.Command cmd, Dict scene, CompileException err)
         {
             // check commands for errors
             if (cmd.ArgCount < 3)
@@ -46,7 +60,7 @@ namespace App
             int divisor = cmd.ArgCount > 5 ? int.Parse(cmd[5].Text) : 0;
 
             GLBuffer buff;
-            if (classes.TryGetValue(buffname, out buff, cmd, err) == false)
+            if (scene.TryGetValue(buffname, out buff, cmd, err) == false)
             {
                 err.Add($"Buffer '{buffname}' could not be found.", cmd);
                 return;
@@ -54,24 +68,27 @@ namespace App
 
             // enable vertex array attribute
             GL.BindBuffer(BufferTarget.ArrayBuffer, buff.glname);
-            GL.EnableVertexAttribArray(attrIdx);
+            GL.EnableVertexAttribArray(unit);
 
             // bind buffer to vertex array attribute
             VertexAttribIntegerType typei;
             VertexAttribPointerType typef;
             if (Enum.TryParse(typename, true, out typei))
-                GL.VertexAttribIPointer(attrIdx, length, typei, stride, (IntPtr)offset);
+                GL.VertexAttribIPointer(unit, length, typei, stride, (IntPtr)offset);
             else if (Enum.TryParse(typename, true, out typef))
-                GL.VertexAttribPointer(attrIdx, length, typef, false, stride, offset);
+                GL.VertexAttribPointer(unit, length, typef, false, stride, offset);
             else
                 err.Add($"Type '{typename}' is not supported.", cmd);
 
             if (divisor > 0)
-                GL.VertexAttribDivisor(attrIdx, divisor);
+                GL.VertexAttribDivisor(unit, divisor);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
-        
+
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
         public override void Delete()
         {
             if (glname > 0)

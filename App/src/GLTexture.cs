@@ -14,6 +14,16 @@ namespace App
         private GLImage glimg = null;
         #endregion
 
+        /// <summary>
+        /// Create OpenGL object specifying the texture
+        /// format and referenced scene objects directly.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="anno"></param>
+        /// <param name="format"></param>
+        /// <param name="glsamp"></param>
+        /// <param name="glbuff"></param>
+        /// <param name="glimg"></param>
         public GLTexture(string name, string anno, GpuFormat format, GLSampler glsamp, GLBuffer glbuff, GLImage glimg)
             : base(name, anno)
         {
@@ -26,11 +36,19 @@ namespace App
             this.glimg = glimg;
 
             // INCASE THIS IS A TEXTURE OBJECT
-            LinkToTexture("", -1, err);
+            Link("", -1, err);
             if (HasErrorOrGlError(err, "", -1))
                 throw err;
         }
 
+        /// <summary>
+        /// Create OpenGL object specifying the referenced scene objects directly.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="glsamp"></param>
+        /// <param name="glbuff"></param>
+        /// <param name="glimg"></param>
         public GLTexture(Compiler.Block block, Dict scene, GLSampler glsamp, GLBuffer glbuff, GLImage glimg)
             : base(block.Name, block.Anno)
         {
@@ -45,23 +63,50 @@ namespace App
             this.glimg = glimg;
 
             // GET REFERENCES
-            GetReferences(samp, buff, img, block, scene, err);
+            if (samp != null)
+                scene.TryGetValue(samp, out this.glsamp, block, err);
+            if (buff != null)
+                scene.TryGetValue(buff, out this.glbuff, block, err);
+            if (img != null)
+                scene.TryGetValue(img, out this.glimg, block, err);
+            if (this.glbuff != null && this.glimg != null)
+                err.Add("Only an image or a buffer can be bound to a texture object.", block);
+            if (this.glbuff == null && this.glimg == null)
+                err.Add("Ether an image or a buffer has to be bound to a texture object.", block);
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION
             if (err.HasErrors())
                 throw err;
 
             // INCASE THIS IS A TEXTURE OBJECT
-            LinkToTexture(block.File, block.LineInFile, err);
+            Link(block.File, block.LineInFile, err);
             if (HasErrorOrGlError(err, block))
                 throw err;
         }
 
+        /// <summary>
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
         public GLTexture(Compiler.Block block, Dict scene, bool debugging)
             : this(block, scene, null, null, null)
         {
         }
-        
+
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
+        public override void Delete()
+        {
+            if (glname > 0)
+            {
+                GL.DeleteTexture(glname);
+                glname = 0;
+            }
+        }
+
         /// <summary>
         /// Bind texture to texture unit.
         /// </summary>
@@ -85,7 +130,7 @@ namespace App
         }
 
         /// <summary>
-        /// Bind texture to compute image unit.
+        /// Bind texture to compute-image unit.
         /// </summary>
         /// <param name="unit">Image unit.</param>
         /// <param name="level">Texture mipmap level.</param>
@@ -95,34 +140,19 @@ namespace App
         public void BindImg(int unit, int level, int layer, TextureAccess access, GpuFormat format)
             => GLDebugger.BindImg(unit, level, glimg?.length > 0, layer, access, format, glname);
 
+        /// <summary>
+        /// Unbind texture from compute-image unit.
+        /// </summary>
+        /// <param name="unit"></param>
         public void UnbindImg(int unit) => GLDebugger.UnbindImg(unit);
 
-        public override void Delete()
-        {
-            if (glname > 0)
-            {
-                GL.DeleteTexture(glname);
-                glname = 0;
-            }
-        }
-        
-        private void GetReferences(string samp, string buff, string img, Compiler.Block block,
-            Dict scene, CompileException err)
-        {
-            // GET REFERENCES
-            if (samp != null)
-                scene.TryGetValue(samp, out glsamp, block, err);
-            if (buff != null)
-                scene.TryGetValue(buff, out glbuff, block, err);
-            if (img != null)
-                scene.TryGetValue(img, out glimg, block, err);
-            if (glbuff != null && glimg != null)
-                err.Add("Only an image or a buffer can be bound to a texture object.", block);
-            if (glbuff == null && glimg == null)
-                err.Add("Ether an image or a buffer has to be bound to a texture object.", block);
-        }
-
-        private void LinkToTexture(string file, int line, CompileException err)
+        /// <summary>
+        /// Link image or buffer object to the texture.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="line"></param>
+        /// <param name="err"></param>
+        private void Link(string file, int line, CompileException err)
         {
             // INCASE THIS IS A TEXTURE OBJECT
             if (glimg != null)
@@ -146,9 +176,5 @@ namespace App
                 GL.BindTexture(TextureTarget.TextureBuffer, 0);
             }
         }
-
-        public string GetLable() => GetLable(glname);
-
-        public static string GetLable(int glname) => GetLable(ObjectLabelIdentifier.Texture, glname);
     }
 }

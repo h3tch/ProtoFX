@@ -4,6 +4,12 @@ namespace App
 {
     class GLShader : GLObject
     {
+        /// <summary>
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
         public GLShader(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
@@ -43,7 +49,10 @@ namespace App
             if (HasErrorOrGlError(err, block))
                 throw err;
         }
-        
+
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
         public override void Delete()
         {
             if (glname > 0)

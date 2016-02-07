@@ -12,9 +12,11 @@ namespace App
         #endregion
 
         /// <summary>
-        /// Create OpenGL object.
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
         public GLVertoutput(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
@@ -71,6 +73,9 @@ namespace App
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, 0);
         }
 
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
         public override void Delete()
         {
             if (glname > 0)
@@ -80,7 +85,15 @@ namespace App
             }
         }
 
-        private void Attach(int unit, Compiler.Command cmd, Dict classes, CompileException err)
+        /// <summary>
+        /// Parse command line and attach the buffer object
+        /// to the specified unit (output stream).
+        /// </summary>
+        /// <param name="unit">Vertex output stream unit.</param>
+        /// <param name="cmd">Command line to process.</param>
+        /// <param name="scene">Dictionary of scene objects.</param>
+        /// <param name="err">Compiler exception collector.</param>
+        private void Attach(int unit, Compiler.Command cmd, Dict scene, CompileException err)
         {
             if (cmd.ArgCount == 0)
             {
@@ -89,7 +102,7 @@ namespace App
             }
 
             // get buffer
-            GLBuffer buf = classes.GetValueOrDefault<GLBuffer>(cmd[0].Text);
+            GLBuffer buf = scene.GetValueOrDefault<GLBuffer>(cmd[0].Text);
             if (buf == null)
             {
                 err.Add($"The name '{cmd[0]}' does not reference an object of type 'buffer'.", cmd);

@@ -19,9 +19,11 @@ namespace App
         #endregion
 
         /// <summary>
-        /// Create C# object compiler class.
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
         public GLCsharp(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
@@ -89,10 +91,22 @@ namespace App
                 throw err.Add(msg, block);
             }
         }
-        
+
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
+        public override void Delete() { }
+
+        /// <summary>
+        /// Create a new external class instance by processing the specified compiler block.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="cmd"></param>
+        /// <param name="err"></param>
+        /// <returns></returns>
         public object CreateInstance(Compiler.Block block, Compiler.Command cmd, CompileException err)
         {
-            var classname = cmd[1].Text;
+            var classname = cmd.Text;
 
             // create main class from compiled files
             var instance = compilerresults.CompiledAssembly.CreateInstance(
@@ -106,6 +120,30 @@ namespace App
             errors?.ForEach(msg => err.Add(msg, cmd));
 
             return instance;
+        }
+
+        public static object CreateInstance(Compiler.Block block, Dict scene, CompileException err)
+        {
+            // GET CLASS COMMAND
+            var cmds = block["class"].ToList();
+            if (cmds.Count == 0)
+            {
+                err.Add("Instance must specify a 'class' command (e.g., class csharp_name " +
+                    "class_name).", block);
+                return null;
+            }
+            var cmd = cmds.First();
+
+            // FIND CSHARP CLASS DEFINITION
+            var csharp = scene.GetValueOrDefault<GLCsharp>(cmd[0].Text);
+            if (csharp == null)
+            {
+                err.Add($"Could not find csharp code '{cmd[0].Text}' of command '{cmd.Text}' ", cmd);
+                return null;
+            }
+
+            // INSTANTIATE CSHARP CLASS
+            return csharp.CreateInstance(block, cmd, err);
         }
 
         private Dictionary<string, string[]> ToDict(Compiler.Block block)
@@ -124,7 +162,5 @@ namespace App
                 return default(T);
             return value.GetType() == typeof(T) ? (T)value : default(T);
         }
-
-        public override void Delete() { }
     }
 }

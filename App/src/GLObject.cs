@@ -11,8 +11,8 @@ namespace App
     /// The <code>Field</code> attribute class is used to identify
     /// fields that can receive values from the application at compile time.
     /// </summary>
-    [System.AttributeUsage(System.AttributeTargets.Field | System.AttributeTargets.Property)]
-    public class Field : System.Attribute { }
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    public class Field : Attribute { }
     
     abstract class GLObject
     {
@@ -27,7 +27,7 @@ namespace App
             this.anno = anno;
         }
         
-        protected static string GetLable(ObjectLabelIdentifier type, int glname)
+        public static string GetLabel(ObjectLabelIdentifier type, int glname)
         {
             int length = 64;
             var label = new StringBuilder(length);
@@ -83,8 +83,8 @@ namespace App
             }
         }
 
-        static private void SetValue<T>(T clazz, object field, Type fieldType, Compiler.Command cmd,
-            CompileException err = null)
+        static private void SetValue<T>(T clazz, object field, Type fieldType,
+            Compiler.Command cmd, CompileException err = null)
         {
             // check for errors
             if (cmd.ArgCount == 0)

@@ -9,7 +9,13 @@ namespace App
         [Field] private TextureMagFilter magfilter = TextureMagFilter.Nearest;
         [Field] private TextureWrapMode wrap = TextureWrapMode.ClampToEdge;
         #endregion
-        
+
+        /// <summary>
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
         public GLSampler(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
@@ -33,7 +39,10 @@ namespace App
             if (err.HasErrors())
                 throw err;
         }
-        
+
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
         public override void Delete()
         {
             if (glname > 0)

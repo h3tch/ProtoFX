@@ -41,6 +41,12 @@ namespace App
         private List<GLInstance> csexec = new List<GLInstance>();
         #endregion
 
+        /// <summary>
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
         public GLPass(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
@@ -241,6 +247,9 @@ namespace App
 #endif
         }
 
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
         public override void Delete()
         {
             if (glname > 0)

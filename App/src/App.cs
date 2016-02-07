@@ -275,7 +275,7 @@ namespace App
                            where !internID.Contains(x) && GL.IsTexture(x)
                            select x;
             externID
-                .Select(x => new GLImage($"GLTex{x}: {GLImage.GetLable(x)}", "tex", x))
+                .Select(x => new GLImage($"{GLImage.GetLabel(x)}", "tex", x))
                 .Do(x => glControl.Scene.Add(x.name, x));
 
             // also add externally created buffers to the scene
@@ -286,7 +286,7 @@ namespace App
                        where !internID.Contains(x) && GL.IsBuffer(x)
                        select x;
             externID
-                .Select(x => new GLBuffer($"GLBuf{x}: {GLBuffer.GetLable(x)}", "buf", x))
+                .Select(x => new GLBuffer($"{GLBuffer.GetLabel(x)}", "buf", x))
                 .Do(x => glControl.Scene.Add(x.name, x));
 
             // UPDATE DEBUG DATA

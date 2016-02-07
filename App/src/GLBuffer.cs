@@ -55,9 +55,11 @@ namespace App
         }
 
         /// <summary>
-        /// Create OpenGL object.
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
         public GLBuffer(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
@@ -133,6 +135,9 @@ namespace App
             GL.UnmapNamedBuffer(glname);
         }
 
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
         public override void Delete()
         {
             if (glname > 0)
@@ -142,9 +147,12 @@ namespace App
             }
         }
 
-        public string GetLable() => GetLable(glname);
-
-        public static string GetLable(int glname) => GetLable(ObjectLabelIdentifier.Buffer, glname);
+        /// <summary>
+        /// Get the OpenGL object label of the buffer object.
+        /// </summary>
+        /// <param name="glname"></param>
+        /// <returns></returns>
+        public static string GetLabel(int glname) => GetLabel(ObjectLabelIdentifier.Buffer, glname);
 
         #region UTIL METHODS
         private void CreateBuffer(byte[] data)

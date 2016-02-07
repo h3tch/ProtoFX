@@ -20,24 +20,9 @@ namespace App
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"instance '{name}'");
-
-            // GET CLASS COMMAND
-            var cmds = block["class"].ToList();
-            if (cmds.Count == 0)
-                throw err.Add("Instance must specify a 'class' command (e.g., class csharp_name " +
-                    "class_name).", block);
-            var cmd = cmds.First();
-
-            // FIND CSHARP CLASS DEFINITION
-            var csharp = scene.GetValueOrDefault<GLCsharp>(cmd[0].Text);
-            if (csharp == null)
-            {
-                err.Add($"Could not find csharp code '{cmd[0].Text}' of command '{cmd.Text}' ", cmd);
-                return;
-            }
-
-            // INSTANTIATE CSHARP CLASS
-            instance = csharp.CreateInstance(block, cmd, err);
+            
+            // INSTANTIATE CSHARP CLASS FROM CODE BLOCK
+            instance = GLCsharp.CreateInstance(block, scene, err);
             if (err.HasErrors())
                 throw err;
 
@@ -67,12 +52,28 @@ namespace App
                 }
             }
         }
-        
+
+        /// <summary>
+        /// Call update method of the external class instance.
+        /// </summary>
+        /// <param name="program">Program/pass calling the method.</param>
+        /// <param name="width">Width of the OpenGL framebuffer.</param>
+        /// <param name="height">Height of the OpenGL framebuffer.</param>
+        /// <param name="widthTex">Width of the render target.</param>
+        /// <param name="heightTex">Height of the render target.</param>
         public void Update(int program, int width, int height, int widthTex, int heightTex)
             => update?.Invoke(instance, new object[] { program, width, height, widthTex, heightTex });
 
-        public void EndPass(int program) => endpass?.Invoke(instance, new object[] { program });
+        /// <summary>
+        /// Call end-pass method of the external class instance.
+        /// </summary>
+        /// <param name="program">Program/pass calling the method.</param>
+        public void EndPass(int program)
+            => endpass?.Invoke(instance, new object[] { program });
 
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
         public override void Delete() => delete?.Invoke(instance, null);
     }
 }

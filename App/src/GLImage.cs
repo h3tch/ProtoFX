@@ -128,6 +128,18 @@ namespace App
         }
         
         /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
+        public override void Delete()
+        {
+            if (glname > 0)
+            {
+                GL.DeleteTexture(glname);
+                glname = 0;
+            }
+        }
+
+        /// <summary>
         /// Read whole GPU image data.
         /// </summary>
         /// <param name="level">Mipmap level.</param>
@@ -172,11 +184,10 @@ namespace App
             Marshal.FreeHGlobal(data);
             return bmp;
         }
-
+        
         /// <summary>
         /// Read GPU sub-image data.
         /// </summary>
-        /// <typeparam name="T">return type</typeparam>
         /// <param name="ID">OpenGL texture name</param>
         /// <param name="level">texture mipmap level</param>
         /// <param name="x">sub-image x offset</param>
@@ -185,23 +196,10 @@ namespace App
         /// <param name="w">sub-image width</param>
         /// <param name="h">sub-image height</param>
         /// <param name="d">sub-image depth</param>
-        /// <param name="format">returned pixel format (RGBA, BRGA, Red, Depth, ...)</param>
-        /// <param name="type">returned pixel type (UnsignedByte, Short, UnsignedInt, ...)</param>
-        /// <returns></returns>
-        public static T[] Read<T>(int ID, int level, int x, int y, int z, int w, int h, int d,
-            PixelFormat format, PixelType type) where T : struct
-        {
-            int size;
-
-            // read sub-image data and convert it to T[]
-            var data = ReadSubImage(ID, level, x, y, z, w, h, d, format, type, out size);
-            var ptr = data.To<T>(size);
-
-            // free memory allocated by OpenGL
-            Marshal.FreeHGlobal(data);
-            return ptr;
-        }
-
+        /// <param name="format">pixel format (RGBA, BRGA, Red, Depth, ...)</param>
+        /// <param name="type">pixel type (UnsignedByte, Short, UnsignedInt, ...)</param>
+        /// <param name="size">returns the buffer size in bytes</param>
+        /// <returns>Returns a buffer containing the specified sub-image region.</returns>
         private static IntPtr ReadSubImage(int ID, int level, int x, int y, int z, int w, int h, int d,
             PixelFormat format, PixelType type, out int size)
         {
@@ -214,6 +212,11 @@ namespace App
             return data;
         }
 
+        /// <summary>
+        /// Convert pixel type to number of color bits.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         private static int ColorBits(PixelType type)
         {
             switch (type)
@@ -238,6 +241,11 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Get the number of color channels from the specified pixel format.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <returns></returns>
         private static int ColorChannels(PixelFormat format)
         {
             switch (format)
@@ -270,18 +278,12 @@ namespace App
             }
         }
         
-        public override void Delete()
-        {
-            if (glname > 0)
-            {
-                GL.DeleteTexture(glname);
-                glname = 0;
-            }
-        }
-
-        public string GetLable() => GetLable(glname);
-
-        public static string GetLable(int glname) => GetLable(ObjectLabelIdentifier.Texture, glname);
+        /// <summary>
+        /// Get the OpenGL object label of the image object.
+        /// </summary>
+        /// <param name="glname"></param>
+        /// <returns></returns>
+        public static string GetLabel(int glname) => GetLabel(ObjectLabelIdentifier.Texture, glname);
 
         #region UTIL METHODS
         private static byte[] LoadImageFiles(string dir, string[] filenames,

@@ -34,9 +34,11 @@ namespace App
         #endregion
 
         /// <summary>
-        /// Create OpenGL framebuffer object for fragment output.
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
         public GLFragoutput(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
@@ -69,6 +71,21 @@ namespace App
                 throw err.Add("Could not be created due to an unknown error.", block);
         }
         
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
+        public override void Delete()
+        {
+            if (glname > 0)
+            {
+                GL.DeleteFramebuffer(glname);
+                glname = 0;
+            }
+        }
+
+        /// <summary>
+        /// Bind fragment output object as a render target (framebuffer).
+        /// </summary>
         public void Bind()
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, glname);
@@ -79,6 +96,9 @@ namespace App
                 GL.DrawBuffer(DrawBufferMode.None);
         }
 
+        /// <summary>
+        /// Unbind fragment output object as a render target (framebuffer).
+        /// </summary>
         public void Unbind()
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -86,19 +106,16 @@ namespace App
             GL.DrawBuffer(DrawBufferMode.BackLeft);
         }
 
-        public override void Delete()
-        {
-            if (glname > 0)
-            {
-                GL.DeleteFramebuffer(glname);
-                glname = 0;
-            }
-        }
-
-        private void Attach(Compiler.Command cmd, Dict classes, CompileException err)
+        /// <summary>
+        /// Attach image to the fragment output object.
+        /// </summary>
+        /// <param name="cmd">Command to process.</param>
+        /// <param name="scene">Dictionary of all objects in the scene.</param>
+        /// <param name="err">Compilation error collector.</param>
+        private void Attach(Compiler.Command cmd, Dict scene, CompileException err)
         {
             // get OpenGL image
-            GLImage glimg = classes.GetValueOrDefault<GLImage>(cmd[0].Text);
+            GLImage glimg = scene.GetValueOrDefault<GLImage>(cmd[0].Text);
             if (glimg == null)
             {
                 err.Add($"The name '{cmd[0].Text}' does not reference an object of type 'image'.", cmd);

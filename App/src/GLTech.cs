@@ -6,6 +6,12 @@ namespace App
     {
         private List<GLPass> passes = new List<GLPass>();
 
+        /// <summary>
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
         public GLTech(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
@@ -25,6 +31,9 @@ namespace App
         public void Exec(int width, int height, int frame)
             => passes.ForEach(x => x.Exec(width, height, frame));
 
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
         public override void Delete() { }
     }
 }
