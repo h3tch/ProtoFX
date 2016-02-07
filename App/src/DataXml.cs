@@ -67,7 +67,7 @@ namespace App
                 }
 
                 // join the data of all nodes
-                return data.Join().ToArray();
+                return data.Cat().ToArray();
             }
             catch
             {

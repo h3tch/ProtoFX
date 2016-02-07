@@ -123,7 +123,11 @@ namespace OpenTK
 
         private void HandleMouseUp(object sender, MouseEventArgs e) => render = false;
 
-        private void HandleMouseMove(object sender, MouseEventArgs e) => this.UseIf(render)?.Render();
+        private void HandleMouseMove(object sender, MouseEventArgs e)
+        {
+            if (render)
+                Render();
+        }
         #endregion
     }
 }

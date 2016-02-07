@@ -29,13 +29,26 @@ namespace App
         }
 
         #region String Extensions
+        /// <summary>
+        /// Find first match of two matching braces.
+        /// </summary>
+        /// <param name="s">extend string class</param>
+        /// <param name="open">opening brace character</param>
+        /// <param name="close">closing brace character</param>
+        /// <returns>Returns the first brace match.</returns>
         public static Match BraceMatch(this string s, char open, char close)
         {
-            string oc = "" + open + close;
+            string oc = $"{open}{close}";
             return Regex.Match(s, $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
                 $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
         }
-
+        
+        /// <summary>
+        /// Get zero based line index from the zero based character position.
+        /// </summary>
+        /// <param name="s">extend string class</param>
+        /// <param name="position">zero based character position</param>
+        /// <returns>Returns the zero based line index.</returns>
         public static int LineFromPosition(this string s, int position)
         {
             int lineCount = 0;
@@ -56,48 +69,26 @@ namespace App
 
             return lineCount;
         }
-
-        public static int PositionFromLine(this string s, int line)
-        {
-            int i = 0;
-
-            for (int l = 0; i < s.Length && l < line; i++)
-            {
-                if (s[i] == '\n')
-                {
-                    l++;
-                }
-                else if (s[i] == '\r')
-                {
-                    if (s[i + 1] == '\n')
-                        i++;
-                    l++;
-                }
-            }
-
-            return i;
-        }
         #endregion
 
         #region Extensions For All Types
-        public static T UseIf<T>(this T obj, bool condition) => condition ? obj : default(T);
-
+        /// <summary>
+        /// Check if the object value matches the default value.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns>Returns true if the object value equals the default value.</returns>
         public static bool IsDefault<T>(this T obj) => obj.Equals(default(T));
         #endregion
 
         #region IEnumerable<T> Extensions
-        public static T FindOrDefault<T>(this IEnumerable<T> ie, Func<T, bool> func)
-        {
-            int i = 0;
-            foreach (var e in ie)
-            {
-                if (func(e))
-                    return e;
-                i++;
-            }
-            return default(T);
-        }
-
+        /// <summary>
+        /// Find first zero based index where the specified function returns true.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ie"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
         public static int IndexOf<T>(this IEnumerable<T> ie, Func<T, bool> func)
         {
             int i = 0;
@@ -110,6 +101,13 @@ namespace App
             return -1;
         }
 
+        /// <summary>
+        /// Find last zero based index where the specified function returns true.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ie"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
         public static int LastIndexOf<T>(this IEnumerable<T> ie, Func<T, bool> func)
         {
             int i = 0, rs = -1;
@@ -122,6 +120,14 @@ namespace App
             return rs;
         }
 
+        /// <summary>
+        /// Process each object of the list using the specified
+        /// function and return all thrown exceptions.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ie"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
         public static IEnumerable<Exception> Catch<T>(this IEnumerable<T> ie, Action<T> func)
         {
             foreach (var e in ie)
@@ -140,22 +146,26 @@ namespace App
             }
         }
 
-        public static IEnumerable<T> Join<T>(this IEnumerable<T[]> id)
+        /// <summary>
+        /// Concatenate a list of arrays.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> Cat<T>(this IEnumerable<T[]> id)
         {
             foreach (var el in id)
                 foreach (var e in el)
                     yield return e;
         }
-
-        public static IEnumerable<T> Merge<T>(this IEnumerable<T> ie, IEnumerable<T> other)
-        {
-            foreach (var el in ie)
-                yield return el;
-            foreach (var el in other)
-                yield return el;
-        }
-
-        public static string Merge(this IEnumerable<string> list, string separator)
+        
+        /// <summary>
+        /// Concatenate a list of strings into a single string.
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="separator"></param>
+        /// <returns></returns>
+        public static string Cat(this IEnumerable<string> list, string separator)
         {
             string str = "";
             foreach (var s in list)
@@ -163,6 +173,14 @@ namespace App
             return str;
         }
 
+        /// <summary>
+        /// Iterate through two lists simultaneously.
+        /// </summary>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="ie"></param>
+        /// <param name="other"></param>
+        /// <param name="func"></param>
         public static void Zip<T1,T2>(this IEnumerable<T1> ie, IEnumerable<T2> other, Action<T1,T2> func)
         {
             var enumerator = other.GetEnumerator();
@@ -174,6 +192,12 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Process each element of a list.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ie"></param>
+        /// <param name="func"></param>
         public static void Do<T>(this IEnumerable<T> ie, Action<T> func)
         {
             foreach (var e in ie)
@@ -182,6 +206,11 @@ namespace App
         #endregion
 
         #region Convert Types
+        /// <summary>
+        /// Convert array to byte array.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <returns></returns>
         public static byte[] ToBytes(this Array src)
         {
             // get source type size
@@ -194,6 +223,13 @@ namespace App
             return dst;
         }
 
+        /// <summary>
+        /// Convert string into the specified type.
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="str"></param>
+        /// <param name="exeptionMessage"></param>
+        /// <returns></returns>
         public static TResult To<TResult>(this string str, string exeptionMessage = null)
         {
             try
@@ -208,6 +244,12 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Convert byte array into an array of the specified type.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static Array To(this byte[] data, Type type)
         {
             // get the size of the output type
@@ -218,18 +260,7 @@ namespace App
             Buffer.BlockCopy(data, 0, rs, 0, data.Length);
             return rs;
         }
-
-        public static TResult[] To<TResult>(this byte[] data) => (TResult[])data.To(typeof(TResult));
-
-        public static TResult[] To<TResult>(this IntPtr data, int size)
-        {
-            // copy input data to byte array
-            var bytes = new byte[size];
-            Marshal.Copy(data, bytes, 0, bytes.Length);
-            // convert bytes to output type
-            return bytes.To<TResult>();
-        }
-
+        
         public static Array To(this Array data, string typeName, out Type type)
         {
             // convert input type to bytes

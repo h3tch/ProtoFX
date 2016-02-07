@@ -78,7 +78,7 @@ namespace App
                 datalist.Add(LoadXml(err + $"command {cmd.Name} 'xml'", cmd, scene));
 
             // merge data into a single array
-            var iter = datalist.Join();
+            var iter = datalist.Cat();
             var data = iter.Take(size == 0 ? iter.Count() : size).ToArray();
             if (size == 0)
                 size = data.Length;
@@ -212,7 +212,7 @@ namespace App
 
                 // Merge data
                 if (!err.HasErrors())
-                    return filedata.Join().ToArray();
+                    return filedata.Cat().ToArray();
             }
             catch (Exception ex)
             {

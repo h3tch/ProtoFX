@@ -10,7 +10,7 @@ namespace App
         private List<Error> messages = new List<Error>();
 
         // compile call stack into a single string
-        private string callstackstring => callstack.Merge(": ");
+        private string callstackstring => callstack.Cat(": ");
 
         public bool HasErrors() => messages.Count > 0;
 
@@ -57,7 +57,8 @@ namespace App
 
         public CompileException PopCall()
         {
-            callstack.UseIf(callstack.Count > 0)?.RemoveAt(callstack.Count - 1);
+            if (callstack.Count > 0)
+                callstack.RemoveAt(callstack.Count - 1);
             return this;
         }
 

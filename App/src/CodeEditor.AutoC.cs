@@ -17,7 +17,7 @@ namespace App
             // get the list of possible keywords from the current position
             var keywords = SelectKeywords(curPosition);
             var wordPos = WordStartPosition(curPosition, true);
-            AutoCShow(curPosition - wordPos, keywords.Merge(" "));
+            AutoCShow(curPosition - wordPos, keywords.Cat(" "));
         }
 
         /// <summary>
