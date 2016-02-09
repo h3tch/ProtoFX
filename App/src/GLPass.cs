@@ -64,17 +64,18 @@ namespace App
                 if (attr?.Length > 0)
                     continue;
 
-                err.PushCall($"command '{cmd.Name}' line {cmd.LineInFile}");
-                switch (cmd.Name)
+                using (var e = err | $"command '{cmd.Name}' line {cmd.LineInFile}")
                 {
-                    case "draw": ParseDrawCall(cmd, scene, err); break;
-                    case "compute": ParseComputeCall(cmd, scene, err); break;
-                    case "tex": ParseTexCmd(cmd, scene, err); break;
-                    case "samp": ParseSampCmd(cmd, scene, err); break;
-                    case "exec": ParseCsharpExec(cmd, scene, err); break;
-                    default: ParseOpenGLCall(cmd, err); break;
+                    switch (cmd.Name)
+                    {
+                        case "draw": ParseDrawCall(cmd, scene, e); break;
+                        case "compute": ParseComputeCall(cmd, scene, e); break;
+                        case "tex": ParseTexCmd(cmd, scene, e); break;
+                        case "samp": ParseSampCmd(cmd, scene, e); break;
+                        case "exec": ParseCsharpExec(cmd, scene, e); break;
+                        default: ParseOpenGLCall(cmd, e); break;
+                    }
                 }
-                err.PopCall();
             }
 
             // GET VERTEX AND FRAGMENT OUTPUT BINDINGS

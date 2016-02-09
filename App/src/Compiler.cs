@@ -443,4 +443,14 @@ namespace App
             where T : GLObject
             => dict.TryGetValue(key, out obj, block.File, block.LineInFile);
     }
+
+    static class CompilerExeptionExtensions
+    {
+        public static CompileException Add(this CompileException err, string message, Compiler.Block block)
+            => err.Add(message, block.File, block.LineInFile);
+
+        public static CompileException Add(this CompileException err, string message, Compiler.Command cmd)
+            => err.Add(message, cmd.File, cmd.LineInFile);
+
+    }
 }

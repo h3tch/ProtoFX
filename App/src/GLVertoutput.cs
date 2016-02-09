@@ -32,7 +32,7 @@ namespace App
             // parse commands
             int numbindings = 0;
             foreach (var cmd in block["buff"])
-                Attach(numbindings++, cmd, scene, err + $"command '{cmd.Text}'");
+                Attach(numbindings++, cmd, scene, err | $"command '{cmd.Text}'");
 
             // if errors occurred throw exception
             if (err.HasErrors())

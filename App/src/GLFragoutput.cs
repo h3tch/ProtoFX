@@ -53,7 +53,7 @@ namespace App
 
             // PARSE COMMANDS
             foreach (var cmd in block)
-                Attach(cmd, scene, err + $"command '{cmd.Name}'");
+                Attach(cmd, scene, err | $"command '{cmd.Name}'");
 
             // if any errors occurred throw exception
             if (err.HasErrors())

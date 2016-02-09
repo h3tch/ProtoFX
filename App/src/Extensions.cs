@@ -261,6 +261,13 @@ namespace App
             return rs;
         }
         
+        /// <summary>
+        /// Cast an array to another type, not by element, but by memory.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="typeName"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static Array To(this Array data, string typeName, out Type type)
         {
             // convert input type to bytes
@@ -269,34 +276,54 @@ namespace App
             return bytes.To(type = str2type[typeName]);
         }
 
-        public static IEnumerable<TResult> ForEach<TResult>(this Array src, Func<object,TResult> func)
+        /// <summary>
+        /// Process each element using the specified functions.
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="data"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public static IEnumerable<TResult> ForEach<TResult>(this Array data, Func<object,TResult> func)
         {
             // output all values
-            foreach (var x in ForEach(src, new int[src.Rank]))
+            foreach (var x in ForEach(data, new int[data.Rank]))
                 yield return func(x);
         }
 
-        public static IEnumerable<object> ForEach(Array src, int[] idx, int curDim = 0)
+        /// <summary>
+        /// Enumerate the elements of a multidimensional array.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="tmpIdx">Temporal array used to iterate through the array dimensions.</param>
+        /// <param name="startDim">The first dimension to be processed.</param>
+        /// <returns></returns>
+        private static IEnumerable<object> ForEach(Array data, int[] tmpIdx, int startDim = 0)
         {
             // get size of current dimension
-            int dimSize = src.GetLength(curDim);
+            int dimSize = data.GetLength(startDim);
 
             // for each element in this dimension
             for (int i = 0; i < dimSize; i++)
             {
                 // set index of current dimension
-                idx[curDim] = i;
+                tmpIdx[startDim] = i;
                 // if the array has another dimension
-                if (src.Rank > curDim + 1)
+                if (data.Rank > startDim + 1)
                     // output all values of this dimension
-                    foreach (var x in ForEach(src, idx, curDim + 1))
+                    foreach (var x in ForEach(data, tmpIdx, startDim + 1))
                         yield return x;
                 else
                     // write value to output
-                    yield return src.GetValue(idx);
+                    yield return data.GetValue(tmpIdx);
             }
         }
 
+        /// <summary>
+        /// Covert the elements of an array into strings.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="format">How to format the type into a string.</param>
+        /// <returns></returns>
         public static Array ToStringArray(this Array src, string format)
         {
             // get array size for each dimension
@@ -308,25 +335,84 @@ namespace App
             return dst;
         }
 
-        private static void ToStringArray(Array src, Array dst, string dstFomrat, int[] idx, int curDim = 0)
+        /// <summary>
+        /// Covert the elements of an array of a specific type into and array of strings.
+        /// </summary>
+        /// <param name="src">Source array.</param>
+        /// <param name="dst">Destination array of strings.</param>
+        /// <param name="format">How to format the type into a string.</param>
+        /// <param name="tmpIdx">Temporal array used to iterate through the array dimensions.</param>
+        /// <param name="startDim">The first dimension to be processed.</param>
+        private static void ToStringArray(Array src, Array dst, string format, int[] tmpIdx, int startDim = 0)
         {
             // get size of current dimension
-            int dimSize = src.GetLength(curDim);
+            int dimSize = src.GetLength(startDim);
 
             // for each element in this dimension
             for (int i = 0; i < dimSize; i++)
             {
                 // set index of current dimension
-                idx[curDim] = i;
+                tmpIdx[startDim] = i;
                 // if the array has another dimension
-                if (src.Rank > curDim + 1)
+                if (src.Rank > startDim + 1)
                     // output all values of this dimension
-                    ToStringArray(src, dst, dstFomrat, idx, curDim + 1);
+                    ToStringArray(src, dst, format, tmpIdx, startDim + 1);
                 else
                     // write value to output
-                    dst.SetValue(string.Format(App.culture, dstFomrat, src.GetValue(idx)), idx);
+                    dst.SetValue(string.Format(App.culture, format, src.GetValue(tmpIdx)), tmpIdx);
             }
         }
+        #endregion
+
+        #region Copy Extensions
+        /// <summary>
+        /// Copy the data from one memory position to another.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="dst"></param>
+        /// <param name="size"></param>
+        public static void CopyTo(this IntPtr src, IntPtr dst, int size) => CopyMemory(dst, src, (uint)size);
+
+        [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
+        private static extern void CopyMemory(IntPtr dst, IntPtr src, uint count);
+        #endregion
+
+        #region BinaryReader Extensions
+        /// <summary>
+        /// Seek to the specified position in the binary stream.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="offset"></param>
+        /// <param name="origin"></param>
+        /// <returns></returns>
+        public static long Seek(this BinaryReader reader, int offset, SeekOrigin origin = SeekOrigin.Current)
+            => reader.BaseStream.Seek(offset, origin);
+
+        /// <summary>
+        /// Read a 2D array from a binary stream.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="reader"></param>
+        /// <param name="rows"></param>
+        /// <param name="cols"></param>
+        /// <param name="stride"></param>
+        /// <returns></returns>
+        public static Array ReadArray<T>(this BinaryReader reader, int rows, int cols, int stride)
+            where T : struct
+        {
+            // create array of type and find suitable read-method
+            Array array = new T[rows, cols];
+            var Read = reader.GetType().GetMethod("Read" + typeof(T).Name);
+            int skip = stride - cols * Marshal.SizeOf<T>();
+
+            // read types from mem and store them in the array
+            for (int y = 0; y < rows; y++)
+                for (int x = 0; x < cols; x++, reader.Seek(skip))
+                    array.SetValue(Read.Invoke(reader, null), y, x);
+
+            return array;
+        }
+        #endregion
 
         public static Dictionary<string, Type> str2type = new Dictionary<string, Type>
         {
@@ -345,35 +431,5 @@ namespace App
             {"short"   , typeof(short)  },
             {"ushort"  , typeof(ushort) },
         };
-        #endregion
-
-        #region Copy Extensions
-        public static void CopyTo(this IntPtr src, IntPtr dst, int size)
-            => CopyMemory(dst, src, (uint)size);
-
-        [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
-        private static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
-        #endregion
-
-        #region BinaryReader Extensions
-        public static long Seek(this BinaryReader reader, int offset, SeekOrigin origin = SeekOrigin.Current)
-            => reader.BaseStream.Seek(offset, origin);
-
-        public static Array ReadArray<T>(this BinaryReader reader, int rows, int cols, int stride)
-            where T : struct
-        {
-            // create array of type and find suitable read-method
-            Array array = new T[rows, cols];
-            var Read = reader.GetType().GetMethod("Read" + typeof(T).Name);
-            int skip = stride - cols * Marshal.SizeOf<T>();
-
-            // read types from mem and store them in the array
-            for (int y = 0; y < rows; y++)
-                for (int x = 0; x < cols; x++, reader.Seek(skip))
-                    array.SetValue(Read.Invoke(reader, null), y, x);
-
-            return array;
-        }
-        #endregion
     }
 }

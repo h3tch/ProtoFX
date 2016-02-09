@@ -22,7 +22,7 @@ namespace App
 
             int numAttr = 0;
             foreach (var cmd in block["attr"])
-                Attach(numAttr++, cmd, scene, err + $"command '{cmd.Text}'");
+                Attach(numAttr++, cmd, scene, err | $"command '{cmd.Text}'");
 
             // if errors occurred throw exception
             if (err.HasErrors())

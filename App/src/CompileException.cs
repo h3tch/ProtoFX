@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace App
 {
-    class CompileException : Exception, IEnumerable<CompileException.Error>
+    class CompileException : Exception, IEnumerable<CompileException.Error>, IDisposable
     {
         private List<string> callstack;
         private List<Error> messages = new List<Error>();
@@ -12,65 +12,62 @@ namespace App
         // compile call stack into a single string
         private string callstackstring => callstack.Cat(": ");
 
+        /// <summary>
+        /// Returns true if there are any errors messages in the class.
+        /// </summary>
+        /// <returns></returns>
         public bool HasErrors() => messages.Count > 0;
 
-        public CompileException() : this(new List<string>()) { }
-
-        private CompileException(List<string> callstack) : base()
+        /// <summary>
+        /// Create new compiler exception.
+        /// </summary>
+        /// <param name="callstackstring">Indicates the current position in the call stack.</param>
+        public CompileException(string callstackstring)
         {
-            this.callstack = callstack;
-        }
-
-        private CompileException(List<string> callstack, string callstackstring)
-            : this(callstack)
-        {
+            callstack = new List<string>();
             callstack.Add(callstackstring);
         }
-
-        public CompileException(string callstackstring) : this()
+        
+        private CompileException(CompileException err, string callstackstring)
         {
+            callstack = err.callstack;
             callstack.Add(callstackstring);
         }
-
-        public CompileException(CompileException err, string callstackstring)
-            : this(err.callstack, callstackstring)
-        {
-        }
-
-        public CompileException Add(string message, Compiler.Block block)
-            => Add(message, block.File, block.LineInFile);
-
-        public CompileException Add(string message, Compiler.Command cmd)
-            => Add(message, cmd.File, cmd.LineInFile);
-
+        
+        /// <summary>
+        /// Add a compiler error message to the exception.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="file"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
         public CompileException Add(string message, string file, int line)
         {
             messages.Add(new Error(file, line, callstackstring + message));
             return this;
         }
-
-        public CompileException PushCall(string text)
-        {
-            callstack.Add(text);
-            return this;
-        }
-
-        public CompileException PopCall()
-        {
-            if (callstack.Count > 0)
-                callstack.RemoveAt(callstack.Count - 1);
-            return this;
-        }
-
-        public static CompileException operator +(CompileException err, string callLevel)
+        
+        /// <summary>
+        /// Add another level to the call stack.
+        /// </summary>
+        /// <param name="err"></param>
+        /// <param name="callLevel"></param>
+        /// <returns></returns>
+        public static CompileException operator | (CompileException err, string callLevel)
             => new CompileException(err, callLevel);
 
-        #region IEnumerable Interface
+        #region Interfaces
         public IEnumerator<Error> GetEnumerator() => messages.GetEnumerator();
 
         IEnumerator<Error> IEnumerable<Error>.GetEnumerator() => messages.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => messages.GetEnumerator();
+
+        public void Dispose()
+        {
+            if (callstack.Count > 0)
+                callstack.RemoveAt(callstack.Count - 1);
+        }
         #endregion
 
         #region INNER CLASSES

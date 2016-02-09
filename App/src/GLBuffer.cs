@@ -72,10 +72,10 @@ namespace App
             List<byte[]> datalist = new List<byte[]>();
 
             foreach (var cmd in block["txt"])
-                datalist.Add(loadText(err + $"command {cmd.Name} 'txt'", cmd, scene));
+                datalist.Add(loadText(err | $"command {cmd.Name} 'txt'", cmd, scene));
 
             foreach (var cmd in block["xml"])
-                datalist.Add(LoadXml(err + $"command {cmd.Name} 'xml'", cmd, scene));
+                datalist.Add(LoadXml(err | $"command {cmd.Name} 'xml'", cmd, scene));
 
             // merge data into a single array
             var iter = datalist.Cat();

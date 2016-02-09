@@ -20,7 +20,7 @@ namespace App
             // PARSE COMMANDS
             GLPass pass;
             foreach (var cmd in block["pass"])
-                if (scene.TryGetValue(cmd[0].Text, out pass, block, err + $"command '{cmd.Text}'"))
+                if (scene.TryGetValue(cmd[0].Text, out pass, block, err | $"command '{cmd.Text}'"))
                     passes.Add(pass);
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION
