@@ -286,7 +286,17 @@ namespace App
         public static string GetLabel(int glname) => GetLabel(ObjectLabelIdentifier.Texture, glname);
 
         #region UTIL METHODS
-        private static byte[] LoadImageFiles(string dir, string[] filenames,
+        /// <summary>
+        /// Load a list of image files and return them as a single byte array.
+        /// </summary>
+        /// <param name="dir">compilation directory</param>
+        /// <param name="filepaths">file paths to the image files</param>
+        /// <param name="w">width of the returned texture data</param>
+        /// <param name="h">height of the returned texture data</param>
+        /// <param name="d">number of texture layers</param>
+        /// <param name="gpuformat"></param>
+        /// <returns></returns>
+        private static byte[] LoadImageFiles(string dir, string[] filepaths,
             ref int w, ref int h, ref int d, GpuFormat gpuformat)
         {
             // SET DEFAULT DATA FOR OUTPUTS
@@ -297,18 +307,18 @@ namespace App
             var pixelsize = Image.GetPixelFormatSize(fileformat) / 8;
 
             // LOAD IMAGA DATA FROM FILES
-            if (filenames?.Length > 0 && !isdepth)
+            if (filepaths?.Length > 0 && !isdepth)
             {
                 // pre-load all files to get information
                 // like minimal width and height
-                var bmps = new Bitmap[filenames.Length];
+                var bmps = new Bitmap[filepaths.Length];
                 int imgW = int.MaxValue;
                 int imgH = int.MaxValue;
-                int imgD = d > 0 ? Math.Min(filenames.Length, d) : filenames.Length;
+                int imgD = d > 0 ? Math.Min(filepaths.Length, d) : filepaths.Length;
 
                 for (int i = 0; i < imgD; i++)
                 {
-                    var path = Path.IsPathRooted(filenames[i]) ? filenames[i] : dir + filenames[i];
+                    var path = Path.IsPathRooted(filepaths[i]) ? filepaths[i] : dir + filepaths[i];
                     bmps[i] = new Bitmap(path);
                     imgW = Math.Min(bmps[i].Width, imgW);
                     imgH = Math.Min(bmps[i].Height, imgH);
@@ -341,6 +351,15 @@ namespace App
             return data;
         }
 
+        /// <summary>
+        /// Allocate image memory.
+        /// </summary>
+        /// <param name="target">texture target</param>
+        /// <param name="width">texture width</param>
+        /// <param name="height">texture height</param>
+        /// <param name="depth">number of texture layers</param>
+        /// <param name="length">number of texture layers</param>
+        /// <param name="levels">number of mipmap layers</param>
         private void TexImage(TexTarget target, int width, int height, int depth, int length, int levels)
         {
             levels = levels <= 0 ? MaxMipmapLevels(width, height) : 1;
@@ -365,6 +384,17 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Allocate image memory and fill it with the specified data.
+        /// </summary>
+        /// <param name="target">texture target</param>
+        /// <param name="width">texture width</param>
+        /// <param name="height">texture height</param>
+        /// <param name="depth">number of texture layers</param>
+        /// <param name="length">number of texture layers</param>
+        /// <param name="format">pixel format of the data to be uploaded</param>
+        /// <param name="type">pixel type of the data to be uploaded</param>
+        /// <param name="pixels">pixel data</param>
         private void TexImage(TexTarget target, int width, int height, int depth, int length,
             PixelFormat format, PixelType type, IntPtr pixels)
         {
@@ -389,6 +419,12 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Get the maximum number of mipmap levels.
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
         private static int MaxMipmapLevels(int width, int height)
         {
             int n = 0;

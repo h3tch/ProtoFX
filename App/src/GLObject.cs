@@ -20,6 +20,11 @@ namespace App
         [Field] public string name { get; protected set; }
         public string anno { get; protected set; }
 
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="anno"></param>
         public GLObject(string name, string anno)
         {
             this.glname = 0;
@@ -27,6 +32,12 @@ namespace App
             this.anno = anno;
         }
         
+        /// <summary>
+        /// Get debug label to the specified OpenGL object.
+        /// </summary>
+        /// <param name="type">OpenGL object type</param>
+        /// <param name="glname">OpenGL object name</param>
+        /// <returns>Returns the debug string of the object if specified.</returns>
         public static string GetLabel(ObjectLabelIdentifier type, int glname)
         {
             int length = 64;
@@ -35,10 +46,24 @@ namespace App
             return label.ToString();
         }
 
+        /// <summary>
+        /// Delete and release resources. Called on recompilation or when the app closes.
+        /// </summary>
         public abstract void Delete();
 
+        /// <summary>
+        /// Readable identifier of the class.
+        /// </summary>
+        /// <returns></returns>
         public override string ToString() => name;
 
+        #region Error handling
+        /// <summary>
+        /// Check for compiler and OpenGL errors.
+        /// </summary>
+        /// <param name="err"></param>
+        /// <param name="block"></param>
+        /// <returns></returns>
         static protected bool HasErrorOrGlError(CompileException err, Compiler.Block block)
         {
             var errcode = GL.GetError();
@@ -50,6 +75,13 @@ namespace App
             return err.HasErrors();
         }
 
+        /// <summary>
+        /// Check for compiler and OpenGL errors.
+        /// </summary>
+        /// <param name="err"></param>
+        /// <param name="file"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
         static protected bool HasErrorOrGlError(CompileException err, string file, int line)
         {
             var errcode = GL.GetError();
@@ -60,7 +92,14 @@ namespace App
             }
             return err.HasErrors();
         }
+        #endregion
 
+        #region Set field values from code block commands
+        /// <summary>
+        /// Process object block and try to convert commands to class internal fields.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="err"></param>
         protected void Cmds2Fields(Compiler.Block block, CompileException err = null)
         {
             var type = GetType();
@@ -83,6 +122,15 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Set a field of the specified class to the specified value.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="clazz"></param>
+        /// <param name="field"></param>
+        /// <param name="fieldType"></param>
+        /// <param name="cmd"></param>
+        /// <param name="err"></param>
         static private void SetValue<T>(T clazz, object field, Type fieldType,
             Compiler.Command cmd, CompileException err = null)
         {
@@ -109,5 +157,6 @@ namespace App
                 .GetMethod("SetValue", new[] { typeof(object), typeof(object) })
                 .Invoke(field, new object[] { clazz, val });
         }
+        #endregion
     }
 }

@@ -28,6 +28,11 @@ namespace App
             callstack.Add(callstackstring);
         }
         
+        /// <summary>
+        /// Derive new compiler exception from existing one by keeping the call stack.
+        /// </summary>
+        /// <param name="err"></param>
+        /// <param name="callstackstring"></param>
         private CompileException(CompileException err, string callstackstring)
         {
             callstack = err.callstack;

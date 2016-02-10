@@ -292,6 +292,9 @@ namespace App
         }
         #endregion
 
+        /// <summary>
+        /// Render and get debug variables.
+        /// </summary>
         private void DebugRender()
         {
             // render the scene

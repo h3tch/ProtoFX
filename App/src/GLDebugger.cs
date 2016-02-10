@@ -92,34 +92,55 @@ namespace App
                 unif.Unbind();
         }
 
-#region TEXTURE AND IMAGE BINDING
-        public static void BindImg(int unit, int level, bool layered, int layer, TextureAccess access,
-            GpuFormat format, int name)
+        #region TEXTURE AND IMAGE BINDING
+        /// <summary>
+        /// Bind image/texture to image load/store unit.
+        /// </summary>
+        /// <param name="unit">binding unit</param>
+        /// <param name="level">level of the texture/image to be bound</param>
+        /// <param name="layered">is the texture layered (e.g. like a cube map is)</param>
+        /// <param name="layer">layer of the layered texture to be bound</param>
+        /// <param name="access">how shaders can access the texture resource</param>
+        /// <param name="format">texture format of the texture</param>
+        /// <param name="glname">texture/image to be bound</param>
+        public static void BindImg(int unit, int level, bool layered, int layer,
+            TextureAccess access, GpuFormat format, int glname)
         {
             // bind image to image load/store unit
-            imgUnits[unit] = name;
-            GL.BindImageTexture(unit, name, level, layered, Math.Max(layer, 0), access,
+            imgUnits[unit] = glname;
+            GL.BindImageTexture(unit, glname, level, layered, Math.Max(layer, 0), access,
                 (SizedInternalFormat)format);
         }
-        
-        public static void BindTex(int unit, TextureTarget target, int name)
+
+        /// <summary>
+        /// Bind image/texture to texture unit.
+        /// </summary>
+        /// <param name="unit">binding unit</param>
+        /// <param name="target">texture target type</param>
+        /// <param name="glname">texture/image to be bound</param>
+        public static void BindTex(int unit, TextureTarget target, int glname)
         {
             // bind texture to texture unit
-            texUnits[unit] = name;
+            texUnits[unit] = glname;
             GL.ActiveTexture(TextureUnit.Texture0 + unit);
-            GL.BindTexture(target, name);
+            GL.BindTexture(target, glname);
         }
 
+        /// <summary>
+        /// Unbind image/texture from image load/store unit.
+        /// </summary>
+        /// <param name="unit">binding unit</param>
         public static void UnbindImg(int unit) => imgUnits[unit] = 0;
 
+        /// <summary>
+        /// Unbind texture from texture unit.
+        /// </summary>
+        /// <param name="unit">binding unit</param>
+        /// <param name="target">texture target type</param>
         public static void UnbindTex(int unit, TextureTarget target) => BindTex(unit, target, 0);
+        #endregion
 
-        public static int[] GetBoundTextures() => texUnits;
-
-        public static int[] GetBoundImages() => imgUnits;
-#endregion
-
-#region DEBUG VARIABLE
+        #region DEBUG VARIABLE
         /// <summary>
         /// Convert debug variable into a readable string.
         /// </summary>
@@ -308,9 +329,9 @@ namespace App
             
             return null;
         }
-#endregion
+        #endregion
 
-#region DEBUG CODE GENERATION FOR GLSL SHADERS
+        #region DEBUG CODE GENERATION FOR GLSL SHADERS
         /// <summary>
         /// Add debug code to GLSL shader.
         /// </summary>
@@ -400,22 +421,31 @@ namespace App
             
             return head + '\n' + rsHead + '\n' + rsBody;
         }
-#endregion
+        #endregion
 
-#region DEBUG UNIFORMS
+        #region DEBUG UNIFORMS
         private class Uniforms
         {
+            // output image store unit
             public int dbgOut;
+            // element selection in shaders
             public int dbgVert;
             public int dbgTess;
             public int dbgEval;
             public int dbgGeom;
             public int dbgFrag;
             public int dbgComp;
+            // render frame index
             public int dbgFrame;
+            // debug data output
             public byte[] data;
+            // unused image unit
             private int unit;
 
+            /// <summary>
+            /// Create debug uniform class for the specified pass.
+            /// </summary>
+            /// <param name="pass"></param>
             public Uniforms(GLPass pass)
             {
                 dbgOut = GL.GetUniformLocation(pass.glname, "_dbgOut");
@@ -430,13 +460,18 @@ namespace App
                 data = null;
             }
 
+            /// <summary>
+            /// Bind the debug uniform class.
+            /// </summary>
+            /// <param name="settings"></param>
+            /// <param name="frame"></param>
             public void Bind(DebugSettings settings, int frame)
             {
                 if (dbgOut <= 0)
                     return;
                 
                 // get last free unused image unit
-                unit = GetBoundImages().LastIndexOf(x => x == 0);
+                unit = imgUnits.LastIndexOf(x => x == 0);
                 if (unit < 0)
                     return;
                 
@@ -465,6 +500,9 @@ namespace App
                     GL.Uniform1(dbgFrame, frame);
             }
 
+            /// <summary>
+            /// Unbind debug uniform class and read debug variable data.
+            /// </summary>
             public void Unbind()
             {
                 // if the texture buffer was bound to a unit
@@ -476,9 +514,9 @@ namespace App
                 buf.Read(ref data);
             }
         }
-#endregion
+        #endregion
 
-#region DEBUG SETTINGS
+        #region DEBUG SETTINGS
         public class DebugSettings
         {
             [Category("Vertex Shader"), DisplayName("InstanceID"),
@@ -531,7 +569,7 @@ namespace App
                 "math computation: gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID;")]
             public int[] cs_GlobalInvocationID { get; set; } = new int[3] { 0, 0, 0 };
         }
-#endregion
+        #endregion
 
         public struct DbgVar
         {

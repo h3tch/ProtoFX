@@ -444,6 +444,7 @@ namespace App
             => dict.TryGetValue(key, out obj, block.File, block.LineInFile);
     }
 
+    // convenience extensions to the compiler exception class
     static class CompilerExeptionExtensions
     {
         public static CompileException Add(this CompileException err, string message, Compiler.Block block)

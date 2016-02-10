@@ -112,17 +112,47 @@ namespace OpenTK
         }
 
         #region EVENTS
+        /// <summary>
+        /// On load get the compiler error output control.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleLoad(object sender, EventArgs e)
             => output = (DataGridView)FindForm()?.Controls.Find("output", true).FirstOrDefault();
 
+        /// <summary>
+        /// On resize, redraw the scene.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleResize(object sender, EventArgs e) => Render();
 
+        /// <summary>
+        /// On paint event, redraw the scene.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandlePaint(object sender, PaintEventArgs e) => Render();
 
+        /// <summary>
+        /// On mouse down, activate rendering.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleMouseDown(object sender, MouseEventArgs e) => render = true;
 
+        /// <summary>
+        /// On mouse up, stop rendering.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleMouseUp(object sender, MouseEventArgs e) => render = false;
 
+        /// <summary>
+        /// When the mouse is moving over the control, render the scene.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleMouseMove(object sender, MouseEventArgs e)
         {
             if (render)

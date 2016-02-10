@@ -122,6 +122,13 @@ namespace App
             return instance;
         }
 
+        /// <summary>
+        /// Create a new external class instance by processing the specified compiler block.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="err"></param>
+        /// <returns></returns>
         public static object CreateInstance(Compiler.Block block, Dict scene, CompileException err)
         {
             // GET CLASS COMMAND
@@ -146,20 +153,36 @@ namespace App
             return csharp.CreateInstance(block, cmd, err);
         }
 
+        /// <summary>
+        /// Convert code block commands to dictionary.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <returns></returns>
         private Dictionary<string, string[]> ToDict(Compiler.Block block)
         {
-            // convert triple to dict of string arrays
+            // convert to dictionary of string arrays
             var dict = new Dictionary<string, string[]>();
-            foreach (var cmd in block)
-                dict.Add(cmd.Name, cmd.Select(x => x.Text).ToArray());
+            // add commands to dictionary
+            block.Do(cmd => dict.Add(cmd.Name, cmd.Select(x => x.Text).ToArray()));
             return dict;
         }
         
-        private T InvokeMethod<T>(object instance, string valuename)
+        /// <summary>
+        /// Invoke a method of an object instance.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="instance"></param>
+        /// <param name="methodname"></param>
+        /// <returns></returns>
+        private T InvokeMethod<T>(object instance, string methodname)
         {
-            var value = instance.GetType().GetMethod(valuename)?.Invoke(instance, new object[] { });
+            // try to find and invoke the specified method
+            var value = instance.GetType().GetMethod(methodname)?.Invoke(instance, new object[] { });
+            // if nothing was returned, return the default value
             if (value == null)
                 return default(T);
+            // if the type of the returned value is not of
+            // the required type, return the default value
             return value.GetType() == typeof(T) ? (T)value : default(T);
         }
     }
