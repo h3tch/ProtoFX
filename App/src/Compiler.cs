@@ -74,7 +74,6 @@ namespace App
                 // remove comments
                 Text = RemoveComments(System.IO.File.ReadAllText(path));
                 Text = ResolvePreprocessorDefinitions(Text);
-                Text = RemoveNewLineIndicators(Text);
 
                 // process all include files in the file
                 Include = ProcessIncludes().ToArray();
@@ -236,7 +235,15 @@ namespace App
                 // process each line for possible commands
                 for (int i = 0; i < lines.Length; i++)
                 {
-                    var cmd = new Command(this, i, lines[i]);
+                    // read next line
+                    var linei = i;
+                    var line = lines[i];
+                    // remove new line indicators
+                    while (lines[i].TrimEnd().EndsWith("..."))
+                        line += lines[++i];
+                    line = line.Replace("...", " ");
+                    // create new command class
+                    var cmd = new Command(this, linei, line);
                     // only return valid commands
                     if (cmd.ArgCount >= 0)
                         yield return cmd;
@@ -370,17 +377,7 @@ namespace App
                 },
                 RegexOptions.Singleline);
         }
-
-        /// <summary>
-        /// Remove '...' new line indicators.
-        /// </summary>
-        /// <param name="text">String to remove new line indicators from.</param>
-        /// <returns>String without new line indicators.</returns>
-        public static string RemoveNewLineIndicators(string text)
-            => Regex.Replace(text, @"\.\.\.(\s?)(\r\n|\n|\r)",
-                x => new string(' ', x.Value.Length),
-                RegexOptions.None);
-
+        
         /// <summary>
         /// Resolve preprocessor #global definitions.
         /// </summary>

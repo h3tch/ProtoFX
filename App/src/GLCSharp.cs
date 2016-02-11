@@ -101,31 +101,6 @@ namespace App
         /// Create a new external class instance by processing the specified compiler block.
         /// </summary>
         /// <param name="block"></param>
-        /// <param name="cmd"></param>
-        /// <param name="err"></param>
-        /// <returns></returns>
-        public object CreateInstance(Compiler.Block block, Compiler.Command cmd, CompileException err)
-        {
-            var classname = cmd.Text;
-
-            // create main class from compiled files
-            var instance = compilerresults.CompiledAssembly.CreateInstance(
-                classname, false, BindingFlags.Default, null,
-                new object[] { block.Name, ToDict(block) }, App.culture, null);
-
-            if (instance == null)
-                throw err.Add($"Main class '{classname}' could not be found.", cmd);
-            
-            List<string> errors = InvokeMethod<List<string>>(instance, "GetErrors");
-            errors?.ForEach(msg => err.Add(msg, cmd));
-
-            return instance;
-        }
-
-        /// <summary>
-        /// Create a new external class instance by processing the specified compiler block.
-        /// </summary>
-        /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="err"></param>
         /// <returns></returns>
@@ -141,6 +116,13 @@ namespace App
             }
             var cmd = cmds.First();
 
+            // check command
+            if (cmd.ArgCount < 1)
+            {
+                err.Add("'class' command must specify a csharp object name.", block);
+                return null;
+            }
+
             // FIND CSHARP CLASS DEFINITION
             var csharp = scene.GetValueOrDefault<GLCsharp>(cmd[0].Text);
             if (csharp == null)
@@ -151,6 +133,37 @@ namespace App
 
             // INSTANTIATE CSHARP CLASS
             return csharp.CreateInstance(block, cmd, err);
+        }
+
+        /// <summary>
+        /// Create a new external class instance by processing the specified compiler block.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="cmd"></param>
+        /// <param name="err"></param>
+        /// <returns></returns>
+        private object CreateInstance(Compiler.Block block, Compiler.Command cmd, CompileException err)
+        {
+            // check if the command is valid
+            if (cmd.ArgCount < 2)
+            {
+                err.Add("'class' command must specify a class name.", block);
+                return null;
+            }
+            
+            // create main class from compiled files
+            var classname = cmd[1].Text;
+            var instance = compilerresults.CompiledAssembly.CreateInstance(
+                classname, false, BindingFlags.Default, null,
+                new object[] { block.Name, ToDict(block) }, App.culture, null);
+
+            if (instance == null)
+                throw err.Add($"Main class '{classname}' could not be found.", cmd);
+            
+            List<string> errors = InvokeMethod<List<string>>(instance, "GetErrors");
+            errors?.ForEach(msg => err.Add(msg, cmd));
+
+            return instance;
         }
 
         /// <summary>
