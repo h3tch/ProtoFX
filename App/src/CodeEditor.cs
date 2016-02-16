@@ -8,6 +8,7 @@ namespace App
 {
     partial class CodeEditor : Scintilla
     {
+        public bool EnableCodeInformation = true;
         private static int HighlightIndicatorIndex = 8;
         public static int DebugIndicatorIndex { get; } = 9;
         private List<int[]>[] IndicatorRanges;
@@ -115,7 +116,10 @@ namespace App
             UpdateUI += new EventHandler<UpdateUIEventArgs>(HandleUpdateUI);
 
             // auto completion settings
+            AutoCSeparator = '|';
             AutoCMaxHeight = 9;
+            MouseMove += new MouseEventHandler(HandleMouseMove);
+            //MouseHover += new EventHandler(HandleMouseHover);
 
             // insert text
             Text = text != null ? text : "";

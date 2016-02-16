@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace App
 {
@@ -15,9 +16,22 @@ namespace App
         public void AutoCShow(int curPosition)
         {
             // get the list of possible keywords from the current position
-            var keywords = SelectKeywords(curPosition);
+            var keywords = SelectCommands(curPosition);
             var wordPos = WordStartPosition(curPosition, true);
-            AutoCShow(curPosition - wordPos, keywords.Cat(" "));
+            AutoCShow(curPosition - wordPos, keywords.Cat("|"));
+        }
+
+        /// <summary>
+        /// Select all commands that can be used at the specified text position.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        private IEnumerable<string> SelectCommands(int position, bool full = false)
+        {
+            // return all keywords that are not hierarchical
+            return from x in SelectKeywords(position)
+                   where x.IndexOf('.') < 0 && x.IndexOf(',') < 0 && (full ? x.IndexOf(' ') >= 0 : x.IndexOf(' ') < 0)
+                   select x;
         }
 
         /// <summary>
@@ -40,11 +54,8 @@ namespace App
             // does not have a word before it (or at least no keyword)
             if (result == null || result.Count() == 0)
                 result = KeywordsStartingWith(block != null ? $"{block}." : string.Empty);
-
-            // return all keywords that are not hierarchical
-            return from x in result
-                   where x.IndexOf('.') < 0 && x.IndexOf(',') < 0
-                   select x;
+            
+            return result;
         }
 
         /// <summary>
@@ -100,15 +111,47 @@ namespace App
             return matches.Count > 0 ? matches[matches.Count - 1].Value.Trim() : null;
         }
 
+        private void HandleMouseMove(object sender, MouseEventArgs e)
+        {
+            // get class references
+            var editor = (CodeEditor)sender;
+
+            if (editor.EnableCodeInformation == false)
+                return;
+
+            // convert cursor position to text position
+            int pos = editor.CharPositionFromPoint(e.X, e.Y);
+
+            var word = editor.GetWordFromPosition(pos);
+            if (word?.Length > 0)
+            {
+                var cmds = editor.SelectCommands(pos, true);
+
+                if (cmds.Count() > 0)
+                {
+                    var cmd = from x in cmds where x.StartsWith(word + ' ') select x;
+                    if (cmd.Count() > 0)
+                        editor.CallTipShow(pos, cmd.Cat("\n"));
+                    return;
+                }
+            }
+
+            editor.CallTipCancel();
+        }
+
         #region AUTO COMPLETE KEYWORDS
         // Keyword can be defined as follows:
         // <class type>[,<class annotation> | .<class keyword> [.<sub keyword>]]
         private static string[] autoCompleteKeywords = new[] {
             // buffer
             "buffer",
+            "buffer <name>",
             "buffer.size",
+            "buffer.size <num_bytes>",
             "buffer.txt",
+            "buffer.txt <text_name>",
             "buffer.usage",
+            "buffer.usage <usage hint>",
             "buffer.usage.DynamicCopy",
             "buffer.usage.DynamicDraw",
             "buffer.usage.DynamicRead",
@@ -119,19 +162,26 @@ namespace App
             "buffer.usage.StreamDraw",
             "buffer.usage.StreamRead",
             "buffer.xml",
+            "buffer.xml <file_path> <xml_node>",
             // csharp
             "csharp",
+            "csharp <name>",
             "csharp.file",
+            "csharp.file <path> [path] [...]",
             // fragoutput
             "fragoutput",
+            "fragoutput <name>",
             "fragoutput.color",
             "fragoutput.depth",
             "fragoutput.height",
             "fragoutput.width",
             // image
             "image",
+            "image <name>",
             "image.depth",
+            "image.depth <num_layers>",
             "image.file",
+            "image.file <path> [path] [...]",
             "image.format",
             "image.format.depth",
             "image.format.depth16",
@@ -182,7 +232,9 @@ namespace App
             "image.format.rgba32ui",
             "image.format.rgba32f",
             "image.height",
+            "image.height <num_pixels>",
             "image.length",
+            "image.length <num_layers>",
             "image.type",
             "image.type.texture1D",
             "image.type.texture2D",
@@ -190,24 +242,41 @@ namespace App
             "image.type.texture1DArray",
             "image.type.texture2DArray",
             "image.width",
+            "image.width <num_pixels>",
             // instance
             "instance",
+            "instance <name>",
             "instance.class",
+            "instance.class <csharp_name> <c# class>",
             "instance.name",
+            "instance.name <internal name>",
             // pass
             "pass",
+            "pass <name>",
             "pass.comp",
+            "pass.comp <shader_name>",
             "pass.compute",
             "pass.draw",
+            "pass.draw <vertinput> <primitive> <base_vertex> <vertex_count> [base_instance] [instance_count]",
+            "pass.draw <vertinput> <index buffer> <index_type> <primitive> <base_vertex> <base_index> <index_count> [base_instance] [instance_count]",
+            "pass.draw <vertinput> <draw_buffer> <primitive> [buffer_offset]",
+            "pass.draw <vertinput> <index_buffer> <index_type> <draw_ buffer> <primitive> [buffer_offset]",
             "pass.eval",
+            "pass.eval <shader_name>",
             "pass.exec",
             "pass.frag",
+            "pass.frag <shader_name>",
             "pass.geom",
+            "pass.geom <shader_name>",
             "pass.tess",
+            "pass.tess <shader_name>",
             "pass.tex",
+            "pass.tex <tex_name> <bind_unit>",
             "pass.vert",
+            "pass.vert <shader_name>",
             // sampler
             "sampler",
+            "sampler <name>",
             "sampler.magfilter",
             "sampler.magfilter.linear",
             "sampler.magfilter.nearest",
@@ -225,6 +294,7 @@ namespace App
             "sampler.wrap.Repeat",
             // shader
             "shader",
+            "shader <shader type> <name>",
             "shader,eval",
             "shader,frag",
             "shader,geom",
@@ -403,22 +473,34 @@ namespace App
             "shader.vec4",
             // tech
             "tech",
+            "tech <name>",
             "tech.pass",
             // text
             "text",
+            "text <name>",
             // texture
             "texture",
+            "texture <name>",
             "texture.buff",
+            "texture.buff <name>",
             "texture.img",
+            "texture.img <name>",
             "texture.samp",
+            "texture.samp <name>",
             // vertinput
             "vertinput",
+            "vertinput <name>",
             "vertinput.attr",
+            "vertinput.attr <buff_name> <type> <dim> [stride] [offset] [divisor]",
             // vertoutput
             "vertoutput",
+            "vertoutput <name>",
             "vertoutput.buff",
+            "vertoutput.buff <name>",
             "vertoutput.pause",
-            "vertoutput.resume"
+            "vertoutput.pause <true_false>",
+            "vertoutput.resume",
+            "vertoutput.resume <true_false>"
         };
         #endregion
     }

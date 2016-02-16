@@ -221,17 +221,19 @@ namespace App
             // get debug variable information from position
             var dbgVar = GLDebugger.GetDebugVariableFromPosition(editor, pos);
             // no debug variable found
-            if (dbgVar.IsDefault())
+            if (!dbgVar.IsDefault())
             {
-                editor.CallTipCancel();
-                return;
+                // get debug variable value
+                var dbgVal = GLDebugger.GetDebugVariableValue(dbgVar.ID, glControl.Frame - 1);
+                if (dbgVal != null)
+                {
+                    editor.CallTipShow(pos, GLDebugger.DebugVariableToString(dbgVal));
+                    editor.EnableCodeInformation = false;
+                    return;
+                }
             }
 
-            // get debug variable value
-            var dbgVal = GLDebugger.GetDebugVariableValue(dbgVar.ID, glControl.Frame - 1);
-            editor.CallTipShow(pos, dbgVal == null
-                ? "No debug information."
-                : GLDebugger.DebugVariableToString(dbgVal));
+            editor.EnableCodeInformation = true;
         }
 
         /// <summary>
