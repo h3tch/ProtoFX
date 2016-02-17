@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using STYLE = ScintillaNET.Style.Cpp;
 
 namespace App
 {
@@ -26,11 +27,11 @@ namespace App
         /// </summary>
         /// <param name="position"></param>
         /// <returns></returns>
-        private IEnumerable<string> SelectCommands(int position, bool full = false)
+        private IEnumerable<string> SelectCommands(int position, bool asHint = false)
         {
             // return all keywords that are not hierarchical
             return from x in SelectKeywords(position)
-                   where x.IndexOf('.') < 0 && x.IndexOf(',') < 0 && (full ? x.IndexOf(' ') >= 0 : x.IndexOf(' ') < 0)
+                   where asHint ? x.IndexOf(' ') >= 0 : (x.IndexOf('.') < 0 && x.IndexOf(',') < 0 && x.IndexOf(' ') < 0)
                    select x;
         }
 
@@ -42,9 +43,8 @@ namespace App
         private IEnumerable<string> SelectKeywords(int position)
         {
             // get necessary information for keyword search
-            var text = Compiler.RemoveComments(Text);
-            var block = BlockHeader(text, position).FirstOrDefault();
-            var prev = PrecedingWord(text, position);
+            var block = BlockHeader(position).FirstOrDefault();
+            var prev = GetWordFromPosition(position);// PrecedingWord(position);
             IEnumerable<string> result = null;
 
             // has a word before it
@@ -74,19 +74,18 @@ namespace App
         /// <summary>
         /// Get header of the block surrounding the specified text position.
         /// </summary>
-        /// <param name="text"></param>
         /// <param name="position"></param>
         /// <returns>Returns a list of words making up the header or nothing.</returns>
-        private IEnumerable<string> BlockHeader(string text, int position)
+        private IEnumerable<string> BlockHeader(int position)
         {
             // find surrounding block
-            var blocks = from x in Compiler.GetBlockPositions(text)
+            var blocks = from x in this.GetBlockPositions()
                          select new[] { x.Index, x.Index + x.Value.IndexOf('{'), x.Index + x.Length };
 
             // get headers of the block surrounding the text position
             var headers = from x in blocks
                           where x[1] < position && position < x[2]
-                          select text.Substring(x[0], x[1] - x[0]);
+                          select Text.Substring(x[0], x[1] - x[0]);
             
             // return all words before the open brace '{'
             foreach (var header in headers)
@@ -97,18 +96,20 @@ namespace App
         /// <summary>
         /// Get the word previous to the specified position.
         /// </summary>
-        /// <param name="text"></param>
         /// <param name="position"></param>
         /// <returns>The preceding word.</returns>
-        private static string PrecedingWord(string text, int position)
+        private string PrecedingWord(int position, int numWords = 1, bool sameLine = true)
         {
-            var nl = Math.Max(0, text.LastIndexOf('\n', Math.Min(position, text.Length-1), 1));
-            // preselect line string
-            var line = text.Substring(nl, position - nl);
-            // find all words
-            var matches = Regex.Matches(line, @"\w+\s*");
-            // return the last word
-            return matches.Count > 0 ? matches[matches.Count - 1].Value.Trim() : null;
+            // get position of current word
+            var pos = WordStartPosition(position, true);
+            // go to preceding word
+            while (numWords-- > 0)
+                pos = WordStartPosition(pos, false);
+            // check for same line condition if necessary
+            if (sameLine && Text.IndexOf('\n', pos, position - pos) >= 0)
+                return null;
+            // return preceding word
+            return GetWordFromPosition(pos);
         }
 
         private void HandleMouseMove(object sender, MouseEventArgs e)
@@ -121,18 +122,24 @@ namespace App
 
             // convert cursor position to text position
             int pos = editor.CharPositionFromPoint(e.X, e.Y);
-
-            var word = editor.GetWordFromPosition(pos);
-            if (word?.Length > 0)
+            var style = editor.GetStyleAt(pos);
+            if (!new[] { STYLE.Default, STYLE.Comment, STYLE.CommentLine, STYLE.CommentLineDoc }.Any(x => x == style))
             {
-                var cmds = editor.SelectCommands(pos, true);
-
-                if (cmds.Count() > 0)
+                var word = editor.GetWordFromPosition(pos);
+                if (word?.Length > 0)
                 {
-                    var cmd = from x in cmds where x.StartsWith(word + ' ') select x;
-                    if (cmd.Count() > 0)
-                        editor.CallTipShow(pos, cmd.Cat("\n"));
-                    return;
+                    var cmds = editor.SelectCommands(pos, true);
+
+                    if (cmds.Count() > 0)
+                    {
+                        var cmd = from x in cmds where x.StartsWith(word + ' ') select x;
+                        if (cmd.Count() > 0)
+                        {
+                            pos = editor.WordStartPosition(pos, true);
+                            editor.CallTipShow(pos, cmd.Cat("\n"));
+                        }
+                        return;
+                    }
                 }
             }
 

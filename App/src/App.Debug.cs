@@ -227,6 +227,7 @@ namespace App
                 var dbgVal = GLDebugger.GetDebugVariableValue(dbgVar.ID, glControl.Frame - 1);
                 if (dbgVal != null)
                 {
+                    pos = editor.WordStartPosition(pos, true);
                     editor.CallTipShow(pos, GLDebugger.DebugVariableToString(dbgVal));
                     editor.EnableCodeInformation = false;
                     return;

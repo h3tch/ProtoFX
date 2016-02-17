@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ScintillaNET;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -9,8 +10,7 @@ namespace App
 {
     class Compiler
     {
-        private static HashSet<string> incpath = new HashSet<string>();
-        private static Regex regexBlock;
+        public static Regex regexBlock;
 
         // initialize static members
         static Compiler()
@@ -23,6 +23,8 @@ namespace App
                 $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
                 $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
         }
+
+        private static HashSet<string> incpath = new HashSet<string>();
 
         /// <summary>
         /// Compile file.
@@ -412,19 +414,27 @@ namespace App
 
             return text;
         }
+        #endregion
+    }
 
+    static class CodeEditorExtensions
+    {
         /// <summary>
         /// Find all block positions in the string.
         /// </summary>
-        /// <param name="text">String to process.</param>
+        /// <param name="editor">Code to be process.</param>
         /// <returns>Returns an enumerable with block positions
         /// [class type index, '{' index, '}' index]</returns>
-        public static IEnumerable<Match> GetBlockPositions(string text)
+        public static IEnumerable<Match> GetBlockPositions(this CodeEditor editor)
         {
-            foreach (Match match in regexBlock.Matches(text))
-                yield return match;
+            foreach (Match match in Compiler.regexBlock.Matches(editor.Text))
+            {
+                var style = editor.GetStyleAt(match.Index);
+                if (style == Style.Cpp.Word || style == Style.Cpp.Word2)
+                    yield return match;
+            }
         }
-        #endregion
+
     }
 
     // convenience extension to the Dict class
