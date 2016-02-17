@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using STYLE = ScintillaNET.Style.Cpp;
@@ -26,49 +27,37 @@ namespace App
         /// Select all commands that can be used at the specified text position.
         /// </summary>
         /// <param name="position"></param>
+        /// <param name="isHint"></param>
         /// <returns></returns>
-        private IEnumerable<string> SelectCommands(int position, bool asHint = false)
-        {
-            // return all keywords that are not hierarchical
-            return from x in SelectKeywords(position)
-                   where asHint ? x.IndexOf(' ') >= 0 : (x.IndexOf('.') < 0 && x.IndexOf(',') < 0 && x.IndexOf(' ') < 0)
-                   select x;
-        }
-
-        /// <summary>
-        /// Select all keywords that can be used at the specified text position.
-        /// </summary>
-        /// <param name="position"></param>
-        /// <returns></returns>
-        private IEnumerable<string> SelectKeywords(int position)
+        private IEnumerable<string> SelectCommands(int position, bool isHint = false)
         {
             // get necessary information for keyword search
             var block = BlockHeader(position).FirstOrDefault();
-            var prev = GetWordFromPosition(position);// PrecedingWord(position);
-            IEnumerable<string> result = null;
+            var word = GetWordFromPosition(position);
 
-            // has a word before it
-            if (prev != null)
-                result = KeywordsStartingWith(block != null ? $"{block}.{prev}." : $"{prev},");
+            // if not inside a block swap the
+            // block type is given by the word
+            if (block == null)
+            {
+                block = word;
+                word = null;
+            }
 
-            // does not have a word before it (or at least no keyword)
-            if (result == null || result.Count() == 0)
-                result = KeywordsStartingWith(block != null ? $"{block}." : string.Empty);
-            
-            return result;
-        }
+            // search for keywords
+            var search = block + (word != null ? $".{word}" : "");
+            var selection = from x in Keywords where x.StartsWith(search) select x;
 
-        /// <summary>
-        /// Search for all words starting with the specified string.
-        /// </summary>
-        /// <param name="searchString"></param>
-        /// <returns>A list of keywords starting with the specified string.</returns>
-        private IEnumerable<string> KeywordsStartingWith(string searchString)
-        {
-            // search for all keywords starting with <searchString>
-            return from x in autoCompleteKeywords
-                   where x.StartsWith(searchString)
-                   select x.Substring(searchString.Length);
+            // define the select function based the isHint parameter
+            var start = search.Length;
+            var func = isHint
+                // search only for hints (contains '<'; must not contain '.' and ',')
+                ? (x => x.IndexOf('<', start) != -1 && x.IndexOf(y => y == '.' || y == ',', start) == -1)
+                // search only for keywords (must not contain '<', '.' and ',')
+                : (Func<string, bool>)(x => x.IndexOf(y => y == '.' || y == ',' || y == '<', start) == -1);
+
+            // select keywords and remove hierarchy prefix
+            start = block != null && word != null ? block.Length + 1 : 0;
+            return selection.Where(func).Select(x => x.Substring(start));
         }
 
         /// <summary>
@@ -94,24 +83,10 @@ namespace App
         }
 
         /// <summary>
-        /// Get the word previous to the specified position.
+        /// 
         /// </summary>
-        /// <param name="position"></param>
-        /// <returns>The preceding word.</returns>
-        private string PrecedingWord(int position, int numWords = 1, bool sameLine = true)
-        {
-            // get position of current word
-            var pos = WordStartPosition(position, true);
-            // go to preceding word
-            while (numWords-- > 0)
-                pos = WordStartPosition(pos, false);
-            // check for same line condition if necessary
-            if (sameLine && Text.IndexOf('\n', pos, position - pos) >= 0)
-                return null;
-            // return preceding word
-            return GetWordFromPosition(pos);
-        }
-
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleMouseMove(object sender, MouseEventArgs e)
         {
             // get class references
@@ -129,17 +104,12 @@ namespace App
                 if (word?.Length > 0)
                 {
                     var cmds = editor.SelectCommands(pos, true);
-
                     if (cmds.Count() > 0)
                     {
-                        var cmd = from x in cmds where x.StartsWith(word + ' ') select x;
-                        if (cmd.Count() > 0)
-                        {
-                            pos = editor.WordStartPosition(pos, true);
-                            editor.CallTipShow(pos, cmd.Cat("\n"));
-                        }
-                        return;
+                        pos = editor.WordStartPosition(pos, true);
+                        editor.CallTipShow(pos, cmds.Cat("\n"));
                     }
+                    return;
                 }
             }
 
@@ -149,7 +119,7 @@ namespace App
         #region AUTO COMPLETE KEYWORDS
         // Keyword can be defined as follows:
         // <class type>[,<class annotation> | .<class keyword> [.<sub keyword>]]
-        private static string[] autoCompleteKeywords = new[] {
+        private static string[] Keywords = new[] {
             // buffer
             "buffer",
             "buffer <name>",
@@ -158,7 +128,7 @@ namespace App
             "buffer.txt",
             "buffer.txt <text_name>",
             "buffer.usage",
-            "buffer.usage <usage hint>",
+            "buffer.usage <usage_hint>",
             "buffer.usage.DynamicCopy",
             "buffer.usage.DynamicDraw",
             "buffer.usage.DynamicRead",

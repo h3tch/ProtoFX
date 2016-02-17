@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -89,10 +90,10 @@ namespace App
         /// <param name="ie"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        public static int IndexOf<T>(this IEnumerable<T> ie, Func<T, bool> func)
+        public static int IndexOf<T>(this IEnumerable<T> ie, Func<T, bool> func, int startIndex = 0)
         {
             int i = 0;
-            foreach (var e in ie)
+            foreach (var e in ie.Skip(startIndex))
             {
                 if (func(e))
                     return i;
@@ -167,10 +168,11 @@ namespace App
         /// <returns></returns>
         public static string Cat(this IEnumerable<string> list, string separator)
         {
-            string str = "";
+            var sepLen = separator.Length;
+            var build = new StringBuilder(list.Sum(x => x.Length + sepLen));
             foreach (var s in list)
-                str += s + separator;
-            return str;
+                build.Append(s + separator);
+            return build.ToString(0, Math.Max(0, build.Length - 1));
         }
 
         /// <summary>
