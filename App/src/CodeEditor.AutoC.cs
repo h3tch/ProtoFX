@@ -15,6 +15,70 @@ namespace App
         /// to show the auto complete menu</param>
         public void AutoCShow(int position)
         {
+            string search;
+            int skip;
+
+            // create search string
+            SelectString(position, out search, out skip);
+
+            // search for all keywords starting with the
+            // search string and not containing subkeywords
+            var invalid = new[] { '.', ',', ' ' };
+            var keywords = from x in Keywords
+                           where x.StartsWith(search) && invalid.All(y => x.IndexOf(y, search.Length) < 0)
+                           select x.Substring(skip);
+
+            // show auto complete list
+            AutoCShow(position - WordStartPosition(position, true), keywords.Cat("|"));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleMouseMove(object sender, MouseEventArgs e)
+        {
+            string search;
+            int skip;
+
+            // check if code hints are enabled
+            if (EnableCodeHints == false)
+                return;
+
+            // convert cursor position to text position
+            int pos = CharPositionFromPoint(e.X, e.Y);
+
+            // select keywords using the current text position
+            // is the style at that position a valid hint style
+            var style = GetStyleAt(pos);
+            if (new[] { STYLE.Word, STYLE.Word2 }.Any(x => x == style))
+            {
+                // is there a word at that position
+                var word = GetWordFromPosition(pos);
+                if (word?.Length > 0)
+                {
+                    // create search string
+                    SelectString(pos, out search, out skip);
+                    search += ' ';
+                    // select hints
+                    var hints = from x in Keywords
+                                where x.StartsWith(search)
+                                select x.Substring(skip);
+                    
+                    if (hints.Count() > 0)
+                    {
+                        CallTipShow(WordStartPosition(pos, true), hints.Cat("\n"));
+                        return;
+                    }
+                }
+            }
+
+            CallTipCancel();
+        }
+
+        public void SelectString(int position, out string search, out int skip)
+        {
             // get word and preceding word at caret position
             var word = GetWordFromPosition(position);
             var prec = GetWordFromPosition(WordStartPosition(WordStartPosition(position, true), false));
@@ -28,7 +92,7 @@ namespace App
             var inBody = block != null ? block[1] < position && position <= block[2] : false;
 
             // create search string
-            var search = inHeader
+            search = inHeader
                 // in header
                 ? header[0] == word
                     // word represents the block type -> search for block type
@@ -49,61 +113,7 @@ namespace App
                         : $"{header[0]}.{word}"
                     // nether in header nor body -> search for block type
                     : word;
-            var skip = search.Length - word.Length;
-
-            // search for all keyword starting with the
-            // search string and not containing subkeywords
-            var invalid = new[] { '.', ',', ' ' };
-            var keywords = from x in Keywords
-                           where x.StartsWith(search) && invalid.All(y => x.IndexOf(y, search.Length) < 0)
-                           select x.Substring(skip);
-
-            // show auto complete list
-            AutoCShow(position - WordStartPosition(position, true), keywords.Cat("|"));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void HandleMouseMove(object sender, MouseEventArgs e)
-        {
-            // check if code hints are enabled
-            if (EnableCodeHints == false)
-                return;
-
-            // convert cursor position to text position
-            int pos = CharPositionFromPoint(e.X, e.Y);
-
-            // select keywords using the current text position
-            // is the style at that position a valid hint style
-            var style = GetStyleAt(pos);
-            if (new[] { STYLE.Word, STYLE.Word2 }.Any(x => x == style))
-            {
-                // is there a word at that position
-                var word = GetWordFromPosition(pos);
-                if (word?.Length > 0)
-                {
-                    // get block header from cursor position
-                    var header = BlockHeader(BlockPosition(pos)).ToArray();
-                    if (header.Length >= 2 && header.Length <= 3 && header[1] != word)
-                    {
-                        // select hints
-                        var hints = header[0] == word
-                            ? from x in Keywords
-                              where x.StartsWith($"{word} ")
-                              select x
-                            : from x in Keywords
-                              where x.StartsWith($"{header[0]}.{word} ")
-                              select x.Substring(header[0].Length + 1);
-                        CallTipShow(WordStartPosition(pos, true), hints.Cat("\n"));
-                        return;
-                    }
-                }
-            }
-
-            CallTipCancel();
+            skip = search.Length - word.Length;
         }
 
         /// <summary>
@@ -268,7 +278,7 @@ namespace App
             "pass.draw <vertinput> <primitive> <base_vertex> <vertex_count> [base_instance] [instance_count]",
             "pass.draw <vertinput> <index buffer> <index_type> <primitive> <base_vertex> <base_index> <index_count> [base_instance] [instance_count]",
             "pass.draw <vertinput> <draw_buffer> <primitive> [buffer_offset]",
-            "pass.draw <vertinput> <index_buffer> <index_type> <draw_ buffer> <primitive> [buffer_offset]",
+            "pass.draw <vertinput> <index_buffer> <index_type> <draw_buffer> <primitive> [buffer_offset]",
             "pass.eval",
             "pass.eval <shader_name>",
             "pass.exec",
@@ -306,11 +316,74 @@ namespace App
             #region shader
             "shader",
             "shader <shader_type> <name>",
+            "shader,comp",
+            "shader,comp \n"
+            + "  in  uvec3 gl_NumWorkGroups\n"
+            + "  in  uvec3 gl_WorkGroupSize\n"
+            + "  in  uvec3 gl_WorkGroupID\n"
+            + "  in  uvec3 gl_LocalInvocationID\n"
+            + "  in  uvec3 gl_GlobalInvocationID\n"
+            + "  in  uint  gl_LocalInvocationIndex",
             "shader,eval",
+            "shader,eval \n"
+            + "  in  vec3  gl_TessCoord\n"
+            + "  in  int   gl_PatchVerticesIn\n"
+            + "  in  int   gl_PrimitiveID\n"
+            + "  in  float gl_TessLevelOuter[4]\n"
+            + "  in  float gl_TessLevelInner[2]\n"
+            + "  in  vec4  gl_in[].gl_Position\n"
+            + "  in  float gl_in[].gl_PointSize\n"
+            + "  in  float gl_in[].gl_ClipDistance[]\n"
+            + "  out vec4  gl_out[].gl_Position\n"
+            + "  out float gl_out[].gl_PointSize\n"
+            + "  out float gl_out[].gl_ClipDistance[]",
             "shader,frag",
+            "shader,frag \n"
+            + "  in  vec4  gl_FragCoord\n"
+            + "  in  bool  gl_FrontFacing\n"
+            + "  in  vec2  gl_PointCoord\n"
+            + "  in  int   gl_SampleID\n"
+            + "  in  vec2  gl_SamplePosition\n"
+            + "  in  int   gl_SampleMaskIn[]\n"
+            + "  in  float gl_ClipDistance[]\n"
+            + "  in  int   gl_PrimitiveID\n"
+            + "  in  int   gl_Layer\n"
+            + "  in  int   gl_ViewportIndex\n"
+            + "  out float gl_FragDepth\n"
+            + "  out int   gl_SampleMask[]",
             "shader,geom",
+            "shader,geom \n"
+            + "  in  int   gl_PrimitiveIDIn\n"
+            + "  in  int   gl_InvocationID\n"
+            + "  in  vec4  gl_in[].gl_Position\n"
+            + "  in  float gl_in[].gl_PointSize\n"
+            + "  in  float gl_in[].gl_ClipDistance[]\n"
+            + "  out int   gl_PrimitiveID\n"
+            + "  out int   gl_Layer\n"
+            + "  out int   gl_ViewportIndex\n"
+            + "  out vec4  gl_out[].gl_Position\n"
+            + "  out float gl_out[].gl_PointSize\n"
+            + "  out float gl_out[].gl_ClipDistance[]",
             "shader,tess",
+            "shader,tess \n"
+            + "  in  int   gl_PatchVerticesIn\n"
+            + "  in  int   gl_PrimitiveID\n"
+            + "  in  int   gl_InvocationID\n"
+            + "  in  vec4  gl_in[].gl_Position\n"
+            + "  in  float gl_in[].gl_PointSize\n"
+            + "  in  float gl_in[].gl_ClipDistance[]\n"
+            + "  out float gl_TessLevelOuter[4]\n"
+            + "  out float gl_TessLevelInner[4]\n"
+            + "  out vec4  gl_out[].gl_Position\n"
+            + "  out float gl_out[].gl_PointSize\n"
+            + "  out float gl_out[].gl_ClipDistance[]",
             "shader,vert",
+            "shader,vert \n"
+            + "  in  int   gl_VertexID\n"
+            + "  in  int   gl_InstanceID\n"
+            + "  out vec4  gl_Position\n"
+            + "  out float gl_PointSize\n"
+            + "  out float gl_ClipDistance[]",
             "shader.atomic_uint",
             "shader.bvec2",
             "shader.bvec3",
