@@ -229,12 +229,12 @@ namespace App
                 {
                     pos = editor.WordStartPosition(pos, true);
                     editor.CallTipShow(pos, GLDebugger.DebugVariableToString(dbgVal));
-                    editor.EnableCodeInformation = false;
+                    editor.EnableCodeHints = false;
                     return;
                 }
             }
 
-            editor.EnableCodeInformation = true;
+            editor.EnableCodeHints = true;
         }
 
         /// <summary>

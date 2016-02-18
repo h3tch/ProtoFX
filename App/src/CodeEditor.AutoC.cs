@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using STYLE = ScintillaNET.Style.Cpp;
@@ -13,73 +11,55 @@ namespace App
         /// <summary>
         /// Show auto complete menu for the specified text position.
         /// </summary>
-        /// <param name="curPosition">The text position for which 
+        /// <param name="position">The text position for which 
         /// to show the auto complete menu</param>
-        public void AutoCShow(int curPosition)
+        public void AutoCShow(int position)
         {
-            // get the list of possible keywords from the current position
-            var keywords = SelectCommands(curPosition);
-            var wordPos = WordStartPosition(curPosition, true);
-            AutoCShow(curPosition - wordPos, keywords.Cat("|"));
-        }
-
-        /// <summary>
-        /// Select all commands that can be used at the specified text position.
-        /// </summary>
-        /// <param name="position"></param>
-        /// <param name="isHint"></param>
-        /// <returns></returns>
-        private IEnumerable<string> SelectCommands(int position, bool isHint = false)
-        {
-            // get necessary information for keyword search
-            var block = BlockHeader(position).FirstOrDefault();
+            // get word and preceding word at caret position
             var word = GetWordFromPosition(position);
+            var prec = GetWordFromPosition(WordStartPosition(WordStartPosition(position, true), false));
+            // get block surrounding caret position
+            var block = BlockPosition(position);
+            // get block header from block position
+            var header = BlockHeader(block).ToArray();
 
-            // if not inside a block swap the
-            // block type is given by the word
-            if (block == null)
-            {
-                block = word;
-                word = null;
-            }
+            // is the caret inside the header
+            var inHeader = block != null ? block[0] <= position && position <= block[1] : false;
+            var inBody = block != null ? block[1] < position && position <= block[2] : false;
 
-            // search for keywords
-            var search = block + (word != null ? $".{word}" : "");
-            var selection = from x in Keywords where x.StartsWith(search) select x;
+            // create search string
+            var search = inHeader
+                // in header
+                ? header[0] == word
+                    // word represents the block type -> search for block type
+                    ? word
+                    // preceding word is the block type
+                    : header[0] == prec
+                        // -> search for block annotation
+                        ? $"{header[0]},{word}"
+                        // this is the name of the block -> search for nothing
+                        : "~"
+                // not in header but body
+                : inBody
+                    // preceding word has subkeywords
+                    ? Keywords.Any(x => x.StartsWith($"{header[0]}.{prec}."))
+                        // -> search for subkeywords
+                        ? $"{header[0]}.{prec}.{word}"
+                        // -> search for keywords
+                        : $"{header[0]}.{word}"
+                    // nether in header nor body -> search for block type
+                    : word;
+            var skip = search.Length - word.Length;
 
-            // define the select function based the isHint parameter
-            var start = search.Length;
-            var func = isHint
-                // search only for hints (contains '<'; must not contain '.' and ',')
-                ? (x => x.IndexOf('<', start) != -1 && x.IndexOf(y => y == '.' || y == ',', start) == -1)
-                // search only for keywords (must not contain '<', '.' and ',')
-                : (Func<string, bool>)(x => x.IndexOf(y => y == '.' || y == ',' || y == '<', start) == -1);
+            // search for all keyword starting with the
+            // search string and not containing subkeywords
+            var invalid = new[] { '.', ',', ' ' };
+            var keywords = from x in Keywords
+                           where x.StartsWith(search) && invalid.All(y => x.IndexOf(y, search.Length) < 0)
+                           select x.Substring(skip);
 
-            // select keywords and remove hierarchy prefix
-            start = block != null && word != null ? block.Length + 1 : 0;
-            return selection.Where(func).Select(x => x.Substring(start));
-        }
-
-        /// <summary>
-        /// Get header of the block surrounding the specified text position.
-        /// </summary>
-        /// <param name="position"></param>
-        /// <returns>Returns a list of words making up the header or nothing.</returns>
-        private IEnumerable<string> BlockHeader(int position)
-        {
-            // find surrounding block
-            var blocks = from x in this.GetBlockPositions()
-                         select new[] { x.Index, x.Index + x.Value.IndexOf('{'), x.Index + x.Length };
-
-            // get headers of the block surrounding the text position
-            var headers = from x in blocks
-                          where x[1] < position && position < x[2]
-                          select Text.Substring(x[0], x[1] - x[0]);
-            
-            // return all words before the open brace '{'
-            foreach (var header in headers)
-                foreach (Match match in Regex.Matches(header, @"\w+"))
-                    yield return match.Value;
+            // show auto complete list
+            AutoCShow(position - WordStartPosition(position, true), keywords.Cat("|"));
         }
 
         /// <summary>
@@ -89,38 +69,84 @@ namespace App
         /// <param name="e"></param>
         private void HandleMouseMove(object sender, MouseEventArgs e)
         {
-            // get class references
-            var editor = (CodeEditor)sender;
-
-            if (editor.EnableCodeInformation == false)
+            // check if code hints are enabled
+            if (EnableCodeHints == false)
                 return;
 
             // convert cursor position to text position
-            int pos = editor.CharPositionFromPoint(e.X, e.Y);
-            var style = editor.GetStyleAt(pos);
-            if (!new[] { STYLE.Default, STYLE.Comment, STYLE.CommentLine, STYLE.CommentLineDoc }.Any(x => x == style))
+            int pos = CharPositionFromPoint(e.X, e.Y);
+
+            // select keywords using the current text position
+            // is the style at that position a valid hint style
+            var style = GetStyleAt(pos);
+            if (new[] { STYLE.Word, STYLE.Word2 }.Any(x => x == style))
             {
-                var word = editor.GetWordFromPosition(pos);
+                // is there a word at that position
+                var word = GetWordFromPosition(pos);
                 if (word?.Length > 0)
                 {
-                    var cmds = editor.SelectCommands(pos, true);
-                    if (cmds.Count() > 0)
+                    // get block header from cursor position
+                    var header = BlockHeader(BlockPosition(pos)).ToArray();
+                    if (header.Length >= 2 && header.Length <= 3 && header[1] != word)
                     {
-                        pos = editor.WordStartPosition(pos, true);
-                        editor.CallTipShow(pos, cmds.Cat("\n"));
+                        // select hints
+                        var hints = header[0] == word
+                            ? from x in Keywords
+                              where x.StartsWith($"{word} ")
+                              select x
+                            : from x in Keywords
+                              where x.StartsWith($"{header[0]}.{word} ")
+                              select x.Substring(header[0].Length + 1);
+                        CallTipShow(WordStartPosition(pos, true), hints.Cat("\n"));
+                        return;
                     }
-                    return;
                 }
             }
 
-            editor.CallTipCancel();
+            CallTipCancel();
+        }
+
+        /// <summary>
+        /// Get the block surrounding the specified text position.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns>Returns the start, open brace and end position of the block as an int array.</returns>
+        private int[] BlockPosition(int position)
+        {
+            // find surrounding block
+            var blocks = from x in this.GetBlockPositions()
+                         select new[] { x.Index, x.Index + x.Value.IndexOf('{'), x.Index + x.Length };
+
+            // get headers of the block surrounding the text position
+            foreach (var x in blocks)
+                if (x[0] < position && position < x[2])
+                    return x;
+            return null;
+        }
+
+        /// <summary>
+        /// Get the header of the block.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <returns>Returns a list of words making up the header or nothing.</returns>
+        private IEnumerable<string> BlockHeader(int[] block)
+        {
+            if (block != null)
+            {
+                // get headers of the block surrounding the text position
+                var header = Text.Substring(block[0], block[1] - block[0]);
+
+                // return all words before the open brace '{'
+                foreach (Match match in Regex.Matches(header, @"\w+"))
+                    yield return match.Value;
+            }
         }
 
         #region AUTO COMPLETE KEYWORDS
         // Keyword can be defined as follows:
         // <class type>[,<class annotation> | .<class keyword> [.<sub keyword>]]
         private static string[] Keywords = new[] {
-            // buffer
+            #region buffer
             "buffer",
             "buffer <name>",
             "buffer.size",
@@ -140,19 +166,22 @@ namespace App
             "buffer.usage.StreamRead",
             "buffer.xml",
             "buffer.xml <file_path> <xml_node>",
-            // csharp
+            #endregion
+            #region csharp
             "csharp",
             "csharp <name>",
             "csharp.file",
             "csharp.file <path> [path] [...]",
-            // fragoutput
+            #endregion
+            #region fragoutput
             "fragoutput",
             "fragoutput <name>",
             "fragoutput.color",
             "fragoutput.depth",
             "fragoutput.height",
             "fragoutput.width",
-            // image
+            #endregion
+            #region image
             "image",
             "image <name>",
             "image.depth",
@@ -220,14 +249,16 @@ namespace App
             "image.type.texture2DArray",
             "image.width",
             "image.width <num_pixels>",
-            // instance
+            #endregion
+            #region instance
             "instance",
             "instance <name>",
             "instance.class",
             "instance.class <csharp_name> <c# class>",
             "instance.name",
             "instance.name <internal name>",
-            // pass
+            #endregion
+            #region pass
             "pass",
             "pass <name>",
             "pass.comp",
@@ -241,6 +272,7 @@ namespace App
             "pass.eval",
             "pass.eval <shader_name>",
             "pass.exec",
+            "pass.exec <instance_name>",
             "pass.frag",
             "pass.frag <shader_name>",
             "pass.geom",
@@ -251,7 +283,8 @@ namespace App
             "pass.tex <tex_name> <bind_unit>",
             "pass.vert",
             "pass.vert <shader_name>",
-            // sampler
+            #endregion
+            #region sampler
             "sampler",
             "sampler <name>",
             "sampler.magfilter",
@@ -269,9 +302,10 @@ namespace App
             "sampler.wrap.ClampToEdge",
             "sampler.wrap.MirroredRepeat",
             "sampler.wrap.Repeat",
-            // shader
+            #endregion
+            #region shader
             "shader",
-            "shader <shader type> <name>",
+            "shader <shader_type> <name>",
             "shader,eval",
             "shader,frag",
             "shader,geom",
@@ -448,14 +482,18 @@ namespace App
             "shader.vec2",
             "shader.vec3",
             "shader.vec4",
-            // tech
+            #endregion
+            #region tech
             "tech",
             "tech <name>",
             "tech.pass",
-            // text
+            "tech.pass <name>",
+            #endregion
+            #region text
             "text",
             "text <name>",
-            // texture
+            #endregion
+            #region texture
             "texture",
             "texture <name>",
             "texture.buff",
@@ -464,12 +502,14 @@ namespace App
             "texture.img <name>",
             "texture.samp",
             "texture.samp <name>",
-            // vertinput
+            #endregion
+            #region vertinput
             "vertinput",
             "vertinput <name>",
             "vertinput.attr",
             "vertinput.attr <buff_name> <type> <dim> [stride] [offset] [divisor]",
-            // vertoutput
+            #endregion
+            #region vertoutput
             "vertoutput",
             "vertoutput <name>",
             "vertoutput.buff",
@@ -478,6 +518,7 @@ namespace App
             "vertoutput.pause <true_false>",
             "vertoutput.resume",
             "vertoutput.resume <true_false>"
+            #endregion
         };
         #endregion
     }

@@ -8,7 +8,7 @@ namespace App
 {
     partial class CodeEditor : Scintilla
     {
-        public bool EnableCodeInformation = true;
+        public bool EnableCodeHints = true;
         private static int HighlightIndicatorIndex = 8;
         public static int DebugIndicatorIndex { get; } = 9;
         private List<int[]>[] IndicatorRanges;
