@@ -267,7 +267,20 @@ namespace App
             "vertout   " +
             "width     " +
             "wrap      " +
-            "xml       "
+            "xml       " ,
+            // GLSL functions
+            "imageAtomicAdd " +
+            "imageAtomicAnd " +
+            "imageAtomicCompSwap " +
+            "imageAtomicExchange " +
+            "imageAtomicMax " +
+            "imageAtomicMin " +
+            "imageAtomicOr  " +
+            "imageAtomicXor " +
+            "imageLoad      " +
+            "imageSamples   " +
+            "imageSize      " +
+            "imageStore     " ,
         };
         #endregion
     }
