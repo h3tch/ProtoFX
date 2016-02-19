@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using STYLE = ScintillaNET.Style.Cpp;
 
 namespace App
 {
@@ -52,7 +51,7 @@ namespace App
             // select keywords using the current text position
             // is the style at that position a valid hint style
             var style = GetStyleAt(pos);
-            if (new[] { STYLE.Word, STYLE.Word2 }.Any(x => x == style))
+            if (HintTypes.Any(x => x == style))
             {
                 // is there a word at that position
                 var word = GetWordFromPosition(pos);
@@ -123,15 +122,22 @@ namespace App
         /// <returns>Returns the start, open brace and end position of the block as an int array.</returns>
         private int[] BlockPosition(int position)
         {
-            // find surrounding block
-            var blocks = from x in this.GetBlockPositions()
-                         select new[] { x.Index, x.Index + x.Value.IndexOf('{'), x.Index + x.Length };
-
             // get headers of the block surrounding the text position
-            foreach (var x in blocks)
+            foreach (var x in BlockPositions())
                 if (x[0] < position && position < x[2])
                     return x;
             return null;
+        }
+
+        /// <summary>
+        /// Get the position of all blocks.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerable<int[]> BlockPositions()
+        {
+            // find surrounding block
+            return from x in this.GetBlockPositions()
+                   select new[] { x.Index, x.Index + x.Value.IndexOf('{'), x.Index + x.Length };
         }
 
         /// <summary>
@@ -1225,6 +1231,14 @@ namespace App
             "vertoutput.resume",
             "vertoutput.resume <true_false>"
             #endregion
+        };
+
+        private static int[] HintTypes = new[] {
+            FXLexer.Keyword,
+            FXLexer.Annotation,
+            FXLexer.Command,
+            FXLexer.GlslKeyword,
+            FXLexer.GlslFunction
         };
         #endregion
     }

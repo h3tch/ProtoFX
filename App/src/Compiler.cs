@@ -429,8 +429,8 @@ namespace App
         {
             foreach (Match match in Compiler.regexBlock.Matches(editor.Text))
             {
-                var style = editor.GetStyleAt(match.Index);
-                if (style == Style.Cpp.Word || style == Style.Cpp.Word2)
+                //var style = editor.GetStyleAt(match.Index);
+                //if (style == Style.Cpp.Word || style == Style.Cpp.Word2)
                     yield return match;
             }
         }

@@ -309,6 +309,8 @@ namespace App
         /// <param name="e"></param>
         private void toolBtnSave_Click(object sender, EventArgs e)
         {
+            if (tabSource.SelectedTab == null)
+                return;
             TabPage tab = (TabPage)tabSource.SelectedTab;
             if (!tab.Text.EndsWith("*"))
                 return;

@@ -36,27 +36,7 @@ namespace App
             FindText.LostFocus += new EventHandler(HandleFindLostFocus);
 
             // setup code coloring
-            StyleResetDefault();
-            Styles[Style.Default].Font = "Consolas";
-            Styles[Style.Default].Size = 10;
-            StyleClearAll();
-            Styles[Style.Cpp.Default].ForeColor = Color.Silver;
-            Styles[Style.Cpp.Comment].ForeColor = Color.FromArgb(0x7F9F00);
-            Styles[Style.Cpp.CommentLine].ForeColor = Color.FromArgb(0x7F9F00);
-            Styles[Style.Cpp.CommentLineDoc].ForeColor = Color.FromArgb(128, 128, 128);
-            Styles[Style.Cpp.Operator].ForeColor = Color.FromArgb(0x3050CC);
-            Styles[Style.Cpp.Preprocessor].ForeColor = Color.FromArgb(0xE47426);
-            Styles[Style.Cpp.Number].ForeColor = Color.FromArgb(0x108030);
-            Styles[Style.Cpp.String].ForeColor = Color.Maroon;
-            Styles[Style.Cpp.Character].ForeColor = Color.FromArgb(163, 21, 21);
-            Styles[Style.Cpp.Word].ForeColor = Color.Blue;
-            Styles[Style.Cpp.Word2].ForeColor = Color.FromArgb(30, 120, 255);
-            Styles[Style.Cpp.Verbatim].ForeColor = Color.FromArgb(163, 21, 21);
-            Styles[Style.Cpp.StringEol].BackColor = Color.Pink;
-            Styles[Style.LineNumber].ForeColor = Color.Gray;
-            Lexer = Lexer.Cpp;
-            for (int i = 0; i < keywords.Length; i++)
-                SetKeywords(i, keywords[i]);
+            InitializeHighlighting();
 
             // setup code folding
             SetProperty("fold", "1");

@@ -69,7 +69,7 @@ namespace App
                     switch (cmd.Name)
                     {
                         case "draw": ParseDrawCall(cmd, scene, e); break;
-                        case "compute": ParseComputeCall(cmd, scene, e); break;
+                        case "comp": ParseComputeCall(cmd, scene, e); break;
                         case "tex": ParseTexCmd(cmd, scene, e); break;
                         case "samp": ParseSampCmd(cmd, scene, e); break;
                         case "exec": ParseCsharpExec(cmd, scene, e); break;
@@ -440,7 +440,8 @@ namespace App
         private void ParseOpenGLCall(Compiler.Command cmd, CompileException err)
         {
             // find OpenGL method
-            var mtype = FindMethod(cmd.Name, cmd.ArgCount);
+            var mname = cmd.Name.StartsWith("gl") ? cmd.Name.Substring(2) : cmd.Name;
+            var mtype = FindMethod(mname, cmd.ArgCount);
             if (mtype == null)
             {
                 err.Add("Unknown command '" + cmd.Text + "'", cmd);
