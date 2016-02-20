@@ -118,11 +118,11 @@ pass pass_render {
 	
 	// OPENGL FUNCTIONS
 	// set clear color
-	ClearColor 0.1 0.3 1.0 0.0
+	glClearColor 0.1 0.3 1.0 0.0
 	// clear color and depth buffer
-	Clear ColorDepthBit
+	glClear ColorDepthBit
 	// enable depth buffer test
-	Enable depthTest
+	glEnable depthTest
 	
 	// EXECUTE CONTROL
 	// execute camera code (sets g_viewproj in vs_simple)

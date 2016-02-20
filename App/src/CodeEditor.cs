@@ -99,7 +99,6 @@ namespace App
             AutoCSeparator = '|';
             AutoCMaxHeight = 9;
             MouseMove += new MouseEventHandler(HandleMouseMove);
-            //MouseHover += new EventHandler(HandleMouseHover);
 
             // insert text
             Text = text != null ? text : "";

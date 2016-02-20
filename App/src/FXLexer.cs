@@ -1,49 +1,88 @@
 ﻿using ScintillaNET;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace App
 {
     class FXLexer
     {
-        public const int Default = 0;
-        public const int Keyword = Default + 1;
-        public const int Annotation = Keyword + 1;
-        public const int Command = Annotation + 1;
-        public const int Argument = Command + 1;
-        public const int GlslKeyword = Argument + 1;
-        public const int GlslQualifier = GlslKeyword + 1;
-        public const int GlslFunction = GlslQualifier + 1;
-        public const int Identifier = GlslFunction + 1;
-        public const int Number = Identifier + 1;
-        public const int String = Number + 1;
-        public const int Char = String + 1;
-        public const int Comment = Char + 1;
-        public const int Operator = Comment + 1;
-        public const int Preprocessor = Operator + 1;
-
-        private HashSet<string>[] keywords = new HashSet<string>[GlslFunction];
-
-        public FXLexer(
-            string[] keywords,
-            string[] annotations,
-            string[] commands,
-            string[] arguments,
-            string[] glslkeywords,
-            string[] glslqualiriers,
-            string[] glslfunctions)
+        public enum Styles : int
         {
+            Default,
+            Keyword,
+            Annotation,
+            Command,
+            Argument,
+            GlslKeyword,
+            GlslQualifier,
+            GlslFunction,
+            Identifier,
+            Number,
+            String,
+            Char,
+            Comment,
+            Operator,
+            Preprocessor,
+        }
+
+        private HashSet<string>[] keywords;
+
+        public FXLexer(string[] keywords)
+        {
+            var list = keywords
+                .Select(x => x.Substring(0, (int)Math.Min((uint)x.Length, (uint)x.IndexOf('|'))))
+                .ToArray();
+
+            var block = list
+                .Where(x => x.IndexOf('.') < 0 && x.IndexOf(',') < 0)
+                .ToArray();
+            var anno = list
+                .Where(x => x.IndexOf(',') >= 0)
+                .Select(x => x.Substring(x.IndexOf(',') + 1))
+                .ToArray();
+            var sel = list
+                .Where(x => !x.StartsWith("shader") && x.IndexOf('.') >= 0)
+                .Select(x => x.Substring(x.IndexOf('.') + 1))
+                .ToArray();
+            var cmd = sel
+                .Where(x => x.IndexOf('.') < 0)
+                .ToArray();
+            var arg = sel
+                .Where(x => x.IndexOf('.') >= 0)
+                .Select(x => x.Substring(x.IndexOf('.') + 1))
+                .ToArray();
+
+            var shader = "shader.";
+            var glslfunctions = list
+                .Where(x => x.StartsWith(shader) && x.IndexOf('.', shader.Length) < 0)
+                .Select(x => x.Substring(shader.Length))
+                .ToArray();
+            shader = "shader:";
+            var glsltypes = list
+                .Where(x => x.StartsWith(shader))
+                .Select(x => x.Substring(shader.Length))
+                .ToArray();
+            var glslqualiriers = list
+                .Where(x => x.StartsWith(shader) && x.IndexOf('.', shader.Length) >= 0)
+                .Select(x => x.Substring(x.IndexOf('.', shader.Length) + 1))
+                .ToArray();
+
             this.keywords = new[] {
-                new HashSet<string>(keywords),
-                new HashSet<string>(annotations),
-                new HashSet<string>(commands),
-                new HashSet<string>(arguments),
-                new HashSet<string>(glslkeywords),
-                new HashSet<string>(glslqualiriers),
-                new HashSet<string>(glslfunctions)
+                Keywords2Set(block),
+                Keywords2Set(anno),
+                Keywords2Set(cmd),
+                Keywords2Set(arg),
+                Keywords2Set(glsltypes),
+                Keywords2Set(glslqualiriers),
+                Keywords2Set(glslfunctions)
             };
         }
+
+        private HashSet<string> Keywords2Set(string[] hints)
+            => new HashSet<string>(hints
+                .Select(x => x.Substring(0, (int)Math.Min((uint)x.Length, (uint)x.IndexOf(' '))))
+                .ToArray());
 
         private const int STATE_UNKNOWN = 0;
         private const int STATE_IDENTIFIER = 1;
@@ -54,7 +93,7 @@ namespace App
         private const int STATE_PREPROCESSOR = 6;
         private const int STATE_OPERATOR = 7;
 
-        public void Style(Scintilla editor, int startPos, int endPos, int[] keywords)
+        public int Style(Scintilla editor, int startPos, int endPos, int[] keywords)
         {
             // Back up to the line start
             var length = 0;
@@ -66,7 +105,7 @@ namespace App
             {
                 var c = (char)editor.GetCharAt(startPos);
 
-            REPROCESS:
+                REPROCESS:
                 switch (state)
                 {
                     case STATE_UNKNOWN:
@@ -75,30 +114,30 @@ namespace App
                             var c2 = (char)editor.GetCharAt(startPos + 1);
                             if (c2 == '/')
                             {
-                                editor.SetStyling(2, Comment);
+                                editor.SetStyling(2, (int)Styles.Comment);
                                 state = STATE_LINE_COMMENT;
                                 startPos++;
                             }
                             else if (c2 == '*')
                             {
-                                editor.SetStyling(2, Comment);
+                                editor.SetStyling(2, (int)Styles.Comment);
                                 state = STATE_BLOCK_COMMENT;
                                 startPos++;
                             }
                         }
                         else if (c == '"' || c == '\'')
                         {
-                            editor.SetStyling(1, String);
+                            editor.SetStyling(1, (int)Styles.String);
                             state = STATE_STRING;
                         }
                         else if (c == '#')
                         {
-                            editor.SetStyling(1, Preprocessor);
+                            editor.SetStyling(1, (int)Styles.Preprocessor);
                             state = STATE_PREPROCESSOR;
                         }
                         else if (char.IsSymbol(c))
                         {
-                            editor.SetStyling(1, Operator);
+                            editor.SetStyling(1, (int)Styles.Operator);
                             state = STATE_OPERATOR;
                         }
                         else if (char.IsDigit(c))
@@ -112,59 +151,51 @@ namespace App
                             goto REPROCESS;
                         }
                         else
-                            editor.SetStyling(1, Default);
+                            editor.SetStyling(1, (int)Styles.Default);
                         break;
 
                     case STATE_LINE_COMMENT:
                         if (c == '\r' || c == '\n')
                         {
-                            editor.SetStyling(length + 1, Comment);
+                            editor.SetStyling(length + 1, (int)Styles.Comment);
                             length = 0;
                             state = STATE_UNKNOWN;
                         }
                         else
-                        {
                             length++;
-                        }
                         break;
 
                     case STATE_BLOCK_COMMENT:
                         if (c == '*' && (char)editor.GetCharAt(startPos + 1) == '/')
                         {
-                            editor.SetStyling(length + 2, Comment);
+                            editor.SetStyling(length + 2, (int)Styles.Comment);
                             length = 0;
                             state = STATE_UNKNOWN;
                         }
                         else
-                        {
                             length++;
-                        }
                         break;
 
                     case STATE_STRING:
                         if (c == '"' || c == '\'')
                         {
-                            editor.SetStyling(length + 1, String);
+                            editor.SetStyling(length + 1, (int)Styles.String);
                             length = 0;
                             state = STATE_UNKNOWN;
                         }
                         else
-                        {
                             length++;
-                        }
                         break;
 
                     case STATE_PREPROCESSOR:
                         if (c == '\r' || c == '\n')
                         {
-                            editor.SetStyling(length + 1, Preprocessor);
+                            editor.SetStyling(length + 1, (int)Styles.Preprocessor);
                             length = 0;
                             state = STATE_UNKNOWN;
                         }
                         else
-                        {
                             length++;
-                        }
                         break;
 
                     case STATE_OPERATOR:
@@ -174,7 +205,7 @@ namespace App
                         }
                         else
                         {
-                            editor.SetStyling(length, Operator);
+                            editor.SetStyling(length, (int)Styles.Operator);
                             length = 0;
                             state = STATE_UNKNOWN;
                             goto REPROCESS;
@@ -188,7 +219,7 @@ namespace App
                         }
                         else
                         {
-                            editor.SetStyling(length, Number);
+                            editor.SetStyling(length, (int)Styles.Number);
                             length = 0;
                             state = STATE_UNKNOWN;
                             goto REPROCESS;
@@ -202,12 +233,12 @@ namespace App
                         }
                         else
                         {
-                            var style = Identifier;
+                            var style = (int)Styles.Identifier;
                             var identifier = editor.GetTextRange(startPos - length, length);
 
                             foreach (var i in keywords)
                             {
-                                if (this.keywords[i - Keyword].Contains(identifier))
+                                if (this.keywords[i - (int)Styles.Keyword].Contains(identifier))
                                 {
                                     style = i;
                                     break;
@@ -224,6 +255,8 @@ namespace App
 
                 startPos++;
             }
+
+            return endPos;
         }
     }
 }

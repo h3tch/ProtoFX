@@ -69,7 +69,7 @@ namespace App
                     switch (cmd.Name)
                     {
                         case "draw": ParseDrawCall(cmd, scene, e); break;
-                        case "comp": ParseComputeCall(cmd, scene, e); break;
+                        case "compute": ParseComputeCall(cmd, scene, e); break;
                         case "tex": ParseTexCmd(cmd, scene, e); break;
                         case "samp": ParseSampCmd(cmd, scene, e); break;
                         case "exec": ParseCsharpExec(cmd, scene, e); break;

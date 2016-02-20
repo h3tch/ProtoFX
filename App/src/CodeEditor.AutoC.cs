@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using FX = App.FXLexer.Styles;
 
 namespace App
 {
@@ -23,7 +25,7 @@ namespace App
             // search for all keywords starting with the
             // search string and not containing subkeywords
             var invalid = new[] { '.', ',', ' ' };
-            var keywords = from x in Keywords
+            var keywords = from x in KV
                            where x.StartsWith(search) && invalid.All(y => x.IndexOf(y, search.Length) < 0)
                            select x.Substring(skip);
 
@@ -59,15 +61,12 @@ namespace App
                 {
                     // create search string
                     SelectString(pos, out search, out skip);
-                    search += ' ';
-                    // select hints
-                    var hints = from x in Keywords
-                                where x.StartsWith(search)
-                                select x.Substring(skip);
-                    
-                    if (hints.Count() > 0)
+
+                    // select hint
+                    string hint;
+                    if (Hint.TryGetValue(search, out hint))
                     {
-                        CallTipShow(WordStartPosition(pos, true), hints.Cat("\n"));
+                        CallTipShow(WordStartPosition(pos, true), hint.Substring(1));
                         return;
                     }
                 }
@@ -105,7 +104,7 @@ namespace App
                 // not in header but body
                 : inBody
                     // preceding word has subkeywords
-                    ? Keywords.Any(x => x.StartsWith($"{header[0]}.{prec}."))
+                    ? KV.Any(x => x.StartsWith($"{header[0]}.{prec}."))
                         // -> search for subkeywords
                         ? $"{header[0]}.{prec}.{word}"
                         // -> search for keywords
@@ -134,11 +133,8 @@ namespace App
         /// </summary>
         /// <returns></returns>
         private IEnumerable<int[]> BlockPositions()
-        {
-            // find surrounding block
-            return from x in this.GetBlockPositions()
-                   select new[] { x.Index, x.Index + x.Value.IndexOf('{'), x.Index + x.Length };
-        }
+            => from x in this.GetBlockPositions()
+               select new[] { x.Index, x.Index + x.Value.IndexOf('{'), x.Index + x.Length };
 
         /// <summary>
         /// Get the header of the block.
@@ -161,16 +157,12 @@ namespace App
         #region AUTO COMPLETE KEYWORDS
         // Keyword can be defined as follows:
         // <class type>[,<class annotation> | .<class keyword> [.<sub keyword>]]
-        private static string[] Keywords = new[] {
+        private static string[] KV = new[] {
             #region buffer
-            "buffer",
-            "buffer <name>",
-            "buffer.size",
-            "buffer.size <num_bytes>",
-            "buffer.txt",
-            "buffer.txt <text_name>",
-            "buffer.usage",
-            "buffer.usage <usage_hint>",
+            "buffer|buffer <name>",
+            "buffer.size|size <bytes>",
+            "buffer.txt|txt <text_name>",
+            "buffer.usage|usage <usage_hint>",
             "buffer.usage.DynamicCopy",
             "buffer.usage.DynamicDraw",
             "buffer.usage.DynamicRead",
@@ -180,31 +172,24 @@ namespace App
             "buffer.usage.StreamCopy",
             "buffer.usage.StreamDraw",
             "buffer.usage.StreamRead",
-            "buffer.xml",
-            "buffer.xml <file_path> <xml_node>",
+            "buffer.xml|xml\"<path>\" <node>",
             #endregion
             #region csharp
-            "csharp",
-            "csharp <name>",
-            "csharp.file",
-            "csharp.file <path> [path] [...]",
+            "csharp|csharp <name>",
+            "csharp.file|file <path> [path] [...]",
             #endregion
             #region fragoutput
-            "fragoutput",
-            "fragoutput <name>",
-            "fragoutput.color",
-            "fragoutput.depth",
-            "fragoutput.height",
-            "fragoutput.width",
+            "fragoutput|fragoutput <name>",
+            "fragoutput.color|color <image_name>",
+            "fragoutput.depth|depth <image_name>",
+            "fragoutput.height|height <pixels>",
+            "fragoutput.width|width <pixels>",
             #endregion
             #region image
-            "image",
-            "image <name>",
-            "image.depth",
-            "image.depth <num_layers>",
-            "image.file",
-            "image.file <path> [path] [...]",
-            "image.format",
+            "image|image <name>",
+            "image.depth|depth <layers>",
+            "image.file|file <path> [path] [...]",
+            "image.format|format <pixel_format>",
             "image.format.depth",
             "image.format.depth16",
             "image.format.depth24",
@@ -253,85 +238,62 @@ namespace App
             "image.format.rgba32i",
             "image.format.rgba32ui",
             "image.format.rgba32f",
-            "image.height",
-            "image.height <num_pixels>",
-            "image.length",
-            "image.length <num_layers>",
-            "image.type",
+            "image.height|height <pixels>",
+            "image.length|length <layers>",
+            "image.type|type <texture_type>",
             "image.type.texture1D",
             "image.type.texture2D",
             "image.type.texture3D",
             "image.type.texture1DArray",
             "image.type.texture2DArray",
-            "image.width",
-            "image.width <num_pixels>",
+            "image.width|width <pixels>",
             #endregion
             #region instance
-            "instance",
-            "instance <name>",
-            "instance.class",
-            "instance.class <csharp_name> <c# class>",
-            "instance.name",
-            "instance.name <internal name>",
+            "instance|instance <name>",
+            "instance.class|class <csharp_name> <c#_class>",
+            "instance.name|name <new_name>",
             #endregion
             #region pass
-            "pass",
-            "pass <name>",
-            "pass.comp",
-            "pass.comp <shader_name>",
-            "pass.compute",
-            "pass.draw",
-            "pass.draw <vertinput> <primitive> <base_vertex> <vertex_count> [base_instance] [instance_count]",
-            "pass.draw <vertinput> <index buffer> <index_type> <primitive> <base_vertex> <base_index> <index_count> [base_instance] [instance_count]",
-            "pass.draw <vertinput> <draw_buffer> <primitive> [buffer_offset]",
-            "pass.draw <vertinput> <index_buffer> <index_type> <draw_buffer> <primitive> [buffer_offset]",
-            "pass.eval",
-            "pass.eval <shader_name>",
-            "pass.exec",
-            "pass.exec <instance_name>",
-            "pass.frag",
-            "pass.frag <shader_name>",
-            "pass.geom",
-            "pass.geom <shader_name>",
-            "pass.tess",
-            "pass.tess <shader_name>",
-            "pass.tex",
-            "pass.tex <tex_name> <bind_unit>",
-            "pass.vert",
-            "pass.vert <shader_name>",
+            "pass|pass <name>",
+            "pass.comp|comp <shader_name>",
+            "pass.compute|compute <>",
+            "pass.draw|draw <>",
+            "pass.eval|eval <shader_name>",
+            "pass.exec|exec <instance_name>",
+            "pass.frag|frag <shader_name>",
+            "pass.geom|geom <shader_name>",
+            "pass.tess|tess <shader_name>",
+            "pass.tex|tex <texture_name> <unit>",
+            "pass.vert|vert <shader_name>",
             #endregion
             #region sampler
-            "sampler",
-            "sampler <name>",
-            "sampler.magfilter",
+            "sampler|sampler <name>",
+            "sampler.magfilter|magfilter <filter_type>",
             "sampler.magfilter.linear",
             "sampler.magfilter.nearest",
-            "sampler.minfilter",
+            "sampler.minfilter|minfilter <filter_type>",
             "sampler.minfilter.linear",
             "sampler.minfilter.nearest",
             "sampler.minfilter.LinearMipmapLinear",
             "sampler.minfilter.LinearMipmapNearest",
             "sampler.minfilter.NearestMipmapLinear",
             "sampler.minfilter.NearestMipmapNearest",
-            "sampler.wrap",
+            "sampler.wrap|wrap <wrap_type>",
             "sampler.wrap.ClampToBorder",
             "sampler.wrap.ClampToEdge",
             "sampler.wrap.MirroredRepeat",
             "sampler.wrap.Repeat",
             #endregion
             #region shader
-            "shader",
-            "shader <shader_type> <name>",
-            "shader,comp",
-            "shader,comp \n"
+            "shader|shader <shader_type> <name>",
+            "shader,comp|comp\n"
             + "  in  uvec3 gl_NumWorkGroups\n"
             + "  in  uvec3 gl_WorkGroupSize\n"
             + "  in  uvec3 gl_WorkGroupID\n"
             + "  in  uvec3 gl_LocalInvocationID\n"
             + "  in  uvec3 gl_GlobalInvocationID\n"
             + "  in  uint  gl_LocalInvocationIndex",
-            "shader,eval",
-            "shader,eval \n"
+            "shader,eval|eval\n"
             + "  in  vec3  gl_TessCoord\n"
             + "  in  int   gl_PatchVerticesIn\n"
             + "  in  int   gl_PrimitiveID\n"
@@ -343,8 +305,7 @@ namespace App
             + "  out vec4  gl_out[].gl_Position\n"
             + "  out float gl_out[].gl_PointSize\n"
             + "  out float gl_out[].gl_ClipDistance[]",
-            "shader,frag",
-            "shader,frag \n"
+            "shader,frag|frag\n"
             + "  in  vec4  gl_FragCoord\n"
             + "  in  bool  gl_FrontFacing\n"
             + "  in  vec2  gl_PointCoord\n"
@@ -357,8 +318,7 @@ namespace App
             + "  in  int   gl_ViewportIndex\n"
             + "  out float gl_FragDepth\n"
             + "  out int   gl_SampleMask[]",
-            "shader,geom",
-            "shader,geom \n"
+            "shader,geom|geom\n"
             + "  in  int   gl_PrimitiveIDIn\n"
             + "  in  int   gl_InvocationID\n"
             + "  in  vec4  gl_in[].gl_Position\n"
@@ -370,8 +330,7 @@ namespace App
             + "  out vec4  gl_out[].gl_Position\n"
             + "  out float gl_out[].gl_PointSize\n"
             + "  out float gl_out[].gl_ClipDistance[]",
-            "shader,tess",
-            "shader,tess \n"
+            "shader,tess|tess\n"
             + "  in  int   gl_PatchVerticesIn\n"
             + "  in  int   gl_PrimitiveID\n"
             + "  in  int   gl_InvocationID\n"
@@ -383,8 +342,7 @@ namespace App
             + "  out vec4  gl_out[].gl_Position\n"
             + "  out float gl_out[].gl_PointSize\n"
             + "  out float gl_out[].gl_ClipDistance[]",
-            "shader,vert",
-            "shader,vert \n"
+            "shader,vert|vert\n"
             + "  in  int   gl_VertexID\n"
             + "  in  int   gl_InstanceID\n"
             + "  out vec4  gl_Position\n"
@@ -399,125 +357,103 @@ namespace App
             "shader.asinh",
             "shader.atan",
             "shader.atanh",
-            "shader.atomic_uint",
-            "shader.atomicAdd",
-            "shader.atomicAdd \n"
+            "shader:atomic_uint",
+            "shader.atomicAdd|atomicAdd\n"
             + "  int  atomicAdd(inout int  mem, int  data)"
             + "  uint atomicAdd(inout uint mem, uint data)",
-            "shader.atomicAnd",
-            "shader.atomicAnd \n"
+            "shader.atomicAnd|atomicAnd\n"
             + "  int  atomicAdd(inout int  mem, int  data)"
             + "  uint atomicAdd(inout uint mem, uint data)",
-            "shader.atomicCompSwap",
-            "shader.atomicCompSwap \n"
+            "shader.atomicCompSwap|atomicCompSwap\n"
             + "  int  atomicCompSwap(inout int  mem, uint compare, uint data)\n"
             + "  uint atomicCompSwap(inout uint mem, uint compare, uint data)",
-            "shader.atomicCounter",
-            "shader.atomicCounter \n"
+            "shader.atomicCounter|atomicCounter\n"
             + "  uint atomicCounter(atomic_uint c)",
-            "shader.atomicCounterDecrement",
-            "shader.atomicCounterDecrement \n"
+            "shader.atomicCounterDecrement|atomicCounterDecrement\n"
             + "  uint atomicCounterDecrement(atomic_uint c)",
-            "shader.atomicCounterIncrement",
-            "shader.atomicCounterIncrement \n"
+            "shader.atomicCounterIncrement|atomicCounterIncrement\n"
             + "  uint atomicCounterIncrement(atomic_uint c)",
-            "shader.atomicExchange",
-            "shader.atomicExchange \n"
+            "shader.atomicExchange|atomicExchange\n"
             + "  int  atomicExchange(inout int  mem, int  data)\n"
             + "  uint atomicExchange(inout uint mem, uint data)",
-            "shader.atomicMin",
-            "shader.atomicMin \n"
+            "shader.atomicMin|atomicMin\n"
             + "  int  atomicMin(inout int  mem, int  data)\n"
             + "  uint atomicMin(inout uint mem, uint data)",
-            "shader.atomicMax",
-            "shader.atomicMax \n"
+            "shader.atomicMax|atomicMax\n"
             + "  int  atomicMax(inout int  mem, int  data)\n"
             + "  uint atomicMax(inout uint mem, uint data)",
-            "shader.atomicOr",
-            "shader.atomicOr \n"
+            "shader.atomicOr|atomicOr\n"
             + "  int  atomicOr(inout int  mem, int  data)\n"
             + "  uint atomicOr(inout uint mem, uint data)",
-            "shader.atomicXor",
-            "shader.atomicXor \n"
+            "shader.atomicXor|atomicXor\n"
             + "  int  atomicXor(inout int  mem, int  data)\n"
             + "  uint atomicXor(inout uint mem, uint data)",
-            "shader.barrier",
-            "shader.barrier \n"
+            "shader.barrier|barrier\n"
             + "  void barrier(void)",
-            "shader.bitCount",
-            "shader.bitCount \n"
+            "shader.bitCount|bitCount\n"
             + "  genIType bitCount(genIType value)\n"
             + "  genIType bitCount(genUType value)",
-            "shader.bitfieldExtract",
-            "shader.bitfieldExtract \n"
+            "shader.bitfieldExtract|bitfieldExtract\n"
             + "  genIType bitfieldExtract(genIType value, int offset, int bits)\n"
             + "  genUType bitfieldExtract(genUType value, int offset, int bits)",
-            "shader.bitfieldInsert",
-            "shader.bitfieldInsert \n"
+            "shader.bitfieldInsert|bitfieldInsert\n"
             + "  genIType bitfieldInsert(genIType base, genIType insert, int offset, int bits)\n"
             + "  genUType bitfieldInsert(genUType base, genUType insert, int offset, int bits)",
-            "shader.bitfieldReverse",
-            "shader.bitfieldReverse \n"
+            "shader.bitfieldReverse|bitfieldReverse\n"
             + "  genIType bitfieldReverse(genIType value)\n"
             + "  genUType bitfieldReverse(genUType value)",
-            "shader.bvec2",
-            "shader.bvec3",
-            "shader.bvec4",
+            "shader:bvec2",
+            "shader:bvec3",
+            "shader:bvec4",
             "shader.ceil",
             "shader.centroid",
             "shader.clamp",
             "shader.cos",
             "shader.cosh",
             "shader.cross",
-            "shader.degrees",
-            "shader.degrees \n"
+            "shader.degrees|degrees\n"
             + "  genType degrees(genType radians)",
-            "shader.determinant \n"
+            "shader.determinant|determinant\n"
             + "  float determinant(mat2 m)\n"
             + "  float determinant(mat3 m)\n"
             + "  float determinant(mat4 m)\n"
             + "  double determinant(dmat2 m)\n"
             + "  double determinant(dmat3 m)\n"
             + "  double determinant(dmat4 m)",
-            "shader.discard",
-            "shader.dFdx",
-            "shader.dFdx \n"
+            "shader:discard",
+            "shader.dFdx|dFdx\n"
             + "  genType dFdx(genType p)",
-            "shader.dFdxCoarse",
-            "shader.dFdxCoarse \n"
+            "shader.dFdxCoarse|dFdxCoarse\n"
             + "  genType dFdxCoarse(genType p)",
-            "shader.dFdxFine",
-            "shader.dFdxFine \n"
+            "shader.dFdxFine|dFdxFine\n"
             + "  genType dFdxFine(genType p)",
-            "shader.dFdy \n"
+            "shader.dFdy|dFdy\n"
             + "  genType dFdy(genType p)",
-            "shader.dFdyCoarse \n"
+            "shader.dFdyCoarse|dFdyCoarse\n"
             + "  genType dFdyCoarse(genType p)",
-            "shader.dFdyFine \n"
+            "shader.dFdyFine|dFdyFine\n"
             + "  genType dFdyFine(genType p)",
-            "shader.distance",
-            "shader.distance \n"
+            "shader.distance|distance\n"
             + "  float distance(genType p0, genType p1)\n"
             + "  double distance(genDType p0, genDType p1)",
-            "shader.dot",
-            "shader.dot \n"
+            "shader.dot|dot\n"
             + "  float dot(genType x, genType y)\n"
             + "  double dot(genDType x, genDType y)",
-            "shader.dmat2",
-            "shader.dmat2x2",
-            "shader.dmat2x3",
-            "shader.dmat2x4",
-            "shader.dmat3",
-            "shader.dmat3x2",
-            "shader.dmat3x3",
-            "shader.dmat3x4",
-            "shader.dmat4",
-            "shader.dmat4x2",
-            "shader.dmat4x3",
-            "shader.dmat4x4",
-            "shader.dvec2",
-            "shader.dvec3",
-            "shader.dvec4",
+            "shader:dmat2",
+            "shader:dmat2x2",
+            "shader:dmat2x3",
+            "shader:dmat2x4",
+            "shader:dmat3",
+            "shader:dmat3x2",
+            "shader:dmat3x3",
+            "shader:dmat3x4",
+            "shader:dmat4",
+            "shader:dmat4x2",
+            "shader:dmat4x3",
+            "shader:dmat4x4",
+            "shader:dvec2",
+            "shader:dvec3",
+            "shader:dvec4",
             "shader.EmitStreamVertex",
             "shader.EmitVertex",
             "shader.EndPrimitive",
@@ -536,43 +472,42 @@ namespace App
             "shader.fwidth",
             "shader.fwidthCoarse",
             "shader.fwidthFine",
-            "shader.gl_ClipDistance",
-            "shader.gl_DepthRange",
-            "shader.gl_DepthRange.diff",
-            "shader.gl_DepthRange.far",
-            "shader.gl_DepthRange.near",
-            "shader.gl_FragCoord",
-            "shader.gl_FragDepth",
-            "shader.gl_FrontFacing",
-            "shader.gl_GlobalInvocationID",
-            "shader.gl_InstanceID",
-            "shader.gl_InvocationID",
-            "shader.gl_Layer",
-            "shader.gl_LocalInvocationID",
-            "shader.gl_LocalInvocationIndex",
-            "shader.gl_MaxPatchVertices",
-            "shader.gl_NumSamples",
-            "shader.gl_NumWorkGroups",
-            "shader.gl_PatchVerticesIn",
-            "shader.gl_PointCoord",
-            "shader.gl_PointSize",
-            "shader.gl_Position",
-            "shader.gl_PrimitiveID",
-            "shader.gl_PrimitiveIDIn",
-            "shader.gl_SampleID",
-            "shader.gl_SampleMask",
-            "shader.gl_SampleMaskIn",
-            "shader.gl_SamplePosition",
-            "shader.gl_TessLevelInner",
-            "shader.gl_TessLevelOuter",
-            "shader.gl_VertexID",
-            "shader.gl_ViewportIndex",
-            "shader.gl_WorkGroupID",
-            "shader.gl_WorkGroupSize",
-            "shader.gl_in",
-            "shader.gl_out",
-            "shader.imageAtomicAdd",
-            "shader.imageAtomicAdd -- atomically add a value to an existing value in memory\n"
+            "shader:gl_ClipDistance",
+            "shader:gl_DepthRange",
+            "shader:gl_DepthRange.diff",
+            "shader:gl_DepthRange.far",
+            "shader:gl_DepthRange.near",
+            "shader:gl_FragCoord",
+            "shader:gl_FragDepth",
+            "shader:gl_FrontFacing",
+            "shader:gl_GlobalInvocationID",
+            "shader:gl_InstanceID",
+            "shader:gl_InvocationID",
+            "shader:gl_Layer",
+            "shader:gl_LocalInvocationID",
+            "shader:gl_LocalInvocationIndex",
+            "shader:gl_MaxPatchVertices",
+            "shader:gl_NumSamples",
+            "shader:gl_NumWorkGroups",
+            "shader:gl_PatchVerticesIn",
+            "shader:gl_PointCoord",
+            "shader:gl_PointSize",
+            "shader:gl_Position",
+            "shader:gl_PrimitiveID",
+            "shader:gl_PrimitiveIDIn",
+            "shader:gl_SampleID",
+            "shader:gl_SampleMask",
+            "shader:gl_SampleMaskIn",
+            "shader:gl_SamplePosition",
+            "shader:gl_TessLevelInner",
+            "shader:gl_TessLevelOuter",
+            "shader:gl_VertexID",
+            "shader:gl_ViewportIndex",
+            "shader:gl_WorkGroupID",
+            "shader:gl_WorkGroupSize",
+            "shader:gl_in",
+            "shader:gl_out",
+            "shader.imageAtomicAdd|imageAtomicAdd -- atomically add a value to an existing value in memory\n"
             + "                  and return the original value\n"
             + "  uint imageAtomicAdd(gimage1D        image, int   P, uint data)\n"
             + "  uint imageAtomicAdd(gimage2D        image, ivec2 P, uint data)\n"
@@ -596,8 +531,7 @@ namespace App
             + "  int  imageAtomicAdd(gimageCubeArray image, ivec3 P, int data)\n"
             + "  int  imageAtomicAdd(gimage2DMS      image, ivec2 P, int sample, int data)\n"
             + "  int  imageAtomicAdd(gimage2DMSArray image, ivec3 P, int sample, int data)",
-            "shader.imageAtomicAnd",
-            "shader.imageAtomicAnd -- atomically compute the logical AND of a value with an existing\n"
+            "shader.imageAtomicAnd|imageAtomicAnd -- atomically compute the logical AND of a value with an existing\n"
             + "                  value in memory, store that value and return the original value\n"
             + "  uint imageAtomicAnd(gimage1D        image, int   P, uint data)\n"
             + "  uint imageAtomicAnd(gimage2D        image, ivec2 P, uint data)\n"
@@ -621,8 +555,7 @@ namespace App
             + "  int  imageAtomicAnd(gimageCubeArray image, ivec3 P, int data)\n"
             + "  int  imageAtomicAnd(gimage2DMS      image, ivec2 P, int sample, int data)\n"
             + "  int  imageAtomicAnd(gimage2DMSArray image, ivec3 P, int sample, int data)",
-            "shader.imageAtomicCompSwap",
-            "shader.imageAtomicCompSwap -- atomically compares supplied data with that in memory and conditionally stores it to memory\n"
+            "shader.imageAtomicCompSwap|imageAtomicCompSwap -- atomically compares supplied data with that in memory and conditionally stores it to memory\n"
             + "  uint imageAtomicCompSwap(gimage1D        image, int   P, uint compare, uint data)\n"
             + "  uint imageAtomicCompSwap(gimage2D        image, ivec2 P, uint compare, uint data)\n"
             + "  uint imageAtomicCompSwap(gimage3D        image, ivec3 P, uint compare, uint data)\n"
@@ -645,8 +578,7 @@ namespace App
             + "  int  imageAtomicCompSwap(gimageCubeArray image, ivec3 P, int compare, int data)\n"
             + "  int  imageAtomicCompSwap(gimage2DMS      image, ivec2 P, int sample, int compare, int data)\n"
             + "  int  imageAtomicCompSwap(gimage2DMSArray image, ivec3 P, int sample, int compare, int data)",
-            "shader.imageAtomicExchange",
-            "shader.imageAtomicExchange -- atomically store supplied data into memory and return the original value from memory\n"
+            "shader.imageAtomicExchange|imageAtomicExchange -- atomically store supplied data into memory and return the original value from memory\n"
             + "  uint imageAtomicExchange(gimage1D image, int P, uint data)\n"
             + "  uint imageAtomicExchange(gimage2D image, ivec2 P, uint data)\n"
             + "  uint imageAtomicExchange(gimage3D image, ivec3 P, uint data)\n"
@@ -680,8 +612,7 @@ namespace App
             + "  int  imageAtomicExchange(gimageCubeArray image, ivec3 P, float data)\n"
             + "  int  imageAtomicExchange(gimage2DMS image, ivec2 P, int sample, float data)\n"
             + "  int  imageAtomicExchange(gimage2DMSArray image, ivec3 P, int sample, float data)",
-            "shader.imageAtomicMax",
-            "shader.imageAtomicMax -- atomically compute the minimum of a value with an existing\n"
+            "shader.imageAtomicMax|imageAtomicMax -- atomically compute the minimum of a value with an existing\n"
             + "                  value in memory, store that value and return the original value\n"
             + "  uint imageAtomicMax(gimage1D        image, int   P, uint data)\n"
             + "  uint imageAtomicMax(gimage2D        image, ivec2 P, uint data)\n"
@@ -705,8 +636,7 @@ namespace App
             + "  int  imageAtomicMax(gimageCubeArray image, ivec3 P, int data)\n"
             + "  int  imageAtomicMax(gimage2DMS      image, ivec2 P, int sample, int data)\n"
             + "  int  imageAtomicMax(gimage2DMSArray image, ivec3 P, int sample, int data)",
-            "shader.imageAtomicMin",
-            "shader.imageAtomicMin -- atomically compute the minimum of a value with an existing\n"
+            "shader.imageAtomicMin|imageAtomicMin -- atomically compute the minimum of a value with an existing\n"
             + "                  value in memory, store that value and return the original value\n"
             + "  uint imageAtomicMin(gimage1D        image, int   P, uint data)\n"
             + "  uint imageAtomicMin(gimage2D        image, ivec2 P, uint data)\n"
@@ -730,8 +660,7 @@ namespace App
             + "  int  imageAtomicMin(gimageCubeArray image, ivec3 P, int data)\n"
             + "  int  imageAtomicMin(gimage2DMS      image, ivec2 P, int sample, int data)\n"
             + "  int  imageAtomicMin(gimage2DMSArray image, ivec3 P, int sample, int data)",
-            "shader.imageAtomicOr",
-            "shader.imageAtomicOr -- atomically compute the logical OR of a value with an existing\n"
+            "shader.imageAtomicOr|imageAtomicOr -- atomically compute the logical OR of a value with an existing\n"
             + "                 value in memory, store that value and return the original value\n"
             + "  uint imageAtomicOr(gimage1D        image, int   P, uint data)\n"
             + "  uint imageAtomicOr(gimage2D        image, ivec2 P, uint data)\n"
@@ -755,8 +684,7 @@ namespace App
             + "  int  imageAtomicOr(gimageCubeArray image, ivec3 P, int data)\n"
             + "  int  imageAtomicOr(gimage2DMS      image, ivec2 P, int sample, int data)\n"
             + "  int  imageAtomicOr(gimage2DMSArray image, ivec3 P, int sample, int data)",
-            "shader.imageAtomicXor",
-            "shader.imageAtomicXor -- atomically compute the logical exclusive OR of a value with an existing\n"
+            "shader.imageAtomicXor|imageAtomicXor -- atomically compute the logical exclusive OR of a value with an existing\n"
             + "                  value in memory, store that value and return the original value\n"
             + "  uint imageAtomicXor(gimage1D        image, int   P, uint data)\n"
             + "  uint imageAtomicXor(gimage2D        image, ivec2 P, uint data)\n"
@@ -780,8 +708,7 @@ namespace App
             + "  int  imageAtomicXor(gimageCubeArray image, ivec3 P, int data)\n"
             + "  int  imageAtomicXor(gimage2DMS      image, ivec2 P, int sample, int data)\n"
             + "  int  imageAtomicXor(gimage2DMSArray image, ivec3 P, int sample, int data)",
-            "shader.imageLoad",
-            "shader.imageLoad -- load a single texel from an image\n"
+            "shader.imageLoad|imageLoad -- load a single texel from an image\n"
             + "  gvec4 imageLoad(gimage1D        image, int   P)\n"
             + "  gvec4 imageLoad(gimage2D        image, ivec2 P)\n"
             + "  gvec4 imageLoad(gimage3D        image, ivec3 P)\n"
@@ -795,8 +722,7 @@ namespace App
             + "  gvec4 imageLoad(gimage2DMSArray image, ivec3 P, int sample)",
             "shader.imageSamples",
             "shader.imageSize",
-            "shader.imageStore",
-            "shader.imageStore -- write a single texel into an image\n"
+            "shader.imageStore|imageStore -- write a single texel into an image\n"
             + "  void imageStore(gimage1D        image, int   P, gvec4 data)\n"
             + "  void imageStore(gimage2D        image, ivec2 P, gvec4 data)\n"
             + "  void imageStore(gimage3D        image, ivec3 P, gvec4 data)\n"
@@ -809,13 +735,13 @@ namespace App
             + "  void imageStore(gimage2DMS      image, ivec2 P, int sample, gvec4 data)\n"
             + "  void imageStore(gimage2DMSArray image, ivec3 P, int sample, gvec4 data)",
             "shader.imulExtended",
-            "shader.in",
-            "shader.inout",
+            "shader:in",
+            "shader:inout",
             "shader.intBitsToFloat",
             "shader.interpolateAtCentroid",
             "shader.interpolateAtOffset",
             "shader.interpolateAtSample",
-            "shader.invariant",
+            "shader:invariant",
             "shader.inverse",
             "shader.inversesqrt",
             "shader.isampler1D",
@@ -831,45 +757,45 @@ namespace App
             "shader.isamplerCubeArray",
             "shader.isinf",
             "shader.isnan",
-            "shader.ivec2",
-            "shader.ivec3",
-            "shader.ivec4",
-            "shader.layout",
-            "shader.layout.binding",
-            "shader.layout.component",
-            "shader.layout.depth_any",
-            "shader.layout.depth_greater",
-            "shader.layout.depth_less",
-            "shader.layout.depth_unchanged",
-            "shader.layout.early_fragment_tests",
-            "shader.layout.index",
-            "shader.layout.location",
-            "shader.layout.offset",
-            "shader.layout.origin_upper_left",
-            "shader.layout.pixel_center_integer",
-            "shader.layout.std140",
-            "shader.layout.vertices",
-            "shader.layout.xfb_buffer",
-            "shader.layout.xfb_offset",
-            "shader.layout.xfb_stride",
+            "shader:ivec2",
+            "shader:ivec3",
+            "shader:ivec4",
+            "shader:layout",
+            "shader:layout.binding",
+            "shader:layout.component",
+            "shader:layout.depth_any",
+            "shader:layout.depth_greater",
+            "shader:layout.depth_less",
+            "shader:layout.depth_unchanged",
+            "shader:layout.early_fragment_tests",
+            "shader:layout.index",
+            "shader:layout.location",
+            "shader:layout.offset",
+            "shader:layout.origin_upper_left",
+            "shader:layout.pixel_center_integer",
+            "shader:layout.std140",
+            "shader:layout.vertices",
+            "shader:layout.xfb_buffer",
+            "shader:layout.xfb_offset",
+            "shader:layout.xfb_stride",
             "shader.ldexp",
             "shader.length",
             "shader.lessThan",
             "shader.lessThanEqual",
             "shader.log",
             "shader.log2",
-            "shader.mat2",
-            "shader.mat2x2",
-            "shader.mat2x3",
-            "shader.mat2x4",
-            "shader.mat3",
-            "shader.mat3x2",
-            "shader.mat3x3",
-            "shader.mat3x4",
-            "shader.mat4",
-            "shader.mat4x2",
-            "shader.mat4x3",
-            "shader.mat4x4",
+            "shader:mat2",
+            "shader:mat2x2",
+            "shader:mat2x3",
+            "shader:mat2x4",
+            "shader:mat3",
+            "shader:mat3x2",
+            "shader:mat3x3",
+            "shader:mat3x4",
+            "shader:mat4",
+            "shader:mat4x2",
+            "shader:mat4x3",
+            "shader:mat4x4",
             "shader.matrixCompMult",
             "shader.max",
             "shader.memoryBarrier",
@@ -886,11 +812,11 @@ namespace App
             "shader.noise2",
             "shader.noise3",
             "shader.noise4",
-            "shader.noperspective",
+            "shader:noperspective",
             "shader.normalize",
             "shader.not",
             "shader.notEqual",
-            "shader.out",
+            "shader:out",
             "shader.outerProduct",
             "shader.packDouble2x32",
             "shader.packHalf2x16",
@@ -899,49 +825,48 @@ namespace App
             "shader.packUnorm",
             "shader.packUnorm2x16",
             "shader.packUnorm4x8",
-            "shader.patch",
+            "shader:patch",
             "shader.pow",
-            "shader.precision",
-            "shader.precision.highp",
-            "shader.precision.lowp",
-            "shader.precision.mediump",
+            "shader:precision",
+            "shader:precision.highp",
+            "shader:precision.lowp",
+            "shader:precision.mediump",
             "shader.radians",
             "shader.reflect",
             "shader.refract",
             "shader.removedTypes",
+            "shader:return",
             "shader.round",
             "shader.roundEven",
-            "shader.sample",
-            "shader.sampler1D",
-            "shader.sampler1DArray",
-            "shader.sampler1DArrayShadow",
-            "shader.sampler1DShadow",
-            "shader.sampler2D",
-            "shader.sampler2DArray",
-            "shader.sampler2DArrayShadow",
-            "shader.sampler2DMS",
-            "shader.sampler2DMSArray",
-            "shader.sampler2DRect",
-            "shader.sampler2DRectShadow",
-            "shader.sampler2DShadow",
-            "shader.sampler3D",
-            "shader.samplerBuffer",
-            "shader.samplerCube",
-            "shader.samplerCubeArray",
-            "shader.samplerCubeArrayShadow",
-            "shader.samplerCubeShadow",
+            "shader:sampler1D",
+            "shader:sampler1DArray",
+            "shader:sampler1DArrayShadow",
+            "shader:sampler1DShadow",
+            "shader:sampler2D",
+            "shader:sampler2DArray",
+            "shader:sampler2DArrayShadow",
+            "shader:sampler2DMS",
+            "shader:sampler2DMSArray",
+            "shader:sampler2DRect",
+            "shader:sampler2DRectShadow",
+            "shader:sampler2DShadow",
+            "shader:sampler3D",
+            "shader:samplerBuffer",
+            "shader:samplerCube",
+            "shader:samplerCubeArray",
+            "shader:samplerCubeArrayShadow",
+            "shader:samplerCubeShadow",
             "shader.sign",
             "shader.sin",
             "shader.sinh",
-            "shader.smooth",
+            "shader:smooth",
             "shader.smoothstep",
             "shader.sqrt",
             "shader.step",
             "shader.subroutine",
             "shader.tan",
             "shader.tanh",
-            "shader.texelFetch",
-            "shader.texelFetch -- perform a lookup of a single texel within a texture\n"
+            "shader.texelFetch|texelFetch -- perform a lookup of a single texel within a texture\n"
             + "  gvec4 texelFetch(gsampler1D        sampler, int   P, int lod)\n"
             + "  gvec4 texelFetch(gsampler2D        sampler, ivec2 P, int lod)\n"
             + "  gvec4 texelFetch(gsampler3D        sampler, ivec3 P, int lod)\n"
@@ -951,16 +876,14 @@ namespace App
             + "  gvec4 texelFetch(gsamplerBuffer    sampler, int   P)\n"
             + "  gvec4 texelFetch(gsampler2DMS      sampler, ivec2 P, sample sample)\n"
             + "  gvec4 texelFetch(gsampler2DMSArray sampler, ivec3 P, sample sample)",
-            "shader.texelFetchOffset",
-            "shader.texelFetchOffset -- perform a lookup of a single texel within a texture with an offset\n"
+            "shader.texelFetchOffset|texelFetchOffset -- perform a lookup of a single texel within a texture with an offset\n"
             + "  gvec4 texelFetchOffset(gsampler1D      sampler, int   P, int lod, int offset)\n"
             + "  gvec4 texelFetchOffset(gsampler2D      sampler, ivec2 P, int lod, int offset)\n"
             + "  gvec4 texelFetchOffset(gsampler3D      sampler, ivec3 P, int lod, int offset)\n"
             + "  gvec4 texelFetchOffset(gsampler2DRect  sampler, ivec2 P, int offset)\n"
             + "  gvec4 texelFetchOffset(gsampler1DArray sampler, ivec2 P, int lod, int offset)\n"
             + "  gvec4 texelFetchOffset(gsampler2DArray sampler, ivec3 P, int lod, int offset)",
-            "shader.texture",
-            "shader.texture -- retrieves texels from a texture\n"
+            "shader.texture|texture -- retrieves texels from a texture\n"
             + "  gvec4 texture(gsampler1D              sampler, float P, [float bias])\n"
             + "  gvec4 texture(gsampler2D              sampler, vec2  P, [float bias])\n"
             + "  gvec4 texture(gsampler3D              sampler, vec3  P, [float bias])\n"
@@ -976,8 +899,7 @@ namespace App
             + "  gvec4 texture(gsampler2DRect          sampler, vec2  P)\n"
             + "  float texture(sampler2DRectShadow     sampler, vec3  P)\n"
             + "  float texture(gsamplerCubeArrayShadow sampler, vec4  P, float compare)",
-            "shader.textureGather",
-            "shader.textureGather -- gathers four texels from a texture\n"
+            "shader.textureGather|textureGather -- gathers four texels from a texture\n"
             + "  gvec4 textureGather(gsampler2D              sampler, vec2 P, [int comp])\n"
             + "  gvec4 textureGather(gsampler2DArray         sampler, vec3 P, [int comp])\n"
             + "  gvec4 textureGather(gsamplerCube            sampler, vec3 P, [int comp])\n"
@@ -988,24 +910,21 @@ namespace App
             + "  vec4  textureGather(gsamplerCubeShadow      sampler, vec3 P, float refZ)\n"
             + "  vec4  textureGather(gsamplerCubeArrayShadow sampler, vec4 P, float refZ)\n"
             + "  vec4  textureGather(gsampler2DRectShadow    sampler, vec3 P, float refZ)",
-            "shader.textureGatherOffset",
-            "shader.textureGatherOffset -- gathers four texels from a texture with offset\n"
+            "shader.textureGatherOffset|textureGatherOffset -- gathers four texels from a texture with offset\n"
             + "  gvec4 textureGatherOffset(gsampler2D            sampler, vec2 P, ivec2 offset, [int comp])\n"
             + "  gvec4 textureGatherOffset(gsampler2DArray       sampler, vec3 P, ivec2 offset, [int comp])\n"
             + "  gvec4 textureGatherOffset(gsampler2DRect        sampler, vec3 P, ivec2 offset, [int comp])\n"
             + "  vec4  textureGatherOffset(gsampler2DShadow      sampler, vec2 P, float refZ, ivec2 offset)\n"
             + "  vec4  textureGatherOffset(gsampler2DArrayShadow sampler, vec3 P, float refZ, ivec2 offset)\n"
             + "  vec4  textureGatherOffset(gsampler2DRectShadow  sampler, vec3 P, float refZ, ivec2 offset)",
-            "shader.textureGatherOffsets",
-            "shader.textureGatherOffsets -- gathers four texels from a texture with an array of offsets\n"
+            "shader.textureGatherOffsets|textureGatherOffsets -- gathers four texels from a texture with an array of offsets\n"
             + "  gvec4 textureGatherOffsets(gsampler2D            sampler, vec2 P, ivec2 offsets[4], [int comp])\n"
             + "  gvec4 textureGatherOffsets(gsampler2DArray       sampler, vec3 P, ivec2 offsets[4], [int comp])\n"
             + "  gvec4 textureGatherOffsets(gsampler2DRect        sampler, vec3 P, ivec2 offsets[4], [int comp])\n"
             + "  vec4  textureGatherOffsets(gsampler2DShadow      sampler, vec2 P, float refZ, ivec2 offsets[4])\n"
             + "  vec4  textureGatherOffsets(gsampler2DArrayShadow sampler, vec3 P, float refZ, ivec2 offsets[4])\n"
             + "  vec4  textureGatherOffsets(gsampler2DRectShadow  sampler, vec3 P, float refZ, ivec2 offsets[4])",
-            "shader.textureGrad",
-            "shader.textureGrad -- perform a texture lookup with explicit gradients\n"
+            "shader.textureGrad|textureGrad -- perform a texture lookup with explicit gradients\n"
             + "  gvec4 textureGrad(gsampler1D           sampler, float P, float dPdx, float dPdy)\n"
             + "  gvec4 textureGrad(gsampler2D           sampler, vec2  P, vec2  dPdx, vec2  dPdy)\n"
             + "  gvec4 textureGrad(gsampler3D           sampler, vec3  P, vec3  dPdx, vec3  dPdy)\n"
@@ -1018,8 +937,7 @@ namespace App
             + "  gvec4 textureGrad(gsampler2DArray      sampler, vec3  P, vec2  dPdx, vec2  dPdy)\n"
             + "  float textureGrad(sampler1DArrayShadow sampler, vec3  P, float dPdx, float dPdy)\n"
             + "  gvec4 textureGrad(gsamplerCubeArray    sampler, vec4  P, vec3  dPdx, vec3  dPdy)",
-            "shader.textureLod",
-            "shader.textureLod -- perform a texture lookup with explicit level-of-detail\n"
+            "shader.textureLod|textureLod -- perform a texture lookup with explicit level-of-detail\n"
             + "  gvec4 textureLod(gsampler1D           sampler, float P, float lod)\n"
             + "  gvec4 textureLod(gsampler2D           sampler, vec2  P, float lod)\n"
             + "  gvec4 textureLod(gsampler3D           sampler, vec3  P, float lod)\n"
@@ -1030,8 +948,7 @@ namespace App
             + "  gvec4 textureLod(gsampler2DArray      sampler, vec3  P, float lod)\n"
             + "  float textureLod(sampler1DArrayShadow sampler, vec3  P, float lod)\n"
             + "  gvec4 textureLod(gsamplerCubeArray    sampler, vec4  P, float lod)",
-            "shader.textureOffset",
-            "shader.textureOffset -- perform a texture lookup with offset\n"
+            "shader.textureOffset|textureOffset -- perform a texture lookup with offset\n"
             + "  gvec4 textureOffset(gsampler1D           sampler, float P, int   offset, [float bias])\n"
             + "  gvec4 textureOffset(gsampler2D           sampler, vec2  P, ivec2 offset, [float bias])\n"
             + "  gvec4 textureOffset(gsampler3D           sampler, vec3  P, ivec3 offset, [float bias])\n"
@@ -1043,8 +960,7 @@ namespace App
             + "  gvec4 textureOffset(gsampler2DArray      sampler, vec3  P, ivec2 offset, [float bias])\n"
             + "  float textureOffset(sampler1DArrayShadow sampler, vec3  P, int   offset)\n"
             + "  float textureOffset(sampler2DArrayShadow sampler, vec4  P, vec2  offset)",
-            "shader.textureProj",
-            "shader.textureProj -- perform a texture lookup with projection\n"
+            "shader.textureProj|textureProj -- perform a texture lookup with projection\n"
             + "  vec4  textureProj(gsampler1D           sampler, vec2 P, [float bias])\n"
             + "  gvec4 textureProj(gsampler1D           sampler, vec4 P, [float bias])\n"
             + "  gvec4 textureProj(gsampler2D           sampler, vec3 P, [float bias])\n"
@@ -1055,8 +971,7 @@ namespace App
             + "  gvec4 textureProj(gsampler2DRect       sampler, vec3 P)\n"
             + "  gvec4 textureProj(gsampler2DRect       sampler, vec4 P)\n"
             + "  float textureProj(gsampler2DRectShadow sampler, vec4 P)",
-            "shader.textureProjGrad​",
-            "shader.textureProjGrad​ -- perform a texture lookup with projection and explicit gradients\n"
+            "shader.textureProjGrad|textureProjGrad​ -- perform a texture lookup with projection and explicit gradients\n"
             + "  gvec4 textureProjGrad(gsampler1D           sampler, vec2 P, float pDx, float pDy)\n"
             + "  gvec4 textureProjGrad(gsampler1D           sampler, vec4 P, float pDx, float pDy)\n"
             + "  gvec4 textureProjGrad(gsampler2D           sampler, vec3 P, vec2  pDx, vec2  pDy)\n"
@@ -1067,8 +982,7 @@ namespace App
             + "  gvec4 textureProjGrad(gsampler2DRect       sampler, vec3 P, vec2  pDx, vec2  pDy)\n"
             + "  gvec4 textureProjGrad(gsampler2DRect       sampler, vec4 P, vec2  pDx, vec2  pDy)\n"
             + "  float textureProjGrad(gsampler2DRectShadow sampler, vec4 P, vec2  pDx, vec2  pDy)",
-            "shader.textureProjGradOffset​",
-            "shader.textureProjGradOffset​ -- perform a texture lookup with projection, explicit gradients and offset\n"
+            "shader.textureProjGradOffset|textureProjGradOffset​ -- perform a texture lookup with projection, explicit gradients and offset\n"
             + "  gvec4 textureProjGradOffset(gsampler1D           sampler, vec2 P, float dPdx, float dPdy, int   offset)\n"
             + "  gvec4 textureProjGradOffset(gsampler1D           sampler, vec4 P, float dPdx, float dPdy, int   offset)\n"
             + "  gvec4 textureProjGradOffset(gsampler2D           sampler, vec3 P, vec2  dPdx, vec2  dPdy, ivec2 offset)\n"
@@ -1079,8 +993,7 @@ namespace App
             + "  gvec4 textureProjGradOffset(gsampler2DRect       sampler, vec3 P, vec2  dPdx, vec2  dPdy, ivec2 offset)\n"
             + "  gvec4 textureProjGradOffset(gsampler2DRect       sampler, vec4 P, vec2  dPdx, vec2  dPdy, ivec2 offset)\n"
             + "  float textureProjGradOffset(gsampler2DRectShadow sampler, vec4 P, vec2  dPdx, vec2  dPdy, ivec2 offset)",
-            "shader.textureProjLod​",
-            "shader.textureProjLod​ -- perform a texture lookup with projection and explicit level-of-detail\n"
+            "shader.textureProjLod|textureProjLod​ -- perform a texture lookup with projection and explicit level-of-detail\n"
             + "  vec4  textureProjLod(gsampler1D      sampler, vec2 P, float lod)\n"
             + "  gvec4 textureProjLod(gsampler1D      sampler, vec4 P, float lod)\n"
             + "  gvec4 textureProjLod(gsampler2D      sampler, vec3 P, float lod)\n"
@@ -1088,8 +1001,7 @@ namespace App
             + "  gvec4 textureProjLod(gsampler3D      sampler, vec4 P, float lod)\n"
             + "  float textureProjLod(sampler1DShadow sampler, vec4 P, float lod)\n"
             + "  float textureProjLod(sampler2DShadow sampler, vec4 P, float lod)",
-            "shader.textureProjLodOffset​",
-            "shader.textureProjLodOffset​ -- perform a texture lookup with projection and explicit level-of-detail and offset\n"
+            "shader.textureProjLodOffset|textureProjLodOffset​ -- perform a texture lookup with projection and explicit level-of-detail and offset\n"
             + "  gvec4 textureProjLodOffset(gsampler1D      sampler, vec2 P, float lod, int   offset)\n"
             + "  gvec4 textureProjLodOffset(gsampler1D      sampler, vec4 P, float lod, int   offset)\n"
             + "  gvec4 textureProjLodOffset(gsampler2D      sampler, vec3 P, float lod, ivec2 offset)\n"
@@ -1097,8 +1009,7 @@ namespace App
             + "  gvec4 textureProjLodOffset(gsampler3D      sampler, vec4 P, float lod, ivec3 offset)\n"
             + "  float textureProjLodOffset(sampler1DShadow sampler, vec4 P, float lod, int   offset)\n"
             + "  float textureProjLodOffset(sampler2DShadow sampler, vec4 P, float lod, ivec2 offset)",
-            "shader.textureProjOffset​",
-            "shader.textureProjOffset​ -- perform a texture lookup with projection and offset\n"
+            "shader.textureProjOffset|textureProjOffset​ -- perform a texture lookup with projection and offset\n"
             + "  gvec4 textureProjOffset(gsampler1D           sampler, vec2 P, int   offset, [float bias])\n"
             + "  gvec4 textureProjOffset(gsampler1D           sampler, vec4 P, int   offset, [float bias])\n"
             + "  gvec4 textureProjOffset(gsampler2D           sampler, vec3 P, ivec2 offset, [float bias])\n"
@@ -1109,8 +1020,7 @@ namespace App
             + "  gvec4 textureProjOffset(gsampler2DRect       sampler, vec3 P, ivec2 offset)\n"
             + "  gvec4 textureProjOffset(gsampler2DRect       sampler, vec4 P, ivec2 offset)\n"
             + "  float textureProjOffset(gsampler2DRectShadow sampler, vec4 P, ivec2 offset)",
-            "shader.textureQueryLevels",
-            "shader.textureQueryLevels -- compute the number of accessible mipmap levels of a texture\n"
+            "shader.textureQueryLevels|textureQueryLevels -- compute the number of accessible mipmap levels of a texture\n"
             + "  int textureQueryLevels(gsampler1D              sampler)\n"
             + "  int textureQueryLevels(gsampler2D              sampler)\n"
             + "  int textureQueryLevels(gsampler3D              sampler)\n"
@@ -1124,8 +1034,7 @@ namespace App
             + "  int textureQueryLevels(gsampler1DArrayShadow   sampler)\n"
             + "  int textureQueryLevels(gsampler2DArrayShadow   sampler)\n"
             + "  int textureQueryLevels(gsamplerCubeArrayShadow sampler)",
-            "shader.textureQueryLod",
-            "shader.textureQueryLod -- compute the level-of-detail that would be used to sample from a texture\n"
+            "shader.textureQueryLod|textureQueryLod -- compute the level-of-detail that would be used to sample from a texture\n"
             + "  vec2 textureQueryLod(gsampler1D              sampler, float P)\n"
             + "  vec2 textureQueryLod(gsampler2D              sampler, vec2  P)\n"
             + "  vec2 textureQueryLod(gsampler3D              sampler, vec3  P)\n"
@@ -1139,12 +1048,10 @@ namespace App
             + "  vec2 textureQueryLod(gsampler1DArrayShadow   sampler, float P)\n"
             + "  vec2 textureQueryLod(gsampler2DArrayShadow   sampler, vec2  P)\n"
             + "  vec2 textureQueryLod(gsamplerCubeArrayShadow sampler, vec3  P)",
-            "shader.textureSamples",
-            "shader.textureSamples -- return the number of samples of a texture\n"
+            "shader.textureSamples|textureSamples -- return the number of samples of a texture\n"
             + "  int textureSamples(gsampler2DMS      sampler)\n"
             + "  int textureSamples(gsampler2DMSArray sampler)",
-            "shader.textureSize",
-            "shader.textureSize -- retrieve the dimensions of a level of a texture\n"
+            "shader.textureSize|textureSize -- retrieve the dimensions of a level of a texture\n"
             + "  int   textureSize(gsampler1D             sampler, int lod)\n"
             + "  ivec2 textureSize(gsampler2D             sampler, int lod)\n"
             + "  ivec3 textureSize(gsampler3D             sampler, int lod)\n"
@@ -1168,7 +1075,7 @@ namespace App
             "shader.uaddCarry",
             "shader.uintBitsToFloat",
             "shader.umulExtended",
-            "shader.uniform",
+            "shader:uniform",
             "shader.unpackDouble2x32",
             "shader.unpackHalf2x16",
             "shader.unpackSnorm2x16",
@@ -1176,69 +1083,61 @@ namespace App
             "shader.unpackUnorm",
             "shader.unpackUnorm2x16",
             "shader.unpackUnorm4x8",
-            "shader.usampler1D",
-            "shader.usampler1DArray",
-            "shader.usampler2D",
-            "shader.usampler2DArray",
-            "shader.usampler2DMS",
-            "shader.usampler2DMSArray",
-            "shader.usampler2DRect",
-            "shader.usampler3D",
-            "shader.usamplerBuffer",
-            "shader.usamplerCube",
-            "shader.usamplerCubeArray",
+            "shader:usampler1D",
+            "shader:usampler1DArray",
+            "shader:usampler2D",
+            "shader:usampler2DArray",
+            "shader:usampler2DMS",
+            "shader:usampler2DMSArray",
+            "shader:usampler2DRect",
+            "shader:usampler3D",
+            "shader:usamplerBuffer",
+            "shader:usamplerCube",
+            "shader:usamplerCubeArray",
             "shader.usubBorrow",
-            "shader.uvec2",
-            "shader.uvec3",
-            "shader.uvec4",
-            "shader.vec2",
-            "shader.vec3",
-            "shader.vec4",
+            "shader:uvec2",
+            "shader:uvec3",
+            "shader:uvec4",
+            "shader:vec2",
+            "shader:vec3",
+            "shader:vec4",
+            "shader:void",
             #endregion
             #region tech
-            "tech",
-            "tech <name>",
-            "tech.pass",
-            "tech.pass <name>",
+            "tech|tech <name>",
+            "tech.pass|pass <name>",
             #endregion
             #region text
-            "text",
-            "text <name>",
+            "text|text <name>",
             #endregion
             #region texture
-            "texture",
-            "texture <name>",
-            "texture.buff",
-            "texture.buff <name>",
-            "texture.img",
-            "texture.img <name>",
-            "texture.samp",
-            "texture.samp <name>",
+            "texture|texture <name>",
+            "texture.buff|buff <name>",
+            "texture.img|img <name>",
+            "texture.samp|samp <name>",
             #endregion
             #region vertinput
-            "vertinput",
-            "vertinput <name>",
-            "vertinput.attr",
-            "vertinput.attr <buff_name> <type> <dim> [stride] [offset] [divisor]",
+            "vertinput|vertinput <name>",
+            "vertinput.attr|attr <buff_name> <type> <dim> [stride] [offset] [divisor]",
             #endregion
             #region vertoutput
-            "vertoutput",
-            "vertoutput <name>",
-            "vertoutput.buff",
-            "vertoutput.buff <name>",
-            "vertoutput.pause",
-            "vertoutput.pause <true_false>",
-            "vertoutput.resume",
-            "vertoutput.resume <true_false>"
+            "vertoutput|vertoutput <name>",
+            "vertoutput.buff|buff <name>",
+            "vertoutput.pause|pause <true_false>",
+            "vertoutput.resume|resume <true_false>"
             #endregion
         };
 
+        private static Dictionary<string, string> Hint = KV.ToDictionary(
+            k => k.Substring(0, (int)Math.Min((uint)k.Length, (uint)k.IndexOf('|'))),
+            v => v.Substring((int)Math.Min((uint)v.Length, (uint)v.IndexOf('|'))));
+
         private static int[] HintTypes = new[] {
-            FXLexer.Keyword,
-            FXLexer.Annotation,
-            FXLexer.Command,
-            FXLexer.GlslKeyword,
-            FXLexer.GlslFunction
+            (int)FX.Keyword,
+            (int)FX.Annotation,
+            (int)FX.Command,
+            (int)FX.GlslKeyword,
+            (int)FX.GlslFunction
         };
         #endregion
     }
