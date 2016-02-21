@@ -1,0 +1,942 @@
+﻿buffer|buffer <name>
+buffer.size|size <bytes>
+buffer.txt|txt <text_name>
+buffer.usage|usage <usage_hint>
+buffer.usage.DynamicCopy
+buffer.usage.DynamicDraw
+buffer.usage.DynamicRead
+buffer.usage.StaticCopy
+buffer.usage.StaticDraw
+buffer.usage.StaticRead
+buffer.usage.StreamCopy
+buffer.usage.StreamDraw
+buffer.usage.StreamRead
+buffer.xml|xml <path> <node>
+csharp|csharp <name>
+csharp.file|file <path> [path] [...]
+fragoutput|fragoutput <name>
+fragoutput.color|color <image_name>
+fragoutput.depth|depth <image_name>
+fragoutput.height|height <pixels>
+fragoutput.width|width <pixels>
+image|image <name>
+image.depth|depth <layers>
+image.file|file <path> [path] [...]
+image.format|format <pixel_format>
+image.format.depth
+image.format.depth16
+image.format.depth24
+image.format.depth24stencil8
+image.format.depth32
+image.format.depth32f
+image.format.depth32fstencil8
+image.format.depthstencil
+image.format.r8
+image.format.r8i
+image.format.r8ui
+image.format.r16
+image.format.r16i
+image.format.r16ui
+image.format.r16f
+image.format.r32i
+image.format.r32ui
+image.format.r32f
+image.format.rg8
+image.format.rg8i
+image.format.rg8ui
+image.format.rg16
+image.format.rg16i
+image.format.rg16ui
+image.format.rg16f
+image.format.rg32i
+image.format.rg32ui
+image.format.rg32f
+image.format.rgb8
+image.format.rgb8i
+image.format.rgb8ui
+image.format.rgb16
+image.format.rgb16i
+image.format.rgb16ui
+image.format.rgb16f
+image.format.rgb32i
+image.format.rgb32ui
+image.format.rgb32f
+image.format.rgba8
+image.format.rgba8i
+image.format.rgba8ui
+image.format.rgba16
+image.format.rgba16i
+image.format.rgba16ui
+image.format.rgba16f
+image.format.rgba32i
+image.format.rgba32ui
+image.format.rgba32f
+image.height|height <pixels>
+image.length|length <layers>
+image.type|type <texture_type>
+image.type.texture1D|1D texture
+image.type.texture2D|2D texture
+image.type.texture3D|3D texture/volume texture
+image.type.texture1DArray|1D texture array
+image.type.texture2DArray|2D texture array
+image.width|width <pixels>
+instance|instance <name>
+instance.class|class <csharp_name> <c#_class>
+instance.name|name <new_name>
+pass|pass <name>
+pass.comp|comp <shader_name>
+pass.compute|compute <>
+pass.draw|draw <>
+pass.eval|eval <shader_name>
+pass.exec|exec <instance_name>
+pass.frag|frag <shader_name>
+pass.geom|geom <shader_name>
+pass.tess|tess <shader_name>
+pass.tex|tex <texture_name> <unit>
+pass.vert|vert <shader_name>
+sampler|sampler <name>
+sampler.magfilter|magfilter <filter_type>
+sampler.magfilter.linear
+sampler.magfilter.nearest
+sampler.minfilter|minfilter <filter_type>
+sampler.minfilter.linear
+sampler.minfilter.nearest
+sampler.minfilter.LinearMipmapLinear
+sampler.minfilter.LinearMipmapNearest
+sampler.minfilter.NearestMipmapLinear
+sampler.minfilter.NearestMipmapNearest
+sampler.wrap|wrap <wrap_type>
+sampler.wrap.ClampToBorder
+sampler.wrap.ClampToEdge
+sampler.wrap.MirroredRepeat
+sampler.wrap.Repeat
+shader|shader <shader_type> <name>
+shader,comp|comp
+   in  uvec3 gl_NumWorkGroups
+   in  uvec3 gl_WorkGroupSize
+   in  uvec3 gl_WorkGroupID
+   in  uvec3 gl_LocalInvocationID
+   in  uvec3 gl_GlobalInvocationID
+   in  uint  gl_LocalInvocationIndex
+shader,eval|eval
+   in  vec3  gl_TessCoord
+   in  int   gl_PatchVerticesIn
+   in  int   gl_PrimitiveID
+   in  float gl_TessLevelOuter[4]
+   in  float gl_TessLevelInner[2]
+   in  vec4  gl_in[].gl_Position
+   in  float gl_in[].gl_PointSize
+   in  float gl_in[].gl_ClipDistance[]
+   out vec4  gl_out[].gl_Position
+   out float gl_out[].gl_PointSize
+   out float gl_out[].gl_ClipDistance[]
+shader,frag|frag
+   in  vec4  gl_FragCoord
+   in  bool  gl_FrontFacing
+   in  vec2  gl_PointCoord
+   in  int   gl_SampleID
+   in  vec2  gl_SamplePosition
+   in  int   gl_SampleMaskIn[]
+   in  float gl_ClipDistance[]
+   in  int   gl_PrimitiveID
+   in  int   gl_Layer
+   in  int   gl_ViewportIndex
+   out float gl_FragDepth
+   out int   gl_SampleMask[]
+shader,geom|geom
+   in  int   gl_PrimitiveIDIn
+   in  int   gl_InvocationID
+   in  vec4  gl_in[].gl_Position
+   in  float gl_in[].gl_PointSize
+   in  float gl_in[].gl_ClipDistance[]
+   out int   gl_PrimitiveID
+   out int   gl_Layer
+   out int   gl_ViewportIndex
+   out vec4  gl_out[].gl_Position
+   out float gl_out[].gl_PointSize
+   out float gl_out[].gl_ClipDistance[]
+shader,tess|tess
+   in  int   gl_PatchVerticesIn
+   in  int   gl_PrimitiveID
+   in  int   gl_InvocationID
+   in  vec4  gl_in[].gl_Position
+   in  float gl_in[].gl_PointSize
+   in  float gl_in[].gl_ClipDistance[]
+   out float gl_TessLevelOuter[4]
+   out float gl_TessLevelInner[4]
+   out vec4  gl_out[].gl_Position
+   out float gl_out[].gl_PointSize
+   out float gl_out[].gl_ClipDistance[]
+shader,vert|vert
+   in  int   gl_VertexID
+   in  int   gl_InstanceID
+   out vec4  gl_Position
+   out float gl_PointSize
+   out float gl_ClipDistance[]
+shader.abs
+shader.acos
+shader.acosh
+shader.all
+shader.any
+shader.asin
+shader.asinh
+shader.atan
+shader.atanh
+shader:atomic_uint
+shader.atomicAdd|atomicAdd
+   int  atomicAdd(inout int  mem, int  data)
+   uint atomicAdd(inout uint mem, uint data)
+shader.atomicAnd|atomicAnd
+   int  atomicAdd(inout int  mem, int  data)
+   uint atomicAdd(inout uint mem, uint data)
+shader.atomicCompSwap|atomicCompSwap
+   int  atomicCompSwap(inout int  mem, uint compare, uint data)
+   uint atomicCompSwap(inout uint mem, uint compare, uint data)
+shader.atomicCounter|atomicCounter
+   uint atomicCounter(atomic_uint c)
+shader.atomicCounterDecrement|atomicCounterDecrement
+   uint atomicCounterDecrement(atomic_uint c)
+shader.atomicCounterIncrement|atomicCounterIncrement
+   uint atomicCounterIncrement(atomic_uint c)
+shader.atomicExchange|atomicExchange
+   int  atomicExchange(inout int  mem, int  data)
+   uint atomicExchange(inout uint mem, uint data)
+shader.atomicMin|atomicMin
+   int  atomicMin(inout int  mem, int  data)
+   uint atomicMin(inout uint mem, uint data)
+shader.atomicMax|atomicMax
+   int  atomicMax(inout int  mem, int  data)
+   uint atomicMax(inout uint mem, uint data)
+shader.atomicOr|atomicOr
+   int  atomicOr(inout int  mem, int  data)
+   uint atomicOr(inout uint mem, uint data)
+shader.atomicXor|atomicXor
+   int  atomicXor(inout int  mem, int  data)
+   uint atomicXor(inout uint mem, uint data)
+shader.barrier|barrier
+   void barrier(void)
+shader.bitCount|bitCount
+   genIType bitCount(genIType value)
+   genIType bitCount(genUType value)
+shader.bitfieldExtract|bitfieldExtract
+   genIType bitfieldExtract(genIType value, int offset, int bits)
+   genUType bitfieldExtract(genUType value, int offset, int bits)
+shader.bitfieldInsert|bitfieldInsert
+   genIType bitfieldInsert(genIType base, genIType insert, int offset, int bits)
+   genUType bitfieldInsert(genUType base, genUType insert, int offset, int bits)
+shader.bitfieldReverse|bitfieldReverse
+   genIType bitfieldReverse(genIType value)
+   genUType bitfieldReverse(genUType value)
+shader:bvec2
+shader:bvec3
+shader:bvec4
+shader.ceil
+shader.centroid
+shader.clamp
+shader.cos
+shader.cosh
+shader.cross
+shader.degrees|degrees
+   genType degrees(genType radians)
+shader.determinant|determinant
+   float determinant(mat2 m)
+   float determinant(mat3 m)
+   float determinant(mat4 m)
+   double determinant(dmat2 m)
+   double determinant(dmat3 m)
+   double determinant(dmat4 m)
+shader:discard
+shader.dFdx|dFdx
+   genType dFdx(genType p)
+shader.dFdxCoarse|dFdxCoarse
+   genType dFdxCoarse(genType p)
+shader.dFdxFine|dFdxFine
+   genType dFdxFine(genType p)
+shader.dFdy|dFdy
+   genType dFdy(genType p)
+shader.dFdyCoarse|dFdyCoarse
+   genType dFdyCoarse(genType p)
+shader.dFdyFine|dFdyFine
+   genType dFdyFine(genType p)
+shader.distance|distance
+   float distance(genType p0, genType p1)
+   double distance(genDType p0, genDType p1)
+shader.dot|dot
+   float dot(genType x, genType y)
+   double dot(genDType x, genDType y)
+shader:dmat2
+shader:dmat2x2
+shader:dmat2x3
+shader:dmat2x4
+shader:dmat3
+shader:dmat3x2
+shader:dmat3x3
+shader:dmat3x4
+shader:dmat4
+shader:dmat4x2
+shader:dmat4x3
+shader:dmat4x4
+shader:dvec2
+shader:dvec3
+shader:dvec4
+shader.EmitStreamVertex
+shader.EmitVertex
+shader.EndPrimitive
+shader.EndStreamPrimitive
+shader.equal
+shader.exp
+shader.exp2
+shader.faceforward
+shader.findLSB
+shader.findMSB
+shader.flat
+shader.floor
+shader.fma
+shader.fract
+shader.frexp
+shader.fwidth
+shader.fwidthCoarse
+shader.fwidthFine
+shader:gl_ClipDistance
+shader:gl_DepthRange
+shader:gl_DepthRange.diff
+shader:gl_DepthRange.far
+shader:gl_DepthRange.near
+shader:gl_FragCoord
+shader:gl_FragDepth
+shader:gl_FrontFacing
+shader:gl_GlobalInvocationID
+shader:gl_InstanceID
+shader:gl_InvocationID
+shader:gl_Layer
+shader:gl_LocalInvocationID
+shader:gl_LocalInvocationIndex
+shader:gl_MaxPatchVertices
+shader:gl_NumSamples
+shader:gl_NumWorkGroups
+shader:gl_PatchVerticesIn
+shader:gl_PointCoord
+shader:gl_PointSize
+shader:gl_Position
+shader:gl_PrimitiveID
+shader:gl_PrimitiveIDIn
+shader:gl_SampleID
+shader:gl_SampleMask
+shader:gl_SampleMaskIn
+shader:gl_SamplePosition
+shader:gl_TessLevelInner
+shader:gl_TessLevelOuter
+shader:gl_VertexID
+shader:gl_ViewportIndex
+shader:gl_WorkGroupID
+shader:gl_WorkGroupSize
+shader:gl_in
+shader:gl_out
+shader.imageAtomicAdd|imageAtomicAdd -- atomically add a value to an existing value in memory
+ and return the original value
+   uint imageAtomicAdd(gimage1D image, int   P, uint data)
+   uint imageAtomicAdd(gimage2D image, ivec2 P, uint data)
+   uint imageAtomicAdd(gimage3D image, ivec3 P, uint data)
+   uint imageAtomicAdd(gimage2DRect image, ivec2 P, uint data)
+   uint imageAtomicAdd(gimageCube   image, ivec3 P, uint data)
+   uint imageAtomicAdd(gbufferImage image, int   P, uint data)
+   uint imageAtomicAdd(gimage1DArray   image, ivec2 P, uint data)
+   uint imageAtomicAdd(gimage2DArray   image, ivec3 P, uint data)
+   uint imageAtomicAdd(gimageCubeArray image, ivec3 P, uint data)
+   uint imageAtomicAdd(gimage2DMS image, ivec2 P, int sample, uint data)
+   uint imageAtomicAdd(gimage2DMSArray image, ivec3 P, int sample, uint data)
+   int  imageAtomicAdd(gimage1D image, int   P, int data)
+   int  imageAtomicAdd(gimage2D image, ivec2 P, int data)
+   int  imageAtomicAdd(gimage3D image, ivec3 P, int data)
+   int  imageAtomicAdd(gimage2DRect image, ivec2 P, int data)
+   int  imageAtomicAdd(gimageCube   image, ivec3 P, int data)
+   int  imageAtomicAdd(gbufferImage image, int   P, int data)
+   int  imageAtomicAdd(gimage1DArray   image, ivec2 P, int data)
+   int  imageAtomicAdd(gimage2DArray   image, ivec3 P, int data)
+   int  imageAtomicAdd(gimageCubeArray image, ivec3 P, int data)
+   int  imageAtomicAdd(gimage2DMS image, ivec2 P, int sample, int data)
+   int  imageAtomicAdd(gimage2DMSArray image, ivec3 P, int sample, int data)
+shader.imageAtomicAnd|imageAtomicAnd -- atomically compute the logical AND of a value with an existing
+ value in memory, store that value and return the original value
+   uint imageAtomicAnd(gimage1D image, int   P, uint data)
+   uint imageAtomicAnd(gimage2D image, ivec2 P, uint data)
+   uint imageAtomicAnd(gimage3D image, ivec3 P, uint data)
+   uint imageAtomicAnd(gimage2DRect image, ivec2 P, uint data)
+   uint imageAtomicAnd(gimageCube   image, ivec3 P, uint data)
+   uint imageAtomicAnd(gbufferImage image, int   P, uint data)
+   uint imageAtomicAnd(gimage1DArray   image, ivec2 P, uint data)
+   uint imageAtomicAnd(gimage2DArray   image, ivec3 P, uint data)
+   uint imageAtomicAnd(gimageCubeArray image, ivec3 P, uint data)
+   uint imageAtomicAnd(gimage2DMS image, ivec2 P, int sample, uint data)
+   uint imageAtomicAnd(gimage2DMSArray image, ivec3 P, int sample, uint data)
+   int  imageAtomicAnd(gimage1D image, int   P, int data)
+   int  imageAtomicAnd(gimage2D image, ivec2 P, int data)
+   int  imageAtomicAnd(gimage3D image, ivec3 P, int data)
+   int  imageAtomicAnd(gimage2DRect image, ivec2 P, int data)
+   int  imageAtomicAnd(gimageCube   image, ivec3 P, int data)
+   int  imageAtomicAnd(gbufferImage image, int   P, int data)
+   int  imageAtomicAnd(gimage1DArray   image, ivec2 P, int data)
+   int  imageAtomicAnd(gimage2DArray   image, ivec3 P, int data)
+   int  imageAtomicAnd(gimageCubeArray image, ivec3 P, int data)
+   int  imageAtomicAnd(gimage2DMS image, ivec2 P, int sample, int data)
+   int  imageAtomicAnd(gimage2DMSArray image, ivec3 P, int sample, int data)
+shader.imageAtomicCompSwap|imageAtomicCompSwap -- atomically compares supplied data with that in memory and conditionally stores it to memory
+   uint imageAtomicCompSwap(gimage1D image, int   P, uint compare, uint data)
+   uint imageAtomicCompSwap(gimage2D image, ivec2 P, uint compare, uint data)
+   uint imageAtomicCompSwap(gimage3D image, ivec3 P, uint compare, uint data)
+   uint imageAtomicCompSwap(gimage2DRect image, ivec2 P, uint compare, uint data)
+   uint imageAtomicCompSwap(gimageCube   image, ivec3 P, uint compare, uint data)
+   uint imageAtomicCompSwap(gbufferImage image, int   P, uint compare, uint data)
+   uint imageAtomicCompSwap(gimage1DArray   image, ivec2 P, uint compare, uint data)
+   uint imageAtomicCompSwap(gimage2DArray   image, ivec3 P, uint compare, uint data)
+   uint imageAtomicCompSwap(gimageCubeArray image, ivec3 P, uint compare, uint data)
+   uint imageAtomicCompSwap(gimage2DMS image, ivec2 P, int sample, uint compare, uint data)
+   uint imageAtomicCompSwap(gimage2DMSArray image, ivec3 P, int sample, uint compare, uint data)
+   int  imageAtomicCompSwap(gimage1D image, int   P, int compare, int data)
+   int  imageAtomicCompSwap(gimage2D image, ivec2 P, int compare, int data)
+   int  imageAtomicCompSwap(gimage3D image, ivec3 P, int compare, int data)
+   int  imageAtomicCompSwap(gimage2DRect image, ivec2 P, int compare, int data)
+   int  imageAtomicCompSwap(gimageCube   image, ivec3 P, int compare, int data)
+   int  imageAtomicCompSwap(gbufferImage image, int   P, int compare, int data)
+   int  imageAtomicCompSwap(gimage1DArray   image, ivec2 P, int compare, int data)
+   int  imageAtomicCompSwap(gimage2DArray   image, ivec3 P, int compare, int data)
+   int  imageAtomicCompSwap(gimageCubeArray image, ivec3 P, int compare, int data)
+   int  imageAtomicCompSwap(gimage2DMS image, ivec2 P, int sample, int compare, int data)
+   int  imageAtomicCompSwap(gimage2DMSArray image, ivec3 P, int sample, int compare, int data)
+shader.imageAtomicExchange|imageAtomicExchange -- atomically store supplied data into memory and return the original value from memory
+   uint imageAtomicExchange(gimage1D image, int P, uint data)
+   uint imageAtomicExchange(gimage2D image, ivec2 P, uint data)
+   uint imageAtomicExchange(gimage3D image, ivec3 P, uint data)
+   uint imageAtomicExchange(gimage2DRect image, ivec2 P, uint data)
+   uint imageAtomicExchange(gimageCube image, ivec3 P, uint data)
+   uint imageAtomicExchange(gbufferImage image, int P, uint data)
+   uint imageAtomicExchange(gimage1DArray image, ivec2 P, uint data)
+   uint imageAtomicExchange(gimage2DArray image, ivec3 P, uint data)
+   uint imageAtomicExchange(gimageCubeArray image, ivec3 P, uint data)
+   uint imageAtomicExchange(gimage2DMS image, ivec2 P, int sample, uint data)
+   uint imageAtomicExchange(gimage2DMSArray image, ivec3 P, int sample, uint data)
+   int  imageAtomicExchange(gimage1D image, int P, int data)
+   int  imageAtomicExchange(gimage2D image, ivec2 P, int data)
+   int  imageAtomicExchange(gimage3D image, ivec3 P, int data)
+   int  imageAtomicExchange(gimage2DRect image, ivec2 P, int data)
+   int  imageAtomicExchange(gimageCube image, ivec3 P, int data)
+   int  imageAtomicExchange(gbufferImage image, int P, int data)
+   int  imageAtomicExchange(gimage1DArray image, ivec2 P, int data)
+   int  imageAtomicExchange(gimage2DArray image, ivec3 P, int data)
+   int  imageAtomicExchange(gimageCubeArray image, ivec3 P, int data)
+   int  imageAtomicExchange(gimage2DMS image, ivec2 P, int sample, int data)
+   int  imageAtomicExchange(gimage2DMSArray image, ivec3 P, int sample, int data)
+   int  imageAtomicExchange(gimage1D image, int P, float data)
+   int  imageAtomicExchange(gimage2D image, ivec2 P, float data)
+   int  imageAtomicExchange(gimage3D image, ivec3 P, float data)
+   int  imageAtomicExchange(gimage2DRect image, ivec2 P, float data)
+   int  imageAtomicExchange(gimageCube image, ivec3 P, float data)
+   int  imageAtomicExchange(gbufferImage image, int P, float data)
+   int  imageAtomicExchange(gimage1DArray image, ivec2 P, float data)
+   int  imageAtomicExchange(gimage2DArray image, ivec3 P, float data)
+   int  imageAtomicExchange(gimageCubeArray image, ivec3 P, float data)
+   int  imageAtomicExchange(gimage2DMS image, ivec2 P, int sample, float data)
+   int  imageAtomicExchange(gimage2DMSArray image, ivec3 P, int sample, float data)
+shader.imageAtomicMax|imageAtomicMax -- atomically compute the minimum of a value with an existing
+ value in memory, store that value and return the original value
+   uint imageAtomicMax(gimage1D image, int   P, uint data)
+   uint imageAtomicMax(gimage2D image, ivec2 P, uint data)
+   uint imageAtomicMax(gimage3D image, ivec3 P, uint data)
+   uint imageAtomicMax(gimage2DRect image, ivec2 P, uint data)
+   uint imageAtomicMax(gimageCube   image, ivec3 P, uint data)
+   uint imageAtomicMax(gbufferImage image, int   P, uint data)
+   uint imageAtomicMax(gimage1DArray   image, ivec2 P, uint data)
+   uint imageAtomicMax(gimage2DArray   image, ivec3 P, uint data)
+   uint imageAtomicMax(gimageCubeArray image, ivec3 P, uint data)
+   uint imageAtomicMax(gimage2DMS image, ivec2 P, int sample, uint data)
+   uint imageAtomicMax(gimage2DMSArray image, ivec3 P, int sample, uint data)
+   int  imageAtomicMax(gimage1D image, int   P, int data)
+   int  imageAtomicMax(gimage2D image, ivec2 P, int data)
+   int  imageAtomicMax(gimage3D image, ivec3 P, int data)
+   int  imageAtomicMax(gimage2DRect image, ivec2 P, int data)
+   int  imageAtomicMax(gimageCube   image, ivec3 P, int data)
+   int  imageAtomicMax(gbufferImage image, int   P, int data)
+   int  imageAtomicMax(gimage1DArray   image, ivec2 P, int data)
+   int  imageAtomicMax(gimage2DArray   image, ivec3 P, int data)
+   int  imageAtomicMax(gimageCubeArray image, ivec3 P, int data)
+   int  imageAtomicMax(gimage2DMS image, ivec2 P, int sample, int data)
+   int  imageAtomicMax(gimage2DMSArray image, ivec3 P, int sample, int data)
+shader.imageAtomicMin|imageAtomicMin -- atomically compute the minimum of a value with an existing
+ value in memory, store that value and return the original value
+   uint imageAtomicMin(gimage1D image, int   P, uint data)
+   uint imageAtomicMin(gimage2D image, ivec2 P, uint data)
+   uint imageAtomicMin(gimage3D image, ivec3 P, uint data)
+   uint imageAtomicMin(gimage2DRect image, ivec2 P, uint data)
+   uint imageAtomicMin(gimageCube   image, ivec3 P, uint data)
+   uint imageAtomicMin(gbufferImage image, int   P, uint data)
+   uint imageAtomicMin(gimage1DArray   image, ivec2 P, uint data)
+   uint imageAtomicMin(gimage2DArray   image, ivec3 P, uint data)
+   uint imageAtomicMin(gimageCubeArray image, ivec3 P, uint data)
+   uint imageAtomicMin(gimage2DMS image, ivec2 P, int sample, uint data)
+   uint imageAtomicMin(gimage2DMSArray image, ivec3 P, int sample, uint data)
+   int  imageAtomicMin(gimage1D image, int   P, int data)
+   int  imageAtomicMin(gimage2D image, ivec2 P, int data)
+   int  imageAtomicMin(gimage3D image, ivec3 P, int data)
+   int  imageAtomicMin(gimage2DRect image, ivec2 P, int data)
+   int  imageAtomicMin(gimageCube   image, ivec3 P, int data)
+   int  imageAtomicMin(gbufferImage image, int   P, int data)
+   int  imageAtomicMin(gimage1DArray   image, ivec2 P, int data)
+   int  imageAtomicMin(gimage2DArray   image, ivec3 P, int data)
+   int  imageAtomicMin(gimageCubeArray image, ivec3 P, int data)
+   int  imageAtomicMin(gimage2DMS image, ivec2 P, int sample, int data)
+   int  imageAtomicMin(gimage2DMSArray image, ivec3 P, int sample, int data)
+shader.imageAtomicOr|imageAtomicOr -- atomically compute the logical OR of a value with an existing
+ value in memory, store that value and return the original value
+   uint imageAtomicOr(gimage1D image, int   P, uint data)
+   uint imageAtomicOr(gimage2D image, ivec2 P, uint data)
+   uint imageAtomicOr(gimage3D image, ivec3 P, uint data)
+   uint imageAtomicOr(gimage2DRect image, ivec2 P, uint data)
+   uint imageAtomicOr(gimageCube   image, ivec3 P, uint data)
+   uint imageAtomicOr(gbufferImage image, int   P, uint data)
+   uint imageAtomicOr(gimage1DArray   image, ivec2 P, uint data)
+   uint imageAtomicOr(gimage2DArray   image, ivec3 P, uint data)
+   uint imageAtomicOr(gimageCubeArray image, ivec3 P, uint data)
+   uint imageAtomicOr(gimage2DMS image, ivec2 P, int sample, uint data)
+   uint imageAtomicOr(gimage2DMSArray image, ivec3 P, int sample, uint data)
+   int  imageAtomicOr(gimage1D image, int   P, int data)
+   int  imageAtomicOr(gimage2D image, ivec2 P, int data)
+   int  imageAtomicOr(gimage3D image, ivec3 P, int data)
+   int  imageAtomicOr(gimage2DRect image, ivec2 P, int data)
+   int  imageAtomicOr(gimageCube   image, ivec3 P, int data)
+   int  imageAtomicOr(gbufferImage image, int   P, int data)
+   int  imageAtomicOr(gimage1DArray   image, ivec2 P, int data)
+   int  imageAtomicOr(gimage2DArray   image, ivec3 P, int data)
+   int  imageAtomicOr(gimageCubeArray image, ivec3 P, int data)
+   int  imageAtomicOr(gimage2DMS image, ivec2 P, int sample, int data)
+   int  imageAtomicOr(gimage2DMSArray image, ivec3 P, int sample, int data)
+shader.imageAtomicXor|imageAtomicXor -- atomically compute the logical exclusive OR of a value with an existing
+ value in memory, store that value and return the original value
+   uint imageAtomicXor(gimage1D image, int   P, uint data)
+   uint imageAtomicXor(gimage2D image, ivec2 P, uint data)
+   uint imageAtomicXor(gimage3D image, ivec3 P, uint data)
+   uint imageAtomicXor(gimage2DRect image, ivec2 P, uint data)
+   uint imageAtomicXor(gimageCube   image, ivec3 P, uint data)
+   uint imageAtomicXor(gbufferImage image, int   P, uint data)
+   uint imageAtomicXor(gimage1DArray   image, ivec2 P, uint data)
+   uint imageAtomicXor(gimage2DArray   image, ivec3 P, uint data)
+   uint imageAtomicXor(gimageCubeArray image, ivec3 P, uint data)
+   uint imageAtomicXor(gimage2DMS image, ivec2 P, int sample, uint data)
+   uint imageAtomicXor(gimage2DMSArray image, ivec3 P, int sample, uint data)
+   int  imageAtomicXor(gimage1D image, int   P, int data)
+   int  imageAtomicXor(gimage2D image, ivec2 P, int data)
+   int  imageAtomicXor(gimage3D image, ivec3 P, int data)
+   int  imageAtomicXor(gimage2DRect image, ivec2 P, int data)
+   int  imageAtomicXor(gimageCube   image, ivec3 P, int data)
+   int  imageAtomicXor(gbufferImage image, int   P, int data)
+   int  imageAtomicXor(gimage1DArray   image, ivec2 P, int data)
+   int  imageAtomicXor(gimage2DArray   image, ivec3 P, int data)
+   int  imageAtomicXor(gimageCubeArray image, ivec3 P, int data)
+   int  imageAtomicXor(gimage2DMS image, ivec2 P, int sample, int data)
+   int  imageAtomicXor(gimage2DMSArray image, ivec3 P, int sample, int data)
+shader.imageLoad|imageLoad -- load a single texel from an image
+   gvec4 imageLoad(gimage1D image, int   P)
+   gvec4 imageLoad(gimage2D image, ivec2 P)
+   gvec4 imageLoad(gimage3D image, ivec3 P)
+   gvec4 imageLoad(gimage2DRect image, ivec2 P)
+   gvec4 imageLoad(gimageCube   image, ivec3 P)
+   gvec4 imageLoad(gbufferImage image, int   P)
+   gvec4 imageLoad(gimage1DArray   image, ivec2 P)
+   gvec4 imageLoad(gimage2DArray   image, ivec3 P)
+   gvec4 imageLoad(gimageCubeArray image, ivec3 P)
+   gvec4 imageLoad(gimage2DMS image, ivec2 P, int sample)
+   gvec4 imageLoad(gimage2DMSArray image, ivec3 P, int sample)
+shader.imageSamples
+shader.imageSize
+shader.imageStore|imageStore -- write a single texel into an image
+   void imageStore(gimage1D image, int   P, gvec4 data)
+   void imageStore(gimage2D image, ivec2 P, gvec4 data)
+   void imageStore(gimage3D image, ivec3 P, gvec4 data)
+   void imageStore(gimage2DRect image, ivec2 P, gvec4 data)
+   void imageStore(gimageCube   image, ivec3 P, gvec4 data)
+   void imageStore(gbufferImage image, int   P, gvec4 data)
+   void imageStore(gimage1DArray   image, ivec2 P, gvec4 data)
+   void imageStore(gimage2DArray   image, ivec3 P, gvec4 data)
+   void imageStore(gimageCubeArray image, ivec3 P, gvec4 data)
+   void imageStore(gimage2DMS image, ivec2 P, int sample, gvec4 data)
+   void imageStore(gimage2DMSArray image, ivec3 P, int sample, gvec4 data)
+shader.imulExtended
+shader:in
+shader:inout
+shader.intBitsToFloat
+shader.interpolateAtCentroid
+shader.interpolateAtOffset
+shader.interpolateAtSample
+shader:invariant
+shader.inverse
+shader.inversesqrt
+shader.isampler1D
+shader.isampler1DArray
+shader.isampler2D
+shader.isampler2DArray
+shader.isampler2DMS
+shader.isampler2DMSArray
+shader.isampler2DRect
+shader.isampler3D
+shader.isamplerBuffer
+shader.isamplerCube
+shader.isamplerCubeArray
+shader.isinf
+shader.isnan
+shader:ivec2
+shader:ivec3
+shader:ivec4
+shader:layout
+shader:layout.binding
+shader:layout.component
+shader:layout.depth_any
+shader:layout.depth_greater
+shader:layout.depth_less
+shader:layout.depth_unchanged
+shader:layout.early_fragment_tests
+shader:layout.index
+shader:layout.location
+shader:layout.offset
+shader:layout.origin_upper_left
+shader:layout.pixel_center_integer
+shader:layout.std140
+shader:layout.vertices
+shader:layout.xfb_buffer
+shader:layout.xfb_offset
+shader:layout.xfb_stride
+shader.ldexp
+shader.length
+shader.lessThan
+shader.lessThanEqual
+shader.log
+shader.log2
+shader:mat2
+shader:mat2x2
+shader:mat2x3
+shader:mat2x4
+shader:mat3
+shader:mat3x2
+shader:mat3x3
+shader:mat3x4
+shader:mat4
+shader:mat4x2
+shader:mat4x3
+shader:mat4x4
+shader.matrixCompMult
+shader.max
+shader.memoryBarrier
+shader.memoryBarrierAtomicCounter
+shader.memoryBarrierBuffer
+shader.memoryBarrierImage
+shader.memoryBarrierShared
+shader.min
+shader.mix
+shader.mod
+shader.modf
+shader.noise
+shader.noise1
+shader.noise2
+shader.noise3
+shader.noise4
+shader:noperspective
+shader.normalize
+shader.not
+shader.notEqual
+shader:out
+shader.outerProduct
+shader.packDouble2x32
+shader.packHalf2x16
+shader.packSnorm2x16
+shader.packSnorm4x8
+shader.packUnorm
+shader.packUnorm2x16
+shader.packUnorm4x8
+shader:patch
+shader.pow
+shader:precision
+shader:precision.highp
+shader:precision.lowp
+shader:precision.mediump
+shader.radians
+shader.reflect
+shader.refract
+shader.removedTypes
+shader:return
+shader.round
+shader.roundEven
+shader:sampler1D
+shader:sampler1DArray
+shader:sampler1DArrayShadow
+shader:sampler1DShadow
+shader:sampler2D
+shader:sampler2DArray
+shader:sampler2DArrayShadow
+shader:sampler2DMS
+shader:sampler2DMSArray
+shader:sampler2DRect
+shader:sampler2DRectShadow
+shader:sampler2DShadow
+shader:sampler3D
+shader:samplerBuffer
+shader:samplerCube
+shader:samplerCubeArray
+shader:samplerCubeArrayShadow
+shader:samplerCubeShadow
+shader.sign
+shader.sin
+shader.sinh
+shader:smooth
+shader.smoothstep
+shader.sqrt
+shader.step
+shader.subroutine
+shader.tan
+shader.tanh
+shader.texelFetch|texelFetch -- perform a lookup of a single texel within a texture
+   gvec4 texelFetch(gsampler1D sampler, int P, int lod)
+   gvec4 texelFetch(gsampler2D sampler, ivec2 P, int lod)
+   gvec4 texelFetch(gsampler3D sampler, ivec3 P, int lod)
+   gvec4 texelFetch(gsampler2DRect sampler, ivec2 P)
+   gvec4 texelFetch(gsampler1DArray sampler, ivec2 P, int lod)
+   gvec4 texelFetch(gsampler2DArray sampler, ivec3 P, int lod)
+   gvec4 texelFetch(gsamplerBuffer sampler, int P)
+   gvec4 texelFetch(gsampler2DMS sampler, ivec2 P, sample sample)
+   gvec4 texelFetch(gsampler2DMSArray sampler, ivec3 P, sample sample)
+shader.texelFetchOffset|texelFetchOffset -- perform a lookup of a single texel within a texture with an offset
+   gvec4 texelFetchOffset(gsampler1D sampler, int P, int lod, int offset)
+   gvec4 texelFetchOffset(gsampler2D sampler, ivec2 P, int lod, int offset)
+   gvec4 texelFetchOffset(gsampler3D sampler, ivec3 P, int lod, int offset)
+   gvec4 texelFetchOffset(gsampler2DRect  sampler, ivec2 P, int offset)
+   gvec4 texelFetchOffset(gsampler1DArray sampler, ivec2 P, int lod, int offset)
+   gvec4 texelFetchOffset(gsampler2DArray sampler, ivec3 P, int lod, int offset)
+shader.texture|texture -- retrieves texels from a texture
+   gvec4 texture(gsampler1D sampler, float P, [float bias])
+   gvec4 texture(gsampler2D sampler, vec2 P, [float bias])
+   gvec4 texture(gsampler3D sampler, vec3 P, [float bias])
+   gvec4 texture(gsamplerCube sampler, vec3  P, [float bias])
+   float texture(sampler1DShadow sampler, vec3 P, [float bias])
+   float texture(sampler2DShadow sampler, vec3 P, [float bias])
+   float texture(samplerCubeShadow sampler, vec3 P, [float bias])
+   gvec4 texture(gsampler1DArray sampler, vec2 P, [float bias])
+   gvec4 texture(gsampler2DArray sampler, vec3 P, [float bias])
+   gvec4 texture(gsamplerCubeArray sampler, vec4 P, [float bias])
+   float texture(sampler1DArrayShadow sampler, vec3 P, [float bias])
+   float texture(gsampler2DArrayShadow sampler, vec4 P, [float bias])
+   gvec4 texture(gsampler2DRect sampler, vec2 P)
+   float texture(sampler2DRectShadow sampler, vec3 P)
+   float texture(gsamplerCubeArrayShadow sampler, vec4 P, float compare)
+shader.textureGather|textureGather -- gathers four texels from a texture
+   gvec4 textureGather(gsampler2D sampler, vec2 P, [int comp])
+   gvec4 textureGather(gsampler2DArray sampler, vec3 P, [int comp])
+   gvec4 textureGather(gsamplerCube sampler, vec3 P, [int comp])
+   gvec4 textureGather(gsamplerCubeArray sampler, vec4 P, [int comp])
+   gvec4 textureGather(gsampler2DRect sampler, vec3 P, [int comp])
+   vec4  textureGather(gsampler2DShadow  sampler, vec2 P, float refZ)
+   vec4  textureGather(gsampler2DArrayShadow sampler, vec3 P, float refZ)
+   vec4  textureGather(gsamplerCubeShadow sampler, vec3 P, float refZ)
+   vec4  textureGather(gsamplerCubeArrayShadow sampler, vec4 P, float refZ)
+   vec4  textureGather(gsampler2DRectShadow sampler, vec3 P, float refZ)
+shader.textureGatherOffset|textureGatherOffset -- gathers four texels from a texture with offset
+   gvec4 textureGatherOffset(gsampler2D sampler, vec2 P, ivec2 offset, [int comp])
+   gvec4 textureGatherOffset(gsampler2DArray sampler, vec3 P, ivec2 offset, [int comp])
+   gvec4 textureGatherOffset(gsampler2DRect sampler, vec3 P, ivec2 offset, [int comp])
+   vec4  textureGatherOffset(gsampler2DShadow sampler, vec2 P, float refZ, ivec2 offset)
+   vec4  textureGatherOffset(gsampler2DArrayShadow sampler, vec3 P, float refZ, ivec2 offset)
+   vec4  textureGatherOffset(gsampler2DRectShadow  sampler, vec3 P, float refZ, ivec2 offset)
+shader.textureGatherOffsets|textureGatherOffsets -- gathers four texels from a texture with an array of offsets
+   gvec4 textureGatherOffsets(gsampler2D sampler, vec2 P, ivec2 offsets[4], [int comp])
+   gvec4 textureGatherOffsets(gsampler2DArray sampler, vec3 P, ivec2 offsets[4], [int comp])
+   gvec4 textureGatherOffsets(gsampler2DRect sampler, vec3 P, ivec2 offsets[4], [int comp])
+   vec4  textureGatherOffsets(gsampler2DShadow sampler, vec2 P, float refZ, ivec2 offsets[4])
+   vec4  textureGatherOffsets(gsampler2DArrayShadow sampler, vec3 P, float refZ, ivec2 offsets[4])
+   vec4  textureGatherOffsets(gsampler2DRectShadow  sampler, vec3 P, float refZ, ivec2 offsets[4])
+shader.textureGrad|textureGrad -- perform a texture lookup with explicit gradients
+   gvec4 textureGrad(gsampler1D sampler, float P, float dPdx, float dPdy)
+   gvec4 textureGrad(gsampler2D sampler, vec2 P, vec2 dPdx, vec2 dPdy)
+   gvec4 textureGrad(gsampler3D sampler, vec3 P, vec3 dPdx, vec3 dPdy)
+   gvec4 textureGrad(gsamplerCube sampler, vec3 P, vec3 dPdx, vec3 dPdy)
+   gvec4 textureGrad(gsampler2DRect sampler, vec2 P, vec2 dPdx, vec2 dPdy)
+   float textureGrad(gsampler2DRectShadow sampler, vec2 P, vec2  dPdx, vec2 dPdy)
+   float textureGrad(sampler1DShadow sampler, vec3 P, float dPdx, float dPdy)
+   float textureGrad(sampler2DShadow sampler, vec3 P, vec2 dPdx, vec2 dPdy)
+   gvec4 textureGrad(gsampler1DArray sampler, vec2 P, float dPdx, float dPdy)
+   gvec4 textureGrad(gsampler2DArray sampler, vec3 P, vec2 dPdx, vec2 dPdy)
+   float textureGrad(sampler1DArrayShadow sampler, vec3 P, float dPdx, float dPdy)
+   gvec4 textureGrad(gsamplerCubeArray sampler, vec4  P, vec3 dPdx, vec3 dPdy)
+shader.textureLod|textureLod -- perform a texture lookup with explicit level-of-detail
+   gvec4 textureLod(gsampler1D sampler, float P, float lod)
+   gvec4 textureLod(gsampler2D sampler, vec2 P, float lod)
+   gvec4 textureLod(gsampler3D sampler, vec3 P, float lod)
+   gvec4 textureLod(gsamplerCube sampler, vec3 P, float lod)
+   float textureLod(sampler1DShadow sampler, vec3 P, float lod)
+   float textureLod(sampler2DShadow sampler, vec4 P, float lod)
+   gvec4 textureLod(gsampler1DArray sampler, vec2 P, float lod)
+   gvec4 textureLod(gsampler2DArray sampler, vec3 P, float lod)
+   float textureLod(sampler1DArrayShadow sampler, vec3 P, float lod)
+   gvec4 textureLod(gsamplerCubeArray sampler, vec4 P, float lod)
+shader.textureOffset|textureOffset -- perform a texture lookup with offset
+   gvec4 textureOffset(gsampler1D sampler, float P, int offset, [float bias])
+   gvec4 textureOffset(gsampler2D sampler, vec2 P, ivec2 offset, [float bias])
+   gvec4 textureOffset(gsampler3D sampler, vec3 P, ivec3 offset, [float bias])
+   gvec4 textureOffset(gsampler2DRect sampler, vec2 P, ivec2 offset)
+   float textureOffset(sampler2DRectShadow  sampler, vec3  P, ivec2 offset)
+   float textureOffset(sampler1DShadow sampler, vec3 P, int offset, [float bias])
+   float textureOffset(sampler2DShadow sampler, vec4 P, ivec2 offset, [float bias])
+   gvec4 textureOffset(gsampler1DArray sampler, vec2 P, int offset, [float bias])
+   gvec4 textureOffset(gsampler2DArray sampler, vec3 P, ivec2 offset, [float bias])
+   float textureOffset(sampler1DArrayShadow sampler, vec3 P, int offset)
+   float textureOffset(sampler2DArrayShadow sampler, vec4 P, vec2 offset)
+shader.textureProj|textureProj -- perform a texture lookup with projection
+   vec4  textureProj(gsampler1D sampler, vec2 P, [float bias])
+   gvec4 textureProj(gsampler1D sampler, vec4 P, [float bias])
+   gvec4 textureProj(gsampler2D sampler, vec3 P, [float bias])
+   gvec4 textureProj(gsampler2D sampler, vec4 P, [float bias])
+   gvec4 textureProj(gsampler3D sampler, vec4 P, [float bias])
+   float textureProj(sampler1DShadow sampler, vec4 P, [float bias])
+   float textureProj(sampler2DShadow sampler, vec4 P, [float bias])
+   gvec4 textureProj(gsampler2DRect sampler, vec3 P)
+   gvec4 textureProj(gsampler2DRect sampler, vec4 P)
+   float textureProj(gsampler2DRectShadow sampler, vec4 P)
+shader.textureProjGrad|textureProjGrad​ -- perform a texture lookup with projection and explicit gradients
+   gvec4 textureProjGrad(gsampler1D sampler, vec2 P, float pDx, float pDy)
+   gvec4 textureProjGrad(gsampler1D sampler, vec4 P, float pDx, float pDy)
+   gvec4 textureProjGrad(gsampler2D sampler, vec3 P, vec2 pDx, vec2 pDy)
+   gvec4 textureProjGrad(gsampler2D sampler, vec4 P, vec2 pDx, vec2 pDy)
+   gvec4 textureProjGrad(gsampler3D sampler, vec4 P, vec3 pDx, vec3 pDy)
+   float textureProjGrad(sampler1DShadow sampler, vec4 P, float pDx, float pDy)
+   float textureProjGrad(sampler2DShadow sampler, vec4 P, vec2 pDx, vec2 pDy)
+   gvec4 textureProjGrad(gsampler2DRect sampler, vec3 P, vec2 pDx, vec2 pDy)
+   gvec4 textureProjGrad(gsampler2DRect sampler, vec4 P, vec2 pDx, vec2 pDy)
+   float textureProjGrad(gsampler2DRectShadow sampler, vec4 P, vec2 pDx, vec2 pDy)
+shader.textureProjGradOffset|textureProjGradOffset​ -- perform a texture lookup with projection, explicit gradients and offset
+   gvec4 textureProjGradOffset(gsampler1D sampler, vec2 P, float dPdx, float dPdy, int offset)
+   gvec4 textureProjGradOffset(gsampler1D sampler, vec4 P, float dPdx, float dPdy, int offset)
+   gvec4 textureProjGradOffset(gsampler2D sampler, vec3 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
+   gvec4 textureProjGradOffset(gsampler2D sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
+   gvec4 textureProjGradOffset(gsampler3D sampler, vec4 P, vec3 dPdx, vec3 dPdy, ivec3 offset)
+   float textureProjGradOffset(sampler1DShadow sampler, vec4 P, float dPdx, float dPdy, int offset)
+   float textureProjGradOffset(sampler2DShadow sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
+   gvec4 textureProjGradOffset(gsampler2DRect sampler, vec3 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
+   gvec4 textureProjGradOffset(gsampler2DRect sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
+   float textureProjGradOffset(gsampler2DRectShadow sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
+shader.textureProjLod|textureProjLod​ -- perform a texture lookup with projection and explicit level-of-detail
+   vec4  textureProjLod(gsampler1D sampler, vec2 P, float lod)
+   gvec4 textureProjLod(gsampler1D sampler, vec4 P, float lod)
+   gvec4 textureProjLod(gsampler2D sampler, vec3 P, float lod)
+   gvec4 textureProjLod(gsampler2D sampler, vec4 P, float lod)
+   gvec4 textureProjLod(gsampler3D sampler, vec4 P, float lod)
+   float textureProjLod(sampler1DShadow sampler, vec4 P, float lod)
+   float textureProjLod(sampler2DShadow sampler, vec4 P, float lod)
+shader.textureProjLodOffset|textureProjLodOffset​ -- perform a texture lookup with projection and explicit level-of-detail and offset
+   gvec4 textureProjLodOffset(gsampler1D sampler, vec2 P, float lod, int offset)
+   gvec4 textureProjLodOffset(gsampler1D sampler, vec4 P, float lod, int offset)
+   gvec4 textureProjLodOffset(gsampler2D sampler, vec3 P, float lod, ivec2 offset)
+   gvec4 textureProjLodOffset(gsampler2D sampler, vec4 P, float lod, ivec2 offset)
+   gvec4 textureProjLodOffset(gsampler3D sampler, vec4 P, float lod, ivec3 offset)
+   float textureProjLodOffset(sampler1DShadow sampler, vec4 P, float lod, int   offset)
+   float textureProjLodOffset(sampler2DShadow sampler, vec4 P, float lod, ivec2 offset)
+shader.textureProjOffset|textureProjOffset​ -- perform a texture lookup with projection and offset
+   gvec4 textureProjOffset(gsampler1D sampler, vec2 P, int offset, [float bias])
+   gvec4 textureProjOffset(gsampler1D sampler, vec4 P, int offset, [float bias])
+   gvec4 textureProjOffset(gsampler2D sampler, vec3 P, ivec2 offset, [float bias])
+   gvec4 textureProjOffset(gsampler2D sampler, vec4 P, ivec2 offset, [float bias])
+   gvec4 textureProjOffset(gsampler3D sampler, vec4 P, ivec3 offset, [float bias])
+   float textureProjOffset(sampler1DShadow sampler, vec4 P, int   offset, [float bias])
+   float textureProjOffset(sampler2DShadow sampler, vec4 P, ivec2 offset, [float bias])
+   gvec4 textureProjOffset(gsampler2DRect sampler, vec3 P, ivec2 offset)
+   gvec4 textureProjOffset(gsampler2DRect sampler, vec4 P, ivec2 offset)
+   float textureProjOffset(gsampler2DRectShadow sampler, vec4 P, ivec2 offset)
+shader.textureQueryLevels|textureQueryLevels -- compute the number of accessible mipmap levels of a texture
+   int textureQueryLevels(gsampler1D sampler)
+   int textureQueryLevels(gsampler2D sampler)
+   int textureQueryLevels(gsampler3D sampler)
+   int textureQueryLevels(gsamplerCube sampler)
+   int textureQueryLevels(gsampler1DArray sampler)
+   int textureQueryLevels(gsampler2DDArray sampler)
+   int textureQueryLevels(gsamplerCubeArray sampler)
+   int textureQueryLevels(gsampler1DShadow sampler)
+   int textureQueryLevels(gsampler2DShadow sampler)
+   int textureQueryLevels(gsamplerCubeShadow sampler)
+   int textureQueryLevels(gsampler1DArrayShadow sampler)
+   int textureQueryLevels(gsampler2DArrayShadow sampler)
+   int textureQueryLevels(gsamplerCubeArrayShadow sampler)
+shader.textureQueryLod|textureQueryLod -- compute the level-of-detail that would be used to sample from a texture
+   vec2 textureQueryLod(gsampler1D sampler, float P)
+   vec2 textureQueryLod(gsampler2D sampler, vec2  P)
+   vec2 textureQueryLod(gsampler3D sampler, vec3  P)
+   vec2 textureQueryLod(gsamplerCube sampler, vec3  P)
+   vec2 textureQueryLod(gsampler1DArray sampler, float P)
+   vec2 textureQueryLod(gsampler2DDArray sampler, vec2  P)
+   vec2 textureQueryLod(gsamplerCubeArray sampler, vec3  P)
+   vec2 textureQueryLod(gsampler1DShadow sampler, float P)
+   vec2 textureQueryLod(gsampler2DShadow sampler, vec2  P)
+   vec2 textureQueryLod(gsamplerCubeShadow sampler, vec3  P)
+   vec2 textureQueryLod(gsampler1DArrayShadow sampler, float P)
+   vec2 textureQueryLod(gsampler2DArrayShadow sampler, vec2  P)
+   vec2 textureQueryLod(gsamplerCubeArrayShadow sampler, vec3  P)
+shader.textureSamples|textureSamples -- return the number of samples of a texture
+   int textureSamples(gsampler2DMS sampler)
+   int textureSamples(gsampler2DMSArray sampler)
+shader.textureSize|textureSize -- retrieve the dimensions of a level of a texture
+   int   textureSize(gsampler1D sampler, int lod)
+   ivec2 textureSize(gsampler2D sampler, int lod)
+   ivec3 textureSize(gsampler3D sampler, int lod)
+   ivec2 textureSize(gsamplerCube sampler, int lod)
+   int   textureSize(sampler1DShadow sampler, int lod)
+   ivec2 textureSize(sampler2DShadow sampler, int lod)
+   ivec2 textureSize(samplerCubeShadow sampler, int lod)
+   ivec3 textureSize(samplerCubeArray sampler, int lod)
+   ivec3 textureSize(samplerCubeArrayShadow sampler, int lod)
+   ivec2 textureSize(gsamplerRect sampler)
+   ivec2 textureSize(gsamplerRectShadow sampler)
+   ivec2 textureSize(gsampler1DArray sampler, int lod)
+   ivec3 textureSize(gsampler2DArray sampler, int lod)
+   ivec2 textureSize(sampler1DArrayShadow sampler, int lod)
+   ivec3 textureSize(sampler2DArrayShadow sampler, int lod)
+   int   textureSize(gsamplerBuffer sampler)
+   ivec2 textureSize(gsampler2DMS sampler)
+   ivec3 textureSize(gsampler2DMSArray sampler)
+shader.transpose
+shader.trunc
+shader.uaddCarry
+shader.uintBitsToFloat
+shader.umulExtended
+shader:uniform
+shader.unpackDouble2x32
+shader.unpackHalf2x16
+shader.unpackSnorm2x16
+shader.unpackSnorm4x8
+shader.unpackUnorm
+shader.unpackUnorm2x16
+shader.unpackUnorm4x8
+shader:usampler1D
+shader:usampler1DArray
+shader:usampler2D
+shader:usampler2DArray
+shader:usampler2DMS
+shader:usampler2DMSArray
+shader:usampler2DRect
+shader:usampler3D
+shader:usamplerBuffer
+shader:usamplerCube
+shader:usamplerCubeArray
+shader.usubBorrow
+shader:uvec2
+shader:uvec3
+shader:uvec4
+shader:vec2
+shader:vec3
+shader:vec4
+shader:void
+tech|tech <name>
+tech.pass|pass <name>
+text|text <name>
+texture|texture <name>
+texture.buff|buff <name>
+texture.img|img <name>
+texture.samp|samp <name>
+vertinput|vertinput <name>
+vertinput.attr|attr <buff_name> <type> <dim> [stride] [offset] [divisor]
+vertoutput|vertoutput <name>
+vertoutput.buff|buff <name>
+vertoutput.pause|pause <true_false>
+vertoutput.resume|resume <true_false>

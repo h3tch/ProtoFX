@@ -204,11 +204,38 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to window.settings.xml.
+        ///   Looks up a localized string similar to buffer|buffer &lt;name&gt;
+        ///buffer.size|size &lt;bytes&gt;
+        ///buffer.txt|txt &lt;text_name&gt;
+        ///buffer.usage|usage &lt;usage_hint&gt;
+        ///buffer.usage.DynamicCopy
+        ///buffer.usage.DynamicDraw
+        ///buffer.usage.DynamicRead
+        ///buffer.usage.StaticCopy
+        ///buffer.usage.StaticDraw
+        ///buffer.usage.StaticRead
+        ///buffer.usage.StreamCopy
+        ///buffer.usage.StreamDraw
+        ///buffer.usage.StreamRead
+        ///buffer.xml|xml &lt;path&gt; &lt;node&gt;
+        ///csharp|csharp &lt;name&gt;
+        ///csharp.file|file &lt;path&gt; [path] [...]
+        ///fragoutput|fragoutput &lt;name&gt;
+        ///fragoutput.color|color &lt;image_name&gt;
+        ///fragoutput.depth|d [rest of string was truncated]&quot;;.
         /// </summary>
-        public static string WINDOW_SETTINGS_FILE {
+        internal static string keywords {
             get {
-                return "window.settings.xml";
+                return ResourceManager.GetString("keywords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to settings.xml.
+        /// </summary>
+        internal static string WINDOW_SETTINGS_FILE {
+            get {
+                return ResourceManager.GetString("WINDOW_SETTINGS_FILE", resourceCulture);
             }
         }
     }

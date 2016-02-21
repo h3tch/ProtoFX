@@ -2,6 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace App
@@ -12,6 +15,35 @@ namespace App
         private static int HighlightIndicatorIndex = 8;
         public static int DebugIndicatorIndex { get; } = 9;
         private List<int[]>[] IndicatorRanges;
+        private static string[] KeywordDef;
+        private static Dictionary<string, string> Hint;
+
+        /// <summary>
+        /// Constructor for static fields.
+        /// </summary>
+        static CodeEditor()
+        {
+            // process keyword definition file
+            var lines = Regex.Split(Properties.Resources.keywords, "\r\n", RegexOptions.None);
+            int j = 0;
+            foreach (var line in lines.Skip(1))
+            {
+                if (line[0] == ' ')
+                    lines[j] = $"{lines[j]}\n{line.Substring(1)}";
+                else
+                    lines[++j] = line;
+            }
+
+            // set keyword list
+            KeywordDef = lines.Take(j + 1).ToArray();
+            // set hint list
+            Hint = KeywordDef.ToDictionary(
+                k => k.Substring(0, (int)Math.Min((uint)k.Length, (uint)k.IndexOf('|'))),
+                v => v.Substring((int)Math.Min((uint)v.Length, (uint)v.IndexOf('|'))));
+
+            // create lexer
+            lexer = new FXLexer(KeywordDef);
+        }
 
         /// <summary>
         /// Instantiate and initialize ScintillaNET based code editor for ProtoGL.
@@ -116,151 +148,5 @@ namespace App
             if (Margins[0].Width != width)
                 Margins[0].Width = width;
         }
-
-        #region KEYWORDS
-        string[] keywords = new[] {
-            // PROTOGL KEYWORDS
-            "buffer         " +
-            "break          " +
-            "const          " +
-            "continue       " +
-            "csharp         " +
-            "discard        " +
-            "else           " +
-            "float          " +
-            "for            " +
-            "fragoutput     " +
-            "geomoutput     " +
-            "if             " +
-            "image          " +
-            "image1D        " +
-            "image1DArray   " +
-            "image2D        " +
-            "image2DArray   " +
-            "image3D        " +
-            "image3DArray   " +
-            "imageCube      " +
-            "iimage1D       " +
-            "iimage1DArray  " +
-            "iimage2D       " +
-            "iimage2DArray  " +
-            "iimage3D       " +
-            "iimage3DArray  " +
-            "iimageCube     " +
-            "uimage1D       " +
-            "uimage1DArray  " +
-            "uimage2D       " +
-            "uimage2DArray  " +
-            "uimage3D       " +
-            "uimage3DArray  " +
-            "uimageCube     " +
-            "in             " +
-            "instance       " +
-            "int            " +
-            "ivec2          " +
-            "ivec3          " +
-            "ivec4          " +
-            "layout         " +
-            "mat2           " +
-            "mat2x3         " +
-            "mat2x4         " +
-            "mat3           " +
-            "mat3x2         " +
-            "mat3x4         " +
-            "mat4           " +
-            "mat4x2         " +
-            "mat4x3         " +
-            "out            " +
-            "pass           " +
-            "return         " +
-            "sampler        " +
-            "sampler1D      " +
-            "sampler1DArray " +
-            "sampler2D      " +
-            "sampler2DArray " +
-            "sampler3D      " +
-            "sampler3DArray " +
-            "samplerCube    " +
-            "scene          " +
-            "shader         " +
-            "struct         " +
-            "tech           " +
-            "text           " +
-            "texture        " +
-            "uint           " +
-            "uniform        " +
-            "uvec2          " +
-            "uvec3          " +
-            "uvec4          " +
-            "vec2           " +
-            "vec3           " +
-            "vec4           " +
-            "vertinput      " +
-            "vertoutput     " +
-            "void           " +
-            "while          " ,
-            // PROTOGL ATTRIBUTE KEYWORDS
-            "attr      " +
-            "binding   " +
-            "buff      " +
-            "class     " +
-            "color     " +
-            "comp      " +
-            "compute   " +
-            "depth     " +
-            "draw      " +
-            "eval      " +
-            "exec      " +
-            "file      " +
-            "format    " +
-            "frag      " +
-            "fragout   " +
-            "geom      " +
-            "geomout   " +
-            "gl_GlobalInvocationID " +
-            "gl_LocalInvocationID " +
-            "gl_WorkGroupID " +
-            "gpuformat " +
-            "height    " +
-            "img       " +
-            "length    " +
-            "local_size_x " +
-            "local_size_y " +
-            "local_size_z " +
-            "location  " +
-            "magfilter " +
-            "minfilter " +
-            "mipmaps   " +
-            "name      " +
-            "option    " +
-            "samp      " +
-            "show      " +
-            "size      " +
-            "stencil   " +
-            "tess      " +
-            "tex       " +
-            "txt       " +
-            "type      " +
-            "usage     " +
-            "vert      " +
-            "vertout   " +
-            "width     " +
-            "wrap      " +
-            "xml       " ,
-            // GLSL functions
-            "imageAtomicAdd " +
-            "imageAtomicAnd " +
-            "imageAtomicCompSwap " +
-            "imageAtomicExchange " +
-            "imageAtomicMax " +
-            "imageAtomicMin " +
-            "imageAtomicOr  " +
-            "imageAtomicXor " +
-            "imageLoad      " +
-            "imageSamples   " +
-            "imageSize      " +
-            "imageStore     " ,
-        };
-        #endregion
     }
 }

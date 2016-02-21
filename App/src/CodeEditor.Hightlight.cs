@@ -9,7 +9,7 @@ namespace App
 {
     partial class CodeEditor
     {
-        private static FXLexer lexer = new FXLexer(KV);
+        private static FXLexer lexer;
 
         private int[] BlockStyles = new[] {
             (int)FX.Keyword,
@@ -28,7 +28,7 @@ namespace App
         };
 
         /// <summary>
-        /// 
+        /// Initialize code highlighting.
         /// </summary>
         private void InitializeHighlighting()
         {
