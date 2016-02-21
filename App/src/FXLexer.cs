@@ -7,6 +7,7 @@ namespace App
 {
     class FXLexer
     {
+        #region FIELDS
         public enum Styles : int
         {
             Default,
@@ -26,10 +27,23 @@ namespace App
             Preprocessor,
         }
 
+        private enum State : int
+        {
+            Unknown,
+            Identifier,
+            Number,
+            String,
+            LineComment,
+            BlockComment,
+            Preprocessor,
+            Operator
+        }
+
         private HashSet<string>[] keywords;
+        #endregion
 
         /// <summary>
-        /// Create lexer from keyword definition list.
+        /// Create a lexer from a keyword definition list.
         /// </summary>
         /// <param name="keywordDef"></param>
         public FXLexer(string[] keywordDef)
@@ -105,7 +119,7 @@ namespace App
         {
             // Back up to the line start
             var length = 0;
-            var state = STATE_UNKNOWN;
+            var state = State.Unknown;
 
             // Start styling
             editor.StartStyling(startPos);
@@ -117,7 +131,7 @@ namespace App
                 switch (state)
                 {
                     // UNKNOWN STATE
-                    case STATE_UNKNOWN:
+                    case State.Unknown:
                         // could be comment
                         if (c == '/')
                         {
@@ -126,14 +140,14 @@ namespace App
                             if (c2 == '/')
                             {
                                 editor.SetStyling(2, (int)Styles.Comment);
-                                state = STATE_LINE_COMMENT;
+                                state = State.LineComment;
                                 startPos++;
                             }
                             // is block comment
                             else if (c2 == '*')
                             {
                                 editor.SetStyling(2, (int)Styles.Comment);
-                                state = STATE_BLOCK_COMMENT;
+                                state = State.BlockComment;
                                 startPos++;
                             }
                         }
@@ -141,30 +155,30 @@ namespace App
                         else if (c == '"' || c == '\'')
                         {
                             editor.SetStyling(1, (int)Styles.String);
-                            state = STATE_STRING;
+                            state = State.String;
                         }
                         // is preprocessor
                         else if (c == '#')
                         {
                             editor.SetStyling(1, (int)Styles.Preprocessor);
-                            state = STATE_PREPROCESSOR;
+                            state = State.Preprocessor;
                         }
                         // is operator
                         else if (char.IsSymbol(c))
                         {
                             editor.SetStyling(1, (int)Styles.Operator);
-                            state = STATE_OPERATOR;
+                            state = State.Operator;
                         }
                         // is number
                         else if (char.IsDigit(c))
                         {
-                            state = STATE_NUMBER;
+                            state = State.Number;
                             goto REPROCESS;
                         }
                         // is letter
                         else if (char.IsLetter(c))
                         {
-                            state = STATE_IDENTIFIER;
+                            state = State.Identifier;
                             goto REPROCESS;
                         }
                         // is default styling
@@ -173,13 +187,13 @@ namespace App
                         break;
 
                     // LINE COMMENT STATE
-                    case STATE_LINE_COMMENT:
+                    case State.LineComment:
                         // end of line comment
                         if (c == '\r' || c == '\n')
                         {
                             editor.SetStyling(length + 1, (int)Styles.Comment);
                             length = 0;
-                            state = STATE_UNKNOWN;
+                            state = State.Unknown;
                         }
                         // still in line comment
                         else
@@ -187,13 +201,13 @@ namespace App
                         break;
 
                     // BLOCK COMMENT STATE
-                    case STATE_BLOCK_COMMENT:
+                    case State.BlockComment:
                         // end of block comment
                         if (c == '*' && (char)editor.GetCharAt(startPos + 1) == '/')
                         {
                             editor.SetStyling(length + 2, (int)Styles.Comment);
                             length = 0;
-                            state = STATE_UNKNOWN;
+                            state = State.Unknown;
                         }
                         // still in block comment
                         else
@@ -201,13 +215,13 @@ namespace App
                         break;
 
                     // STRING STATE
-                    case STATE_STRING:
+                    case State.String:
                         // end of string
                         if (c == '"' || c == '\'')
                         {
                             editor.SetStyling(length + 1, (int)Styles.String);
                             length = 0;
-                            state = STATE_UNKNOWN;
+                            state = State.Unknown;
                         }
                         // still in string
                         else
@@ -215,13 +229,13 @@ namespace App
                         break;
 
                     // PREPROCESSOR STATE
-                    case STATE_PREPROCESSOR:
+                    case State.Preprocessor:
                         // end of preprocessor
                         if (c == ' ' || c == '\r' || c == '\n')
                         {
                             editor.SetStyling(length + 1, (int)Styles.Preprocessor);
                             length = 0;
-                            state = STATE_UNKNOWN;
+                            state = State.Unknown;
                         }
                         // still preprocessor
                         else
@@ -229,7 +243,7 @@ namespace App
                         break;
 
                     // OPERATOR STATE
-                    case STATE_OPERATOR:
+                    case State.Operator:
                         // is multi char operator like >=
                         if (char.IsSymbol(c))
                         {
@@ -240,13 +254,13 @@ namespace App
                         {
                             editor.SetStyling(length, (int)Styles.Operator);
                             length = 0;
-                            state = STATE_UNKNOWN;
+                            state = State.Unknown;
                             goto REPROCESS;
                         }
                         break;
 
                     // NUMBER STATE
-                    case STATE_NUMBER:
+                    case State.Number:
                         // still a number
                         if (char.IsDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || c == 'x')
                         {
@@ -257,13 +271,13 @@ namespace App
                         {
                             editor.SetStyling(length, (int)Styles.Number);
                             length = 0;
-                            state = STATE_UNKNOWN;
+                            state = State.Unknown;
                             goto REPROCESS;
                         }
                         break;
 
                     // IDENTIFIER STATE
-                    case STATE_IDENTIFIER:
+                    case State.Identifier:
                         // still an identifier and possible keyword
                         if (char.IsLetterOrDigit(c) || c == '_' || c == '/')
                         {
@@ -289,7 +303,7 @@ namespace App
                             // set styling
                             editor.SetStyling(length, style);
                             length = 0;
-                            state = STATE_UNKNOWN;
+                            state = State.Unknown;
                             goto REPROCESS;
                         }
                         break;
@@ -301,15 +315,5 @@ namespace App
 
             return startPos;
         }
-
-        // Styling states.
-        private const int STATE_UNKNOWN = 0;
-        private const int STATE_IDENTIFIER = 1;
-        private const int STATE_NUMBER = 2;
-        private const int STATE_STRING = 3;
-        private const int STATE_LINE_COMMENT = 4;
-        private const int STATE_BLOCK_COMMENT = 5;
-        private const int STATE_PREPROCESSOR = 6;
-        private const int STATE_OPERATOR = 7;
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace App
 {
@@ -64,6 +63,5 @@ namespace App
 
             return objectOut;
         }
-
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -124,7 +123,8 @@ namespace App
         /// Get the block surrounding the specified text position.
         /// </summary>
         /// <param name="position"></param>
-        /// <returns>Returns the start, open brace and end position of the block as an int array.</returns>
+        /// <returns>Returns the start, open brace and end position
+        /// of the block as an int array.</returns>
         private int[] BlockPosition(int position)
         {
             // get headers of the block surrounding the text position

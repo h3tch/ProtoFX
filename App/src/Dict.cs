@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace App
 {
@@ -59,7 +58,7 @@ namespace App
         }
 
         /// <summary>
-        /// 
+        /// Try to find the value to a key. If the key could not be found add an exception message.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="key">Key to search for.</param>

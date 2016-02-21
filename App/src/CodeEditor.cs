@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -11,12 +10,14 @@ namespace App
 {
     partial class CodeEditor : Scintilla
     {
+        #region FIELDS
         public bool EnableCodeHints = true;
         private static int HighlightIndicatorIndex = 8;
         public static int DebugIndicatorIndex { get; } = 9;
         private List<int[]>[] IndicatorRanges;
         private static string[] KeywordDef;
         private static Dictionary<string, string> Hint;
+        #endregion
 
         /// <summary>
         /// Constructor for static fields.

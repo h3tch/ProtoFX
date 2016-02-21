@@ -1,31 +1,20 @@
 ﻿using ScintillaNET;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using FX = App.FXLexer.Styles;
-using Tree = System.Collections.Generic.Dictionary<string, object>;
 
 namespace App
 {
     partial class CodeEditor
     {
+        #region FIELDS
         private static FXLexer lexer;
-
-        private int[] BlockStyles = new[] {
-            (int)FX.Keyword,
-            (int)FX.Annotation
-        };
-
-        private int[] CmdStyles = new[] {
-            (int)FX.Command,
-            (int)FX.Argument
-        };
-
+        private int[] BlockStyles = new[] { (int)FX.Keyword, (int)FX.Annotation };
+        private int[] CmdStyles = new[] { (int)FX.Command, (int)FX.Argument };
         private int[] GlslStyles = new[] {
-            (int)FX.GlslKeyword,
-            (int)FX.GlslQualifier,
-            (int)FX.GlslFunction
+            (int)FX.GlslKeyword, (int)FX.GlslQualifier, (int)FX.GlslFunction
         };
+        #endregion
 
         /// <summary>
         /// Initialize code highlighting.
@@ -61,7 +50,7 @@ namespace App
         }
         
         /// <summary>
-        /// 
+        /// Handle style needed event.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="ev"></param>
@@ -88,8 +77,8 @@ namespace App
                     break;
                 
                 // get the respective keywords to the block
-                var keywords = GetBlockKeywords(block);
-                
+                var keywords = GetWordFromPosition(block[0]) == "shader" ? GlslStyles : CmdStyles;
+
                 // start of the block lies inside the region
                 if (blockStart > start)
                     start = lexer.Style(this, start, blockStart, BlockStyles);
@@ -112,14 +101,5 @@ namespace App
             if (start < end)
                 lexer.Style(this, start, end, BlockStyles);
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="block"></param>
-        /// <returns></returns>
-        private int[] GetBlockKeywords(int[] block)
-            => GetWordFromPosition(block[0]) == "shader" ? GlslStyles : CmdStyles;
-        
     }
 }
