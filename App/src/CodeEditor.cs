@@ -36,14 +36,17 @@ namespace App
             }
 
             // set keyword list
-            KeywordDef = lines.Take(j + 1).ToArray();
+            KeywordDef = lines.Take(j + 1)
+                .Select(k => k.Substring(0, (int)Math.Min((uint)k.Length, (uint)k.IndexOf('|'))).Replace(':', '.'))
+                .ToArray();
+
             // set hint list
-            Hint = KeywordDef.ToDictionary(
-                k => k.Substring(0, (int)Math.Min((uint)k.Length, (uint)k.IndexOf('|'))),
+            Hint = lines.Take(j + 1).ToDictionary(
+                k => k.Substring(0, (int)Math.Min((uint)k.Length, (uint)k.IndexOf('|'))).Replace(':', '.'),
                 v => v.Substring((int)Math.Min((uint)v.Length, (uint)v.IndexOf('|'))));
 
             // create lexer
-            lexer = new FXLexer(KeywordDef);
+            lexer = new FXLexer(lines.Take(j + 1).ToArray());
         }
 
         /// <summary>

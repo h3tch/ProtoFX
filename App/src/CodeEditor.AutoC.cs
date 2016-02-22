@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -23,7 +24,7 @@ namespace App
 
             // search for all keywords starting with the
             // search string and not containing subkeywords
-            var invalid = new[] { '.', ',', ' ' };
+            var invalid = new[] { '.', ',' };
             var keywords = from x in KeywordDef
                            where x.StartsWith(search) && invalid.All(y => x.IndexOf(y, search.Length) < 0)
                            select x.Substring(skip);
@@ -51,8 +52,8 @@ namespace App
 
             // select keywords using the current text position
             // is the style at that position a valid hint style
-            var style = GetStyleAt(pos);
-            if ((int)FX.Keyword <= style && style <= (int)FX.GlslFunction)
+            var style = (FX)GetStyleAt(pos);
+            if (FX.Keyword <= style && style <= FX.GlslFunction)
             {
                 // is there a word at that position
                 var word = GetWordFromPosition(pos);
@@ -84,38 +85,45 @@ namespace App
         {
             // get word and preceding word at caret position
             var word = GetWordFromPosition(position);
-            var prec = GetWordFromPosition(WordStartPosition(WordStartPosition(position, true), false));
+
             // get block surrounding caret position
             var block = BlockPosition(position);
-            // get block header from block position
-            var header = BlockHeader(block).ToArray();
 
-            // is the caret inside the header
-            var inHeader = block != null ? block[0] <= position && position <= block[1] : false;
-            var inBody = block != null ? block[1] < position && position <= block[2] : false;
+            // inside the body of the block
+            if (block != null && block[1] < position)
+            {
+                var blocktype = GetWordFromPosition(block[0]);
 
-            // create search string
-            search = inHeader
-                // in header
-                ? header[0] == word
-                    // word represents the block type -> search for block type
-                    ? word
-                    // preceding word is the block type
-                    : header[0] == prec
-                        // -> search for block annotation
-                        ? $"{header[0]},{word}"
-                        // this is the name of the block -> search for nothing
-                        : "~"
-                // not in header but body
-                : inBody
-                    // preceding word has subkeywords
-                    ? KeywordDef.Any(x => x.StartsWith($"{header[0]}.{prec}."))
-                        // -> search for subkeywords
-                        ? $"{header[0]}.{prec}.{word}"
-                        // -> search for keywords
-                        : $"{header[0]}.{word}"
-                    // nether in header nor body -> search for block type
+                // inside the body of a shader block
+                if (blocktype == "shader")
+                {
+                    search = $"{blocktype}.{word}";
+                }
+                else
+                {
+                    // get the position of the beginning of the line
+                    var linePos = Lines[LineFromPosition(position)].Position;
+                    var wordPos = WordStartPosition(position, true);
+                    // try to find the preceding command
+                    var cmdPos = Enumerable.Range(linePos, wordPos - linePos).Reverse()
+                        .FirstOrDefault(i => GetStyleAt(i) == (int)FX.Command);
+                    // the search string depends on whether a command was found
+                    search = cmdPos == 0
+                        ? $"{blocktype}.{word}"
+                        : $"{blocktype}.{GetWordFromPosition(cmdPos)}.{word}";
+                }
+            }
+            else
+            {
+                // get position of preceding word
+                var precPos = PrecWordStartPosition(position);
+
+                // style of the preceding word indicates a block
+                search = GetStyleAt(precPos) == (int)FX.Keyword
+                    ? $"{GetWordFromPosition(precPos)},{word}"
                     : word;
+            }
+
             skip = search.Length - word.Length;
         }
 
@@ -141,23 +149,8 @@ namespace App
         private IEnumerable<int[]> BlockPositions()
             => from x in this.GetBlockPositions()
                select new[] { x.Index, x.Index + x.Value.IndexOf('{'), x.Index + x.Length };
-
-        /// <summary>
-        /// Get the header of the block.
-        /// </summary>
-        /// <param name="block"></param>
-        /// <returns>Returns a list of words making up the header or nothing.</returns>
-        private IEnumerable<string> BlockHeader(int[] block)
-        {
-            if (block != null)
-            {
-                // get headers of the block surrounding the text position
-                var header = Text.Substring(block[0], block[1] - block[0]);
-
-                // return all words before the open brace '{'
-                foreach (Match match in Regex.Matches(header, @"\w+"))
-                    yield return match.Value;
-            }
-        }
+        
+        public int PrecWordStartPosition(int position)
+            => WordStartPosition(Math.Max(0, WordStartPosition(position, true) - 1), true);
     }
 }
