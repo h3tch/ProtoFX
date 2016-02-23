@@ -842,68 +842,131 @@ shader.mod|mod -- compute value of one parameter modulo another
 shader.modf|modf -- separate a value into its integer and fractional components
    genType  modf(genType  x, out genType  i)
    genDType modf(genDType x, out genDType i)
-shader.noise
-shader.noise1
-shader.noise2
-shader.noise3
-shader.noise4
-shader:noperspective
-shader.normalize
-shader.not
-shader.notEqual
-shader:out
-shader.outerProduct
-shader.packDouble2x32
-shader.packHalf2x16
-shader.packSnorm2x16
-shader.packSnorm4x8
-shader.packUnorm
-shader.packUnorm2x16
-shader.packUnorm4x8
-shader:patch
-shader.pow
-shader:precision
-shader:precision.highp
-shader:precision.lowp
-shader:precision.mediump
-shader.radians
-shader.reflect
-shader.refract
-shader.removedTypes
+shader.noise1|noise1 — generate values with a pseudo-random noise function
+   float noise1(genType x)
+shader.noise2|noise2 — generate values with a pseudo-random noise function
+   vec2 noise2(genType x)
+shader.noise3|noise3 — generate values with a pseudo-random noise function
+   vec3 noise3(genType x)
+shader.noise4|noise4 — generate values with a pseudo-random noise function
+   vec4 noise4(genType x)
+shader:noperspective|The value will be linearly interpolated in window-space.
+shader.normalize|normalize — calculate the normalize product of two vectors
+   genType  normalize(genType  v)
+   genDType normalize(genDType v)
+shader.not|not — logically invert a boolean vector
+   bvec not(bvec x)
+shader.notEqual|notEqual — perform a component-wise not-equal-to comparison of two vectors
+    bvec notEqual(vec x, vec y)
+    bvec notEqual(ivec x, ivec y)
+    bvec notEqual(uvec x, uvec y)
+shader:out|output varying qualifier
+shader.outerProduct|outerProduct — calculate the outer product of a pair of vectors
+   mat2    outerProduct(vec2  c, vec2  r)
+   mat3    outerProduct(vec3  c, vec3  r)
+   mat4    outerProduct(vec4  c, vec4  r)
+   mat2x3  outerProduct(vec3  c, vec2  r)
+   mat3x2  outerProduct(vec2  c, vec3  r)
+   mat2x4  outerProduct(vec4  c, vec2  r)
+   mat4x2  outerProduct(vec2  c, vec4  r)
+   mat3x4  outerProduct(vec4  c, vec3  r)
+   mat4x3  outerProduct(vec3  c, vec4  r)
+   dmat2   outerProduct(dvec2 c, dvec2 r)
+   dmat3   outerProduct(dvec3 c, dvec3 r)
+   dmat4   outerProduct(dvec4 c, dvec4 r)
+   dmat2x3 outerProduct(dvec3 c, dvec2 r)
+   dmat3x2 outerProduct(dvec2 c, dvec3 r)
+   dmat2x4 outerProduct(dvec4 c, dvec2 r)
+   dmat4x2 outerProduct(dvec2 c, dvec4 r)
+   dmat3x4 outerProduct(dvec4 c, dvec3 r)
+   dmat4x3 outerProduct(dvec3 c, dvec4 r)
+shader.packDouble2x32|packDouble2x32 — create a double-precision value
+                  from a pair of unsigned integers
+   double packDouble2x32(uvec2 v)
+shader.packHalf2x16|packHalf2x16 — convert two 32-bit floating-point
+                quantities to16-bit quantities and
+                pack them into a single 32-bit integer
+   uint packHalf2x16(vec2 v)
+shader.packSnorm2x16|packSnorm2x16 — pack floating-point values into an unsigned integer
+   uint packSnorm2x16(vec2 v)
+shader.packSnorm4x8|packSnorm4x8 — pack floating-point values into an unsigned integer
+   uint packSnorm4x8(vec4 v)
+shader.packUnorm2x16|packUnorm2x16 — pack floating-point values into an unsigned integer
+   uint packUnorm2x16(vec2 v)
+shader.packUnorm4x8|packUnorm4x8 — pack floating-point values into an unsigned integer
+   uint packUnorm4x8(vec4 v)
+shader:patch|Per patch variable qualifier.
+shader.pow|pow — return the value of the first parameter raised to the power of the second
+   genType pow(genType x, genType y)
+shader:precision|Floating point and integer precision qualifier.
+ This affects all collections of that basic type.
+shader:precision.highp|high precision
+shader:precision.lowp|low precision
+shader:precision.mediump|medium precision
+shader.radians|radians — convert a quantity in degrees to radians
+   genType radians(genType degrees)
+shader.reflect|reflect — calculate the reflection direction for an incident vector
+   genType  reflect(genType  I, genType  N)
+   genDType reflect(genDType I, genDType N)
+shader.refract|refract — calculate the refraction direction for an incident vector
+   genType  refract(genType  I, genType  N, float eta)
+   genDType refract(genDType I, genDType N, float eta)
 shader:return
-shader.round
-shader.roundEven
+shader.round|round — find the nearest integer less than or equal to the parameter
+   genType  round(genType  x)
+   genDType round(genDType x)
+shader.roundEven|roundEven — find the nearest even integer to the parameter
+   genType  roundEven(genType  x)
+   genDType roundEven(genDType x)
 shader.sample|The sample​ qualifier forces OpenGL to interpolate this qualifier
  to the location of the particular sample for each generated
  fragment. This is only really useful with per-sample shading. 
-shader:sampler1D
-shader:sampler1DArray
-shader:sampler1DArrayShadow
-shader:sampler1DShadow
-shader:sampler2D
-shader:sampler2DArray
-shader:sampler2DArrayShadow
-shader:sampler2DMS
-shader:sampler2DMSArray
-shader:sampler2DRect
-shader:sampler2DRectShadow
-shader:sampler2DShadow
-shader:sampler3D
-shader:samplerBuffer
-shader:samplerCube
-shader:samplerCubeArray
-shader:samplerCubeArrayShadow
-shader:samplerCubeShadow
-shader.sign
-shader.sin
-shader.sinh
-shader:smooth
-shader.smoothstep
-shader.sqrt
-shader.step
-shader.subroutine
-shader.tan
-shader.tanh
+shader:sampler1D|1D texture binding unit
+shader:sampler1DArray|1D texture array binding unit
+shader:sampler1DArrayShadow|1D shadow texture array binding unit
+shader:sampler1DShadow|1D shadow texture binding unit
+shader:sampler2D|2D texture binding unit
+shader:sampler2DArray|2D texture array binding unit
+shader:sampler2DArrayShadow|2D shadow texture array binding unit
+shader:sampler2DMS|2D multi-sample texture binding unit
+shader:sampler2DMSArray|2D multi-sample texture array binding unit
+shader:sampler2DRect|2D rectangular texture array binding unit
+shader:sampler2DRectShadow|2D rectangular shadow texture array binding unit
+shader:sampler2DShadow|2D shadow texture binding unit
+shader:sampler3D|3D texture array binding unit
+shader:samplerBuffer|buffer texture binding unit
+shader:samplerCube|cube map binding unit
+shader:samplerCubeArray|cube map array binding unit
+shader:samplerCubeArrayShadow|shadow cube map array binding unit
+shader:samplerCubeShadow|shadow cube map binding unit
+shader.sign|sign — extract the sign of the parameter
+   genType  sign(genType  x)
+   genIType sign(genIType x)
+   genDType sign(genDType x)
+shader.sin|sin — return the sine of the parameter
+shader.sinh|sinh — return the hyperbolic sine of the parameter
+shader:smooth|The value will be interpolated in a perspective-correct
+ fashion. This is the default if no qualifier is present.
+shader.smoothstep|smoothstep — perform Hermite interpolation between two values
+   genType  smoothstep(genType  edge0, genType  edge1, genType  x)
+   genType  smoothstep(float    edge0, float    edge1, genType  x)
+   genDType smoothstep(genDType edge0, genDType edge1, genDType x)
+   genDType smoothstep(double   edge0, double   edge1, genDType x)
+shader.sqrt|sqrt — return the square root of the parameter
+   genType  sqrt(genType  x)
+   genDType sqrt(genDType x)
+shader.step|step — generate a step function by comparing two values
+   genType step(genType edge, genType x)
+   genType step(float edge, genType x)
+   genDType step(genDType edge, genDType x)
+   genDType step(double edge, genDType x)
+shader.subroutine|Subroutines are special GLSL functions which can have
+ variations. The specific variation that will be called
+ is selected by the OpenGL code.
+shader.tan|tan — return the tangent of the parameter
+   genType tan(genType x)
+shader.tanh|tanh — return the hyperbolic tangent of the parameter
+   genType tanh(genType x)
 shader.texelFetch|texelFetch -- perform a lookup of a single texel within a texture
    gvec4 texelFetch(gsampler1D sampler, int P, int lod)
    gvec4 texelFetch(gsampler2D sampler, ivec2 P, int lod)
@@ -1108,22 +1171,53 @@ shader.textureSize|textureSize -- retrieve the dimensions of a level of a textur
    int   textureSize(gsamplerBuffer sampler)
    ivec2 textureSize(gsampler2DMS sampler)
    ivec3 textureSize(gsampler2DMSArray sampler)
-shader.transpose
-shader.trunc
-shader.uaddCarry
+shader.transpose|transpose — calculate the transpose of a matrix
+   mat2    transpose(mat2    m)
+   mat3    transpose(mat3    m)
+   mat4    transpose(mat4    m)
+   mat2x3  transpose(mat3x2  m)
+   mat2x4  transpose(mat4x2  m)
+   mat3x2  transpose(mat2x3  m)
+   mat3x4  transpose(mat4x3  m)
+   mat4x2  transpose(mat2x4  m)
+   mat4x3  transpose(mat3x4  m)
+   dmat2   transpose(dmat2   m)
+   dmat3   transpose(dmat3   m)
+   dmat4   transpose(dmat4   m)
+   dmat2x3 transpose(dmat3x2 m)
+   dmat2x4 transpose(dmat4x2 m)
+   dmat3x2 transpose(dmat2x3 m)
+   dmat3x4 transpose(dmat4x3 m)
+   dmat4x2 transpose(dmat2x4 m)
+   dmat4x3 transpose(dmat3x4 m)
+shader.trunc|trunc — find the nearest integer less
+          than or equal to the parameter
+   genType  trunc(genType  x)
+   genDType trunc(genDType x)
+shader.uaddCarry|uaddCarry — Add unsigned integers and generate carry. The
+              carry result is the sum of x and y modulo 2^32.
+   genUType uaddCarry(genUType x, genUType y, out genUType carry)
 shader.uintBitsToFloat|uintBitsToFloat -- produce a floating point using an
-                   encoding supplied as an integer
+                    encoding supplied as an integer
    genType uintBitsToFloat(genUType x)
 shader.umulExtended|umulExtended -- perform a 32- by 32-bit multiply to produce a 64-bit result
    void umulExtended(genIType x, genIType y, out genIType msb, out genIType lsb)
-shader:uniform
-shader.unpackDouble2x32
-shader.unpackHalf2x16
-shader.unpackSnorm2x16
-shader.unpackSnorm4x8
-shader.unpackUnorm
-shader.unpackUnorm2x16
-shader.unpackUnorm4x8
+shader:uniform|uniform (buffer) qualifier
+shader.unpackDouble2x32|unpackDouble2x32 — produce two unsigned integers containing the bit
+                     encoding of a double precision floating point value
+   uvec2 unpackDouble2x32(double d)
+shader.unpackHalf2x16|unpackHalf2x16 — convert two 16-bit floating-point values
+                   packed into a single 32-bit integer into a
+                   vector of two 32-bit floating-point quantities
+   vec2 unpackHalf2x16(uint v)
+shader.unpackSnorm2x16|unpackSnorm2x16 — unpack floating-point values from an unsigned integer
+   vec2 unpackUnorm2x16(uint p)
+shader.unpackSnorm4x8|unpackSnorm2x16 — unpack floating-point values from an unsigned integer
+   vec2 unpackSnorm4x8(uint p)
+shader.unpackUnorm2x16|unpackSnorm2x16 — unpack floating-point values from an unsigned integer
+   vec2 unpackUnorm2x16(uint p)
+shader.unpackUnorm4x8|unpackSnorm2x16 — unpack floating-point values from an unsigned integer
+   vec2 unpackUnorm4x8(uint p)
 shader:usampler1D
 shader:usampler1DArray
 shader:usampler2D
