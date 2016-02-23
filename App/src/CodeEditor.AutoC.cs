@@ -97,6 +97,11 @@ namespace App
                 // inside the body of a shader block
                 if (blocktype == "shader")
                 {
+                    var text = GetTextRange(block[1], position - block[1]);
+                    var keyPos = Enumerable.Range(block[1], position - block[1]).Reverse()
+                        .FirstOrDefault(i => GetStyleAt(i) == (int)FX.GlslKeyword);
+                    var bracePos = text.LastIndexOf(')');
+                    GetWordFromPosition(keyPos);
                     search = $"{blocktype}.{word}";
                 }
                 else
