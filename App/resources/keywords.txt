@@ -727,29 +727,55 @@ shader:layout|Layout qualifiers affect where the storage for a variable
  comes from, as well as other user-facing properties of a
  particular definition. Syntax:
    layout(qualifier1, qualifier2 = value, ...) variable_definition
-shader:layout.binding
-shader:layout.component
-shader:layout.depth_any
-shader:layout.depth_greater
-shader:layout.depth_less
-shader:layout.depth_unchanged
-shader:layout.early_fragment_tests
-shader:layout.index
-shader:layout.location
-shader:layout.offset
-shader:layout.origin_upper_left
-shader:layout.pixel_center_integer
-shader:layout.std140
-shader:layout.vertices
-shader:layout.xfb_buffer
-shader:layout.xfb_offset
-shader:layout.xfb_stride
-shader.ldexp
-shader.length
-shader.lessThan
-shader.lessThanEqual
-shader.log
-shader.log2
+shader:layout.binding|The binding unit of the shader resource.
+shader:layout.component|Used in combination with the location qualifier
+ to address specific vec-components of the stream.
+shader:layout.depth_any|Disables the depth test.
+shader:layout.depth_greater|To pass the depth test the new depth value must be greater.
+shader:layout.depth_less|To pass the depth test the new depth value must be less.
+shader:layout.depth_unchanged|To pass the depth test the new depth value must be equal.
+shader:layout.early_fragment_tests|Perform depth test before executing the shader.
+shader:layout.index|Used in combination with the location qualifier for dual source blending.
+shader:layout.location|Assigns the stream to the specified unit.
+shader:layout.offset|Atomic counters also have an optional offset parameter.
+ The offset is the byte offset from the beginning of the
+ range bound to the target to the location where this
+ variable gets its 32-bits of storage.
+shader:layout.origin_upper_left|Specifies that gl_FragCoord​ will have the origin
+ (0, 0) in the upper-left of the screen.
+shader:layout.pixel_center_integer|Specifies that the X and Y of gl_FragCoord​ will
+ be shifted by a half-pixel, so that the center
+ of each pixel is an integer value.
+shader:layout.std140|Force variables to be vec4 aligned.
+shader:layout.vertices|Specify a particular vertex count for Tessellation Control Shaders output patches.
+shader:layout.xfb_buffer|Specifies the transform feedback output buffer.
+shader:layout.xfb_offset|Specifies the first position of the transform feedback output buffer to be written to.
+shader:layout.xfb_stride|Specifies the stride between transform feedback buffer outputs.
+shader:layout.points|The output primitive type of the geometry shader are points.
+shader:layout.lines|The output primitive type of the geometry shader are lines.
+shader:layout.lines_adjacency|The output primitive type of the geometry shader are adjacency lines.
+shader:layout.triangles|The output primitive type of the geometry shader are triangles.
+shader:layout.triangles_adjacency|The output primitive type of the geometry shader are adjacency triangles.
+shader:layout.line_strip|The output primitive type of the geometry shader are line strips.
+shader:layout.triangle_strip|The output primitive type of the geometry shader are triangles strips.
+shader.ldexp|ldexp -- assemble a floating point number from a value and exponent
+   genType  ldexp(genType  x, genIType exp)
+   genDType ldexp(genDType x, genIType exp)
+shader.length|length -- calculate the length of a vector
+   float  length(genType  x)
+   double length(genDType x)
+shader.lessThan|lessThan -- perform a component-wise less-than comparison of two vectors
+   bvec lessThan(vec  x, vec  y)
+   bvec lessThan(ivec x, ivec y)
+   bvec lessThan(uvec x, uvec y)
+shader.lessThanEqual|lessThanEqual -- perform a component-wise less-than-or-equal comparison of two vectors
+   bvec lessThanEqual(vec  x, vec  y)
+   bvec lessThanEqual(ivec x, ivec y)
+   bvec lessThanEqual(uvec x, uvec y)
+shader.log|log -- return the natural logarithm of the parameter
+   genType log(genType x)
+shader.log2|log2 -- return the base 2 logarithm of the parameter
+   genType log2(genType x)
 shader:mat2
 shader:mat2x2
 shader:mat2x3
@@ -762,17 +788,60 @@ shader:mat4
 shader:mat4x2
 shader:mat4x3
 shader:mat4x4
-shader.matrixCompMult
-shader.max
-shader.memoryBarrier
-shader.memoryBarrierAtomicCounter
-shader.memoryBarrierBuffer
-shader.memoryBarrierImage
-shader.memoryBarrierShared
-shader.min
-shader.mix
-shader.mod
-shader.modf
+shader.matrixCompMult|matrixCompMult -- perform a component-wise multiplication of two matrices
+   mat  matrixCompMult(mat  x, mat  y)
+   dmat matrixCompMult(dmat x, dmat y)
+shader.max|max -- return the greater of two values
+   genType  max(genType  x, genType  y)
+   genType  max(genType  x, float    y)
+   genDType max(genDType x, genDType y)
+   genDType max(genDType x, double   y)
+   genIType max(genIType x, genIType y)
+   genIType max(genIType x, int      y)
+   genUType max(genUType x, genUType y)
+   genUType max(genUType x, uint     y)
+shader.memoryBarrier|memoryBarrier -- controls the ordering of memory transactions
+                 issued by a single shader invocation
+   uint memoryBarrier(void)
+shader.memoryBarrierAtomicCounter|memoryBarrierAtomicCounter -- controls the ordering of operations on atomic
+                             counters issued by a single shader invocation
+   void memoryBarrierAtomicCounter(void)
+shader.memoryBarrierBuffer|memoryBarrierBuffer -- controls the ordering of operations on buffer
+                      variables issued by a single shader invocation
+   void memoryBarrierBuffer(void)
+shader.memoryBarrierImage|memoryBarrierImage -- controls the ordering of operations on image
+                     variables issued by a single shader invocation
+   void memoryBarrierImage(void)
+shader.memoryBarrierShared|memoryBarrierShared -- controls the ordering of operations on shared
+                       variables issued by a single shader invocation
+   void memoryBarrierShared(void)
+shader.min|min -- return the lesser of two values
+   genType  min(genType  x, genType  y)
+   genType  min(genType  x, float    y)
+   genDType min(genDType x, genDType y)
+   genDType min(genDType x, double   y)
+   genIType min(genIType x, genIType y)
+   genIType min(genIType x, int      y)
+   genUType min(genUType x, genUType y)
+   genUType min(genUType x, uint     y)
+shader.mix|mix -- linearly interpolate between two values
+   genType  mix(genType  x, genType  y, genType  a)
+   genType  mix(genType  x, genType  y, float    a)
+   genDType mix(genDType x, genDType y, genDType a)
+   genDType mix(genDType x, genDType y, double   a)
+   genType  mix(genType  x, genType  y, genBType a)
+   genDType mix(genDType x, genDType y, genBType a)
+   genIType mix(genIType x, genIType y, genBType a)
+   genUType mix(genUType x, genUType y, genBType a)
+   genBType mix(genBType x, genBType y, genBType a)
+shader.mod|mod -- compute value of one parameter modulo another
+   genType  mod(genType  x, float    y)
+   genType  mod(genType  x, genType  y)
+   genDType mod(genDType x, double   y)
+   genDType mod(genDType x, genDType y)
+shader.modf|modf -- separate a value into its integer and fractional components
+   genType  modf(genType  x, out genType  i)
+   genDType modf(genDType x, out genDType i)
 shader.noise
 shader.noise1
 shader.noise2

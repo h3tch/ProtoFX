@@ -70,6 +70,9 @@ namespace App
 
             return lineCount;
         }
+
+        public static int IndexOfOrLength(this string s, char c, int startIndex = 0)
+            =>(int)Math.Min((uint)s.Length, (uint)s.IndexOf(c, startIndex));
         #endregion
 
         #region Extensions For All Types

@@ -15,7 +15,8 @@ namespace App
         private static int HighlightIndicatorIndex = 8;
         public static int DebugIndicatorIndex { get; } = 9;
         private List<int[]>[] IndicatorRanges;
-        private static string[] KeywordDef;
+        //private static string[] KeywordDef;
+        private static Trie<string> KeywordDef;
         private static Dictionary<string, string> Hint;
         #endregion
 
@@ -36,14 +37,15 @@ namespace App
             }
 
             // set keyword list
-            KeywordDef = lines.Take(j + 1)
-                .Select(k => k.Substring(0, (int)Math.Min((uint)k.Length, (uint)k.IndexOf('|'))).Replace(':', '.'))
+            var list = lines.Take(j + 1)
+                .Select(k => k.Substring(0, k.IndexOfOrLength('|')).Replace(':', '.'))
                 .ToArray();
+            KeywordDef = new Trie<string>(list, list);
 
             // set hint list
             Hint = lines.Take(j + 1).ToDictionary(
-                k => k.Substring(0, (int)Math.Min((uint)k.Length, (uint)k.IndexOf('|'))).Replace(':', '.'),
-                v => v.Substring((int)Math.Min((uint)v.Length, (uint)v.IndexOf('|'))));
+                k => k.Substring(0, k.IndexOfOrLength('|')).Replace(':', '.'),
+                v => v.Substring(v.IndexOfOrLength('|')));
 
             // create lexer
             lexer = new FXLexer(lines.Take(j + 1).ToArray());

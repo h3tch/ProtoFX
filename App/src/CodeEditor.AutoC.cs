@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using FX = App.FXLexer.Styles;
 
@@ -16,8 +15,8 @@ namespace App
         /// to show the auto complete menu</param>
         public void AutoCShow(int position)
         {
-            string search;
-            int skip;
+            string[] search;
+            int[] skip;
 
             // create search string
             SelectString(position, out search, out skip);
@@ -25,12 +24,19 @@ namespace App
             // search for all keywords starting with the
             // search string and not containing subkeywords
             var invalid = new[] { '.', ',' };
-            var keywords = from x in KeywordDef
-                           where x.StartsWith(search) && invalid.All(y => x.IndexOf(y, search.Length) < 0)
-                           select x.Substring(skip);
+            for (int i = 0; i < search.Length; i++)
+            {
+                var keywords = from x in KeywordDef[search[i]]
+                               where x.IndexOfAny(invalid, search[i].Length) <= 0
+                               select x.Substring(skip[i]);
 
-            // show auto complete list
-            AutoCShow(position - WordStartPosition(position, true), keywords.Cat("|"));
+                // show auto complete list
+                if (keywords.Count() > 0)
+                {
+                    AutoCShow(position - WordStartPosition(position, true), keywords.Cat("|"));
+                    return;
+                }
+            }
         }
 
         /// <summary>
@@ -40,8 +46,8 @@ namespace App
         /// <param name="e"></param>
         private void HandleMouseMove(object sender, MouseEventArgs e)
         {
-            string search;
-            int skip;
+            string[] search;
+            int[] skip;
 
             // check if code hints are enabled
             if (EnableCodeHints == false)
@@ -64,10 +70,13 @@ namespace App
 
                     // select hint
                     string hint;
-                    if (Hint.TryGetValue(search, out hint) && hint.Length > 0)
+                    for (int i = 0; i < search.Length; i++)
                     {
-                        CallTipShow(WordStartPosition(pos, true), hint.Substring(1));
-                        return;
+                        if (Hint.TryGetValue(search[i], out hint) && hint.Length > 0)
+                        {
+                            CallTipShow(WordStartPosition(pos, true), hint.Substring(1));
+                            return;
+                        }
                     }
                 }
             }
@@ -81,7 +90,7 @@ namespace App
         /// <param name="position"></param>
         /// <param name="search"></param>
         /// <param name="skip"></param>
-        public void SelectString(int position, out string search, out int skip)
+        public void SelectString(int position, out string[] search, out int[] skip)
         {
             // get word and preceding word at caret position
             var word = GetWordFromPosition(position);
@@ -97,12 +106,18 @@ namespace App
                 // inside the body of a shader block
                 if (blocktype == "shader")
                 {
-                    var text = GetTextRange(block[1], position - block[1]);
+                    // find preceding keyword position
                     var keyPos = Enumerable.Range(block[1], position - block[1]).Reverse()
                         .FirstOrDefault(i => GetStyleAt(i) == (int)FX.GlslKeyword);
-                    var bracePos = text.LastIndexOf(')');
-                    GetWordFromPosition(keyPos);
-                    search = $"{blocktype}.{word}";
+                    // find preceding closing brace
+                    var bracePos = Text.LastIndexOf(')', position, position - block[1]);
+                    // if no keyword was found (keyPos == 0) or,
+                    // in case it was found and lies before a closing brace,
+                    search = keyPos == 0 || keyPos < bracePos
+                        // search for keywords associated with the block
+                        ? new[] { $"{blocktype}.{word}" }
+                        // else search for qualifiers associated with the keyword
+                        : new[] { $"{blocktype}.{GetWordFromPosition(keyPos)}.{word}", $"{blocktype}.{word}" };
                 }
                 else
                 {
@@ -113,9 +128,9 @@ namespace App
                     var cmdPos = Enumerable.Range(linePos, wordPos - linePos).Reverse()
                         .FirstOrDefault(i => GetStyleAt(i) == (int)FX.Command);
                     // the search string depends on whether a command was found
-                    search = cmdPos == 0
+                    search = new[] { cmdPos == 0
                         ? $"{blocktype}.{word}"
-                        : $"{blocktype}.{GetWordFromPosition(cmdPos)}.{word}";
+                        : $"{blocktype}.{GetWordFromPosition(cmdPos)}.{word}" };
                 }
             }
             else
@@ -124,12 +139,12 @@ namespace App
                 var precPos = PrecWordStartPosition(position);
 
                 // style of the preceding word indicates a block
-                search = GetStyleAt(precPos) == (int)FX.Keyword
+                search = new[] { GetStyleAt(precPos) == (int)FX.Keyword
                     ? $"{GetWordFromPosition(precPos)},{word}"
-                    : word;
+                    : word };
             }
 
-            skip = search.Length - word.Length;
+            skip = search.Select(x => x.Length - word.Length).ToArray();
         }
 
         /// <summary>
@@ -155,6 +170,16 @@ namespace App
             => from x in this.GetBlockPositions()
                select new[] { x.Index, x.Index + x.Value.IndexOf('{'), x.Index + x.Length };
         
+        /// <summary>
+        /// Find the start position of the preceding word. If the
+        /// specified position lies outside any word the position of
+        /// the closest preceding word will be returned. If it lies
+        /// inside a word the position of the next preceding word will
+        /// be returns.
+        /// </summary>
+        /// <param name="position">start position</param>
+        /// <returns>Returns the position of the preceding word or 0
+        /// in case no preceding word could be found.</returns>
         public int PrecWordStartPosition(int position)
             => WordStartPosition(Math.Max(0, WordStartPosition(position, true) - 1), true);
     }

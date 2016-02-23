@@ -417,6 +417,7 @@ namespace App
         #endregion
     }
 
+    // convenience extension to the CodeEditor class
     static class CodeEditorExtensions
     {
         /// <summary>
