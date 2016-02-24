@@ -2,15 +2,15 @@
 buffer.size|size <bytes>
 buffer.txt|txt <text_name>
 buffer.usage|usage <usage_hint>
-buffer.usage.DynamicCopy
-buffer.usage.DynamicDraw
-buffer.usage.DynamicRead
-buffer.usage.StaticCopy
-buffer.usage.StaticDraw
-buffer.usage.StaticRead
-buffer.usage.StreamCopy
-buffer.usage.StreamDraw
-buffer.usage.StreamRead
+buffer.usage.dynamicCopy
+buffer.usage.dynamicDraw
+buffer.usage.dynamicRead
+buffer.usage.staticCopy
+buffer.usage.staticDraw
+buffer.usage.staticRead
+buffer.usage.streamCopy
+buffer.usage.streamDraw
+buffer.usage.streamRead
 buffer.xml|xml <path> <node>
 csharp|csharp <name>
 csharp.file|file <path> [path] [...]
@@ -125,6 +125,9 @@ pass.vertout|vertout <vertoutput_name> <output_primitive_type> [write_mode] <out
      The optional argument [write_mode] can be 'gl_SeparateAttribs' (write every
      <output_varying_name> to a new buffer) or the default 'gl_InterleavedAttribs'
      (output varyings for different buffers need to be separated by 'gl_NextBuffer')
+pass.vertout.lines
+pass.vertout.points
+pass.vertout.triangles
 pass.eval|eval <shader_name>
 pass.exec|exec <instance_name>
 pass.frag|frag <shader_name>
@@ -812,11 +815,50 @@ shader:layout.xfb_stride|Specifies the stride between transform feedback buffer 
 shader:layout.points|The output primitive type of the geometry shader are points.
 shader:layout.lines|The output primitive type of the geometry shader are lines.
 shader:layout.lines_adjacency|The output primitive type of the geometry shader are adjacency lines.
-shader:layout.rgba8
 shader:layout.triangles|The output primitive type of the geometry shader are triangles.
 shader:layout.triangles_adjacency|The output primitive type of the geometry shader are adjacency triangles.
 shader:layout.line_strip|The output primitive type of the geometry shader are line strips.
 shader:layout.triangle_strip|The output primitive type of the geometry shader are triangles strips.
+shader:layout.r8
+shader:layout.r8i
+shader:layout.r8ui
+shader:layout.r16
+shader:layout.r16i
+shader:layout.r16ui
+shader:layout.r16f
+shader:layout.r32i
+shader:layout.r32ui
+shader:layout.r32f
+shader:layout.rg8
+shader:layout.rg8i
+shader:layout.rg8ui
+shader:layout.rg16
+shader:layout.rg16i
+shader:layout.rg16ui
+shader:layout.rg16f
+shader:layout.rg32i
+shader:layout.rg32ui
+shader:layout.rg32f
+shader:layout.rgb8
+shader:layout.rgb8i
+shader:layout.rgb8ui
+shader:layout.rgb16
+shader:layout.rgb16i
+shader:layout.rgb16ui
+shader:layout.rgb16f
+shader:layout.rgb32i
+shader:layout.rgb32ui
+shader:layout.rgb32f
+shader:layout.rgba8
+shader:layout.rgba8i
+shader:layout.rgba8ui
+shader:layout.rgba16
+shader:layout.rgba16i
+shader:layout.rgba16ui
+shader:layout.rgba16f
+shader:layout.rgba32i
+shader:layout.rgba32ui
+shader:layout.rgba32f
 shader.ldexp|ldexp -- assemble a floating point number from a value and exponent
    genType  ldexp(genType  x, genIType exp)
    genDType ldexp(genDType x, genIType exp)
