@@ -30,7 +30,8 @@ namespace App
 
             Styles[(int)FX.Default].ForeColor = Color.Silver;
             Styles[(int)FX.Comment].ForeColor = Color.FromArgb(0x7F9F00);
-            Styles[(int)FX.Operator].ForeColor = Color.FromArgb(0x3050CC);
+            Styles[(int)FX.Operator].ForeColor = Color.FromArgb(0x6080D0);
+            Styles[(int)FX.Punctuation].ForeColor = Color.Silver;
             Styles[(int)FX.Preprocessor].ForeColor = Color.FromArgb(0xE47426);
             Styles[(int)FX.Number].ForeColor = Color.FromArgb(0x108030);
             Styles[(int)FX.String].ForeColor = Color.Maroon;

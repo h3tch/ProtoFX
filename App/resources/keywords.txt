@@ -85,8 +85,46 @@ instance.class|class <csharp_name> <c#_class>
 instance.name|name <new_name>
 pass|pass <name>
 pass.comp|comp <shader_name>
-pass.compute|compute <>
-pass.draw|draw <>
+pass.compute|Dispatch compute shader call.
+   compute <num_group_x> <num_group_y> [num_group_z]
+   compute <callbuffer_name>
+pass.draw|Draw vertex based (possibly indexed) geometry.
+ 
+   draw <vertinput_name> <primitive_type> <base_vertex> <vertex_count>
+        [base_instance] [instance_count]
+   draw <vertinput_name> <indexbuffer_name> <index_type> <primitive_type>
+        <base_vertex> <base_index> <index_count> [base_instance] [instance_count]
+   draw <vertinput_name> <callbuffer_name> <primitive_type>
+        [buffer_offset]
+   draw <vertinput_name> <indexbuffer_name> <index_type> <callbuffer_name>
+        <primitive_type> [buffer_offset]
+   
+ primitive_type -- 
+     points, lines, lineLoop, lineStrip, triangles, triangleStrip, triangleFan, patch,
+     linesAdjacency, lineStripAdjacency, trianglesAdjacency, triangleStripAdjacency
+ index_type -- 
+     ubyte, ushort, uint
+pass.draw.lineLoop
+pass.draw.lines
+pass.draw.linesAdjacency
+pass.draw.lineStrip
+pass.draw.lineStripAdjacency
+pass.draw.patch
+pass.draw.points
+pass.draw.triangleFan
+pass.draw.triangles
+pass.draw.trianglesAdjacency
+pass.draw.triangleStrip
+pass.draw.triangleStripAdjacency
+pass.draw.ubyte|index buffer type is unsigned byte
+pass.draw.uint|index buffer type is unsigned integer
+pass.draw.ushort|index buffer type is unsigned short
+pass.fragout|fragout <fragoutput_name>
+pass.vertout|vertout <vertoutput_name> <output_primitive_type> [write_mode] <output_varying_name>
+ 
+     The optional argument [write_mode] can be 'gl_SeparateAttribs' (write every
+     <output_varying_name> to a new buffer) or the default 'gl_InterleavedAttribs'
+     (output varyings for different buffers need to be separated by 'gl_NextBuffer')
 pass.eval|eval <shader_name>
 pass.exec|exec <instance_name>
 pass.frag|frag <shader_name>
@@ -271,6 +309,7 @@ shader.clamp|clamp -- constrain a value to lie between two further values
    genIType clamp(genIType x, int minVal, int maxVal)
    genUType clamp(genUType x, genUType minVal, genUType maxVal)
    genUType clamp(genUType x, uint minVal, uint maxVal)
+shader:const
 shader.cos|cos -- return the cosine of the parameter
    genType cos(genType angle)
 shader.cosh|cosh -- return the hyperbolic cosine of the parameter
@@ -321,6 +360,7 @@ shader:dmat4x4
 shader:dvec2
 shader:dvec3
 shader:dvec4
+shader:else
 shader.EmitStreamVertex|EmitStreamVertex -- emit a vertex to a specified stream
    void EmitStreamVertex(int stream)
 shader.EmitVertex|EmitVertex -- emit a vertex to the first vertex stream
@@ -349,12 +389,14 @@ shader.findMSB|findMSB -- find the index of the most significant bit set to 1 in
 shader.flat|The in/out value will not be interpolated. The
  value given to the fragment shader is the value
  from the Provoking Vertex for that primitive.
+shader:float
 shader.floor|floor -- find the nearest integer less than or equal to the parameter
    genType  floor(genType  x)
    genDType floor(genDType x)
 shader.fma|fma -- perform a fused multiply-add operation
    genType  fma(genType  a, genType  b, genType  c)
    genDType fma(genDType a, genDType b, genDType c)
+shader:for
 shader.fract|fract -- compute the fractional part of the argument
    genType  fract(genType  x)
    genDType fract(genDType x)
@@ -426,6 +468,18 @@ shader.greaterThanEqual|greaterThanEqual -- perform a component-wise greater-tha
 shader.groupMemoryBarrier|groupMemoryBarrier -- controls the ordering of memory transaction issued
                       shader invocation relative to a work group
    void groupMemoryBarrier(void)
+shader:if
+shader:image1D|1D image binding unit
+shader:image1DArray|1D image array binding unit
+shader:image2D|2D image binding unit
+shader:image2DArray|2D image array binding unit
+shader:image2DMS|2D multi-sample image binding unit
+shader:image2DMSArray|2D multi-sample image array binding unit
+shader:image2DRect|2D rectangular image array binding unit
+shader:image3D|3D image array binding unit
+shader:imageBuffer|buffer image binding unit
+shader:imageCube|cube map image binding unit
+shader:imageCubeArray|cube map image array binding unit
 shader.imageAtomicAdd|imageAtomicAdd -- atomically add a value to an existing value in memory
                   and return the original value
    uint imageAtomicAdd(gimage1D image, int   P, uint data)
@@ -673,6 +727,7 @@ shader.imulExtended|imulExtended -- perform a 32- by 32-bit multiply to produce 
    void imulExtended(genIType x, genIType y, out genIType msb, out genIType lsb)
 shader:in|input varying qualifier (read only)
 shader:inout|input and output varying qualifier (read and write)
+shader:int
 shader.intBitsToFloat|intBitsToFloat -- produce a floating point using an
                   encoding supplied as an integer
    genType intBitsToFloat(genIType x)
@@ -703,17 +758,17 @@ shader.inverse|inverse -- calculate the inverse of a matrix
 shader.inversesqrt|inversesqrt -- return the inverse of the square root of the parameter
    genType  inversesqrt(genType  x)
    genDType inversesqrt(genDType x)
-shader.isampler1D
-shader.isampler1DArray
-shader.isampler2D
-shader.isampler2DArray
-shader.isampler2DMS
-shader.isampler2DMSArray
-shader.isampler2DRect
-shader.isampler3D
-shader.isamplerBuffer
-shader.isamplerCube
-shader.isamplerCubeArray
+shader.isampler1D|1D texture binding unit for integer textures
+shader.isampler1DArray|1D texture array binding unit for integer textures
+shader.isampler2D|2D texture binding unit for integer textures
+shader.isampler2DArray|2D texture array binding unit for integer textures
+shader.isampler2DMS|2D multi sample texture binding unit for integer textures
+shader.isampler2DMSArray|2D multi sample texture array binding unit for integer textures
+shader.isampler2DRect|2D rectangular texture binding unit for integer textures
+shader.isampler3D|3D texture binding unit for integer textures
+shader.isamplerBuffer|buffer texture binding unit for integer textures
+shader.isamplerCube|cube map texture binding unit for integer textures
+shader.isamplerCubeArray|cube map texture array binding unit for integer textures
 shader.isinf|isinf -- determine whether the parameter is positive or negative infinity
    genBType isinf(genType x)
    genBType isinf(genDType x)
@@ -736,6 +791,9 @@ shader:layout.depth_less|To pass the depth test the new depth value must be less
 shader:layout.depth_unchanged|To pass the depth test the new depth value must be equal.
 shader:layout.early_fragment_tests|Perform depth test before executing the shader.
 shader:layout.index|Used in combination with the location qualifier for dual source blending.
+shader:layout.local_size_x|
+shader:layout.local_size_y|
+shader:layout.local_size_z|
 shader:layout.location|Assigns the stream to the specified unit.
 shader:layout.offset|Atomic counters also have an optional offset parameter.
  The offset is the byte offset from the beginning of the
@@ -754,6 +812,7 @@ shader:layout.xfb_stride|Specifies the stride between transform feedback buffer 
 shader:layout.points|The output primitive type of the geometry shader are points.
 shader:layout.lines|The output primitive type of the geometry shader are lines.
 shader:layout.lines_adjacency|The output primitive type of the geometry shader are adjacency lines.
+shader:layout.rgba8
 shader:layout.triangles|The output primitive type of the geometry shader are triangles.
 shader:layout.triangles_adjacency|The output primitive type of the geometry shader are adjacency triangles.
 shader:layout.line_strip|The output primitive type of the geometry shader are line strips.
@@ -920,7 +979,7 @@ shader.roundEven|roundEven — find the nearest even integer to the parameter
    genDType roundEven(genDType x)
 shader.sample|The sample​ qualifier forces OpenGL to interpolate this qualifier
  to the location of the particular sample for each generated
- fragment. This is only really useful with per-sample shading. 
+ fragment. This is only really useful with per-sample shading.
 shader:sampler1D|1D texture binding unit
 shader:sampler1DArray|1D texture array binding unit
 shader:sampler1DArrayShadow|1D shadow texture array binding unit
@@ -1197,6 +1256,7 @@ shader.trunc|trunc — find the nearest integer less
 shader.uaddCarry|uaddCarry — Add unsigned integers and generate carry. The
               carry result is the sum of x and y modulo 2^32.
    genUType uaddCarry(genUType x, genUType y, out genUType carry)
+shader:uint
 shader.uintBitsToFloat|uintBitsToFloat -- produce a floating point using an
                     encoding supplied as an integer
    genType uintBitsToFloat(genUType x)
@@ -1218,18 +1278,19 @@ shader.unpackUnorm2x16|unpackSnorm2x16 — unpack floating-point values from an 
    vec2 unpackUnorm2x16(uint p)
 shader.unpackUnorm4x8|unpackSnorm2x16 — unpack floating-point values from an unsigned integer
    vec2 unpackUnorm4x8(uint p)
-shader:usampler1D
-shader:usampler1DArray
-shader:usampler2D
-shader:usampler2DArray
-shader:usampler2DMS
-shader:usampler2DMSArray
-shader:usampler2DRect
-shader:usampler3D
-shader:usamplerBuffer
-shader:usamplerCube
-shader:usamplerCubeArray
-shader.usubBorrow
+shader:usampler1D|1D texture binding unit for unsigned integer textures
+shader:usampler1DArray|1D texture array binding unit for unsigned integer textures
+shader:usampler2D|2D texture binding unit for unsigned integer textures
+shader:usampler2DArray|2D texture array binding unit for unsigned integer textures
+shader:usampler2DMS|2D multi sample texture binding unit for unsigned integer textures
+shader:usampler2DMSArray|2D multi sample texture array binding unit for unsigned integer textures
+shader:usampler2DRect|2D rectangular texture binding unit for unsigned integer textures
+shader:usampler3D|3D texture binding unit for unsigned integer textures
+shader:usamplerBuffer|buffer texture binding unit for unsigned integer textures
+shader:usamplerCube|cube map texture binding unit for unsigned integer textures
+shader:usamplerCubeArray|cube map texture array binding unit for unsigned integer textures
+shader.usubBorrow|usubBorrow -- subtract unsigned integers and generate borrow
+   genUType usubBorrow(genUType x, genUType y, out genUType borrow)
 shader:uvec2
 shader:uvec3
 shader:uvec4
@@ -1237,8 +1298,13 @@ shader:vec2
 shader:vec3
 shader:vec4
 shader:void
+shader:while
+shader:writeonly
 tech|tech <name>
 tech.pass|pass <name>
+tech.init|Execute this pass only once
+ before all 'normal' passes.
+   init <name>
 text|text <name>
 texture|texture <name>
 texture.buff|buff <name>

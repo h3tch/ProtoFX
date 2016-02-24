@@ -1,6 +1,7 @@
 ﻿using ScintillaNET;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace App
@@ -24,6 +25,7 @@ namespace App
             Char,
             Comment,
             Operator,
+            Punctuation,
             Preprocessor,
         }
 
@@ -36,8 +38,15 @@ namespace App
             LineComment,
             BlockComment,
             Preprocessor,
-            Operator
+            Operator,
+            Punctuation,
         }
+
+        private UnicodeCategory[] Punctuation = new[] {
+            UnicodeCategory.OpenPunctuation,
+            UnicodeCategory.ClosePunctuation,
+            UnicodeCategory.ConnectorPunctuation,
+        };
 
         private HashSet<string>[] keywords;
         #endregion
@@ -150,6 +159,11 @@ namespace App
                                 state = State.BlockComment;
                                 startPos++;
                             }
+                            else
+                            {
+                                editor.SetStyling(1, (int)Styles.Operator);
+                                state = State.Operator;
+                            }
                         }
                         // is string
                         else if (c == '"' || c == '\'')
@@ -164,9 +178,15 @@ namespace App
                             state = State.Preprocessor;
                         }
                         // is operator
-                        else if (char.IsSymbol(c))
+                        else if (IsMathSymbol(c))
                         {
                             editor.SetStyling(1, (int)Styles.Operator);
+                            state = State.Operator;
+                        }
+                        // is punctuation
+                        else if (Punctuation.Any(x => x == char.GetUnicodeCategory(c)))
+                        {
+                            editor.SetStyling(1, (int)Styles.Punctuation);
                             state = State.Operator;
                         }
                         // is number
@@ -245,7 +265,7 @@ namespace App
                     // OPERATOR STATE
                     case State.Operator:
                         // is multi char operator like >=
-                        if (char.IsSymbol(c))
+                        if (IsMathSymbol(c))
                         {
                             length++;
                         }
@@ -259,10 +279,27 @@ namespace App
                         }
                         break;
 
+                    // PUNCTUATION STATE
+                    case State.Punctuation:
+                        // is multi char operator like >=
+                        if (Punctuation.Any(x => x == char.GetUnicodeCategory(c)))
+                        {
+                            length++;
+                        }
+                        // end of operator
+                        else
+                        {
+                            editor.SetStyling(length, (int)Styles.Punctuation);
+                            length = 0;
+                            state = State.Unknown;
+                            goto REPROCESS;
+                        }
+                        break;
+
                     // NUMBER STATE
                     case State.Number:
                         // still a number
-                        if (char.IsDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || c == 'x')
+                        if (char.IsDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || c == 'x' || c == '.')
                         {
                             length++;
                         }
@@ -315,5 +352,7 @@ namespace App
 
             return startPos;
         }
+
+        private bool IsMathSymbol(char c) => char.IsSymbol(c) || c == '*' || c == '-';
     }
 }
