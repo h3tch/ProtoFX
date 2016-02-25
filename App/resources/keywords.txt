@@ -815,6 +815,9 @@ shader:layout.xfb_stride|Specifies the stride between transform feedback buffer 
 shader:layout.points|The output primitive type of the geometry shader are points.
 shader:layout.lines|The output primitive type of the geometry shader are lines.
 shader:layout.lines_adjacency|The output primitive type of the geometry shader are adjacency lines.
+shader:layout.max_vertices|The number must be a compile-time constant, and it
+ defines the maximum number of vertices that will
+ be written by a single invocation of the GS.
 shader:layout.triangles|The output primitive type of the geometry shader are triangles.
 shader:layout.triangles_adjacency|The output primitive type of the geometry shader are adjacency triangles.
 shader:layout.line_strip|The output primitive type of the geometry shader are line strips.
@@ -1354,6 +1357,17 @@ texture.img|img <name>
 texture.samp|samp <name>
 vertinput|vertinput <name>
 vertinput.attr|attr <buff_name> <type> <dim> [stride] [offset] [divisor]
+vertinput.attr.byte
+vertinput.attr.double
+vertinput.attr.float
+vertinput.attr.int
+vertinput.attr.short
+vertinput.attr.ubyte
+vertinput.attr.uint
+vertinput.attr.unsignedByte
+vertinput.attr.unsignedInt
+vertinput.attr.unsignedShort
+vertinput.attr.ushort
 vertoutput|vertoutput <name>
 vertoutput.buff|buff <name>
 vertoutput.pause|pause <true_false>

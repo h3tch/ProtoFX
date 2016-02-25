@@ -1,30 +1,5 @@
 // custurm clipping test
 
-// Simple GLSL vertex shader transforming
-// vertex positions from model to perspective space
-shader vert vs_simple {
-	#version 450
-	
-	// shader variable which will be set by "SimpleCamera.cs"
-	// (only uniform variables can be accessed outside the shader)
-	layout(binding = 0) uniform SimpleCamera {
-		mat4 viewProj;
-	} camera;
-	
-	// vertex input as specified by 'in_vert'
-	layout(location = 0) in vec4 in_pos;
-	layout(location = 1) in vec4 in_col;
-
-	// vertex shader output
-	layout(location = 0) out vec4 vs_col;
-	
-	void main ()
-	{
-		<<<gl_Position>>> = <<<camera.viewProj>>> * <<<in_pos>>>;
-		vs_col = <<<in_col>>>;
-	}
-}
-
 //////////////////
 // DATA OBJECTS //
 //////////////////
@@ -38,19 +13,19 @@ buffer draw_calls {
 
 // OBJECT INFORMATION
 
-buffer obj_pos {
+buffer obj_axisx {
 	usage staticDraw
-	xml "scene.xml" data/object/position
+	xml "scene.xml" data/object/axisx
 }
 
-buffer obj_rot {
+buffer obj_axisy {
 	usage staticDraw
-	xml "scene.xml" data/object/rotation
+	xml "scene.xml" data/object/axisy
 }
 
-buffer obj_sca {
+buffer obj_axisz {
 	usage staticDraw
-	xml "scene.xml" data/object/scale
+	xml "scene.xml" data/object/axisz
 }
 
 // VERTEX INFORMATION
@@ -75,11 +50,11 @@ buffer vert_idx {
 /////////////////////////
 
 vertinput in_vert {
-	attr obj_pos float 4 0 0 1
-	attr obj_rot float 4 0 0 1
-	attr obj_sca float 4 0 0 1
 	attr vert_pos float 4
 	attr vert_idx float 4
+	attr obj_axisx float 4 0 0 1
+	attr obj_axisy float 4 0 0 1
+	attr obj_axisz float 4 0 0 1
 }
 
 /////////////
@@ -100,21 +75,39 @@ shader vert vs_simple {
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
 	layout(location = 1) in vec4 in_col;
+	layout(location = 2) in vec4 axisx;
+	layout(location = 3) in vec4 axisy;
+	layout(location = 4) in vec4 axisz;
 
 	// vertex shader output
-	layout(location = 0) out vec4 vs_col;
+	layout(location = 0) out vec4 col;
 	
 	void main ()
 	{
-		<<<gl_Position>>> = <<<camera.viewProj>>> * <<<in_pos>>>;
-		vs_col = <<<in_col>>>;
+		mat4 model = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
+		<<gl_Position>> = <<camera.viewProj>> * <<model>> * <<in_pos>>;
+		col = <<in_col>>;
 	}
 }
 
 shader geom gs_simple {
 	#version 450
 	
+	layout(triangles) in;
+	layout(location = 0) in  vec4 in_col[];
 	
+	layout(triangles, max_vertices = 3) out;
+	layout(location = 0) out vec4 col;
+	
+	void main ()
+	{
+		for (int v = 0; v < gl_in.length(); v++) {
+			gl_Position = gl_in[0].gl_Position;
+			col = in_col[0];
+			EmitVertex();
+		}
+		EndPrimitive();
+	}
 }
 
 // Simple GLSL fragment shader writing
@@ -122,15 +115,15 @@ shader geom gs_simple {
 shader frag fs_simple {
 	#version 450
 	
-	// fragment shader input (see vs_col in vs_simple)
-	layout(location = 0) in vec4 gs_col;
+	// fragment shader input (see col in vs_simple)
+	layout(location = 0) in vec4 in_col;
 	
 	// fragment color output
 	out vec4 color;
 	
 	void main ()
 	{
-		color = <<<gs_col>>>;
+		color = <<in_col>>;
 	}
 }
 

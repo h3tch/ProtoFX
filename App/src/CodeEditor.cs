@@ -112,6 +112,9 @@ namespace App
             AdditionalSelectionTyping = true;
             VirtualSpaceOptions = VirtualSpace.RectangularSelection;
 
+            IndentWidth = 4;
+            UseTabs = true;
+
             // enable drag & drop
             AllowDrop = true;
             DragOver += new DragEventHandler(HandleDragOver);

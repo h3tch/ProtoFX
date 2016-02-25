@@ -1,5 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
+using IntType = OpenTK.Graphics.OpenGL4.VertexAttribIntegerType;
+using PointerType = OpenTK.Graphics.OpenGL4.VertexAttribPointerType;
 
 namespace App
 {
@@ -71,12 +73,12 @@ namespace App
             GL.EnableVertexAttribArray(unit);
 
             // bind buffer to vertex array attribute
-            VertexAttribIntegerType typei;
-            VertexAttribPointerType typef;
+            VertAttrIntType typei;
+            VertAttrType typef;
             if (Enum.TryParse(typename, true, out typei))
-                GL.VertexAttribIPointer(unit, length, typei, stride, (IntPtr)offset);
+                GL.VertexAttribIPointer(unit, length, (IntType)typei, stride, (IntPtr)offset);
             else if (Enum.TryParse(typename, true, out typef))
-                GL.VertexAttribPointer(unit, length, typef, false, stride, offset);
+                GL.VertexAttribPointer(unit, length, (PointerType)typef, false, stride, offset);
             else
                 err.Add($"Type '{typename}' is not supported.", cmd);
 
@@ -96,6 +98,31 @@ namespace App
                 GL.DeleteVertexArray(glname);
                 glname = 0;
             }
+        }
+
+        private enum VertAttrIntType
+        {
+            Byte = 5120,
+            UByte = 5121,
+            UnsignedByte = 5121,
+            Short = 5122,
+            UShort = 5123,
+            UnsignedShort = 5123,
+            Int = 5124,
+            UInt = 5125,
+            UnsignedInt = 5125
+        }
+
+        private enum VertAttrType
+        {
+            Float = 5126,
+            Double = 5130,
+            Half = 5131,
+            HalfFloat = 5131,
+            Fixed = 5132,
+            UInt_2_10_10_10 = 33640,
+            UnsignedInt_2_10_10_10 = 33640,
+            Int_2_10_10_10 = 36255
         }
     }
 }

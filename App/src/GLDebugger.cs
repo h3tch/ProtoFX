@@ -353,7 +353,7 @@ namespace App
                 return glsl;
 
             // remove WATCH indicators for runtime code
-            var runBody = body.Value.Replace("<<<", "").Replace(">>>", "");
+            var runBody = body.Value.Replace("<<", "").Replace(">>", "");
 
             // if debugging is disabled, there is no need to generate debug code
             if (debug == false)
@@ -374,7 +374,7 @@ namespace App
                 dbgBody = dbgBody.Insert(newline, insertString);
                 insertOffset += insertString.Length;
             }
-            dbgBody = dbgBody.Replace("<<<", "").Replace(">>>", "");
+            dbgBody = dbgBody.Replace("<<", "").Replace(">>", "");
 
             // replace 'return' keyword with '{store(info); return;}'
             dbgBody = dbgBody.Replace("return", "{_dbgStore(0, ivec2(_dbgIdx-1, _dbgFrame));return;}");
@@ -411,13 +411,13 @@ namespace App
 
             // insert debug information
             var rsHead = Properties.Resources.dbg
-                .Replace("<<<stage offset>>>", (stage_size * stage_index).ToString());
+                .Replace("<<stage offset>>", (stage_size * stage_index).ToString());
             var rsBody = Properties.Resources.dbgBody
-                .Replace("<<<debug uniform>>>", debug_uniform[stage_index])
-                .Replace("<<<debug frame>>>", "int _dbgFrame")
-                .Replace("<<<debug condition>>>", debug_condition[stage_index])
-                .Replace("<<<debug code>>>", dbgBody)
-                .Replace("<<<runtime code>>>", runBody);
+                .Replace("<<debug uniform>>", debug_uniform[stage_index])
+                .Replace("<<debug frame>>", "int _dbgFrame")
+                .Replace("<<debug condition>>", debug_condition[stage_index])
+                .Replace("<<debug code>>", dbgBody)
+                .Replace("<<runtime code>>", runBody);
             
             return head + '\n' + rsHead + '\n' + rsBody;
         }
