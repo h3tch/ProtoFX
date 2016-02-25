@@ -67,7 +67,7 @@ namespace App.Properties {
         ///#define _DBG_FLOAT 4
         ///#define _i2f intBitsToFloat
         ///#define _u2f uintBitsToFloat
-        ///const int _dbgStageOffset = &lt;&lt;&lt;stage offset&gt;&gt;&gt;;
+        ///const int _dbgStageOffset = &lt;&lt;stage offset&gt;&gt;;
         ///
         ///layout(rgba32f) uniform writeonly imageBuffer _dbgOut;
         ///
@@ -78,7 +78,7 @@ namespace App.Properties {
         ///int _dbgStore(int idx, ivec4 val) {
         ///	return _dbgStore(idx, vec4(_i2f(val.x), _i2f(val.y), _i2f(val.z), _i2f(val.w)));
         ///}
-        ///int _dbgStore(int idx, uvec4 va [rest of string was truncated]&quot;;.
+        ///int _dbgStore(int idx, uvec4 val) [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string dbg {
             get {
@@ -87,21 +87,21 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to uniform &lt;&lt;&lt;debug uniform&gt;&gt;&gt;;
-        ///uniform &lt;&lt;&lt;debug frame&gt;&gt;&gt;;
+        ///   Looks up a localized string similar to uniform &lt;&lt;debug uniform&gt;&gt;;
+        ///uniform &lt;&lt;debug frame&gt;&gt;;
         ///
         ///void _dbgMain() {
         ///	int _dbgIdx = 1;
-        ///	&lt;&lt;&lt;debug code&gt;&gt;&gt;
+        ///	&lt;&lt;debug code&gt;&gt;
         ///	_dbgStore(0, ivec2(_dbgIdx-1, _dbgFrame));
         ///}
         ///
         ///void _runMain() {
-        ///	&lt;&lt;&lt;runtime code&gt;&gt;&gt;
+        ///	&lt;&lt;runtime code&gt;&gt;
         ///}
         ///
         ///void main() {
-        ///	if (&lt;&lt;&lt;debug condition&gt;&gt;&gt;)
+        ///	if (&lt;&lt;debug condition&gt;&gt;)
         ///		_dbgMain();
         ///	else
         ///		_runMain();
@@ -110,6 +110,24 @@ namespace App.Properties {
         internal static string dbgBody {
             get {
                 return ResourceManager.GetString("dbgBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &gt;&gt;.
+        /// </summary>
+        internal static string DEBUG_INDICATOR_CLOSE {
+            get {
+                return ResourceManager.GetString("DEBUG_INDICATOR_CLOSE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;&lt;.
+        /// </summary>
+        internal static string DEBUG_INDICATOR_OPEN {
+            get {
+                return ResourceManager.GetString("DEBUG_INDICATOR_OPEN", resourceCulture);
             }
         }
         
@@ -208,15 +226,15 @@ namespace App.Properties {
         ///buffer.size|size &lt;bytes&gt;
         ///buffer.txt|txt &lt;text_name&gt;
         ///buffer.usage|usage &lt;usage_hint&gt;
-        ///buffer.usage.DynamicCopy
-        ///buffer.usage.DynamicDraw
-        ///buffer.usage.DynamicRead
-        ///buffer.usage.StaticCopy
-        ///buffer.usage.StaticDraw
-        ///buffer.usage.StaticRead
-        ///buffer.usage.StreamCopy
-        ///buffer.usage.StreamDraw
-        ///buffer.usage.StreamRead
+        ///buffer.usage.dynamicCopy
+        ///buffer.usage.dynamicDraw
+        ///buffer.usage.dynamicRead
+        ///buffer.usage.staticCopy
+        ///buffer.usage.staticDraw
+        ///buffer.usage.staticRead
+        ///buffer.usage.streamCopy
+        ///buffer.usage.streamDraw
+        ///buffer.usage.streamRead
         ///buffer.xml|xml &lt;path&gt; &lt;node&gt;
         ///csharp|csharp &lt;name&gt;
         ///csharp.file|file &lt;path&gt; [path] [...]

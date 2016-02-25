@@ -291,7 +291,12 @@ namespace App
                     typeIsSet = true;
                 else if (modeIsSet == false && Enum.TryParse(arg.Text, true, out primitive))
                     modeIsSet = true;
+                else
+                    err.Add($"Unable to process argument '{arg.Text}'.", cmd);
             }
+
+            if (err.HasErrors())
+                return;
             
             // a draw call must specify a primitive type
             if (modeIsSet == false)
@@ -605,8 +610,8 @@ namespace App
                         GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexbuf);
                         GL.BindBuffer(BufferTarget.DrawIndirectBuffer, indirect);
                         foreach (var draw in cmd)
-                            GL.DrawElementsIndirect(draw.mode, (All)draw.indextype,
-                                draw.indirectPtr);
+                            GL.MultiDrawElementsIndirect((All)draw.mode, (All)draw.indextype,
+                                draw.indirectPtr, draw.indirectCount, draw.indirectStride);
                         break;
 
                     case DrawFunc.ElementsInstanced:
@@ -641,11 +646,31 @@ namespace App
             {
                 this.mode = mode;
                 this.indextype = indextype;
+                // iBaseVertex, vBaseVertex, voStream, indirectPtr
                 arg0 = arg.Count > 0 ? arg[0] : 0;
-                arg1 = arg.Count > 1 ? arg[1] : (drawfunc == DrawFunc.TransformFeedback ? 1 : 0);
-                arg2 = arg.Count > 2 ? arg[2] : 0;
-                arg3 = arg.Count > 3 ? arg[3] : (drawfunc == DrawFunc.ArraysInstanced ? 1 : 0);
-                arg4 = arg.Count > 4 ? arg[4] : (drawfunc == DrawFunc.ElementsInstanced ? 1 : 0);
+                // iBaseIndex, vVertexCount, indirectCount
+                arg1 = arg.Count > 1 ? arg[1] : 
+                    drawfunc == DrawFunc.TransformFeedback
+                    || drawfunc == DrawFunc.ArraysIndirect
+                    || drawfunc == DrawFunc.ElementsIndirect
+                    ? 1
+                    : 0;
+                // iIndexCount, vBaseInstance, indirectStride
+                arg2 = arg.Count > 2 ? arg[2] :
+                    drawfunc == DrawFunc.TransformFeedback
+                    ? 1
+                    : drawfunc == DrawFunc.ArraysIndirect
+                        ? 16
+                        : drawfunc == DrawFunc.ElementsIndirect
+                            ? 32
+                            : 0;
+                // iBaseInstance, vInstanceCount
+                arg3 = arg.Count > 3 ? arg[3] : 0;
+                // iInstanceCount
+                arg4 = arg.Count > 4 ? arg[4] : 
+                    drawfunc == DrawFunc.ElementsInstanced
+                    ? 1
+                    : 0;
             }
 
             // arguments for indexed buffer drawing
@@ -668,6 +693,8 @@ namespace App
             public int voInstanceCount { get { return arg1; } set { arg1 = value; } }
             // get arguments for indirect drawing
             public IntPtr indirectPtr { get { return (IntPtr)arg0; } set { arg0 = (int)value; } }
+            public int indirectCount { get { return arg1; } set { arg1 = value; } }
+            public int indirectStride { get { return arg2; } set { arg2 = value; } }
         }
 
         private struct CompCall

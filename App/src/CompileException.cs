@@ -7,7 +7,7 @@ namespace App
     class CompileException : Exception, IEnumerable<CompileException.Error>, IDisposable
     {
         private List<string> callstack;
-        private List<Error> messages = new List<Error>();
+        private List<Error> messages;
 
         // compile call stack into a single string
         private string callstackstring => callstack.Cat(": ");
@@ -26,6 +26,7 @@ namespace App
         {
             callstack = new List<string>();
             callstack.Add(callstackstring);
+            messages = new List<Error>();
         }
         
         /// <summary>
@@ -37,6 +38,7 @@ namespace App
         {
             callstack = err.callstack;
             callstack.Add(callstackstring);
+            messages = err.messages;
         }
         
         /// <summary>

@@ -95,9 +95,10 @@ pass.draw|Draw vertex based (possibly indexed) geometry.
    draw <vertinput_name> <indexbuffer_name> <index_type> <primitive_type>
         <base_vertex> <base_index> <index_count> [base_instance] [instance_count]
    draw <vertinput_name> <callbuffer_name> <primitive_type>
-        [buffer_offset]
+        [buffer_offset] [draw_count] [stride]
    draw <vertinput_name> <indexbuffer_name> <index_type> <callbuffer_name>
-        <primitive_type> [buffer_offset]
+        <primitive_type> [buffer_offset]  [draw_count] [stride]
+   draw <vertoutput_name> <primitive_type> [vertoutput_stream] [instance_count]
    
  primitive_type -- 
      points, lines, lineLoop, lineStrip, triangles, triangleStrip, triangleFan, patch,

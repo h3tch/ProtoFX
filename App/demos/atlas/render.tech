@@ -8,41 +8,41 @@
 
 buffer draw_calls {
 	usage staticDraw
-	xml "scene.xml" data/draw/indirect
+	xml "scene.xml" data/call
 }
 
 // OBJECT INFORMATION
 
 buffer obj_axisx {
 	usage staticDraw
-	xml "scene.xml" data/object/axisx
+	xml "scene.xml" data/axisx
 }
 
 buffer obj_axisy {
 	usage staticDraw
-	xml "scene.xml" data/object/axisy
+	xml "scene.xml" data/axisy
 }
 
 buffer obj_axisz {
 	usage staticDraw
-	xml "scene.xml" data/object/axisz
+	xml "scene.xml" data/axisz
 }
 
 // VERTEX INFORMATION
 
 buffer vert_pos {
 	usage staticDraw
-	xml "scene.xml" data/vertex/position
+	xml "scene.xml" data/position
 }
 
 buffer vert_col {
 	usage staticDraw
-	xml "scene.xml" data/vertex/color
+	xml "scene.xml" data/color
 }
 
 buffer vert_idx {
 	usage staticDraw
-	xml "scene.xml" data/vertex/index
+	xml "scene.xml" data/index
 }
 
 /////////////////////////
@@ -51,7 +51,7 @@ buffer vert_idx {
 
 vertinput in_vert {
 	attr vert_pos float 4
-	attr vert_idx float 4
+	attr vert_col float 4
 	attr obj_axisx float 4 0 0 1
 	attr obj_axisy float 4 0 0 1
 	attr obj_axisz float 4 0 0 1
@@ -94,16 +94,16 @@ shader geom gs_simple {
 	#version 450
 	
 	layout(triangles) in;
-	layout(location = 0) in  vec4 in_col[];
+	layout(location = 0) in vec4 in_col[];
 	
-	layout(triangles, max_vertices = 3) out;
+	layout(triangle_strip, max_vertices = 3) out;
 	layout(location = 0) out vec4 col;
 	
 	void main ()
 	{
 		for (int v = 0; v < gl_in.length(); v++) {
-			gl_Position = gl_in[0].gl_Position;
-			col = in_col[0];
+			gl_Position = gl_in[v].gl_Position;
+			col = in_col[v];
 			EmitVertex();
 		}
 		EndPrimitive();
@@ -155,6 +155,7 @@ instance cs_camera {
 pass pass_render {
 	// ATTATCH SHADERS
 	vert vs_simple
+	frag gs_simple
 	frag fs_simple
 	
 	// OPENGL FUNCTIONS
@@ -170,18 +171,7 @@ pass pass_render {
 	exec cs_camera
 	
 	// DRAW CALLS
-	// buff_idx .... name of the ellement array buffer
-	//               containing triangle indices
-	// in_vert ..... name of the vertex input object defining
-	//               how vertex data should be accessed
-	// ushort ...... the format of the indices stored in buff_idx
-	// triangles ... the primitive type stored in buff_idx
-	//               (in this case a triangle list)
-	// 0 ........... the fisrt vertex to use is vertex 0
-	// 0 ........... the first index of 'buff_idx' to use is 0
-	// 36 .......... use 36 indices in 'buff_idx'
-	//               (= 36/3 = 12 triangles)
-	draw buf_idx in_vert ushort triangles 0 0 36
+	draw vert_idx in_vert ushort triangles draw_calls
 }
 
 ///////////////

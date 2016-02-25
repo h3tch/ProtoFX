@@ -6,13 +6,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using static App.Properties.Resources;
 
 namespace App
 {
     class GLDebugger
     {
         #region FIELDS
-        public static string regexDbgVar = @"<<<[\s\w\d_\.\[\]]*>>>";
+        public static string regexDbgVar = $@"{DEBUG_INDICATOR_OPEN}[\s\w\d_\.\[\]]*{DEBUG_INDICATOR_CLOSE}";
         // debug resources definitions
         private static string dbgBufKey;
         private static string dbgTexKey;
@@ -353,7 +354,7 @@ namespace App
                 return glsl;
 
             // remove WATCH indicators for runtime code
-            var runBody = body.Value.Replace("<<", "").Replace(">>", "");
+            var runBody = body.Value.Replace(DEBUG_INDICATOR_OPEN, "").Replace(DEBUG_INDICATOR_CLOSE, "");
 
             // if debugging is disabled, there is no need to generate debug code
             if (debug == false)
@@ -364,7 +365,8 @@ namespace App
             foreach (Match match in watch)
             {
                 // get debug variable name
-                var varname = match.Value.Substring(3, match.Value.Length - 6);
+                var varname = match.Value.Substring(DEBUG_INDICATOR_OPEN.Length,
+                    match.Value.Length - DEBUG_INDICATOR_OPEN.Length - DEBUG_INDICATOR_CLOSE.Length);
                 // get next newline-indicator
                 int newline = dbgBody.IndexOf('\n', match.Index + insertOffset);
                 if (dbgBody[newline - 1] == '\r')
@@ -374,7 +376,7 @@ namespace App
                 dbgBody = dbgBody.Insert(newline, insertString);
                 insertOffset += insertString.Length;
             }
-            dbgBody = dbgBody.Replace("<<", "").Replace(">>", "");
+            dbgBody = dbgBody.Replace(DEBUG_INDICATOR_OPEN, "").Replace(DEBUG_INDICATOR_CLOSE, "");
 
             // replace 'return' keyword with '{store(info); return;}'
             dbgBody = dbgBody.Replace("return", "{_dbgStore(0, ivec2(_dbgIdx-1, _dbgFrame));return;}");
@@ -411,13 +413,13 @@ namespace App
 
             // insert debug information
             var rsHead = Properties.Resources.dbg
-                .Replace("<<stage offset>>", (stage_size * stage_index).ToString());
+                .Replace($"{DEBUG_INDICATOR_OPEN}stage offset{DEBUG_INDICATOR_CLOSE}", (stage_size * stage_index).ToString());
             var rsBody = Properties.Resources.dbgBody
-                .Replace("<<debug uniform>>", debug_uniform[stage_index])
-                .Replace("<<debug frame>>", "int _dbgFrame")
-                .Replace("<<debug condition>>", debug_condition[stage_index])
-                .Replace("<<debug code>>", dbgBody)
-                .Replace("<<runtime code>>", runBody);
+                .Replace($"{DEBUG_INDICATOR_OPEN}debug uniform{DEBUG_INDICATOR_CLOSE}", debug_uniform[stage_index])
+                .Replace($"{DEBUG_INDICATOR_OPEN}debug frame{DEBUG_INDICATOR_CLOSE}", "int _dbgFrame")
+                .Replace($"{DEBUG_INDICATOR_OPEN}debug condition{DEBUG_INDICATOR_CLOSE}", debug_condition[stage_index])
+                .Replace($"{DEBUG_INDICATOR_OPEN}debug code{DEBUG_INDICATOR_CLOSE}", dbgBody)
+                .Replace($"{DEBUG_INDICATOR_OPEN}runtime code{DEBUG_INDICATOR_CLOSE}", runBody);
             
             return head + '\n' + rsHead + '\n' + rsBody;
         }
