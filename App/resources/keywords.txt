@@ -169,9 +169,9 @@ shader,eval|eval
    in  vec4  gl_in[].gl_Position
    in  float gl_in[].gl_PointSize
    in  float gl_in[].gl_ClipDistance[]
-   out vec4  gl_out[].gl_Position
-   out float gl_out[].gl_PointSize
-   out float gl_out[].gl_ClipDistance[]
+   out vec4  gl_Position
+   out float gl_PointSize
+   out float gl_ClipDistance[]
 shader,frag|frag
    in  vec4  gl_FragCoord
    in  bool  gl_FrontFacing
@@ -194,9 +194,9 @@ shader,geom|geom
    out int   gl_PrimitiveID
    out int   gl_Layer
    out int   gl_ViewportIndex
-   out vec4  gl_out[].gl_Position
-   out float gl_out[].gl_PointSize
-   out float gl_out[].gl_ClipDistance[]
+   out vec4  gl_Position
+   out float gl_PointSize
+   out float gl_ClipDistance[]
 shader,tess|tess
    in  int   gl_PatchVerticesIn
    in  int   gl_PrimitiveID
