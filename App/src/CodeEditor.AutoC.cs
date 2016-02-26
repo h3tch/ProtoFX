@@ -102,6 +102,8 @@ namespace App
             if (block != null && block[1] < position)
             {
                 var blocktype = GetWordFromPosition(block[0]);
+                var blockannopos = NextWordStartPosition(block[0]);
+                var blockanno = blockannopos < block[1] ? GetWordFromPosition(blockannopos) : "";
 
                 // inside the body of a shader block
                 if (blocktype == "shader")
@@ -181,6 +183,30 @@ namespace App
         /// <returns>Returns the position of the preceding word or 0
         /// in case no preceding word could be found.</returns>
         public int PrecWordStartPosition(int position)
-            => WordStartPosition(Math.Max(0, WordStartPosition(position, true) - 1), true);
+        {
+            // go to next non-word char
+            while (position > 0 && char.IsLetterOrDigit(Text[position]))
+                position--;
+            // go to next word char (the end of the preceding word)
+            while (position > 0 && !char.IsLetterOrDigit(Text[position]))
+                position--;
+            // go to start of the preceding word
+            while (position > 0 && char.IsLetterOrDigit(Text[position - 1]))
+                position--;
+
+            return position;
+        }
+
+        public int NextWordStartPosition(int position)
+        {
+            // go to the first non-word char
+            while (position < Text.Length && char.IsLetterOrDigit(Text[position]))
+                position++;
+            // go to the first word char (the start of the next word)
+            while (position < Text.Length && !char.IsLetterOrDigit(Text[position]))
+                position++;
+
+            return position;
+        }
     }
 }
