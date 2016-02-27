@@ -16,7 +16,7 @@ namespace App
         public static int DebugIndicatorIndex { get; } = 9;
         private List<int[]>[] IndicatorRanges;
         //private static string[] KeywordDef;
-        private static Trie<string> KeywordDef;
+        private static Trie<string> KeywordTrie;
         private static Dictionary<string, string> Hint;
         #endregion
 
@@ -40,7 +40,7 @@ namespace App
             var list = lines.Take(j + 1)
                 .Select(k => k.Substring(0, k.IndexOfOrLength('|')).Replace(':', '.'))
                 .ToArray();
-            KeywordDef = new Trie<string>(list, list);
+            KeywordTrie = new Trie<string>(list, list);
 
             // set hint list
             Hint = lines.Take(j + 1).ToDictionary(

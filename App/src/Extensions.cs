@@ -156,7 +156,7 @@ namespace App
         /// <typeparam name="T"></typeparam>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static IEnumerable<T> Cat<T>(this IEnumerable<T[]> id)
+        public static IEnumerable<T> Cat<T>(this IEnumerable<IEnumerable<T>> id)
         {
             foreach (var el in id)
                 foreach (var e in el)

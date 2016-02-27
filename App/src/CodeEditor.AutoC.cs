@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using FX = App.FXLexer.Styles;
 
@@ -24,19 +25,15 @@ namespace App
             // search for all keywords starting with the
             // search string and not containing subkeywords
             var invalid = new[] { '.', ',' };
-            for (int i = 0; i < search.Length; i++)
-            {
-                var keywords = from x in KeywordDef[search[i]]
-                               where x.IndexOfAny(invalid, search[i].Length) <= 0
-                               select x.Substring(skip[i]);
+            var keywords = search.Zip(skip,
+                (s, i) => from x in KeywordTrie[s]
+                          where x.IndexOfAny(invalid, s.Length) <= 0
+                          select x.Substring(i))
+                .Cat();
 
-                // show auto complete list
-                if (keywords.Count() > 0)
-                {
-                    AutoCShow(position - WordStartPosition(position, true), keywords.Cat("|"));
-                    return;
-                }
-            }
+            // show auto complete list
+            if (keywords.Count() > 0)
+                AutoCShow(position - WordStartPosition(position, true), keywords.Cat("|"));
         }
 
         /// <summary>
@@ -47,6 +44,7 @@ namespace App
         private void HandleMouseMove(object sender, MouseEventArgs e)
         {
             string[] search;
+            string hint;
             int[] skip;
 
             // check if code hints are enabled
@@ -69,15 +67,12 @@ namespace App
                     SelectString(pos, out search, out skip);
 
                     // select hint
-                    string hint;
                     for (int i = 0; i < search.Length; i++)
-                    {
                         if (Hint.TryGetValue(search[i], out hint) && hint.Length > 0)
                         {
                             CallTipShow(WordStartPosition(pos, true), hint.Substring(1));
                             return;
                         }
-                    }
                 }
             }
 
@@ -101,49 +96,75 @@ namespace App
             // inside the body of the block
             if (block != null && block[1] < position)
             {
-                var blocktype = GetWordFromPosition(block[0]);
-                var blockannopos = NextWordStartPosition(block[0]);
-                var blockanno = blockannopos < block[1] ? GetWordFromPosition(blockannopos) : "";
-
+                // get block header
+                var header = GetTextRange(block[0], block[1] - block[0])
+                    .Split(new[] { ' ', '\n', '\r' })
+                    .Where(x => x.Length > 0)
+                    .ToArray();
+                var type = header[0];
+                var anno = header[1];
+                
                 // inside the body of a shader block
-                if (blocktype == "shader")
+                if (type == "shader")
                 {
-                    // find preceding keyword position
-                    var keyPos = Enumerable.Range(block[1], position - block[1]).Reverse()
+                    // find next and preceding keyword
+                    var nextPos = Enumerable.Range(position, block[2] - position)
                         .FirstOrDefault(i => GetStyleAt(i) == (int)FX.GlslKeyword);
+                    var precPos = Enumerable.Range(block[1] + 1, position - block[1]).Reverse()
+                        .FirstOrDefault(i => GetStyleAt(i) == (int)FX.GlslKeyword);
+                    var next = GetWordFromPosition(nextPos);
+                    var prec = GetWordFromPosition(precPos);
+
                     // find preceding closing brace
                     var bracePos = Text.LastIndexOf(')', position, position - block[1]);
+
                     // if no keyword was found (keyPos == 0) or,
                     // in case it was found and lies before a closing brace,
-                    search = keyPos == 0 || keyPos < bracePos
-                        // search for keywords associated with the block
-                        ? new[] { $"{blocktype}.{word}" }
-                        // else search for qualifiers associated with the keyword
-                        : new[] { $"{blocktype}.{GetWordFromPosition(keyPos)}.{word}", $"{blocktype}.{word}" };
+                    if (precPos == 0 || precPos < bracePos || nextPos <= precPos)
+                    {
+                        search = new[] {
+                            $"{type},{anno}.{word}",
+                            $"{type}.{word}",
+                        };
+                    }
+                    else
+                    {
+                        search = new[] {
+                            $"{type},{anno}.{prec},{next}.{word}",
+                            $"{type},{anno}.{prec}.{word}",
+                            $"{type}.{prec},{next}.{word}",
+                            $"{type}.{prec}.{word}",
+                        };
+                        if (!search.Any(x => KeywordTrie.HasAny(x)))
+                            search = new[] {
+                                $"{type},{anno}.{word}",
+                                $"{type}.{word}",
+                            };
+                    }
                 }
                 else
                 {
                     // get the position of the beginning of the line
                     var linePos = Lines[LineFromPosition(position)].Position;
                     var wordPos = WordStartPosition(position, true);
+
                     // try to find the preceding command
                     var cmdPos = Enumerable.Range(linePos, wordPos - linePos).Reverse()
                         .FirstOrDefault(i => GetStyleAt(i) == (int)FX.Command);
-                    // the search string depends on whether a command was found
-                    search = new[] { cmdPos == 0
-                        ? $"{blocktype}.{word}"
-                        : $"{blocktype}.{GetWordFromPosition(cmdPos)}.{word}" };
+                    var cmd = GetWordFromPosition(cmdPos);
+                    
+                    search = new[] { $"{type},{anno}", type }
+                        .Select(x => cmdPos > 0 ? $"{x}.{cmd}.{word}" : $"{x}.{word}")
+                        .ToArray();
                 }
             }
             else
             {
                 // get position of preceding word
                 var precPos = PrecWordStartPosition(position);
+                var prec = GetWordFromPosition(precPos);
 
-                // style of the preceding word indicates a block
-                search = new[] { GetStyleAt(precPos) == (int)FX.Keyword
-                    ? $"{GetWordFromPosition(precPos)},{word}"
-                    : word };
+                search = new[] { GetStyleAt(precPos) == (int)FX.Keyword ? $"{prec},{word}" : word };
             }
 
             skip = search.Select(x => x.Length - word.Length).ToArray();

@@ -286,7 +286,7 @@ shader:bvec4
 shader.ceil|ceil -- find the nearest integer that is greater than or equal to the parameter
    genType  ceil(genType  x)
    genDType ceil(genDType x)
-shader:centroid|During multisampling, if centroid​ is not present, then the written value
+shader,frag:centroid|During multisampling, if centroid​ is not present, then the written value
  can be interpolated to an arbitrary position within the pixel. This may
  be the pixel's center, one of the sample locations within the pixel, or
  an arbitrary location. Most importantly of all, this sample may lie
@@ -330,7 +330,7 @@ shader.determinant|determinant -- calculate the determinant of a matrix
    double determinant(dmat2 m)
    double determinant(dmat3 m)
    double determinant(dmat4 m)
-shader:discard
+shader,frag:discard
 shader.dFdx|dFdx -- return the partial derivative of an argument with respect to x
    genType dFdx(genType p)
 shader.dFdxCoarse|dFdxCoarse -- return the partial derivative of an argument with respect to x
@@ -365,13 +365,13 @@ shader:dvec2
 shader:dvec3
 shader:dvec4
 shader:else
-shader.EmitStreamVertex|EmitStreamVertex -- emit a vertex to a specified stream
+shader,geom.EmitStreamVertex|EmitStreamVertex -- emit a vertex to a specified stream
    void EmitStreamVertex(int stream)
-shader.EmitVertex|EmitVertex -- emit a vertex to the first vertex stream
+shader,geom.EmitVertex|EmitVertex -- emit a vertex to the first vertex stream
    void EmitVertex(void)
-shader.EndPrimitive|EndPrimitive -- complete the current output primitive on the first vertex stream
+shader,geom.EndPrimitive|EndPrimitive -- complete the current output primitive on the first vertex stream
    void EndPrimitive(void)
-shader.EndStreamPrimitive|EndStreamPrimitive -- complete the current output primitive on a specified stream
+shader,geom.EndStreamPrimitive|EndStreamPrimitive -- complete the current output primitive on a specified stream
    void EndStreamPrimitive(int stream)
 shader.equal|equal -- perform a component-wise equal-to comparison of two vectors
    bvec equal(vec x, vec y)
@@ -407,11 +407,11 @@ shader.fract|fract -- compute the fractional part of the argument
 shader.frexp|frexp -- split a floating point number
    genType  frexp(genType  x, out genIType exp)
    genDType frexp(genDType x, out genIType exp)
-shader.fwidth|fwidth -- return the sum of the absolute value of derivatives in x and y
+shader,frag.fwidth|fwidth -- return the sum of the absolute value of derivatives in x and y
    genType fwidth(genType p)
-shader.fwidthCoarse|fwidthCoarse -- return the sum of the absolute value of derivatives in x and y
+shader,frag.fwidthCoarse|fwidthCoarse -- return the sum of the absolute value of derivatives in x and y
    genType fwidthCoarse(genType p)
-shader.fwidthFine|fwidthFine -- return the sum of the absolute value of derivatives in x and y
+shader,frag.fwidthFine|fwidthFine -- return the sum of the absolute value of derivatives in x and y
    genType fwidthFine(genType p)
 shader:gl_ClipDistance|gl_ClipDistance -- provides a forward-compatible mechanism for vertex clipping
 shader:gl_CullDistance|gl_CullDistance -- provides a mechanism for controlling user culling
@@ -420,45 +420,82 @@ shader:gl_DepthRange|gl_DepthRange -- provides access to the
    gl_DepthRange.far  -- glDepthRange​ far value
    gl_DepthRange.near -- glDepthRange​ near value
    gl_DepthRange.diff -- diff = far - near
-shader:gl_FragCoord|gl_FragCoord -- contains the window-relative coordinates of the current fragment
-shader:gl_FragDepth|gl_FragDepth -- establishes a depth value for the current fragment
-shader:gl_FrontFacing|gl_FrontFacing -- indicates whether a primitive is front or back facing
-shader:gl_GlobalInvocationID|gl_GlobalInvocationID -- contains the global index of work item
+shader,frag:gl_FragCoord|gl_FragCoord -- contains the window-relative coordinates of the current fragment
+shader,frag:gl_FragDepth|gl_FragDepth -- establishes a depth value for the current fragment
+shader,frag:gl_FrontFacing|gl_FrontFacing -- indicates whether a primitive is front or back facing
+shader,comp:gl_GlobalInvocationID|gl_GlobalInvocationID -- contains the global index of work item
                          currently being operated on by a compute shader
-shader:gl_HelperInvocation|gl_HelperInvocation -- indicates whether a fragment shader invocation is a helper invocation
-shader:gl_InstanceID|gl_InstanceID -- contains the index of the current primitive in an instanced draw command
-shader:gl_InvocationID|gl_InvocationID -- contains the invocation index of the current shader
-shader:gl_Layer|gl_Layer -- contains the selected layer of a multi-layer framebuffer attachment
-shader:gl_LocalInvocationID|gl_LocalInvocationID -- contains the index of work item currently
+shader,frag:gl_HelperInvocation|gl_HelperInvocation -- indicates whether a fragment shader invocation is a helper invocation
+shader,vert:gl_InstanceID|gl_InstanceID -- contains the index of the current primitive in an instanced draw command
+shader,geom:gl_InvocationID|gl_InvocationID -- identifies the invocation number assigned
+                    to the geometry shader invocation
+shader,tess:gl_InvocationID|gl_InvocationID -- contains the index of the output patch
+                    vertex assigned to the shader invocation
+shader,geom:gl_Layer|gl_Layer -- contains the selected layer of a multi-layer framebuffer attachment
+shader,comp:gl_LocalInvocationID|gl_LocalInvocationID -- contains the index of work item currently
                         being operated on by a compute shader
-shader:gl_LocalInvocationIndex|gl_LocalInvocationIndex -- contains the local linear indexof work item
+shader,comp:gl_LocalInvocationIndex|gl_LocalInvocationIndex -- contains the local linear indexof work item
                            currently being operated on by a compute shader
-shader:gl_MaxPatchVertices|gl_MaxPatchVertices -- the maximum number of patch vertices supported
-shader:gl_NumSamples|gl_NumSamples​ -- is the number of samples in the current Framebuffer
-shader:gl_NumWorkGroups|gl_NumWorkGroups -- contains the number of workgroups that
+shader,tess:gl_MaxPatchVertices|gl_MaxPatchVertices -- the maximum number of patch vertices supported
+shader,eval:gl_MaxPatchVertices|gl_MaxPatchVertices -- the maximum number of patch vertices supported
+shader,frag:gl_NumSamples|gl_NumSamples​ -- is the number of samples in the current Framebuffer
+shader,comp:gl_NumWorkGroups|gl_NumWorkGroups -- contains the number of workgroups that
                     have been dispatched to a compute shader
-shader:gl_PatchVerticesIn|gl_PatchVerticesIn -- contains the number of vertices in the current patch
-shader:gl_PointCoord|gl_PointCoord -- contains the coordinate of a fragment within a point
-shader:gl_PointSize|gl_PointSize -- contains size of rasterized points, in pixels
+shader,eval:gl_PatchVerticesIn|gl_PatchVerticesIn -- contains the number of vertices in the current patch
+shader,tess:gl_PatchVerticesIn|gl_PatchVerticesIn -- contains the number of vertices in the current patch
+shader,frag:gl_PointCoord|gl_PointCoord -- contains the coordinate of a fragment within a point
+shader,frag:gl_PointSize|gl_PointSize -- contains size of rasterized points, in pixels
 shader:gl_Position|gl_Position -- contains the position of the current vertex
-shader:gl_PrimitiveID|gl_PrimitiveID -- contains the index of the current primitive
-shader:gl_PrimitiveIDIn|gl_PrimitiveIDIn -- contains the index of the current primitive
-shader:gl_SampleID|gl_SampleID -- contains the index of the sample currently being processed
-shader:gl_SampleMask|gl_SampleMask -- specifies the sample coverage mask for the current fragment
-shader:gl_SampleMaskIn|gl_SampleMaskIn -- contains the computed sample coverage mask for the current fragment
-shader:gl_SamplePosition|gl_SamplePosition -- contains the location of the current sample within the current fragment
-shader:gl_TessLevelInner|gl_TessLevelInner -- contains the inner tessellation levels for the current patch
-shader:gl_TessLevelOuter|gl_TessLevelOuter -- contains the outer tessellation levels for the current patch
-shader:gl_VertexID|gl_VertexID -- contains the index of the current vertex
-shader:gl_ViewportIndex|gl_ViewportIndex -- contains the index of the viewport to be used
+shader,geom:gl_PrimitiveID|gl_PrimitiveID -- is an output variable that is passed to the
+                   corresponding gl_PrimitiveID input variable
+                   in the fragment shader
+shader,frag:gl_PrimitiveID|gl_PrimitiveID -- If no geomery shader is present then gl_PrimitiveID in the
+                   fragment language behaves identically as it would in the
+                   tessellation control and evaluation languages. If a geometry
+                   shader is present but does not write to gl_PrimitiveID, the
+                   value of gl_PrimitiveID in the fragment shader is undefined.
+shader,eval:gl_PrimitiveID|gl_PrimitiveID -- is an output variable that is passed to the
+                   corresponding gl_PrimitiveID input variable
+                   in the fragment shader
+shader,tess:gl_PrimitiveID|gl_PrimitiveID -- holds the number of primitives processed by the
+                   shader since the current set of rendering
+                   primitives was started
+shader,geom:gl_PrimitiveIDIn|gl_PrimitiveIDIn -- holds the number of primitives processed by the shader since
+                     the current set of rendering primitives was started
+shader,frag:gl_SampleID|gl_SampleID -- contains the index of the sample currently being processed
+shader,frag:gl_SampleMask|gl_SampleMask -- specifies the sample coverage mask for the current fragment
+shader,frag:gl_SampleMaskIn|gl_SampleMaskIn -- contains the computed sample coverage mask for the current fragment
+shader,frag:gl_SamplePosition|gl_SamplePosition -- contains the location of the current sample within the current fragment
+shader,tess:gl_TessLevelInner|gl_TessLevelInner -- is used to assign values to the corresponding inner tesellation
+                       levels of the current patch. The values written into
+                       gl_TessLevelInner by the tessellation control shader are used
+                       by the tessellation primitive generator to control primitive
+                       tessellation and may be read by the subsequent tessellation
+                       evaluation shader.
+shader,eval:gl_TessLevelInner|gl_TessLevelInner -- contains the values written by the tessellation control shader,
+                       if present. If no tessellation control shader is present, it
+                       contains the default tessellation level. 
+shader,tess:gl_TessLevelOuter|gl_TessLevelOuter -- is used to assign values to the corresponding outer tesellation
+                      levels of the current patch. The values written into
+                      gl_TessLevelOuter by the tessellation control shader are used
+                      by the tessellation primitive generator to control primitive
+                      tessellation and may be read by the subsequent tessellation
+                      evaluation shader.
+shader,eval:gl_TessLevelOuter|gl_TessLevelOuter -- contains the values written by the tessellation control shader,
+                      if present. If no tessellation control shader is present, it
+                      contains the default tessellation level.
+shader,vert:gl_VertexID|gl_VertexID -- contains the index of the current vertex
+shader,geom:gl_ViewportIndex|gl_ViewportIndex -- contains the index of the viewport to be used
                     in viewport transformation and scissoring
-shader:gl_WorkGroupID|gl_WorkGroupID -- contains the index of the workgroup currently
+shader,frag:gl_ViewportIndex|gl_ViewportIndex -- contains the index of the viewport the
+                    fragment was assigned to
+shader,comp:gl_WorkGroupID|gl_WorkGroupID -- contains the index of the workgroup currently
                   being operated on by a compute shader
-shader:gl_WorkGroupSize|gl_WorkGroupSize -- contains the size of the workgroup operated on by a compute shader
-shader:gl_in|gl_in -- input varying structure for tess. control,
-         tess. evaluation and geometry shader
-shader:gl_out|gl_in -- output varying structure for tess. control,
-         tess. evaluation and geometry shader
+shader,comp:gl_WorkGroupSize|gl_WorkGroupSize -- contains the size of the workgroup operated on by a compute shader
+shader,tess:gl_in|gl_in -- vertex input varying structure of the patch
+shader,eval:gl_in|gl_in -- vertex input varying structure of the patch
+shader,geom:gl_in|gl_in -- vertex input varying structure of the primitive
+shader,tess:gl_out|gl_out -- vertex output varying structure of the patch
 shader.greaterThan|greaterThan -- perform a component-wise greater-than
                comparison of two vectors
    bvec greaterThan(vec x, vec y)
@@ -786,83 +823,90 @@ shader:layout|Layout qualifiers affect where the storage for a variable
  comes from, as well as other user-facing properties of a
  particular definition. Syntax:
    layout(qualifier1, qualifier2 = value, ...) variable_definition
-shader:layout.binding|The binding unit of the shader resource.
-shader:layout.component|Used in combination with the location qualifier
- to address specific vec-components of the stream.
-shader:layout.depth_any|Disables the depth test.
-shader:layout.depth_greater|To pass the depth test the new depth value must be greater.
-shader:layout.depth_less|To pass the depth test the new depth value must be less.
-shader:layout.depth_unchanged|To pass the depth test the new depth value must be equal.
-shader:layout.early_fragment_tests|Perform depth test before executing the shader.
-shader:layout.index|Used in combination with the location qualifier for dual source blending.
-shader:layout.local_size_x|
-shader:layout.local_size_y|
-shader:layout.local_size_z|
-shader:layout.location|Assigns the stream to the specified unit.
-shader:layout.offset|Atomic counters also have an optional offset parameter.
+shader:layout,uniform.binding|The binding unit of the shader resource.
+shader:layout,in.component|Used in combination with the location
+ qualifier to address specific vec-
+ components of the input stream.
+shader:layout,out.component|Used in combination with the location
+ qualifier to address specific vec-
+ components of the output stream.
+shader,frag:layout,in.depth_any|Disables the depth test.
+shader,frag:layout,in.depth_greater|To pass the depth test the new depth value must be greater.
+shader,frag:layout,in.depth_less|To pass the depth test the new depth value must be less.
+shader,frag:layout,in.depth_unchanged|To pass the depth test the new depth value must be equal.
+shader,frag:layout,in.early_fragment_tests|Perform depth test before executing the shader.
+shader,frat:layout,out.index|Used in combination with the location qualifier for dual source blending.
+shader,comp:layout,in.local_size_x|
+shader,comp:layout,in.local_size_y|
+shader,comp:layout,in.local_size_z|
+shader:layout,in.location|Assigns the stream to the specified unit.
+shader:layout,out.location|Assigns the stream to the specified unit.
+shader:layout,uniform.offset|Atomic counters also have an optional offset parameter.
  The offset is the byte offset from the beginning of the
  range bound to the target to the location where this
  variable gets its 32-bits of storage.
-shader:layout.origin_upper_left|Specifies that gl_FragCoord​ will have the origin
+shader,frag:layout,in.origin_upper_left|Specifies that gl_FragCoord​ will have the origin
  (0, 0) in the upper-left of the screen.
-shader:layout.pixel_center_integer|Specifies that the X and Y of gl_FragCoord​ will
+shader,frag:layout,in.pixel_center_integer|Specifies that the X and Y of gl_FragCoord​ will
  be shifted by a half-pixel, so that the center
  of each pixel is an integer value.
-shader:layout.std140|Force variables to be vec4 aligned.
-shader:layout.vertices|Specify a particular vertex count for Tessellation Control Shaders output patches.
-shader:layout.xfb_buffer|Specifies the transform feedback output buffer.
-shader:layout.xfb_offset|Specifies the first position of the transform feedback output buffer to be written to.
-shader:layout.xfb_stride|Specifies the stride between transform feedback buffer outputs.
-shader:layout.points|The output primitive type of the geometry shader are points.
-shader:layout.lines|The output primitive type of the geometry shader are lines.
-shader:layout.lines_adjacency|The output primitive type of the geometry shader are adjacency lines.
-shader:layout.max_vertices|The number must be a compile-time constant, and it
+shader:layout,uniform.std140|Force variables to be vec4 aligned.
+shader,tess:layout,out.vertices|Specify a particular vertex count for Tessellation Control Shaders output patches.
+shader:layout,out.xfb_buffer|Specifies the transform feedback output buffer.
+shader:layout,out.xfb_offset|Specifies the first position of the transform feedback output buffer to be written to.
+shader:layout,out.xfb_stride|Specifies the stride between transform feedback buffer outputs.
+shader,geom:layout,in.points|The input primitive type of the geometry shader are points.
+shader,geom:layout,in.lines|The input primitive type of the geometry shader are lines.
+shader,geom:layout,in.triangles|The input primitive type of the geometry shader are triangles.
+shader,geom:layout,out.points|The output primitive type of the geometry shader are points.
+shader,geom:layout,out.lines|The output primitive type of the geometry shader are lines.
+shader,geom:layout,out.lines_adjacency|The output primitive type of the geometry shader are adjacency lines.
+shader,geom:layout,out.max_vertices|The number must be a compile-time constant, and it
  defines the maximum number of vertices that will
  be written by a single invocation of the GS.
-shader:layout.triangles|The output primitive type of the geometry shader are triangles.
-shader:layout.triangles_adjacency|The output primitive type of the geometry shader are adjacency triangles.
-shader:layout.line_strip|The output primitive type of the geometry shader are line strips.
-shader:layout.triangle_strip|The output primitive type of the geometry shader are triangles strips.
-shader:layout.r8
-shader:layout.r8i
-shader:layout.r8ui
-shader:layout.r16
-shader:layout.r16i
-shader:layout.r16ui
-shader:layout.r16f
-shader:layout.r32i
-shader:layout.r32ui
-shader:layout.r32f
-shader:layout.rg8
-shader:layout.rg8i
-shader:layout.rg8ui
-shader:layout.rg16
-shader:layout.rg16i
-shader:layout.rg16ui
-shader:layout.rg16f
-shader:layout.rg32i
-shader:layout.rg32ui
-shader:layout.rg32f
-shader:layout.rgb8
-shader:layout.rgb8i
-shader:layout.rgb8ui
-shader:layout.rgb16
-shader:layout.rgb16i
-shader:layout.rgb16ui
-shader:layout.rgb16f
-shader:layout.rgb32i
-shader:layout.rgb32ui
-shader:layout.rgb32f
-shader:layout.rgba8
-shader:layout.rgba8i
-shader:layout.rgba8ui
-shader:layout.rgba16
-shader:layout.rgba16i
-shader:layout.rgba16ui
-shader:layout.rgba16f
-shader:layout.rgba32i
-shader:layout.rgba32ui
-shader:layout.rgba32f
+shader,geom:layout.triangles_adjacency|The output primitive type of the geometry shader are adjacency triangles.
+shader,geom:layout,out.line_strip|The output primitive type of the geometry shader are line strips.
+shader,geom:layout,out.triangle_strip|The output primitive type of the geometry shader are triangles strips.
+shader:layout,uniform.r8
+shader:layout,uniform.r8i
+shader:layout,uniform.r8ui
+shader:layout,uniform.r16
+shader:layout,uniform.r16i
+shader:layout,uniform.r16ui
+shader:layout,uniform.r16f
+shader:layout,uniform.r32i
+shader:layout,uniform.r32ui
+shader:layout,uniform.r32f
+shader:layout,uniform.rg8
+shader:layout,uniform.rg8i
+shader:layout,uniform.rg8ui
+shader:layout,uniform.rg16
+shader:layout,uniform.rg16i
+shader:layout,uniform.rg16ui
+shader:layout,uniform.rg16f
+shader:layout,uniform.rg32i
+shader:layout,uniform.rg32ui
+shader:layout,uniform.rg32f
+shader:layout,uniform.rgb8|8 bits for R, G and B
+shader:layout,uniform.rgb8i
+shader:layout,uniform.rgb8ui
+shader:layout,uniform.rgb16
+shader:layout,uniform.rgb16i
+shader:layout,uniform.rgb16ui
+shader:layout,uniform.rgb16f
+shader:layout,uniform.rgb32i
+shader:layout,uniform.rgb32ui
+shader:layout,uniform.rgb32f
+shader:layout,uniform.rgba8|8 bits for R, G, B and A
+shader:layout,uniform.rgba8i
+shader:layout,uniform.rgba8ui
+shader:layout,uniform.rgba16
+shader:layout,uniform.rgba16i
+shader:layout,uniform.rgba16ui
+shader:layout,uniform.rgba16f
+shader:layout,uniform.rgba32i
+shader:layout,uniform.rgba32ui
+shader:layout,uniform.rgba32f
 shader.ldexp|ldexp -- assemble a floating point number from a value and exponent
    genType  ldexp(genType  x, genIType exp)
    genDType ldexp(genDType x, genIType exp)
@@ -1048,8 +1092,12 @@ shader.sign|sign — extract the sign of the parameter
    genType  sign(genType  x)
    genIType sign(genIType x)
    genDType sign(genDType x)
-shader.sin|sin — return the sine of the parameter
-shader.sinh|sinh — return the hyperbolic sine of the parameter
+shader.sin|sin -- return the sine of the parameter
+   genType  sin(genType  x)
+   genDType sin(genDType x)
+shader.sinh|sinh -- return the hyperbolic sine of the parameter
+   genType  sinh(genType  x)
+   genDType sinh(genDType x)
 shader:smooth|The value will be interpolated in a perspective-correct
  fashion. This is the default if no qualifier is present.
 shader.smoothstep|smoothstep — perform Hermite interpolation between two values

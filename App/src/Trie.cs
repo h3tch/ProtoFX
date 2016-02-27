@@ -18,6 +18,10 @@ namespace App
 
         public IEnumerable<TValue> this[string query] => Retrieve(query, 0);
 
+        public int Count(string query) => RetrieveCount(query, 0);
+
+        public bool HasAny(string query) => RetrieveHasAny(query, 0);
+
         public void Add(string key, TValue value)
         {
             Add(key, 0, value);
@@ -40,6 +44,8 @@ namespace App
         protected override IEnumerable<TrieNodeBase<TValue>> Children() => nodes.Values;
 
         protected override IEnumerable<TValue> Values() => values;
+
+        protected override int Count() => values.Count;
 
         protected override TrieNodeBase<TValue> GetOrCreateChild(char key)
         {
@@ -73,6 +79,8 @@ namespace App
 
         protected abstract IEnumerable<TValue> Values();
 
+        protected abstract int Count();
+
         protected abstract IEnumerable<TrieNodeBase<TValue>> Children();
 
         public void Add(string key, int position, TValue value)
@@ -101,25 +109,47 @@ namespace App
                 : SearchDeep(query, position);
         }
 
+        protected virtual int RetrieveCount(string query, int position)
+        {
+            return EndOfString(position, query)
+                ? ValuesDeepCount()
+                : SearchDeepCount(query, position);
+        }
+
+        protected virtual bool RetrieveHasAny(string query, int position)
+        {
+            return EndOfString(position, query)
+                ? ValuesDeepHasAny()
+                : SearchDeepHasAny(query, position);
+        }
+
         protected virtual IEnumerable<TValue> SearchDeep(string query, int position)
         {
-            TrieNodeBase<TValue> nextNode = GetChildOrNull(query, position);
-            return nextNode != null
-                ? nextNode.Retrieve(query, position + nextNode.KeyLength)
-                : Enumerable.Empty<TValue>();
+            var nextNode = GetChildOrNull(query, position);
+            return nextNode?.Retrieve(query, position + nextNode.KeyLength) ?? Enumerable.Empty<TValue>();
+        }
+
+        protected virtual int SearchDeepCount(string query, int position)
+        {
+            var nextNode = GetChildOrNull(query, position);
+            return nextNode?.RetrieveCount(query, position + nextNode.KeyLength) ?? 0;
+        }
+
+        protected virtual bool SearchDeepHasAny(string query, int position)
+        {
+            var nextNode = GetChildOrNull(query, position);
+            return nextNode?.RetrieveHasAny(query, position + nextNode.KeyLength) ?? false;
         }
 
         protected abstract TrieNodeBase<TValue> GetChildOrNull(string query, int position);
 
-        private static bool EndOfString(int position, string text)
-        {
-            return position >= text.Length;
-        }
+        private static bool EndOfString(int position, string text) => position >= text.Length;
 
-        private IEnumerable<TValue> ValuesDeep()
-        {
-            return Subtree().SelectMany(node => node.Values());
-        }
+        private IEnumerable<TValue> ValuesDeep() => Subtree().SelectMany(node => node.Values());
+
+        private int ValuesDeepCount() => Subtree().Select(node => node.Count()).Sum();
+
+        private bool ValuesDeepHasAny() => Subtree().Where(node => node.Count() > 0).Any();
 
         protected IEnumerable<TrieNodeBase<TValue>> Subtree()
         {

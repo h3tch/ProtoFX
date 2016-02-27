@@ -64,11 +64,11 @@ namespace App
 
             // get block keywords
             var block = list
-                .Where(x => x.IndexOf('.') < 0 && x.IndexOf(',') < 0)
+                .Where(x => x.IndexOf('.') < 0 && x.IndexOf(':') < 0 && x.IndexOf(',') < 0)
                 .ToArray();
             // get block annotation keywords
             var anno = list
-                .Where(x => x.IndexOf(',') >= 0)
+                .Where(x => x.IndexOf('.') < 0 && x.IndexOf(':') < 0 && x.Count(c => c == ',') == 1)
                 .Select(x => x.Substring(x.IndexOf(',') + 1))
                 .ToArray();
             // get command keywords (shaders do not have commands and are handled differently)
@@ -87,21 +87,20 @@ namespace App
                 .ToArray();
 
             // get shader function keywords
-            var shader = "shader.";
+            var shader = "shader";
             var glslfunctions = list
-                .Where(x => x.StartsWith(shader) && x.IndexOf('.', shader.Length) < 0)
-                .Select(x => x.Substring(shader.Length))
+                .Where(x => x.StartsWith(shader) && x.IndexOf(':') < 0 && x.Count(c => c == '.') == 1)
+                .Select(x => x.Substring(x.IndexOf('.') + 1))
                 .ToArray();
             // get shader type keywords
-            shader = "shader:";
             var glsltypes = list
-                .Where(x => x.StartsWith(shader))
-                .Select(x => x.Substring(shader.Length))
+                .Where(x => x.StartsWith(shader) && x.IndexOf('.') < 0 && x.Count(c => c == ':') == 1)
+                .Select(x => x.Substring(x.IndexOf(':') + 1))
                 .ToArray();
             // get shader qualifier keywords
             var glslqualiriers = list
-                .Where(x => x.StartsWith(shader) && x.IndexOf('.', shader.Length) >= 0)
-                .Select(x => x.Substring(x.IndexOf('.', shader.Length) + 1))
+                .Where(x => x.StartsWith(shader) && x.IndexOf(':') >= 0 && x.IndexOf('.') >= 0)
+                .Select(x => x.Substring(x.LastIndexOf('.') + 1))
                 .ToArray();
 
             // setup internal keyword hashsets
