@@ -9,10 +9,10 @@ namespace App
     {
         #region FIELDS
         private static FXLexer lexer;
-        private int[] BlockStyles = new[] { (int)FX.Keyword, (int)FX.Annotation };
-        private int[] CmdStyles = new[] { (int)FX.Command, (int)FX.Argument };
+        private int[] BlockStyles = new[] { (int)FX.KeywordClass, (int)FX.KeywordAnnotation };
+        private int[] CmdStyles = new[] { (int)FX.KeywordCommand, (int)FX.KeywordArgument };
         private int[] GlslStyles = new[] {
-            (int)FX.GlslKeyword, (int)FX.GlslQualifier, (int)FX.GlslFunction
+            (int)FX.KeywordType, (int)FX.KeywordQualifier, (int)FX.KeywordFunction
         };
         #endregion
 
@@ -37,13 +37,13 @@ namespace App
             Styles[(int)FX.String].ForeColor = Color.Maroon;
             Styles[(int)FX.Char].ForeColor = Color.FromArgb(163, 21, 21);
 
-            Styles[(int)FX.Keyword].ForeColor = Color.Blue;
-            Styles[(int)FX.Annotation].ForeColor = Color.FromArgb(30, 120, 255);
-            Styles[(int)FX.Command].ForeColor = Color.FromArgb(30, 120, 255);
-            Styles[(int)FX.Argument].ForeColor = Color.Purple;
-            Styles[(int)FX.GlslKeyword].ForeColor = Color.Blue;
-            Styles[(int)FX.GlslQualifier].ForeColor = Color.FromArgb(30, 120, 255);
-            Styles[(int)FX.GlslFunction].ForeColor = Color.Purple;
+            Styles[(int)FX.KeywordClass].ForeColor = Color.Blue;
+            Styles[(int)FX.KeywordAnnotation].ForeColor = Color.FromArgb(30, 120, 255);
+            Styles[(int)FX.KeywordCommand].ForeColor = Color.FromArgb(30, 120, 255);
+            Styles[(int)FX.KeywordArgument].ForeColor = Color.Purple;
+            Styles[(int)FX.KeywordType].ForeColor = Color.Blue;
+            Styles[(int)FX.KeywordQualifier].ForeColor = Color.FromArgb(30, 120, 255);
+            Styles[(int)FX.KeywordFunction].ForeColor = Color.Purple;
 
             Lexer = Lexer.Container;
 

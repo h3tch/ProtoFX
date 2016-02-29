@@ -8,53 +8,66 @@
 
 buffer draw_calls {
 	usage staticDraw
-	xml "scene.xml" data/call
+	xml "scene.xml" data/drawcalls
+}
+
+// CAMERA INFORMATION
+
+buffer camera_transform {
+	usage staticDraw
+	xml "scene.xml" data/camera/transform
 }
 
 // OBJECT INFORMATION
 
-buffer obj_axisx {
+buffer object_transform {
 	usage staticDraw
-	xml "scene.xml" data/axisx
+	xml "scene.xml" data/object/transform
 }
 
-buffer obj_axisy {
+buffer object_cameraid {
 	usage staticDraw
-	xml "scene.xml" data/axisy
-}
-
-buffer obj_axisz {
-	usage staticDraw
-	xml "scene.xml" data/axisz
+	xml "scene.xml" data/object/cameraid
 }
 
 // VERTEX INFORMATION
 
-buffer vert_pos {
+buffer mesh_position {
 	usage staticDraw
-	xml "scene.xml" data/position
+	xml "scene.xml" data/mesh/position
 }
 
-buffer vert_col {
+buffer mesh_normal {
 	usage staticDraw
-	xml "scene.xml" data/color
+	xml "scene.xml" data/mesh/normal
 }
 
-buffer vert_idx {
+buffer mesh_color {
 	usage staticDraw
-	xml "scene.xml" data/index
+	xml "scene.xml" data/mesh/color
+}
+
+buffer mesh_triangles {
+	usage staticDraw
+	xml "scene.xml" data/mesh/triangles
 }
 
 /////////////////////////
 // DATA FORMAT OBJECTS //
 /////////////////////////
 
-vertinput in_vert {
-	attr vert_pos float 4
-	attr vert_col float 4
-	attr obj_axisx float 4 0 0 1
-	attr obj_axisy float 4 0 0 1
-	attr obj_axisz float 4 0 0 1
+vertinput vertex_input {
+	attr mesh_position float 4
+	attr mesh_normal float 4
+	attr mesh_color float 4
+	attr object_transform float 4 48 0 1
+	attr object_transform float 4 48 16 1
+	attr object_transform float 4 48 32 1
+	attr object_cameraid float 4 16 0 1
+}
+
+texture camera_transform_texture {
+	buff camera_transform
 }
 
 /////////////
@@ -66,27 +79,51 @@ vertinput in_vert {
 shader vert vs_simple {
 	#version 450
 	
-	// shader variable which will be set by "SimpleCamera.cs"
-	// (only uniform variables can be accessed outside the shader)
-	layout(binding = 0) uniform SimpleCamera {
-		mat4 viewProj;
-	} camera;
+	layout(binding = 0) uniform sampler1D camTransform;
 	
 	// vertex input as specified by 'in_vert'
-	layout(location = 0) in vec4 in_pos;
-	layout(location = 1) in vec4 in_col;
-	layout(location = 2) in vec4 axisx;
-	layout(location = 3) in vec4 axisy;
-	layout(location = 4) in vec4 axisz;
+	layout(location = 0) in vec4 position;
+	layout(location = 1) in vec4 normal;
+	layout(location = 3) in vec4 color;
+	layout(location = 4) in vec4 axisx;
+	layout(location = 5) in vec4 axisy;
+	layout(location = 6) in vec4 axisz;
+	layout(location = 7) in ivec4 camera;
 
 	// vertex shader output
 	layout(location = 0) out vec4 col;
+	layout(location = 1) out vec4 nor;
+	layout(location = 2) out vec4 pos[4];
 	
 	void main ()
 	{
+		int count;
+		mat4 viewProj[4];
+		
+		// create model matrix
 		mat4 model = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
-		<<gl_Position>> = <<camera.viewProj>> * <<model>> * <<in_pos>>;
-		col = <<in_col>>;
+		
+		// create view matrix for every camera
+		for (count = 0; count < 4 && camera[count] >= 0; count++)
+		{
+			int ptr = 4 * camera[count];
+			viewProj[count] = mat4(
+				texelFetchOffset(camTransform, ptr, 0, 0),
+				texelFetchOffset(camTransform, ptr, 0, 1),
+				texelFetchOffset(camTransform, ptr, 0, 2),
+				texelFetchOffset(camTransform, ptr, 0, 3));
+		}
+		
+		// pass varyings on to next shader
+		col = color;
+		nor = normal;
+		for (int i = count; i < 4; i++)
+			pos[i] = vec4(0);
+		
+		// compute model view projection position
+		vec4 word = model * position;
+		for (int i = 0; i < count; i++)
+			pos[i] = viewProj[i] * word;
 	}
 }
 
@@ -94,19 +131,33 @@ shader geom gs_simple {
 	#version 450
 	
 	layout(triangles) in;
-	layout(location = 0) in vec4 in_col[];
+	in IN
+	{
+		layout(location = 0) in vec4 color;
+		layout(location = 1) in vec4 normal;
+		layout(location = 2) in vec4 position[4];
+	} In[];
 	
-	layout(triangle_strip, max_vertices = 3) out;
-	layout(location = 0) out vec4 col;
+	layout(triangle_strip, max_vertices = 12) out;
+	layout(location = 0) out vec4 color;
+	layout(location = 1) out vec4 normal;
+	
+	//out gl_PerVertex {
+	//	float gl_CullDistance[1];
+	//};
 	
 	void main ()
 	{
-		for (int v = 0; v < gl_in.length(); v++) {
-			gl_Position = gl_in[v].gl_Position;
-			col = in_col[v];
-			EmitVertex();
+		for (int c = 0; c < 4 && In[0].position[c].w != 0; c++)
+		{
+			for (int v = 0; v < gl_in.length(); v++) {
+				gl_Position = In[v].position[c];
+				normal = In[v].normal;
+				color = In[v].color;
+				EmitVertex();
+			}
+			EndPrimitive();
 		}
-		EndPrimitive();
 	}
 }
 
@@ -116,14 +167,18 @@ shader frag fs_simple {
 	#version 450
 	
 	// fragment shader input (see col in vs_simple)
-	layout(location = 0) in vec4 in_col;
+	in IN
+	{
+		layout(location = 0) in vec4 color;
+		layout(location = 1) in vec4 normal;
+	} In;
 	
 	// fragment color output
 	out vec4 color;
 	
 	void main ()
 	{
-		color = <<in_col>>;
+		color = <<In.color>>;
 	}
 }
 
@@ -155,8 +210,10 @@ instance cs_camera {
 pass pass_render {
 	// ATTATCH SHADERS
 	vert vs_simple
-	frag gs_simple
+	geom gs_simple
 	frag fs_simple
+	
+	tex camera_transform_texture 0
 	
 	// OPENGL FUNCTIONS
 	// set clear color
@@ -171,7 +228,7 @@ pass pass_render {
 	exec cs_camera
 	
 	// DRAW CALLS
-	draw vert_idx in_vert ushort triangles draw_calls
+	draw mesh_triangles vertex_input ushort triangles draw_calls
 }
 
 ///////////////

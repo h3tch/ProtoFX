@@ -12,13 +12,13 @@ namespace App
         public enum Styles : int
         {
             Default,
-            Keyword,
-            Annotation,
-            Command,
-            Argument,
-            GlslKeyword,
-            GlslQualifier,
-            GlslFunction,
+            KeywordClass,
+            KeywordAnnotation,
+            KeywordCommand,
+            KeywordArgument,
+            KeywordType,
+            KeywordQualifier,
+            KeywordFunction,
             Identifier,
             Number,
             String,
@@ -27,6 +27,8 @@ namespace App
             Operator,
             Punctuation,
             Preprocessor,
+            KeywordStart = KeywordClass,
+            KeywordEnd = KeywordFunction,
         }
 
         private enum State : int
@@ -329,7 +331,7 @@ namespace App
                             // if part of a keyword list, use the respective style
                             foreach (var i in keyStyles)
                             {
-                                if (keywords[i - (int)Styles.Keyword].Contains(identifier))
+                                if (keywords[i - (int)Styles.KeywordClass].Contains(identifier))
                                 {
                                     style = i;
                                     break;

@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <data>
-  <call type='uint' isbinary='false'>
+  <drawcalls type='uint' isbinary='false'>
     <!--
         uint  indexCount;
         uint  instanceCount;
@@ -11,80 +11,87 @@
     -->
     <!-- CUBE -->
     36 1 0 0 0 0 0 0
-  </call>
-  <axisx type='float' isbinary='false'>
-    <!-- CUBE -->
-    1 0 0 0
-  </axisx>
-  <axisy type='float' isbinary='false'>
-    <!-- CUBE -->
-    0 1 0 0
-  </axisy>
-  <axisz type='float' isbinary='false'>
-    <!-- CUBE -->
-    0 0 1 0
-  </axisz>
-  <position type='float' isbinary='false'>
-    <!-- CUBE -->
-    -1.0 -1.0  1.0  1.0
-    1.0 -1.0  1.0  1.0
-    1.0  1.0  1.0  1.0
-    -1.0  1.0  1.0  1.0
-    -1.0 -1.0 -1.0  1.0
-    1.0 -1.0 -1.0  1.0
-    1.0  1.0 -1.0  1.0
-    -1.0  1.0 -1.0  1.0
-  </position>
-  <normal type='float' isbinary='false'>
-    <!-- CUBE -->
-    0.0  0.0  1.0  1.0
-    0.0  0.0  1.0  1.0
-    0.0  1.0  0.0  1.0
-    0.0  1.0  0.0  1.0
-    0.0  0.0 -1.0  1.0
-    0.0  0.0 -1.0  1.0
-    0.0 -1.0  0.0  1.0
-    0.0 -1.0  0.0  1.0
-    -1.0  0.0  0.0  1.0
-    -1.0  0.0  0.0  1.0
-    1.0  0.0  0.0  1.0
-    1.0  0.0  0.0  1.0
-  </normal>
-  <color type='float' isbinary='false'>
-    <!-- CUBE -->
-    1.0  0.0  0.0  1.0
-    0.0  1.0  0.0  1.0
-    0.0  0.0  1.0  1.0
-    1.0  1.0  1.0  1.0
-    1.0  0.0  0.0  1.0
-    0.0  1.0  0.0  1.0
-    0.0  0.0  1.0  1.0
-    1.0  1.0  1.0  1.0
-  </color>
-  <uv type='float' isbinary='false'>
-    <!-- CUBE -->
-    0.0  0.0
-    1.0  0.0
-    1.0  1.0
-    0.0  1.0
-    1.0  0.0
-    0.0  0.0
-    0.0  1.0
-    1.0  1.0
-  </uv>
-  <index type='ushort' isbinary='false'>
-    <!-- CUBE -->
-    0  1  2
-    2  3  0
-    3  2  6
-    6  7  3
-    7  6  5
-    5  4  7
-    4  5  1
-    1  0  4
-    4  0  3
-    3  7  4
-    1  5  6
-    6  2  1
-  </index>
+  </drawcalls>
+  <camera>
+    <transform>
+      <!-- CAMERA 0 -->
+      1 0 0 0
+      0 1 0 0
+      0 0 1 0
+      0 0 0 1
+    </transform>
+  </camera>
+  <object>
+    <transform type='float' isbinary='false'>
+      <!-- CUBE -->
+      1 0 0 0
+      0 1 0 0
+      0 0 1 0
+    </transform>
+    <cameraid type='int' isbinary='false'>
+      <!-- CUBE -->
+      0 -1 -1 -1
+    </cameraid>
+  </object>
+  <mesh>
+    <position type='float' isbinary='false'>
+      <!-- CUBE -->
+      -1.0 -1.0  1.0  1.0
+      1.0 -1.0  1.0  1.0
+      1.0  1.0  1.0  1.0
+      -1.0  1.0  1.0  1.0
+      -1.0 -1.0 -1.0  1.0
+      1.0 -1.0 -1.0  1.0
+      1.0  1.0 -1.0  1.0
+      -1.0  1.0 -1.0  1.0
+    </position>
+    <normal type='float' isbinary='false'>
+      <!-- CUBE -->
+      0.0  0.0  1.0  1.0
+      0.0  0.0  1.0  1.0
+      0.0  1.0  0.0  1.0
+      0.0  1.0  0.0  1.0
+      0.0  0.0 -1.0  1.0
+      0.0  0.0 -1.0  1.0
+      0.0 -1.0  0.0  1.0
+      0.0 -1.0  0.0  1.0
+    </normal>
+    <color type='float' isbinary='false'>
+      <!-- CUBE -->
+      1.0  0.0  0.0  1.0
+      0.0  1.0  0.0  1.0
+      0.0  0.0  1.0  1.0
+      1.0  1.0  1.0  1.0
+      1.0  0.0  0.0  1.0
+      0.0  1.0  0.0  1.0
+      0.0  0.0  1.0  1.0
+      1.0  1.0  1.0  1.0
+    </color>
+    <uv type='float' isbinary='false'>
+      <!-- CUBE -->
+      0.0  0.0
+      1.0  0.0
+      1.0  1.0
+      0.0  1.0
+      1.0  0.0
+      0.0  0.0
+      0.0  1.0
+      1.0  1.0
+    </uv>
+    <triangles type='ushort' isbinary='false'>
+      <!-- CUBE -->
+      0  1  2
+      2  3  0
+      3  2  6
+      6  7  3
+      7  6  5
+      5  4  7
+      4  5  1
+      1  0  4
+      4  0  3
+      3  7  4
+      1  5  6
+      6  2  1
+    </triangles>
+  </mesh>
 </data>

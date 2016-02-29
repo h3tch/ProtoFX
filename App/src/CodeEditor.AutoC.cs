@@ -57,7 +57,7 @@ namespace App
             // select keywords using the current text position
             // is the style at that position a valid hint style
             var style = (FX)GetStyleAt(pos);
-            if (FX.Keyword <= style && style <= FX.GlslFunction)
+            if (FX.KeywordClass <= style && style <= FX.KeywordFunction)
             {
                 // is there a word at that position
                 var word = GetWordFromPosition(pos);
@@ -109,9 +109,9 @@ namespace App
                 {
                     // find next and preceding keyword
                     var nextPos = Enumerable.Range(position, block[2] - position)
-                        .FirstOrDefault(i => GetStyleAt(i) == (int)FX.GlslKeyword);
+                        .FirstOrDefault(i => GetStyleAt(i) == (int)FX.KeywordType);
                     var precPos = Enumerable.Range(block[1] + 1, position - block[1]).Reverse()
-                        .FirstOrDefault(i => GetStyleAt(i) == (int)FX.GlslKeyword);
+                        .FirstOrDefault(i => GetStyleAt(i) == (int)FX.KeywordType);
                     var next = GetWordFromPosition(nextPos);
                     var prec = GetWordFromPosition(precPos);
 
@@ -150,7 +150,7 @@ namespace App
 
                     // try to find the preceding command
                     var cmdPos = Enumerable.Range(linePos, wordPos - linePos).Reverse()
-                        .FirstOrDefault(i => GetStyleAt(i) == (int)FX.Command);
+                        .FirstOrDefault(i => GetStyleAt(i) == (int)FX.KeywordCommand);
                     var cmd = GetWordFromPosition(cmdPos);
                     
                     search = new[] { $"{type},{anno}", type }
@@ -164,11 +164,53 @@ namespace App
                 var precPos = PrecWordStartPosition(position);
                 var prec = GetWordFromPosition(precPos);
 
-                search = new[] { GetStyleAt(precPos) == (int)FX.Keyword ? $"{prec},{word}" : word };
+                search = new[] { GetStyleAt(precPos) == (int)FX.KeywordClass ? $"{prec},{word}" : word };
             }
 
             skip = search.Select(x => x.Length - word.Length).ToArray();
         }
+
+
+        /*public void Select(int position, out string[] search, out int[] skip)
+        {
+            // get word and preceding word at caret position
+            var word = GetWordFromPosition(position);
+
+            // get block surrounding caret position
+            var block = BlockPosition(position);
+
+            // inside the body of the block
+            if (block != null && block[1] < position)
+            {
+                var line = LineFromPosition(position);
+                var linePos = Lines[line].Position;
+                var lineEnd = Lines[line].EndPosition;
+
+                var precRange = Enumerable.Range(linePos + 1, position - linePos).Reverse();
+                var nextRange = Enumerable.Range(position, lineEnd - position);
+
+                for (int style = (int)FX.KeywordStart; style <= (int)FX.KeywordEnd; style++)
+                {
+                    var precPos = nextRange.FirstOrDefault(i => GetStyleAt(i) == style);
+                    var nextPos = nextRange.FirstOrDefault(i => GetStyleAt(i) == style);
+
+                    var prec = GetWordFromPosition(precPos);
+                    var next = GetWordFromPosition(nextPos);
+
+
+                }
+            }
+            else
+            {
+                // get position of preceding word
+                var precPos = PrecWordStartPosition(position);
+                var prec = GetWordFromPosition(precPos);
+
+                search = new[] { GetStyleAt(precPos) == (int)FX.KeywordClass ? $"{prec},{word}" : word };
+            }
+
+            skip = search.Select(x => x.Length - word.Length).ToArray();
+        }*/
 
         /// <summary>
         /// Get the block surrounding the specified text position.
