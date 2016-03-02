@@ -1,5 +1,4 @@
-﻿using ScintillaNET;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -11,17 +10,24 @@ namespace App
     class Compiler
     {
         public static Regex regexBlock;
+        public static Regex regexFunction;
+        public static Regex regexLayout;
 
         // initialize static members
         static Compiler()
         {
             var open = "{";
             var close = "}";
-            var header = @"(\w+[ \t]*){2,3}";
+            var blockHeader = @"(\w+[ \t]*){2,3}";
+            var functionHeader = @"(\w+[ \t]*){2}\(.*\)";
             var oc = "" + open + close;
-            regexBlock = new Regex(header +
+            regexBlock = new Regex(blockHeader +
                 $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
                 $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
+            regexFunction = new Regex(functionHeader +
+                $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
+                $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
+            regexLayout = new Regex(@"\w+[ \t]*\(.*\)");
         }
 
         private static HashSet<string> incpath = new HashSet<string>();
@@ -429,13 +435,34 @@ namespace App
         public static IEnumerable<Match> GetBlockPositions(this CodeEditor editor)
         {
             foreach (Match match in Compiler.regexBlock.Matches(editor.Text))
-            {
-                //var style = editor.GetStyleAt(match.Index);
-                //if (style == Style.Cpp.Word || style == Style.Cpp.Word2)
-                    yield return match;
-            }
+                yield return match;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
+        public static IEnumerable<Match> GetFunctionPositions(this CodeEditor editor, int start, int end)
+        {
+            foreach (Match match in Compiler.regexFunction.Matches(editor.Text.Substring(0, end), start))
+                yield return match;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
+        public static IEnumerable<Match> GetLayoutPositions(this CodeEditor editor, int start, int end)
+        {
+            foreach (Match match in Compiler.regexLayout.Matches(editor.Text.Substring(0, end), start))
+                yield return match;
+        }
     }
 
     // convenience extension to the Dict class

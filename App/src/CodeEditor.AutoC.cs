@@ -171,8 +171,19 @@ namespace App
         }
 
 
-        /*public void Select(int position, out string[] search, out int[] skip)
+        public void Select(int position, out string[] search, out int[] skip)
         {
+            // [1] ... block
+            // [2] ... annotation
+            // [3] ... command
+            // [4] ... argument
+            // [5] ... function
+            // [6] ... type
+            // [7] ... specifications
+            // [8] ... qualifier
+            // [9] ... variable
+            // [A] ... variable
+
             // get word and preceding word at caret position
             var word = GetWordFromPosition(position);
 
@@ -182,22 +193,83 @@ namespace App
             // inside the body of the block
             if (block != null && block[1] < position)
             {
-                var line = LineFromPosition(position);
-                var linePos = Lines[line].Position;
-                var lineEnd = Lines[line].EndPosition;
+                // get block header
+                var header = GetTextRange(block[0], block[1] - block[0])
+                    .Split(new[] { ' ', '\t', '\n', '\r' })
+                    .Where(x => x.Length > 0)
+                    .ToArray();
+                var type = header[0];
+                var anno = header[1];
 
-                var precRange = Enumerable.Range(linePos + 1, position - linePos).Reverse();
-                var nextRange = Enumerable.Range(position, lineEnd - position);
+                // get function surrounding caret position
+                var function = FunctionPosition(position, block);
 
-                for (int style = (int)FX.KeywordStart; style <= (int)FX.KeywordEnd; style++)
+                // inside the body of the function
+                if (function != null && function[1] < position)
                 {
-                    var precPos = nextRange.FirstOrDefault(i => GetStyleAt(i) == style);
-                    var nextPos = nextRange.FirstOrDefault(i => GetStyleAt(i) == style);
+                    header = GetTextRange(function[0], function[1] - function[0])
+                        .Split(new[] { ' ', '\t', '\n', '\r' })
+                        .Where(x => x.Length > 0)
+                        .ToArray();
+                    var func = header[1];
 
-                    var prec = GetWordFromPosition(precPos);
-                    var next = GetWordFromPosition(nextPos);
+                    search = new[] {
+                        // list local variables
+                        $"[1]{type}[2]{anno}[7]{word}",
+                        // list local functions
+                        $"[1]{type}[2]{anno}[5]{word}",
+                        // list global variables
+                        $"[1]{type}[7]{word}",
+                        // list global functions
+                        $"[1]{type}[5]{word}",
+                        // list global types
+                        $"[1]{type}[6]{word}",
+                    };
+                }
+                else
+                {
+                    // get layout surrounding caret position
+                    var layout = LayoutPosition(position, block);
 
+                    // inside the body of the layout
+                    if (layout != null && layout[1] < position)
+                    {
+                        var prec = GetWordFromPosition(layout[0]);
+                        var next = GetWordFromPosition(NextWordStartPosition(layout[2]));
 
+                        search = new[] {
+                            // list local qualifiers
+                            $"[1]{type}[2]{anno}[3]{prec}[3]{next}[4]{word}",
+                            $"[1]{type}[2]{anno}[3]{prec}[4]{word}",
+                            // list global qualifiers
+                            $"[1]{type}[3]{prec}[3]{next}[4]{word}",
+                            $"[1]{type}[3]{prec}[4]{word}",
+                        };
+                    }
+                    else
+                    {
+                        // first word in line
+                        var cmd = GetWordFromPosition(
+                            NextWordStartPosition(
+                                Lines[LineFromPosition(position)].Position));
+
+                        search = new[] {
+                            // list local arguments
+                            $"[1]{type}[2]{anno}[7]{cmd}[8]{word}",
+                            // list local commands
+                            $"[1]{type}[2]{anno}[7]{word}",
+                            // list local specifications
+                            $"[1]{type}[2]{anno}[3]{word}",
+                            // list global arguments
+                            $"[1]{type}[7]{cmd}[8]{word}",
+                            // list global commands
+                            $"[1]{type}[7]{word}",
+                            // list global specifications
+                            $"[1]{type}[3]{word}",
+                            // list global types
+                            $"[1]{type}[6]{word}",
+                        };
+                    }
                 }
             }
             else
@@ -205,12 +277,16 @@ namespace App
                 // get position of preceding word
                 var precPos = PrecWordStartPosition(position);
                 var prec = GetWordFromPosition(precPos);
-
-                search = new[] { GetStyleAt(precPos) == (int)FX.KeywordClass ? $"{prec},{word}" : word };
+                search = new[] {
+                    // list annotations
+                    $"[0]{prec}[1]{word}",
+                    // list block types
+                    $"[0]{word}"
+                };
             }
 
             skip = search.Select(x => x.Length - word.Length).ToArray();
-        }*/
+        }
 
         /// <summary>
         /// Get the block surrounding the specified text position.
@@ -227,6 +303,24 @@ namespace App
             return null;
         }
 
+        private int[] FunctionPosition(int position, int[] block)
+        {
+            // get headers of the block surrounding the text position
+            foreach (var x in FunctionPositions(block))
+                if (x[0] < position && position < x[2])
+                    return x;
+            return null;
+        }
+
+        private int[] LayoutPosition(int position, int[] block)
+        {
+            // get headers of the block surrounding the text position
+            foreach (var x in LayoutPositions(block))
+                if (x[0] < position && position < x[2])
+                    return x;
+            return null;
+        }
+
         /// <summary>
         /// Get the position of all blocks.
         /// </summary>
@@ -234,7 +328,19 @@ namespace App
         private IEnumerable<int[]> BlockPositions()
             => from x in this.GetBlockPositions()
                select new[] { x.Index, x.Index + x.Value.IndexOf('{'), x.Index + x.Length };
-        
+
+        /// <summary>
+        /// Get the position of all functions within a block.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerable<int[]> FunctionPositions(int[] block)
+            => from x in this.GetFunctionPositions(block[1], block[2])
+               select new[] { x.Index, x.Index + x.Value.IndexOf('{'), x.Index + x.Length };
+
+        private IEnumerable<int[]> LayoutPositions(int[] block)
+            => from x in this.GetLayoutPositions(block[1], block[2])
+               select new[] { x.Index, x.Index + x.Value.IndexOf('('), x.Index + x.Length };
+
         /// <summary>
         /// Find the start position of the preceding word. If the
         /// specified position lies outside any word the position of
