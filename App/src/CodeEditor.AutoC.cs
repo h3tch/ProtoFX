@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using FX = App.FXLexer.Styles;
 
 namespace App
 {
@@ -24,10 +21,9 @@ namespace App
 
             // search for all keywords starting with the
             // search string and not containing subkeywords
-            var invalid = new[] { '.', ',' };
             var keywords = search.Zip(skip,
                 (s, i) => from x in KeywordTrie[s]
-                          where x.IndexOfAny(invalid, s.Length) <= 0
+                          where x.IndexOf('[', s.Length) <= 0
                           select x.Substring(i))
                 .Cat();
 
@@ -56,8 +52,8 @@ namespace App
 
             // select keywords using the current text position
             // is the style at that position a valid hint style
-            var style = (FX)GetStyleAt(pos);
-            if (FX.KeywordClass <= style && style <= FX.KeywordFunction)
+            var style = GetStyleAt(pos);
+            if (lexer.KeywordStylesStart <= style && style <= lexer.KeywordStylesEnd)
             {
                 // is there a word at that position
                 var word = GetWordFromPosition(pos);
@@ -87,92 +83,6 @@ namespace App
         /// <param name="skip"></param>
         public void SelectString(int position, out string[] search, out int[] skip)
         {
-            // get word and preceding word at caret position
-            var word = GetWordFromPosition(position);
-
-            // get block surrounding caret position
-            var block = BlockPosition(position);
-
-            // inside the body of the block
-            if (block != null && block[1] < position)
-            {
-                // get block header
-                var header = GetTextRange(block[0], block[1] - block[0])
-                    .Split(new[] { ' ', '\n', '\r' })
-                    .Where(x => x.Length > 0)
-                    .ToArray();
-                var type = header[0];
-                var anno = header[1];
-                
-                // inside the body of a shader block
-                if (type == "shader")
-                {
-                    // find next and preceding keyword
-                    var nextPos = Enumerable.Range(position, block[2] - position)
-                        .FirstOrDefault(i => GetStyleAt(i) == (int)FX.KeywordType);
-                    var precPos = Enumerable.Range(block[1] + 1, position - block[1]).Reverse()
-                        .FirstOrDefault(i => GetStyleAt(i) == (int)FX.KeywordType);
-                    var next = GetWordFromPosition(nextPos);
-                    var prec = GetWordFromPosition(precPos);
-
-                    // find preceding closing brace
-                    var bracePos = Text.LastIndexOf(')', position, position - block[1]);
-
-                    // if no keyword was found (keyPos == 0) or,
-                    // in case it was found and lies before a closing brace,
-                    if (precPos == 0 || precPos < bracePos || nextPos <= precPos)
-                    {
-                        search = new[] {
-                            $"{type},{anno}.{word}",
-                            $"{type}.{word}",
-                        };
-                    }
-                    else
-                    {
-                        search = new[] {
-                            $"{type},{anno}.{prec},{next}.{word}",
-                            $"{type},{anno}.{prec}.{word}",
-                            $"{type}.{prec},{next}.{word}",
-                            $"{type}.{prec}.{word}",
-                        };
-                        if (!search.Any(x => KeywordTrie.HasAny(x)))
-                            search = new[] {
-                                $"{type},{anno}.{word}",
-                                $"{type}.{word}",
-                            };
-                    }
-                }
-                else
-                {
-                    // get the position of the beginning of the line
-                    var linePos = Lines[LineFromPosition(position)].Position;
-                    var wordPos = WordStartPosition(position, true);
-
-                    // try to find the preceding command
-                    var cmdPos = Enumerable.Range(linePos, wordPos - linePos).Reverse()
-                        .FirstOrDefault(i => GetStyleAt(i) == (int)FX.KeywordCommand);
-                    var cmd = GetWordFromPosition(cmdPos);
-                    
-                    search = new[] { $"{type},{anno}", type }
-                        .Select(x => cmdPos > 0 ? $"{x}.{cmd}.{word}" : $"{x}.{word}")
-                        .ToArray();
-                }
-            }
-            else
-            {
-                // get position of preceding word
-                var precPos = PrecWordStartPosition(position);
-                var prec = GetWordFromPosition(precPos);
-
-                search = new[] { GetStyleAt(precPos) == (int)FX.KeywordClass ? $"{prec},{word}" : word };
-            }
-
-            skip = search.Select(x => x.Length - word.Length).ToArray();
-        }
-
-
-        public void Select(int position, out string[] search, out int[] skip)
-        {
             // [1] ... block
             // [2] ... annotation
             // [3] ... command
@@ -182,7 +92,7 @@ namespace App
             // [7] ... specifications
             // [8] ... qualifier
             // [9] ... variable
-            // [A] ... variable
+            // [10] ... branching
 
             // get word and preceding word at caret position
             var word = GetWordFromPosition(position);
@@ -207,19 +117,13 @@ namespace App
                 // inside the body of the function
                 if (function != null && function[1] < position)
                 {
-                    header = GetTextRange(function[0], function[1] - function[0])
-                        .Split(new[] { ' ', '\t', '\n', '\r' })
-                        .Where(x => x.Length > 0)
-                        .ToArray();
-                    var func = header[1];
-
                     search = new[] {
                         // list local variables
-                        $"[1]{type}[2]{anno}[7]{word}",
+                        $"[1]{type}[2]{anno}[9]{word}",
                         // list local functions
                         $"[1]{type}[2]{anno}[5]{word}",
                         // list global variables
-                        $"[1]{type}[7]{word}",
+                        $"[1]{type}[9]{word}",
                         // list global functions
                         $"[1]{type}[5]{word}",
                         // list global types
@@ -234,16 +138,17 @@ namespace App
                     // inside the body of the layout
                     if (layout != null && layout[1] < position)
                     {
+                        var text = GetTextRange(layout[0], layout[2] - layout[0]);
                         var prec = GetWordFromPosition(layout[0]);
                         var next = GetWordFromPosition(NextWordStartPosition(layout[2]));
 
                         search = new[] {
                             // list local qualifiers
-                            $"[1]{type}[2]{anno}[3]{prec}[3]{next}[4]{word}",
-                            $"[1]{type}[2]{anno}[3]{prec}[4]{word}",
+                            $"[1]{type}[2]{anno}[7]{prec}[7]{next}[8]{word}",
+                            $"[1]{type}[2]{anno}[7]{prec}[8]{word}",
                             // list global qualifiers
-                            $"[1]{type}[3]{prec}[3]{next}[4]{word}",
-                            $"[1]{type}[3]{prec}[4]{word}",
+                            $"[1]{type}[7]{prec}[7]{next}[8]{word}",
+                            $"[1]{type}[7]{prec}[8]{word}",
                         };
                     }
                     else
@@ -279,9 +184,9 @@ namespace App
                 var prec = GetWordFromPosition(precPos);
                 search = new[] {
                     // list annotations
-                    $"[0]{prec}[1]{word}",
+                    $"[1]{prec}[2]{word}",
                     // list block types
-                    $"[0]{word}"
+                    $"[1]{word}"
                 };
             }
 

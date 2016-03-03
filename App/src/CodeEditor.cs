@@ -44,11 +44,11 @@ namespace App
 
             // set hint list
             Hint = lines.Take(j + 1).ToDictionary(
-                k => k.Substring(0, k.IndexOfOrLength('|')).Replace(':', '.'),
+                k => k.Substring(0, k.IndexOfOrLength('|')),
                 v => v.Substring(v.IndexOfOrLength('|')));
 
             // create lexer
-            lexer = new FXLexer(lines.Take(j + 1).ToArray());
+            lexer = new FXLexer(Properties.Resources.keywords);
         }
 
         /// <summary>

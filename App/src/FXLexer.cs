@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace App
 {
@@ -12,13 +13,6 @@ namespace App
         public enum Styles : int
         {
             Default,
-            KeywordClass,
-            KeywordAnnotation,
-            KeywordCommand,
-            KeywordArgument,
-            KeywordType,
-            KeywordQualifier,
-            KeywordFunction,
             Identifier,
             Number,
             String,
@@ -27,8 +21,6 @@ namespace App
             Operator,
             Punctuation,
             Preprocessor,
-            KeywordStart = KeywordClass,
-            KeywordEnd = KeywordFunction,
         }
 
         private enum State : int
@@ -50,6 +42,9 @@ namespace App
             UnicodeCategory.ConnectorPunctuation,
         };
 
+        public int KeywordStylesStart => (int)Styles.Preprocessor + 1;
+        public int KeywordStylesEnd => (int)Styles.Preprocessor + keywords.Length;
+
         private HashSet<string>[] keywords;
         #endregion
 
@@ -57,64 +52,23 @@ namespace App
         /// Create a lexer from a keyword definition list.
         /// </summary>
         /// <param name="keywordDef"></param>
-        public FXLexer(string[] keywordDef)
+        public FXLexer(string keywordDef)
         {
-            // remove hints from keyword definitions
-            var list = keywordDef
-                .Select(x => x.Substring(0, (int)Math.Min((uint)x.Length, (uint)x.IndexOf('|'))))
-                .ToArray();
+            keywords = ParseKeywords(keywordDef, 10).ToArray();
+        }
 
-            // get block keywords
-            var block = list
-                .Where(x => x.IndexOf('.') < 0 && x.IndexOf(':') < 0 && x.IndexOf(',') < 0)
-                .ToArray();
-            // get block annotation keywords
-            var anno = list
-                .Where(x => x.IndexOf('.') < 0 && x.IndexOf(':') < 0 && x.Count(c => c == ',') == 1)
-                .Select(x => x.Substring(x.IndexOf(',') + 1))
-                .ToArray();
-            // get command keywords (shaders do not have commands and are handled differently)
-            var sel = list
-                .Where(x => !x.StartsWith("shader") && x.IndexOf('.') >= 0)
-                .Select(x => x.Substring(x.IndexOf('.') + 1))
-                .ToArray();
-            // get command keywords
-            var cmd = sel
-                .Where(x => x.IndexOf('.') < 0)
-                .ToArray();
-            // get command argument keywords
-            var arg = sel
-                .Where(x => x.IndexOf('.') >= 0)
-                .Select(x => x.Substring(x.IndexOf('.') + 1))
-                .ToArray();
-
-            // get shader function keywords
-            var shader = "shader";
-            var glslfunctions = list
-                .Where(x => x.StartsWith(shader) && x.IndexOf(':') < 0 && x.Count(c => c == '.') == 1)
-                .Select(x => x.Substring(x.IndexOf('.') + 1))
-                .ToArray();
-            // get shader type keywords
-            var glsltypes = list
-                .Where(x => x.StartsWith(shader) && x.IndexOf('.') < 0 && x.Count(c => c == ':') == 1)
-                .Select(x => x.Substring(x.IndexOf(':') + 1))
-                .ToArray();
-            // get shader qualifier keywords
-            var glslqualiriers = list
-                .Where(x => x.StartsWith(shader) && x.IndexOf(':') >= 0 && x.IndexOf('.') >= 0)
-                .Select(x => x.Substring(x.LastIndexOf('.') + 1))
-                .ToArray();
-
-            // setup internal keyword hashsets
-            this.keywords = new[] {
-                new HashSet<string>(block),
-                new HashSet<string>(anno),
-                new HashSet<string>(cmd),
-                new HashSet<string>(arg),
-                new HashSet<string>(glsltypes),
-                new HashSet<string>(glslqualiriers),
-                new HashSet<string>(glslfunctions)
-            };
+        private IEnumerable<HashSet<string>> ParseKeywords(string text, int maxKeywordTypes)
+        {
+            for (int i = 1; i <= maxKeywordTypes; i++)
+            {
+                var indicator = $"{i}";
+                var words = from x in text.Matches(@"\[" + indicator + @"\]\w+")
+                            select x.Value.Substring(indicator.Length + 2);
+                if (words.Any())
+                    yield return new HashSet<string>(words.ToArray());
+                else
+                    break;
+            }
         }
 
         /// <summary>
@@ -125,7 +79,7 @@ namespace App
         /// <param name="endPos"></param>
         /// <param name="keyStyles"></param>
         /// <returns></returns>
-        public int Style(Scintilla editor, int startPos, int endPos, int[] keyStyles)
+        public int Style(Scintilla editor, int startPos, int endPos)
         {
             // Back up to the line start
             var length = 0;
@@ -329,11 +283,11 @@ namespace App
                             var identifier = editor.GetTextRange(startPos - length, length);
 
                             // if part of a keyword list, use the respective style
-                            foreach (var i in keyStyles)
+                            for (int i = 0; i < keywords.Length; i++)
                             {
-                                if (keywords[i - (int)Styles.KeywordClass].Contains(identifier))
+                                if (keywords[i].Contains(identifier))
                                 {
-                                    style = i;
+                                    style = KeywordStylesStart + i;
                                     break;
                                 }
                             }

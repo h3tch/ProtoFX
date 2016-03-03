@@ -73,6 +73,12 @@ namespace App
 
         public static int IndexOfOrLength(this string s, char c, int startIndex = 0)
             =>(int)Math.Min((uint)s.Length, (uint)s.IndexOf(c, startIndex));
+
+        public static IEnumerable<Match> Matches(this string s, string regex)
+        {
+            foreach (Match m in Regex.Matches(s, regex))
+                yield return m;
+        }
         #endregion
 
         #region Extensions For All Types

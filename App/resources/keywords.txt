@@ -1,94 +1,94 @@
-﻿buffer|buffer <name>
-buffer.size|size <bytes>
-buffer.txt|txt <text_name>
-buffer.usage|usage <usage_hint>
-buffer.usage.dynamicCopy
-buffer.usage.dynamicDraw
-buffer.usage.dynamicRead
-buffer.usage.staticCopy
-buffer.usage.staticDraw
-buffer.usage.staticRead
-buffer.usage.streamCopy
-buffer.usage.streamDraw
-buffer.usage.streamRead
-buffer.xml|xml <path> <node>
-csharp|csharp <name>
-csharp.file|file <path> [path] [...]
-fragoutput|fragoutput <name>
-fragoutput.color|color <image_name>
-fragoutput.depth|depth <image_name>
-fragoutput.height|height <pixels>
-fragoutput.width|width <pixels>
-image|image <name>
-image.depth|depth <layers>
-image.file|file <path> [path] [...]
-image.format|format <pixel_format>
-image.format.depth
-image.format.depth16
-image.format.depth24
-image.format.depth24stencil8
-image.format.depth32
-image.format.depth32f
-image.format.depth32fstencil8
-image.format.depthstencil
-image.format.r8
-image.format.r8i
-image.format.r8ui
-image.format.r16
-image.format.r16i
-image.format.r16ui
-image.format.r16f
-image.format.r32i
-image.format.r32ui
-image.format.r32f
-image.format.rg8
-image.format.rg8i
-image.format.rg8ui
-image.format.rg16
-image.format.rg16i
-image.format.rg16ui
-image.format.rg16f
-image.format.rg32i
-image.format.rg32ui
-image.format.rg32f
-image.format.rgb8
-image.format.rgb8i
-image.format.rgb8ui
-image.format.rgb16
-image.format.rgb16i
-image.format.rgb16ui
-image.format.rgb16f
-image.format.rgb32i
-image.format.rgb32ui
-image.format.rgb32f
-image.format.rgba8
-image.format.rgba8i
-image.format.rgba8ui
-image.format.rgba16
-image.format.rgba16i
-image.format.rgba16ui
-image.format.rgba16f
-image.format.rgba32i
-image.format.rgba32ui
-image.format.rgba32f
-image.height|height <pixels>
-image.length|length <layers>
-image.type|type <texture_type>
-image.type.texture1D|1D texture
-image.type.texture2D|2D texture
-image.type.texture3D|3D texture/volume texture
-image.type.texture1DArray|1D texture array
-image.type.texture2DArray|2D texture array
-image.width|width <pixels>
-instance|instance <name>
-instance.class|class <csharp_name> <c#_class>
-instance.name|name <new_name>
-pass|pass <name>
-pass.comp|comp <shader_name>
-pass.compute|Dispatch compute shader call.
+﻿[1]buffer|buffer <name>
+[1]buffer[3]size|size <bytes>
+[1]buffer[3]txt|txt <text_name>
+[1]buffer[3]usage|usage <usage_hint>
+[1]buffer[3]usage[4]dynamicCopy
+[1]buffer[3]usage[4]dynamicDraw
+[1]buffer[3]usage[4]dynamicRead
+[1]buffer[3]usage[4]staticCopy
+[1]buffer[3]usage[4]staticDraw
+[1]buffer[3]usage[4]staticRead
+[1]buffer[3]usage[4]streamCopy
+[1]buffer[3]usage[4]streamDraw
+[1]buffer[3]usage[4]streamRead
+[1]buffer[3]xml|xml <path> <node>
+[1]csharp|csharp <name>
+[1]csharp[3]file|file <path> [path] [...]
+[1]fragoutput|fragoutput <name>
+[1]fragoutput[3]color|color <image_name>
+[1]fragoutput[3]depth|depth <image_name>
+[1]fragoutput[3]height|height <pixels>
+[1]fragoutput[3]width|width <pixels>
+[1]image|image <name>
+[1]image[3]depth|depth <layers>
+[1]image[3]file|file <path> [path] [...]
+[1]image[3]format|format <pixel_format>
+[1]image[3]format[4]depth
+[1]image[3]format[4]depth16
+[1]image[3]format[4]depth24
+[1]image[3]format[4]depth24stencil8
+[1]image[3]format[4]depth32
+[1]image[3]format[4]depth32f
+[1]image[3]format[4]depth32fstencil8
+[1]image[3]format[4]depthstencil
+[1]image[3]format[4]r8
+[1]image[3]format[4]r8i
+[1]image[3]format[4]r8ui
+[1]image[3]format[4]r16
+[1]image[3]format[4]r16i
+[1]image[3]format[4]r16ui
+[1]image[3]format[4]r16f
+[1]image[3]format[4]r32i
+[1]image[3]format[4]r32ui
+[1]image[3]format[4]r32f
+[1]image[3]format[4]rg8
+[1]image[3]format[4]rg8i
+[1]image[3]format[4]rg8ui
+[1]image[3]format[4]rg16
+[1]image[3]format[4]rg16i
+[1]image[3]format[4]rg16ui
+[1]image[3]format[4]rg16f
+[1]image[3]format[4]rg32i
+[1]image[3]format[4]rg32ui
+[1]image[3]format[4]rg32f
+[1]image[3]format[4]rgb8
+[1]image[3]format[4]rgb8i
+[1]image[3]format[4]rgb8ui
+[1]image[3]format[4]rgb16
+[1]image[3]format[4]rgb16i
+[1]image[3]format[4]rgb16ui
+[1]image[3]format[4]rgb16f
+[1]image[3]format[4]rgb32i
+[1]image[3]format[4]rgb32ui
+[1]image[3]format[4]rgb32f
+[1]image[3]format[4]rgba8
+[1]image[3]format[4]rgba8i
+[1]image[3]format[4]rgba8ui
+[1]image[3]format[4]rgba16
+[1]image[3]format[4]rgba16i
+[1]image[3]format[4]rgba16ui
+[1]image[3]format[4]rgba16f
+[1]image[3]format[4]rgba32i
+[1]image[3]format[4]rgba32ui
+[1]image[3]format[4]rgba32f
+[1]image[3]height|height <pixels>
+[1]image[3]length|length <layers>
+[1]image[3]type|type <texture_type>
+[1]image[3]type[4]texture1D|1D texture
+[1]image[3]type[4]texture2D|2D texture
+[1]image[3]type[4]texture3D|3D texture/volume texture
+[1]image[3]type[4]texture1DArray|1D texture array
+[1]image[3]type[4]texture2DArray|2D texture array
+[1]image[3]width|width <pixels>
+[1]instance|instance <name>
+[1]instance[3]class|class <csharp_name> <c#_class>
+[1]instance[3]name|name <new_name>
+[1]pass|pass <name>
+[1]pass[3]comp|comp <shader_name>
+[1]pass[3]compute|Dispatch compute shader call.
    compute <num_group_x> <num_group_y> [num_group_z]
    compute <callbuffer_name>
-pass.draw|Draw vertex based (possibly indexed) geometry.
+[1]pass[3]draw|Draw vertex based (possibly indexed) geometry.
  
    draw <vertinput_name> <primitive_type> <base_vertex> <vertex_count>
         [base_instance] [instance_count]
@@ -105,62 +105,62 @@ pass.draw|Draw vertex based (possibly indexed) geometry.
      linesAdjacency, lineStripAdjacency, trianglesAdjacency, triangleStripAdjacency
  index_type -- 
      ubyte, ushort, uint
-pass.draw.lineLoop
-pass.draw.lines
-pass.draw.linesAdjacency
-pass.draw.lineStrip
-pass.draw.lineStripAdjacency
-pass.draw.patch
-pass.draw.points
-pass.draw.triangleFan
-pass.draw.triangles
-pass.draw.trianglesAdjacency
-pass.draw.triangleStrip
-pass.draw.triangleStripAdjacency
-pass.draw.ubyte|index buffer type is unsigned byte
-pass.draw.uint|index buffer type is unsigned integer
-pass.draw.ushort|index buffer type is unsigned short
-pass.fragout|fragout <fragoutput_name>
-pass.vertout|vertout <vertoutput_name> <output_primitive_type> [write_mode] <output_varying_name>
+[1]pass[3]draw[4]lineLoop
+[1]pass[3]draw[4]lines
+[1]pass[3]draw[4]linesAdjacency
+[1]pass[3]draw[4]lineStrip
+[1]pass[3]draw[4]lineStripAdjacency
+[1]pass[3]draw[4]patch
+[1]pass[3]draw[4]points
+[1]pass[3]draw[4]triangleFan
+[1]pass[3]draw[4]triangles
+[1]pass[3]draw[4]trianglesAdjacency
+[1]pass[3]draw[4]triangleStrip
+[1]pass[3]draw[4]triangleStripAdjacency
+[1]pass[3]draw[4]ubyte|index buffer type is unsigned byte
+[1]pass[3]draw[4]uint|index buffer type is unsigned integer
+[1]pass[3]draw[4]ushort|index buffer type is unsigned short
+[1]pass[3]fragout|fragout <fragoutput_name>
+[1]pass[3]vertout|vertout <vertoutput_name> <output_primitive_type> [write_mode] <output_varying_name>
  
      The optional argument [write_mode] can be 'gl_SeparateAttribs' (write every
      <output_varying_name> to a new buffer) or the default 'gl_InterleavedAttribs'
      (output varyings for different buffers need to be separated by 'gl_NextBuffer')
-pass.vertout.lines
-pass.vertout.points
-pass.vertout.triangles
-pass.eval|eval <shader_name>
-pass.exec|exec <instance_name>
-pass.frag|frag <shader_name>
-pass.geom|geom <shader_name>
-pass.tess|tess <shader_name>
-pass.tex|tex <texture_name> <unit>
-pass.vert|vert <shader_name>
-sampler|sampler <name>
-sampler.magfilter|magfilter <filter_type>
-sampler.magfilter.linear
-sampler.magfilter.nearest
-sampler.minfilter|minfilter <filter_type>
-sampler.minfilter.linear
-sampler.minfilter.nearest
-sampler.minfilter.LinearMipmapLinear
-sampler.minfilter.LinearMipmapNearest
-sampler.minfilter.NearestMipmapLinear
-sampler.minfilter.NearestMipmapNearest
-sampler.wrap|wrap <wrap_type>
-sampler.wrap.ClampToBorder
-sampler.wrap.ClampToEdge
-sampler.wrap.MirroredRepeat
-sampler.wrap.Repeat
-shader|shader <shader_type> <name>
-shader,comp|comp
+[1]pass[3]vertout[4]lines
+[1]pass[3]vertout[4]points
+[1]pass[3]vertout[4]triangles
+[1]pass[3]eval|eval <shader_name>
+[1]pass[3]exec|exec <instance_name>
+[1]pass[3]frag|frag <shader_name>
+[1]pass[3]geom|geom <shader_name>
+[1]pass[3]tess|tess <shader_name>
+[1]pass[3]tex|tex <texture_name> <unit>
+[1]pass[3]vert|vert <shader_name>
+[1]sampler|sampler <name>
+[1]sampler[3]magfilter|magfilter <filter_type>
+[1]sampler[3]magfilter[4]linear
+[1]sampler[3]magfilter[4]nearest
+[1]sampler[3]minfilter|minfilter <filter_type>
+[1]sampler[3]minfilter[4]linear
+[1]sampler[3]minfilter[4]nearest
+[1]sampler[3]minfilter[4]LinearMipmapLinear
+[1]sampler[3]minfilter[4]LinearMipmapNearest
+[1]sampler[3]minfilter[4]NearestMipmapLinear
+[1]sampler[3]minfilter[4]NearestMipmapNearest
+[1]sampler[3]wrap|wrap <wrap_type>
+[1]sampler[3]wrap[4]ClampToBorder
+[1]sampler[3]wrap[4]ClampToEdge
+[1]sampler[3]wrap[4]MirroredRepeat
+[1]sampler[3]wrap[4]Repeat
+[1]shader|shader <shader_type> <name>
+[1]shader[2]comp|comp
    in  uvec3 gl_NumWorkGroups
    in  uvec3 gl_WorkGroupSize
    in  uvec3 gl_WorkGroupID
    in  uvec3 gl_LocalInvocationID
    in  uvec3 gl_GlobalInvocationID
    in  uint  gl_LocalInvocationIndex
-shader,eval|eval
+[1]shader[2]eval|eval
    in  vec3  gl_TessCoord
    in  int   gl_PatchVerticesIn
    in  int   gl_PrimitiveID
@@ -172,7 +172,7 @@ shader,eval|eval
    out vec4  gl_Position
    out float gl_PointSize
    out float gl_ClipDistance[]
-shader,frag|frag
+[1]shader[2]frag|frag
    in  vec4  gl_FragCoord
    in  bool  gl_FrontFacing
    in  vec2  gl_PointCoord
@@ -185,7 +185,7 @@ shader,frag|frag
    in  int   gl_ViewportIndex
    out float gl_FragDepth
    out int   gl_SampleMask[]
-shader,geom|geom
+[1]shader[2]geom|geom
    in  int   gl_PrimitiveIDIn
    in  int   gl_InvocationID
    in  vec4  gl_in[].gl_Position
@@ -197,7 +197,7 @@ shader,geom|geom
    out vec4  gl_Position
    out float gl_PointSize
    out float gl_ClipDistance[]
-shader,tess|tess
+[1]shader[2]tess|tess
    in  int   gl_PatchVerticesIn
    in  int   gl_PrimitiveID
    in  int   gl_InvocationID
@@ -209,84 +209,84 @@ shader,tess|tess
    out vec4  gl_out[].gl_Position
    out float gl_out[].gl_PointSize
    out float gl_out[].gl_ClipDistance[]
-shader,vert|vert
+[1]shader[2]vert|vert
    in  int   gl_VertexID
    in  int   gl_InstanceID
    out vec4  gl_Position
    out float gl_PointSize
    out float gl_ClipDistance[]
-shader.abs|abs -- return the absolute value of the parameter
+[1]shader[5]abs|abs -- return the absolute value of the parameter
    genType  abs(genType  x)
    genIType abs(genIType x)
    genDType abs(genDType x)
-shader.acos|acos -- return the arccosine of the parameter
+[1]shader[5]acos|acos -- return the arccosine of the parameter
    genType acos(genType x)
-shader.acosh|acosh -- return the arc hyperbolic cosine of the parameter
+[1]shader[5]acosh|acosh -- return the arc hyperbolic cosine of the parameter
    genType acosh(genType x)
-shader.all|all -- check whether all elements of a boolean vector are true
+[1]shader[5]all|all -- check whether all elements of a boolean vector are true
    bool all(bvec x)
-shader.any|any -- check whether any element of a boolean vector is true
+[1]shader[5]any|any -- check whether any element of a boolean vector is true
    bool any(bvec x)
-shader.asin|asin -- return the arcsine of the parameter
+[1]shader[5]asin|asin -- return the arcsine of the parameter
    genType asin(genType x)
-shader.asinh|asinh -- return the arc hyperbolic sine of the parameter
+[1]shader[5]asinh|asinh -- return the arc hyperbolic sine of the parameter
    genType asinh(genType x)
-shader.atan|atan -- return the arc-tangent of the parameters
+[1]shader[5]atan|atan -- return the arc-tangent of the parameters
    genType atan(genType x)
-shader.atanh|atanh -- return the arc hyperbolic tangent of the parameter
+[1]shader[5]atanh|atanh -- return the arc hyperbolic tangent of the parameter
    genType atanh(genType x)
-shader:atomic_uint
-shader.atomicAdd|atomicAdd -- perform an atomic addition to a variable
+[1]shader[6]atomic_uint
+[1]shader[5]atomicAdd|atomicAdd -- perform an atomic addition to a variable
    int  atomicAdd(inout int  mem, int  data)
    uint atomicAdd(inout uint mem, uint data)
-shader.atomicAnd|atomicAnd -- perform an atomic logical AND operation to a variable
+[1]shader[5]atomicAnd|atomicAnd -- perform an atomic logical AND operation to a variable
    int  atomicAdd(inout int  mem, int  data)
    uint atomicAdd(inout uint mem, uint data)
-shader.atomicCompSwap|atomicCompSwap -- perform an atomic compare-exchange operation to a variable
+[1]shader[5]atomicCompSwap|atomicCompSwap -- perform an atomic compare-exchange operation to a variable
    int  atomicCompSwap(inout int  mem, uint compare, uint data)
    uint atomicCompSwap(inout uint mem, uint compare, uint data)
-shader.atomicCounter|atomicCounter -- return the current value of an atomic counter
+[1]shader[5]atomicCounter|atomicCounter -- return the current value of an atomic counter
    uint atomicCounter(atomic_uint c)
-shader.atomicCounterDecrement|atomicCounterDecrement -- atomically decrement a counter and return the prior value
+[1]shader[5]atomicCounterDecrement|atomicCounterDecrement -- atomically decrement a counter and return the prior value
    uint atomicCounterDecrement(atomic_uint c)
-shader.atomicCounterIncrement|atomicCounterIncrement -- atomically increment a counter and return the prior value
+[1]shader[5]atomicCounterIncrement|atomicCounterIncrement -- atomically increment a counter and return the prior value
    uint atomicCounterIncrement(atomic_uint c)
-shader.atomicExchange|atomicExchange -- perform an atomic exchange operation to a variable
+[1]shader[5]atomicExchange|atomicExchange -- perform an atomic exchange operation to a variable
    int  atomicExchange(inout int  mem, int  data)
    uint atomicExchange(inout uint mem, uint data)
-shader.atomicMax|atomicMax -- perform an atomic max operation to a variable
+[1]shader[5]atomicMax|atomicMax -- perform an atomic max operation to a variable
    int  atomicMax(inout int  mem, int  data)
    uint atomicMax(inout uint mem, uint data)
-shader.atomicMin|atomicMin -- perform an atomic min operation to a variable
+[1]shader[5]atomicMin|atomicMin -- perform an atomic min operation to a variable
    int  atomicMin(inout int  mem, int  data)
    uint atomicMin(inout uint mem, uint data)
-shader.atomicOr|atomicOr -- perform an atomic logical OR operation to a variable
+[1]shader[5]atomicOr|atomicOr -- perform an atomic logical OR operation to a variable
    int  atomicOr(inout int  mem, int  data)
    uint atomicOr(inout uint mem, uint data)
-shader.atomicXor|atomicXor -- perform an atomic logical exclusive OR operation to a variable
+[1]shader[5]atomicXor|atomicXor -- perform an atomic logical exclusive OR operation to a variable
    int  atomicXor(inout int  mem, int  data)
    uint atomicXor(inout uint mem, uint data)
-shader.barrier|barrier -- synchronize execution of multiple shader invocations
+[1]shader[5]barrier|barrier -- synchronize execution of multiple [1]shader invocations
    void barrier(void)
-shader.bitCount|bitCount -- counts the number of 1 bits in an integer
+[1]shader[5]bitCount|bitCount -- counts the number of 1 bits in an integer
    genIType bitCount(genIType value)
    genIType bitCount(genUType value)
-shader.bitfieldExtract|bitfieldExtract -- extract a range of bits from an integer
+[1]shader[5]bitfieldExtract|bitfieldExtract -- extract a range of bits from an integer
    genIType bitfieldExtract(genIType value, int offset, int bits)
    genUType bitfieldExtract(genUType value, int offset, int bits)
-shader.bitfieldInsert|bitfieldInsert -- insert a range of bits into an integer
+[1]shader[5]bitfieldInsert|bitfieldInsert -- insert a range of bits into an integer
    genIType bitfieldInsert(genIType base, genIType insert, int offset, int bits)
    genUType bitfieldInsert(genUType base, genUType insert, int offset, int bits)
-shader.bitfieldReverse|bitfieldReverse -- reverse the order of bits in an integer
+[1]shader[5]bitfieldReverse|bitfieldReverse -- reverse the order of bits in an integer
    genIType bitfieldReverse(genIType value)
    genUType bitfieldReverse(genUType value)
-shader:bvec2
-shader:bvec3
-shader:bvec4
-shader.ceil|ceil -- find the nearest integer that is greater than or equal to the parameter
+[1]shader[6]bvec2
+[1]shader[6]bvec3
+[1]shader[6]bvec4
+[1]shader[5]ceil|ceil -- find the nearest integer that is greater than or equal to the parameter
    genType  ceil(genType  x)
    genDType ceil(genDType x)
-shader,frag:centroid|During multisampling, if centroid​ is not present, then the written value
+[1]shader[2]frag[7]centroid|During multisampling, if centroid​ is not present, then the written value
  can be interpolated to an arbitrary position within the pixel. This may
  be the pixel's center, one of the sample locations within the pixel, or
  an arbitrary location. Most importantly of all, this sample may lie
@@ -304,7 +304,7 @@ shader,frag:centroid|During multisampling, if centroid​ is not present, then t
  interpolated value, you may need to use centroid​ interpolation.
    You should only use centroid​ if there is a real problem like this. In
  many cases interpolating without centroid doesn't pose a problem. 
-shader.clamp|clamp -- constrain a value to lie between two further values
+[1]shader[5]clamp|clamp -- constrain a value to lie between two further values
    genType  clamp(genType  x, genType minVal, genType maxVal)
    genType  clamp(genType  x, float minVal, float maxVal)
    genDType clamp(genDType x, genDType minVal, genDType maxVal)
@@ -313,215 +313,215 @@ shader.clamp|clamp -- constrain a value to lie between two further values
    genIType clamp(genIType x, int minVal, int maxVal)
    genUType clamp(genUType x, genUType minVal, genUType maxVal)
    genUType clamp(genUType x, uint minVal, uint maxVal)
-shader:const
-shader.cos|cos -- return the cosine of the parameter
+[1]shader[7]const
+[1]shader[5]cos|cos -- return the cosine of the parameter
    genType cos(genType angle)
-shader.cosh|cosh -- return the hyperbolic cosine of the parameter
+[1]shader[5]cosh|cosh -- return the hyperbolic cosine of the parameter
    genType cosh(genType x)
-shader.cross|cross -- calculate the cross product of two vectors
+[1]shader[5]cross|cross -- calculate the cross product of two vectors
    vec3  cross(vec3  x, vec3  y)
    dvec3 cross(dvec3 x, dvec3 y)
-shader.degrees|degrees -- convert a quantity in radians to degrees
+[1]shader[5]degrees|degrees -- convert a quantity in radians to degrees
    genType degrees(genType radians)
-shader.determinant|determinant -- calculate the determinant of a matrix
+[1]shader[5]determinant|determinant -- calculate the determinant of a matrix
    float determinant(mat2 m)
    float determinant(mat3 m)
    float determinant(mat4 m)
    double determinant(dmat2 m)
    double determinant(dmat3 m)
    double determinant(dmat4 m)
-shader,frag:discard
-shader.dFdx|dFdx -- return the partial derivative of an argument with respect to x
+[1]shader[2]frag[10]discard
+[1]shader[5]dFdx|dFdx -- return the partial derivative of an argument with respect to x
    genType dFdx(genType p)
-shader.dFdxCoarse|dFdxCoarse -- return the partial derivative of an argument with respect to x
+[1]shader[5]dFdxCoarse|dFdxCoarse -- return the partial derivative of an argument with respect to x
    genType dFdxCoarse(genType p)
-shader.dFdxFine|dFdxFine -- return the partial derivative of an argument with respect to x
+[1]shader[5]dFdxFine|dFdxFine -- return the partial derivative of an argument with respect to x
    genType dFdxFine(genType p)
-shader.dFdy|dFdy -- return the partial derivative of an argument with respect to y
+[1]shader[5]dFdy|dFdy -- return the partial derivative of an argument with respect to y
    genType dFdy(genType p)
-shader.dFdyCoarse|dFdyCoarse -- return the partial derivative of an argument with respect to y
+[1]shader[5]dFdyCoarse|dFdyCoarse -- return the partial derivative of an argument with respect to y
    genType dFdyCoarse(genType p)
-shader.dFdyFine|dFdyFine -- return the partial derivative of an argument with respect to y
+[1]shader[5]dFdyFine|dFdyFine -- return the partial derivative of an argument with respect to y
    genType dFdyFine(genType p)
-shader.distance|distance -- calculate the distance between two points
+[1]shader[5]distance|distance -- calculate the distance between two points
    float distance(genType p0, genType p1)
    double distance(genDType p0, genDType p1)
-shader.dot|dot -- calculate the dot product of two vectors
+[1]shader[5]dot|dot -- calculate the dot product of two vectors
    float dot(genType x, genType y)
    double dot(genDType x, genDType y)
-shader:dmat2
-shader:dmat2x2
-shader:dmat2x3
-shader:dmat2x4
-shader:dmat3
-shader:dmat3x2
-shader:dmat3x3
-shader:dmat3x4
-shader:dmat4
-shader:dmat4x2
-shader:dmat4x3
-shader:dmat4x4
-shader:dvec2
-shader:dvec3
-shader:dvec4
-shader:else
-shader,geom.EmitStreamVertex|EmitStreamVertex -- emit a vertex to a specified stream
+[1]shader[6]dmat2
+[1]shader[6]dmat2x2
+[1]shader[6]dmat2x3
+[1]shader[6]dmat2x4
+[1]shader[6]dmat3
+[1]shader[6]dmat3x2
+[1]shader[6]dmat3x3
+[1]shader[6]dmat3x4
+[1]shader[6]dmat4
+[1]shader[6]dmat4x2
+[1]shader[6]dmat4x3
+[1]shader[6]dmat4x4
+[1]shader[6]dvec2
+[1]shader[6]dvec3
+[1]shader[6]dvec4
+[1]shader[10]else
+[1]shader[2]geom[5]EmitStreamVertex|EmitStreamVertex -- emit a vertex to a specified stream
    void EmitStreamVertex(int stream)
-shader,geom.EmitVertex|EmitVertex -- emit a vertex to the first vertex stream
+[1]shader[2]geom[5]EmitVertex|EmitVertex -- emit a vertex to the first vertex stream
    void EmitVertex(void)
-shader,geom.EndPrimitive|EndPrimitive -- complete the current output primitive on the first vertex stream
+[1]shader[2]geom[5]EndPrimitive|EndPrimitive -- complete the current output primitive on the first vertex stream
    void EndPrimitive(void)
-shader,geom.EndStreamPrimitive|EndStreamPrimitive -- complete the current output primitive on a specified stream
+[1]shader[2]geom[5]EndStreamPrimitive|EndStreamPrimitive -- complete the current output primitive on a specified stream
    void EndStreamPrimitive(int stream)
-shader.equal|equal -- perform a component-wise equal-to comparison of two vectors
+[1]shader[5]equal|equal -- perform a component-wise equal-to comparison of two vectors
    bvec equal(vec x, vec y)
    bvec equal(ivec x, ivec y)
    bvec equal(uvec x, uvec y)
-shader.exp|exp -- return the natural exponentiation of the parameter
+[1]shader[5]exp|exp -- return the natural exponentiation of the parameter
    genType exp(genType x)
-shader.exp2|exp2 -- return 2 raised to the power of the parameter
+[1]shader[5]exp2|exp2 -- return 2 raised to the power of the parameter
    genType exp2(genType x)
-shader.faceforward|faceforward -- return a vector pointing in the same direction as another
+[1]shader[5]faceforward|faceforward -- return a vector pointing in the same direction as another
    genType  faceforward(genType  N, genType  I, genType  Nref)
    genDType faceforward(genDType N, genDType I, genDType Nref)
-shader.findLSB|findLSB -- find the index of the least significant bit set to 1 in an integer
+[1]shader[5]findLSB|findLSB -- find the index of the least significant bit set to 1 in an integer
    genIType findLSB(genIType value)
    genIType findLSB(genUType value)
-shader.findMSB|findMSB -- find the index of the most significant bit set to 1 in an integer
+[1]shader[5]findMSB|findMSB -- find the index of the most significant bit set to 1 in an integer
    genIType findMSB(genIType value)
    genIType findMSB(genUType value)
-shader.flat|The in/out value will not be interpolated. The
- value given to the fragment shader is the value
+[1]shader[7]flat|The in/out value will not be interpolated. The
+ value given to the fragment [1]shader is the value
  from the Provoking Vertex for that primitive.
-shader:float
-shader.floor|floor -- find the nearest integer less than or equal to the parameter
+[1]shader[6]float
+[1]shader[5]floor|floor -- find the nearest integer less than or equal to the parameter
    genType  floor(genType  x)
    genDType floor(genDType x)
-shader.fma|fma -- perform a fused multiply-add operation
+[1]shader[5]fma|fma -- perform a fused multiply-add operation
    genType  fma(genType  a, genType  b, genType  c)
    genDType fma(genDType a, genDType b, genDType c)
-shader:for
-shader.fract|fract -- compute the fractional part of the argument
+[1]shader[10]for
+[1]shader[5]fract|fract -- compute the fractional part of the argument
    genType  fract(genType  x)
    genDType fract(genDType x)
-shader.frexp|frexp -- split a floating point number
+[1]shader[5]frexp|frexp -- split a floating point number
    genType  frexp(genType  x, out genIType exp)
    genDType frexp(genDType x, out genIType exp)
-shader,frag.fwidth|fwidth -- return the sum of the absolute value of derivatives in x and y
+[1]shader[2]frag[5]fwidth|fwidth -- return the sum of the absolute value of derivatives in x and y
    genType fwidth(genType p)
-shader,frag.fwidthCoarse|fwidthCoarse -- return the sum of the absolute value of derivatives in x and y
+[1]shader[2]frag[5]fwidthCoarse|fwidthCoarse -- return the sum of the absolute value of derivatives in x and y
    genType fwidthCoarse(genType p)
-shader,frag.fwidthFine|fwidthFine -- return the sum of the absolute value of derivatives in x and y
+[1]shader[2]frag[5]fwidthFine|fwidthFine -- return the sum of the absolute value of derivatives in x and y
    genType fwidthFine(genType p)
-shader:gl_ClipDistance|gl_ClipDistance -- provides a forward-compatible mechanism for vertex clipping
-shader:gl_CullDistance|gl_CullDistance -- provides a mechanism for controlling user culling
-shader:gl_DepthRange|gl_DepthRange -- provides access to the
+[1]shader[9]gl_ClipDistance|gl_ClipDistance -- provides a forward-compatible mechanism for vertex clipping
+[1]shader[9]gl_CullDistance|gl_CullDistance -- provides a mechanism for controlling user culling
+[1]shader[9]gl_DepthRange|gl_DepthRange -- provides access to the
                  glDepthRange​ near and far values
    gl_DepthRange.far  -- glDepthRange​ far value
    gl_DepthRange.near -- glDepthRange​ near value
    gl_DepthRange.diff -- diff = far - near
-shader,frag:gl_FragCoord|gl_FragCoord -- contains the window-relative coordinates of the current fragment
-shader,frag:gl_FragDepth|gl_FragDepth -- establishes a depth value for the current fragment
-shader,frag:gl_FrontFacing|gl_FrontFacing -- indicates whether a primitive is front or back facing
-shader,comp:gl_GlobalInvocationID|gl_GlobalInvocationID -- contains the global index of work item
+[1]shader[2]frag[9]gl_FragCoord|gl_FragCoord -- contains the window-relative coordinates of the current fragment
+[1]shader[2]frag[9]gl_FragDepth|gl_FragDepth -- establishes a depth value for the current fragment
+[1]shader[2]frag[9]gl_FrontFacing|gl_FrontFacing -- indicates whether a primitive is front or back facing
+[1]shader[2]comp[9]gl_GlobalInvocationID|gl_GlobalInvocationID -- contains the global index of work item
                          currently being operated on by a compute shader
-shader,frag:gl_HelperInvocation|gl_HelperInvocation -- indicates whether a fragment shader invocation is a helper invocation
-shader,vert:gl_InstanceID|gl_InstanceID -- contains the index of the current primitive in an instanced draw command
-shader,geom:gl_InvocationID|gl_InvocationID -- identifies the invocation number assigned
+[1]shader[2]frag[9]gl_HelperInvocation|gl_HelperInvocation -- indicates whether a fragment shader invocation is a helper invocation
+[1]shader[2]vert[9]gl_InstanceID|gl_InstanceID -- contains the index of the current primitive in an instanced draw command
+[1]shader[2]geom[9]gl_InvocationID|gl_InvocationID -- identifies the invocation number assigned
                     to the geometry shader invocation
-shader,tess:gl_InvocationID|gl_InvocationID -- contains the index of the output patch
+[1]shader[2]tess[9]gl_InvocationID|gl_InvocationID -- contains the index of the output patch
                     vertex assigned to the shader invocation
-shader,geom:gl_Layer|gl_Layer -- contains the selected layer of a multi-layer framebuffer attachment
-shader,comp:gl_LocalInvocationID|gl_LocalInvocationID -- contains the index of work item currently
+[1]shader[2]geom[9]gl_Layer|gl_Layer -- contains the selected layer of a multi-layer framebuffer attachment
+[1]shader[2]comp[9]gl_LocalInvocationID|gl_LocalInvocationID -- contains the index of work item currently
                         being operated on by a compute shader
-shader,comp:gl_LocalInvocationIndex|gl_LocalInvocationIndex -- contains the local linear indexof work item
+[1]shader[2]comp[9]gl_LocalInvocationIndex|gl_LocalInvocationIndex -- contains the local linear indexof work item
                            currently being operated on by a compute shader
-shader,tess:gl_MaxPatchVertices|gl_MaxPatchVertices -- the maximum number of patch vertices supported
-shader,eval:gl_MaxPatchVertices|gl_MaxPatchVertices -- the maximum number of patch vertices supported
-shader,frag:gl_NumSamples|gl_NumSamples​ -- is the number of samples in the current Framebuffer
-shader,comp:gl_NumWorkGroups|gl_NumWorkGroups -- contains the number of workgroups that
+[1]shader[2]tess[9]gl_MaxPatchVertices|gl_MaxPatchVertices -- the maximum number of patch vertices supported
+[1]shader[2]eval[9]gl_MaxPatchVertices|gl_MaxPatchVertices -- the maximum number of patch vertices supported
+[1]shader[2]frag[9]gl_NumSamples|gl_NumSamples​ -- is the number of samples in the current Framebuffer
+[1]shader[2]comp[9]gl_NumWorkGroups|gl_NumWorkGroups -- contains the number of workgroups that
                     have been dispatched to a compute shader
-shader,eval:gl_PatchVerticesIn|gl_PatchVerticesIn -- contains the number of vertices in the current patch
-shader,tess:gl_PatchVerticesIn|gl_PatchVerticesIn -- contains the number of vertices in the current patch
-shader,frag:gl_PointCoord|gl_PointCoord -- contains the coordinate of a fragment within a point
-shader,frag:gl_PointSize|gl_PointSize -- contains size of rasterized points, in pixels
-shader:gl_Position|gl_Position -- contains the position of the current vertex
-shader,geom:gl_PrimitiveID|gl_PrimitiveID -- is an output variable that is passed to the
+[1]shader[2]eval[9]gl_PatchVerticesIn|gl_PatchVerticesIn -- contains the number of vertices in the current patch
+[1]shader[2]tess[9]gl_PatchVerticesIn|gl_PatchVerticesIn -- contains the number of vertices in the current patch
+[1]shader[2]frag[9]gl_PointCoord|gl_PointCoord -- contains the coordinate of a fragment within a point
+[1]shader[2]frag[9]gl_PointSize|gl_PointSize -- contains size of rasterized points, in pixels
+[1]shader[9]gl_Position|gl_Position -- contains the position of the current vertex
+[1]shader[2]geom[9]gl_PrimitiveID|gl_PrimitiveID -- is an output variable that is passed to the
                    corresponding gl_PrimitiveID input variable
                    in the fragment shader
-shader,frag:gl_PrimitiveID|gl_PrimitiveID -- If no geomery shader is present then gl_PrimitiveID in the
+[1]shader[2]frag[9]gl_PrimitiveID|gl_PrimitiveID -- If no geomery shader is present then gl_PrimitiveID in the
                    fragment language behaves identically as it would in the
                    tessellation control and evaluation languages. If a geometry
-                   shader is present but does not write to gl_PrimitiveID, the
+                   [1]shader is present but does not write to gl_PrimitiveID, the
                    value of gl_PrimitiveID in the fragment shader is undefined.
-shader,eval:gl_PrimitiveID|gl_PrimitiveID -- is an output variable that is passed to the
+[1]shader[2]eval[9]gl_PrimitiveID|gl_PrimitiveID -- is an output variable that is passed to the
                    corresponding gl_PrimitiveID input variable
                    in the fragment shader
-shader,tess:gl_PrimitiveID|gl_PrimitiveID -- holds the number of primitives processed by the
-                   shader since the current set of rendering
+[1]shader[2]tess[9]gl_PrimitiveID|gl_PrimitiveID -- holds the number of primitives processed by the
+                   [1]shader since the current set of rendering
                    primitives was started
-shader,geom:gl_PrimitiveIDIn|gl_PrimitiveIDIn -- holds the number of primitives processed by the shader since
+[1]shader[2]geom[9]gl_PrimitiveIDIn|gl_PrimitiveIDIn -- holds the number of primitives processed by the [1]shader since
                      the current set of rendering primitives was started
-shader,frag:gl_SampleID|gl_SampleID -- contains the index of the sample currently being processed
-shader,frag:gl_SampleMask|gl_SampleMask -- specifies the sample coverage mask for the current fragment
-shader,frag:gl_SampleMaskIn|gl_SampleMaskIn -- contains the computed sample coverage mask for the current fragment
-shader,frag:gl_SamplePosition|gl_SamplePosition -- contains the location of the current sample within the current fragment
-shader,tess:gl_TessLevelInner|gl_TessLevelInner -- is used to assign values to the corresponding inner tesellation
+[1]shader[2]frag[9]gl_SampleID|gl_SampleID -- contains the index of the sample currently being processed
+[1]shader[2]frag[9]gl_SampleMask|gl_SampleMask -- specifies the sample coverage mask for the current fragment
+[1]shader[2]frag[9]gl_SampleMaskIn|gl_SampleMaskIn -- contains the computed sample coverage mask for the current fragment
+[1]shader[2]frag[9]gl_SamplePosition|gl_SamplePosition -- contains the location of the current sample within the current fragment
+[1]shader[2]tess[9]gl_TessLevelInner|gl_TessLevelInner -- is used to assign values to the corresponding inner tesellation
                        levels of the current patch. The values written into
                        gl_TessLevelInner by the tessellation control shader are used
                        by the tessellation primitive generator to control primitive
                        tessellation and may be read by the subsequent tessellation
                        evaluation shader.
-shader,eval:gl_TessLevelInner|gl_TessLevelInner -- contains the values written by the tessellation control shader,
+[1]shader[2]eval[9]gl_TessLevelInner|gl_TessLevelInner -- contains the values written by the tessellation control shader,
                        if present. If no tessellation control shader is present, it
                        contains the default tessellation level. 
-shader,tess:gl_TessLevelOuter|gl_TessLevelOuter -- is used to assign values to the corresponding outer tesellation
+[1]shader[2]tess[9]gl_TessLevelOuter|gl_TessLevelOuter -- is used to assign values to the corresponding outer tesellation
                       levels of the current patch. The values written into
                       gl_TessLevelOuter by the tessellation control shader are used
                       by the tessellation primitive generator to control primitive
                       tessellation and may be read by the subsequent tessellation
                       evaluation shader.
-shader,eval:gl_TessLevelOuter|gl_TessLevelOuter -- contains the values written by the tessellation control shader,
+[1]shader[2]eval[9]gl_TessLevelOuter|gl_TessLevelOuter -- contains the values written by the tessellation control shader,
                       if present. If no tessellation control shader is present, it
                       contains the default tessellation level.
-shader,vert:gl_VertexID|gl_VertexID -- contains the index of the current vertex
-shader,geom:gl_ViewportIndex|gl_ViewportIndex -- contains the index of the viewport to be used
+[1]shader[2]vert[9]gl_VertexID|gl_VertexID -- contains the index of the current vertex
+[1]shader[2]geom[9]gl_ViewportIndex|gl_ViewportIndex -- contains the index of the viewport to be used
                     in viewport transformation and scissoring
-shader,frag:gl_ViewportIndex|gl_ViewportIndex -- contains the index of the viewport the
+[1]shader[2]frag[9]gl_ViewportIndex|gl_ViewportIndex -- contains the index of the viewport the
                     fragment was assigned to
-shader,comp:gl_WorkGroupID|gl_WorkGroupID -- contains the index of the workgroup currently
+[1]shader[2]comp[9]gl_WorkGroupID|gl_WorkGroupID -- contains the index of the workgroup currently
                   being operated on by a compute shader
-shader,comp:gl_WorkGroupSize|gl_WorkGroupSize -- contains the size of the workgroup operated on by a compute shader
-shader,tess:gl_in|gl_in -- vertex input varying structure of the patch
-shader,eval:gl_in|gl_in -- vertex input varying structure of the patch
-shader,geom:gl_in|gl_in -- vertex input varying structure of the primitive
-shader,tess:gl_out|gl_out -- vertex output varying structure of the patch
-shader.greaterThan|greaterThan -- perform a component-wise greater-than
+[1]shader[2]comp[9]gl_WorkGroupSize|gl_WorkGroupSize -- contains the size of the workgroup operated on by a compute shader
+[1]shader[2]tess[9]gl_in|gl_in -- vertex input varying structure of the patch
+[1]shader[2]eval[9]gl_in|gl_in -- vertex input varying structure of the patch
+[1]shader[2]geom[9]gl_in|gl_in -- vertex input varying structure of the primitive
+[1]shader[2]tess[9]gl_out|gl_out -- vertex output varying structure of the patch
+[1]shader[5]greaterThan|greaterThan -- perform a component-wise greater-than
                comparison of two vectors
    bvec greaterThan(vec x, vec y)
    bvec greaterThan(ivec x, ivec y)
    bvec greaterThan(uvec x, uvec y)
-shader.greaterThanEqual|greaterThanEqual -- perform a component-wise greater-than-or-equal
+[1]shader[5]greaterThanEqual|greaterThanEqual -- perform a component-wise greater-than-or-equal
                     comparison of two vectors
    bvec greaterThanEqual(vec x, vec y)
    bvec greaterThanEqual(ivec x, ivec y)
    bvec greaterThanEqual(uvec x, uvec y)
-shader.groupMemoryBarrier|groupMemoryBarrier -- controls the ordering of memory transaction issued
+[1]shader[5]groupMemoryBarrier|groupMemoryBarrier -- controls the ordering of memory transaction issued
                       shader invocation relative to a work group
    void groupMemoryBarrier(void)
-shader:if
-shader:image1D|1D image binding unit
-shader:image1DArray|1D image array binding unit
-shader:image2D|2D image binding unit
-shader:image2DArray|2D image array binding unit
-shader:image2DMS|2D multi-sample image binding unit
-shader:image2DMSArray|2D multi-sample image array binding unit
-shader:image2DRect|2D rectangular image array binding unit
-shader:image3D|3D image array binding unit
-shader:imageBuffer|buffer image binding unit
-shader:imageCube|cube map image binding unit
-shader:imageCubeArray|cube map image array binding unit
-shader.imageAtomicAdd|imageAtomicAdd -- atomically add a value to an existing value in memory
+[1]shader[10]if
+[1]shader[6]image1D|1D image binding unit
+[1]shader[6]image1DArray|1D image array binding unit
+[1]shader[6]image2D|2D image binding unit
+[1]shader[6]image2DArray|2D image array binding unit
+[1]shader[6]image2DMS|2D multi-sample image binding unit
+[1]shader[6]image2DMSArray|2D multi-sample image array binding unit
+[1]shader[6]image2DRect|2D rectangular image array binding unit
+[1]shader[6]image3D|3D image array binding unit
+[1]shader[6]imageBuffer|buffer image binding unit
+[1]shader[6]imageCube|cube map image binding unit
+[1]shader[6]imageCubeArray|cube map image array binding unit
+[1]shader[5]imageAtomicAdd|imageAtomicAdd -- atomically add a value to an existing value in memory
                   and return the original value
    uint imageAtomicAdd(gimage1D image, int   P, uint data)
    uint imageAtomicAdd(gimage2D image, ivec2 P, uint data)
@@ -545,7 +545,7 @@ shader.imageAtomicAdd|imageAtomicAdd -- atomically add a value to an existing va
    int  imageAtomicAdd(gimageCubeArray image, ivec3 P, int data)
    int  imageAtomicAdd(gimage2DMS image, ivec2 P, int sample, int data)
    int  imageAtomicAdd(gimage2DMSArray image, ivec3 P, int sample, int data)
-shader.imageAtomicAnd|imageAtomicAnd -- atomically compute the logical AND of a value with an existing
+[1]shader[5]imageAtomicAnd|imageAtomicAnd -- atomically compute the logical AND of a value with an existing
                  value in memory, store that value and return the original value
    uint imageAtomicAnd(gimage1D image, int   P, uint data)
    uint imageAtomicAnd(gimage2D image, ivec2 P, uint data)
@@ -569,7 +569,7 @@ shader.imageAtomicAnd|imageAtomicAnd -- atomically compute the logical AND of a 
    int  imageAtomicAnd(gimageCubeArray image, ivec3 P, int data)
    int  imageAtomicAnd(gimage2DMS image, ivec2 P, int sample, int data)
    int  imageAtomicAnd(gimage2DMSArray image, ivec3 P, int sample, int data)
-shader.imageAtomicCompSwap|imageAtomicCompSwap -- atomically compares supplied data with that in memory and
+[1]shader[5]imageAtomicCompSwap|imageAtomicCompSwap -- atomically compares supplied data with that in memory and
                       conditionally stores it to memory
    uint imageAtomicCompSwap(gimage1D image, int   P, uint compare, uint data)
    uint imageAtomicCompSwap(gimage2D image, ivec2 P, uint compare, uint data)
@@ -593,7 +593,7 @@ shader.imageAtomicCompSwap|imageAtomicCompSwap -- atomically compares supplied d
    int  imageAtomicCompSwap(gimageCubeArray image, ivec3 P, int compare, int data)
    int  imageAtomicCompSwap(gimage2DMS image, ivec2 P, int sample, int compare, int data)
    int  imageAtomicCompSwap(gimage2DMSArray image, ivec3 P, int sample, int compare, int data)
-shader.imageAtomicExchange|imageAtomicExchange -- atomically store supplied data into memory and
+[1]shader[5]imageAtomicExchange|imageAtomicExchange -- atomically store supplied data into memory and
                       return the original value from memory
    uint imageAtomicExchange(gimage1D image, int P, uint data)
    uint imageAtomicExchange(gimage2D image, ivec2 P, uint data)
@@ -628,7 +628,7 @@ shader.imageAtomicExchange|imageAtomicExchange -- atomically store supplied data
    int  imageAtomicExchange(gimageCubeArray image, ivec3 P, float data)
    int  imageAtomicExchange(gimage2DMS image, ivec2 P, int sample, float data)
    int  imageAtomicExchange(gimage2DMSArray image, ivec3 P, int sample, float data)
-shader.imageAtomicMax|imageAtomicMax -- atomically compute the minimum of a value with an existing
+[1]shader[5]imageAtomicMax|imageAtomicMax -- atomically compute the minimum of a value with an existing
                  value in memory, store that value and return the original value
    uint imageAtomicMax(gimage1D image, int   P, uint data)
    uint imageAtomicMax(gimage2D image, ivec2 P, uint data)
@@ -652,7 +652,7 @@ shader.imageAtomicMax|imageAtomicMax -- atomically compute the minimum of a valu
    int  imageAtomicMax(gimageCubeArray image, ivec3 P, int data)
    int  imageAtomicMax(gimage2DMS image, ivec2 P, int sample, int data)
    int  imageAtomicMax(gimage2DMSArray image, ivec3 P, int sample, int data)
-shader.imageAtomicMin|imageAtomicMin -- atomically compute the minimum of a value with an existing
+[1]shader[5]imageAtomicMin|imageAtomicMin -- atomically compute the minimum of a value with an existing
                  value in memory, store that value and return the original value
    uint imageAtomicMin(gimage1D image, int   P, uint data)
    uint imageAtomicMin(gimage2D image, ivec2 P, uint data)
@@ -676,7 +676,7 @@ shader.imageAtomicMin|imageAtomicMin -- atomically compute the minimum of a valu
    int  imageAtomicMin(gimageCubeArray image, ivec3 P, int data)
    int  imageAtomicMin(gimage2DMS image, ivec2 P, int sample, int data)
    int  imageAtomicMin(gimage2DMSArray image, ivec3 P, int sample, int data)
-shader.imageAtomicOr|imageAtomicOr -- atomically compute the logical OR of a value with an existing
+[1]shader[5]imageAtomicOr|imageAtomicOr -- atomically compute the logical OR of a value with an existing
                 value in memory, store that value and return the original value
    uint imageAtomicOr(gimage1D image, int   P, uint data)
    uint imageAtomicOr(gimage2D image, ivec2 P, uint data)
@@ -700,7 +700,7 @@ shader.imageAtomicOr|imageAtomicOr -- atomically compute the logical OR of a val
    int  imageAtomicOr(gimageCubeArray image, ivec3 P, int data)
    int  imageAtomicOr(gimage2DMS image, ivec2 P, int sample, int data)
    int  imageAtomicOr(gimage2DMSArray image, ivec3 P, int sample, int data)
-shader.imageAtomicXor|imageAtomicXor -- atomically compute the logical exclusive OR of a value
+[1]shader[5]imageAtomicXor|imageAtomicXor -- atomically compute the logical exclusive OR of a value
                  with an existing value in memory, store that value and
                  return the original value
    uint imageAtomicXor(gimage1D image, int   P, uint data)
@@ -725,7 +725,7 @@ shader.imageAtomicXor|imageAtomicXor -- atomically compute the logical exclusive
    int  imageAtomicXor(gimageCubeArray image, ivec3 P, int data)
    int  imageAtomicXor(gimage2DMS image, ivec2 P, int sample, int data)
    int  imageAtomicXor(gimage2DMSArray image, ivec3 P, int sample, int data)
-shader.imageLoad|imageLoad -- load a single texel from an image
+[1]shader[5]imageLoad|imageLoad -- load a single texel from an image
    gvec4 imageLoad(gimage1D image, int   P)
    gvec4 imageLoad(gimage2D image, ivec2 P)
    gvec4 imageLoad(gimage3D image, ivec3 P)
@@ -737,10 +737,10 @@ shader.imageLoad|imageLoad -- load a single texel from an image
    gvec4 imageLoad(gimageCubeArray image, ivec3 P)
    gvec4 imageLoad(gimage2DMS image, ivec2 P, int sample)
    gvec4 imageLoad(gimage2DMSArray image, ivec3 P, int sample)
-shader.imageSamples|imageSamples -- return the number of samples of an image
+[1]shader[5]imageSamples|imageSamples -- return the number of samples of an image
    int imageSamples(gimage2DMS image)
    int imageSamples(gimage2DMSArray image)
-shader.imageSize|imageSize -- retrieve the dimensions of an image
+[1]shader[5]imageSize|imageSize -- retrieve the dimensions of an image
    int   imageSize(gimage1D image)
    ivec2 imageSize(gimage2D image)
    ivec3 imageSize(gimage3D image)
@@ -752,7 +752,7 @@ shader.imageSize|imageSize -- retrieve the dimensions of an image
    int   imageSize(gimageBuffer image)
    ivec2 imageSize(gimage2DMS image)
    ivec3 imageSize(gimage2DMSArray image)
-shader.imageStore|imageStore -- write a single texel into an image
+[1]shader[5]imageStore|imageStore -- write a single texel into an image
    void imageStore(gimage1D image, int   P, gvec4 data)
    void imageStore(gimage2D image, ivec2 P, gvec4 data)
    void imageStore(gimage3D image, ivec3 P, gvec4 data)
@@ -764,183 +764,183 @@ shader.imageStore|imageStore -- write a single texel into an image
    void imageStore(gimageCubeArray image, ivec3 P, gvec4 data)
    void imageStore(gimage2DMS image, ivec2 P, int sample, gvec4 data)
    void imageStore(gimage2DMSArray image, ivec3 P, int sample, gvec4 data)
-shader.imulExtended|imulExtended -- perform a 32- by 32-bit multiply to produce a 64-bit result
+[1]shader[5]imulExtended|imulExtended -- perform a 32- by 32-bit multiply to produce a 64-bit result
    void imulExtended(genIType x, genIType y, out genIType msb, out genIType lsb)
-shader:in|input varying qualifier (read only)
-shader:inout|input and output varying qualifier (read and write)
-shader:int
-shader.intBitsToFloat|intBitsToFloat -- produce a floating point using an
+[1]shader[7]in|input varying qualifier (read only)
+[1]shader[7]inout|input and output varying qualifier (read and write)
+[1]shader[6]int
+[1]shader[5]intBitsToFloat|intBitsToFloat -- produce a floating point using an
                   encoding supplied as an integer
    genType intBitsToFloat(genIType x)
-shader.interpolateAtCentroid|interpolateAtCentroid -- sample a varying at the centroid of a pixel
+[1]shader[5]interpolateAtCentroid|interpolateAtCentroid -- sample a varying at the centroid of a pixel
    float interpolateAtCentroid(float interpolant)
    vec2  interpolateAtCentroid(vec2  interpolant)
    vec3  interpolateAtCentroid(vec3  interpolant)
    vec4  interpolateAtCentroid(vec4  interpolant)
-shader.interpolateAtOffset|interpolateAtOffset -- sample a varying at specified offset from the center of a pixel
+[1]shader[5]interpolateAtOffset|interpolateAtOffset -- sample a varying at specified offset from the center of a pixel
    float interpolateAtOffset(float interpolant, vec2 offset)
    vec2  interpolateAtOffset(vec2  interpolant, vec2 offset)
    vec3  interpolateAtOffset(vec3  interpolant, vec2 offset)
    vec4  interpolateAtOffset(vec4  interpolant, vec2 offset)
-shader.interpolateAtSample|interpolateAtSample -- sample a varying at the location of a specified sample
+[1]shader[5]interpolateAtSample|interpolateAtSample -- sample a varying at the location of a specified sample
    float interpolateAtSample(float interpolant, int sample)
    vec2  interpolateAtSample(vec2  interpolant, int sample)
    vec3  interpolateAtSample(vec3  interpolant, int sample)
    vec4  interpolateAtSample(vec4  interpolant, int sample)
-shader:invariant|Invariance defines when a particular operation will
+[1]shader[7]invariant|Invariance defines when a particular operation will
  produce the same results as some other operation.
-shader.inverse|inverse -- calculate the inverse of a matrix
+[1]shader[5]inverse|inverse -- calculate the inverse of a matrix
    mat2  inverse(mat2  m)
    mat3  inverse(mat3  m)
    mat4  inverse(mat4  m)
    dmat2 inverse(dmat2 m)
    dmat3 inverse(dmat3 m)
    dmat4 inverse(dmat4 m)
-shader.inversesqrt|inversesqrt -- return the inverse of the square root of the parameter
+[1]shader[5]inversesqrt|inversesqrt -- return the inverse of the square root of the parameter
    genType  inversesqrt(genType  x)
    genDType inversesqrt(genDType x)
-shader.isampler1D|1D texture binding unit for integer textures
-shader.isampler1DArray|1D texture array binding unit for integer textures
-shader.isampler2D|2D texture binding unit for integer textures
-shader.isampler2DArray|2D texture array binding unit for integer textures
-shader.isampler2DMS|2D multi sample texture binding unit for integer textures
-shader.isampler2DMSArray|2D multi sample texture array binding unit for integer textures
-shader.isampler2DRect|2D rectangular texture binding unit for integer textures
-shader.isampler3D|3D texture binding unit for integer textures
-shader.isamplerBuffer|buffer texture binding unit for integer textures
-shader.isamplerCube|cube map texture binding unit for integer textures
-shader.isamplerCubeArray|cube map texture array binding unit for integer textures
-shader.isinf|isinf -- determine whether the parameter is positive or negative infinity
+[1]shader[6]isampler1D|1D texture binding unit for integer textures
+[1]shader[6]isampler1DArray|1D texture array binding unit for integer textures
+[1]shader[6]isampler2D|2D texture binding unit for integer textures
+[1]shader[6]isampler2DArray|2D texture array binding unit for integer textures
+[1]shader[6]isampler2DMS|2D multi sample texture binding unit for integer textures
+[1]shader[6]isampler2DMSArray|2D multi sample texture array binding unit for integer textures
+[1]shader[6]isampler2DRect|2D rectangular texture binding unit for integer textures
+[1]shader[6]isampler3D|3D texture binding unit for integer textures
+[1]shader[6]isamplerBuffer|buffer texture binding unit for integer textures
+[1]shader[6]isamplerCube|cube map texture binding unit for integer textures
+[1]shader[6]isamplerCubeArray|cube map texture array binding unit for integer textures
+[1]shader[5]isinf|isinf -- determine whether the parameter is positive or negative infinity
    genBType isinf(genType x)
    genBType isinf(genDType x)
-shader.isnan|isnan -- determine whether the parameter is a number
+[1]shader[5]isnan|isnan -- determine whether the parameter is a number
    genBType isnan(genType x)
    genBType isnan(genDType x)
-shader:ivec2
-shader:ivec3
-shader:ivec4
-shader:layout|Layout qualifiers affect where the storage for a variable
+[1]shader[6]ivec2
+[1]shader[6]ivec3
+[1]shader[6]ivec4
+[1]shader[7]layout|Layout qualifiers affect where the storage for a variable
  comes from, as well as other user-facing properties of a
  particular definition. Syntax:
    layout(qualifier1, qualifier2 = value, ...) variable_definition
-shader:layout,uniform.binding|The binding unit of the shader resource.
-shader:layout,in.component|Used in combination with the location
+[1]shader[7]layout[7]uniform[8]binding|The binding unit of the shader resource.
+[1]shader[7]layout[7]in[8]component|Used in combination with the location
  qualifier to address specific vec-
  components of the input stream.
-shader:layout,out.component|Used in combination with the location
+[1]shader[7]layout[7]out[8]component|Used in combination with the location
  qualifier to address specific vec-
  components of the output stream.
-shader,frag:layout,in.depth_any|Disables the depth test.
-shader,frag:layout,in.depth_greater|To pass the depth test the new depth value must be greater.
-shader,frag:layout,in.depth_less|To pass the depth test the new depth value must be less.
-shader,frag:layout,in.depth_unchanged|To pass the depth test the new depth value must be equal.
-shader,frag:layout,in.early_fragment_tests|Perform depth test before executing the shader.
-shader,frat:layout,out.index|Used in combination with the location qualifier for dual source blending.
-shader,comp:layout,in.local_size_x|
-shader,comp:layout,in.local_size_y|
-shader,comp:layout,in.local_size_z|
-shader:layout,in.location|Assigns the stream to the specified unit.
-shader:layout,out.location|Assigns the stream to the specified unit.
-shader:layout,uniform.offset|Atomic counters also have an optional offset parameter.
+[1]shader[2]frag[7]layout[7]in[8]depth_any|Disables the depth test.
+[1]shader[2]frag[7]layout[7]in[8]depth_greater|To pass the depth test the new depth value must be greater.
+[1]shader[2]frag[7]layout[7]in[8]depth_less|To pass the depth test the new depth value must be less.
+[1]shader[2]frag[7]layout[7]in[8]depth_unchanged|To pass the depth test the new depth value must be equal.
+[1]shader[2]frag[7]layout[7]in[8]early_fragment_tests|Perform depth test before executing the shader.
+[1]shader[2]frag[7]layout[7]out[8]index|Used in combination with the location qualifier for dual source blending.
+[1]shader[2]comp[7]layout[7]in[8]local_size_x
+[1]shader[2]comp[7]layout[7]in[8]local_size_y
+[1]shader[2]comp[7]layout[7]in[8]local_size_z
+[1]shader[7]layout[7]in[8]location|Assigns the stream to the specified unit.
+[1]shader[7]layout[7]out[8]location|Assigns the stream to the specified unit.
+[1]shader[7]layout[7]uniform[8]offset|Atomic counters also have an optional offset parameter.
  The offset is the byte offset from the beginning of the
  range bound to the target to the location where this
  variable gets its 32-bits of storage.
-shader,frag:layout,in.origin_upper_left|Specifies that gl_FragCoord​ will have the origin
+[1]shader[2]frag[7]layout[7]in[8]origin_upper_left|Specifies that gl_FragCoord​ will have the origin
  (0, 0) in the upper-left of the screen.
-shader,frag:layout,in.pixel_center_integer|Specifies that the X and Y of gl_FragCoord​ will
+[1]shader[2]frag[7]layout[7]in[8]pixel_center_integer|Specifies that the X and Y of gl_FragCoord​ will
  be shifted by a half-pixel, so that the center
  of each pixel is an integer value.
-shader:layout,uniform.std140|Force variables to be vec4 aligned.
-shader,tess:layout,out.vertices|Specify a particular vertex count for Tessellation Control Shaders output patches.
-shader:layout,out.xfb_buffer|Specifies the transform feedback output buffer.
-shader:layout,out.xfb_offset|Specifies the first position of the transform feedback output buffer to be written to.
-shader:layout,out.xfb_stride|Specifies the stride between transform feedback buffer outputs.
-shader,geom:layout,in.points|The input primitive type of the geometry shader are points.
-shader,geom:layout,in.lines|The input primitive type of the geometry shader are lines.
-shader,geom:layout,in.triangles|The input primitive type of the geometry shader are triangles.
-shader,geom:layout,out.points|The output primitive type of the geometry shader are points.
-shader,geom:layout,out.lines|The output primitive type of the geometry shader are lines.
-shader,geom:layout,out.lines_adjacency|The output primitive type of the geometry shader are adjacency lines.
-shader,geom:layout,out.max_vertices|The number must be a compile-time constant, and it
+[1]shader[7]layout[7]uniform[8]std140|Force variables to be vec4 aligned.
+[1]shader[2]tess[7]layout[7]out[8]vertices|Specify a particular vertex count for Tessellation Control Shaders output patches.
+[1]shader[7]layout[7]out[8]xfb_buffer|Specifies the transform feedback output buffer.
+[1]shader[7]layout[7]out[8]xfb_offset|Specifies the first position of the transform feedback output buffer to be written to.
+[1]shader[7]layout[7]out[8]xfb_stride|Specifies the stride between transform feedback buffer outputs.
+[1]shader[2]geom[7]layout[7]in[8]points|The input primitive type of the geometry shader are points.
+[1]shader[2]geom[7]layout[7]in[8]lines|The input primitive type of the geometry shader are lines.
+[1]shader[2]geom[7]layout[7]in[8]triangles|The input primitive type of the geometry shader are triangles.
+[1]shader[2]geom[7]layout[7]out[8]points|The output primitive type of the geometry shader are points.
+[1]shader[2]geom[7]layout[7]out[8]lines|The output primitive type of the geometry shader are lines.
+[1]shader[2]geom[7]layout[7]out[8]lines_adjacency|The output primitive type of the geometry shader are adjacency lines.
+[1]shader[2]geom[7]layout[7]out[8]max_vertices|The number must be a compile-time constant, and it
  defines the maximum number of vertices that will
  be written by a single invocation of the GS.
-shader,geom:layout.triangles_adjacency|The output primitive type of the geometry shader are adjacency triangles.
-shader,geom:layout,out.line_strip|The output primitive type of the geometry shader are line strips.
-shader,geom:layout,out.triangle_strip|The output primitive type of the geometry shader are triangles strips.
-shader:layout,uniform.r8
-shader:layout,uniform.r8i
-shader:layout,uniform.r8ui
-shader:layout,uniform.r16
-shader:layout,uniform.r16i
-shader:layout,uniform.r16ui
-shader:layout,uniform.r16f
-shader:layout,uniform.r32i
-shader:layout,uniform.r32ui
-shader:layout,uniform.r32f
-shader:layout,uniform.rg8
-shader:layout,uniform.rg8i
-shader:layout,uniform.rg8ui
-shader:layout,uniform.rg16
-shader:layout,uniform.rg16i
-shader:layout,uniform.rg16ui
-shader:layout,uniform.rg16f
-shader:layout,uniform.rg32i
-shader:layout,uniform.rg32ui
-shader:layout,uniform.rg32f
-shader:layout,uniform.rgb8|8 bits for R, G and B
-shader:layout,uniform.rgb8i
-shader:layout,uniform.rgb8ui
-shader:layout,uniform.rgb16
-shader:layout,uniform.rgb16i
-shader:layout,uniform.rgb16ui
-shader:layout,uniform.rgb16f
-shader:layout,uniform.rgb32i
-shader:layout,uniform.rgb32ui
-shader:layout,uniform.rgb32f
-shader:layout,uniform.rgba8|8 bits for R, G, B and A
-shader:layout,uniform.rgba8i
-shader:layout,uniform.rgba8ui
-shader:layout,uniform.rgba16
-shader:layout,uniform.rgba16i
-shader:layout,uniform.rgba16ui
-shader:layout,uniform.rgba16f
-shader:layout,uniform.rgba32i
-shader:layout,uniform.rgba32ui
-shader:layout,uniform.rgba32f
-shader.ldexp|ldexp -- assemble a floating point number from a value and exponent
+[1]shader[2]geom[7]layout[7]out[8]triangles_adjacency|The output primitive type of the geometry shader are adjacency triangles.
+[1]shader[2]geom[7]layout[7]out[8]line_strip|The output primitive type of the geometry shader are line strips.
+[1]shader[2]geom[7]layout[7]out[8]triangle_strip|The output primitive type of the geometry shader are triangles strips.
+[1]shader[7]layout[7]uniform[8]r8
+[1]shader[7]layout[7]uniform[8]r8i
+[1]shader[7]layout[7]uniform[8]r8ui
+[1]shader[7]layout[7]uniform[8]r16
+[1]shader[7]layout[7]uniform[8]r16i
+[1]shader[7]layout[7]uniform[8]r16ui
+[1]shader[7]layout[7]uniform[8]r16f
+[1]shader[7]layout[7]uniform[8]r32i
+[1]shader[7]layout[7]uniform[8]r32ui
+[1]shader[7]layout[7]uniform[8]r32f
+[1]shader[7]layout[7]uniform[8]rg8
+[1]shader[7]layout[7]uniform[8]rg8i
+[1]shader[7]layout[7]uniform[8]rg8ui
+[1]shader[7]layout[7]uniform[8]rg16
+[1]shader[7]layout[7]uniform[8]rg16i
+[1]shader[7]layout[7]uniform[8]rg16ui
+[1]shader[7]layout[7]uniform[8]rg16f
+[1]shader[7]layout[7]uniform[8]rg32i
+[1]shader[7]layout[7]uniform[8]rg32ui
+[1]shader[7]layout[7]uniform[8]rg32f
+[1]shader[7]layout[7]uniform[8]rgb8|8 bits for R, G and B
+[1]shader[7]layout[7]uniform[8]rgb8i
+[1]shader[7]layout[7]uniform[8]rgb8ui
+[1]shader[7]layout[7]uniform[8]rgb16
+[1]shader[7]layout[7]uniform[8]rgb16i
+[1]shader[7]layout[7]uniform[8]rgb16ui
+[1]shader[7]layout[7]uniform[8]rgb16f
+[1]shader[7]layout[7]uniform[8]rgb32i
+[1]shader[7]layout[7]uniform[8]rgb32ui
+[1]shader[7]layout[7]uniform[8]rgb32f
+[1]shader[7]layout[7]uniform[8]rgba8|8 bits for R, G, B and A
+[1]shader[7]layout[7]uniform[8]rgba8i
+[1]shader[7]layout[7]uniform[8]rgba8ui
+[1]shader[7]layout[7]uniform[8]rgba16
+[1]shader[7]layout[7]uniform[8]rgba16i
+[1]shader[7]layout[7]uniform[8]rgba16ui
+[1]shader[7]layout[7]uniform[8]rgba16f
+[1]shader[7]layout[7]uniform[8]rgba32i
+[1]shader[7]layout[7]uniform[8]rgba32ui
+[1]shader[7]layout[7]uniform[8]rgba32f
+[1]shader[5]ldexp|ldexp -- assemble a floating point number from a value and exponent
    genType  ldexp(genType  x, genIType exp)
    genDType ldexp(genDType x, genIType exp)
-shader.length|length -- calculate the length of a vector
+[1]shader[5]length|length -- calculate the length of a vector
    float  length(genType  x)
    double length(genDType x)
-shader.lessThan|lessThan -- perform a component-wise less-than comparison of two vectors
+[1]shader[5]lessThan|lessThan -- perform a component-wise less-than comparison of two vectors
    bvec lessThan(vec  x, vec  y)
    bvec lessThan(ivec x, ivec y)
    bvec lessThan(uvec x, uvec y)
-shader.lessThanEqual|lessThanEqual -- perform a component-wise less-than-or-equal comparison of two vectors
+[1]shader[5]lessThanEqual|lessThanEqual -- perform a component-wise less-than-or-equal comparison of two vectors
    bvec lessThanEqual(vec  x, vec  y)
    bvec lessThanEqual(ivec x, ivec y)
    bvec lessThanEqual(uvec x, uvec y)
-shader.log|log -- return the natural logarithm of the parameter
+[1]shader[5]log|log -- return the natural logarithm of the parameter
    genType log(genType x)
-shader.log2|log2 -- return the base 2 logarithm of the parameter
+[1]shader[5]log2|log2 -- return the base 2 logarithm of the parameter
    genType log2(genType x)
-shader:mat2
-shader:mat2x2
-shader:mat2x3
-shader:mat2x4
-shader:mat3
-shader:mat3x2
-shader:mat3x3
-shader:mat3x4
-shader:mat4
-shader:mat4x2
-shader:mat4x3
-shader:mat4x4
-shader.matrixCompMult|matrixCompMult -- perform a component-wise multiplication of two matrices
+[1]shader[6]mat2
+[1]shader[6]mat2x2
+[1]shader[6]mat2x3
+[1]shader[6]mat2x4
+[1]shader[6]mat3
+[1]shader[6]mat3x2
+[1]shader[6]mat3x3
+[1]shader[6]mat3x4
+[1]shader[6]mat4
+[1]shader[6]mat4x2
+[1]shader[6]mat4x3
+[1]shader[6]mat4x4
+[1]shader[5]matrixCompMult|matrixCompMult -- perform a component-wise multiplication of two matrices
    mat  matrixCompMult(mat  x, mat  y)
    dmat matrixCompMult(dmat x, dmat y)
-shader.max|max -- return the greater of two values
+[1]shader[5]max|max -- return the greater of two values
    genType  max(genType  x, genType  y)
    genType  max(genType  x, float    y)
    genDType max(genDType x, genDType y)
@@ -949,22 +949,22 @@ shader.max|max -- return the greater of two values
    genIType max(genIType x, int      y)
    genUType max(genUType x, genUType y)
    genUType max(genUType x, uint     y)
-shader.memoryBarrier|memoryBarrier -- controls the ordering of memory transactions
+[1]shader[5]memoryBarrier|memoryBarrier -- controls the ordering of memory transactions
                  issued by a single shader invocation
    uint memoryBarrier(void)
-shader.memoryBarrierAtomicCounter|memoryBarrierAtomicCounter -- controls the ordering of operations on atomic
+[1]shader[5]memoryBarrierAtomicCounter|memoryBarrierAtomicCounter -- controls the ordering of operations on atomic
                              counters issued by a single shader invocation
    void memoryBarrierAtomicCounter(void)
-shader.memoryBarrierBuffer|memoryBarrierBuffer -- controls the ordering of operations on buffer
+[1]shader[5]memoryBarrierBuffer|memoryBarrierBuffer -- controls the ordering of operations on [1]buffer
                       variables issued by a single shader invocation
    void memoryBarrierBuffer(void)
-shader.memoryBarrierImage|memoryBarrierImage -- controls the ordering of operations on image
+[1]shader[5]memoryBarrierImage|memoryBarrierImage -- controls the ordering of operations on [1]image
                      variables issued by a single shader invocation
    void memoryBarrierImage(void)
-shader.memoryBarrierShared|memoryBarrierShared -- controls the ordering of operations on shared
+[1]shader[5]memoryBarrierShared|memoryBarrierShared -- controls the ordering of operations on shared
                        variables issued by a single shader invocation
    void memoryBarrierShared(void)
-shader.min|min -- return the lesser of two values
+[1]shader[5]min|min -- return the lesser of two values
    genType  min(genType  x, genType  y)
    genType  min(genType  x, float    y)
    genDType min(genDType x, genDType y)
@@ -973,7 +973,7 @@ shader.min|min -- return the lesser of two values
    genIType min(genIType x, int      y)
    genUType min(genUType x, genUType y)
    genUType min(genUType x, uint     y)
-shader.mix|mix -- linearly interpolate between two values
+[1]shader[5]mix|mix -- linearly interpolate between two values
    genType  mix(genType  x, genType  y, genType  a)
    genType  mix(genType  x, genType  y, float    a)
    genDType mix(genDType x, genDType y, genDType a)
@@ -983,34 +983,34 @@ shader.mix|mix -- linearly interpolate between two values
    genIType mix(genIType x, genIType y, genBType a)
    genUType mix(genUType x, genUType y, genBType a)
    genBType mix(genBType x, genBType y, genBType a)
-shader.mod|mod -- compute value of one parameter modulo another
+[1]shader[5]mod|mod -- compute value of one parameter modulo another
    genType  mod(genType  x, float    y)
    genType  mod(genType  x, genType  y)
    genDType mod(genDType x, double   y)
    genDType mod(genDType x, genDType y)
-shader.modf|modf -- separate a value into its integer and fractional components
+[1]shader[5]modf|modf -- separate a value into its integer and fractional components
    genType  modf(genType  x, out genType  i)
    genDType modf(genDType x, out genDType i)
-shader.noise1|noise1 — generate values with a pseudo-random noise function
+[1]shader[5]noise1|noise1 — generate values with a pseudo-random noise function
    float noise1(genType x)
-shader.noise2|noise2 — generate values with a pseudo-random noise function
+[1]shader[5]noise2|noise2 — generate values with a pseudo-random noise function
    vec2 noise2(genType x)
-shader.noise3|noise3 — generate values with a pseudo-random noise function
+[1]shader[5]noise3|noise3 — generate values with a pseudo-random noise function
    vec3 noise3(genType x)
-shader.noise4|noise4 — generate values with a pseudo-random noise function
+[1]shader[5]noise4|noise4 — generate values with a pseudo-random noise function
    vec4 noise4(genType x)
-shader:noperspective|The value will be linearly interpolated in window-space.
-shader.normalize|normalize — calculate the normalize product of two vectors
+[1]shader[7]noperspective|The value will be linearly interpolated in window-space.
+[1]shader[5]normalize|normalize — calculate the normalize product of two vectors
    genType  normalize(genType  v)
    genDType normalize(genDType v)
-shader.not|not — logically invert a boolean vector
+[1]shader[5]not|not — logically invert a boolean vector
    bvec not(bvec x)
-shader.notEqual|notEqual — perform a component-wise not-equal-to comparison of two vectors
+[1]shader[5]notEqual|notEqual — perform a component-wise not-equal-to comparison of two vectors
     bvec notEqual(vec x, vec y)
     bvec notEqual(ivec x, ivec y)
     bvec notEqual(uvec x, uvec y)
-shader:out|output varying qualifier
-shader.outerProduct|outerProduct — calculate the outer product of a pair of vectors
+[1]shader[7]out|output varying qualifier
+[1]shader[5]outerProduct|outerProduct — calculate the outer product of a pair of vectors
    mat2    outerProduct(vec2  c, vec2  r)
    mat3    outerProduct(vec3  c, vec3  r)
    mat4    outerProduct(vec4  c, vec4  r)
@@ -1029,98 +1029,98 @@ shader.outerProduct|outerProduct — calculate the outer product of a pair of ve
    dmat4x2 outerProduct(dvec2 c, dvec4 r)
    dmat3x4 outerProduct(dvec4 c, dvec3 r)
    dmat4x3 outerProduct(dvec3 c, dvec4 r)
-shader.packDouble2x32|packDouble2x32 — create a double-precision value
+[1]shader[5]packDouble2x32|packDouble2x32 — create a double-precision value
                   from a pair of unsigned integers
    double packDouble2x32(uvec2 v)
-shader.packHalf2x16|packHalf2x16 — convert two 32-bit floating-point
+[1]shader[5]packHalf2x16|packHalf2x16 — convert two 32-bit floating-point
                 quantities to16-bit quantities and
                 pack them into a single 32-bit integer
    uint packHalf2x16(vec2 v)
-shader.packSnorm2x16|packSnorm2x16 — pack floating-point values into an unsigned integer
+[1]shader[5]packSnorm2x16|packSnorm2x16 — pack floating-point values into an unsigned integer
    uint packSnorm2x16(vec2 v)
-shader.packSnorm4x8|packSnorm4x8 — pack floating-point values into an unsigned integer
+[1]shader[5]packSnorm4x8|packSnorm4x8 — pack floating-point values into an unsigned integer
    uint packSnorm4x8(vec4 v)
-shader.packUnorm2x16|packUnorm2x16 — pack floating-point values into an unsigned integer
+[1]shader[5]packUnorm2x16|packUnorm2x16 — pack floating-point values into an unsigned integer
    uint packUnorm2x16(vec2 v)
-shader.packUnorm4x8|packUnorm4x8 — pack floating-point values into an unsigned integer
+[1]shader[5]packUnorm4x8|packUnorm4x8 — pack floating-point values into an unsigned integer
    uint packUnorm4x8(vec4 v)
-shader:patch|Per patch variable qualifier.
-shader.pow|pow — return the value of the first parameter raised to the power of the second
+[1]shader[7]patch|Per patch variable qualifier.
+[1]shader[5]pow|pow — return the value of the first parameter raised to the power of the second
    genType pow(genType x, genType y)
-shader:precision|Floating point and integer precision qualifier.
+[1]shader[7]precision|Floating point and integer precision qualifier.
  This affects all collections of that basic type.
-shader:precision.highp|high precision
-shader:precision.lowp|low precision
-shader:precision.mediump|medium precision
-shader.radians|radians — convert a quantity in degrees to radians
+[1]shader[7]precision.highp|high precision
+[1]shader[7]precision.lowp|low precision
+[1]shader[7]precision.mediump|medium precision
+[1]shader[5]radians|radians — convert a quantity in degrees to radians
    genType radians(genType degrees)
-shader.reflect|reflect — calculate the reflection direction for an incident vector
+[1]shader[5]reflect|reflect — calculate the reflection direction for an incident vector
    genType  reflect(genType  I, genType  N)
    genDType reflect(genDType I, genDType N)
-shader.refract|refract — calculate the refraction direction for an incident vector
+[1]shader[5]refract|refract — calculate the refraction direction for an incident vector
    genType  refract(genType  I, genType  N, float eta)
    genDType refract(genDType I, genDType N, float eta)
-shader:return
-shader.round|round — find the nearest integer less than or equal to the parameter
+[1]shader[10]return
+[1]shader[5]round|round — find the nearest integer less than or equal to the parameter
    genType  round(genType  x)
    genDType round(genDType x)
-shader.roundEven|roundEven — find the nearest even integer to the parameter
+[1]shader[5]roundEven|roundEven — find the nearest even integer to the parameter
    genType  roundEven(genType  x)
    genDType roundEven(genDType x)
-shader.sample|The sample​ qualifier forces OpenGL to interpolate this qualifier
+[1]shader[7]sample|The sample​ qualifier forces OpenGL to interpolate this qualifier
  to the location of the particular sample for each generated
  fragment. This is only really useful with per-sample shading.
-shader:sampler1D|1D texture binding unit
-shader:sampler1DArray|1D texture array binding unit
-shader:sampler1DArrayShadow|1D shadow texture array binding unit
-shader:sampler1DShadow|1D shadow texture binding unit
-shader:sampler2D|2D texture binding unit
-shader:sampler2DArray|2D texture array binding unit
-shader:sampler2DArrayShadow|2D shadow texture array binding unit
-shader:sampler2DMS|2D multi-sample texture binding unit
-shader:sampler2DMSArray|2D multi-sample texture array binding unit
-shader:sampler2DRect|2D rectangular texture array binding unit
-shader:sampler2DRectShadow|2D rectangular shadow texture array binding unit
-shader:sampler2DShadow|2D shadow texture binding unit
-shader:sampler3D|3D texture array binding unit
-shader:samplerBuffer|buffer texture binding unit
-shader:samplerCube|cube map binding unit
-shader:samplerCubeArray|cube map array binding unit
-shader:samplerCubeArrayShadow|shadow cube map array binding unit
-shader:samplerCubeShadow|shadow cube map binding unit
-shader.sign|sign — extract the sign of the parameter
+[1]shader[6]sampler1D|1D texture binding unit
+[1]shader[6]sampler1DArray|1D texture array binding unit
+[1]shader[6]sampler1DArrayShadow|1D shadow texture array binding unit
+[1]shader[6]sampler1DShadow|1D shadow texture binding unit
+[1]shader[6]sampler2D|2D texture binding unit
+[1]shader[6]sampler2DArray|2D texture array binding unit
+[1]shader[6]sampler2DArrayShadow|2D shadow texture array binding unit
+[1]shader[6]sampler2DMS|2D multi-sample texture binding unit
+[1]shader[6]sampler2DMSArray|2D multi-sample texture array binding unit
+[1]shader[6]sampler2DRect|2D rectangular texture array binding unit
+[1]shader[6]sampler2DRectShadow|2D rectangular shadow texture array binding unit
+[1]shader[6]sampler2DShadow|2D shadow texture binding unit
+[1]shader[6]sampler3D|3D texture array binding unit
+[1]shader[6]samplerBuffer|[1]buffer texture binding unit
+[1]shader[6]samplerCube|cube map binding unit
+[1]shader[6]samplerCubeArray|cube map array binding unit
+[1]shader[6]samplerCubeArrayShadow|shadow cube map array binding unit
+[1]shader[6]samplerCubeShadow|shadow cube map binding unit
+[1]shader[5]sign|sign — extract the sign of the parameter
    genType  sign(genType  x)
    genIType sign(genIType x)
    genDType sign(genDType x)
-shader.sin|sin -- return the sine of the parameter
+[1]shader[5]sin|sin -- return the sine of the parameter
    genType  sin(genType  x)
    genDType sin(genDType x)
-shader.sinh|sinh -- return the hyperbolic sine of the parameter
+[1]shader[5]sinh|sinh -- return the hyperbolic sine of the parameter
    genType  sinh(genType  x)
    genDType sinh(genDType x)
-shader:smooth|The value will be interpolated in a perspective-correct
+[1]shader[7]smooth|The value will be interpolated in a perspective-correct
  fashion. This is the default if no qualifier is present.
-shader.smoothstep|smoothstep — perform Hermite interpolation between two values
+[1]shader[7]smoothstep|smoothstep — perform Hermite interpolation between two values
    genType  smoothstep(genType  edge0, genType  edge1, genType  x)
    genType  smoothstep(float    edge0, float    edge1, genType  x)
    genDType smoothstep(genDType edge0, genDType edge1, genDType x)
    genDType smoothstep(double   edge0, double   edge1, genDType x)
-shader.sqrt|sqrt — return the square root of the parameter
+[1]shader[5]sqrt|sqrt — return the square root of the parameter
    genType  sqrt(genType  x)
    genDType sqrt(genDType x)
-shader.step|step — generate a step function by comparing two values
+[1]shader[5]step|step — generate a step function by comparing two values
    genType step(genType edge, genType x)
    genType step(float edge, genType x)
    genDType step(genDType edge, genDType x)
    genDType step(double edge, genDType x)
-shader.subroutine|Subroutines are special GLSL functions which can have
+[1]shader[10]subroutine|Subroutines are special GLSL functions which can have
  variations. The specific variation that will be called
  is selected by the OpenGL code.
-shader.tan|tan — return the tangent of the parameter
+[1]shader[5]tan|tan — return the tangent of the parameter
    genType tan(genType x)
-shader.tanh|tanh — return the hyperbolic tangent of the parameter
+[1]shader[5]tanh|tanh — return the hyperbolic tangent of the parameter
    genType tanh(genType x)
-shader.texelFetch|texelFetch -- perform a lookup of a single texel within a texture
+[1]shader[5]texelFetch|texelFetch -- perform a lookup of a single texel within a texture
    gvec4 texelFetch(gsampler1D sampler, int P, int lod)
    gvec4 texelFetch(gsampler2D sampler, ivec2 P, int lod)
    gvec4 texelFetch(gsampler3D sampler, ivec3 P, int lod)
@@ -1130,14 +1130,14 @@ shader.texelFetch|texelFetch -- perform a lookup of a single texel within a text
    gvec4 texelFetch(gsamplerBuffer sampler, int P)
    gvec4 texelFetch(gsampler2DMS sampler, ivec2 P, sample sample)
    gvec4 texelFetch(gsampler2DMSArray sampler, ivec3 P, sample sample)
-shader.texelFetchOffset|texelFetchOffset -- perform a lookup of a single texel within a texture with an offset
+[1]shader[5]texelFetchOffset|texelFetchOffset -- perform a lookup of a single texel within a texture with an offset
    gvec4 texelFetchOffset(gsampler1D sampler, int P, int lod, int offset)
    gvec4 texelFetchOffset(gsampler2D sampler, ivec2 P, int lod, int offset)
    gvec4 texelFetchOffset(gsampler3D sampler, ivec3 P, int lod, int offset)
    gvec4 texelFetchOffset(gsampler2DRect  sampler, ivec2 P, int offset)
    gvec4 texelFetchOffset(gsampler1DArray sampler, ivec2 P, int lod, int offset)
    gvec4 texelFetchOffset(gsampler2DArray sampler, ivec3 P, int lod, int offset)
-shader.texture|texture -- retrieves texels from a texture
+[1]shader[5]texture|texture -- retrieves texels from a texture
    gvec4 texture(gsampler1D sampler, float P, [float bias])
    gvec4 texture(gsampler2D sampler, vec2 P, [float bias])
    gvec4 texture(gsampler3D sampler, vec3 P, [float bias])
@@ -1153,7 +1153,7 @@ shader.texture|texture -- retrieves texels from a texture
    gvec4 texture(gsampler2DRect sampler, vec2 P)
    float texture(sampler2DRectShadow sampler, vec3 P)
    float texture(gsamplerCubeArrayShadow sampler, vec4 P, float compare)
-shader.textureGather|textureGather -- gathers four texels from a texture
+[1]shader[5]textureGather|textureGather -- gathers four texels from a texture
    gvec4 textureGather(gsampler2D sampler, vec2 P, [int comp])
    gvec4 textureGather(gsampler2DArray sampler, vec3 P, [int comp])
    gvec4 textureGather(gsamplerCube sampler, vec3 P, [int comp])
@@ -1164,21 +1164,21 @@ shader.textureGather|textureGather -- gathers four texels from a texture
    vec4  textureGather(gsamplerCubeShadow sampler, vec3 P, float refZ)
    vec4  textureGather(gsamplerCubeArrayShadow sampler, vec4 P, float refZ)
    vec4  textureGather(gsampler2DRectShadow sampler, vec3 P, float refZ)
-shader.textureGatherOffset|textureGatherOffset -- gathers four texels from a texture with offset
+[1]shader[5]textureGatherOffset|textureGatherOffset -- gathers four texels from a texture with offset
    gvec4 textureGatherOffset(gsampler2D sampler, vec2 P, ivec2 offset, [int comp])
    gvec4 textureGatherOffset(gsampler2DArray sampler, vec3 P, ivec2 offset, [int comp])
    gvec4 textureGatherOffset(gsampler2DRect sampler, vec3 P, ivec2 offset, [int comp])
    vec4  textureGatherOffset(gsampler2DShadow sampler, vec2 P, float refZ, ivec2 offset)
    vec4  textureGatherOffset(gsampler2DArrayShadow sampler, vec3 P, float refZ, ivec2 offset)
    vec4  textureGatherOffset(gsampler2DRectShadow  sampler, vec3 P, float refZ, ivec2 offset)
-shader.textureGatherOffsets|textureGatherOffsets -- gathers four texels from a texture with an array of offsets
+[1]shader[5]textureGatherOffsets|textureGatherOffsets -- gathers four texels from a texture with an array of offsets
    gvec4 textureGatherOffsets(gsampler2D sampler, vec2 P, ivec2 offsets[4], [int comp])
    gvec4 textureGatherOffsets(gsampler2DArray sampler, vec3 P, ivec2 offsets[4], [int comp])
    gvec4 textureGatherOffsets(gsampler2DRect sampler, vec3 P, ivec2 offsets[4], [int comp])
    vec4  textureGatherOffsets(gsampler2DShadow sampler, vec2 P, float refZ, ivec2 offsets[4])
    vec4  textureGatherOffsets(gsampler2DArrayShadow sampler, vec3 P, float refZ, ivec2 offsets[4])
    vec4  textureGatherOffsets(gsampler2DRectShadow  sampler, vec3 P, float refZ, ivec2 offsets[4])
-shader.textureGrad|textureGrad -- perform a texture lookup with explicit gradients
+[1]shader[5]textureGrad|textureGrad -- perform a texture lookup with explicit gradients
    gvec4 textureGrad(gsampler1D sampler, float P, float dPdx, float dPdy)
    gvec4 textureGrad(gsampler2D sampler, vec2 P, vec2 dPdx, vec2 dPdy)
    gvec4 textureGrad(gsampler3D sampler, vec3 P, vec3 dPdx, vec3 dPdy)
@@ -1191,7 +1191,7 @@ shader.textureGrad|textureGrad -- perform a texture lookup with explicit gradien
    gvec4 textureGrad(gsampler2DArray sampler, vec3 P, vec2 dPdx, vec2 dPdy)
    float textureGrad(sampler1DArrayShadow sampler, vec3 P, float dPdx, float dPdy)
    gvec4 textureGrad(gsamplerCubeArray sampler, vec4  P, vec3 dPdx, vec3 dPdy)
-shader.textureLod|textureLod -- perform a texture lookup with explicit level-of-detail
+[1]shader[5]textureLod|textureLod -- perform a texture lookup with explicit level-of-detail
    gvec4 textureLod(gsampler1D sampler, float P, float lod)
    gvec4 textureLod(gsampler2D sampler, vec2 P, float lod)
    gvec4 textureLod(gsampler3D sampler, vec3 P, float lod)
@@ -1202,7 +1202,7 @@ shader.textureLod|textureLod -- perform a texture lookup with explicit level-of-
    gvec4 textureLod(gsampler2DArray sampler, vec3 P, float lod)
    float textureLod(sampler1DArrayShadow sampler, vec3 P, float lod)
    gvec4 textureLod(gsamplerCubeArray sampler, vec4 P, float lod)
-shader.textureOffset|textureOffset -- perform a texture lookup with offset
+[1]shader[5]textureOffset|textureOffset -- perform a texture lookup with offset
    gvec4 textureOffset(gsampler1D sampler, float P, int offset, [float bias])
    gvec4 textureOffset(gsampler2D sampler, vec2 P, ivec2 offset, [float bias])
    gvec4 textureOffset(gsampler3D sampler, vec3 P, ivec3 offset, [float bias])
@@ -1214,7 +1214,7 @@ shader.textureOffset|textureOffset -- perform a texture lookup with offset
    gvec4 textureOffset(gsampler2DArray sampler, vec3 P, ivec2 offset, [float bias])
    float textureOffset(sampler1DArrayShadow sampler, vec3 P, int offset)
    float textureOffset(sampler2DArrayShadow sampler, vec4 P, vec2 offset)
-shader.textureProj|textureProj -- perform a texture lookup with projection
+[1]shader[5]textureProj|textureProj -- perform a texture lookup with projection
    vec4  textureProj(gsampler1D sampler, vec2 P, [float bias])
    gvec4 textureProj(gsampler1D sampler, vec4 P, [float bias])
    gvec4 textureProj(gsampler2D sampler, vec3 P, [float bias])
@@ -1225,7 +1225,7 @@ shader.textureProj|textureProj -- perform a texture lookup with projection
    gvec4 textureProj(gsampler2DRect sampler, vec3 P)
    gvec4 textureProj(gsampler2DRect sampler, vec4 P)
    float textureProj(gsampler2DRectShadow sampler, vec4 P)
-shader.textureProjGrad|textureProjGrad​ -- perform a texture lookup with projection and explicit gradients
+[1]shader[5]textureProjGrad|textureProjGrad​ -- perform a texture lookup with projection and explicit gradients
    gvec4 textureProjGrad(gsampler1D sampler, vec2 P, float pDx, float pDy)
    gvec4 textureProjGrad(gsampler1D sampler, vec4 P, float pDx, float pDy)
    gvec4 textureProjGrad(gsampler2D sampler, vec3 P, vec2 pDx, vec2 pDy)
@@ -1236,7 +1236,7 @@ shader.textureProjGrad|textureProjGrad​ -- perform a texture lookup with proje
    gvec4 textureProjGrad(gsampler2DRect sampler, vec3 P, vec2 pDx, vec2 pDy)
    gvec4 textureProjGrad(gsampler2DRect sampler, vec4 P, vec2 pDx, vec2 pDy)
    float textureProjGrad(gsampler2DRectShadow sampler, vec4 P, vec2 pDx, vec2 pDy)
-shader.textureProjGradOffset|textureProjGradOffset​ -- perform a texture lookup with projection, explicit gradients and offset
+[1]shader[5]textureProjGradOffset|textureProjGradOffset​ -- perform a texture lookup with projection, explicit gradients and offset
    gvec4 textureProjGradOffset(gsampler1D sampler, vec2 P, float dPdx, float dPdy, int offset)
    gvec4 textureProjGradOffset(gsampler1D sampler, vec4 P, float dPdx, float dPdy, int offset)
    gvec4 textureProjGradOffset(gsampler2D sampler, vec3 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
@@ -1247,7 +1247,7 @@ shader.textureProjGradOffset|textureProjGradOffset​ -- perform a texture looku
    gvec4 textureProjGradOffset(gsampler2DRect sampler, vec3 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
    gvec4 textureProjGradOffset(gsampler2DRect sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
    float textureProjGradOffset(gsampler2DRectShadow sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
-shader.textureProjLod|textureProjLod​ -- perform a texture lookup with projection and explicit level-of-detail
+[1]shader[5]textureProjLod|textureProjLod​ -- perform a texture lookup with projection and explicit level-of-detail
    vec4  textureProjLod(gsampler1D sampler, vec2 P, float lod)
    gvec4 textureProjLod(gsampler1D sampler, vec4 P, float lod)
    gvec4 textureProjLod(gsampler2D sampler, vec3 P, float lod)
@@ -1255,7 +1255,7 @@ shader.textureProjLod|textureProjLod​ -- perform a texture lookup with project
    gvec4 textureProjLod(gsampler3D sampler, vec4 P, float lod)
    float textureProjLod(sampler1DShadow sampler, vec4 P, float lod)
    float textureProjLod(sampler2DShadow sampler, vec4 P, float lod)
-shader.textureProjLodOffset|textureProjLodOffset​ -- perform a texture lookup with projection and explicit level-of-detail and offset
+[1]shader[5]textureProjLodOffset|textureProjLodOffset​ -- perform a texture lookup with projection and explicit level-of-detail and offset
    gvec4 textureProjLodOffset(gsampler1D sampler, vec2 P, float lod, int offset)
    gvec4 textureProjLodOffset(gsampler1D sampler, vec4 P, float lod, int offset)
    gvec4 textureProjLodOffset(gsampler2D sampler, vec3 P, float lod, ivec2 offset)
@@ -1263,7 +1263,7 @@ shader.textureProjLodOffset|textureProjLodOffset​ -- perform a texture lookup 
    gvec4 textureProjLodOffset(gsampler3D sampler, vec4 P, float lod, ivec3 offset)
    float textureProjLodOffset(sampler1DShadow sampler, vec4 P, float lod, int   offset)
    float textureProjLodOffset(sampler2DShadow sampler, vec4 P, float lod, ivec2 offset)
-shader.textureProjOffset|textureProjOffset​ -- perform a texture lookup with projection and offset
+[1]shader[5]textureProjOffset|textureProjOffset​ -- perform a texture lookup with projection and offset
    gvec4 textureProjOffset(gsampler1D sampler, vec2 P, int offset, [float bias])
    gvec4 textureProjOffset(gsampler1D sampler, vec4 P, int offset, [float bias])
    gvec4 textureProjOffset(gsampler2D sampler, vec3 P, ivec2 offset, [float bias])
@@ -1274,7 +1274,7 @@ shader.textureProjOffset|textureProjOffset​ -- perform a texture lookup with p
    gvec4 textureProjOffset(gsampler2DRect sampler, vec3 P, ivec2 offset)
    gvec4 textureProjOffset(gsampler2DRect sampler, vec4 P, ivec2 offset)
    float textureProjOffset(gsampler2DRectShadow sampler, vec4 P, ivec2 offset)
-shader.textureQueryLevels|textureQueryLevels -- compute the number of accessible mipmap levels of a texture
+[1]shader[5]textureQueryLevels|textureQueryLevels -- compute the number of accessible mipmap levels of a texture
    int textureQueryLevels(gsampler1D sampler)
    int textureQueryLevels(gsampler2D sampler)
    int textureQueryLevels(gsampler3D sampler)
@@ -1288,7 +1288,7 @@ shader.textureQueryLevels|textureQueryLevels -- compute the number of accessible
    int textureQueryLevels(gsampler1DArrayShadow sampler)
    int textureQueryLevels(gsampler2DArrayShadow sampler)
    int textureQueryLevels(gsamplerCubeArrayShadow sampler)
-shader.textureQueryLod|textureQueryLod -- compute the level-of-detail that would be used to sample from a texture
+[1]shader[5]textureQueryLod|textureQueryLod -- compute the level-of-detail that would be used to sample from a texture
    vec2 textureQueryLod(gsampler1D sampler, float P)
    vec2 textureQueryLod(gsampler2D sampler, vec2  P)
    vec2 textureQueryLod(gsampler3D sampler, vec3  P)
@@ -1302,10 +1302,10 @@ shader.textureQueryLod|textureQueryLod -- compute the level-of-detail that would
    vec2 textureQueryLod(gsampler1DArrayShadow sampler, float P)
    vec2 textureQueryLod(gsampler2DArrayShadow sampler, vec2  P)
    vec2 textureQueryLod(gsamplerCubeArrayShadow sampler, vec3  P)
-shader.textureSamples|textureSamples -- return the number of samples of a texture
+[1]shader[5]textureSamples|textureSamples -- return the number of samples of a texture
    int textureSamples(gsampler2DMS sampler)
    int textureSamples(gsampler2DMSArray sampler)
-shader.textureSize|textureSize -- retrieve the dimensions of a level of a texture
+[1]shader[5]textureSize|textureSize -- retrieve the dimensions of a level of a texture
    int   textureSize(gsampler1D sampler, int lod)
    ivec2 textureSize(gsampler2D sampler, int lod)
    ivec3 textureSize(gsampler3D sampler, int lod)
@@ -1324,7 +1324,7 @@ shader.textureSize|textureSize -- retrieve the dimensions of a level of a textur
    int   textureSize(gsamplerBuffer sampler)
    ivec2 textureSize(gsampler2DMS sampler)
    ivec3 textureSize(gsampler2DMSArray sampler)
-shader.transpose|transpose — calculate the transpose of a matrix
+[1]shader[5]transpose|transpose — calculate the transpose of a matrix
    mat2    transpose(mat2    m)
    mat3    transpose(mat3    m)
    mat4    transpose(mat4    m)
@@ -1343,81 +1343,81 @@ shader.transpose|transpose — calculate the transpose of a matrix
    dmat3x4 transpose(dmat4x3 m)
    dmat4x2 transpose(dmat2x4 m)
    dmat4x3 transpose(dmat3x4 m)
-shader.trunc|trunc — find the nearest integer less
+[1]shader[5]trunc|trunc — find the nearest integer less
           than or equal to the parameter
    genType  trunc(genType  x)
    genDType trunc(genDType x)
-shader.uaddCarry|uaddCarry — Add unsigned integers and generate carry. The
+[1]shader[5]uaddCarry|uaddCarry — Add unsigned integers and generate carry. The
               carry result is the sum of x and y modulo 2^32.
    genUType uaddCarry(genUType x, genUType y, out genUType carry)
-shader:uint
-shader.uintBitsToFloat|uintBitsToFloat -- produce a floating point using an
+[1]shader[6]uint
+[1]shader[5]uintBitsToFloat|uintBitsToFloat -- produce a floating point using an
                     encoding supplied as an integer
    genType uintBitsToFloat(genUType x)
-shader.umulExtended|umulExtended -- perform a 32- by 32-bit multiply to produce a 64-bit result
+[1]shader[5]umulExtended|umulExtended -- perform a 32- by 32-bit multiply to produce a 64-bit result
    void umulExtended(genIType x, genIType y, out genIType msb, out genIType lsb)
-shader:uniform|uniform (buffer) qualifier
-shader.unpackDouble2x32|unpackDouble2x32 — produce two unsigned integers containing the bit
+[1]shader[7]uniform|uniform ([1]buffer) qualifier
+[1]shader[5]unpackDouble2x32|unpackDouble2x32 — produce two unsigned integers containing the bit
                      encoding of a double precision floating point value
    uvec2 unpackDouble2x32(double d)
-shader.unpackHalf2x16|unpackHalf2x16 — convert two 16-bit floating-point values
+[1]shader[5]unpackHalf2x16|unpackHalf2x16 — convert two 16-bit floating-point values
                    packed into a single 32-bit integer into a
                    vector of two 32-bit floating-point quantities
    vec2 unpackHalf2x16(uint v)
-shader.unpackSnorm2x16|unpackSnorm2x16 — unpack floating-point values from an unsigned integer
+[1]shader[5]unpackSnorm2x16|unpackSnorm2x16 — unpack floating-point values from an unsigned integer
    vec2 unpackUnorm2x16(uint p)
-shader.unpackSnorm4x8|unpackSnorm2x16 — unpack floating-point values from an unsigned integer
+[1]shader[5]unpackSnorm4x8|unpackSnorm2x16 — unpack floating-point values from an unsigned integer
    vec2 unpackSnorm4x8(uint p)
-shader.unpackUnorm2x16|unpackSnorm2x16 — unpack floating-point values from an unsigned integer
+[1]shader[5]unpackUnorm2x16|unpackSnorm2x16 — unpack floating-point values from an unsigned integer
    vec2 unpackUnorm2x16(uint p)
-shader.unpackUnorm4x8|unpackSnorm2x16 — unpack floating-point values from an unsigned integer
+[1]shader[5]unpackUnorm4x8|unpackSnorm2x16 — unpack floating-point values from an unsigned integer
    vec2 unpackUnorm4x8(uint p)
-shader:usampler1D|1D texture binding unit for unsigned integer textures
-shader:usampler1DArray|1D texture array binding unit for unsigned integer textures
-shader:usampler2D|2D texture binding unit for unsigned integer textures
-shader:usampler2DArray|2D texture array binding unit for unsigned integer textures
-shader:usampler2DMS|2D multi sample texture binding unit for unsigned integer textures
-shader:usampler2DMSArray|2D multi sample texture array binding unit for unsigned integer textures
-shader:usampler2DRect|2D rectangular texture binding unit for unsigned integer textures
-shader:usampler3D|3D texture binding unit for unsigned integer textures
-shader:usamplerBuffer|buffer texture binding unit for unsigned integer textures
-shader:usamplerCube|cube map texture binding unit for unsigned integer textures
-shader:usamplerCubeArray|cube map texture array binding unit for unsigned integer textures
-shader.usubBorrow|usubBorrow -- subtract unsigned integers and generate borrow
+[1]shader[6]usampler1D|1D texture binding unit for unsigned integer textures
+[1]shader[6]usampler1DArray|1D texture array binding unit for unsigned integer textures
+[1]shader[6]usampler2D|2D texture binding unit for unsigned integer textures
+[1]shader[6]usampler2DArray|2D texture array binding unit for unsigned integer textures
+[1]shader[6]usampler2DMS|2D multi sample texture binding unit for unsigned integer textures
+[1]shader[6]usampler2DMSArray|2D multi sample texture array binding unit for unsigned integer textures
+[1]shader[6]usampler2DRect|2D rectangular texture binding unit for unsigned integer textures
+[1]shader[6]usampler3D|3D texture binding unit for unsigned integer textures
+[1]shader[6]usamplerBuffer|buffer texture binding unit for unsigned integer textures
+[1]shader[6]usamplerCube|cube map texture binding unit for unsigned integer textures
+[1]shader[6]usamplerCubeArray|cube map texture array binding unit for unsigned integer textures
+[1]shader[5]usubBorrow|usubBorrow -- subtract unsigned integers and generate borrow
    genUType usubBorrow(genUType x, genUType y, out genUType borrow)
-shader:uvec2
-shader:uvec3
-shader:uvec4
-shader:vec2
-shader:vec3
-shader:vec4
-shader:void
-shader:while
-shader:writeonly
-tech|tech <name>
-tech.pass|pass <name>
-tech.init|Execute this pass only once
+[1]shader[6]uvec2
+[1]shader[6]uvec3
+[1]shader[6]uvec4
+[1]shader[6]vec2
+[1]shader[6]vec3
+[1]shader[6]vec4
+[1]shader[6]void
+[1]shader[10]while
+[1]shader[7]writeonly
+[1]tech|[1]tech <name>
+[1]tech[1]pass|pass <name>
+[1]tech[3]init|Execute this pass only once
  before all 'normal' passes.
    init <name>
-text|text <name>
-texture|texture <name>
-texture.buff|buff <name>
-texture.img|img <name>
-texture.samp|samp <name>
-vertinput|vertinput <name>
-vertinput.attr|attr <buff_name> <type> <dim> [stride] [offset] [divisor]
-vertinput.attr.byte
-vertinput.attr.double
-vertinput.attr.float
-vertinput.attr.int
-vertinput.attr.short
-vertinput.attr.ubyte
-vertinput.attr.uint
-vertinput.attr.unsignedByte
-vertinput.attr.unsignedInt
-vertinput.attr.unsignedShort
-vertinput.attr.ushort
-vertoutput|vertoutput <name>
-vertoutput.buff|buff <name>
-vertoutput.pause|pause <true_false>
-vertoutput.resume|resume <true_false>
+[1]text|text <name>
+[1]texture|texture <name>
+[1]texture[3]buff|buff <name>
+[1]texture[3]img|img <name>
+[1]texture[3]samp|samp <name>
+[1]vertinput|vertinput <name>
+[1]vertinput[3]attr|attr <buff_name> <type> <dim> [stride] [offset] [divisor]
+[1]vertinput[3]attr[4]byte
+[1]vertinput[3]attr[4]double
+[1]vertinput[3]attr[4]float
+[1]vertinput[3]attr[4]int
+[1]vertinput[3]attr[4]short
+[1]vertinput[3]attr[4]ubyte
+[1]vertinput[3]attr[4]uint
+[1]vertinput[3]attr[4]unsignedByte
+[1]vertinput[3]attr[4]unsignedInt
+[1]vertinput[3]attr[4]unsignedShort
+[1]vertinput[3]attr[4]ushort
+[1]vertoutput|vertoutput <name>
+[1]vertoutput[3]buff|buff <name>
+[1]vertoutput[3]pause|pause <true_false>
+[1]vertoutput[3]resume|resume <true_false>

@@ -18,8 +18,8 @@ namespace App
         {
             var open = "{";
             var close = "}";
-            var blockHeader = @"(\w+[ \t]*){2,3}";
-            var functionHeader = @"(\w+[ \t]*){2}\(.*\)";
+            var blockHeader = @"(\w+[ \t]*){2,3}[\s\r\n]*";
+            var functionHeader = @"(\w+[ \t]*){2}\([\s\w\d\r\n,\.]*\)[\s\r\n]*";
             var oc = "" + open + close;
             regexBlock = new Regex(blockHeader +
                 $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
@@ -27,7 +27,7 @@ namespace App
             regexFunction = new Regex(functionHeader +
                 $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
                 $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
-            regexLayout = new Regex(@"\w+[ \t]*\(.*\)");
+            regexLayout = new Regex(@"\w+[ \t]*\([\s\w\d\r\n,=]*\)");
         }
 
         private static HashSet<string> incpath = new HashSet<string>();
