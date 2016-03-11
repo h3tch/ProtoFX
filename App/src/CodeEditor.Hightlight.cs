@@ -9,11 +9,6 @@ namespace App
     {
         #region FIELDS
         private static FXLexer lexer;
-        //private int[] BlockStyles = new[] { (int)FX.KeywordClass, (int)FX.KeywordAnnotation };
-        //private int[] CmdStyles = new[] { (int)FX.KeywordCommand, (int)FX.KeywordArgument };
-        //private int[] GlslStyles = new[] {
-        //    (int)FX.KeywordType, (int)FX.KeywordQualifier, (int)FX.KeywordFunction
-        //};
         #endregion
 
         /// <summary>
@@ -28,24 +23,24 @@ namespace App
 
             Styles[Style.LineNumber].ForeColor = Color.Gray;
 
-            Styles[(int)FX.Default].ForeColor = Color.Silver;
-            Styles[(int)FX.Comment].ForeColor = Color.FromArgb(0x7F9F00);
-            Styles[(int)FX.Operator].ForeColor = Color.FromArgb(0x6080D0);
-            Styles[(int)FX.Punctuation].ForeColor = Color.Silver;
-            Styles[(int)FX.Preprocessor].ForeColor = Color.FromArgb(0xE47426);
-            Styles[(int)FX.Number].ForeColor = Color.FromArgb(0x108030);
-            Styles[(int)FX.String].ForeColor = Color.Maroon;
-            Styles[(int)FX.Char].ForeColor = Color.FromArgb(163, 21, 21);
-
-            for (int style = lexer.KeywordStylesStart; style <= lexer.KeywordStylesEnd; style++)
-                Styles[style].ForeColor = Color.Blue;
-            //Styles[(int)FX.KeywordClass].ForeColor = Color.Blue;
-            //Styles[(int)FX.KeywordAnnotation].ForeColor = Color.FromArgb(30, 120, 255);
-            //Styles[(int)FX.KeywordCommand].ForeColor = Color.FromArgb(30, 120, 255);
-            //Styles[(int)FX.KeywordArgument].ForeColor = Color.Purple;
-            //Styles[(int)FX.KeywordType].ForeColor = Color.Blue;
-            //Styles[(int)FX.KeywordQualifier].ForeColor = Color.FromArgb(30, 120, 255);
-            //Styles[(int)FX.KeywordFunction].ForeColor = Color.Purple;
+            Styles[(int)FX.Default].ForeColor = lexer.Defs.ContainsKey(FX.Default.ToString())
+                ? lexer.Defs[FX.Default.ToString()].Color : Color.Silver;
+            Styles[(int)FX.Comment].ForeColor = lexer.Defs.ContainsKey(FX.Comment.ToString())
+                ? lexer.Defs[FX.Comment.ToString()].Color : Color.FromArgb(0x7F9F00);
+            Styles[(int)FX.Operator].ForeColor = lexer.Defs.ContainsKey(FX.Operator.ToString())
+                ? lexer.Defs[FX.Operator.ToString()].Color : Color.FromArgb(0x6080D0);
+            Styles[(int)FX.Punctuation].ForeColor = lexer.Defs.ContainsKey(FX.Punctuation.ToString())
+                ? lexer.Defs[FX.Punctuation.ToString()].Color : Color.Silver;
+            Styles[(int)FX.Preprocessor].ForeColor = lexer.Defs.ContainsKey(FX.Preprocessor.ToString())
+                ? lexer.Defs[FX.Preprocessor.ToString()].Color : Color.FromArgb(0xE47426);
+            Styles[(int)FX.Number].ForeColor = lexer.Defs.ContainsKey(FX.Number.ToString())
+                ? lexer.Defs[FX.Number.ToString()].Color : Color.FromArgb(0x108030);
+            Styles[(int)FX.String].ForeColor = lexer.Defs.ContainsKey(FX.String.ToString())
+                ? lexer.Defs[FX.String.ToString()].Color : Color.Maroon;
+            Styles[(int)FX.Char].ForeColor = lexer.Defs.ContainsKey(FX.Char.ToString())
+                ? lexer.Defs[FX.Char.ToString()].Color : Color.FromArgb(163, 21, 21);
+            foreach (var def in lexer.Defs)
+                Styles[lexer.KeywordStylesStart + def.Value.Id].ForeColor = def.Value.Color;
 
             Lexer = Lexer.Container;
 
@@ -62,47 +57,6 @@ namespace App
             // get start and end position of the region that needs to be styled
             var start = Lines[LineFromPosition(GetEndStyled())].Position;
             lexer.Style(this, start, ev.Position);
-
-            //// there can be different stylings outside and
-            //// inside of code blocks, therefore we need to
-            //// iterate and differentiate between blocks
-            //foreach (var block in BlockPositions())
-            //{
-            //    // get start and end position of the block
-            //    var blockStart = block[1];
-            //    var blockEnd = block[2];
-                
-            //    // block lies before the region
-            //    if (blockEnd < start)
-            //        continue;
-            //    // all block from this point lie behind the region
-            //    if (blockStart >= end)
-            //        break;
-                
-            //    // get the respective keywords to the block
-            //    var keywords = GetWordFromPosition(block[0]) == "shader" ? GlslStyles : CmdStyles;
-
-            //    // start of the block lies inside the region
-            //    if (blockStart > start)
-            //        start = lexer.Style(this, start, blockStart, BlockStyles);
-
-            //    // block lies completely inside the region
-            //    if (blockEnd < end)
-            //    {
-            //        start = lexer.Style(this, start, blockEnd, keywords);
-            //    }
-            //    // block intersects end of the region
-            //    else
-            //    {
-            //        start = lexer.Style(this, start, end, keywords);
-            //        // reached the end of the region
-            //        break;
-            //    }
-            //}
-
-            //// style any remaining code regions
-            //if (start < end)
-            //    lexer.Style(this, start, end, BlockStyles);
         }
     }
 }

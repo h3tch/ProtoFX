@@ -83,16 +83,16 @@ namespace App
         /// <param name="skip"></param>
         public void SelectString(int position, out string[] search, out int[] skip)
         {
-            // [1] ... block
-            // [2] ... annotation
-            // [3] ... command
-            // [4] ... argument
-            // [5] ... function
-            // [6] ... type
-            // [7] ... specifications
-            // [8] ... qualifier
-            // [9] ... variable
-            // [10] ... branching
+            var blockId = lexer.Defs["block"].Id;
+            var annoId = lexer.Defs["annotation"].Id;
+            var cmdId = lexer.Defs["command"].Id;
+            var argId = lexer.Defs["argument"].Id;
+            var funcId = lexer.Defs["function"].Id;
+            var typeId = lexer.Defs["type"].Id;
+            var specId = lexer.Defs["specifications"].Id;
+            var qualId = lexer.Defs["qualifier"].Id;
+            var variableId = lexer.Defs["variable"].Id;
+            var branchingId = lexer.Defs["branching"].Id;
 
             // get word and preceding word at caret position
             var word = GetWordFromPosition(position);
@@ -119,15 +119,15 @@ namespace App
                 {
                     search = new[] {
                         // list local variables
-                        $"[1]{type}[2]{anno}[9]{word}",
+                        $"[{blockId}]{type}[{annoId}]{anno}[{variableId}]{word}",
                         // list local functions
-                        $"[1]{type}[2]{anno}[5]{word}",
+                        $"[{blockId}]{type}[{annoId}]{anno}[{funcId}]{word}",
                         // list global variables
-                        $"[1]{type}[9]{word}",
+                        $"[{blockId}]{type}[{variableId}]{word}",
                         // list global functions
-                        $"[1]{type}[5]{word}",
+                        $"[{blockId}]{type}[{funcId}]{word}",
                         // list global types
-                        $"[1]{type}[6]{word}",
+                        $"[{blockId}]{type}[{typeId}]{word}",
                     };
                 }
                 else
@@ -141,14 +141,14 @@ namespace App
                         var text = GetTextRange(layout[0], layout[2] - layout[0]);
                         var prec = GetWordFromPosition(layout[0]);
                         var next = GetWordFromPosition(NextWordStartPosition(layout[2]));
-
+                        
                         search = new[] {
                             // list local qualifiers
-                            $"[1]{type}[2]{anno}[7]{prec}[7]{next}[8]{word}",
-                            $"[1]{type}[2]{anno}[7]{prec}[8]{word}",
+                            $"[{blockId}]{type}[{annoId}]{anno}[{specId}]{prec}[{specId}]{next}[{qualId}]{word}",
+                            $"[{blockId}]{type}[{annoId}]{anno}[{specId}]{prec}[{qualId}]{word}",
                             // list global qualifiers
-                            $"[1]{type}[7]{prec}[7]{next}[8]{word}",
-                            $"[1]{type}[7]{prec}[8]{word}",
+                            $"[{blockId}]{type}[{specId}]{prec}[{specId}]{next}[{qualId}]{word}",
+                            $"[{blockId}]{type}[{specId}]{prec}[{qualId}]{word}",
                         };
                     }
                     else
@@ -157,22 +157,22 @@ namespace App
                         var cmd = GetWordFromPosition(
                             NextWordStartPosition(
                                 Lines[LineFromPosition(position)].Position));
-
+                        
                         search = new[] {
                             // list local arguments
-                            $"[1]{type}[2]{anno}[7]{cmd}[8]{word}",
+                            $"[{blockId}]{type}[{annoId}]{anno}[{specId}]{cmd}[{qualId}]{word}",
                             // list local commands
-                            $"[1]{type}[2]{anno}[7]{word}",
+                            $"[{blockId}]{type}[{annoId}]{anno}[{specId}]{word}",
                             // list local specifications
-                            $"[1]{type}[2]{anno}[3]{word}",
+                            $"[{blockId}]{type}[{annoId}]{anno}[{cmdId}]{word}",
                             // list global arguments
-                            $"[1]{type}[7]{cmd}[8]{word}",
+                            $"[{blockId}]{type}[{specId}]{cmd}[{qualId}]{word}",
                             // list global commands
-                            $"[1]{type}[7]{word}",
+                            $"[{blockId}]{type}[{specId}]{word}",
                             // list global specifications
-                            $"[1]{type}[3]{word}",
+                            $"[{blockId}]{type}[{cmdId}]{word}",
                             // list global types
-                            $"[1]{type}[6]{word}",
+                            $"[{blockId}]{type}[{typeId}]{word}",
                         };
                     }
                 }
@@ -182,11 +182,12 @@ namespace App
                 // get position of preceding word
                 var precPos = PrecWordStartPosition(position);
                 var prec = GetWordFromPosition(precPos);
+
                 search = new[] {
                     // list annotations
-                    $"[1]{prec}[2]{word}",
+                    $"[{blockId}]{prec}[{annoId}]{word}",
                     // list block types
-                    $"[1]{word}"
+                    $"[{blockId}]{word}"
                 };
             }
 

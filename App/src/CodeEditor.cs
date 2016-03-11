@@ -15,7 +15,6 @@ namespace App
         private static int HighlightIndicatorIndex = 8;
         public static int DebugIndicatorIndex { get; } = 9;
         private List<int[]>[] IndicatorRanges;
-        //private static string[] KeywordDef;
         private static Trie<string> KeywordTrie;
         private static Dictionary<string, string> Hint;
         #endregion
@@ -27,28 +26,40 @@ namespace App
         {
             // process keyword definition file
             var lines = Regex.Split(Properties.Resources.keywords, "\r\n", RegexOptions.None);
-            int j = 0;
-            foreach (var line in lines.Skip(1))
+            var keys = lines.TakeWhile(x => x.StartsWith("//"));
+            int start = keys.Count();
+            int end = start;
+            foreach (var line in lines.Skip(start))
             {
                 if (line[0] == ' ')
-                    lines[j] = $"{lines[j]}\n{line.Substring(1)}";
+                    lines[end - 1] += $"\n{line.Substring(1)}";
                 else
-                    lines[++j] = line;
+                    lines[end++] = line;
+            }
+
+            // set keyword definitions
+            var defs = keys.Select(x => x.Split(' ').Where(y => y.Length > 0).ToArray());
+            var Defs = new Dictionary<string, FXLexer.KeyDef>(defs.Count());
+            foreach (var def in defs)
+            {
+                int id = int.Parse(def[1]);
+                Color color = ColorTranslator.FromHtml(def[3]);
+                Defs.Add(def[2], new FXLexer.KeyDef { Id = id, Color = color });
             }
 
             // set keyword list
-            var list = lines.Take(j + 1)
-                .Select(k => k.Substring(0, k.IndexOfOrLength('|')).Replace(':', '.'))
+            var list = lines.Skip(start).Take(end - start)
+                .Select(k => k.Substring(0, k.IndexOfOrLength('|')))
                 .ToArray();
             KeywordTrie = new Trie<string>(list, list);
 
             // set hint list
-            Hint = lines.Take(j + 1).ToDictionary(
+            Hint = lines.Skip(start).Take(end - start).ToDictionary(
                 k => k.Substring(0, k.IndexOfOrLength('|')),
                 v => v.Substring(v.IndexOfOrLength('|')));
 
             // create lexer
-            lexer = new FXLexer(Properties.Resources.keywords);
+            lexer = new FXLexer(Properties.Resources.keywords, Defs);
         }
 
         /// <summary>

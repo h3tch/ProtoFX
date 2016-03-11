@@ -1,6 +1,7 @@
 ﻿using ScintillaNET;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -43,31 +44,27 @@ namespace App
         };
 
         public int KeywordStylesStart => (int)Styles.Preprocessor + 1;
-        public int KeywordStylesEnd => (int)Styles.Preprocessor + keywords.Length;
+        public int KeywordStylesEnd => KeywordStylesStart + keywords.Length;
 
         private HashSet<string>[] keywords;
+        public Dictionary<string, KeyDef> Defs { get; private set; }
         #endregion
 
         /// <summary>
         /// Create a lexer from a keyword definition list.
         /// </summary>
         /// <param name="keywordDef"></param>
-        public FXLexer(string keywordDef)
+        public FXLexer(string keywordDef, Dictionary<string, KeyDef> defs)
         {
-            keywords = ParseKeywords(keywordDef, 10).ToArray();
-        }
+            keywords = new HashSet<string>[defs.Count];
+            Defs = defs;
 
-        private IEnumerable<HashSet<string>> ParseKeywords(string text, int maxKeywordTypes)
-        {
-            for (int i = 1; i <= maxKeywordTypes; i++)
+            foreach (var def in defs)
             {
-                var indicator = $"{i}";
-                var words = from x in text.Matches(@"\[" + indicator + @"\]\w+")
+                var indicator = $"{def.Value.Id}";
+                var words = from x in keywordDef.Matches(@"\[" + indicator + @"\]\w+")
                             select x.Value.Substring(indicator.Length + 2);
-                if (words.Any())
-                    yield return new HashSet<string>(words.ToArray());
-                else
-                    break;
+                keywords[def.Value.Id] = new HashSet<string>(words.ToArray());
             }
         }
 
@@ -309,5 +306,11 @@ namespace App
         }
 
         private bool IsMathSymbol(char c) => char.IsSymbol(c) || c == '*' || c == '-';
+        
+        public struct KeyDef
+        {
+            public int Id;
+            public Color Color;
+        }
     }
 }
