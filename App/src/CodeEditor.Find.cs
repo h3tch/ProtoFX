@@ -13,6 +13,22 @@ namespace App
         private TextBox FindText;
 
         /// <summary>
+        /// Initialize find and replace.
+        /// </summary>
+        private void InitializeFindAndReplace()
+        {
+            FindText = new TextBox();
+            FindText.Parent = this;
+            FindText.MinimumSize = new Size(0, 0);
+            FindText.MaximumSize = new Size(1, 1);
+            FindText.SetBounds(0, 0, 1, 1);
+            FindText.TextChanged += new EventHandler(HandleFindTextChanged);
+            FindText.KeyUp += new KeyEventHandler(HandleFindKeyUp);
+            FindText.GotFocus += new EventHandler(HandleFindGotFocus);
+            FindText.LostFocus += new EventHandler(HandleFindLostFocus);
+        }
+
+        /// <summary>
         /// Find all ranges of the specified strings.
         /// </summary>
         /// <param name="words">Must be a dictionary of strings (keys) to search for and

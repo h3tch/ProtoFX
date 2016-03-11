@@ -10,6 +10,20 @@ namespace App
     {
         private bool DisableEditing = false;
 
+        private void InitializeEvents()
+        {
+            // enable drag & drop
+            AllowDrop = true;
+            DragOver += new DragEventHandler(HandleDragOver);
+            DragDrop += new DragEventHandler(HandleDragDrop);
+
+            // search & replace
+            KeyUp += new KeyEventHandler(HandleKeyUp);
+            KeyDown += new KeyEventHandler(HandleKeyDown);
+            InsertCheck += new EventHandler<InsertCheckEventArgs>(HandleInsertCheck);
+            CharAdded += new EventHandler<CharAddedEventArgs>(HandleCharAdded);
+        }
+
         /// <summary>
         /// On insert text event, auto format the text.
         /// </summary>

@@ -1,10 +1,30 @@
-﻿using System.Collections.Generic;
+﻿using ScintillaNET;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace App
 {
     partial class CodeEditor
     {
+        private void InitializeSelection()
+        {
+            // setup indicator colors
+            Indicators[HighlightIndicatorIndex].Style = IndicatorStyle.StraightBox;
+            Indicators[HighlightIndicatorIndex].Under = true;
+            Indicators[HighlightIndicatorIndex].ForeColor = Color.Crimson;
+            Indicators[HighlightIndicatorIndex].OutlineAlpha = 60;
+            Indicators[HighlightIndicatorIndex].Alpha = 40;
+            Indicators[DebugIndicatorIndex].ForeColor = Color.Red;
+            Indicators[DebugIndicatorIndex].Style = IndicatorStyle.Squiggle;
+
+            // setup multi line selection
+            MultipleSelection = true;
+            MouseSelectionRectangularSwitch = true;
+            AdditionalSelectionTyping = true;
+            VirtualSpaceOptions = VirtualSpace.RectangularSelection;
+        }
+
         /// <summary>
         /// Clear all indicators of indicator index.
         /// </summary>

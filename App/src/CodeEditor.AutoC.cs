@@ -6,6 +6,14 @@ namespace App
 {
     partial class CodeEditor
     {
+        public void InitializeAutoC()
+        {
+            // auto completion settings
+            AutoCSeparator = '|';
+            AutoCMaxHeight = 9;
+            MouseMove += new MouseEventHandler(HandleMouseMove);
+        }
+
         /// <summary>
         /// Show auto complete menu for the specified text position.
         /// </summary>
@@ -83,16 +91,16 @@ namespace App
         /// <param name="skip"></param>
         public void SelectString(int position, out string[] search, out int[] skip)
         {
-            var blockId = lexer.Defs["block"].Id;
-            var annoId = lexer.Defs["annotation"].Id;
-            var cmdId = lexer.Defs["command"].Id;
-            var argId = lexer.Defs["argument"].Id;
-            var funcId = lexer.Defs["function"].Id;
-            var typeId = lexer.Defs["type"].Id;
-            var specId = lexer.Defs["specifications"].Id;
-            var qualId = lexer.Defs["qualifier"].Id;
-            var variableId = lexer.Defs["variable"].Id;
-            var branchingId = lexer.Defs["branching"].Id;
+            var BLOCK = lexer.Defs["block"].Id;
+            var ANNO = lexer.Defs["annotation"].Id;
+            var CMD = lexer.Defs["command"].Id;
+            var ARG = lexer.Defs["argument"].Id;
+            var FUNC = lexer.Defs["function"].Id;
+            var TYPE = lexer.Defs["type"].Id;
+            var SPEC = lexer.Defs["specifications"].Id;
+            var QUAL = lexer.Defs["qualifier"].Id;
+            var VAR = lexer.Defs["variable"].Id;
+            var BRANCH = lexer.Defs["branching"].Id;
 
             // get word and preceding word at caret position
             var word = GetWordFromPosition(position);
@@ -119,15 +127,15 @@ namespace App
                 {
                     search = new[] {
                         // list local variables
-                        $"[{blockId}]{type}[{annoId}]{anno}[{variableId}]{word}",
+                        $"[{BLOCK}]{type}[{ANNO}]{anno}[{VAR}]{word}",
                         // list local functions
-                        $"[{blockId}]{type}[{annoId}]{anno}[{funcId}]{word}",
+                        $"[{BLOCK}]{type}[{ANNO}]{anno}[{FUNC}]{word}",
                         // list global variables
-                        $"[{blockId}]{type}[{variableId}]{word}",
+                        $"[{BLOCK}]{type}[{VAR}]{word}",
                         // list global functions
-                        $"[{blockId}]{type}[{funcId}]{word}",
+                        $"[{BLOCK}]{type}[{FUNC}]{word}",
                         // list global types
-                        $"[{blockId}]{type}[{typeId}]{word}",
+                        $"[{BLOCK}]{type}[{TYPE}]{word}",
                     };
                 }
                 else
@@ -144,35 +152,34 @@ namespace App
                         
                         search = new[] {
                             // list local qualifiers
-                            $"[{blockId}]{type}[{annoId}]{anno}[{specId}]{prec}[{specId}]{next}[{qualId}]{word}",
-                            $"[{blockId}]{type}[{annoId}]{anno}[{specId}]{prec}[{qualId}]{word}",
+                            $"[{BLOCK}]{type}[{ANNO}]{anno}[{SPEC}]{prec}[{SPEC}]{next}[{QUAL}]{word}",
+                            $"[{BLOCK}]{type}[{ANNO}]{anno}[{SPEC}]{prec}[{QUAL}]{word}",
                             // list global qualifiers
-                            $"[{blockId}]{type}[{specId}]{prec}[{specId}]{next}[{qualId}]{word}",
-                            $"[{blockId}]{type}[{specId}]{prec}[{qualId}]{word}",
+                            $"[{BLOCK}]{type}[{SPEC}]{prec}[{SPEC}]{next}[{QUAL}]{word}",
+                            $"[{BLOCK}]{type}[{SPEC}]{prec}[{QUAL}]{word}",
                         };
                     }
                     else
                     {
                         // first word in line
-                        var cmd = GetWordFromPosition(
-                            NextWordStartPosition(
+                        var cmd = GetWordFromPosition(NextWordStartPosition(
                                 Lines[LineFromPosition(position)].Position));
                         
                         search = new[] {
                             // list local arguments
-                            $"[{blockId}]{type}[{annoId}]{anno}[{specId}]{cmd}[{qualId}]{word}",
+                            $"[{BLOCK}]{type}[{ANNO}]{anno}[{SPEC}]{cmd}[{QUAL}]{word}",
                             // list local commands
-                            $"[{blockId}]{type}[{annoId}]{anno}[{specId}]{word}",
+                            $"[{BLOCK}]{type}[{ANNO}]{anno}[{SPEC}]{word}",
                             // list local specifications
-                            $"[{blockId}]{type}[{annoId}]{anno}[{cmdId}]{word}",
+                            $"[{BLOCK}]{type}[{ANNO}]{anno}[{CMD}]{word}",
                             // list global arguments
-                            $"[{blockId}]{type}[{specId}]{cmd}[{qualId}]{word}",
+                            $"[{BLOCK}]{type}[{SPEC}]{cmd}[{QUAL}]{word}",
                             // list global commands
-                            $"[{blockId}]{type}[{specId}]{word}",
+                            $"[{BLOCK}]{type}[{SPEC}]{word}",
                             // list global specifications
-                            $"[{blockId}]{type}[{cmdId}]{word}",
+                            $"[{BLOCK}]{type}[{CMD}]{word}",
                             // list global types
-                            $"[{blockId}]{type}[{typeId}]{word}",
+                            $"[{BLOCK}]{type}[{TYPE}]{word}",
                         };
                     }
                 }
@@ -185,9 +192,9 @@ namespace App
 
                 search = new[] {
                     // list annotations
-                    $"[{blockId}]{prec}[{annoId}]{word}",
+                    $"[{BLOCK}]{prec}[{ANNO}]{word}",
                     // list block types
-                    $"[{blockId}]{word}"
+                    $"[{BLOCK}]{word}"
                 };
             }
 
@@ -209,6 +216,12 @@ namespace App
             return null;
         }
 
+        /// <summary>
+        /// Get the function surrounding the specified text position.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="block"></param>
+        /// <returns></returns>
         private int[] FunctionPosition(int position, int[] block)
         {
             // get headers of the block surrounding the text position
@@ -218,6 +231,12 @@ namespace App
             return null;
         }
 
+        /// <summary>
+        /// Get the layout surrounding the specified text position.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="block"></param>
+        /// <returns></returns>
         private int[] LayoutPosition(int position, int[] block)
         {
             // get headers of the block surrounding the text position
@@ -243,6 +262,10 @@ namespace App
             => from x in this.GetFunctionPositions(block[1], block[2])
                select new[] { x.Index, x.Index + x.Value.IndexOf('{'), x.Index + x.Length };
 
+        /// <summary>
+        /// Get the position of all layouts within a block.
+        /// </summary>
+        /// <returns></returns>
         private IEnumerable<int[]> LayoutPositions(int[] block)
             => from x in this.GetLayoutPositions(block[1], block[2])
                select new[] { x.Index, x.Index + x.Value.IndexOf('('), x.Index + x.Length };
@@ -252,7 +275,7 @@ namespace App
         /// specified position lies outside any word the position of
         /// the closest preceding word will be returned. If it lies
         /// inside a word the position of the next preceding word will
-        /// be returns.
+        /// be returned.
         /// </summary>
         /// <param name="position">start position</param>
         /// <returns>Returns the position of the preceding word or 0
@@ -272,6 +295,16 @@ namespace App
             return position;
         }
 
+        /// <summary>
+        /// Find the start position of the next word. If the
+        /// specified position lies outside any word the position of
+        /// the next closest word will be returned. If it lies
+        /// inside a word the position of the next word will
+        /// be returned.
+        /// </summary>
+        /// <param name="position">start position</param>
+        /// <returns>Returns the position of the next word or <code>Length</code>
+        /// in case no preceding word could be found.</returns>
         public int NextWordStartPosition(int position)
         {
             // go to the first non-word char

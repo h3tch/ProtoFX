@@ -1,11 +1,11 @@
 ﻿// 0 block #0000FF
-// 1 annotation #0000FF
-// 2 command #0000FF
-// 3 argument #0000FF
-// 4 function #0000FF
+// 1 annotation #0099CC
+// 2 command #6666FF
+// 3 argument #6633CC
+// 4 function #993333
 // 5 type #0000FF
 // 6 specifications #0000FF
-// 7 qualifier #0000FF
+// 7 qualifier #0099CC
 // 8 variable #0000FF
 // 9 branching #0000FF
 [0]buffer|buffer <name>

@@ -17,6 +17,16 @@ namespace App
         private List<int[]>[] IndicatorRanges;
         private static Trie<string> KeywordTrie;
         private static Dictionary<string, string> Hint;
+        private static int BLOCK;
+        private static int ANNO;
+        private static int CMD;
+        private static int ARG;
+        private static int FUNC;
+        private static int TYPE;
+        private static int SPEC;
+        private static int QUAL;
+        private static int VAR;
+        private static int BRANCH;
         #endregion
 
         /// <summary>
@@ -47,6 +57,18 @@ namespace App
                 Defs.Add(def[2], new FXLexer.KeyDef { Id = id, Color = color });
             }
 
+            // get keyword IDs
+            BLOCK = Defs["block"].Id;
+            ANNO = Defs["annotation"].Id;
+            CMD = Defs["command"].Id;
+            ARG = Defs["argument"].Id;
+            FUNC = Defs["function"].Id;
+            TYPE = Defs["type"].Id;
+            SPEC = Defs["specifications"].Id;
+            QUAL = Defs["qualifier"].Id;
+            VAR = Defs["variable"].Id;
+            BRANCH = Defs["branching"].Id;
+
             // set keyword list
             var list = lines.Skip(start).Take(end - start)
                 .Select(k => k.Substring(0, k.IndexOfOrLength('|')))
@@ -72,20 +94,16 @@ namespace App
             IndicatorRanges = new List<int[]>[Indicators.Count];
             for (int i = 0; i < Indicators.Count; i++)
                 IndicatorRanges[i] = new List<int[]>();
-
-            // find text box
-            FindText = new TextBox();
-            FindText.Parent = this;
-            FindText.MinimumSize = new Size(0, 0);
-            FindText.MaximumSize = new Size(1, 1);
-            FindText.SetBounds(0, 0, 1, 1);
-            FindText.TextChanged += new EventHandler(HandleFindTextChanged);
-            FindText.KeyUp += new KeyEventHandler(HandleFindKeyUp);
-            FindText.GotFocus += new EventHandler(HandleFindGotFocus);
-            FindText.LostFocus += new EventHandler(HandleFindLostFocus);
-
-            // setup code coloring
+            
+            InitializeFindAndReplace();
+            
             InitializeHighlighting();
+            
+            InitializeSelection();
+
+            InitializeEvents();
+
+            InitializeAutoC();
 
             // setup code folding
             SetProperty("fold", "1");
@@ -108,36 +126,9 @@ namespace App
             }
             AutomaticFold = (AutomaticFold.Show | AutomaticFold.Click | AutomaticFold.Change);
 
-            // setup indicator colors
-            Indicators[HighlightIndicatorIndex].Style = IndicatorStyle.StraightBox;
-            Indicators[HighlightIndicatorIndex].Under = true;
-            Indicators[HighlightIndicatorIndex].ForeColor = Color.Crimson;
-            Indicators[HighlightIndicatorIndex].OutlineAlpha = 60;
-            Indicators[HighlightIndicatorIndex].Alpha = 40;
-            Indicators[DebugIndicatorIndex].ForeColor = Color.Red;
-            Indicators[DebugIndicatorIndex].Style = IndicatorStyle.Squiggle;
-
-            // setup multi line selection
-            MultipleSelection = true;
-            MouseSelectionRectangularSwitch = true;
-            AdditionalSelectionTyping = true;
-            VirtualSpaceOptions = VirtualSpace.RectangularSelection;
-
+            // setup layout
             IndentWidth = 4;
             UseTabs = true;
-
-            // enable drag & drop
-            AllowDrop = true;
-            DragOver += new DragEventHandler(HandleDragOver);
-            DragDrop += new DragEventHandler(HandleDragDrop);
-
-            // search & replace
-            KeyUp += new KeyEventHandler(HandleKeyUp);
-            KeyDown += new KeyEventHandler(HandleKeyDown);
-            InsertCheck += new EventHandler<InsertCheckEventArgs>(HandleInsertCheck);
-            CharAdded += new EventHandler<CharAddedEventArgs>(HandleCharAdded);
-
-            // setup layout
             BorderStyle = BorderStyle.None;
             Dock = DockStyle.Fill;
             Font = new Font("Consolas", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -146,12 +137,7 @@ namespace App
             TabIndex = 0;
             TextChanged += new EventHandler(HandleTextChanged);
             UpdateUI += new EventHandler<UpdateUIEventArgs>(HandleUpdateUI);
-
-            // auto completion settings
-            AutoCSeparator = '|';
-            AutoCMaxHeight = 9;
-            MouseMove += new MouseEventHandler(HandleMouseMove);
-
+            
             // insert text
             Text = text != null ? text : "";
             UpdateLineNumbers();
