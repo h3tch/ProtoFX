@@ -96,13 +96,9 @@ namespace App
                 IndicatorRanges[i] = new List<int[]>();
             
             InitializeFindAndReplace();
-            
             InitializeHighlighting();
-            
             InitializeSelection();
-
             InitializeEvents();
-
             InitializeAutoC();
 
             // setup code folding

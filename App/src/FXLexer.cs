@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace App
 {
@@ -43,11 +42,10 @@ namespace App
             UnicodeCategory.ConnectorPunctuation,
         };
 
-        public int KeywordStylesStart => (int)Styles.Preprocessor + 1;
-        public int KeywordStylesEnd => KeywordStylesStart + keywords.Length;
-
         private HashSet<string>[] keywords;
         public Dictionary<string, KeyDef> Defs { get; private set; }
+        public int KeywordStylesStart => (int)Styles.Preprocessor + 1;
+        public int KeywordStylesEnd => KeywordStylesStart + keywords.Length;
         #endregion
 
         /// <summary>
@@ -56,15 +54,20 @@ namespace App
         /// <param name="keywordDef"></param>
         public FXLexer(string keywordDef, Dictionary<string, KeyDef> defs)
         {
-            keywords = new HashSet<string>[defs.Count];
-            Defs = defs;
+            Styles style;
 
-            foreach (var def in defs)
+            foreach (var def in (Defs = defs))
+                def.Value.Id = Enum.TryParse(def.Key, true, out style)
+                    ? (int)style : KeywordStylesStart + def.Value.Id;
+
+            keywords = new HashSet<string>[Defs.Select(x => x.Value.Id).Max() + 1];
+
+            foreach (var def in Defs)
             {
                 var indicator = $"{def.Value.Id}";
                 var words = from x in keywordDef.Matches(@"\[" + indicator + @"\]\w+")
                             select x.Value.Substring(indicator.Length + 2);
-                keywords[def.Value.Id] = new HashSet<string>(words.ToArray());
+                keywords[def.Value.Id] = new HashSet<string>(words);
             }
         }
 
@@ -305,9 +308,15 @@ namespace App
             return startPos;
         }
 
-        private bool IsMathSymbol(char c) => char.IsSymbol(c) || c == '*' || c == '-';
+        /// <summary>
+        /// Check if character is a math symbol.
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns>True if character is a math symbol.</returns>
+        private bool IsMathSymbol(char c) 
+            => char.IsSymbol(c) || c == '*' || c == '-' || c == '&' || c == '|';
         
-        public struct KeyDef
+        public class KeyDef
         {
             public int Id;
             public Color Color;
