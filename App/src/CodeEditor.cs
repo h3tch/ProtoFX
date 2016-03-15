@@ -81,7 +81,7 @@ namespace App
                 v => v.Substring(v.IndexOfOrLength('|')));
 
             // create lexer
-            lexer = new FXLexer(Properties.Resources.keywords, Defs);
+            FxLexer = new FXLexer(Properties.Resources.keywords, Defs);
         }
 
         /// <summary>

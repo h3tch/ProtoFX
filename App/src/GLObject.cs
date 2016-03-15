@@ -150,7 +150,7 @@ namespace App
                     // if this is an enum, convert the string to an enum value
                     ? Convert.ChangeType(Enum.Parse(fieldType, cmd[0].Text, true), fieldType)
                     // else try to convert it to the field type
-                    : Convert.ChangeType(cmd[0].Text, fieldType, App.culture);
+                    : Convert.ChangeType(cmd[0].Text, fieldType, App.Culture);
 
             // set value of the field
             field.GetType()

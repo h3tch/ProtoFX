@@ -17,19 +17,19 @@ namespace App
     class GLImage : GLObject
     {
         #region FIELDS
-        [Field] private string[] file = null;
-        [Field] public int width = 1;
-        [Field] public int height = 0;
-        [Field] public int depth = 0;
-        [Field] public int length = 0;
-        [Field] public int mipmaps = 0;
-        [Field] private TexTarget type = 0;
-        [Field] private GpuFormat format = GpuFormat.Rgba8;
+        [Field] private string[] File = null;
+        [Field] public int Width = 1;
+        [Field] public int Height = 0;
+        [Field] public int Depth = 0;
+        [Field] public int Length = 0;
+        [Field] public int Mipmaps = 0;
+        [Field] private TexTarget Type = 0;
+        [Field] private GpuFormat Format = GpuFormat.Rgba8;
         #endregion
 
         #region PROPERTIES
-        public TexTarget target { get { return type; } private set { type = value; } }
-        public GpuFormat gpuFormat { get { return format; } private set { format = value; } }
+        public TexTarget Target { get { return Type; } private set { Type = value; } }
+        public GpuFormat GpuFormat { get { return Format; } private set { Format = value; } }
         #endregion
 
         /// <summary>
@@ -45,15 +45,15 @@ namespace App
             this.glname = glname;
             GL.GetTextureParameter(glname, TexParameter.TextureTarget, out t);
             GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureInternalFormat, out f);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureWidth, out width);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureHeight, out height);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureDepth, out depth);
-            type = (TexTarget)t;
-            format = (GpuFormat)f;
-            if (type != TexTarget.Texture3D)
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureWidth, out Width);
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureHeight, out Height);
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureDepth, out Depth);
+            Type = (TexTarget)t;
+            Format = (GpuFormat)f;
+            if (Type != TexTarget.Texture3D)
             {
-                length = depth;
-                depth = 0;
+                Length = Depth;
+                Depth = 0;
             }
         }
 
@@ -74,18 +74,18 @@ namespace App
                 throw err;
 
             // if type was not specified
-            if (target == 0)
+            if (Target == 0)
             {
-                if (width > 0 && height == 1 && depth == 0 && length == 0)
-                    target = TexTarget.Texture1D;
-                else if (width > 0 && height == 1 && depth == 0 && length > 0)
-                    target = TexTarget.Texture1DArray;
-                else if (width > 0 && height > 1 && depth == 0 && length == 0)
-                    target = TexTarget.Texture2D;
-                else if (width > 0 && height > 1 && depth == 0 && length > 0)
-                    target = TexTarget.Texture2DArray;
-                else if (width > 0 && height > 1 && depth > 0 && length == 0)
-                    target = TexTarget.Texture3D;
+                if (Width > 0 && Height == 1 && Depth == 0 && Length == 0)
+                    Target = TexTarget.Texture1D;
+                else if (Width > 0 && Height == 1 && Depth == 0 && Length > 0)
+                    Target = TexTarget.Texture1DArray;
+                else if (Width > 0 && Height > 1 && Depth == 0 && Length == 0)
+                    Target = TexTarget.Texture2D;
+                else if (Width > 0 && Height > 1 && Depth == 0 && Length > 0)
+                    Target = TexTarget.Texture2DArray;
+                else if (Width > 0 && Height > 1 && Depth > 0 && Length == 0)
+                    Target = TexTarget.Texture3D;
                 else
                     err.Add("Texture type could not be derived from 'width', 'height', "
                         + "'depth' and 'length'. Please check these parameters or specify "
@@ -94,35 +94,35 @@ namespace App
 
             // LOAD IMAGE DATA
             string dir = Path.GetDirectoryName(block.File) + Path.DirectorySeparatorChar;
-            var data = LoadImageFiles(dir, file, ref width, ref height, ref depth, format);
+            var data = LoadImageFiles(dir, File, ref Width, ref Height, ref Depth, Format);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenTexture();
-            GL.BindTexture(target, glname);
-            GL.TexParameter(target, TexParamName.TextureMinFilter,
-                (int)(mipmaps > 0 ? TexMinFilter.NearestMipmapNearest : TexMinFilter.Nearest));
-            GL.TexParameter(target, TexParamName.TextureMagFilter,
-                (int)(mipmaps > 0 ? TexMinFilter.NearestMipmapNearest : TexMinFilter.Nearest));
-            GL.TexParameter(target, TexParamName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(target, TexParamName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(target, TexParamName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.BindTexture(Target, glname);
+            GL.TexParameter(Target, TexParamName.TextureMinFilter,
+                (int)(Mipmaps > 0 ? TexMinFilter.NearestMipmapNearest : TexMinFilter.Nearest));
+            GL.TexParameter(Target, TexParamName.TextureMagFilter,
+                (int)(Mipmaps > 0 ? TexMinFilter.NearestMipmapNearest : TexMinFilter.Nearest));
+            GL.TexParameter(Target, TexParamName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(Target, TexParamName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(Target, TexParamName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
             // ALLOCATE IMAGE MEMORY
             if (data != null)
             {
                 var dataPtr = Marshal.AllocHGlobal(data.Length);
                 Marshal.Copy(data, 0, dataPtr, data.Length);
-                TexImage(target, width, height, depth, length, PixelFormat.Bgra, PixelType.UnsignedByte, dataPtr);
+                TexImage(Target, Width, Height, Depth, Length, PixelFormat.Bgra, PixelType.UnsignedByte, dataPtr);
                 Marshal.FreeHGlobal(dataPtr);
             }
             else
-                TexImage(target, width, height, depth, length, mipmaps);
+                TexImage(Target, Width, Height, Depth, Length, Mipmaps);
 
             // GENERATE MIPMAPS
-            if (mipmaps > 0)
-                GL.GenerateMipmap((GenerateMipmapTarget)target);
+            if (Mipmaps > 0)
+                GL.GenerateMipmap((GenerateMipmapTarget)Target);
 
-            GL.BindTexture(target, 0);
+            GL.BindTexture(Target, 0);
             if (HasErrorOrGlError(err, block))
                 throw err;
         }
@@ -363,7 +363,7 @@ namespace App
         private void TexImage(TexTarget target, int width, int height, int depth, int length, int levels)
         {
             levels = levels <= 0 ? MaxMipmapLevels(width, height) : 1;
-            var colFormat = (SizedInternalFormat)gpuFormat;
+            var colFormat = (SizedInternalFormat)GpuFormat;
             switch (target)
             {
                 case TexTarget.Texture1D:
@@ -398,7 +398,7 @@ namespace App
         private void TexImage(TexTarget target, int width, int height, int depth, int length,
             PixelFormat format, PixelType type, IntPtr pixels)
         {
-            var colFormat = (GpuColorFormat)gpuFormat;
+            var colFormat = (GpuColorFormat)GpuFormat;
             switch (target)
             {
                 case TexTarget.Texture1D:

@@ -169,8 +169,8 @@ namespace App
             // computed before setting the glViewport)
             if (glfragout != null)
             {
-                fbWidth = glfragout.width;
-                fbHeight = glfragout.height;
+                fbWidth = glfragout.Width;
+                fbHeight = glfragout.Height;
                 glfragout.Bind();
             }
 
@@ -426,7 +426,7 @@ namespace App
                             ? classes.GetValueOrDefault<GLObject>(arg.Text)
                             : types[i].IsEnum
                                 ? Enum.Parse(types[i], arg.Text, true)
-                                : Convert.ChangeType(arg.Text, types[i], App.culture);
+                                : Convert.ChangeType(arg.Text, types[i], App.Culture);
                         if (values[i] != null)
                             break;
                     }
@@ -464,7 +464,7 @@ namespace App
                         Enum.Parse(param[i].ParameterType, cmd[i].Text, true),
                         param[i].ParameterType);
                 else
-                    inval[i] = Convert.ChangeType(cmd[i].Text, param[i].ParameterType, App.culture);
+                    inval[i] = Convert.ChangeType(cmd[i].Text, param[i].ParameterType, App.Culture);
             }
 
             glfunc.Add(new GLMethod(mtype, inval));

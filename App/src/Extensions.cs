@@ -245,7 +245,7 @@ namespace App
         {
             try
             {
-                return (TResult)Convert.ChangeType(str, typeof(TResult), App.culture);
+                return (TResult)Convert.ChangeType(str, typeof(TResult), App.Culture);
             }
             catch
             {
@@ -370,7 +370,7 @@ namespace App
                     ToStringArray(src, dst, format, tmpIdx, startDim + 1);
                 else
                     // write value to output
-                    dst.SetValue(string.Format(App.culture, format, src.GetValue(tmpIdx)), tmpIdx);
+                    dst.SetValue(string.Format(App.Culture, format, src.GetValue(tmpIdx)), tmpIdx);
             }
         }
         #endregion

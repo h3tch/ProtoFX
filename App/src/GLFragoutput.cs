@@ -6,8 +6,8 @@ namespace App
     class GLFragoutput : GLObject
     {
         #region PROPERTIES
-        [Field] public int width { get; protected set; }
-        [Field] public int height { get; protected set; }
+        [Field] public int Width { get; protected set; }
+        [Field] public int Height { get; protected set; }
         #endregion
 
         #region FIELDS
@@ -123,10 +123,10 @@ namespace App
             }
 
             // set width and height for GLPass to set the right viewport size
-            if (width == 0 && height == 0)
+            if (Width == 0 && Height == 0)
             {
-                width = glimg.width;
-                height = glimg.height;
+                Width = glimg.Width;
+                Height = glimg.Height;
             }
 
             // get additional optional parameters
@@ -144,24 +144,24 @@ namespace App
             }
 
             // attach texture to framebuffer
-            switch (glimg.target)
+            switch (glimg.Target)
             {
                 case TextureTarget.Texture2DArray:
                 case TextureTarget.Texture3D:
                     GL.FramebufferTexture3D(FramebufferTarget.Framebuffer,
-                        attachment, glimg.target, glimg.glname, mipmap, layer);
+                        attachment, glimg.Target, glimg.glname, mipmap, layer);
                     break;
                 case TextureTarget.Texture1DArray:
                 case TextureTarget.Texture2D:
                     GL.FramebufferTexture2D(FramebufferTarget.Framebuffer,
-                        attachment, glimg.target, glimg.glname, mipmap);
+                        attachment, glimg.Target, glimg.glname, mipmap);
                     break;
                 case TextureTarget.Texture1D:
                     GL.FramebufferTexture1D(FramebufferTarget.Framebuffer,
-                        attachment, glimg.target, glimg.glname, mipmap);
+                        attachment, glimg.Target, glimg.glname, mipmap);
                     break;
                 default:
-                    err.Add($"The texture type '{glimg.target}' of image " +
+                    err.Add($"The texture type '{glimg.Target}' of image " +
                         $"'{cmd[0].Text}' is not supported.", cmd);
                     break;
             }

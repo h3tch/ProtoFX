@@ -31,7 +31,7 @@ namespace App
 
             // get selected image
             var img = (GLImage)comboImg.SelectedItem;
-            numImgLayer.Maximum = Math.Max(Math.Max(img.length, img.depth) - 1, 0);
+            numImgLayer.Maximum = Math.Max(Math.Max(img.Length, img.Depth) - 1, 0);
 
             // read image data from GPU
             glControl.MakeCurrent();
@@ -153,18 +153,18 @@ namespace App
         {
             // if no item is selected and no code compiled, return
             var view = (DataGridView)sender;
-            if (view.SelectedRows.Count == 0 || compiledEditor == null)
+            if (view.SelectedRows.Count == 0 || CompiledEditor == null)
                 return;
 
             // get line from selected item
             int line;
             var text = view.SelectedRows[0].Cells[1].Value as string;
-            if (!int.TryParse(text, NumberStyles.Integer, culture, out line))
+            if (!int.TryParse(text, NumberStyles.Integer, Culture, out line))
                 return;
 
             // scroll to line
-            line = Math.Max(1, line - compiledEditor.LinesOnScreen / 2);
-            compiledEditor.LineScroll(line - compiledEditor.FirstVisibleLine - 1, 0);
+            line = Math.Max(1, line - CompiledEditor.LinesOnScreen / 2);
+            CompiledEditor.LineScroll(line - CompiledEditor.FirstVisibleLine - 1, 0);
         }
 
         /// <summary>
@@ -179,7 +179,7 @@ namespace App
             var refUri = new Uri(refDir);
             var fileUri = new Uri(filePath);
             var relPath = refUri.MakeRelativeUri(fileUri).ToString();
-            output.Rows.Add(new[] { relPath, line > 0 ? line.ToString(culture) : "", msg });
+            output.Rows.Add(new[] { relPath, line > 0 ? line.ToString(Culture) : "", msg });
         }
         #endregion
 
@@ -196,7 +196,7 @@ namespace App
 
             // handle selection changed event, but only
             // update debug information for the compiled editor
-            if (e.Change == UpdateChange.Selection && compiledEditor == editor)
+            if (e.Change == UpdateChange.Selection && CompiledEditor == editor)
                 UpdateDebugListView(editor);
         }
 
@@ -212,7 +212,7 @@ namespace App
             var editor = (CodeEditor)sender;
 
             // only update debug information for the compiled editor
-            if (compiledEditor != editor)
+            if (CompiledEditor != editor)
                 return;
 
             // convert cursor position to text position
@@ -286,7 +286,7 @@ namespace App
             {
                 // convert row of debug variable to string array
                 var row = from c in Enumerable.Range(0, cols)
-                          select string.Format(culture, "{0:0.000}", val.GetValue(r, c));
+                          select string.Format(Culture, "{0:0.000}", val.GetValue(r, c));
                 // add row to list view
                 var item = new ListViewItem(row.ToArray());
                 item.Group = dbgVarGroup;
@@ -305,8 +305,8 @@ namespace App
 
             // only use debugging if the selected editor
             // was used to generate the debug information
-            if (compiledEditor == GetSelectedEditor() && compiledEditor != null)
-                UpdateDebugListView(compiledEditor);
+            if (CompiledEditor == GetSelectedEditor() && CompiledEditor != null)
+                UpdateDebugListView(CompiledEditor);
         }
     }
 }

@@ -118,7 +118,7 @@ namespace App
             }
 
             // parse size
-            int size = buf.size;
+            int size = buf.Size;
             if (cmd.ArgCount > 2 && int.TryParse(cmd[2].Text, out size) == false)
             {
                 err.Add($"The third parameter (size) of buff {unit} is invalid.", cmd);

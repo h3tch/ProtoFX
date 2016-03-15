@@ -115,7 +115,7 @@ namespace App
         {
             if (glsamp != null)
                 GL.BindSampler(unit, glsamp.glname);
-            GLDebugger.BindTex(unit, glimg != null ? glimg.target : TextureTarget.TextureBuffer, glname);
+            GLDebugger.BindTex(unit, glimg != null ? glimg.Target : TextureTarget.TextureBuffer, glname);
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace App
         {
             if (glsamp != null)
                 GL.BindSampler(unit, 0);
-            GLDebugger.UnbindTex(unit, glimg != null ? glimg.target : TextureTarget.TextureBuffer);
+            GLDebugger.UnbindTex(unit, glimg != null ? glimg.Target : TextureTarget.TextureBuffer);
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace App
         /// <param name="access">How the texture will be accessed by the shader.</param>
         /// <param name="format">Pixel format of texture pixels.</param>
         public void BindImg(int unit, int level, int layer, TextureAccess access, GpuFormat format)
-            => GLDebugger.BindImg(unit, level, glimg?.length > 0, layer, access, format, glname);
+            => GLDebugger.BindImg(unit, level, glimg?.Length > 0, layer, access, format, glname);
 
         /// <summary>
         /// Unbind texture from compute-image unit.

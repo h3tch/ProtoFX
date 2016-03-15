@@ -61,7 +61,7 @@ namespace App
             // select keywords using the current text position
             // is the style at that position a valid hint style
             var style = GetStyleAt(pos);
-            if (lexer.KeywordStylesStart <= style && style <= lexer.KeywordStylesEnd)
+            if (FxLexer.KeywordStylesStart <= style && style <= FxLexer.KeywordStylesEnd)
             {
                 // is there a word at that position
                 var word = GetWordFromPosition(pos);
@@ -91,16 +91,16 @@ namespace App
         /// <param name="skip"></param>
         public void SelectString(int position, out string[] search, out int[] skip)
         {
-            var BLOCK = lexer.Defs["block"].Id;
-            var ANNO = lexer.Defs["annotation"].Id;
-            var CMD = lexer.Defs["command"].Id;
-            var ARG = lexer.Defs["argument"].Id;
-            var FUNC = lexer.Defs["function"].Id;
-            var TYPE = lexer.Defs["type"].Id;
-            var SPEC = lexer.Defs["specifications"].Id;
-            var QUAL = lexer.Defs["qualifier"].Id;
-            var VAR = lexer.Defs["variable"].Id;
-            var BRANCH = lexer.Defs["branching"].Id;
+            var BLOCK = FxLexer.Defs["block"].Id;
+            var ANNO = FxLexer.Defs["annotation"].Id;
+            var CMD = FxLexer.Defs["command"].Id;
+            var ARG = FxLexer.Defs["argument"].Id;
+            var FUNC = FxLexer.Defs["function"].Id;
+            var TYPE = FxLexer.Defs["type"].Id;
+            var SPEC = FxLexer.Defs["specifications"].Id;
+            var QUAL = FxLexer.Defs["qualifier"].Id;
+            var VAR = FxLexer.Defs["variable"].Id;
+            var BRANCH = FxLexer.Defs["branching"].Id;
 
             // get word and preceding word at caret position
             var word = GetWordFromPosition(position);

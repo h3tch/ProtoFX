@@ -9,9 +9,9 @@ namespace App
 {
     class Compiler
     {
-        public static Regex regexBlock;
-        public static Regex regexFunction;
-        public static Regex regexLayout;
+        public static Regex RegexBlock;
+        public static Regex RegexFunction;
+        public static Regex RegexLayout;
 
         // initialize static members
         static Compiler()
@@ -21,13 +21,13 @@ namespace App
             var blockHeader = @"(\w+[ \t]*){2,3}[\s\r\n]*";
             var functionHeader = @"(\w+[ \t]*){2}\([\s\w\d\r\n,\.]*\)[\s\r\n]*";
             var oc = "" + open + close;
-            regexBlock = new Regex(blockHeader +
+            RegexBlock = new Regex(blockHeader +
                 $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
                 $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
-            regexFunction = new Regex(functionHeader +
+            RegexFunction = new Regex(functionHeader +
                 $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
                 $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
-            regexLayout = new Regex(@"\w+[ \t]*\([\s\w\d\r\n,=]*\)");
+            RegexLayout = new Regex(@"\w+[ \t]*\([\s\w\d\r\n,=]*\)");
         }
 
         private static HashSet<string> incpath = new HashSet<string>();
@@ -155,7 +155,7 @@ namespace App
             private IEnumerable<Block> ProcessBlocks()
             {
                 // process found block strings
-                foreach (Match match in regexBlock.Matches(Text))
+                foreach (Match match in RegexBlock.Matches(Text))
                     yield return new Block(this, Text.LineFromPosition(match.Index), match.Value);
             }
 
@@ -434,7 +434,7 @@ namespace App
         /// [class type index, '{' index, '}' index]</returns>
         public static IEnumerable<Match> GetBlockPositions(this CodeEditor editor)
         {
-            foreach (Match match in Compiler.regexBlock.Matches(editor.Text))
+            foreach (Match match in Compiler.RegexBlock.Matches(editor.Text))
                 yield return match;
         }
 
@@ -447,7 +447,7 @@ namespace App
         /// <returns></returns>
         public static IEnumerable<Match> GetFunctionPositions(this CodeEditor editor, int start, int end)
         {
-            foreach (Match match in Compiler.regexFunction.Matches(editor.Text.Substring(0, end), start))
+            foreach (Match match in Compiler.RegexFunction.Matches(editor.Text.Substring(0, end), start))
                 yield return match;
         }
 
@@ -460,7 +460,7 @@ namespace App
         /// <returns></returns>
         public static IEnumerable<Match> GetLayoutPositions(this CodeEditor editor, int start, int end)
         {
-            foreach (Match match in Compiler.regexLayout.Matches(editor.Text.Substring(0, end), start))
+            foreach (Match match in Compiler.RegexLayout.Matches(editor.Text.Substring(0, end), start))
                 yield return match;
         }
     }

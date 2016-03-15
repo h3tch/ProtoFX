@@ -13,9 +13,9 @@ namespace App
     class GLCsharp : GLObject
     {
         #region FIELDS
-        [Field] private string version = null;
-        [Field] private string[] file = null;
-        private CompilerResults compilerresults;
+        [Field] private string Version = null;
+        [Field] private string[] File = null;
+        private CompilerResults CompilerResults;
         #endregion
 
         /// <summary>
@@ -35,11 +35,11 @@ namespace App
             // check for errors
             if (err.HasErrors())
                 throw err;
-            if (file == null || file.Length == 0)
+            if (File == null || File.Length == 0)
                 return;
 
             // replace placeholders with actual path
-            var path = (IEnumerable<string>)file;
+            var path = (IEnumerable<string>)File;
             var curDir = Directory.GetCurrentDirectory() + "/";
             var placeholders = new[] { new[] { "<csharp>", curDir + "../csharp" } };
             foreach (var placeholder in placeholders)
@@ -72,10 +72,10 @@ namespace App
                              .Select(a => a.Location).ToArray());
 
                 // select compiler version
-                CSharpCodeProvider provider = version != null ?
-                    new CSharpCodeProvider(new Dictionary<string, string> { { "CompilerVersion", version } }) :
+                CSharpCodeProvider provider = Version != null ?
+                    new CSharpCodeProvider(new Dictionary<string, string> { { "CompilerVersion", Version } }) :
                     new CSharpCodeProvider();
-                compilerresults = provider.CompileAssemblyFromFile(compilerParams, path.ToArray());
+                CompilerResults = provider.CompileAssemblyFromFile(compilerParams, path.ToArray());
             }
             catch (DirectoryNotFoundException ex)
             {
@@ -83,10 +83,10 @@ namespace App
             }
 
             // check for compiler errors
-            if (compilerresults.Errors.Count != 0)
+            if (CompilerResults.Errors.Count != 0)
             {
                 string msg = "";
-                foreach (var message in compilerresults.Errors)
+                foreach (var message in CompilerResults.Errors)
                     msg += "\n" + message;
                 throw err.Add(msg, block);
             }
@@ -153,9 +153,9 @@ namespace App
             
             // create main class from compiled files
             var classname = cmd[1].Text;
-            var instance = compilerresults.CompiledAssembly.CreateInstance(
+            var instance = CompilerResults.CompiledAssembly.CreateInstance(
                 classname, false, BindingFlags.Default, null,
-                new object[] { block.Name, ToDict(block) }, App.culture, null);
+                new object[] { block.Name, ToDict(block) }, App.Culture, null);
 
             if (instance == null)
                 throw err.Add($"Main class '{classname}' could not be found.", cmd);

@@ -57,7 +57,7 @@ namespace App
                         var raw = Regex.Matches(node.InnerText, "(\\+|\\-)?[0-9\\.\\,]+");
                         values = Array.CreateInstance(type, raw.Count);
                         for (var j = 0; j < values.Length; j++)
-                            values.SetValue(Convert.ChangeType(raw[j].Value, type, App.culture), j);
+                            values.SetValue(Convert.ChangeType(raw[j].Value, type, App.Culture), j);
                     }
 
                     // convert to byte array

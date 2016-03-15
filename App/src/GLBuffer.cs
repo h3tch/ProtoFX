@@ -11,8 +11,8 @@ namespace App
     class GLBuffer : GLObject
     {
         #region FIELDS
-        [Field] public int size { get; private set; } = 0;
-        [Field] public BufferUsageHint usage { get; private set; } = BufferUsageHint.StaticDraw;
+        [Field] public int Size { get; private set; } = 0;
+        [Field] public BufferUsageHint Usage { get; private set; } = BufferUsageHint.StaticDraw;
         #endregion
 
         /// <summary>
@@ -28,8 +28,8 @@ namespace App
         {
             var err = new CompileException($"buffer '{name}'");
 
-            this.size = size;
-            this.usage = usage;
+            this.Size = size;
+            this.Usage = usage;
 
             // CREATE OPENGL OBJECT
             CreateBuffer(data);
@@ -50,8 +50,8 @@ namespace App
             this.glname = glname;
             GL.GetNamedBufferParameter(glname, BufferParameterName.BufferSize, out s);
             GL.GetNamedBufferParameter(glname, BufferParameterName.BufferUsage, out u);
-            size = s;
-            usage = (BufferUsageHint)u;
+            Size = s;
+            Usage = (BufferUsageHint)u;
         }
 
         /// <summary>
@@ -79,9 +79,9 @@ namespace App
 
             // merge data into a single array
             var iter = datalist.Cat();
-            var data = iter.Take(size == 0 ? iter.Count() : size).ToArray();
-            if (size == 0)
-                size = data.Length;
+            var data = iter.Take(Size == 0 ? iter.Count() : Size).ToArray();
+            if (Size == 0)
+                Size = data.Length;
 
             // CREATE OPENGL OBJECT
             CreateBuffer(data);
@@ -108,7 +108,7 @@ namespace App
         public void Read(ref byte[] data, int offset = 0)
         {
             // check buffer size
-            if (size == 0)
+            if (Size == 0)
             {
                 var rs = "Buffer is empty".ToCharArray().ToBytes();
                 if (data == null) data = rs; else rs.CopyTo(data, 0);
@@ -127,11 +127,11 @@ namespace App
 
             // if necessary allocate bytes
             if (data == null)
-                data = new byte[size];
+                data = new byte[Size];
 
             // map buffer and copy data to CPU memory
             IntPtr dataPtr = GL.MapNamedBuffer(glname, BufferAccess.ReadOnly);
-            Marshal.Copy(dataPtr, data, offset, Math.Min(size, data.Length));
+            Marshal.Copy(dataPtr, data, offset, Math.Min(Size, data.Length));
             GL.UnmapNamedBuffer(glname);
         }
 
@@ -162,18 +162,18 @@ namespace App
             GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
 
             // ALLOCATE (AND WRITE) GPU MEMORY
-            if (size > 0)
+            if (Size > 0)
             {
                 if (data != null && data.Length > 0)
                 {
-                    size = data.Length;
-                    var dataPtr = Marshal.AllocHGlobal(size);
-                    Marshal.Copy(data, 0, dataPtr, size);
-                    GL.NamedBufferData(glname, size, dataPtr, usage);
+                    Size = data.Length;
+                    var dataPtr = Marshal.AllocHGlobal(Size);
+                    Marshal.Copy(data, 0, dataPtr, Size);
+                    GL.NamedBufferData(glname, Size, dataPtr, Usage);
                     Marshal.FreeHGlobal(dataPtr);
                 }
                 else
-                    GL.NamedBufferData(glname, size, IntPtr.Zero, usage);
+                    GL.NamedBufferData(glname, Size, IntPtr.Zero, Usage);
             }
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);

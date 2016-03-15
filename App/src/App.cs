@@ -12,8 +12,8 @@ namespace App
 {
     public partial class App : Form
     {
-        public static CultureInfo culture = new CultureInfo("en");
-        public CodeEditor compiledEditor = null;
+        public static CultureInfo Culture = new CultureInfo("en");
+        public CodeEditor CompiledEditor = null;
 
         public App()
         {
@@ -52,7 +52,7 @@ namespace App
 
             // link property viewer to debug settings
             GLDebugger.Instantiate();
-            debugProperty.SelectedObject = GLDebugger.settings;
+            debugProperty.SelectedObject = GLDebugger.Settings;
             debugProperty.CollapseAllGridItems();
         }
 
@@ -158,8 +158,8 @@ namespace App
             // the fragment debug position to that pixel
             if (toolBtnPick.Checked)
             {
-                GLDebugger.settings.fs_FragCoord[0] = e.X;
-                GLDebugger.settings.fs_FragCoord[1] = glControl.Height - e.Y;
+                GLDebugger.Settings.fs_FragCoord[0] = e.X;
+                GLDebugger.Settings.fs_FragCoord[1] = glControl.Height - e.Y;
                 debugProperty.Refresh();
                 toolBtnPick.Checked = false;
                 glControl.Cursor = Cursors.Default;
@@ -224,7 +224,7 @@ namespace App
             var sourceTab = (TabPage)tabSource.SelectedTab;
             if (sourceTab == null)
                 return;
-            compiledEditor = (CodeEditor)sourceTab.Controls[0];
+            CompiledEditor = (CodeEditor)sourceTab.Controls[0];
             
             // save code
             toolBtnSave_Click(sender, null);
@@ -258,11 +258,11 @@ namespace App
 
             // underline all debug errors
             var ranges = line.Select(x => new[] {
-                compiledEditor.Lines[x].Position,
-                compiledEditor.Lines[x].EndPosition
+                CompiledEditor.Lines[x].Position,
+                CompiledEditor.Lines[x].EndPosition
             });
-            compiledEditor.ClearIndicators(CodeEditor.DebugIndicatorIndex);
-            compiledEditor.AddIndicators(CodeEditor.DebugIndicatorIndex, ranges);
+            CompiledEditor.ClearIndicators(CodeEditor.DebugIndicatorIndex);
+            CompiledEditor.AddIndicators(CodeEditor.DebugIndicatorIndex, ranges);
 
             // SHOW SCENE
             glControl.Render();
@@ -299,7 +299,7 @@ namespace App
 
             // UPDATE DEBUG INFORMATION IF NECESSARY
             if (debugging)
-                UpdateDebugListView(compiledEditor);
+                UpdateDebugListView(CompiledEditor);
         }
 
         /// <summary>

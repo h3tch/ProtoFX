@@ -13,10 +13,10 @@ namespace App
     class GLDebugger
     {
         #region FIELDS
-        public static string regexDbgVar = $@"{DEBUG_INDICATOR_OPEN}[\s\w\d_\.\[\]]*{DEBUG_INDICATOR_CLOSE}";
+        public static string RegexDbgVar = $@"{DEBUG_INDICATOR_OPEN}[\s\w\d_\.\[\]]*{DEBUG_INDICATOR_CLOSE}";
         // debug resources definitions
-        private static string dbgBufKey;
-        private static string dbgTexKey;
+        private static string DbgBufKey;
+        private static string DbgTexKey;
         // allocate GPU resources
         private static GLBuffer buf;
         private static GLTexture tex;
@@ -24,7 +24,7 @@ namespace App
         private static int[] texUnits;
         private static int[] imgUnits;
         private static Dictionary<int, Uniforms> passes;
-        public static DebugSettings settings;
+        public static DebugSettings Settings;
         // watch count for indexing
         private const int stage_size = 128;
         private static int dbgVarCount;
@@ -37,13 +37,13 @@ namespace App
         public static void Instantiate()
         {
             // debug resources definitions
-            dbgBufKey = "__dbgbuf__";
-            dbgTexKey = "__dbgtex__";
+            DbgBufKey = "__dbgbuf__";
+            DbgTexKey = "__dbgtex__";
             // allocate arrays for texture and image units
             texUnits = new int[GL.GetInteger((GetPName)All.MaxTextureImageUnits)];
             imgUnits = new int[GL.GetInteger((GetPName)All.MaxImageUnits)];
             passes = new Dictionary<int, Uniforms>();
-            settings = new DebugSettings();
+            Settings = new DebugSettings();
         }
         
         /// <summary>
@@ -54,12 +54,12 @@ namespace App
         public static void Initilize(Dict scene)
         {
             // allocate GPU resources
-            buf = new GLBuffer(dbgBufKey, "dbg", BufferUsageHint.DynamicRead, stage_size * 6 * 16);
-            tex = new GLTexture(dbgTexKey, "dbg", GpuFormat.Rgba32f, null, buf, null);
+            buf = new GLBuffer(DbgBufKey, "dbg", BufferUsageHint.DynamicRead, stage_size * 6 * 16);
+            tex = new GLTexture(DbgTexKey, "dbg", GpuFormat.Rgba32f, null, buf, null);
 
 #if DEBUG   // add to scene for debug inspection
-            scene.Add(dbgBufKey, buf);
-            scene.Add(dbgTexKey, tex);
+            scene.Add(DbgBufKey, buf);
+            scene.Add(DbgTexKey, tex);
 #endif
             passes.Clear();
             // reset watch count for indexing in debug mode
@@ -78,7 +78,7 @@ namespace App
             if (!passes.TryGetValue(pass.glname, out unif))
                 passes.Add(pass.glname, unif = new Uniforms(pass));
             // set shader debug uniforms
-            unif.Bind(settings, frame);
+            unif.Bind(Settings, frame);
         }
 
         /// <summary>
@@ -221,7 +221,7 @@ namespace App
         public static DbgVar GetDebugVariableFromPosition(CodeEditor editor, int position)
         {
             // find all debug variables
-            var vars = Regex.Matches(editor.Text, regexDbgVar);
+            var vars = Regex.Matches(editor.Text, RegexDbgVar);
 
             for (int i = 0; i < vars.Count; i++)
             {
@@ -247,7 +247,7 @@ namespace App
         public static IEnumerable<DbgVar> GetDebugVariablesFromLine(CodeEditor editor, int line)
         {
             // find all debug variables
-            var vars = Regex.Matches(editor.Text, regexDbgVar);
+            var vars = Regex.Matches(editor.Text, RegexDbgVar);
 
             for (int i = 0; i < vars.Count; i++)
             {
@@ -349,7 +349,7 @@ namespace App
             var body = glsl.Substring(main.Index).BraceMatch('{', '}');
 
             // replace WATCH functions
-            var watch = Regex.Matches(body.Value, regexDbgVar);
+            var watch = Regex.Matches(body.Value, RegexDbgVar);
             if (watch.Count == 0)
                 return glsl;
 

@@ -6,7 +6,7 @@ namespace App
 {
     partial class CodeEditor
     {
-        private static FXLexer lexer;
+        private static FXLexer FxLexer;
 
         /// <summary>
         /// Initialize code highlighting.
@@ -21,7 +21,7 @@ namespace App
             Styles[Style.LineNumber].ForeColor = Color.Gray;
 
             // set styles as defined in the keyword file
-            foreach (var def in lexer.Defs)
+            foreach (var def in FxLexer.Defs)
                 if (def.Value != null)
                     Styles[def.Value.Id].ForeColor = def.Value.Color;
 
@@ -39,7 +39,7 @@ namespace App
         {
             // get start and end position of the region that needs to be styled
             var start = Lines[LineFromPosition(GetEndStyled())].Position;
-            lexer.Style(this, start, ev.Position);
+            FxLexer.Style(this, start, ev.Position);
         }
     }
 }
