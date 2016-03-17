@@ -56,12 +56,15 @@ namespace App
         {
             Styles style;
 
+            // adapt style IDs
             foreach (var def in (Defs = defs))
                 def.Value.Id = Enum.TryParse(def.Key, true, out style)
                     ? (int)style : KeywordStylesStart + def.Value.Id;
 
+            // allocate hashsets for keywords
             keywords = new HashSet<string>[Defs.Select(x => x.Value.Id).Max() + 1];
 
+            // search for keywords and fill hashsets
             foreach (var def in Defs)
             {
                 var indicator = $"{def.Value.Id}";

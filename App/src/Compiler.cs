@@ -12,8 +12,8 @@ namespace App
         public static Regex RegexBlock;
         public static Regex RegexFunction;
         public static Regex RegexLayout;
-
-        // initialize static members
+        private static HashSet<string> incpath = new HashSet<string>();
+        
         static Compiler()
         {
             var open = "{";
@@ -29,9 +29,7 @@ namespace App
                 $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
             RegexLayout = new Regex(@"\w+[ \t]*\([\s\w\d\r\n,=]*\)");
         }
-
-        private static HashSet<string> incpath = new HashSet<string>();
-
+        
         /// <summary>
         /// Compile file.
         /// </summary>

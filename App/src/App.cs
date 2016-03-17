@@ -221,7 +221,7 @@ namespace App
         private void toolBtnRunDebug_Click(object sender, EventArgs ev)
         {
             // if no tab page is selected nothing needs to be compiled
-            var sourceTab = (TabPage)tabSource.SelectedTab;
+            var sourceTab = (TabPageEx)tabSource.SelectedTab;
             if (sourceTab == null)
                 return;
             CompiledEditor = (CodeEditor)sourceTab.Controls[0];
@@ -311,7 +311,7 @@ namespace App
         {
             if (tabSource.SelectedTab == null)
                 return;
-            TabPage tab = (TabPage)tabSource.SelectedTab;
+            var tab = (TabPageEx)tabSource.SelectedTab;
             if (!tab.Text.EndsWith("*"))
                 return;
             SaveTabPage(tab, false);
@@ -325,7 +325,7 @@ namespace App
         /// <param name="e"></param>
         private void toolBtnSaveAll_Click(object sender, EventArgs e)
         {
-            foreach (TabPage tab in tabSource.TabPages)
+            foreach (TabPageEx tab in tabSource.TabPages)
             {
                 if (!tab.Text.EndsWith("*"))
                     continue;
@@ -340,7 +340,7 @@ namespace App
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void toolBtnSaveAs_Click(object sender, EventArgs e)
-            => SaveTabPage((TabPage)tabSource.SelectedTab, true);
+            => SaveTabPage((TabPageEx)tabSource.SelectedTab, true);
 
         /// <summary>
         /// Close the currently active tab, but open the save dialog if there have been changes.
@@ -351,7 +351,7 @@ namespace App
         {
             if (tabSource.SelectedIndex < 0 || tabSource.SelectedIndex >= tabSource.TabPages.Count)
                 return;
-            TabPage tabSourcePage = (TabPage)tabSource.SelectedTab;
+            var tabSourcePage = (TabPageEx)tabSource.SelectedTab;
             if (tabSourcePage.Text.EndsWith("*"))
             {
                 DialogResult answer = MessageBox.Show(
@@ -383,7 +383,7 @@ namespace App
         /// </summary>
         /// <param name="tabPage"></param>
         /// <param name="newfile"></param>
-        private void SaveTabPage(TabPage tabPage, bool newfile)
+        private void SaveTabPage(TabPageEx tabPage, bool newfile)
         {
             var editor = (CodeEditor)tabPage.Controls[0];
 
