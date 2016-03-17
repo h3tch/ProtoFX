@@ -91,16 +91,16 @@ namespace App
         /// <param name="skip"></param>
         public void SelectString(int position, out string[] search, out int[] skip)
         {
-            var BLOCK = FxLexer.Defs["block"].Id;
-            var ANNO = FxLexer.Defs["annotation"].Id;
-            var CMD = FxLexer.Defs["command"].Id;
-            var ARG = FxLexer.Defs["argument"].Id;
-            var FUNC = FxLexer.Defs["function"].Id;
-            var TYPE = FxLexer.Defs["type"].Id;
-            var SPEC = FxLexer.Defs["specifications"].Id;
-            var QUAL = FxLexer.Defs["qualifier"].Id;
-            var VAR = FxLexer.Defs["variable"].Id;
-            var BRANCH = FxLexer.Defs["branching"].Id;
+            var BLOCK = FxLexer.Defs["block"].Prefix;
+            var ANNO = FxLexer.Defs["annotation"].Prefix;
+            var CMD = FxLexer.Defs["command"].Prefix;
+            var ARG = FxLexer.Defs["argument"].Prefix;
+            var FUNC = FxLexer.Defs["function"].Prefix;
+            var TYPE = FxLexer.Defs["type"].Prefix;
+            var SPEC = FxLexer.Defs["specifications"].Prefix;
+            var QUAL = FxLexer.Defs["qualifier"].Prefix;
+            var VAR = FxLexer.Defs["variable"].Prefix;
+            var BRANCH = FxLexer.Defs["branching"].Prefix;
 
             // get word and preceding word at caret position
             var word = GetWordFromPosition(position);

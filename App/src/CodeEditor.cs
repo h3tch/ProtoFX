@@ -54,7 +54,7 @@ namespace App
             {
                 int id = int.Parse(def[1]);
                 Color color = ColorTranslator.FromHtml(def[3]);
-                Defs.Add(def[2], new FXLexer.KeyDef { Id = id, Color = color });
+                Defs.Add(def[2], new FXLexer.KeyDef { Id = id, Prefix = $"{id}", Color = color });
             }
 
             // get keyword IDs

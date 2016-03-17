@@ -322,6 +322,7 @@ namespace App
         public class KeyDef
         {
             public int Id;
+            public string Prefix;
             public Color Color;
         }
     }
