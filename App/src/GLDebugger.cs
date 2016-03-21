@@ -10,7 +10,7 @@ using static App.Properties.Resources;
 
 namespace App
 {
-    class GLDebugger
+    class FxDebugger
     {
         #region FIELDS
         public static string RegexDbgVar = $@"{DEBUG_INDICATOR_OPEN}[\s\w\d_\.\[\]]*{DEBUG_INDICATOR_CLOSE}";
@@ -27,6 +27,8 @@ namespace App
         public static DebugSettings Settings;
         // watch count for indexing
         private const int stage_size = 128;
+        private static int OPEN_INDIC_LEN = DEBUG_INDICATOR_OPEN.Length;
+        private static int CLOSE_INDIC_LEN = DEBUG_INDICATOR_CLOSE.Length;
         private static int dbgVarCount;
         #endregion
 
@@ -231,7 +233,8 @@ namespace App
                     return new DbgVar
                     {
                         ID = i,
-                        Name = vars[i].Value.Substring(3, vars[i].Value.Length - 6)
+                        Name = vars[i].Value.Substring(OPEN_INDIC_LEN,
+                        vars[i].Value.Length - OPEN_INDIC_LEN - CLOSE_INDIC_LEN)
                     };
             }
             return default(DbgVar);
@@ -256,7 +259,8 @@ namespace App
                     yield return new DbgVar
                     {
                         ID = i,
-                        Name = vars[i].Value.Substring(3, vars[i].Value.Length - 6)
+                        Name = vars[i].Value.Substring(OPEN_INDIC_LEN,
+                            vars[i].Value.Length - OPEN_INDIC_LEN - CLOSE_INDIC_LEN)
                     };
             }
         }

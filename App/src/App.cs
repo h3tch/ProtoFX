@@ -51,8 +51,8 @@ namespace App
             splitDebug.SplitterDistance = (int)(0.55 * splitDebug.Width);
 
             // link property viewer to debug settings
-            GLDebugger.Instantiate();
-            debugProperty.SelectedObject = GLDebugger.Settings;
+            FxDebugger.Instantiate();
+            debugProperty.SelectedObject = FxDebugger.Settings;
             debugProperty.CollapseAllGridItems();
         }
 
@@ -158,8 +158,8 @@ namespace App
             // the fragment debug position to that pixel
             if (toolBtnPick.Checked)
             {
-                GLDebugger.Settings.fs_FragCoord[0] = e.X;
-                GLDebugger.Settings.fs_FragCoord[1] = glControl.Height - e.Y;
+                FxDebugger.Settings.fs_FragCoord[0] = e.X;
+                FxDebugger.Settings.fs_FragCoord[1] = glControl.Height - e.Y;
                 debugProperty.Refresh();
                 toolBtnPick.Checked = false;
                 glControl.Cursor = Cursors.Default;

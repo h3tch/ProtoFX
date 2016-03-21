@@ -6,8 +6,8 @@ namespace App
     class GLFragoutput : GLObject
     {
         #region PROPERTIES
-        [Field] public int Width { get; protected set; }
-        [Field] public int Height { get; protected set; }
+        [FxField] public int Width { get; protected set; }
+        [FxField] public int Height { get; protected set; }
         #endregion
 
         #region FIELDS

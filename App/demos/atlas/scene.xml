@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <data>
-  <drawcalls type='uint' isbinary='false'>
+  <drawcall type='uint' isbinary='false'>
     <!--
         uint  indexCount;
         uint  instanceCount;
@@ -11,22 +11,26 @@
     -->
     <!-- CUBE -->
     36 1 0 0 0 0 0 0
-  </drawcalls>
+  </drawcall>
   <camera>
-    <transform>
+    <transform type='float' isbinary='false'>
       <!-- CAMERA 0 -->
-      1 0 0 0
-      0 1 0 0
-      0 0 1 0
-      0 0 0 1
+      2.448 0.000 0.656 5.681
+      0.153 1.628 -0.572 -0.022
+      0.244 -0.343 -0.909 11.484
+      0.243 -0.342 -0.908 11.661
     </transform>
+    <viewport type='float' isbinary='false'>
+      <!-- CAMERA 0 -->
+      0.15 0.25 0.7 0.5
+    </viewport>
   </camera>
   <object>
     <transform type='float' isbinary='false'>
       <!-- CUBE -->
       1 0 0 0
-      0 1 0 0
-      0 0 1 0
+      0 1 0 -6
+      0 0 1 2
     </transform>
     <cameraid type='int' isbinary='false'>
       <!-- CUBE -->

@@ -150,8 +150,11 @@ namespace App
         public static IEnumerable<T> Cat<T>(this IEnumerable<IEnumerable<T>> id)
         {
             foreach (var el in id)
-                foreach (var e in el)
-                    yield return e;
+            {
+                if (el != null)
+                    foreach (var e in el)
+                        yield return e;
+            }
         }
         
         /// <summary>

@@ -422,7 +422,7 @@
  or equal to the parameter
    genType  floor(genType  x)
    genDType floor(genDType x)
-[0]shader[4]fma|perform a fused multiply-add operation
+[0]shader[4]fma|perform a fused multiply-add operation (a * b + c)
    genType  fma(genType  a, genType  b, genType  c)
    genDType fma(genDType a, genDType b, genDType c)
 [0]shader[9]for

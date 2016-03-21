@@ -6,7 +6,7 @@ namespace App
 {
     class GLInstance : GLObject
     {
-        public object instance = null;
+        public object Instance = null;
         private MethodInfo update = null;
         private MethodInfo endpass = null;
         private MethodInfo delete = null;
@@ -21,32 +21,32 @@ namespace App
             var err = new CompileException($"instance '{name}'");
             
             // INSTANTIATE CSHARP CLASS FROM CODE BLOCK
-            instance = GLCsharp.CreateInstance(block, scene, err);
+            Instance = GLCsharp.CreateInstance(block, scene, err);
             if (err.HasErrors())
                 throw err;
 
             // get Bind method from main class instance
-            update = instance.GetType().GetMethod("Update", new[] {
+            update = Instance.GetType().GetMethod("Update", new[] {
                 typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)
             });
 
             // get Unbind method from main class instance
-            endpass = instance.GetType().GetMethod("EndPass", new[] { typeof(int) });
+            endpass = Instance.GetType().GetMethod("EndPass", new[] { typeof(int) });
 
             // get Delete method from main class instance
-            delete = instance.GetType().GetMethod("Delete");
+            delete = Instance.GetType().GetMethod("Delete");
 
             // get all public methods and check whether
             // they can be used as event handlers for glControl
             GLReference reference = scene.GetValueOrDefault<GLReference>(GraphicControl.nullname);
             GraphicControl glControl = (GraphicControl)reference.reference;
-            var methods = instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
+            var methods = Instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
             foreach (var method in methods)
             {
                 var info = glControl.GetType().GetEvent(method.Name);
                 if (info != null)
                 {
-                    var csmethod = Delegate.CreateDelegate(info.EventHandlerType, instance, method.Name);
+                    var csmethod = Delegate.CreateDelegate(info.EventHandlerType, Instance, method.Name);
                     info.AddEventHandler(glControl, csmethod);
                 }
             }
@@ -61,18 +61,18 @@ namespace App
         /// <param name="widthTex">Width of the render target.</param>
         /// <param name="heightTex">Height of the render target.</param>
         public void Update(int program, int width, int height, int widthTex, int heightTex)
-            => update?.Invoke(instance, new object[] { program, width, height, widthTex, heightTex });
+            => update?.Invoke(Instance, new object[] { program, width, height, widthTex, heightTex });
 
         /// <summary>
         /// Call end-pass method of the external class instance.
         /// </summary>
         /// <param name="program">Program/pass calling the method.</param>
         public void EndPass(int program)
-            => endpass?.Invoke(instance, new object[] { program });
+            => endpass?.Invoke(Instance, new object[] { program });
 
         /// <summary>
         /// Standard object destructor for ProtoFX.
         /// </summary>
-        public override void Delete() => delete?.Invoke(instance, null);
+        public override void Delete() => delete?.Invoke(Instance, null);
     }
 }

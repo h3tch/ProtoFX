@@ -64,8 +64,8 @@ shader vert vs_simple {
 	
 	void main ()
 	{
-		<<<gl_Position>>> = <<<camera.viewProj>>> * <<<in_pos>>>;
-		vs_col = <<<in_col>>>;
+		<<gl_Position>> = <<camera.viewProj>> * <<in_pos>>;
+		vs_col = <<in_col>>;
 	}
 }
 
@@ -82,7 +82,7 @@ shader frag fs_simple {
 	
 	void main ()
 	{
-		color = <<<gs_col>>>;
+		color = <<gs_col>>;
 	}
 }
 

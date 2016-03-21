@@ -17,14 +17,14 @@ namespace App
     class GLImage : GLObject
     {
         #region FIELDS
-        [Field] private string[] File = null;
-        [Field] public int Width = 1;
-        [Field] public int Height = 0;
-        [Field] public int Depth = 0;
-        [Field] public int Length = 0;
-        [Field] public int Mipmaps = 0;
-        [Field] private TexTarget Type = 0;
-        [Field] private GpuFormat Format = GpuFormat.Rgba8;
+        [FxField] private string[] File = null;
+        [FxField] public int Width = 1;
+        [FxField] public int Height = 0;
+        [FxField] public int Depth = 0;
+        [FxField] public int Length = 0;
+        [FxField] public int Mipmaps = 0;
+        [FxField] private TexTarget Type = 0;
+        [FxField] private GpuFormat Format = GpuFormat.Rgba8;
         #endregion
 
         #region PROPERTIES

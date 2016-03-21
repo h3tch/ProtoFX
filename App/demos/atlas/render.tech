@@ -8,7 +8,7 @@
 
 buffer draw_calls {
 	usage staticDraw
-	xml "scene.xml" data/drawcalls
+	xml "scene.xml" data/drawcall
 }
 
 // CAMERA INFORMATION
@@ -68,15 +68,17 @@ vertinput vertex_input {
 	attr object_transform float 4 48 0 1
 	attr object_transform float 4 48 16 1
 	attr object_transform float 4 48 32 1
-	attr object_cameraid float 4 16 0 1
+	attr object_cameraid int 4 16 0 1
 }
 
 texture camera_transform_texture {
 	buff camera_transform
+	format RGBA32f
 }
 
 texture camera_viewport_texture {
 	buff camera_viewport
+	format RGBA32f
 }
 
 /////////////
@@ -88,23 +90,23 @@ texture camera_viewport_texture {
 shader vert vs_simple {
 	#version 450
 	
-	layout(binding = 0) uniform sampler1D camTransform;
-	layout(binding = 1) uniform sampler1D camViewport;
+	layout(binding = 0) uniform samplerBuffer camTransform;
+	layout(binding = 1) uniform samplerBuffer camViewport;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 position;
 	layout(location = 1) in vec4 normal;
-	layout(location = 3) in vec4 color;
-	layout(location = 4) in vec4 axisx;
-	layout(location = 5) in vec4 axisy;
-	layout(location = 6) in vec4 axisz;
-	layout(location = 7) in ivec4 camera;
+	layout(location = 2) in vec4 color;
+	layout(location = 3) in vec4 axisx;
+	layout(location = 4) in vec4 axisy;
+	layout(location = 5) in vec4 axisz;
+	layout(location = 6) in ivec4 camera;
 
 	// vertex shader output
 	layout(location = 0) out vec4 col;
 	layout(location = 1) out vec4 nor;
 	layout(location = 2) out vec4 pos[4];
-	layout(location = 3) out vec4 vp[4];
+	layout(location = 6) out vec4 vp[4];
 	
 	void main ()
 	{
@@ -119,10 +121,10 @@ shader vert vs_simple {
 		{
 			int ptr = 4 * camera[count];
 			viewProj[count] = mat4(
-				texelFetchOffset(camTransform, ptr, 0, 0),
-				texelFetchOffset(camTransform, ptr, 0, 1),
-				texelFetchOffset(camTransform, ptr, 0, 2),
-				texelFetchOffset(camTransform, ptr, 0, 3));
+				texelFetch(camTransform, ptr + 0),
+				texelFetch(camTransform, ptr + 1),
+				texelFetch(camTransform, ptr + 2),
+				texelFetch(camTransform, ptr + 3));
 			vp[count] = texelFetch(camViewport, ptr);
 		}
 		
@@ -130,15 +132,12 @@ shader vert vs_simple {
 		col = color;
 		nor = normal;
 		for (int i = count; i < 4; i++)
-		{
-			pos[i] = vec4(0);
-			vp[i] = vec4(0);
-		}
+			pos[i] = vp[i] = vec4(0);
 		
 		// compute model view projection position
-		vec4 word = model * position;
+		vec4 world = position * model;
 		for (int i = 0; i < count; i++)
-			pos[i] = viewProj[i] * word;
+			pos[i] = world * viewProj[i];
 	}
 }
 
@@ -146,39 +145,38 @@ shader geom gs_simple {
 	#version 450
 	
 	layout(triangles) in;
-	in IN
-	{
-		layout(location = 0) in vec4 color;
-		layout(location = 1) in vec4 normal;
-		layout(location = 2) in vec4 position[4];
-		layout(location = 3) in vec4 viewport[4];
-	} In[];
+	layout(location = 0) in vec4 color[];
+	layout(location = 1) in vec4 normal[];
+	layout(location = 2) in vec4 position[][4];
+	layout(location = 6) in vec4 viewport[][4];
 	
 	layout(triangle_strip, max_vertices = 12) out;
-	layout(location = 0) out vec4 color;
-	layout(location = 1) out vec4 normal;
-	
-	out gl_PerVertex {
-		float gl_CullDistance[4];
-	};
+	layout(location = 0) out vec4 col;
+	layout(location = 1) out vec4 nor;
 	
 	void main ()
 	{
-		for (int c = 0; c < 4 && In[0].position[c].w != 0; c++)
+		for (int c = 0; c < 4 && position[0][c].w != 0; c++)
 		{
 			for (int v = 0; v < gl_in.length(); v++)
 			{
-				gl_Position = In[v].position[c];
-				normal = In[v].normal;
-				color = In[v].color;
+				vec4 <<pos>> = position[v][c];
+				vec4 <<vp>> = viewport[v][c];
 				
-				// viewport culling
-				vec4 vp = gl_Position.xyxy / gl_Position.w * 0.5 + 0.5;
-				vp = (vp - In[v].viewport[c]) * vec4(1,1,-1,-1);
-				gl_CullDistance[0] = vp.x;
-				gl_CullDistance[1] = vp.y;
-				gl_CullDistance[2] = vp.z;
-				gl_CullDistance[3] = vp.w;
+				gl_ClipDistance[0] = pos.w - pos.x;
+				gl_ClipDistance[1] = pos.x + pos.w;
+				gl_ClipDistance[2] = pos.w - pos.y;
+				gl_ClipDistance[3] = pos.y + pos.w;
+				
+				//pos.xy = pos.xy * 0.5 + 0.5;
+				//pos.xy = pos.xy * vp.zw + vp.xy;
+				//pos.xy = pos.xy * 2.0 - 1.0;
+				pos.xy = fma(pos.xy, vp.zw, vp.zw);
+				pos.xy += fma(vp.xy, vec2(2), vec2(-1));
+				
+				gl_Position = pos;
+				nor = normal[v];
+				col = color[v];
 				
 				EmitVertex();
 			}
@@ -193,39 +191,16 @@ shader frag fs_simple {
 	#version 450
 	
 	// fragment shader input (see col in vs_simple)
-	in IN
-	{
-		layout(location = 0) in vec4 color;
-		layout(location = 1) in vec4 normal;
-	} In;
+	layout(location = 0) in vec4 color;
+	layout(location = 1) in vec4 normal;
 	
 	// fragment color output
-	out vec4 color;
+	out vec4 col;
 	
 	void main ()
 	{
-		color = <<In.color>>;
+		col = <<color>>;
 	}
-}
-
-//////////////
-// CONTROLS //
-//////////////
-
-// Include C# code to allow
-// for simple camera controls
-csharp cs_util {
-	// Compile C# file "SimpleCamera.cs"
-	file "<csharp>/StaticCamera.cs" ...
-	     "<csharp>/SimpleCamera.cs" ...
-	     "<csharp>/UniformBlock.cs"
-}
-
-instance cs_camera {
-	class cs_util csharp.SimpleCamera
-	name SimpleCamera
-	pos -5 4 10
-	rot -20 -15 0
 }
 
 /////////////////
@@ -250,12 +225,20 @@ pass pass_render {
 	// enable depth buffer test
 	Enable depthTest
 	
-	// EXECUTE CONTROL
-	// execute camera code (sets g_viewproj in vs_simple)
-	exec cs_camera
+	Enable clipDistance0
+	Enable clipDistance1
+	Enable clipDistance2
+	Enable clipDistance3
 	
 	// DRAW CALLS
 	draw mesh_triangles vertex_input ushort triangles draw_calls
+}
+
+pass reset {
+	Disable clipDistance0
+	Disable clipDistance1
+	Disable clipDistance2
+	Disable clipDistance3
 }
 
 ///////////////

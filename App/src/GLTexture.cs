@@ -5,13 +5,13 @@ namespace App
     class GLTexture : GLObject
     {
         #region FIELDS
-        [Field] private string samp = null;
-        [Field] private string buff = null;
-        [Field] private string img = null;
-        [Field] private GpuFormat format = 0;
-        private GLSampler glsamp = null;
-        private GLBuffer glbuff = null;
-        private GLImage glimg = null;
+        [FxField] private string Samp = null;
+        [FxField] private string Buff = null;
+        [FxField] private string Img = null;
+        [FxField] private GpuFormat Format = 0;
+        private GLSampler glSamp = null;
+        private GLBuffer glBuff = null;
+        private GLImage glImg = null;
         #endregion
 
         /// <summary>
@@ -30,10 +30,10 @@ namespace App
             var err = new CompileException($"texture '{name}'");
 
             // set name
-            this.format = format;
-            this.glsamp = glsamp;
-            this.glbuff = glbuff;
-            this.glimg = glimg;
+            this.Format = format;
+            this.glSamp = glsamp;
+            this.glBuff = glbuff;
+            this.glImg = glimg;
 
             // INCASE THIS IS A TEXTURE OBJECT
             Link("", -1, err);
@@ -58,20 +58,20 @@ namespace App
             Cmds2Fields(block, err);
 
             // set name
-            this.glsamp = glsamp;
-            this.glbuff = glbuff;
-            this.glimg = glimg;
+            this.glSamp = glsamp;
+            this.glBuff = glbuff;
+            this.glImg = glimg;
 
             // GET REFERENCES
-            if (samp != null)
-                scene.TryGetValue(samp, out this.glsamp, block, err);
-            if (buff != null)
-                scene.TryGetValue(buff, out this.glbuff, block, err);
-            if (img != null)
-                scene.TryGetValue(img, out this.glimg, block, err);
-            if (this.glbuff != null && this.glimg != null)
+            if (Samp != null)
+                scene.TryGetValue(Samp, out this.glSamp, block, err);
+            if (Buff != null)
+                scene.TryGetValue(Buff, out this.glBuff, block, err);
+            if (Img != null)
+                scene.TryGetValue(Img, out this.glImg, block, err);
+            if (this.glBuff != null && this.glImg != null)
                 err.Add("Only an image or a buffer can be bound to a texture object.", block);
-            if (this.glbuff == null && this.glimg == null)
+            if (this.glBuff == null && this.glImg == null)
                 err.Add("Ether an image or a buffer has to be bound to a texture object.", block);
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION
@@ -113,9 +113,9 @@ namespace App
         /// <param name="unit">Texture unit.</param>
         public void BindTex(int unit)
         {
-            if (glsamp != null)
-                GL.BindSampler(unit, glsamp.glname);
-            GLDebugger.BindTex(unit, glimg != null ? glimg.Target : TextureTarget.TextureBuffer, glname);
+            if (glSamp != null)
+                GL.BindSampler(unit, glSamp.glname);
+            FxDebugger.BindTex(unit, glImg != null ? glImg.Target : TextureTarget.TextureBuffer, glname);
         }
 
         /// <summary>
@@ -124,9 +124,9 @@ namespace App
         /// <param name="unit">Texture unit.</param>
         public void UnbindTex(int unit)
         {
-            if (glsamp != null)
+            if (glSamp != null)
                 GL.BindSampler(unit, 0);
-            GLDebugger.UnbindTex(unit, glimg != null ? glimg.Target : TextureTarget.TextureBuffer);
+            FxDebugger.UnbindTex(unit, glImg != null ? glImg.Target : TextureTarget.TextureBuffer);
         }
 
         /// <summary>
@@ -138,13 +138,13 @@ namespace App
         /// <param name="access">How the texture will be accessed by the shader.</param>
         /// <param name="format">Pixel format of texture pixels.</param>
         public void BindImg(int unit, int level, int layer, TextureAccess access, GpuFormat format)
-            => GLDebugger.BindImg(unit, level, glimg?.Length > 0, layer, access, format, glname);
+            => FxDebugger.BindImg(unit, level, glImg?.Length > 0, layer, access, format, glname);
 
         /// <summary>
         /// Unbind texture from compute-image unit.
         /// </summary>
         /// <param name="unit"></param>
-        public void UnbindImg(int unit) => GLDebugger.UnbindImg(unit);
+        public void UnbindImg(int unit) => FxDebugger.UnbindImg(unit);
 
         /// <summary>
         /// Link image or buffer object to the texture.
@@ -155,24 +155,24 @@ namespace App
         private void Link(string file, int line, CompileException err)
         {
             // INCASE THIS IS A TEXTURE OBJECT
-            if (glimg != null)
+            if (glImg != null)
             {
-                glname = glimg.glname;
+                glname = glImg.glname;
                 // get internal format
                 int f;
                 GL.GetTextureLevelParameter(glname, 0, GetTextureParameter.TextureInternalFormat, out f);
-                format = (GpuFormat)f;
+                Format = (GpuFormat)f;
             }
             // INCASE THIS IS A BUGGER OBJECT
-            else if (glbuff != null)
+            else if (glBuff != null)
             {
-                if (format == 0)
+                if (Format == 0)
                     throw err.Add($"No texture buffer format defined for " +
                         "buffer '{buff}' (e.g. format RGBA8).", file, line);
                 // CREATE OPENGL OBJECT
                 glname = GL.GenTexture();
                 GL.BindTexture(TextureTarget.TextureBuffer, glname);
-                GL.TexBuffer(TextureBufferTarget.TextureBuffer, (SizedInternalFormat)format, glbuff.glname);
+                GL.TexBuffer(TextureBufferTarget.TextureBuffer, (SizedInternalFormat)Format, glBuff.glname);
                 GL.BindTexture(TextureTarget.TextureBuffer, 0);
             }
         }

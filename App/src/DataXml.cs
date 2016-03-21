@@ -35,7 +35,7 @@ namespace App
 
                     // the values are in binary format
                     var attr = node.Attributes;
-                    if (attr?["isbinary"].Value.Equals("true") ?? false)
+                    if (attr["isbinary"]?.Value.Equals("true") ?? false)
                     {
                         type = typeof(char);
                         values = node.InnerText.ToCharArray();
@@ -45,13 +45,13 @@ namespace App
                     {
                         // get value type and check for errors
                         if (attr["type"] == null)
-                            throw new CompileException($"{errstr}For non binary data a type has "
+                            throw new XmlException($"{errstr}For non binary data a type has "
                                 + $" to be specified(e.g. <{itemname} type='float'>).");
                         
                         // convert type name to Type
                         type = Extensions.str2type[attr["type"].Value];
                         if (type == null)
-                            throw new CompileException($"{errstr}Type '{attr["type"].Value}' not supported.");
+                            throw new XmlException($"{errstr}Type '{attr["type"].Value}' not supported.");
 
                         // convert values
                         var raw = Regex.Matches(node.InnerText, "(\\+|\\-)?[0-9\\.\\,]+");
@@ -69,9 +69,13 @@ namespace App
                 // join the data of all nodes
                 return data.Cat().ToArray();
             }
+            catch (XmlException ex)
+            {
+                throw ex;
+            }
             catch
             {
-                throw new CompileException($"{errstr}Could not load item.");
+                throw new XmlException($"{errstr}Could not load item.");
             }
         }
     }

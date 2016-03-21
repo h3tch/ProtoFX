@@ -15,14 +15,14 @@ namespace App
     {
         #region FIELDS
         private static CultureInfo culture = new CultureInfo("en");
-        [Field] private string vert = null;
-        [Field] private string tess = null;
-        [Field] private string eval = null;
-        [Field] private string geom = null;
-        [Field] private string frag = null;
-        [Field] private string comp = null;
-        [Field] private string[] vertout = null;
-        [Field] private string fragout = null;
+        [FxField] private string Vert = null;
+        [FxField] private string Tess = null;
+        [FxField] private string Eval = null;
+        [FxField] private string Geom = null;
+        [FxField] private string Frag = null;
+        [FxField] private string Comp = null;
+        [FxField] private string[] Vertout = null;
+        [FxField] private string Fragout = null;
         private GLObject glvert = null;
         private GLObject gltess = null;
         private GLObject gleval = null;
@@ -60,7 +60,7 @@ namespace App
             {
                 // ignore class fields
                 var field = GetType().GetField(cmd.Name, Instance | Public | NonPublic);
-                var attr = field?.GetCustomAttributes(typeof(Field), false);
+                var attr = field?.GetCustomAttributes(typeof(FxField), false);
                 if (attr?.Length > 0)
                     continue;
 
@@ -80,33 +80,33 @@ namespace App
 
             // GET VERTEX AND FRAGMENT OUTPUT BINDINGS
 
-            if (fragout != null && !scene.TryGetValue(fragout, out glfragout, block, err))
-                err.Add($"The name '{fragout}' does not reference an object of type 'fragout'.", block);
-            if (vertout != null && vertout.Length > 0 && !scene.TryGetValue(vertout[0], out glvertout, block, err))
-                err.Add($"The name '{vertout[0]}' does not reference an object of type 'vertout'.", block);
+            if (Fragout != null && !scene.TryGetValue(Fragout, out glfragout, block, err))
+                err.Add($"The name '{Fragout}' does not reference an object of type 'fragout'.", block);
+            if (Vertout != null && Vertout.Length > 0 && !scene.TryGetValue(Vertout[0], out glvertout, block, err))
+                err.Add($"The name '{Vertout[0]}' does not reference an object of type 'vertout'.", block);
             if (err.HasErrors())
                 throw err;
 
             // CREATE OPENGL OBJECT
-            if (vert != null || comp != null)
+            if (Vert != null || Comp != null)
             {
                 glname = GL.CreateProgram();
 
                 // Attach shader objects.
                 // First try attaching a compute shader. If that
                 // fails, try attaching the default shader pipeline.
-                if ((glcomp = Attach(block, comp, scene, err)) == null)
+                if ((glcomp = Attach(block, Comp, scene, err)) == null)
                 {
-                    glvert = Attach(block, vert, scene, err);
-                    gltess = Attach(block, tess, scene, err);
-                    gleval = Attach(block, eval, scene, err);
-                    glgeom = Attach(block, geom, scene, err);
-                    glfrag = Attach(block, frag, scene, err);
+                    glvert = Attach(block, Vert, scene, err);
+                    gltess = Attach(block, Tess, scene, err);
+                    gleval = Attach(block, Eval, scene, err);
+                    glgeom = Attach(block, Geom, scene, err);
+                    glfrag = Attach(block, Frag, scene, err);
                 }
 
                 // specify vertex output varyings of the shader program
                 if (glvertout != null)
-                    SetVertexOutputVaryings(block, vertout, err);
+                    SetVertexOutputVaryings(block, Vertout, err);
 
                 // link program
                 GL.LinkProgram(glname);
@@ -204,7 +204,7 @@ namespace App
             
             // BIND DEBUGGER
             if (glname > 0)
-                GLDebugger.Bind(this, frame);
+                FxDebugger.Bind(this, frame);
             
             // EXECUTE DRAW CALLS
             foreach (var call in drawcalls)
@@ -216,7 +216,7 @@ namespace App
 
             // UNBIND DEBUGGER
             if (glname > 0)
-                GLDebugger.Unbind(this);
+                FxDebugger.Unbind(this);
 
             // UNBIND OUTPUT BUFFERS
             if (glfragout != null)
@@ -449,7 +449,8 @@ namespace App
             var mtype = FindMethod(mname, cmd.ArgCount);
             if (mtype == null)
             {
-                err.Add("Unknown command '" + cmd.Text + "'", cmd);
+                if (GetFxField(mname) == null)
+                    err.Add("Unknown command '" + cmd.Text + "'", cmd);
                 return;
             }
 

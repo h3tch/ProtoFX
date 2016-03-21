@@ -13,8 +13,8 @@ namespace App
     class GLCsharp : GLObject
     {
         #region FIELDS
-        [Field] private string Version = null;
-        [Field] private string[] File = null;
+        [FxField] private string Version = null;
+        [FxField] private string[] File = null;
         private CompilerResults CompilerResults;
         #endregion
 

@@ -64,7 +64,7 @@ namespace OpenTK
             {
                 // add exception to output
                 ex = ex.InnerException != null ? ex.InnerException : ex;
-                output.Rows.Add(new[] { "render", ex.Message });
+                output.Rows.Add(new[] { "render", "", ex.Message });
                 renderExceptions++;
             }
 
@@ -108,7 +108,7 @@ namespace OpenTK
             // add default OpenTK glControl
             scene.Add(nullname, new GLReference(nullname, "internal", this));
             // (re)initialize OpenGL/GLSL debugger
-            GLDebugger.Initilize(scene);
+            FxDebugger.Initilize(scene);
         }
 
         #region EVENTS

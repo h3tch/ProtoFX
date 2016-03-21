@@ -31,7 +31,7 @@ namespace App
 
             // ADD OR REMOVE DEBUG INFORMATION
             var glslCode = block.Text.BraceMatch('{', '}').Value;
-            var text = GLDebugger.AddDebugCode(glslCode.Substring(1, glslCode.Length - 2), type, debugging);
+            var text = FxDebugger.AddDebugCode(glslCode.Substring(1, glslCode.Length - 2), type, debugging);
 
             // CREATE OPENGL OBJECT
             glname = GL.CreateShader(type);

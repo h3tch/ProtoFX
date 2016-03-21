@@ -123,7 +123,7 @@ namespace App
                 return;
 
             // gather needed info
-            propertyGrid.SelectedObject = ((GLInstance)comboProp.SelectedItem).instance;
+            propertyGrid.SelectedObject = ((GLInstance)comboProp.SelectedItem).Instance;
         }
 
         /// <summary>
@@ -219,16 +219,16 @@ namespace App
             int pos = editor.CharPositionFromPoint(e.X, e.Y);
 
             // get debug variable information from position
-            var dbgVar = GLDebugger.GetDebugVariableFromPosition(editor, pos);
+            var dbgVar = FxDebugger.GetDebugVariableFromPosition(editor, pos);
             // no debug variable found
             if (!dbgVar.IsDefault())
             {
                 // get debug variable value
-                var dbgVal = GLDebugger.GetDebugVariableValue(dbgVar.ID, glControl.Frame - 1);
+                var dbgVal = FxDebugger.GetDebugVariableValue(dbgVar.ID, glControl.Frame - 1);
                 if (dbgVal != null)
                 {
                     pos = editor.WordStartPosition(pos, true);
-                    editor.CallTipShow(pos, GLDebugger.DebugVariableToString(dbgVal));
+                    editor.CallTipShow(pos, FxDebugger.DebugVariableToString(dbgVal));
                     editor.EnableCodeHints = false;
                     return;
                 }
@@ -260,8 +260,8 @@ namespace App
 
             // get debug variables of the line where the caret is placed
             var dbgLine = editor.LineFromPosition(editor.CurrentPosition);
-            var dbgVars = GLDebugger.GetDebugVariablesFromLine(editor, dbgLine).Select(x => x);
-            dbgVars.Select(Var => GLDebugger.GetDebugVariableValue(Var.ID, glControl.Frame - 1))
+            var dbgVars = FxDebugger.GetDebugVariablesFromLine(editor, dbgLine).Select(x => x);
+            dbgVars.Select(Var => FxDebugger.GetDebugVariableValue(Var.ID, glControl.Frame - 1))
                    .Zip(dbgVars, (Val, Var) => { if (Val != null) NewVariableItem(Var.Name, Val); });
         }
 

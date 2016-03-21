@@ -11,8 +11,8 @@ namespace App
     class GLBuffer : GLObject
     {
         #region FIELDS
-        [Field] public int Size { get; private set; } = 0;
-        [Field] public BufferUsageHint Usage { get; private set; } = BufferUsageHint.StaticDraw;
+        [FxField] public int Size { get; private set; } = 0;
+        [FxField] public BufferUsageHint Usage { get; private set; } = BufferUsageHint.StaticDraw;
         #endregion
 
         /// <summary>
@@ -204,9 +204,9 @@ namespace App
                     {
                         filedata[i - 1] = DataXml.Load(document, cmd[i].Text);
                     }
-                    catch (CompileException ex)
+                    catch (XmlException ex)
                     {
-                        err.Add(ex.GetBaseException().Message, cmd);
+                        err.Add(ex.Message, cmd);
                     }
                 }
 

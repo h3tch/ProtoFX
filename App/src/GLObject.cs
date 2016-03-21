@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using static System.Reflection.BindingFlags;
+using static System.Reflection.MemberTypes;
 
 namespace App
 {
@@ -12,12 +13,12 @@ namespace App
     /// fields that can receive values from the application at compile time.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    public class Field : Attribute { }
+    public class FxField : Attribute { }
     
     abstract class GLObject
     {
         public int glname { get; protected set; }
-        [Field] public string name { get; protected set; }
+        [FxField] public string name { get; protected set; }
         public string anno { get; protected set; }
 
         /// <summary>
@@ -102,24 +103,36 @@ namespace App
         /// <param name="err"></param>
         protected void Cmds2Fields(Compiler.Block block, CompileException err = null)
         {
-            var type = GetType();
-
             foreach (var cmd in block)
             {
-                // try to find a field with the respective name
-                var field = type.GetField(cmd.Name, Instance | Public | NonPublic);
-                var prop = type.GetProperty(cmd.Name, Instance | Public | NonPublic);
-                MemberInfo member = (MemberInfo)field ?? prop;
-
-                // if no field could be found go to the next command
-                if (member == null || member.GetCustomAttributes(typeof(Field), false).Length == 0)
+                // check if the name is too short for a field
+                if (cmd.Name.Length < 2)
                     continue;
 
-                // set value of field
-                object val = (object)field ?? prop;
-                Type valtype = field?.FieldType ?? prop?.PropertyType;
-                SetValue(this, val, valtype, cmd, err);
+                // get field member info
+                var member = GetFxField(cmd.Name);
+
+                if (member != null)
+                    // set value of field
+                    SetValue(this, member, member is FieldInfo
+                        ? (member as FieldInfo).FieldType
+                        : (member as PropertyInfo).PropertyType, cmd, err);
             }
+        }
+
+        /// <summary>
+        /// Search for members that declare FxField as an attribute.
+        /// </summary>
+        /// <param name="name">Member name.</param>
+        /// <returns>Returns the member, which can be a property
+        /// or field, or null if no member was found.</returns>
+        protected MemberInfo GetFxField(string name)
+        {
+            var Name = name.Substring(0, 1).ToUpper() + name.Substring(1).ToLower();
+            var member = GetType().GetMember(Name, Field | Property, Instance | Public | NonPublic);
+            if (member.Length == 0 || member[0].GetCustomAttributes(typeof(FxField), false).Length == 0)
+                return null;
+            return member[0];
         }
 
         /// <summary>

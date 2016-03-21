@@ -5,9 +5,9 @@ namespace App
     class GLSampler : GLObject
     {
         #region FIELDS
-        [Field] private TextureMinFilter minfilter = TextureMinFilter.Nearest;
-        [Field] private TextureMagFilter magfilter = TextureMagFilter.Nearest;
-        [Field] private TextureWrapMode wrap = TextureWrapMode.ClampToEdge;
+        [FxField] private TextureMinFilter Minfilter = TextureMinFilter.Nearest;
+        [FxField] private TextureMagFilter Magfilter = TextureMagFilter.Nearest;
+        [FxField] private TextureWrapMode Wrap = TextureWrapMode.ClampToEdge;
         #endregion
 
         /// <summary>
@@ -26,9 +26,9 @@ namespace App
 
             // CREATE OPENGL OBJECT
             glname = GL.GenSampler();
-            int mini = (int)minfilter;
-            int magi = (int)magfilter;
-            int wrapi = (int)wrap;
+            int mini = (int)Minfilter;
+            int magi = (int)Magfilter;
+            int wrapi = (int)Wrap;
             GL.SamplerParameterI(glname, SamplerParameterName.TextureMinFilter, ref mini);
             GL.SamplerParameterI(glname, SamplerParameterName.TextureMagFilter, ref magi);
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapR, ref wrapi);
