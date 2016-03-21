@@ -18,6 +18,11 @@ buffer camera_transform {
 	xml "scene.xml" data/camera/transform
 }
 
+buffer camera_viewport {
+	usage staticDraw
+	xml "scene.xml" data/camera/viewport
+}
+
 // OBJECT INFORMATION
 
 buffer object_transform {
@@ -70,6 +75,10 @@ texture camera_transform_texture {
 	buff camera_transform
 }
 
+texture camera_viewport_texture {
+	buff camera_viewport
+}
+
 /////////////
 // SHADERS //
 /////////////
@@ -80,6 +89,7 @@ shader vert vs_simple {
 	#version 450
 	
 	layout(binding = 0) uniform sampler1D camTransform;
+	layout(binding = 1) uniform sampler1D camViewport;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 position;
@@ -94,6 +104,7 @@ shader vert vs_simple {
 	layout(location = 0) out vec4 col;
 	layout(location = 1) out vec4 nor;
 	layout(location = 2) out vec4 pos[4];
+	layout(location = 3) out vec4 vp[4];
 	
 	void main ()
 	{
@@ -112,13 +123,17 @@ shader vert vs_simple {
 				texelFetchOffset(camTransform, ptr, 0, 1),
 				texelFetchOffset(camTransform, ptr, 0, 2),
 				texelFetchOffset(camTransform, ptr, 0, 3));
+			vp[count] = texelFetch(camViewport, ptr);
 		}
 		
 		// pass varyings on to next shader
 		col = color;
 		nor = normal;
 		for (int i = count; i < 4; i++)
+		{
 			pos[i] = vec4(0);
+			vp[i] = vec4(0);
+		}
 		
 		// compute model view projection position
 		vec4 word = model * position;
@@ -136,24 +151,35 @@ shader geom gs_simple {
 		layout(location = 0) in vec4 color;
 		layout(location = 1) in vec4 normal;
 		layout(location = 2) in vec4 position[4];
+		layout(location = 3) in vec4 viewport[4];
 	} In[];
 	
 	layout(triangle_strip, max_vertices = 12) out;
 	layout(location = 0) out vec4 color;
 	layout(location = 1) out vec4 normal;
 	
-	//out gl_PerVertex {
-	//	float gl_CullDistance[1];
-	//};
+	out gl_PerVertex {
+		float gl_CullDistance[4];
+	};
 	
 	void main ()
 	{
 		for (int c = 0; c < 4 && In[0].position[c].w != 0; c++)
 		{
-			for (int v = 0; v < gl_in.length(); v++) {
+			for (int v = 0; v < gl_in.length(); v++)
+			{
 				gl_Position = In[v].position[c];
 				normal = In[v].normal;
 				color = In[v].color;
+				
+				// viewport culling
+				vec4 vp = gl_Position.xyxy / gl_Position.w * 0.5 + 0.5;
+				vp = (vp - In[v].viewport[c]) * vec4(1,1,-1,-1);
+				gl_CullDistance[0] = vp.x;
+				gl_CullDistance[1] = vp.y;
+				gl_CullDistance[2] = vp.z;
+				gl_CullDistance[3] = vp.w;
+				
 				EmitVertex();
 			}
 			EndPrimitive();
@@ -214,6 +240,7 @@ pass pass_render {
 	frag fs_simple
 	
 	tex camera_transform_texture 0
+	tex camera_viewport_texture 1
 	
 	// OPENGL FUNCTIONS
 	// set clear color

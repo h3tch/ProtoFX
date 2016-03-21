@@ -442,7 +442,14 @@
  value of derivatives in x and y
    genType fwidthFine(genType p)
 [0]shader[8]gl_ClipDistance|provides a forward-compatible mechanism for vertex clipping
-[0]shader[8]gl_CullDistance|provides a mechanism for controlling user culling
+[0]shader[8]gl_CullDistance|The gl_CullDistance variable provides a mechanism for
+ controlling user culling. The element gl_CullDistance[i]
+ specifies a cull distance for each plane i. A distance
+ of 0.0 means that the vertex is on the plane, a positive
+ distance means that the vertex is inside the cull volume,
+ and a negative distance means that the point is outside
+ the cull volume. Primitives whose vertices all have a
+ negative clip distance for plane i will be discarded. 
 [0]shader[8]gl_DepthRange|provides access to the glDepthRange​ near and far values
    gl_DepthRange.far  -- glDepthRange​ far value
    gl_DepthRange.near -- glDepthRange​ near value

@@ -415,7 +415,7 @@ namespace App
             string text = path != null ? System.IO.File.ReadAllText(path) : "// Unnamed file";
 
             // create new tab objects
-            var tabSourcePage = new TabPage(path);
+            var tabSourcePage = new TabPageEx(path);
             var editor = new CodeEditor(text);
             editor.UpdateUI += new EventHandler<UpdateUIEventArgs>(editor_UpdateUI);
             editor.MouseMove += new MouseEventHandler(editor_MouseMove);
