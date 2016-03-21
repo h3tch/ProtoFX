@@ -1,5 +1,8 @@
 // custurm clipping test
 
+// global variables
+#global MAX_CAMS 4
+
 //////////////////
 // DATA OBJECTS //
 //////////////////
@@ -100,38 +103,39 @@ shader vert vs_simple {
 	layout(location = 3) in vec4 axisx;
 	layout(location = 4) in vec4 axisy;
 	layout(location = 5) in vec4 axisz;
-	layout(location = 6) in ivec4 camera;
+	layout(location = 6) in ivec4 camera[(MAX_CAMS+3)/4];
 
 	// vertex shader output
 	layout(location = 0) out vec4 col;
 	layout(location = 1) out vec4 nor;
-	layout(location = 2) out vec4 pos[4];
-	layout(location = 6) out vec4 vp[4];
+	layout(location = 2) out vec4 pos[MAX_CAMS];
+	layout(location = 2+MAX_CAMS) out vec4 vp[MAX_CAMS];
 	
 	void main ()
 	{
 		int count;
-		mat4 viewProj[4];
+		mat4 viewProj[MAX_CAMS];
 		
 		// create model matrix
 		mat4 model = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
 		
 		// create view matrix for every camera
-		for (count = 0; count < 4 && camera[count] >= 0; count++)
+		for (count = 0; count < MAX_CAMS && camera[count / 4][count % 4] >= 0; count++)
 		{
-			int ptr = 4 * camera[count];
+			int ptr = camera[count / 4][count % 4];
+			vp[count] = texelFetch(camViewport, ptr);
+			ptr *= 4;
 			viewProj[count] = mat4(
 				texelFetch(camTransform, ptr + 0),
 				texelFetch(camTransform, ptr + 1),
 				texelFetch(camTransform, ptr + 2),
 				texelFetch(camTransform, ptr + 3));
-			vp[count] = texelFetch(camViewport, ptr);
 		}
 		
 		// pass varyings on to next shader
 		col = color;
 		nor = normal;
-		for (int i = count; i < 4; i++)
+		for (int i = count; i < MAX_CAMS; i++)
 			pos[i] = vp[i] = vec4(0);
 		
 		// compute model view projection position
@@ -147,8 +151,8 @@ shader geom gs_simple {
 	layout(triangles) in;
 	layout(location = 0) in vec4 color[];
 	layout(location = 1) in vec4 normal[];
-	layout(location = 2) in vec4 position[][4];
-	layout(location = 6) in vec4 viewport[][4];
+	layout(location = 2) in vec4 position[][MAX_CAMS];
+	layout(location = 2+MAX_CAMS) in vec4 viewport[][MAX_CAMS];
 	
 	layout(triangle_strip, max_vertices = 12) out;
 	layout(location = 0) out vec4 col;
@@ -156,28 +160,32 @@ shader geom gs_simple {
 	
 	void main ()
 	{
-		for (int c = 0; c < 4 && position[0][c].w != 0; c++)
+		// for each camera
+		for (int c = 0; c < MAX_CAMS && position[0][c].w != 0; c++)
 		{
+			// for each vertex in the triangle
 			for (int v = 0; v < gl_in.length(); v++)
 			{
 				vec4 <<pos>> = position[v][c];
 				vec4 <<vp>> = viewport[v][c];
 				
+				// viewport clipping
 				gl_ClipDistance[0] = pos.w - pos.x;
 				gl_ClipDistance[1] = pos.x + pos.w;
 				gl_ClipDistance[2] = pos.w - pos.y;
 				gl_ClipDistance[3] = pos.y + pos.w;
 				
-				//pos.xy = pos.xy * 0.5 + 0.5;
-				//pos.xy = pos.xy * vp.zw + vp.xy;
-				//pos.xy = pos.xy * 2.0 - 1.0;
-				pos.xy = fma(pos.xy, vp.zw, vp.zw);
-				pos.xy += fma(vp.xy, vec2(2), vec2(-1));
+				// viewport transform
+				pos.xy /= pos.w;
+				pos.xy = pos.xy * 0.5 + 0.5;
+				pos.xy = pos.xy * vp.zw + vp.xy;
+				pos.xy = pos.xy * 2.0 - 1.0;
+				pos.xy *= pos.w;
 				
-				gl_Position = pos;
+				// geomitry shader output
+				gl_Position = <<pos>>;
 				nor = normal[v];
 				col = color[v];
-				
 				EmitVertex();
 			}
 			EndPrimitive();
@@ -234,7 +242,7 @@ pass pass_render {
 	draw mesh_triangles vertex_input ushort triangles draw_calls
 }
 
-pass reset {
+pass pass_reset {
 	Disable clipDistance0
 	Disable clipDistance1
 	Disable clipDistance2
@@ -250,4 +258,5 @@ pass reset {
 tech tech_simple {
 	// First pass
 	pass pass_render
+	pass pass_reset
 }
