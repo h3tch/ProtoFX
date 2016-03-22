@@ -132,7 +132,7 @@ namespace App
             }
 
             // INSTANTIATE CSHARP CLASS
-            return csharp.CreateInstance(block, cmd, err);
+            return csharp.CreateInstance(block, cmd, scene, err);
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace App
         /// <param name="cmd"></param>
         /// <param name="err"></param>
         /// <returns></returns>
-        private object CreateInstance(Compiler.Block block, Compiler.Command cmd, CompileException err)
+        private object CreateInstance(Compiler.Block block, Compiler.Command cmd, Dict scene, CompileException err)
         {
             // check if the command is valid
             if (cmd.ArgCount < 2)
@@ -151,11 +151,15 @@ namespace App
                 return null;
             }
             
+            // create OpenGL name lookup dictionary
+            var glNames = new Dictionary<string, int>(scene.Count);
+            scene.Keys.Zip(scene.Values, (k, v) => glNames.Add(k, v.glname));
+
             // create main class from compiled files
             var classname = cmd[1].Text;
             var instance = CompilerResults.CompiledAssembly.CreateInstance(
                 classname, false, BindingFlags.Default, null,
-                new object[] { block.Name, ToDict(block) }, App.Culture, null);
+                new object[] { block.Name, ToDict(block), glNames }, App.Culture, null);
 
             if (instance == null)
                 throw err.Add($"Main class '{classname}' could not be found.", cmd);

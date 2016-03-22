@@ -1,12 +1,11 @@
 using OpenTK;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Commands = System.Collections.Generic.Dictionary<string, string[]>;
+using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace csharp
 {
-    using Commands = Dictionary<string, string[]>;
-
     class SimpleCamera : StaticCamera
     {
         #region FIELDS
@@ -14,8 +13,8 @@ namespace csharp
         private Point mousepos = new Point(0, 0);
         #endregion
 
-        public SimpleCamera(string name, Commands cmd)
-            : base(name, cmd)
+        public SimpleCamera(string name, Commands cmds, GLNames glNames)
+            : base(name, cmds, glNames)
         {
         }
 

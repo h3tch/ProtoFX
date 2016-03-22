@@ -1,11 +1,12 @@
 ﻿using OpenTK;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using Commands = System.Collections.Generic.Dictionary<string, string[]>;
+using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace csharp
 {
-    using System.Globalization;
-    using Commands = Dictionary<string, string[]>;
 
     class SpotLight
     {
@@ -49,7 +50,7 @@ namespace csharp
         public float InnerCone { get { return innerCone; } set { innerCone = value; } }
         #endregion
 
-        public SpotLight(string name, Commands cmds)
+        public SpotLight(string name, Commands cmds, GLNames glNames)
         {
             this.name = name;
             // parse command for values specified by the user

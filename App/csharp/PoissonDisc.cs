@@ -1,14 +1,13 @@
 ﻿using OpenTK;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
+using Commands = System.Collections.Generic.Dictionary<string, string[]>;
+using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace csharp
 {
-    using Commands = Dictionary<string, string[]>;
-
-    public class PoissonDisc
+    class PoissonDisc : CsObject
     {
         public enum Names
         {
@@ -26,8 +25,6 @@ namespace csharp
         private int[] radius;
         protected Dictionary<int, UniformBlock<Names>> uniform =
             new Dictionary<int, UniformBlock<Names>>();
-        protected List<string> errors = new List<string>();
-        private static CultureInfo culture = new CultureInfo("en");
         #endregion
 
         // Properties accessible by ProtoGL
@@ -38,9 +35,7 @@ namespace csharp
         public int NumRadii { get { return numRadii; } }
         #endregion
 
-        public List<string> GetErrors() { return errors; }
-
-        public PoissonDisc(string name, Commands cmds)
+        public PoissonDisc(string name, Commands cmds, GLNames glNames)
         {
             // PARSE COMMAND VALUES SPECIFIED BY THE USER
             this.name = name;
@@ -190,35 +185,6 @@ namespace csharp
             }
 
             return idx;
-        }
-
-        private void Convert<T>(Commands cmds, string cmd, ref T v)
-        {
-            if (cmds.ContainsKey(cmd))
-            {
-                var s = cmds[cmd];
-                if (s.Length == 0)
-                    return;
-                if (!TryChangeType(s[0], ref v))
-                    errors.Add("Command '" + cmd + "': Could not convert argument 1 '" + s[0] + "'.");
-            }
-        }
-
-        private static bool TryChangeType<T>(object invalue, ref T value)
-        {
-
-            if (invalue == null || invalue as IConvertible == null)
-                return false;
-
-            try
-            {
-                value = (T)System.Convert.ChangeType(invalue, typeof(T), culture);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
         }
         #endregion
 

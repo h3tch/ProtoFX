@@ -3,11 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Commands = System.Collections.Generic.Dictionary<string, string[]>;
+using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace csharp
 {
-    using Commands = Dictionary<string, string[]>;
-
     class TurntableCamera : StaticCamera
     {
         #region FIELDS
@@ -20,8 +20,8 @@ namespace csharp
         { get { return (float)Math.Sqrt(pos[0] * pos[0] + pos[1] * pos[1] + pos[2] * pos[2]); } }
         #endregion
 
-        public TurntableCamera(string name, Commands cmds)
-            : base(name, cmds)
+        public TurntableCamera(string name, Commands cmds, GLNames glNames)
+            : base(name, cmds, glNames)
         {
             float tilt = rot[0], yaw = rot[1], dist = Dist;
             Convert(cmds, "tilt", ref tilt);

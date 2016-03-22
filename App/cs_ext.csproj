@@ -49,6 +49,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="csharp\BufferCamera.cs" />
+    <Compile Include="csharp\CsObject.cs" />
     <Compile Include="csharp\PoissonDisc.cs" />
     <Compile Include="csharp\SimpleCamera.cs" />
     <Compile Include="csharp\SpotLight.cs" />
