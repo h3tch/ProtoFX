@@ -90,16 +90,16 @@ namespace App
         /// <param name="text">[OPTIONAL] Initialize code editor with text.</param>
         public CodeEditor(string text = null)
         {
-            // instantiate fields
-            IndicatorRanges = new List<int[]>[Indicators.Count];
-            for (int i = 0; i < Indicators.Count; i++)
-                IndicatorRanges[i] = new List<int[]>();
-            
             InitializeFindAndReplace();
             InitializeHighlighting();
             InitializeSelection();
             InitializeEvents();
             InitializeAutoC();
+
+            // instantiate fields
+            IndicatorRanges = new List<int[]>[Indicators.Count];
+            for (int i = 0; i < Indicators.Count; i++)
+                IndicatorRanges[i] = new List<int[]>();
 
             // setup code folding
             SetProperty("fold", "1");

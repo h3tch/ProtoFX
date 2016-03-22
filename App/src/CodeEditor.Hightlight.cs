@@ -37,9 +37,15 @@ namespace App
         /// <param name="ev"></param>
         private void HandleStyleNeeded(object sender, StyleNeededEventArgs ev)
         {
+            var line = LineFromPosition(GetEndStyled());
+
             // get start and end position of the region that needs to be styled
-            var start = Lines[LineFromPosition(GetEndStyled())].Position;
-            FxLexer.Style(this, start, ev.Position);
+            FxLexer.Style(this, Lines[line].Position, ev.Position);
+
+            // get start and end position of the region that needs to be folded
+            while (line > 0 && Lines[line].FoldLevel != 1024)
+                line--;
+            FxLexer.Folding(this, Lines[line].Position, ev.Position);
         }
     }
 }
