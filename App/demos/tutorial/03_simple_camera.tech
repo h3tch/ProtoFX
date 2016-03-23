@@ -87,10 +87,9 @@ shader vert vs_simple {
 	
 	// Shader variable set by "SimpleCamera.cs" (only
 	// uniforms can be accessed outside the shader).
-	struct SimpleCamera {
+	layout(binding = 0) uniform SimpleCamera {
 		mat4 viewProj;
-	};
-	uniform SimpleCamera Camera;
+	} camera;
 	
 	layout(location = 0) in vec4 in_pos;
 	layout(location = 1) in vec4 in_col;
@@ -98,7 +97,7 @@ shader vert vs_simple {
 	layout(location = 0) out vec4 out_col;
 	
 	void main () {
-		gl_Position = Camera.viewProj * in_pos;
+		gl_Position = camera.viewProj * in_pos;
 		out_col = in_col;
 	}
 }
@@ -123,12 +122,15 @@ shader frag fs_simple {
 csharp cs_util {
 	// Compile C# file "SimpleCamera.cs" to add class
 	// csharp.SimpleCamera (multiple files can be listed).
-	file "<csharp>/StaticCamera.cs" "<csharp>/SimpleCamera.cs"
+	file "<csharp>/StaticCamera.cs" ...
+	     "<csharp>/SimpleCamera.cs" ...
+	     "<csharp>/UniformBlock.cs" ...
+	     "<csharp>/CsObject.cs"
 }
 
 instance cs_camera {
 	class cs_util csharp.SimpleCamera
-	name Camera
+	name SimpleCamera
 	pos 0 0 5
 }
 

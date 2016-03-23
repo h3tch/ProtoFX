@@ -64,6 +64,9 @@ namespace App
             foreach (Match m in Regex.Matches(s, regex))
                 yield return m;
         }
+
+        public static string Subrange(this string s, int start, int end)
+            => s.Substring(start, end - start);
         #endregion
 
         #region Extensions For All Types

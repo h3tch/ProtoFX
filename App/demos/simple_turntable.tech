@@ -96,7 +96,8 @@ csharp cs_util {
 	// Compile C# file "TurntableCamera.cs"
 	file "<csharp>/StaticCamera.cs" ...
 	     "<csharp>/TurntableCamera.cs" ...
-	     "<csharp>/UniformBlock.cs"
+	     "<csharp>/UniformBlock.cs" ...
+	     "<csharp>/CsObject.cs"
 }
 
 instance cs_camera {

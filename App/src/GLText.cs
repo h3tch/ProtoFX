@@ -13,7 +13,7 @@
         public GLText(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
-            text = block.Text;
+            text = block.Body;
         }
 
         /// <summary>

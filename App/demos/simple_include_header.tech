@@ -33,7 +33,8 @@ vertinput in_vert {
 csharp cs_util {
 	file "<csharp>/StaticCamera.cs" ...
 	     "<csharp>/SimpleCamera.cs" ...
-	     "<csharp>/UniformBlock.cs"
+	     "<csharp>/UniformBlock.cs" ...
+	     "<csharp>/CsObject.cs"
 }
 
 instance cs_camera {

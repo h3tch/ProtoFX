@@ -285,8 +285,11 @@ namespace App
             externID = from x in Enumerable.Range(0, 64)
                        where !internID.Contains(x) && GL.IsBuffer(x)
                        select x;
-            externID
-                .Select(x => new GLBuffer($"{GLBuffer.GetLabel(x)}", "buf", x))
+            var externName = from x in externID
+                             select $"{GLBuffer.GetLabel(x)}";
+            externID.Zip(externName,
+                (id,name) => name.Length == 0 ? null : new GLBuffer(name, "buf", id))
+                .Where(x => x != null)
                 .Do(x => glControl.Scene.Add(x.name, x));
 
             // UPDATE DEBUG DATA

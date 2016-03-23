@@ -991,10 +991,10 @@
 [0]shader[4]memoryBarrierAtomicCounter|controls the ordering of operations on atomic
  counters issued by a single shader invocation
    void memoryBarrierAtomicCounter(void)
-[0]shader[4]memoryBarrierBuffer|controls the ordering of operations on [0]buffer
+[0]shader[4]memoryBarrierBuffer|controls the ordering of operations on buffer
  variables issued by a single shader invocation
    void memoryBarrierBuffer(void)
-[0]shader[4]memoryBarrierImage|controls the ordering of operations on [0]image
+[0]shader[4]memoryBarrierImage|controls the ordering of operations on image
  variables issued by a single shader invocation
    void memoryBarrierImage(void)
 [0]shader[4]memoryBarrierShared|controls the ordering of operations on shared
@@ -1119,7 +1119,7 @@
 [0]shader[5]sampler2DRectShadow|2D rectangular shadow texture array binding unit
 [0]shader[5]sampler2DShadow|2D shadow texture binding unit
 [0]shader[5]sampler3D|3D texture array binding unit
-[0]shader[5]samplerBuffer|[0]buffer texture binding unit
+[0]shader[5]samplerBuffer|buffer texture binding unit
 [0]shader[5]samplerCube|cube map binding unit
 [0]shader[5]samplerCubeArray|cube map array binding unit
 [0]shader[5]samplerCubeArrayShadow|shadow cube map array binding unit
@@ -1392,7 +1392,7 @@
    genType uintBitsToFloat(genUType x)
 [0]shader[4]umulExtended|perform a 32- by 32-bit multiply to produce a 64-bit result
    void umulExtended(genIType x, genIType y, out genIType msb, out genIType lsb)
-[0]shader[6]uniform|uniform ([0]buffer) qualifier
+[0]shader[6]uniform|uniform (buffer) qualifier
 [0]shader[4]unpackDouble2x32|produce two unsigned integers containing the bit
                      encoding of a double precision floating point value
    uvec2 unpackDouble2x32(double d)

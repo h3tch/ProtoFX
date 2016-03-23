@@ -666,12 +666,11 @@ namespace App
                             ? 32
                             : 0;
                 // iBaseInstance, vInstanceCount
-                arg3 = arg.Count > 3 ? arg[3] : 0;
+                arg3 = arg.Count > 3 ? arg[3] :
+                    drawfunc == DrawFunc.ArraysInstanced ? 1 : 0;
                 // iInstanceCount
                 arg4 = arg.Count > 4 ? arg[4] : 
-                    drawfunc == DrawFunc.ElementsInstanced
-                    ? 1
-                    : 0;
+                    drawfunc == DrawFunc.ElementsInstanced ? 1 : 0;
             }
 
             // arguments for indexed buffer drawing

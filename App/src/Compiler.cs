@@ -173,6 +173,7 @@ namespace App
             public int Line { get; private set; }
             public int LineInFile => Line;
             public string Text { get; private set; }
+            public string Body => Text.Subrange(Text.IndexOf('{') + 1, Text.LastIndexOf('}') - 1);
             public string Type { get; private set; }
             public string Name { get; private set; }
             public string Anno { get; private set; }
