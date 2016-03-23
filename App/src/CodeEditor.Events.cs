@@ -1,6 +1,7 @@
 ﻿using ScintillaNET;
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -22,9 +23,9 @@ namespace App
             KeyDown += new KeyEventHandler(HandleKeyDown);
             InsertCheck += new EventHandler<InsertCheckEventArgs>(HandleInsertCheck);
             CharAdded += new EventHandler<CharAddedEventArgs>(HandleCharAdded);
-
-            MouseDown += new MouseEventHandler(HandleMouseDown);
+            
             MouseWheel += new MouseEventHandler(HandleMouseWheel);
+            Painted += new EventHandler<EventArgs>(HandlePainted);
         }
 
         /// <summary>
@@ -137,21 +138,14 @@ namespace App
             }
         }
 
-        private void HandleMouseDown(object sender, MouseEventArgs e)
-        {
-            for (int l = 0; l < Lines.Count; l++)
-            {
-                var text = Lines[l].Text.TrimEnd();
-                if (text.EndsWith(HiddenLines) && Lines[l].Expanded)
-                    DeleteRange(Lines[l].Position + text.Length - 1, 1);
-                else if (!text.EndsWith(HiddenLines) && !Lines[l].Expanded)
-                    InsertText(Lines[l].Position + text.Length, HiddenLines);
-            }
-        }
-
+        /// <summary>
+        /// Handle mouse wheel events.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleMouseWheel(object sender, MouseEventArgs e)
         {
-            // update code folding
+            // update code folding and styling
             int startLine = FirstVisibleLine, endLine = LastVisibleLine;
             UpdateCodeFolding(startLine, endLine);
             UpdateCodeStyling(Lines[startLine].Position, Lines[endLine].EndPosition);
@@ -285,6 +279,38 @@ namespace App
                         editor.AutoCShow(editor.CurrentPosition);
                     }
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Do additional painting after the control has been drawn.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandlePainted(object sender, EventArgs e)
+        {
+            var g = CreateGraphics();
+
+            // draw indicator lines where code has been folded
+            var pen = new Pen(Brushes.Gray);
+            var h = TextRenderer.MeasureText("0", Font).Height;
+
+            // for all visible lines
+            for (int i = FirstVisibleLine, I = LastVisibleLine; i < I; i++)
+            {
+                // if lines are not folded, continue
+                if (Lines[i].Expanded || !Lines[i].Visible)
+                    continue;
+
+                // number of whitespaces at the beginning and the end of the line
+                var wsStart = Lines[i].Text.IndexOf(x => !char.IsWhiteSpace(x));
+                var wsEnd = Lines[i].Text.EndsWith("\r\n") ? 2 : 1;
+
+                // draw indicator line below the current line
+                var x1 = PointXFromPosition(Lines[i].Position + Math.Max(0, wsStart));
+                var x2 = PointXFromPosition(Lines[i].EndPosition - wsEnd);
+                var y = PointYFromPosition(Lines[i].Position) + h;
+                g.DrawLine(pen, x1, y, x2, y);
             }
         }
 

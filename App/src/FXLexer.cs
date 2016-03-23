@@ -330,6 +330,12 @@ namespace App
             return startPos;
         }
         
+        /// <summary>
+        /// Add folding between start and end position.
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="startPos"></param>
+        /// <param name="endPos"></param>
         public void Folding(Scintilla editor, int startPos, int endPos)
         {
             var state = FoldState.Unknown;

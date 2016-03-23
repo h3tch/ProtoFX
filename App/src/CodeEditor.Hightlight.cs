@@ -34,6 +34,11 @@ namespace App
             Lexer = Lexer.Container;
         }
 
+        /// <summary>
+        /// Update code styling between start and end position.
+        /// </summary>
+        /// <param name="startPos"></param>
+        /// <param name="endPos"></param>
         private void UpdateCodeStyling(int startPos, int endPos)
         {
             var line = LineFromPosition(GetEndStyled());
@@ -41,6 +46,11 @@ namespace App
             FxLexer.Style(this, Lines[line].Position, endPos);
         }
 
+        /// <summary>
+        /// Update code folding between start and end line.
+        /// </summary>
+        /// <param name="startLine"></param>
+        /// <param name="endLine"></param>
         private void UpdateCodeFolding(int startLine, int endLine)
         {
             // get start and end position of the region that needs to be folded

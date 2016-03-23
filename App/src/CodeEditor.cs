@@ -28,6 +28,30 @@ namespace App
         private static int VAR;
         private static int BRANCH;
         private static string HiddenLines = $"{(char)177}";
+        
+        public new int FirstVisibleLine
+        {
+            get
+            {
+                int line = base.FirstVisibleLine;
+                for (int i = 0; i < line && i < Lines.Count; i++)
+                    if (!Lines[i].Visible)
+                        line++;
+                return line;
+            }
+        }
+
+        public int LastVisibleLine
+        {
+            get
+            {
+                int i, line;
+                for (i = FirstVisibleLine, line = i + LinesOnScreen; i < line && i < Lines.Count; i++)
+                    if (!Lines[i].Visible)
+                        line++;
+                return line;
+            }
+        }
         #endregion
 
         /// <summary>
@@ -156,30 +180,6 @@ namespace App
             var width = TextRenderer.MeasureText(new string('9', nLines), Font).Width;
             if (Margins[0].Width != width)
                 Margins[0].Width = width;
-        }
-
-        public new int FirstVisibleLine
-        {
-            get
-            {
-                int line = base.FirstVisibleLine;
-                for (int i = 0; i < line && i < Lines.Count; i++)
-                    if (!Lines[i].Visible)
-                        line++;
-                return line;
-            }
-        }
-
-        public int LastVisibleLine
-        {
-            get
-            {
-                int i, line;
-                for (i = FirstVisibleLine, line = i + LinesOnScreen; i < line && i < Lines.Count; i++)
-                    if (!Lines[i].Visible)
-                        line++;
-                return line;
-            }
         }
     }
 }
