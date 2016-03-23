@@ -21,6 +21,7 @@ namespace App
             Operator,
             Punctuation,
             Preprocessor,
+            Folding,
         }
 
         private enum StyleState : int
@@ -34,6 +35,7 @@ namespace App
             Preprocessor,
             Operator,
             Punctuation,
+            Folding,
         }
 
         private enum FoldState : int
@@ -52,8 +54,9 @@ namespace App
 
         private HashSet<string>[] keywords;
         public Dictionary<string, KeyDef> Defs { get; private set; }
-        public int KeywordStylesStart => (int)Styles.Preprocessor + 1;
+        public int KeywordStylesStart => (int)Styles.Folding + 1;
         public int KeywordStylesEnd => KeywordStylesStart + keywords.Length;
+        public char FolingChar = (char)177;
         #endregion
 
         /// <summary>
@@ -101,75 +104,83 @@ namespace App
             while (startPos < endPos)
             {
                 var c = (char)editor.GetCharAt(startPos);
-
+                
                 REPROCESS:
                 switch (state)
                 {
                     // UNKNOWN STATE
                     case StyleState.Unknown:
-                        // could be comment
-                        if (c == '/')
+                        switch (c)
                         {
-                            var c2 = (char)editor.GetCharAt(startPos + 1);
-                            // is line comment
-                            if (c2 == '/')
-                            {
-                                editor.SetStyling(2, (int)Styles.Comment);
-                                state = StyleState.LineComment;
-                                startPos++;
-                            }
-                            // is block comment
-                            else if (c2 == '*')
-                            {
-                                editor.SetStyling(2, (int)Styles.Comment);
-                                state = StyleState.BlockComment;
-                                startPos++;
-                            }
-                            else
-                            {
-                                editor.SetStyling(1, (int)Styles.Operator);
-                                state = StyleState.Operator;
-                            }
+                            // could be comment
+                            case '/':
+                                var c2 = (char)editor.GetCharAt(startPos + 1);
+                                // is line comment
+                                if (c2 == '/')
+                                {
+                                    editor.SetStyling(2, (int)Styles.Comment);
+                                    state = StyleState.LineComment;
+                                    startPos++;
+                                }
+                                // is block comment
+                                else if (c2 == '*')
+                                {
+                                    editor.SetStyling(2, (int)Styles.Comment);
+                                    state = StyleState.BlockComment;
+                                    startPos++;
+                                }
+                                else
+                                {
+                                    editor.SetStyling(1, (int)Styles.Operator);
+                                    state = StyleState.Operator;
+                                }
+                                break;
+                            // is string
+                            case '"':
+                            case '\'':
+                                editor.SetStyling(1, (int)Styles.String);
+                                state = StyleState.String;
+                                break;
+                            // is preprocessor
+                            case '#':
+                                editor.SetStyling(1, (int)Styles.Preprocessor);
+                                state = StyleState.Preprocessor;
+                                break;
+                            default:
+                                // is operator
+                                if (c == FolingChar)
+                                {
+                                    editor.SetStyling(1, (int)Styles.Folding);
+                                    state = StyleState.Unknown;
+                                }
+                                else if (IsMathSymbol(c))
+                                {
+                                    editor.SetStyling(1, (int)Styles.Operator);
+                                    state = StyleState.Operator;
+                                }
+                                // is punctuation
+                                else if (Punctuation.Any(x => x == char.GetUnicodeCategory(c)))
+                                {
+                                    editor.SetStyling(1, (int)Styles.Punctuation);
+                                    state = StyleState.Operator;
+                                }
+                                // is number
+                                else if (char.IsDigit(c))
+                                {
+                                    state = StyleState.Number;
+                                    goto REPROCESS;
+                                }
+                                // is letter
+                                else if (char.IsLetter(c))
+                                {
+                                    state = StyleState.Identifier;
+                                    goto REPROCESS;
+                                }
+                                // is default styling
+                                else
+                                    editor.SetStyling(1, (int)Styles.Default);
+                                break;
                         }
-                        // is string
-                        else if (c == '"' || c == '\'')
-                        {
-                            editor.SetStyling(1, (int)Styles.String);
-                            state = StyleState.String;
-                        }
-                        // is preprocessor
-                        else if (c == '#')
-                        {
-                            editor.SetStyling(1, (int)Styles.Preprocessor);
-                            state = StyleState.Preprocessor;
-                        }
-                        // is operator
-                        else if (IsMathSymbol(c))
-                        {
-                            editor.SetStyling(1, (int)Styles.Operator);
-                            state = StyleState.Operator;
-                        }
-                        // is punctuation
-                        else if (Punctuation.Any(x => x == char.GetUnicodeCategory(c)))
-                        {
-                            editor.SetStyling(1, (int)Styles.Punctuation);
-                            state = StyleState.Operator;
-                        }
-                        // is number
-                        else if (char.IsDigit(c))
-                        {
-                            state = StyleState.Number;
-                            goto REPROCESS;
-                        }
-                        // is letter
-                        else if (char.IsLetter(c))
-                        {
-                            state = StyleState.Identifier;
-                            goto REPROCESS;
-                        }
-                        // is default styling
-                        else
-                            editor.SetStyling(1, (int)Styles.Default);
                         break;
 
                     // LINE COMMENT STATE
@@ -231,7 +242,7 @@ namespace App
                     // OPERATOR STATE
                     case StyleState.Operator:
                         // is multi char operator like >=
-                        if (IsMathSymbol(c))
+                        if (IsMathSymbol(c) && c != FolingChar)
                         {
                             length++;
                         }
@@ -319,30 +330,47 @@ namespace App
             return startPos;
         }
         
-        public int Folding(Scintilla editor, int startPos, int endPos)
+        public void Folding(Scintilla editor, int startPos, int endPos)
         {
             var state = FoldState.Unknown;
             var line = editor.LineFromPosition(startPos);
             var lastLine = -1;
+            var lastCharPos = line;
             var foldLevel = editor.Lines[line].FoldLevel;
+            var textLength = editor.Text.Length;
 
-            while (startPos < endPos)
+            while (state == FoldState.Unknown ? startPos < endPos : startPos < textLength)
             {
                 var c = (char)editor.GetCharAt(startPos);
 
                 switch (c)
                 {
-                    case '{': state = FoldState.StartFolding; break;
-                    case '}': state = FoldState.EndFolding;   break;
-                    case '\n': line++; break;
+                    case '{':
+                        state = FoldState.StartFolding;
+                        break;
+                    case '}':
+                        state = FoldState.EndFolding;
+                        break;
+                    case '\n':
+                        line++;
+                        break;
+                    default:
+                        if (char.IsLetterOrDigit(c))
+                            lastCharPos = startPos;
+                        break;
                 }
 
                 switch (state)
                 {
                     case FoldState.StartFolding:
-                        // beginning at the next line
-                        editor.Lines[line].FoldLevelFlags = FoldLevelFlags.Header;
-                        editor.Lines[line].FoldLevel = foldLevel++;
+                        var lastCharLine = editor.LineFromPosition(lastCharPos);
+                        editor.Lines[lastCharLine].FoldLevelFlags = FoldLevelFlags.Header;
+                        editor.Lines[lastCharLine].FoldLevel = foldLevel++;
+                        for (int i = lastCharLine + 1; i <= line; i++)
+                        {
+                            editor.Lines[i].FoldLevelFlags = FoldLevelFlags.White;
+                            editor.Lines[i].FoldLevel = foldLevel;
+                        }
                         lastLine = line;
                         state = FoldState.Foldable;
                         break;
@@ -368,7 +396,6 @@ namespace App
 
                 startPos++;
             }
-            return 0;
         }
 
         /// <summary>
@@ -383,7 +410,8 @@ namespace App
         {
             public int Id;
             public string Prefix;
-            public Color Color;
+            public Color ForeColor;
+            public Color BackColor;
         }
     }
 }

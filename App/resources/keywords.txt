@@ -8,6 +8,7 @@
 // 0 string #800000
 // 0 char #A03030
 // 0 block #0000FF
+// 0 folding #FF0000 #FFAAAA
 // 1 annotation #0099CC
 // 2 command #6666FF
 // 3 argument #6633CC

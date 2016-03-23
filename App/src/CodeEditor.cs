@@ -27,6 +27,7 @@ namespace App
         private static int QUAL;
         private static int VAR;
         private static int BRANCH;
+        private static string HiddenLines = $"{(char)177}";
         #endregion
 
         /// <summary>
@@ -53,8 +54,11 @@ namespace App
             foreach (var def in defs)
             {
                 int id = int.Parse(def[1]);
-                Color color = ColorTranslator.FromHtml(def[3]);
-                Defs.Add(def[2], new FXLexer.KeyDef { Id = id, Prefix = $"{id}", Color = color });
+                var foreColor = ColorTranslator.FromHtml(def[3]);
+                var backColor = def.Length > 4 ? ColorTranslator.FromHtml(def[4]) : Color.White;
+                Defs.Add(def[2], new FXLexer.KeyDef {
+                    Id = id, Prefix = $"{id}", ForeColor = foreColor, BackColor = backColor
+                });
             }
 
             // get keyword IDs
@@ -82,6 +86,7 @@ namespace App
 
             // create lexer
             FxLexer = new FXLexer(Properties.Resources.keywords, Defs);
+            FxLexer.FolingChar = HiddenLines[0];
         }
 
         /// <summary>
@@ -137,6 +142,8 @@ namespace App
             // insert text
             Text = text != null ? text : "";
             UpdateLineNumbers();
+            UpdateCodeFolding(0, Lines.Count);
+            UpdateCodeStyling(0, Text.Length);
         }
 
         /// <summary>
@@ -149,6 +156,30 @@ namespace App
             var width = TextRenderer.MeasureText(new string('9', nLines), Font).Width;
             if (Margins[0].Width != width)
                 Margins[0].Width = width;
+        }
+
+        public new int FirstVisibleLine
+        {
+            get
+            {
+                int line = base.FirstVisibleLine;
+                for (int i = 0; i < line && i < Lines.Count; i++)
+                    if (!Lines[i].Visible)
+                        line++;
+                return line;
+            }
+        }
+
+        public int LastVisibleLine
+        {
+            get
+            {
+                int i, line;
+                for (i = FirstVisibleLine, line = i + LinesOnScreen; i < line && i < Lines.Count; i++)
+                    if (!Lines[i].Visible)
+                        line++;
+                return line;
+            }
         }
     }
 }

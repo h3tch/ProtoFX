@@ -47,7 +47,7 @@ namespace App
             comboBufType.SelectedIndex = 8;
 
             // place splitters by percentage
-            splitCodeError.SplitterDistance = (int)(0.7 * splitCodeError.Height);
+            splitRenderOutput.SplitterDistance = (int)(0.7 * splitRenderOutput.Height);
             splitDebug.SplitterDistance = (int)(0.55 * splitDebug.Width);
 
             // link property viewer to debug settings

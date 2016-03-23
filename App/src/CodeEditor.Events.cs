@@ -22,6 +22,9 @@ namespace App
             KeyDown += new KeyEventHandler(HandleKeyDown);
             InsertCheck += new EventHandler<InsertCheckEventArgs>(HandleInsertCheck);
             CharAdded += new EventHandler<CharAddedEventArgs>(HandleCharAdded);
+
+            MouseDown += new MouseEventHandler(HandleMouseDown);
+            MouseWheel += new MouseEventHandler(HandleMouseWheel);
         }
 
         /// <summary>
@@ -92,6 +95,11 @@ namespace App
 
             // update line number margins
             editor.UpdateLineNumbers();
+
+            // update code folding
+            int startLine = FirstVisibleLine, endLine = LastVisibleLine;
+            UpdateCodeFolding(startLine, endLine);
+            UpdateCodeStyling(Lines[startLine].Position, Lines[endLine].EndPosition);
         }
 
         /// <summary>
@@ -105,19 +113,48 @@ namespace App
             var editor = (CodeEditor)sender;
 
             // handle selection changed events
-            if (e.Change == UpdateChange.Selection)
+            switch (e.Change)
             {
-                // Update indicators only if the editor is in focus. This
-                // is necessary, because they are also used by 'Find & Replace'.
-                if (editor.Focused)
-                {
-                    // get whole words from selections and get ranges from these words
-                    var ranges = editor.FindWordRanges(editor.GetWordsFromSelections());
-                    // highlight all selected words
-                    editor.ClearIndicators(HighlightIndicatorIndex);
-                    editor.AddIndicators(HighlightIndicatorIndex, ranges);
-                }
+                case UpdateChange.Selection:
+                    // Update indicators only if the editor is in focus. This
+                    // is necessary, because they are also used by 'Find & Replace'.
+                    if (editor.Focused)
+                    {
+                        // get whole words from selections and get ranges from these words
+                        var ranges = editor.FindWordRanges(editor.GetWordsFromSelections());
+                        // highlight all selected words
+                        editor.ClearIndicators(HighlightIndicatorIndex);
+                        editor.AddIndicators(HighlightIndicatorIndex, ranges);
+                    }
+                    break;
+                case UpdateChange.HScroll:
+                case UpdateChange.VScroll:
+                    // update code folding
+                    int startLine = FirstVisibleLine, endLine = LastVisibleLine;
+                    UpdateCodeFolding(startLine, endLine);
+                    UpdateCodeStyling(Lines[startLine].Position, Lines[endLine].EndPosition);
+                    break;
             }
+        }
+
+        private void HandleMouseDown(object sender, MouseEventArgs e)
+        {
+            for (int l = 0; l < Lines.Count; l++)
+            {
+                var text = Lines[l].Text.TrimEnd();
+                if (text.EndsWith(HiddenLines) && Lines[l].Expanded)
+                    DeleteRange(Lines[l].Position + text.Length - 1, 1);
+                else if (!text.EndsWith(HiddenLines) && !Lines[l].Expanded)
+                    InsertText(Lines[l].Position + text.Length, HiddenLines);
+            }
+        }
+
+        private void HandleMouseWheel(object sender, MouseEventArgs e)
+        {
+            // update code folding
+            int startLine = FirstVisibleLine, endLine = LastVisibleLine;
+            UpdateCodeFolding(startLine, endLine);
+            UpdateCodeStyling(Lines[startLine].Position, Lines[endLine].EndPosition);
         }
 
         /// <summary>

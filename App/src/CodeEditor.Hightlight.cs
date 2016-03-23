@@ -19,33 +19,34 @@ namespace App
             StyleClearAll();
 
             Styles[Style.LineNumber].ForeColor = Color.Gray;
+            Styles[(int)FXLexer.Styles.Folding].ForeColor = Color.Red;
 
             // set styles as defined in the keyword file
             foreach (var def in FxLexer.Defs)
+            {
                 if (def.Value != null)
-                    Styles[def.Value.Id].ForeColor = def.Value.Color;
+                {
+                    Styles[def.Value.Id].ForeColor = def.Value.ForeColor;
+                    Styles[def.Value.Id].BackColor = def.Value.BackColor;
+                }
+            }
 
             Lexer = Lexer.Container;
-
-            StyleNeeded += new EventHandler<StyleNeededEventArgs>(HandleStyleNeeded);
         }
-        
-        /// <summary>
-        /// Handle style needed event.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="ev"></param>
-        private void HandleStyleNeeded(object sender, StyleNeededEventArgs ev)
+
+        private void UpdateCodeStyling(int startPos, int endPos)
         {
             var line = LineFromPosition(GetEndStyled());
-
             // get start and end position of the region that needs to be styled
-            FxLexer.Style(this, Lines[line].Position, ev.Position);
+            FxLexer.Style(this, Lines[line].Position, endPos);
+        }
 
+        private void UpdateCodeFolding(int startLine, int endLine)
+        {
             // get start and end position of the region that needs to be folded
-            while (line > 0 && Lines[line].FoldLevel != 1024)
-                line--;
-            FxLexer.Folding(this, Lines[line].Position, ev.Position);
+            while (startLine > 0 && Lines[startLine].FoldLevel != 1024)
+                startLine--;
+            FxLexer.Folding(this, Lines[startLine].Position, Lines[endLine].EndPosition);
         }
     }
 }
