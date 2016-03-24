@@ -1,5 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using ScintillaNET;
+﻿using ScintillaNET;
 using System;
 using System.Data;
 using System.Drawing;
@@ -266,31 +265,13 @@ namespace App
 
             // SHOW SCENE
             glControl.Render();
+            
+            // add externally created textures to the scene
+            var existing = glControl.Scene.Values.ToArray();
+            GLImage.FindTextures(existing).Do(x => glControl.Scene.Add(x.name, x));
 
-            // also add externally created textures to the scene
-            var internID = from x in glControl.Scene
-                           where x.Value is GLImage || x.Value is GLTexture
-                           select x.Value.glname;
-            var externID = from x in Enumerable.Range(0, 64)
-                           where !internID.Contains(x) && GL.IsTexture(x)
-                           select x;
-            externID
-                .Select(x => new GLImage($"{GLImage.GetLabel(x)}", "tex", x))
-                .Do(x => glControl.Scene.Add(x.name, x));
-
-            // also add externally created buffers to the scene
-            internID = from x in glControl.Scene
-                       where x.Value is GLBuffer
-                       select x.Value.glname;
-            externID = from x in Enumerable.Range(0, 64)
-                       where !internID.Contains(x) && GL.IsBuffer(x)
-                       select x;
-            var externName = from x in externID
-                             select $"{GLBuffer.GetLabel(x)}";
-            externID.Zip(externName,
-                (id,name) => name.Length == 0 ? null : new GLBuffer(name, "buf", id))
-                .Where(x => x != null)
-                .Do(x => glControl.Scene.Add(x.name, x));
+            // add externally created buffers to the scene
+            GLBuffer.FindBuffers(existing).Do(x => glControl.Scene.Add(x.name, x));
 
             // UPDATE DEBUG DATA
             comboBuf.Items.Clear();

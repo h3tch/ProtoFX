@@ -77,6 +77,15 @@ namespace App
         /// <param name="obj"></param>
         /// <returns>Returns true if the object value equals the default value.</returns>
         public static bool IsDefault<T>(this T obj) => obj.Equals(default(T));
+
+        /// <summary>
+        /// Check if the class is of any of the specified types.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public static bool TypeIs<T>(this T obj, Type[] types) => types.Any(x => x is T);
         #endregion
 
         #region IEnumerable<T> Extensions

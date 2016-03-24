@@ -11,6 +11,8 @@ using CpuFormat = System.Drawing.Imaging.PixelFormat;
 using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
 using GpuColorFormat = OpenTK.Graphics.OpenGL4.PixelInternalFormat;
 using TexParameter = OpenTK.Graphics.OpenGL4.GetTextureParameter;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace App
 {
@@ -284,6 +286,17 @@ namespace App
         /// <param name="glname"></param>
         /// <returns></returns>
         public static string GetLabel(int glname) => GetLabel(ObjectLabelIdentifier.Texture, glname);
+
+        /// <summary>
+        /// Find OpenGL textures.
+        /// </summary>
+        /// <param name="existing">List of objects already existent in the scene.</param>
+        /// <param name="range">Range in which to search for external objects (starting with 0).</param>
+        /// <returns></returns>
+        public static IEnumerable<GLObject> FindTextures(GLObject[] existing, int range = 64)
+            => FindObjects(existing, new[] { typeof(GLImage), typeof(GLTexture) }, GLIsTexMethod, GLTexLabel, range);
+        private static MethodInfo GLIsTexMethod = typeof(GL).GetMethod("IsTexture", new[] { typeof(int) });
+        private static MethodInfo GLTexLabel = typeof(GLImage).GetMethod("GetLabel", new[] { typeof(int) });
 
         #region UTIL METHODS
         /// <summary>

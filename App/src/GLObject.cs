@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -57,6 +58,33 @@ namespace App
         /// </summary>
         /// <returns></returns>
         public override string ToString() => name;
+
+        /// <summary>
+        /// Find all external OpenGL objects of the specified type.
+        /// </summary>
+        /// <param name="existing">List of objects already existent in the scene.</param>
+        /// <param name="types">Type of objects to search for.</param>
+        /// <param name="glIs">The respective OpenGL function to check whether the object ID exists.</param>
+        /// <param name="glLabel">The respective OpenGL function to get the label to the object.</param>
+        /// <param name="range">Range in which to search for external objects (starting with 0).</param>
+        /// <returns></returns>
+        protected static IEnumerable<GLObject> FindObjects(GLObject[] existing, Type[] types,
+            MethodInfo glIs, MethodInfo glLabel, int range)
+        {
+            // select all object IDs in the scene that are of one of the specified types
+            var internID = from x in existing where x.TypeIs(types) select x.glname;
+            // find all external object IDs of the same type in OpenGL
+            var externID = from x in Enumerable.Range(0, range)
+                           where !internID.Contains(x) && (bool)glIs.Invoke(null, new object[] { x })
+                           select x;
+            // get respective OpenGL labels to ObenGL IDs
+            var externName = from x in externID select (string)glLabel.Invoke(null, new object[] { x });
+            // create ProtoFX classes referencing these OpenGL objects
+            return externID
+                .Zip(externName, (i, n) => n.Length == 0 ? null : new object[] { n, "tex", i })
+                .Where(x => x != null)
+                .Select(x => (GLObject)Activator.CreateInstance(types[0], x));
+        }
 
         #region Error handling
         /// <summary>

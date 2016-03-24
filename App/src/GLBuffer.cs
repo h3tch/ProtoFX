@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace App
 {
@@ -153,6 +154,17 @@ namespace App
         /// <param name="glname"></param>
         /// <returns></returns>
         public static string GetLabel(int glname) => GetLabel(ObjectLabelIdentifier.Buffer, glname);
+
+        /// <summary>
+        /// Find OpenGL buffers.
+        /// </summary>
+        /// <param name="existing">List of objects already existent in the scene.</param>
+        /// <param name="range">Range in which to search for external objects (starting with 0).</param>
+        /// <returns></returns>
+        public static IEnumerable<GLObject> FindBuffers(GLObject[] existing, int range = 64)
+            => FindObjects(existing, new[] { typeof(GLBuffer) }, GLIsBufMethod, GLBufLabel, range);
+        private static MethodInfo GLIsBufMethod = typeof(GL).GetMethod("IsBuffer", new[] { typeof(int) });
+        private static MethodInfo GLBufLabel = typeof(GLBuffer).GetMethod("GetLabel", new[] { typeof(int) });
 
         #region UTIL METHODS
         private void CreateBuffer(byte[] data)
