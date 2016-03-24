@@ -87,6 +87,24 @@ namespace App.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &gt;&gt;.
+        /// </summary>
+        internal static string DBG_CLOSE {
+            get {
+                return ResourceManager.GetString("DBG_CLOSE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;&lt;.
+        /// </summary>
+        internal static string DBG_OPEN {
+            get {
+                return ResourceManager.GetString("DBG_OPEN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to uniform &lt;&lt;debug uniform&gt;&gt;;
         ///uniform &lt;&lt;debug frame&gt;&gt;;
         ///
@@ -110,24 +128,6 @@ namespace App.Properties {
         internal static string dbgBody {
             get {
                 return ResourceManager.GetString("dbgBody", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &gt;&gt;.
-        /// </summary>
-        internal static string DEBUG_INDICATOR_CLOSE {
-            get {
-                return ResourceManager.GetString("DEBUG_INDICATOR_CLOSE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;&lt;.
-        /// </summary>
-        internal static string DEBUG_INDICATOR_OPEN {
-            get {
-                return ResourceManager.GetString("DEBUG_INDICATOR_OPEN", resourceCulture);
             }
         }
         
@@ -222,25 +222,28 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to buffer|buffer &lt;name&gt;
-        ///buffer.size|size &lt;bytes&gt;
-        ///buffer.txt|txt &lt;text_name&gt;
-        ///buffer.usage|usage &lt;usage_hint&gt;
-        ///buffer.usage.dynamicCopy
-        ///buffer.usage.dynamicDraw
-        ///buffer.usage.dynamicRead
-        ///buffer.usage.staticCopy
-        ///buffer.usage.staticDraw
-        ///buffer.usage.staticRead
-        ///buffer.usage.streamCopy
-        ///buffer.usage.streamDraw
-        ///buffer.usage.streamRead
-        ///buffer.xml|xml &lt;path&gt; &lt;node&gt;
-        ///csharp|csharp &lt;name&gt;
-        ///csharp.file|file &lt;path&gt; [path] [...]
-        ///fragoutput|fragoutput &lt;name&gt;
-        ///fragoutput.color|color &lt;image_name&gt;
-        ///fragoutput.depth|d [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to // 0 default #C0C0C0
+        ///// 0 identifier #000000
+        ///// 0 comment #7F9F00
+        ///// 0 operator #6080D0
+        ///// 0 punctuation #C0C0C0
+        ///// 0 preprocessor #E47426
+        ///// 0 number #108030
+        ///// 0 string #800000
+        ///// 0 char #A03030
+        ///// 0 block #0000FF
+        ///// 0 folding #FF0000 #FFAAAA
+        ///// 1 annotation #0099CC
+        ///// 2 command #6666FF
+        ///// 3 argument #6633CC
+        ///// 4 function #993333
+        ///// 5 type #0000FF
+        ///// 6 specifications #0000FF
+        ///// 7 qualifier #0099CC
+        ///// 8 variable #0000FF
+        ///// 9 branching #0000FF
+        ///[0]buffer|buffer &lt;name&gt;
+        ///[0]buffer[2]size|si [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string keywords {
             get {

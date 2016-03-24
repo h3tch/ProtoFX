@@ -13,7 +13,10 @@ namespace App
     class FxDebugger
     {
         #region FIELDS
-        public static string RegexDbgVar = $@"{DEBUG_INDICATOR_OPEN}[\s\w\d_\.\[\]]*{DEBUG_INDICATOR_CLOSE}";
+        public static Regex RegexDbgVar = new Regex($@"{DBG_OPEN}[\s\w\d_\.\[\] ]*{DBG_CLOSE}");
+        public static Regex RegexMain = new Regex(@"void\s+main\s*\(\s*\)");
+        public static Regex RegexBranch1 = new Regex(@"(if|while|for)\s*\(.*\)\s*\{");
+        public static Regex RegexBranch2 = new Regex(@"(if|while|for)\s*\(.*\)\s*(?!\{).*;");
         // debug resources definitions
         private static string DbgBufKey;
         private static string DbgTexKey;
@@ -27,8 +30,8 @@ namespace App
         public static DebugSettings Settings;
         // watch count for indexing
         private const int stage_size = 128;
-        private static int OPEN_INDIC_LEN = DEBUG_INDICATOR_OPEN.Length;
-        private static int CLOSE_INDIC_LEN = DEBUG_INDICATOR_CLOSE.Length;
+        private static int OPEN_INDIC_LEN = DBG_OPEN.Length;
+        private static int CLOSE_INDIC_LEN = DBG_CLOSE.Length;
         private static int dbgVarCount;
         #endregion
 
@@ -223,7 +226,7 @@ namespace App
         public static DbgVar GetDebugVariableFromPosition(CodeEditor editor, int position)
         {
             // find all debug variables
-            var vars = Regex.Matches(editor.Text, RegexDbgVar);
+            var vars = RegexDbgVar.Matches(editor.Text);
 
             for (int i = 0; i < vars.Count; i++)
             {
@@ -250,7 +253,7 @@ namespace App
         public static IEnumerable<DbgVar> GetDebugVariablesFromLine(CodeEditor editor, int line)
         {
             // find all debug variables
-            var vars = Regex.Matches(editor.Text, RegexDbgVar);
+            var vars = RegexDbgVar.Matches(editor.Text);
 
             for (int i = 0; i < vars.Count; i++)
             {
@@ -345,34 +348,48 @@ namespace App
         /// <param name="debug">Add debug information if true.
         /// Otherwise remove debug indicators.</param>
         /// <returns>Returns the new GLSL code with debug code added.</returns>
-        public static string AddDebugCode(string glsl, ShaderType type, bool debug)
+        public static string AddDebugCode(Compiler.Block block, ShaderType type, bool debug, CompileException err)
         {
+            var glsl = block.Text.BraceMatch('{', '}').Value;
+            glsl = glsl.Substring(1, glsl.Length - 2);
+
             // find main function and body
-            var main = Regex.Match(glsl, @"void\s+main\s*\(\s*\)");
+            var main = RegexMain.Match(glsl);
             var head = glsl.Substring(0, main.Index);
             var body = glsl.Substring(main.Index).BraceMatch('{', '}');
 
             // replace WATCH functions
-            var watch = Regex.Matches(body.Value, RegexDbgVar);
+            var watch = RegexDbgVar.Matches(body.Value);
+            var invalid = new[] {
+                RegexBranch1.Matches(body.Value).Cast<Match>(),
+                RegexBranch2.Matches(body.Value).Cast<Match>()
+            }.Cat();
             if (watch.Count == 0)
                 return glsl;
 
             // remove WATCH indicators for runtime code
-            var runBody = body.Value.Replace(DEBUG_INDICATOR_OPEN, "").Replace(DEBUG_INDICATOR_CLOSE, "");
+            var runBody = body.Value.Replace(DBG_OPEN, "").Replace(DBG_CLOSE, "");
 
             // if debugging is disabled, there is no need to generate debug code
             if (debug == false)
                 return head + main.Value + runBody;
 
             var dbgBody = string.Copy(body.Value);
+
             int insertOffset = 0;
-            foreach (Match match in watch)
+            foreach (Match v in watch)
             {
+                // if the watch variable lies within an invalid area, ignore it
+                if (invalid.Any(x => x.Index <= v.Index + v.Length && v.Index <= x.Index + x.Length))
+                {
+                    dbgVarCount++;
+                    continue;
+                }
                 // get debug variable name
-                var varname = match.Value.Substring(DEBUG_INDICATOR_OPEN.Length,
-                    match.Value.Length - DEBUG_INDICATOR_OPEN.Length - DEBUG_INDICATOR_CLOSE.Length);
+                var varname = v.Value.Substring(DBG_OPEN.Length,
+                    v.Value.Length - DBG_OPEN.Length - DBG_CLOSE.Length);
                 // get next newline-indicator
-                int newline = dbgBody.IndexOf('\n', match.Index + insertOffset);
+                int newline = dbgBody.IndexOf('\n', v.Index + insertOffset);
                 if (dbgBody[newline - 1] == '\r')
                     newline--;
                 // insert debug code before newline-indicator
@@ -380,7 +397,7 @@ namespace App
                 dbgBody = dbgBody.Insert(newline, insertString);
                 insertOffset += insertString.Length;
             }
-            dbgBody = dbgBody.Replace(DEBUG_INDICATOR_OPEN, "").Replace(DEBUG_INDICATOR_CLOSE, "");
+            dbgBody = dbgBody.Replace(DBG_OPEN, "").Replace(DBG_CLOSE, "");
 
             // replace 'return' keyword with '{store(info); return;}'
             dbgBody = dbgBody.Replace("return", "{_dbgStore(0, ivec2(_dbgIdx-1, _dbgFrame));return;}");
@@ -417,13 +434,13 @@ namespace App
 
             // insert debug information
             var rsHead = Properties.Resources.dbg
-                .Replace($"{DEBUG_INDICATOR_OPEN}stage offset{DEBUG_INDICATOR_CLOSE}", (stage_size * stage_index).ToString());
+                .Replace($"{DBG_OPEN}stage offset{DBG_CLOSE}", (stage_size * stage_index).ToString());
             var rsBody = Properties.Resources.dbgBody
-                .Replace($"{DEBUG_INDICATOR_OPEN}debug uniform{DEBUG_INDICATOR_CLOSE}", debug_uniform[stage_index])
-                .Replace($"{DEBUG_INDICATOR_OPEN}debug frame{DEBUG_INDICATOR_CLOSE}", "int _dbgFrame")
-                .Replace($"{DEBUG_INDICATOR_OPEN}debug condition{DEBUG_INDICATOR_CLOSE}", debug_condition[stage_index])
-                .Replace($"{DEBUG_INDICATOR_OPEN}debug code{DEBUG_INDICATOR_CLOSE}", dbgBody)
-                .Replace($"{DEBUG_INDICATOR_OPEN}runtime code{DEBUG_INDICATOR_CLOSE}", runBody);
+                .Replace($"{DBG_OPEN}debug uniform{DBG_CLOSE}", debug_uniform[stage_index])
+                .Replace($"{DBG_OPEN}debug frame{DBG_CLOSE}", "int _dbgFrame")
+                .Replace($"{DBG_OPEN}debug condition{DBG_CLOSE}", debug_condition[stage_index])
+                .Replace($"{DBG_OPEN}debug code{DBG_CLOSE}", dbgBody)
+                .Replace($"{DBG_OPEN}runtime code{DBG_CLOSE}", runBody);
             
             return head + '\n' + rsHead + '\n' + rsBody;
         }

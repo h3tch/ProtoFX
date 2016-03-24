@@ -134,10 +134,10 @@ shader vert vs_simple {
 		mat4 viewProj[MAX_CAMS];
 		
 		// create model matrix
-		mat4 model = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
+		mat4 <<model>> = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
 		
 		// create view matrix for every camera
-		for (count = 0; count < MAX_CAMS && camera[count / 4][count % 4] >= 0; count++)
+		for (count = 0; <<count>> < MAX_CAMS && camera[count / 4][count % 4] >= 0; count++)
 		{
 			int ptr = camera[count / 4][count % 4];
 			vp[count] = texelFetch(camViewport, ptr);
@@ -151,7 +151,7 @@ shader vert vs_simple {
 		
 		// pass varyings on to next shader
 		col = color;
-		nor = normal;
+		nor = <<normal>>;
 		for (int i = count; i < MAX_CAMS; i++)
 			pos[i] = vp[i] = vec4(0);
 		
