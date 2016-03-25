@@ -293,7 +293,7 @@ namespace App
 
             // draw indicator lines where code has been folded
             var pen = new Pen(Brushes.Gray);
-            var h = TextRenderer.MeasureText("0", Font).Height;
+            var h = TextRenderer.MeasureText("0", Font).Height - 1;
 
             // for all visible lines
             for (int i = FirstVisibleLine, I = LastVisibleLine; i < I; i++)

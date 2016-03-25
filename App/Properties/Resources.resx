@@ -157,10 +157,10 @@
   <data name="WINDOW_SETTINGS_FILE" xml:space="preserve">
     <value>settings.xml</value>
   </data>
-  <data name="DEBUG_INDICATOR_CLOSE" xml:space="preserve">
+  <data name="DBG_CLOSE" xml:space="preserve">
     <value>&gt;&gt;</value>
   </data>
-  <data name="DEBUG_INDICATOR_OPEN" xml:space="preserve">
+  <data name="DBG_OPEN" xml:space="preserve">
     <value>&lt;&lt;</value>
   </data>
 </root>

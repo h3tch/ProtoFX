@@ -486,6 +486,5 @@ namespace App
 
         public static CompileException Add(this CompileException err, string message, Compiler.Command cmd)
             => err.Add(message, cmd.File, cmd.LineInFile);
-
     }
 }

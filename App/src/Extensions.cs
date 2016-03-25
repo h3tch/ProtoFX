@@ -168,7 +168,7 @@ namespace App
                         yield return e;
             }
         }
-        
+
         /// <summary>
         /// Concatenate a list of strings into a single string.
         /// </summary>
