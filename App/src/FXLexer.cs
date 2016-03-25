@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace App
 {
@@ -78,9 +79,9 @@ namespace App
             // search for keywords and fill hashsets
             foreach (var def in Defs)
             {
-                var indicator = $"{def.Value.Id}";
-                var words = from x in keywordDef.Matches(@"\[" + indicator + @"\]\w+")
-                            select x.Value.Substring(indicator.Length + 2);
+                var id = $"{def.Value.Id}";
+                var words = from x in Regex.Matches(keywordDef, @"\[" + id + @"\]\w+").Cast<Match>()
+                            select x.Value.Substring(id.Length + 2);
                 keywords[def.Value.Id] = new HashSet<string>(words);
             }
         }

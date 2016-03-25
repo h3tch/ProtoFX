@@ -56,15 +56,27 @@ namespace App
             return lineCount;
         }
 
+        /// <summary>
+        /// Find index of the specified character beginning at the startIndex.
+        /// If the character could not be found, the length of the string is
+        /// returned -- not -1.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="c"></param>
+        /// <param name="startIndex">The zero based index to start searching at.</param>
+        /// <returns>Returns the position of the first found character location
+        /// or the length of the string if the character could not be found.</returns>
         public static int IndexOfOrLength(this string s, char c, int startIndex = 0)
             =>(int)Math.Min((uint)s.Length, (uint)s.IndexOf(c, startIndex));
 
-        public static IEnumerable<Match> Matches(this string s, string regex)
-        {
-            foreach (Match m in Regex.Matches(s, regex))
-                yield return m;
-        }
-
+        /// <summary>
+        /// The sub range of the string beginning at the zero based start index
+        /// and ending at the zero based end index.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="start">Zero based start index.</param>
+        /// <param name="end">Zero based end index.</param>
+        /// <returns></returns>
         public static string Subrange(this string s, int start, int end)
             => s.Substring(start, end - start);
         #endregion
