@@ -8,7 +8,7 @@
 // 0 string #800000
 // 0 char #A03030
 // 0 block #0000FF
-// 0 folding #FF0000 #FFAAAA
+// 0 folding #AAAAAA
 // 1 annotation #0099CC
 // 2 command #6666FF
 // 3 argument #6633CC
@@ -18,6 +18,7 @@
 // 7 qualifier #0099CC
 // 8 variable #0000FF
 // 9 branching #0000FF
+// 10 opengl #993333
 [0]buffer|buffer <name>
 [0]buffer[2]size|size <bytes>
 [0]buffer[2]txt|txt <text_name>
@@ -156,6 +157,150 @@
 [0]pass[2]tess|tess <shader_name>
 [0]pass[2]tex|tex <texture_name> <unit>
 [0]pass[2]vert|vert <shader_name>
+[0]pass[10]glBeginConditionalRender
+[0]pass[10]glBeginQuery
+[0]pass[10]glBeginQueryIndexed
+[0]pass[10]glBlendColor
+[0]pass[10]glBlendEquation
+[0]pass[10]glBlendEquationi
+[0]pass[10]glBlendEquationSeparate
+[0]pass[10]glBlendEquationSeparatei
+[0]pass[10]glBlendFunc
+[0]pass[10]glBlendFunci
+[0]pass[10]glBlendFuncSeparate
+[0]pass[10]glBlendFuncSeparatei
+[0]pass[10]glClampColor
+[0]pass[10]glClear
+[0]pass[10]glClearBuffer
+[0]pass[10]glClearBufferData
+[0]pass[10]glClearBufferfi
+[0]pass[10]glClearBufferfv
+[0]pass[10]glClearBufferiv
+[0]pass[10]glClearBufferSubData
+[0]pass[10]glClearBufferuiv
+[0]pass[10]glClearColor
+[0]pass[10]glClearDepth
+[0]pass[10]glClearDepthf
+[0]pass[10]glClearNamedBufferData
+[0]pass[10]glClearNamedBufferSubData
+[0]pass[10]glClearNamedFramebufferfi
+[0]pass[10]glClearNamedFramebufferfv
+[0]pass[10]glClearNamedFramebufferiv
+[0]pass[10]glClearNamedFramebufferuiv
+[0]pass[10]glClearStencil
+[0]pass[10]glClearTexImage
+[0]pass[10]glClearTexSubImage
+[0]pass[10]glClientWaitSync
+[0]pass[10]glClipControl
+[0]pass[10]glColorMask
+[0]pass[10]glColorMaski
+[0]pass[10]glCullFace
+[0]pass[10]glDepthFunc
+[0]pass[10]glDepthMask
+[0]pass[10]glDepthRange
+[0]pass[10]glDepthRangeArray
+[0]pass[10]glDepthRangeArrayv
+[0]pass[10]glDepthRangef
+[0]pass[10]glDepthRangeIndexed
+[0]pass[10]glDetachShader
+[0]pass[10]glDisable
+[0]pass[10]glDisablei
+[0]pass[10]glEnable
+[0]pass[10]glEnablei
+[0]pass[10]glEndConditionalRender
+[0]pass[10]glEndQuery
+[0]pass[10]glEndQueryIndexed
+[0]pass[10]glEndTransformFeedback
+[0]pass[10]glFlush
+[0]pass[10]glFrontFace
+[0]pass[10]glLineWidth
+[0]pass[10]glLogicOp
+[0]pass[10]glMemoryBarrier
+[0]pass[10]glMemoryBarrierByRegion
+[0]pass[10]glMinSampleShading
+[0]pass[10]glPatchParameter
+[0]pass[10]glPatchParameterfv
+[0]pass[10]glPatchParameteri
+[0]pass[10]glPauseTransformFeedback
+[0]pass[10]glPointParameter
+[0]pass[10]glPointParameterf
+[0]pass[10]glPointParameterfv
+[0]pass[10]glPointParameteri
+[0]pass[10]glPointParameteriv
+[0]pass[10]glPointSize
+[0]pass[10]glPolygonMode
+[0]pass[10]glPolygonOffset
+[0]pass[10]glPopDebugGroup
+[0]pass[10]glPrimitiveRestartIndex
+[0]pass[10]glProvokingVertex
+[0]pass[10]glPushDebugGroup
+[0]pass[10]glQueryCounter
+[0]pass[10]glResumeTransformFeedback
+[0]pass[10]glSampleCoverage
+[0]pass[10]glSampleMaski
+[0]pass[10]glSamplerParameter
+[0]pass[10]glSamplerParameterf
+[0]pass[10]glSamplerParameterfv
+[0]pass[10]glSamplerParameteri
+[0]pass[10]glSamplerParameterIiv
+[0]pass[10]glSamplerParameterIuiv
+[0]pass[10]glSamplerParameteriv
+[0]pass[10]glScissor
+[0]pass[10]glScissorArray
+[0]pass[10]glScissorArrayv
+[0]pass[10]glScissorIndexed
+[0]pass[10]glScissorIndexedv
+[0]pass[10]glShaderStorageBlockBinding
+[0]pass[10]glStencilFunc
+[0]pass[10]glStencilFuncSeparate
+[0]pass[10]glStencilMask
+[0]pass[10]glStencilMaskSeparate
+[0]pass[10]glStencilOp
+[0]pass[10]glStencilOpSeparate
+[0]pass[10]glTextureBarrier
+[0]pass[10]glUniform1f
+[0]pass[10]glUniform1fv
+[0]pass[10]glUniform1i
+[0]pass[10]glUniform1iv
+[0]pass[10]glUniform1ui
+[0]pass[10]glUniform1uiv
+[0]pass[10]glUniform2f
+[0]pass[10]glUniform2fv
+[0]pass[10]glUniform2i
+[0]pass[10]glUniform2iv
+[0]pass[10]glUniform2ui
+[0]pass[10]glUniform2uiv
+[0]pass[10]glUniform3f
+[0]pass[10]glUniform3fv
+[0]pass[10]glUniform3i
+[0]pass[10]glUniform3iv
+[0]pass[10]glUniform3ui
+[0]pass[10]glUniform3uiv
+[0]pass[10]glUniform4f
+[0]pass[10]glUniform4fv
+[0]pass[10]glUniform4i
+[0]pass[10]glUniform4iv
+[0]pass[10]glUniform4ui
+[0]pass[10]glUniform4uiv
+[0]pass[10]glUniformBlockBinding
+[0]pass[10]glUniformMatrix2fv
+[0]pass[10]glUniformMatrix2x3fv
+[0]pass[10]glUniformMatrix2x4fv
+[0]pass[10]glUniformMatrix3fv
+[0]pass[10]glUniformMatrix3x2fv
+[0]pass[10]glUniformMatrix3x4fv
+[0]pass[10]glUniformMatrix4fv
+[0]pass[10]glUniformMatrix4x2fv
+[0]pass[10]glUniformMatrix4x3fv
+[0]pass[10]glUniformSubroutines
+[0]pass[10]glUniformSubroutinesuiv
+[0]pass[10]glViewport
+[0]pass[10]glViewportArray
+[0]pass[10]glViewportArrayv
+[0]pass[10]glViewportIndexed
+[0]pass[10]glViewportIndexedf
+[0]pass[10]glViewportIndexedfv
+[0]pass[10]glWaitSync
 [0]sampler|sampler <name>
 [0]sampler[2]magfilter|magfilter <filter_type>
 [0]sampler[2]magfilter[3]linear
@@ -1431,7 +1576,8 @@
 [0]shader[9]while
 [0]shader[6]writeonly
 [0]tech|tech <name>
-[0]tech[0]pass|pass <name>
+[0]tech[2]pass|Execute this pass every frame.
+   pass <name>
 [0]tech[2]init|Execute this pass only once
  before all 'normal' passes.
    init <name>
