@@ -40,14 +40,21 @@ namespace App
                 Width = settings.Width;
                 Height = settings.Height;
                 WindowState = settings.WindowState;
+                splitRenderCoding.SplitterDistance = (int)(settings.SplitRenderCoding * splitRenderCoding.Width);
+                splitRenderOutput.SplitterDistance = (int)(settings.SplitRenderOutput * splitRenderOutput.Height);
+                splitDebug.SplitterDistance = (int)(settings.SplitDebug * splitDebug.Height);
+            }
+            else
+            {
+                splitRenderCoding.SplitterDistance = (int)(0.4 * splitRenderCoding.Width);
+                splitRenderOutput.SplitterDistance = (int)(0.7 * splitRenderOutput.Height);
+                splitDebug.SplitterDistance = (int)(0.55 * splitDebug.Width);
             }
 
             // select 'float' as the default buffer value type
             comboBufType.SelectedIndex = 8;
 
             // place splitters by percentage
-            splitRenderOutput.SplitterDistance = (int)(0.7 * splitRenderOutput.Height);
-            splitDebug.SplitterDistance = (int)(0.55 * splitDebug.Width);
 
             // link property viewer to debug settings
             FxDebugger.Instantiate();
@@ -91,7 +98,9 @@ namespace App
             // get current window state
             var settings = new FormSettings
             {
-                Left = Left, Top = Top, Width = Width, Height = Height, WindowState = WindowState
+                Left = Left, Top = Top, Width = Width, Height = Height, WindowState = WindowState,
+                SplitRenderCoding = (float)splitRenderCoding.SplitterDistance / splitRenderCoding.Width,
+                SplitRenderOutput = (float)splitRenderOutput.SplitterDistance / splitRenderOutput.Height,
             };
 
             // if the state is not normal, make it normal
@@ -436,6 +445,9 @@ namespace App
         {
             public int Left, Top, Width, Height;
             public FormWindowState WindowState;
+            public float SplitRenderCoding;
+            public float SplitRenderOutput;
+            public float SplitDebug;
 
             /// <summary>
             /// Place the form rectangle completely inside the nearest screen.
