@@ -67,16 +67,17 @@ namespace App
         /// <param name="line">Specify the file line identifying an exception if it occurs.</param>
         /// <param name="err">Add new exceptions to this existing one.</param>
         /// <returns></returns>
-        public bool TryGetValue<T>(string key, out T obj, string file, int line, CompileException err = null)
+        public bool TryGetValue<T>(string key, out T obj, int line, string file,
+            CompileException err)
             where T : GLObject
         {
             // try to find the object instance
-            if ((obj = GetValueOrDefault<T>(key)) != default(GLObject))
+            if ((obj = GetValueOrDefault<T>(key)) != default(T))
                 return true;
 
             // get class name of object type
             var classname = typeof(T).Name.Substring(2).ToLower();
-            err?.Add($"The name '{key}' could not be found or does not "
+            err.Add($"The name '{key}' could not be found or does not "
                 + $"reference an object of type '{classname}'.", file, line);
             return false;
         }
