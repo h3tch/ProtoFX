@@ -165,9 +165,7 @@
     <None Include="demos\tutorial\01_hello_triangle.tech" />
     <None Include="demos\tutorial\02_colored_triangle.tech" />
     <None Include="demos\tutorial\03_simple_camera.tech" />
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
