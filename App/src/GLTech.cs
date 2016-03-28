@@ -35,7 +35,7 @@ namespace App
         /// <param name="frame"></param>
         public void Exec(int width, int height, int frame)
         {
-            // when executed the first time, execute init passes
+            // when executed the first time, execute initialization passes
             if (init != null)
             {
                 init.ForEach(x => x.Exec(width, height, frame));

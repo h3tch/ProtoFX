@@ -57,7 +57,7 @@ namespace OpenTK
                 MakeCurrent();
                 scene.Where(x => x.Value is GLTech)
                      .Select(x => (GLTech)x.Value)
-                     .Do(x => x.Exec(ClientSize.Width, ClientSize.Height, Frame));
+                     .ForEach(x => x.Exec(ClientSize.Width, ClientSize.Height, Frame));
                 SwapBuffers();
             }
             catch (Exception ex)
@@ -102,7 +102,7 @@ namespace OpenTK
         public void ClearScene()
         {
             // call delete method of OpenGL resources
-            scene.Do(x => x.Value.Delete());
+            scene.ForEach(x => x.Value.Delete());
             // clear list of classes
             scene.Clear();
             // add default OpenTK glControl

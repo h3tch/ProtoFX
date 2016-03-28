@@ -221,7 +221,7 @@ namespace App
         /// <typeparam name="T"></typeparam>
         /// <param name="ie"></param>
         /// <param name="func"></param>
-        public static void Do<T>(this IEnumerable<T> ie, Action<T> func)
+        public static void ForEach<T>(this IEnumerable<T> ie, Action<T> func)
         {
             foreach (var e in ie)
                 func(e);

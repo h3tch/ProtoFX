@@ -1,34 +1,32 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using PrimType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 using VertoutPrimType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
 using ElementType = OpenTK.Graphics.OpenGL4.DrawElementsType;
 using static System.Reflection.BindingFlags;
+using static OpenTK.Graphics.OpenGL4.GetProgramParameterName;
 
 namespace App
 {
     class GLPass : GLObject
     {
         #region FIELDS
-        private static CultureInfo culture = new CultureInfo("en");
         [FxField] private string Vert = null;
         [FxField] private string Tess = null;
         [FxField] private string Eval = null;
         [FxField] private string Geom = null;
         [FxField] private string Frag = null;
         [FxField] private string Comp = null;
-        //[FxField] private string Fragout = null;
         private GLObject glvert = null;
         private GLObject gltess = null;
         private GLObject gleval = null;
         private GLObject glgeom = null;
         private GLObject glfrag = null;
         private GLObject glcomp = null;
-        private Vertoutput vertoutput;
+        private Vertoutput vertoutput = null;
         private GLFragoutput fragoutput = null;
         private List<MultiDrawCall> drawcalls = new List<MultiDrawCall>();
         private List<CompCall> compcalls = new List<CompCall>();
@@ -113,27 +111,18 @@ namespace App
                     GL.DetachShader(glname, glcomp.glname);
                 else
                 {
-                    if (glvert != null)
-                        GL.DetachShader(glname, glvert.glname);
-                    if (gltess != null)
-                        GL.DetachShader(glname, gltess.glname);
-                    if (gleval != null)
-                        GL.DetachShader(glname, gleval.glname);
-                    if (glgeom != null)
-                        GL.DetachShader(glname, glgeom.glname);
-                    if (glfrag != null)
-                        GL.DetachShader(glname, glfrag.glname);
+                    if (glvert != null) GL.DetachShader(glname, glvert.glname);
+                    if (gltess != null) GL.DetachShader(glname, gltess.glname);
+                    if (gleval != null) GL.DetachShader(glname, gleval.glname);
+                    if (glgeom != null) GL.DetachShader(glname, glgeom.glname);
+                    if (glfrag != null) GL.DetachShader(glname, glfrag.glname);
                 }
 
                 // check for link errors
                 int status;
-                GL.GetProgram(glname, GetProgramParameterName.LinkStatus, out status);
+                GL.GetProgram(glname, LinkStatus, out status);
                 if (status != 1)
-                {
-                    var msg = GL.GetProgramInfoLog(glname);
-                    if (msg != null && msg.Length > 0)
-                        err.Add("\n" + msg, block);
-                }
+                    err.Add($"\n{GL.GetProgramInfoLog(glname)}", block);
             }
 
             if (GL.GetError() != ErrorCode.NoError)
@@ -155,11 +144,10 @@ namespace App
             // OpenGL sate is valid
             var errcode = GL.GetError();
             if (errcode != ErrorCode.NoError)
-                throw new Exception("OpenGL error.");
+                throw new Exception($"OpenGL error '{errcode}'.");
 #endif
 
-            int fbWidth = width;
-            int fbHeight = height;
+            int fbWidth = width, fbHeight = height;
 
             // BIND FRAGMENT OUTPUT
             // (widthOut and heightOut must be 
@@ -175,51 +163,38 @@ namespace App
             GL.Viewport(0, 0, fbWidth, fbHeight);
 
             // CALL USER SPECIFIED OPENGL FUNCTIONS
-            foreach (var glcall in glfunc)
-                glcall.mtype.Invoke(null, glcall.inval);
+            glfunc.ForEach(call => call.mtype.Invoke(null, call.inval));
 
             // BIND PROGRAM
-            if (glname > 0)
-                GL.UseProgram(glname);
+            if (glname > 0) GL.UseProgram(glname);
 
             // BIND VERTEX OUTPUT (transform feedback)
             // (must be done after glUseProgram)
-            if (vertoutput != null)
-                vertoutput.Bind();
+            vertoutput?.Bind();
 
             // BIND TEXTURES
-            foreach (var t in textures)
-                t.obj.BindTex(t.unit);
-            foreach (var t in texImages)
-                t.obj.BindImg(t.unit, t.level, t.layer, t.access, t.format);
-            foreach (var s in sampler)
-                GL.BindSampler(s.unit, s.obj.glname);
+            textures.ForEach(t => t.obj.BindTex(t.unit));
+            texImages.ForEach(t => t.obj.BindImg(t.unit, t.level, t.layer, t.access, t.format));
+            sampler.ForEach(s => GL.BindSampler(s.unit, s.obj.glname));
 
             // EXECUTE EXTERNAL CODE
-            foreach (var e in csexec)
-                e.Update(glname, width, height, fbWidth, fbHeight);
+            csexec.ForEach(e => e.Update(glname, width, height, fbWidth, fbHeight));
             
             // BIND DEBUGGER
-            if (glname > 0)
-                FxDebugger.Bind(this, frame);
+            if (glname > 0) FxDebugger.Bind(this, frame);
             
             // EXECUTE DRAW CALLS
-            foreach (var call in drawcalls)
-                call.draw();
+            drawcalls.ForEach(call => call.draw());
 
             // EXECUTE COMPUTE CALLS
-            foreach (var call in compcalls)
-                call.compute();
+            compcalls.ForEach(call => call.compute());
 
             // UNBIND DEBUGGER
-            if (glname > 0)
-                FxDebugger.Unbind(this);
+            if (glname > 0) FxDebugger.Unbind(this);
 
             // UNBIND OUTPUT BUFFERS
-            if (fragoutput != null)
-                fragoutput.Unbind();
-            if (vertoutput != null)
-                vertoutput.Unbind();
+            fragoutput?.Unbind();
+            vertoutput?.Unbind();
 
             // UNBIND OPENGL RESOURCES
             GL.UseProgram(0);
@@ -229,19 +204,15 @@ namespace App
             GL.BindVertexArray(0);
 
             // UNBIND OPENGL OBJECTS
-            foreach (var t in textures)
-                t.obj.UnbindTex(t.unit);
-            foreach (var t in texImages)
-                t.obj.UnbindImg(t.unit);
-            foreach (var s in sampler)
-                GL.BindSampler(s.unit, 0);
-            foreach (var e in csexec)
-                e.EndPass(glname);
+            textures.ForEach(t => t.obj.UnbindTex(t.unit));
+            texImages.ForEach(t => t.obj.UnbindImg(t.unit));
+            sampler.ForEach(s => GL.BindSampler(s.unit, 0));
+            csexec.ForEach(e => e.EndPass(glname));
 #if DEBUG
             // in debug mode check if the pass
             // left a valid OpenGL sate
             if ((errcode = GL.GetError()) != ErrorCode.NoError)
-                throw new Exception("OpenGL error.");
+                throw new Exception($"OpenGL error '{errcode}'.");
 #endif
         }
 

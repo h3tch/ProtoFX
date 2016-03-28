@@ -277,18 +277,18 @@ namespace App
             
             // add externally created textures to the scene
             var existing = glControl.Scene.Values.ToArray();
-            GLImage.FindTextures(existing).Do(x => glControl.Scene.Add(x.name, x));
+            GLImage.FindTextures(existing).ForEach(x => glControl.Scene.Add(x.name, x));
 
             // add externally created buffers to the scene
-            GLBuffer.FindBuffers(existing).Do(x => glControl.Scene.Add(x.name, x));
+            GLBuffer.FindBuffers(existing).ForEach(x => glControl.Scene.Add(x.name, x));
 
             // UPDATE DEBUG DATA
             comboBuf.Items.Clear();
             comboImg.Items.Clear();
             comboProp.Items.Clear();
-            glControl.Scene.Where(x => x.Value is GLBuffer).Do(x => comboBuf.Items.Add(x.Value));
-            glControl.Scene.Where(x => x.Value is GLImage).Do(x => comboImg.Items.Add(x.Value));
-            glControl.Scene.Where(x => x.Value is GLInstance).Do(x => comboProp.Items.Add(x.Value));
+            glControl.Scene.Where(x => x.Value is GLBuffer).ForEach(x => comboBuf.Items.Add(x.Value));
+            glControl.Scene.Where(x => x.Value is GLImage).ForEach(x => comboImg.Items.Add(x.Value));
+            glControl.Scene.Where(x => x.Value is GLInstance).ForEach(x => comboProp.Items.Add(x.Value));
 
             // UPDATE DEBUG INFORMATION IF NECESSARY
             if (debugging)
