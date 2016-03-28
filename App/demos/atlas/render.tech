@@ -60,6 +60,14 @@ buffer mesh_triangles {
 	xml "scene.xml" data/mesh/triangles
 }
 
+// RENDER BUFFERS
+
+image img_depth {
+	width 1024
+	height 768
+	format depth32f
+}
+
 /////////////////////////
 // DATA FORMAT OBJECTS //
 /////////////////////////
@@ -82,6 +90,10 @@ texture camera_transform_texture {
 texture camera_viewport_texture {
 	buff camera_viewport
 	format RGBA32f
+}
+
+fragoutput fragout_shadowmap {
+	depth img_depth
 }
 
 //////////////
@@ -107,7 +119,7 @@ instance cs_camera {
 
 // Simple GLSL vertex shader transforming
 // vertex positions from model to perspective space
-shader vert vs_simple {
+shader vert vs_shadowmap {
 	#version 450
 	
 	layout(binding = 0) uniform samplerBuffer camTransform;
@@ -115,18 +127,14 @@ shader vert vs_simple {
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 position;
-	layout(location = 1) in vec4 normal;
-	layout(location = 2) in vec4 color;
 	layout(location = 3) in vec4 axisx;
 	layout(location = 4) in vec4 axisy;
 	layout(location = 5) in vec4 axisz;
 	layout(location = 6) in ivec4 camera[(MAX_CAMS+3)/4];
 
 	// vertex shader output
-	layout(location = 0) out vec4 col;
-	layout(location = 1) out vec4 nor;
-	layout(location = 2) out vec4 pos[MAX_CAMS];
-	layout(location = 2+MAX_CAMS) out vec4 vp[MAX_CAMS];
+	layout(location = 0) out vec4 pos[MAX_CAMS];
+	layout(location = MAX_CAMS) out vec4 vp[MAX_CAMS];
 	
 	void main ()
 	{
@@ -150,8 +158,6 @@ shader vert vs_simple {
 		}
 		
 		// pass varyings on to next shader
-		col = color;
-		nor = <<normal>>;
 		for (int i = count; i < MAX_CAMS; i++)
 			pos[i] = vp[i] = vec4(0);
 		
@@ -162,18 +168,14 @@ shader vert vs_simple {
 	}
 }
 
-shader geom gs_simple {
+shader geom gs_shadowmap {
 	#version 450
 	
 	layout(triangles) in;
-	layout(location = 0) in vec4 color[];
-	layout(location = 1) in vec4 normal[];
-	layout(location = 2) in vec4 position[][MAX_CAMS];
-	layout(location = 2+MAX_CAMS) in vec4 viewport[][MAX_CAMS];
+	layout(location = 0) in vec4 position[][MAX_CAMS];
+	layout(location = MAX_CAMS) in vec4 viewport[][MAX_CAMS];
 	
 	layout(triangle_strip, max_vertices = 3*MAX_CAMS) out;
-	layout(location = 0) out vec4 col;
-	layout(location = 1) out vec4 nor;
 	
 	void main ()
 	{
@@ -201,8 +203,6 @@ shader geom gs_simple {
 				
 				// geomitry shader output
 				gl_Position = <<pos>>;
-				nor = normal[v];
-				col = color[v];
 				EmitVertex();
 			}
 			EndPrimitive();
@@ -210,9 +210,45 @@ shader geom gs_simple {
 	}
 }
 
+shader vert vs_render {
+	#version 450
+	
+	layout(binding = 0) uniform samplerBuffer camTransform;
+	layout(binding = 1) uniform samplerBuffer camViewport;
+	
+	// vertex input as specified by 'in_vert'
+	layout(location = 0) in vec4 position;
+	layout(location = 1) in vec4 normal;
+	layout(location = 2) in vec4 color;
+	layout(location = 3) in vec4 axisx;
+	layout(location = 4) in vec4 axisy;
+	layout(location = 5) in vec4 axisz;
+
+	// vertex shader output
+	layout(location = 0) out vec4 nor;
+	layout(location = 1) out vec4 col;
+	
+	void main ()
+	{
+		// create model matrix
+		mat4 <<model>> = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
+		
+		// create view matrix for the camera
+		mat4 viewProj[count] = mat4(
+			texelFetch(camTransform, 0),
+			texelFetch(camTransform, 1),
+			texelFetch(camTransform, 2),
+			texelFetch(camTransform, 3));
+			
+		nor = normal;
+		col = color;
+		gl_Position = viewProj[i] * (position * model);
+	}
+}
+
 // Simple GLSL fragment shader writing
 // the color of the fragment to the framebuffer
-shader frag fs_simple {
+shader frag fs_render {
 	#version 450
 	
 	// fragment shader input (see col in vs_simple)
@@ -233,11 +269,38 @@ shader frag fs_simple {
 /////////////////
 
 // Define a rendering pass
+pass pass_shadowmap {
+	// ATTATCH SHADERS
+	vert vs_shadowmap
+	geom gs_shadowmap
+	frag fs_simple
+	
+	fragout fragout_shadowmap
+	
+	tex camera_transform_texture 0
+	tex camera_viewport_texture 1
+	
+	// OPENGL FUNCTIONS
+	glClear DepthBit
+	glEnable depthTest
+	glEnable clipDistance0
+	glEnable clipDistance1
+	glEnable clipDistance2
+	glEnable clipDistance3
+	
+	// DRAW CALLS
+	draw mesh_triangles vertex_input ushort triangles draw_calls
+	
+	exec cs_camera
+}
+
+// Define a rendering pass
 pass pass_render {
 	// ATTATCH SHADERS
-	vert vs_simple
-	geom gs_simple
-	frag fs_simple
+	vert vs_render
+	frag fs_render
+	
+	fragout fragout_shadowmap
 	
 	tex camera_transform_texture 0
 	tex camera_viewport_texture 1
