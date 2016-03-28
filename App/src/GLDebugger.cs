@@ -389,12 +389,10 @@ namespace App
                 var varname = v.Value.Substring(DBG_OPEN.Length,
                     v.Value.Length - DBG_OPEN.Length - DBG_CLOSE.Length);
                 // get next newline-indicator
-                int newline = dbgBody.IndexOf('\n', v.Index + insertOffset);
-                if (dbgBody[newline - 1] == '\r')
-                    newline--;
+                int newcmd = dbgBody.IndexOf(';', v.Index + insertOffset);
                 // insert debug code before newline-indicator
-                var insertString = $"_dbgIdx = _dbgStoreVar(_dbgIdx, {varname}, {dbgVarCount++});";
-                dbgBody = dbgBody.Insert(newline, insertString);
+                var insertString = $";_dbgIdx = _dbgStoreVar(_dbgIdx, {varname}, {dbgVarCount++})";
+                dbgBody = dbgBody.Insert(newcmd, insertString);
                 insertOffset += insertString.Length;
             }
             dbgBody = dbgBody.Replace(DBG_OPEN, "").Replace(DBG_CLOSE, "");

@@ -64,7 +64,7 @@ buffer mesh_triangles {
 
 image img_depth {
 	width 1024
-	height 768
+	height 1024
 	format depth32f
 }
 
@@ -101,14 +101,15 @@ fragoutput fragout_shadowmap {
 //////////////
 
 csharp cs_util {
-	file "<csharp>/BufferCamera.cs" ...
+	file "<csharp>/StaticCamera.cs" ...
+	     "<csharp>/SimpleCamera.cs" ...
 	     "<csharp>/UniformBlock.cs" ...
 	     "<csharp>/CsObject.cs"
 }
 
 instance cs_camera {
-	class cs_util csharp.BufferCamera
-	buff camera_transform 0
+	class cs_util csharp.SimpleCamera
+	name SimpleCamera
 	pos -5 4 10
 	rot -20 -15 0
 }
@@ -142,10 +143,10 @@ shader vert vs_shadowmap {
 		mat4 viewProj[MAX_CAMS];
 		
 		// create model matrix
-		mat4 <<model>> = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
+		mat4 model = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
 		
 		// create view matrix for every camera
-		for (count = 0; <<count>> < MAX_CAMS && camera[count / 4][count % 4] >= 0; count++)
+		for (count = 0; count < MAX_CAMS && camera[count / 4][count % 4] >= 0; count++)
 		{
 			int ptr = camera[count / 4][count % 4];
 			vp[count] = texelFetch(camViewport, ptr);
@@ -185,8 +186,8 @@ shader geom gs_shadowmap {
 			// for each vertex in the triangle
 			for (int v = 0; v < gl_in.length(); v++)
 			{
-				vec4 <<pos>> = position[v][c];
-				vec4 <<vp>> = viewport[v][c];
+				vec4 pos = position[v][c];
+				vec4 vp = viewport[v][c];
 				
 				// viewport clipping
 				gl_ClipDistance[0] = pos.w - pos.x;
@@ -202,7 +203,7 @@ shader geom gs_shadowmap {
 				pos.xy *= pos.w;
 				
 				// geomitry shader output
-				gl_Position = <<pos>>;
+				gl_Position = pos;
 				EmitVertex();
 			}
 			EndPrimitive();
@@ -213,8 +214,9 @@ shader geom gs_shadowmap {
 shader vert vs_render {
 	#version 450
 	
-	layout(binding = 0) uniform samplerBuffer camTransform;
-	layout(binding = 1) uniform samplerBuffer camViewport;
+	layout(binding = 0) uniform SimpleCamera {
+		mat4 viewProj;
+	} camera;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 position;
@@ -232,28 +234,19 @@ shader vert vs_render {
 	{
 		// create model matrix
 		mat4 <<model>> = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
-		
-		// create view matrix for the camera
-		mat4 viewProj[count] = mat4(
-			texelFetch(camTransform, 0),
-			texelFetch(camTransform, 1),
-			texelFetch(camTransform, 2),
-			texelFetch(camTransform, 3));
 			
 		nor = normal;
 		col = color;
-		gl_Position = viewProj[i] * (position * model);
+		gl_Position = camera.viewProj * (position * model);
 	}
 }
 
-// Simple GLSL fragment shader writing
-// the color of the fragment to the framebuffer
 shader frag fs_render {
 	#version 450
 	
 	// fragment shader input (see col in vs_simple)
-	layout(location = 0) in vec4 color;
-	layout(location = 1) in vec4 normal;
+	layout(location = 0) in vec4 normal;
+	layout(location = 1) in vec4 color;
 	
 	// fragment color output
 	out vec4 col;
@@ -273,7 +266,6 @@ pass pass_shadowmap {
 	// ATTATCH SHADERS
 	vert vs_shadowmap
 	geom gs_shadowmap
-	frag fs_simple
 	
 	fragout fragout_shadowmap
 	
@@ -290,8 +282,6 @@ pass pass_shadowmap {
 	
 	// DRAW CALLS
 	draw mesh_triangles vertex_input ushort triangles draw_calls
-	
-	exec cs_camera
 }
 
 // Define a rendering pass
@@ -300,23 +290,15 @@ pass pass_render {
 	vert vs_render
 	frag fs_render
 	
-	fragout fragout_shadowmap
-	
 	tex camera_transform_texture 0
-	tex camera_viewport_texture 1
 	
 	// OPENGL FUNCTIONS
-	// set clear color
 	glClearColor 0.1 0.3 1.0 0.0
-	// clear color and depth buffer
 	glClear ColorDepthBit
-	// enable depth buffer test
-	glEnable depthTest
-	
-	glEnable clipDistance0
-	glEnable clipDistance1
-	glEnable clipDistance2
-	glEnable clipDistance3
+	glDisable clipDistance0
+	glDisable clipDistance1
+	glDisable clipDistance2
+	glDisable clipDistance3
 	
 	// DRAW CALLS
 	draw mesh_triangles vertex_input ushort triangles draw_calls
@@ -325,10 +307,7 @@ pass pass_render {
 }
 
 pass pass_reset {
-	glDisable clipDistance0
-	glDisable clipDistance1
-	glDisable clipDistance2
-	glDisable clipDistance3
+	glDisable depthTest
 }
 
 ///////////////
@@ -338,7 +317,7 @@ pass pass_reset {
 // Combine passes into a single technique.
 // In this case we only have one pass.
 tech tech_simple {
-	// First pass
+	pass pass_shadowmap
 	pass pass_render
 	pass pass_reset
 }
