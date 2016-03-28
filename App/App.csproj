@@ -206,6 +206,8 @@
     <Content Include="demos\tex\lena.jpg" />
     <None Include="demos\simple.tech" />
     <None Include="demos\simple_fragoutput.tech" />
+    <None Include="demos\atlas\render.tech" />
+    <Content Include="demos\atlas\scene.xml" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6">
