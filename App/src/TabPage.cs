@@ -9,8 +9,7 @@
             this.filepath = filepath;
         }
     }
-
-
+    
     public static class TabPageExExtensions
     {
         /// <summary>
@@ -22,7 +21,7 @@
         public static int IndexOf(this TabControl.TabPageCollection tab, string path)
         {
             for (int i = 0; i < tab.Count; i++)
-                if (((TabPageEx)tab[i]).filepath == path)
+                if (((TabPageEx)tab[i]).filepath.Equals(path, StringComparison.CurrentCultureIgnoreCase))
                     return i;
             return -1;
         }

@@ -186,10 +186,7 @@ namespace App
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void toolBtnNew_Click(object sender, EventArgs e)
-        {
-            AddTab(null);
-            tabSource.SelectedIndex = tabSource.TabPages.Count-1;
-        }
+            => tabSource.SelectedIndex = AddTab(null);
 
         /// <summary>
         /// Open file.
@@ -207,18 +204,12 @@ namespace App
             // open file dialog
             if (openDlg.ShowDialog() != DialogResult.OK)
                 return;
-            
+
             // open tabs
-            foreach (var path in openDlg.FileNames)
-            {
-                int i = tabSource.TabPages.IndexOf(path);
-                if (i < 0)
-                {
-                    i = tabSource.TabPages.Count;
-                    AddTab(path);
-                }
-                tabSource.SelectedIndex = i;
-            }
+            openDlg.FileNames
+                .Select(path => tabSource.TabPages.IndexOf(path))
+                .Zip(openDlg.FileNames, (i,p) => i < 0 ? AddTab(p) : i)
+                .ForEach(i => tabSource.SelectedIndex = i);
         }
 
         /// <summary>
@@ -261,7 +252,7 @@ namespace App
                       where x is CompileException || x.InnerException is CompileException
                       select (x is CompileException ? x : x.InnerException) as CompileException;
             var err = from x in exc from y in x select y;
-            var line = err.Select(x => x.Line);
+            var line = from x in err select x.Line;
             err.Zip(line, (e, l) => AddOutputItem(includeDir, e.File, l + 1, e.Msg));
 
             // underline all debug errors
@@ -362,12 +353,7 @@ namespace App
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void toolBtnPick_CheckedChanged(object sender, EventArgs e)
-        {
-            if (toolBtnPick.Checked)
-                glControl.Cursor = Cursors.Cross;
-            else
-                glControl.Cursor = Cursors.Default;
-        }
+            => glControl.Cursor = toolBtnPick.Checked ? Cursors.Cross : Cursors.Default;
         #endregion
         
         #region UTIL
@@ -378,6 +364,9 @@ namespace App
         /// <param name="newfile"></param>
         private void SaveTabPage(TabPageEx tabPage, bool newfile)
         {
+            if (tabPage == null)
+                return;
+
             var editor = (CodeEditor)tabPage.Controls[0];
 
             if (tabPage.filepath == null || newfile)
@@ -401,7 +390,7 @@ namespace App
         /// Add new tab.
         /// </summary>
         /// <param name="path"></param>
-        private void AddTab(string path)
+        private int AddTab(string path)
         {
             // load file
             string filename = path != null ? Path.GetFileName(path) : "unnamed.tech";
@@ -424,7 +413,7 @@ namespace App
 
             // add tab
             tabSource.Controls.Add(tabSourcePage);
-            
+            return tabSource.TabPages.Count - 1;
         }
 
         /// <summary>
