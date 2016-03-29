@@ -173,9 +173,24 @@ namespace App
             vertoutput?.Bind();
 
             // BIND TEXTURES
-            textures.ForEach(t => t.obj.BindTex(t.unit));
-            texImages.ForEach(t => t.obj.BindImg(t.unit, t.level, t.layer, t.access, t.format));
-            sampler.ForEach(s => GL.BindSampler(s.unit, s.obj.glname));
+            textures.ForEach(t => {
+                if (t.obj != null)
+                    t.obj.BindTex(t.unit);
+                else
+                    GLTexture.UnbindTex(t.unit);
+            });
+            texImages.ForEach(t => {
+                if (t.obj != null)
+                    t.obj.BindImg(t.unit, t.level, t.layer, t.access, t.format);
+                else
+                    GLTexture.UnbindImg(t.unit);
+            });
+            sampler.ForEach(s => {
+                if (s.obj != null)
+                    GL.BindSampler(s.unit, s.obj.glname);
+                else
+                    GL.BindSampler(s.unit, 0);
+            });
 
             // EXECUTE EXTERNAL CODE
             csexec.ForEach(e => e.Update(glname, width, height, fbWidth, fbHeight));
@@ -204,9 +219,6 @@ namespace App
             GL.BindVertexArray(0);
 
             // UNBIND OPENGL OBJECTS
-            textures.ForEach(t => t.obj.UnbindTex(t.unit));
-            texImages.ForEach(t => t.obj.UnbindImg(t.unit));
-            sampler.ForEach(s => GL.BindSampler(s.unit, 0));
             csexec.ForEach(e => e.EndPass(glname));
 #if DEBUG
             // in debug mode check if the pass
@@ -349,6 +361,7 @@ namespace App
         
         private void ParseTexCmd(Compiler.Command cmd, Dict classes, CompileException err)
         {
+            // specify argument types
             var types = new[] {
                 typeof(GLTexture),
                 typeof(int),
@@ -357,28 +370,47 @@ namespace App
                 typeof(TextureAccess),
                 typeof(GpuFormat)
             };
-            var values = ParseCmd(cmd, types, cmd.ArgCount == 6 ? 6 : 2, classes, err);
+            // specify mandatory arguments
+            var mandatory = new[]
+            {
+                // case 1
+                new[] { false, true, false, false, false, false },
+                // case 2
+                new[] { false, true, true, true, true, true },
+            };
+            // parse command arguments
+            var values = ParseCmd(cmd, types, mandatory, classes, err);
+            // if there are no errors, add the object to the pass
             if (!err.HasErrors())
             {
-                if (cmd.ArgCount == 6)
+                if (5 <= cmd.ArgCount && cmd.ArgCount <= 6)
                     texImages.Add(new ResTexImg(values));
-                else
+                else if (1 <= cmd.ArgCount && cmd.ArgCount <= 2)
                     textures.Add(new Res<GLTexture>(values));
+                else
+                    err.Add("Arguments of the 'tex' command are invalid.", cmd);
             }
         }
         
         private void ParseSampCmd(Compiler.Command cmd, Dict classes, CompileException err)
         {
-            var types = new[] {
-                typeof(GLSampler),
-                typeof(int),
-            };
-            var values = ParseCmd(cmd, types, 2, classes, err);
+            // specify argument types
+            var types = new[] { typeof(GLSampler), typeof(int), };
+            // specify mandatory arguments
+            var mandatory = new[] { new[] { false, true } };
+            // parse command arguments
+            var values = ParseCmd(cmd, types, mandatory, classes, err);
+            // if there are no errors, add the object to the pass
             if (!err.HasErrors())
-                sampler.Add(new Res<GLSampler>(values));
+            {
+                if (1 <= cmd.ArgCount && cmd.ArgCount <= 2)
+                    sampler.Add(new Res<GLSampler>(values));
+                else
+                    err.Add("Arguments of the 'tex' command are invalid.", cmd);
+            }
         }
         
-        private object[] ParseCmd(Compiler.Command cmd, Type[] types, int numMandatory,
+        private object[] ParseCmd(Compiler.Command cmd, Type[] types, bool[][] mandatory,
             Dict classes, CompileException err)
         {
             object[] values = new object[types.Length];
@@ -386,7 +418,10 @@ namespace App
             // parse command arguments
             foreach (var arg in cmd)
             {
-                for (int i = values.IndexOf(x => x == null); i < 0 || i < types.Length; i++)
+                var I = values
+                    .Zip(Enumerable.Range(0, types.Length), (x, i) => x == null ? i : -1)
+                    .Where(x => x >= 0);
+                foreach (var i in I)
                 {
                     try
                     {
@@ -403,10 +438,12 @@ namespace App
             }
 
             // check for errors
-            for (int i = 0; i < Math.Min(numMandatory, values.Length); i++)
-                if (values[i] == null)
-                    err?.Add($"Error parsing argument {i}.", cmd);
+            var valid = values.Select(x => x != null);
+            for (int i = 0; i < mandatory.Length; i++)
+                if (mandatory[i].Zip(valid, (m, v) => !m | v).All(x => x))
+                    return values;
 
+            err?.Add("Command has one or more invalid arguments.", cmd);
             return values;
         }
         

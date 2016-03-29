@@ -24,7 +24,7 @@ namespace App
         private static GLBuffer buf;
         private static GLTexture tex;
         // allocate arrays for texture and image units
-        private static int[] texUnits;
+        private static Unit[] texUnits;
         private static int[] imgUnits;
         private static Dictionary<int, Uniforms> passes;
         public static DebugSettings Settings;
@@ -47,7 +47,7 @@ namespace App
             DbgBufKey = "__dbgbuf__";
             DbgTexKey = "__dbgtex__";
             // allocate arrays for texture and image units
-            texUnits = new int[GL.GetInteger((GetPName)All.MaxTextureImageUnits)];
+            texUnits = new Unit[GL.GetInteger((GetPName)All.MaxTextureImageUnits)];
             imgUnits = new int[GL.GetInteger((GetPName)All.MaxImageUnits)];
             passes = new Dictionary<int, Uniforms>();
             Settings = new DebugSettings();
@@ -62,7 +62,7 @@ namespace App
         {
             // allocate GPU resources
             buf = new GLBuffer(DbgBufKey, "dbg", BufferUsageHint.DynamicRead, stage_size * 6 * 16);
-            tex = new GLTexture(DbgTexKey, "dbg", GpuFormat.Rgba32f, null, buf, null);
+            tex = new GLTexture(DbgTexKey, "dbg", GpuFormat.Rgba32f, buf, null);
 
 #if DEBUG   // add to scene for debug inspection
             scene.Add(DbgBufKey, buf);
@@ -129,7 +129,8 @@ namespace App
         public static void BindTex(int unit, TextureTarget target, int glname)
         {
             // bind texture to texture unit
-            texUnits[unit] = glname;
+            texUnits[unit].glname = glname;
+            texUnits[unit].target = target;
             GL.ActiveTexture(TextureUnit.Texture0 + unit);
             GL.BindTexture(target, glname);
         }
@@ -145,7 +146,12 @@ namespace App
         /// </summary>
         /// <param name="unit">binding unit</param>
         /// <param name="target">texture target type</param>
-        public static void UnbindTex(int unit, TextureTarget target) => BindTex(unit, target, 0);
+        public static void UnbindTex(int unit)
+        {
+            GL.ActiveTexture(TextureUnit.Texture0 + unit);
+            GL.BindTexture(texUnits[unit].target, texUnits[unit].glname);
+            texUnits[unit].glname = 0;
+        }
         #endregion
 
         #region DEBUG VARIABLE
@@ -519,7 +525,7 @@ namespace App
                 if (unit < 0)
                     return;
                 // unbind texture buffer
-                tex.UnbindImg(unit);
+                GLTexture.UnbindImg(unit);
                 // read generated debug information
                 buf.Read(ref data);
             }
@@ -585,6 +591,12 @@ namespace App
         {
             public int ID;
             public string Name;
+        }
+
+        private struct Unit
+        {
+            public int glname;
+            public TextureTarget target;
         }
     }
 }

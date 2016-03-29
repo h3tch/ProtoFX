@@ -290,8 +290,6 @@ pass pass_render {
 	vert vs_render
 	frag fs_render
 	
-	tex camera_transform_texture 0
-	
 	// OPENGL FUNCTIONS
 	glClearColor 0.1 0.3 1.0 0.0
 	glClear ColorDepthBit
@@ -307,6 +305,9 @@ pass pass_render {
 }
 
 pass pass_reset {
+	tex 0
+	tex 1
+	glClearColor 0.0 0.0 0.0 0.0
 	glDisable depthTest
 }
 
