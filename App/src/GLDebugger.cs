@@ -32,6 +32,8 @@ namespace App
         private const int stage_size = 128;
         private static int OPEN_INDIC_LEN = DBG_OPEN.Length;
         private static int CLOSE_INDIC_LEN = DBG_CLOSE.Length;
+        private static string[] dbgUniforms = DBG_UNIFORMS.Split(',').Select(x => x.Trim()).ToArray();
+        private static string[] dbgConditions = DBG_CONDITIONS.Split(',').Select(x => x.Trim()).ToArray();
         private static int dbgVarCount;
         #endregion
 
@@ -348,7 +350,8 @@ namespace App
         /// <param name="debug">Add debug information if true.
         /// Otherwise remove debug indicators.</param>
         /// <returns>Returns the new GLSL code with debug code added.</returns>
-        public static string AddDebugCode(Compiler.Block block, ShaderType type, bool debug, CompileException err)
+        public static string AddDebugCode(Compiler.Block block, ShaderType type, bool debug,
+            CompileException err)
         {
             var glsl = block.Text.BraceMatch('{', '}').Value;
             glsl = glsl.Substring(1, glsl.Length - 2);
@@ -405,20 +408,6 @@ namespace App
 
             // gather debug information
             int stage_index;
-            string[] debug_uniform = new[]
-            {
-                "ivec2 _dbgVert", "ivec2 _dbgTess", "int _dbgEval",
-                "ivec2 _dbgGeom", "ivec4 _dbgFrag", "uvec3 _dbgComp"
-            };
-            string[] debug_condition = new[]
-            {
-                "all(equal(_dbgVert, ivec2(gl_InstanceID, gl_VertexID)))",
-                "all(equal(_dbgTess, ivec2(gl_InvocationID, gl_PrimitiveID)))",
-                "_dbgEval == gl_PrimitiveID",
-                "all(equal(_dbgGeom, ivec2(gl_PrimitiveIDIn, gl_InvocationID)))",
-                "all(equal(_dbgFrag, ivec4(int(gl_FragCoord.x), int(gl_FragCoord.y), gl_Layer, gl_ViewportIndex)))",
-                "all(equal(_dbgComp, gl_GlobalInvocationID))"
-            };
             switch (type)
             {
                 case ShaderType.VertexShader: stage_index = 0; break;
@@ -434,9 +423,9 @@ namespace App
             var rsHead = Properties.Resources.dbg
                 .Replace($"{DBG_OPEN}stage offset{DBG_CLOSE}", (stage_size * stage_index).ToString());
             var rsBody = Properties.Resources.dbgBody
-                .Replace($"{DBG_OPEN}debug uniform{DBG_CLOSE}", debug_uniform[stage_index])
+                .Replace($"{DBG_OPEN}debug uniform{DBG_CLOSE}", dbgUniforms[stage_index])
                 .Replace($"{DBG_OPEN}debug frame{DBG_CLOSE}", "int _dbgFrame")
-                .Replace($"{DBG_OPEN}debug condition{DBG_CLOSE}", debug_condition[stage_index])
+                .Replace($"{DBG_OPEN}debug condition{DBG_CLOSE}", dbgConditions[stage_index])
                 .Replace($"{DBG_OPEN}debug code{DBG_CLOSE}", dbgBody)
                 .Replace($"{DBG_OPEN}runtime code{DBG_CLOSE}", runBody);
             

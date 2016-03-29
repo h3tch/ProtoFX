@@ -96,11 +96,35 @@ namespace App.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to all(equal(_dbgVert, ivec2(gl_InstanceID, gl_VertexID))),
+        ///all(equal(_dbgTess, ivec2(gl_InvocationID, gl_PrimitiveID))),
+        ///_dbgEval == gl_PrimitiveID,
+        ///all(equal(_dbgGeom, ivec2(gl_PrimitiveIDIn, gl_InvocationID))),
+        ///all(equal(_dbgFrag, ivec4(int(gl_FragCoord.x), int(gl_FragCoord.y), gl_Layer, gl_ViewportIndex))),
+        ///all(equal(_dbgComp, gl_GlobalInvocationID)).
+        /// </summary>
+        internal static string DBG_CONDITIONS {
+            get {
+                return ResourceManager.GetString("DBG_CONDITIONS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;&lt;.
         /// </summary>
         internal static string DBG_OPEN {
             get {
                 return ResourceManager.GetString("DBG_OPEN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ivec2 _dbgVert, ivec2 _dbgTess, int _dbgEval,
+        ///ivec2 _dbgGeom, ivec4 _dbgFrag, uvec3 _dbgComp.
+        /// </summary>
+        internal static string DBG_UNIFORMS {
+            get {
+                return ResourceManager.GetString("DBG_UNIFORMS", resourceCulture);
             }
         }
         
@@ -232,7 +256,7 @@ namespace App.Properties {
         ///// 0 string #800000
         ///// 0 char #A03030
         ///// 0 block #0000FF
-        ///// 0 folding #FF0000 #FFAAAA
+        ///// 0 folding #AAAAAA
         ///// 1 annotation #0099CC
         ///// 2 command #6666FF
         ///// 3 argument #6633CC
@@ -242,8 +266,9 @@ namespace App.Properties {
         ///// 7 qualifier #0099CC
         ///// 8 variable #0000FF
         ///// 9 branching #0000FF
+        ///// 10 opengl #993333
         ///[0]buffer|buffer &lt;name&gt;
-        ///[0]buffer[2]size|si [rest of string was truncated]&quot;;.
+        ///[0]bu [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string keywords {
             get {
