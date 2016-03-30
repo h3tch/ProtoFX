@@ -155,7 +155,12 @@
 [0]pass[2]frag|frag <shader_name>
 [0]pass[2]geom|geom <shader_name>
 [0]pass[2]tess|tess <shader_name>
-[0]pass[2]tex|tex <texture_name> <unit>
+[0]pass[2]tex|Bind or unbind a texture from a texture unit.
+     tex <texture_name> <unit> -- bind to unit
+     tex <unit>                -- unbind unit
+[0]pass[2]img|Bind or unbind a texture from an image unit.
+     img <texture_name> <unit> <level> <layer> <access> <format> -- bind to unit
+     img <unit>                                                  -- unbind unit
 [0]pass[2]vert|vert <shader_name>
 [0]pass[10]glBeginConditionalRender
 [0]pass[10]glBeginQuery

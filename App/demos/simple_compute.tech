@@ -112,7 +112,7 @@ instance cs_camera {
 
 pass pass_compute {
 	comp cs_simple
-	tex tex_compute 0 0 0 WriteOnly RGBA8
+	img tex_compute 0 0 0 WriteOnly RGBA8
 	compute 32 32 1
 }
 
@@ -124,11 +124,11 @@ pass pass_render {
 	tex tex_compute 0
 	
 	// set clear color
-	ClearColor 0.1 0.3 1.0 0.0
+	glClearColor 0.1 0.3 1.0 0.0
 	// clear color and depth buffer
-	Clear ColorDepthBit
+	glClear ColorDepthBit
 	// enable depth buffer test
-	Enable depthTest
+	glEnable depthTest
 	
 	// execute camera code
 	exec cs_camera
@@ -137,7 +137,15 @@ pass pass_render {
 	draw buf_idx in_vert ushort triangles 0 0 36
 }
 
+pass pass_reset {
+	img 0
+	tex 0
+	glClearColor 0.0 0.0 0.0 0.0
+	glDisable depthTest
+}
+
 tech tech_simple {
 	pass pass_compute
 	pass pass_render
+	pass pass_reset
 }

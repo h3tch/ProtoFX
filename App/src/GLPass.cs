@@ -69,6 +69,7 @@ namespace App
                         case "draw": ParseDrawCall(cmd, scene, e); break;
                         case "compute": ParseComputeCall(cmd, scene, e); break;
                         case "tex": ParseTexCmd(cmd, scene, e); break;
+                        case "img": ParseImgCmd(cmd, scene, e); break;
                         case "samp": ParseSampCmd(cmd, scene, e); break;
                         case "exec": ParseCsharpExec(cmd, scene, e); break;
                         case "vertout": vertoutput = new Vertoutput(cmd, scene, e);  break;
@@ -361,6 +362,29 @@ namespace App
         
         private void ParseTexCmd(Compiler.Command cmd, Dict classes, CompileException err)
         {
+            if (cmd.ArgCount != 1 && cmd.ArgCount != 2)
+            {
+                err.Add("Arguments of the 'tex' command are invalid.", cmd);
+                return;
+            }
+            // specify argument types
+            var types = new[] { typeof(GLTexture), typeof(int) };
+            // specify mandatory arguments
+            var mandatory = new[] { new[] { true, true }, new[] { false, true } };
+            // parse command arguments
+            var values = ParseCmd(cmd, types, mandatory, classes, err);
+            // if there are no errors, add the object to the pass
+            if (!err.HasErrors())
+                textures.Add(new Res<GLTexture>(values));
+        }
+
+        private void ParseImgCmd(Compiler.Command cmd, Dict classes, CompileException err)
+        {
+            if (cmd.ArgCount != 1 && cmd.ArgCount != 6)
+            {
+                err.Add("Arguments of the 'img' command are invalid.", cmd);
+                return;
+            }
             // specify argument types
             var types = new[] {
                 typeof(GLTexture),
@@ -371,43 +395,33 @@ namespace App
                 typeof(GpuFormat)
             };
             // specify mandatory arguments
-            var mandatory = new[]
-            {
-                // case 1
+            var mandatory = new[] {
+                new[] { true, true, true, true, true, true },
                 new[] { false, true, false, false, false, false },
-                // case 2
-                new[] { false, true, true, true, true, true },
             };
             // parse command arguments
             var values = ParseCmd(cmd, types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
             if (!err.HasErrors())
-            {
-                if (5 <= cmd.ArgCount && cmd.ArgCount <= 6)
-                    texImages.Add(new ResTexImg(values));
-                else if (1 <= cmd.ArgCount && cmd.ArgCount <= 2)
-                    textures.Add(new Res<GLTexture>(values));
-                else
-                    err.Add("Arguments of the 'tex' command are invalid.", cmd);
-            }
+                texImages.Add(new ResTexImg(values));
         }
-        
+
         private void ParseSampCmd(Compiler.Command cmd, Dict classes, CompileException err)
         {
+            if (cmd.ArgCount != 1 && cmd.ArgCount != 2)
+            {
+                err.Add("Arguments of the 'samp' command are invalid.", cmd);
+                return;
+            }
             // specify argument types
-            var types = new[] { typeof(GLSampler), typeof(int), };
+            var types = new[] { typeof(GLSampler), typeof(int) };
             // specify mandatory arguments
-            var mandatory = new[] { new[] { false, true } };
+            var mandatory = new[] { new[] { true, true }, new[] { false, true } };
             // parse command arguments
             var values = ParseCmd(cmd, types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
             if (!err.HasErrors())
-            {
-                if (1 <= cmd.ArgCount && cmd.ArgCount <= 2)
-                    sampler.Add(new Res<GLSampler>(values));
-                else
-                    err.Add("Arguments of the 'tex' command are invalid.", cmd);
-            }
+                sampler.Add(new Res<GLSampler>(values));
         }
         
         private object[] ParseCmd(Compiler.Command cmd, Type[] types, bool[][] mandatory,

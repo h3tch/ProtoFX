@@ -121,7 +121,7 @@ pass pass_render {
 	// set clear color
 	glClearColor 0.1 0.3 1.0 0.0
 	// clear color and depth buffer
-	glClear ColorDepthBit
+	glClear colorDepthBit
 	// enable depth buffer test
 	glEnable depthTest
 	
@@ -144,6 +144,11 @@ pass pass_render {
 	draw buf_idx in_vert ushort triangles 0 0 36
 }
 
+pass pass_reset {
+	glClearColor 0.0 0.0 0.0 0.0
+	glDisable depthTest
+}
+
 ///////////////
 // TECHNIQUE //
 ///////////////
@@ -153,4 +158,5 @@ pass pass_render {
 tech tech_simple {
 	// First pass
 	pass pass_render
+	pass pass_reset
 }
