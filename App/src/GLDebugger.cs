@@ -32,8 +32,8 @@ namespace App
         private const int stage_size = 128;
         private static int OPEN_INDIC_LEN = DBG_OPEN.Length;
         private static int CLOSE_INDIC_LEN = DBG_CLOSE.Length;
-        private static string[] dbgUniforms = DBG_UNIFORMS.Split(',').Select(x => x.Trim()).ToArray();
-        private static string[] dbgConditions = DBG_CONDITIONS.Split(',').Select(x => x.Trim()).ToArray();
+        private static string[] dbgUniforms = DBG_UNIFORMS.Split('\n').Select(x => x.Trim()).ToArray();
+        private static string[] dbgConditions = DBG_CONDITIONS.Split('\n').Select(x => x.Trim()).ToArray();
         private static int dbgVarCount;
         #endregion
 

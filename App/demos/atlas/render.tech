@@ -92,6 +92,10 @@ texture camera_viewport_texture {
 	format RGBA32f
 }
 
+texture depth_texture {
+	img img_depth
+}
+
 fragoutput fragout_shadowmap {
 	depth img_depth
 }
@@ -216,7 +220,10 @@ shader vert vs_render {
 	
 	layout(binding = 0) uniform SimpleCamera {
 		mat4 viewProj;
-	} camera;
+	} viewer;
+	
+	layout(binding = 0) uniform samplerBuffer camTransform;
+	layout(binding = 1) uniform samplerBuffer camViewport;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 position;
@@ -225,35 +232,81 @@ shader vert vs_render {
 	layout(location = 3) in vec4 axisx;
 	layout(location = 4) in vec4 axisy;
 	layout(location = 5) in vec4 axisz;
+	layout(location = 6) in ivec4 camera[(MAX_CAMS+3)/4];
 
 	// vertex shader output
 	layout(location = 0) out vec4 nor;
 	layout(location = 1) out vec4 col;
+	layout(location = 2) out vec4 pos[MAX_CAMS];
+	layout(location = 2+MAX_CAMS) out vec4 vp[MAX_CAMS];
 	
 	void main ()
 	{
+		int count;
+		mat4 viewProj[MAX_CAMS];
+		
 		// create model matrix
-		mat4 <<model>> = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
+		mat4 model = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
+		
+		// create view matrix for every camera
+		for (count = 0; count < MAX_CAMS && camera[count / 4][count % 4] >= 0; count++)
+		{
+			int ptr = camera[count / 4][count % 4];
+			vp[count] = texelFetch(camViewport, ptr);
+			ptr *= 4;
+			viewProj[count] = mat4(
+				texelFetch(camTransform, ptr + 0),
+				texelFetch(camTransform, ptr + 1),
+				texelFetch(camTransform, ptr + 2),
+				texelFetch(camTransform, ptr + 3));
+		}
+		
+		// pass varyings on to next shader
+		for (int i = count; i < MAX_CAMS; i++)
+			pos[i] = vp[i] = vec4(0);
+		
+		// compute model view projection position
+		vec4 world = position * model;
+		for (int i = 0; i < count; i++)
+			pos[i] = viewProj[i] * world;
 			
 		nor = normal;
 		col = color;
-		gl_Position = camera.viewProj * (position * model);
+		gl_Position = viewer.viewProj * (position * model);
 	}
 }
 
 shader frag fs_render {
 	#version 450
 	
+	layout(binding = 2) uniform sampler2D shadowAtlas;
+	
 	// fragment shader input (see col in vs_simple)
 	layout(location = 0) in vec4 normal;
 	layout(location = 1) in vec4 color;
+	layout(location = 2) in vec4 position[MAX_CAMS];
+	layout(location = 2+MAX_CAMS) in vec4 viewport[MAX_CAMS];
 	
 	// fragment color output
 	out vec4 col;
 	
 	void main ()
 	{
-		col = <<color>>;
+		// pass color
+		col = vec4(0);
+		
+		for (int i = 0; i < MAX_CAMS && position[i].w != 0; i++)
+		{
+			// if pixel outside light frustum clip space, do nothing
+			if (any(greaterThan(abs(position[i]), position[i].wwww)))
+				continue;
+				
+			vec3 lpos = (position[i].xyz / position[i].w) * 0.5 + 0.5;
+			lpos.xy = lpos.xy * viewport[i].zw + viewport[i].xy;
+				
+			if (lpos.z-0.0005 <= texture(shadowAtlas, lpos.xy).x)
+				col += color * (1.0/MAX_CAMS);
+		}
 	}
 }
 
@@ -269,6 +322,7 @@ pass pass_shadowmap {
 	
 	fragout fragout_shadowmap
 	
+	// BIND RESOURCES
 	tex camera_transform_texture 0
 	tex camera_viewport_texture 1
 	
@@ -281,7 +335,7 @@ pass pass_shadowmap {
 	glEnable clipDistance3
 	
 	// DRAW CALLS
-	draw mesh_triangles vertex_input ushort triangles draw_calls
+	draw mesh_triangles vertex_input ushort triangles draw_calls 0 2
 }
 
 // Define a rendering pass
@@ -289,6 +343,9 @@ pass pass_render {
 	// ATTATCH SHADERS
 	vert vs_render
 	frag fs_render
+	
+	// BIND RESOURCES
+	tex depth_texture 2
 	
 	// OPENGL FUNCTIONS
 	glClearColor 0.1 0.3 1.0 0.0
@@ -299,7 +356,7 @@ pass pass_render {
 	glDisable clipDistance3
 	
 	// DRAW CALLS
-	draw mesh_triangles vertex_input ushort triangles draw_calls
+	draw mesh_triangles vertex_input ushort triangles draw_calls 0 2
 	
 	exec cs_camera
 }
@@ -307,6 +364,7 @@ pass pass_render {
 pass pass_reset {
 	tex 0
 	tex 1
+	tex 2
 	glClearColor 0.0 0.0 0.0 0.0
 	glDisable depthTest
 }

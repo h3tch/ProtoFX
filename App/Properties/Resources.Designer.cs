@@ -96,11 +96,11 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to all(equal(_dbgVert, ivec2(gl_InstanceID, gl_VertexID))),
-        ///all(equal(_dbgTess, ivec2(gl_InvocationID, gl_PrimitiveID))),
-        ///_dbgEval == gl_PrimitiveID,
-        ///all(equal(_dbgGeom, ivec2(gl_PrimitiveIDIn, gl_InvocationID))),
-        ///all(equal(_dbgFrag, ivec4(int(gl_FragCoord.x), int(gl_FragCoord.y), gl_Layer, gl_ViewportIndex))),
+        ///   Looks up a localized string similar to all(equal(_dbgVert, ivec2(gl_InstanceID, gl_VertexID)))
+        ///all(equal(_dbgTess, ivec2(gl_InvocationID, gl_PrimitiveID)))
+        ///_dbgEval == gl_PrimitiveID
+        ///all(equal(_dbgGeom, ivec2(gl_PrimitiveIDIn, gl_InvocationID)))
+        ///all(equal(_dbgFrag, ivec4(int(gl_FragCoord.x), int(gl_FragCoord.y), gl_Layer, gl_ViewportIndex)))
         ///all(equal(_dbgComp, gl_GlobalInvocationID)).
         /// </summary>
         internal static string DBG_CONDITIONS {
@@ -119,8 +119,12 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ivec2 _dbgVert, ivec2 _dbgTess, int _dbgEval,
-        ///ivec2 _dbgGeom, ivec4 _dbgFrag, uvec3 _dbgComp.
+        ///   Looks up a localized string similar to ivec2 _dbgVert
+        ///ivec2 _dbgTess
+        ///int _dbgEval
+        ///ivec2 _dbgGeom
+        ///ivec4 _dbgFrag
+        ///uvec3 _dbgComp.
         /// </summary>
         internal static string DBG_UNIFORMS {
             get {

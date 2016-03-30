@@ -150,6 +150,14 @@ namespace App
                         // Open tech files
                         toolBtnOpen_Click(sender, null);
                     break;
+                case Keys.Left:
+                    if (e.Control)
+                        GetSelectedEditor()?.FoldAll(FoldAction.Contract);
+                    break;
+                case Keys.Right:
+                    if (e.Control)
+                        GetSelectedEditor()?.FoldAll(FoldAction.Expand);
+                    break;
             }
         }
         #endregion

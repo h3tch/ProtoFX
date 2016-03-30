@@ -485,6 +485,7 @@
    genUType clamp(genUType x, genUType minVal, genUType maxVal)
    genUType clamp(genUType x, uint minVal, uint maxVal)
 [0]shader[6]const
+[0]shader[6]continue
 [0]shader[4]cos|return the cosine of the parameter
    genType cos(genType angle)
 [0]shader[4]cosh|return the hyperbolic cosine of the parameter
