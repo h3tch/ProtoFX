@@ -6,6 +6,7 @@ namespace App
     {
         private List<GLPass> init = new List<GLPass>();
         private List<GLPass> passes = new List<GLPass>();
+        private List<GLPass> uninit = new List<GLPass>();
 
         /// <summary>
         /// Create OpenGL object. Standard object constructor for ProtoFX.
@@ -21,6 +22,7 @@ namespace App
             // PARSE COMMANDS
             ParsePasses(ref init, block, scene, err);
             ParsePasses(ref passes, block, scene, err);
+            ParsePasses(ref uninit, block, scene, err);
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION
             if (err.HasErrors())
@@ -48,13 +50,22 @@ namespace App
         /// <summary>
         /// Standard object destructor for ProtoFX.
         /// </summary>
-        public override void Delete() { }
+        public override void Delete() => uninit.ForEach(x => x.Exec(0, 0, -1));
 
+        /// <summary>
+        /// Parse commands in block.
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="err"></param>
         private void ParsePasses(ref List<GLPass> list, Compiler.Block block, Dict scene,
             CompileException err)
         {
             GLPass pass;
-            foreach (var cmd in block[ReferenceEquals(list, init) ? "init" : "pass"])
+            var cmdName = ReferenceEquals(list, init)
+                ? "init" : ReferenceEquals(list, passes) ? "pass" : "uninit";
+            foreach (var cmd in block[cmdName])
                 if (scene.TryGetValue(cmd[0].Text, out pass, block, err | $"command '{cmd.Text}'"))
                     list.Add(pass);
         }

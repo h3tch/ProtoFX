@@ -314,21 +314,24 @@ shader frag fs_render {
 // RENDER PASS //
 /////////////////
 
-// Define a rendering pass
+pass pass_init {
+	tex camera_transform_texture 0
+	tex camera_viewport_texture 1
+	tex depth_texture 2
+	glClearColor 0.1 0.3 1.0 0.0
+	glEnable depthTest
+}
+
 pass pass_shadowmap {
 	// ATTATCH SHADERS
 	vert vs_shadowmap
 	geom gs_shadowmap
 	
+	// RENDER TARGET
 	fragout fragout_shadowmap
-	
-	// BIND RESOURCES
-	tex camera_transform_texture 0
-	tex camera_viewport_texture 1
 	
 	// OPENGL FUNCTIONS
 	glClear DepthBit
-	glEnable depthTest
 	glEnable clipDistance0
 	glEnable clipDistance1
 	glEnable clipDistance2
@@ -338,17 +341,12 @@ pass pass_shadowmap {
 	draw mesh_triangles vertex_input ushort triangles draw_calls 0 2
 }
 
-// Define a rendering pass
 pass pass_render {
 	// ATTATCH SHADERS
 	vert vs_render
 	frag fs_render
 	
-	// BIND RESOURCES
-	tex depth_texture 2
-	
 	// OPENGL FUNCTIONS
-	glClearColor 0.1 0.3 1.0 0.0
 	glClear ColorDepthBit
 	glDisable clipDistance0
 	glDisable clipDistance1
@@ -361,7 +359,7 @@ pass pass_render {
 	exec cs_camera
 }
 
-pass pass_reset {
+pass pass_uninit {
 	tex 0
 	tex 1
 	tex 2
@@ -376,7 +374,8 @@ pass pass_reset {
 // Combine passes into a single technique.
 // In this case we only have one pass.
 tech tech_simple {
+	init pass_init
 	pass pass_shadowmap
 	pass pass_render
-	pass pass_reset
+	uninit pass_uninit
 }

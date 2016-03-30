@@ -1587,6 +1587,9 @@
 [0]tech[2]init|Execute this pass only once
  before all 'normal' passes.
    init <name>
+[0]tech[2]uninit|Execute this pass only once
+ before the technique is destroyed.
+   uninit <name>
 [0]text|text <name>
 [0]texture|texture <name>
 [0]texture[2]buff|buff <name>

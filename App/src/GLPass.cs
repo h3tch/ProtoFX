@@ -807,7 +807,7 @@ namespace App
 
             public void Bind() => glvertout.Bind(vertoutPrim, resume);
 
-            public void Unbind() => glvertout.Unbind(pause);
+            public void Unbind() => GLVertoutput.Unbind(pause);
         }
         #endregion
     }
