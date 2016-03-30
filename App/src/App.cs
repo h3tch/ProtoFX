@@ -40,14 +40,21 @@ namespace App
                 Width = settings.Width;
                 Height = settings.Height;
                 WindowState = settings.WindowState;
+                splitRenderCoding.SplitterDistance = (int)(settings.SplitRenderCoding * splitRenderCoding.Width);
+                splitRenderOutput.SplitterDistance = (int)(settings.SplitRenderOutput * splitRenderOutput.Height);
+                splitDebug.SplitterDistance = (int)(settings.SplitDebug * splitDebug.Height);
+            }
+            else
+            {
+                splitRenderCoding.SplitterDistance = (int)(0.4 * splitRenderCoding.Width);
+                splitRenderOutput.SplitterDistance = (int)(0.7 * splitRenderOutput.Height);
+                splitDebug.SplitterDistance = (int)(0.55 * splitDebug.Width);
             }
 
             // select 'float' as the default buffer value type
             comboBufType.SelectedIndex = 8;
 
             // place splitters by percentage
-            splitRenderOutput.SplitterDistance = (int)(0.7 * splitRenderOutput.Height);
-            splitDebug.SplitterDistance = (int)(0.55 * splitDebug.Width);
 
             // link property viewer to debug settings
             FxDebugger.Instantiate();
@@ -91,7 +98,9 @@ namespace App
             // get current window state
             var settings = new FormSettings
             {
-                Left = Left, Top = Top, Width = Width, Height = Height, WindowState = WindowState
+                Left = Left, Top = Top, Width = Width, Height = Height, WindowState = WindowState,
+                SplitRenderCoding = (float)splitRenderCoding.SplitterDistance / splitRenderCoding.Width,
+                SplitRenderOutput = (float)splitRenderOutput.SplitterDistance / splitRenderOutput.Height,
             };
 
             // if the state is not normal, make it normal
@@ -141,6 +150,14 @@ namespace App
                         // Open tech files
                         toolBtnOpen_Click(sender, null);
                     break;
+                case Keys.Left:
+                    if (e.Control)
+                        GetSelectedEditor()?.FoldAll(FoldAction.Contract);
+                    break;
+                case Keys.Right:
+                    if (e.Control)
+                        GetSelectedEditor()?.FoldAll(FoldAction.Expand);
+                    break;
             }
         }
         #endregion
@@ -177,10 +194,7 @@ namespace App
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void toolBtnNew_Click(object sender, EventArgs e)
-        {
-            AddTab(null);
-            tabSource.SelectedIndex = tabSource.TabPages.Count-1;
-        }
+            => tabSource.SelectedIndex = AddTab(null);
 
         /// <summary>
         /// Open file.
@@ -198,18 +212,12 @@ namespace App
             // open file dialog
             if (openDlg.ShowDialog() != DialogResult.OK)
                 return;
-            
+
             // open tabs
-            foreach (var path in openDlg.FileNames)
-            {
-                int i = tabSource.TabPages.IndexOf(path);
-                if (i < 0)
-                {
-                    i = tabSource.TabPages.Count;
-                    AddTab(path);
-                }
-                tabSource.SelectedIndex = i;
-            }
+            openDlg.FileNames
+                .Select(path => tabSource.TabPages.IndexOf(path))
+                .Zip(openDlg.FileNames, (i,p) => i < 0 ? AddTab(p) : i)
+                .ForEach(i => tabSource.SelectedIndex = i);
         }
 
         /// <summary>
@@ -252,7 +260,7 @@ namespace App
                       where x is CompileException || x.InnerException is CompileException
                       select (x is CompileException ? x : x.InnerException) as CompileException;
             var err = from x in exc from y in x select y;
-            var line = err.Select(x => x.Line);
+            var line = from x in err select x.Line;
             err.Zip(line, (e, l) => AddOutputItem(includeDir, e.File, l + 1, e.Msg));
 
             // underline all debug errors
@@ -268,18 +276,18 @@ namespace App
             
             // add externally created textures to the scene
             var existing = glControl.Scene.Values.ToArray();
-            GLImage.FindTextures(existing).Do(x => glControl.Scene.Add(x.name, x));
+            GLImage.FindTextures(existing).ForEach(x => glControl.Scene.Add(x.name, x));
 
             // add externally created buffers to the scene
-            GLBuffer.FindBuffers(existing).Do(x => glControl.Scene.Add(x.name, x));
+            GLBuffer.FindBuffers(existing).ForEach(x => glControl.Scene.Add(x.name, x));
 
             // UPDATE DEBUG DATA
             comboBuf.Items.Clear();
             comboImg.Items.Clear();
             comboProp.Items.Clear();
-            glControl.Scene.Where(x => x.Value is GLBuffer).Do(x => comboBuf.Items.Add(x.Value));
-            glControl.Scene.Where(x => x.Value is GLImage).Do(x => comboImg.Items.Add(x.Value));
-            glControl.Scene.Where(x => x.Value is GLInstance).Do(x => comboProp.Items.Add(x.Value));
+            glControl.Scene.Where(x => x.Value is GLBuffer).ForEach(x => comboBuf.Items.Add(x.Value));
+            glControl.Scene.Where(x => x.Value is GLImage).ForEach(x => comboImg.Items.Add(x.Value));
+            glControl.Scene.Where(x => x.Value is GLInstance).ForEach(x => comboProp.Items.Add(x.Value));
 
             // UPDATE DEBUG INFORMATION IF NECESSARY
             if (debugging)
@@ -353,12 +361,7 @@ namespace App
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void toolBtnPick_CheckedChanged(object sender, EventArgs e)
-        {
-            if (toolBtnPick.Checked)
-                glControl.Cursor = Cursors.Cross;
-            else
-                glControl.Cursor = Cursors.Default;
-        }
+            => glControl.Cursor = toolBtnPick.Checked ? Cursors.Cross : Cursors.Default;
         #endregion
         
         #region UTIL
@@ -369,6 +372,9 @@ namespace App
         /// <param name="newfile"></param>
         private void SaveTabPage(TabPageEx tabPage, bool newfile)
         {
+            if (tabPage == null)
+                return;
+
             var editor = (CodeEditor)tabPage.Controls[0];
 
             if (tabPage.filepath == null || newfile)
@@ -392,7 +398,7 @@ namespace App
         /// Add new tab.
         /// </summary>
         /// <param name="path"></param>
-        private void AddTab(string path)
+        private int AddTab(string path)
         {
             // load file
             string filename = path != null ? Path.GetFileName(path) : "unnamed.tech";
@@ -415,7 +421,7 @@ namespace App
 
             // add tab
             tabSource.Controls.Add(tabSourcePage);
-            
+            return tabSource.TabPages.Count - 1;
         }
 
         /// <summary>
@@ -436,6 +442,9 @@ namespace App
         {
             public int Left, Top, Width, Height;
             public FormWindowState WindowState;
+            public float SplitRenderCoding;
+            public float SplitRenderOutput;
+            public float SplitDebug;
 
             /// <summary>
             /// Place the form rectangle completely inside the nearest screen.

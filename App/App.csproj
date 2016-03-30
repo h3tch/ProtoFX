@@ -65,8 +65,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\OpenTK.GLControl.dll</HintPath>
     </Reference>
-    <Reference Include="ScintillaNET, Version=3.5.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\jacobslusser.ScintillaNET.3.5.5\lib\net40\ScintillaNET.dll</HintPath>
+    <Reference Include="ScintillaNET, Version=3.5.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\jacobslusser.ScintillaNET.3.5.6\lib\net40\ScintillaNET.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -204,6 +204,8 @@
     <Content Include="demos\tex\lena.jpg" />
     <None Include="demos\simple.tech" />
     <None Include="demos\simple_fragoutput.tech" />
+    <None Include="demos\atlas\render.tech" />
+    <Content Include="demos\atlas\scene.xml" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6">

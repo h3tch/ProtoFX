@@ -468,14 +468,14 @@ namespace App
     static class CompilerDictExtensions
     {
         public static bool TryGetValue<T>(this Dict dict, string key, out T obj,
-            Compiler.Command cmd, CompileException err = null)
+            Compiler.Command cmd, CompileException err)
             where T : GLObject
-            => dict.TryGetValue(key, out obj, cmd.File, cmd.LineInFile);
+            => dict.TryGetValue(key, out obj, cmd.LineInFile, cmd.File, err);
 
         public static bool TryGetValue<T>(this Dict dict, string key, out T obj,
-            Compiler.Block block, CompileException err = null)
+            Compiler.Block block, CompileException err)
             where T : GLObject
-            => dict.TryGetValue(key, out obj, block.File, block.LineInFile);
+            => dict.TryGetValue(key, out obj, block.LineInFile, block.File, err);
     }
 
     // convenience extensions to the compiler exception class

@@ -164,8 +164,7 @@ namespace App
             if (instance == null)
                 throw err.Add($"Main class '{classname}' could not be found.", cmd);
             
-            List<string> errors = InvokeMethod<List<string>>(instance, "GetErrors");
-            errors?.ForEach(msg => err.Add(msg, cmd));
+            InvokeMethod<List<string>>(instance, "GetErrors")?.ForEach(msg => err.Add(msg, cmd));
 
             return instance;
         }
@@ -180,7 +179,7 @@ namespace App
             // convert to dictionary of string arrays
             var dict = new Dictionary<string, string[]>();
             // add commands to dictionary
-            block.Do(cmd => dict.Add(cmd.Name, cmd.Select(x => x.Text).ToArray()));
+            block.ForEach(cmd => dict.Add(cmd.Name, cmd.Select(x => x.Text).ToArray()));
             return dict;
         }
         

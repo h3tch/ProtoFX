@@ -6,11 +6,6 @@ namespace App
 {
     class GLVertoutput : GLObject
     {
-        #region FIELDS
-        public bool pause = false;
-        public bool resume = false;
-        #endregion
-
         /// <summary>
         /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
@@ -48,7 +43,7 @@ namespace App
         /// Bind transform feedback object.
         /// </summary>
         /// <param name="primitive">Transform feedback primitive type.</param>
-        public void Bind(PrimitiveType primitive)
+        public void Bind(PrimitiveType primitive, bool resume)
         {
             // bind transform feedback object
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, glname);
@@ -62,7 +57,7 @@ namespace App
         /// <summary>
         /// Unbind transform feedback object.
         /// </summary>
-        public void Unbind()
+        public void Unbind(bool pause)
         {
             // pause or end transform feedback
             if (pause)

@@ -251,9 +251,9 @@ namespace App
         
         private static string GetText(Dict scene, Compiler.Command cmd)
         {
-            GLText text;
+            GLText text = null;
             string dir = Path.GetDirectoryName(cmd.File) + Path.DirectorySeparatorChar;
-            if (scene.TryGetValue(cmd[0].Text, out text, cmd))
+            if (scene.TryGetValue(cmd[0].Text, ref text))
                 return text.text.Trim();
             else if (File.Exists(cmd[0].Text))
                 return File.ReadAllText(cmd[0].Text);
