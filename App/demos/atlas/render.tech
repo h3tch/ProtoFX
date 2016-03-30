@@ -92,6 +92,10 @@ texture camera_viewport_texture {
 	format RGBA32f
 }
 
+texture tex_depth {
+	img img_depth
+}
+
 fragoutput fragout_shadowmap {
 	depth img_depth
 }
@@ -196,13 +200,13 @@ shader geom gs_shadowmap {
 				gl_ClipDistance[3] = pos.y + pos.w;
 				
 				// viewport transform
-				pos.xy /= pos.w;
-				pos.xy = pos.xy * 0.5 + 0.5;
+				pos.xy /= pos.w; // [-1, +1]
+				pos.xy = pos.xy * 0.5 + 0.5; // [0, 1]
 				pos.xy = pos.xy * vp.zw + vp.xy;
-				pos.xy = pos.xy * 2.0 - 1.0;
-				pos.xy *= pos.w;
+				pos.xy = pos.xy * 2.0 - 1.0; // [-1, +1]
+				pos.xy *= pos.w; // [-w, +w]
 				
-				// geomitry shader output
+				// geometry shader output
 				gl_Position = pos;
 				EmitVertex();
 			}
@@ -211,12 +215,15 @@ shader geom gs_shadowmap {
 	}
 }
 
-shader vert vs_render {
+shader vert vs_render2 {
 	#version 450
 	
 	layout(binding = 0) uniform SimpleCamera {
 		mat4 viewProj;
-	} camera;
+	} maincam;
+	
+	layout(binding = 0) uniform samplerBuffer camTransform;
+	layout(binding = 1) uniform samplerBuffer camViewport;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 position;
@@ -225,35 +232,85 @@ shader vert vs_render {
 	layout(location = 3) in vec4 axisx;
 	layout(location = 4) in vec4 axisy;
 	layout(location = 5) in vec4 axisz;
+	layout(location = 6) in ivec4 camera[(MAX_CAMS+3)/4];
 
 	// vertex shader output
-	layout(location = 0) out vec4 nor;
-	layout(location = 1) out vec4 col;
+	layout(location = 0) out vec4 pos[MAX_CAMS];
+	layout(location = MAX_CAMS) out vec4 vp[MAX_CAMS];
+	layout(location = 2 * MAX_CAMS) out vec4 nor;
+	layout(location = 2 * MAX_CAMS + 1) out vec4 col;
 	
 	void main ()
 	{
+		int count;
+		mat4 viewProj[MAX_CAMS];
+		
 		// create model matrix
 		mat4 <<model>> = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
-			
+		
+		// create view matrix for every camera
+		for (count = 0; count < MAX_CAMS && camera[count / 4][count % 4] >= 0; count++)
+		{
+			int ptr = camera[count / 4][count % 4];
+			vp[count] = texelFetch(camViewport, ptr);
+			ptr *= 4;
+			viewProj[count] = mat4(
+				texelFetch(camTransform, ptr + 0),
+				texelFetch(camTransform, ptr + 1),
+				texelFetch(camTransform, ptr + 2),
+				texelFetch(camTransform, ptr + 3));
+		}
+		
+		// pass varyings on to next shader
+		for (int i = count; i < MAX_CAMS; i++)
+			pos[i] = vp[i] = vec4(0);
 		nor = normal;
 		col = color;
-		gl_Position = camera.viewProj * (position * model);
+		
+		// compute model view projection position
+		vec4 world = position * model;
+		for (int i = 0; i < count; i++)
+			pos[i] = viewProj[i] * world;
+		
+		nor = normal;
+		col = color;
+		gl_Position = maincam.viewProj * (position * model);
 	}
 }
 
-shader frag fs_render {
+shader frag fs_render2 {
 	#version 450
 	
+	layout(binding = 2) uniform sampler2D shadowmap;
+	
 	// fragment shader input (see col in vs_simple)
-	layout(location = 0) in vec4 normal;
-	layout(location = 1) in vec4 color;
+	layout(location = 0) in vec4 position[MAX_CAMS];
+	layout(location = MAX_CAMS) in vec4 viewport[MAX_CAMS];
+	layout(location = 2 * MAX_CAMS) in vec4 normal;
+	layout(location = 2 * MAX_CAMS + 1) in vec4 color;
 	
 	// fragment color output
 	out vec4 col;
 	
 	void main ()
 	{
-		col = <<color>>;
+		col = vec4(0);
+		
+		// if pixel outside light frustum clip space, do nothing
+		if (any(greaterThan(abs(position[0]), position[0].wwww)))
+			return;
+			
+		// SHADOW MAPPING
+		
+		// transform to normalized device coordinates [-1;+1]
+		// and then to shadow map texture coordinates [0;1]
+		vec3 lpos = (position[0].xyz / position[0].w) * 0.5 + 0.5;
+		lpos.xy = lpos.xy * position[0].zw + position[0].xy;
+		
+		// if pixel distance from the light source is greader than
+		// the distance in the shadow map, the pixel is in shadow
+		if (lpos.z-0.0005 <= texture(shadowmap, lpos.xy).x)
+			col += color * 0.5;
 	}
 }
 
@@ -287,10 +344,10 @@ pass pass_shadowmap {
 // Define a rendering pass
 pass pass_render {
 	// ATTATCH SHADERS
-	vert vs_render
-	frag fs_render
+	vert vs_render2
+	frag fs_render2
 	
-	tex camera_transform_texture 0
+	tex tex_depth 2
 	
 	// OPENGL FUNCTIONS
 	glClearColor 0.1 0.3 1.0 0.0
@@ -307,6 +364,9 @@ pass pass_render {
 }
 
 pass pass_reset {
+	tex 0
+	tex 1
+	tex 2
 	glDisable depthTest
 }
 
