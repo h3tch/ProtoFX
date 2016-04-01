@@ -220,6 +220,7 @@ shader vert vs_render {
 	
 	layout(binding = 0) uniform SimpleCamera {
 		mat4 viewProj;
+		vec4 position;
 	} viewer;
 	
 	layout(binding = 0) uniform samplerBuffer camTransform;
@@ -237,8 +238,10 @@ shader vert vs_render {
 	// vertex shader output
 	layout(location = 0) out vec4 nor;
 	layout(location = 1) out vec4 col;
-	layout(location = 2) out vec4 pos[MAX_CAMS];
-	layout(location = 2+MAX_CAMS) out vec4 vp[MAX_CAMS];
+	layout(location = 2) out vec4 V;
+	layout(location = 3) out vec4 L[MAX_CAMS];
+	layout(location = 3+MAX_CAMS) out vec4 pos[MAX_CAMS];
+	layout(location = 3+2*MAX_CAMS) out vec4 vp[MAX_CAMS];
 	
 	void main ()
 	{
@@ -247,6 +250,8 @@ shader vert vs_render {
 		
 		// create model matrix
 		mat4 model = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
+		vec3 scale = vec3(length(axisx.xyz), length(axisy.xyz), length(axisz.xyz));
+		mat3 modelRot = mat3(axisx.xyz / scale.x, axisy.xyz / scale.y, axisz.xyz / scale.z);
 		
 		// create view matrix for every camera
 		for (count = 0; count < MAX_CAMS && camera[count / 4][count % 4] >= 0; count++)
@@ -264,15 +269,18 @@ shader vert vs_render {
 		// pass varyings on to next shader
 		for (int i = count; i < MAX_CAMS; i++)
 			pos[i] = vp[i] = vec4(0);
+		nor = vec4((normal.xyz / scale.xyz) * modelRot, normal.w);
+		col = color;
+		vec4 world = position * model;
+		V = viewer.position - world;
+		gl_Position = viewer.viewProj * world;
 		
 		// compute model view projection position
-		vec4 world = position * model;
 		for (int i = 0; i < count; i++)
+		{
 			pos[i] = viewProj[i] * world;
-			
-		nor = normal;
-		col = color;
-		gl_Position = viewer.viewProj * (position * model);
+			L[i] = vec4(0) - world;
+		}
 	}
 }
 
@@ -282,10 +290,13 @@ shader frag fs_render {
 	layout(binding = 2) uniform sampler2D shadowAtlas;
 	
 	// fragment shader input (see col in vs_simple)
+	layout(early_fragment_tests) in;
 	layout(location = 0) in vec4 normal;
 	layout(location = 1) in vec4 color;
-	layout(location = 2) in vec4 position[MAX_CAMS];
-	layout(location = 2+MAX_CAMS) in vec4 viewport[MAX_CAMS];
+	layout(location = 2) in vec4 V;
+	layout(location = 3) in vec4 L[MAX_CAMS];
+	layout(location = 3+MAX_CAMS) in vec4 position[MAX_CAMS];
+	layout(location = 3+2*MAX_CAMS) in vec4 viewport[MAX_CAMS];
 	
 	// fragment color output
 	out vec4 col;
@@ -304,7 +315,7 @@ shader frag fs_render {
 			vec3 lpos = (position[i].xyz / position[i].w) * 0.5 + 0.5;
 			lpos.xy = lpos.xy * viewport[i].zw + viewport[i].xy;
 				
-			if (lpos.z-0.0005 <= texture(shadowAtlas, lpos.xy).x)
+			if (lpos.z < texture(shadowAtlas, lpos.xy).x)
 				col += color * (1.0/MAX_CAMS);
 		}
 	}
@@ -320,6 +331,7 @@ pass pass_init {
 	tex depth_texture 2
 	glClearColor 0.1 0.3 1.0 0.0
 	glEnable depthTest
+	glEnable cullFace
 }
 
 pass pass_shadowmap {
@@ -336,6 +348,7 @@ pass pass_shadowmap {
 	glEnable clipDistance1
 	glEnable clipDistance2
 	glEnable clipDistance3
+	glFrontFace CW
 	
 	// DRAW CALLS
 	draw mesh_triangles vertex_input ushort triangles draw_calls 0 2
@@ -352,6 +365,7 @@ pass pass_render {
 	glDisable clipDistance1
 	glDisable clipDistance2
 	glDisable clipDistance3
+	glFrontFace CCW
 	
 	// DRAW CALLS
 	draw mesh_triangles vertex_input ushort triangles draw_calls 0 2
@@ -365,6 +379,7 @@ pass pass_uninit {
 	tex 2
 	glClearColor 0.0 0.0 0.0 0.0
 	glDisable depthTest
+	glDisable cullFace
 }
 
 ///////////////
