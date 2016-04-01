@@ -8,6 +8,7 @@ using VertoutPrimType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
 using ElementType = OpenTK.Graphics.OpenGL4.DrawElementsType;
 using static System.Reflection.BindingFlags;
 using static OpenTK.Graphics.OpenGL4.GetProgramParameterName;
+using static OpenTK.Graphics.OpenGL4.TransformFeedbackMode;
 
 namespace App
 {
@@ -174,39 +175,25 @@ namespace App
             vertoutput?.Bind();
 
             // BIND TEXTURES
-            textures.ForEach(t => {
-                if (t.obj != null)
-                    t.obj.BindTex(t.unit);
-                else
-                    GLTexture.UnbindTex(t.unit);
-            });
-            texImages.ForEach(t => {
-                if (t.obj != null)
-                    t.obj.BindImg(t.unit, t.level, t.layer, t.access, t.format);
-                else
-                    GLTexture.UnbindImg(t.unit);
-            });
-            sampler.ForEach(s => {
-                if (s.obj != null)
-                    GL.BindSampler(s.unit, s.obj.glname);
-                else
-                    GL.BindSampler(s.unit, 0);
-            });
+            textures.ForEach(x => GLTexture.BindTex(x.unit, x.obj));
+            texImages.ForEach(x => GLTexture.BindImg(x.unit, x.obj, x.level, x.layer, x.access, x.format));
+            sampler.ForEach(x => GL.BindSampler(x.unit, x.obj?.glname ?? 0));
 
             // EXECUTE EXTERNAL CODE
-            csexec.ForEach(e => e.Update(glname, width, height, fbWidth, fbHeight));
+            csexec.ForEach(exe => exe.Update(glname, width, height, fbWidth, fbHeight));
             
             // BIND DEBUGGER
             if (glname > 0) FxDebugger.Bind(this, frame);
             
-            // EXECUTE DRAW CALLS
+            // EXECUTE DRAW AND COMPUTE CALLS
             drawcalls.ForEach(call => call.draw());
-
-            // EXECUTE COMPUTE CALLS
             compcalls.ForEach(call => call.compute());
 
             // UNBIND DEBUGGER
             if (glname > 0) FxDebugger.Unbind(this);
+
+            // UNBIND OPENGL OBJECTS
+            csexec.ForEach(e => e.EndPass(glname));
 
             // UNBIND OUTPUT BUFFERS
             fragoutput?.Unbind();
@@ -218,9 +205,6 @@ namespace App
             GL.BindBuffer(BufferTarget.DrawIndirectBuffer, 0);
             GL.BindBuffer(BufferTarget.DispatchIndirectBuffer, 0);
             GL.BindVertexArray(0);
-
-            // UNBIND OPENGL OBJECTS
-            csexec.ForEach(e => e.EndPass(glname));
 #if DEBUG
             // in debug mode check if the pass
             // left a valid OpenGL sate
@@ -372,7 +356,7 @@ namespace App
             // specify mandatory arguments
             var mandatory = new[] { new[] { true, true }, new[] { false, true } };
             // parse command arguments
-            var values = ParseCmd(cmd, types, mandatory, classes, err);
+            var values = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
             if (!err.HasErrors())
                 textures.Add(new Res<GLTexture>(values));
@@ -400,7 +384,7 @@ namespace App
                 new[] { false, true, false, false, false, false },
             };
             // parse command arguments
-            var values = ParseCmd(cmd, types, mandatory, classes, err);
+            var values = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
             if (!err.HasErrors())
                 texImages.Add(new ResTexImg(values));
@@ -418,47 +402,10 @@ namespace App
             // specify mandatory arguments
             var mandatory = new[] { new[] { true, true }, new[] { false, true } };
             // parse command arguments
-            var values = ParseCmd(cmd, types, mandatory, classes, err);
+            var values = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
             if (!err.HasErrors())
                 sampler.Add(new Res<GLSampler>(values));
-        }
-        
-        private object[] ParseCmd(Compiler.Command cmd, Type[] types, bool[][] mandatory,
-            Dict classes, CompileException err)
-        {
-            object[] values = new object[types.Length];
-
-            // parse command arguments
-            foreach (var arg in cmd)
-            {
-                var I = values
-                    .Zip(Enumerable.Range(0, types.Length), (x, i) => x == null ? i : -1)
-                    .Where(x => x >= 0);
-                foreach (var i in I)
-                {
-                    try
-                    {
-                        values[i] = types[i].IsSubclassOf(typeof(GLObject))
-                            ? classes.GetValueOrDefault<GLObject>(arg.Text)
-                            : types[i].IsEnum
-                                ? Enum.Parse(types[i], arg.Text, true)
-                                : Convert.ChangeType(arg.Text, types[i], App.Culture);
-                        if (values[i] != null)
-                            break;
-                    }
-                    catch { }
-                }
-            }
-
-            // check for errors
-            var valid = values.Select(x => x != null);
-            for (int i = 0; i < mandatory.Length; i++)
-                if (mandatory[i].Zip(valid, (m, v) => !m | v).All(x => x))
-                    return values;
-
-            err?.Add("Command has one or more invalid arguments.", cmd);
-            return values;
         }
         
         private void ParseOpenGLCall(Compiler.Command cmd, CompileException err)
@@ -749,6 +696,7 @@ namespace App
 
         private class Vertoutput
         {
+            enum ResumePause { None, Pause, Resume, }
             public GLVertoutput glvertout;
             public VertoutPrimType vertoutPrim;
             public TransformFeedbackMode vertoutMode;
@@ -758,48 +706,38 @@ namespace App
 
             public Vertoutput(Compiler.Command cmd, Dict scene, CompileException err)
             {
-                int iter;
-                string[] varyings = cmd.Select(x => x.Text).ToArray();
-                vertoutPrim = (VertoutPrimType)0xFF;
-                vertoutMode = TransformFeedbackMode.InterleavedAttribs;
-
-                for (iter = 0; iter < varyings.Length; iter++)
-                {
-                    if (glvertout == null)
-                    {
-                        if (!scene.TryGetValue(varyings[iter], out glvertout, cmd, err))
-                            break;
-                    }
-                    else if (vertoutPrim == (VertoutPrimType)0xFF)
-                    {
-                        if (!Enum.TryParse(varyings[iter], true, out vertoutPrim))
-                        {
-                            err.Add("vertout command does not support the specified primitive type "
-                                + $"'{varyings[iter]}' (must be 'points', 'lines' or 'triangles').", cmd);
-                            break;
-                        }
-                    }
-                    else if (varyings[iter] == "pause")
-                        pause = true;
-                    else if (varyings[iter] == "resume")
-                        resume = true;
-                    else if (varyings[iter] == "gl_SeparateAttribs")
-                        vertoutMode = TransformFeedbackMode.SeparateAttribs;
-                    else if (varyings[iter] == "gl_InterleavedAttribs")
-                        vertoutMode = TransformFeedbackMode.InterleavedAttribs;
-                    else
-                        break;
-                }
-
+                // specify argument types
+                var types = new[] {
+                    typeof(GLVertoutput),
+                    typeof(VertoutPrimType),
+                    typeof(ResumePause),
+                    typeof(TransformFeedbackMode),
+                };
+                // specify mandatory arguments
+                var mandatory = new[] {
+                    new[] { false, false, false, false },
+                };
+                // parse command arguments
+                var values = cmd.Parse(types, mandatory, out outputVaryings, scene, err);
                 if (err.HasErrors())
                     return;
 
                 // set transform feedback varyings in the shader program
-                if (varyings.Length - iter > 0)
-                    outputVaryings = varyings.Skip(iter).ToArray();
-                else
+                if (outputVaryings.Length == 0)
                     err.Add("vertout command does not specify shader output varying names "
                         + "(e.g. vertout vertout_name points [pause resume] varying_name).", cmd);
+                if (err.HasErrors())
+                    return;
+
+                // set fields
+                glvertout = (GLVertoutput)values[0];
+                vertoutPrim = (VertoutPrimType)values[1];
+                switch ((ResumePause)(values[2] ?? ResumePause.None))
+                {
+                    case ResumePause.Pause: pause = true; break;
+                    case ResumePause.Resume: resume = true; break;
+                }
+                vertoutMode = (TransformFeedbackMode)(values[3] ?? InterleavedAttribs);
             }
 
             public void SetProgramVaryings(int glname)

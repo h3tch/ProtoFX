@@ -24,8 +24,8 @@ namespace App
         private static GLBuffer buf;
         private static GLTexture tex;
         // allocate arrays for texture and image units
-        private static Unit[] texUnits;
-        private static int[] imgUnits;
+        private static TexUnit[] texUnits;
+        private static ImgUnit[] imgUnits;
         private static Dictionary<int, Uniforms> passes;
         public static DebugSettings Settings;
         // watch count for indexing
@@ -47,8 +47,8 @@ namespace App
             DbgBufKey = "__dbgbuf__";
             DbgTexKey = "__dbgtex__";
             // allocate arrays for texture and image units
-            texUnits = new Unit[GL.GetInteger((GetPName)All.MaxTextureImageUnits)];
-            imgUnits = new int[GL.GetInteger((GetPName)All.MaxImageUnits)];
+            texUnits = new TexUnit[GL.GetInteger((GetPName)All.MaxTextureImageUnits)];
+            imgUnits = new ImgUnit[GL.GetInteger((GetPName)All.MaxImageUnits)];
             passes = new Dictionary<int, Uniforms>();
             Settings = new DebugSettings();
         }
@@ -115,9 +115,13 @@ namespace App
             TextureAccess access, GpuFormat format, int glname)
         {
             // bind image to image load/store unit
-            imgUnits[unit] = glname;
-            GL.BindImageTexture(unit, glname, level, layered, Math.Max(layer, 0), access,
-                (SizedInternalFormat)format);
+            if ((imgUnits[unit].glname = glname) > 0)
+            {
+                imgUnits[unit].access = access;
+                imgUnits[unit].format = (SizedInternalFormat)format;
+            }
+            GL.BindImageTexture(unit, glname, level, layered, Math.Max(layer, 0),
+                imgUnits[unit].access, imgUnits[unit].format);
         }
 
         /// <summary>
@@ -129,28 +133,10 @@ namespace App
         public static void BindTex(int unit, TextureTarget target, int glname)
         {
             // bind texture to texture unit
-            texUnits[unit].glname = glname;
-            texUnits[unit].target = target;
+            if ((texUnits[unit].glname = glname) > 0)
+                texUnits[unit].target = target;
             GL.ActiveTexture(TextureUnit.Texture0 + unit);
-            GL.BindTexture(target, glname);
-        }
-
-        /// <summary>
-        /// Unbind image/texture from image load/store unit.
-        /// </summary>
-        /// <param name="unit">binding unit</param>
-        public static void UnbindImg(int unit) => imgUnits[unit] = 0;
-
-        /// <summary>
-        /// Unbind texture from texture unit.
-        /// </summary>
-        /// <param name="unit">binding unit</param>
-        /// <param name="target">texture target type</param>
-        public static void UnbindTex(int unit)
-        {
-            GL.ActiveTexture(TextureUnit.Texture0 + unit);
-            GL.BindTexture(texUnits[unit].target, texUnits[unit].glname);
-            texUnits[unit].glname = 0;
+            GL.BindTexture(texUnits[unit].target, glname);
         }
         #endregion
 
@@ -487,12 +473,12 @@ namespace App
                     return;
                 
                 // get last free unused image unit
-                unit = imgUnits.LastIndexOf(x => x == 0);
+                unit = imgUnits.LastIndexOf(x => x.glname == 0);
                 if (unit < 0)
                     return;
                 
                 // bind texture to image unit
-                tex.BindImg(unit, 0, 0, TextureAccess.WriteOnly, GpuFormat.Rgba32f);
+                GLTexture.BindImg(unit, tex, 0, 0, TextureAccess.WriteOnly, GpuFormat.Rgba32f);
                 GL.Uniform1(dbgOut, unit);
                 
                 // set debug uniform
@@ -525,7 +511,7 @@ namespace App
                 if (unit < 0)
                     return;
                 // unbind texture buffer
-                GLTexture.UnbindImg(unit);
+                GLTexture.BindImg(unit, null);
                 // read generated debug information
                 buf.Read(ref data);
             }
@@ -593,10 +579,17 @@ namespace App
             public string Name;
         }
 
-        private struct Unit
+        private struct TexUnit
         {
             public int glname;
             public TextureTarget target;
+        }
+
+        private struct ImgUnit
+        {
+            public int glname;
+            public TextureAccess access;
+            public SizedInternalFormat format;
         }
     }
 }

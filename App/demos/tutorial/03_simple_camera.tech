@@ -138,6 +138,12 @@ instance cs_camera {
 // RENDER PASS //
 /////////////////
 
+pass pass_init {
+	// Enable depth buffer test. This is necessary to draw the
+	// cube correctly. You can try to turn this test off.
+	glEnable depthTest
+}
+
 pass pass_render {
 	vert vs_simple
 	frag fs_simple
@@ -150,11 +156,7 @@ pass pass_render {
 	// Note: OpenGL states are set before draw calls are executed.
 
 	// Clear color and depth framebuffer.
-	Clear ColorDepthBit
-	
-	// Enable depth buffer test. This is necessary to draw the
-	// cube correctly. You can try to turn this test off.
-	Enable depthTest
+	glClear ColorDepthBit
 	
 	// Execute camera code (sets g_viewproj in vs_simple).
 	// You can control the camera with the left (rotate)
@@ -162,8 +164,8 @@ pass pass_render {
 	exec cs_camera
 }
 
-pass pass_reset {
-	Disable depthTest
+pass pass_uninit {
+	glDisable depthTest
 }
 
 ///////////////
@@ -171,6 +173,7 @@ pass pass_reset {
 ///////////////
 
 tech tech_simple {
+	init pass_init
 	pass pass_render
-	pass pass_reset
+	uninit pass_uninit
 }

@@ -103,32 +103,23 @@ namespace App
         /// Bind texture to texture unit.
         /// </summary>
         /// <param name="unit">Texture unit.</param>
-        public void BindTex(int unit)
-            => FxDebugger.BindTex(unit, glImg != null ? glImg.Target : TextureTarget.TextureBuffer, glname);
-
-        /// <summary>
-        /// Unbind texture from texture unit.
-        /// </summary>
-        /// <param name="unit">Texture unit.</param>
-        public static void UnbindTex(int unit) => FxDebugger.UnbindTex(unit);
+        /// <param name="tex">Texture object.</param>
+        public static void BindTex(int unit, GLTexture tex)
+            => FxDebugger.BindTex(unit, tex?.glImg?.Target ?? TextureTarget.TextureBuffer, tex?.glname ?? 0);
 
         /// <summary>
         /// Bind texture to compute-image unit.
         /// </summary>
         /// <param name="unit">Image unit.</param>
+        /// <param name="tex">Texture object.</param>
         /// <param name="level">Texture mipmap level.</param>
         /// <param name="layer">Texture array index or texture depth.</param>
         /// <param name="access">How the texture will be accessed by the shader.</param>
         /// <param name="format">Pixel format of texture pixels.</param>
-        public void BindImg(int unit, int level, int layer, TextureAccess access, GpuFormat format)
-            => FxDebugger.BindImg(unit, level, glImg?.Length > 0, layer, access, format, glname);
-
-        /// <summary>
-        /// Unbind texture from compute-image unit.
-        /// </summary>
-        /// <param name="unit"></param>
-        public static void UnbindImg(int unit) => FxDebugger.UnbindImg(unit);
-
+        public static void BindImg(int unit, GLTexture tex, int level = 0, int layer = 0,
+            TextureAccess access = TextureAccess.ReadOnly, GpuFormat format = GpuFormat.Rgba8)
+            => FxDebugger.BindImg(unit, level, tex?.glImg?.Length > 0, layer, access, format, tex?.glname ?? 0);
+        
         /// <summary>
         /// Link image or buffer object to the texture.
         /// </summary>

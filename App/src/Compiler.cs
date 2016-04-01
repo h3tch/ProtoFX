@@ -273,6 +273,7 @@ namespace App
             public int Line { get; private set; }
             public int LineInFile => Owner.LineInFile + Line;
             public string Text { get; private set; }
+            public int Length => Args.Length - 1;
             private Argument[] Args { get; set; }
             public string File { get { return Owner.Owner.Path; } }
             public string Name { get { return Args[0].Text; } }
@@ -324,6 +325,57 @@ namespace App
                     int s = arg[0] == '"' && arg[arg.Length - 1] == '"' ? 1 : 0;
                     yield return new Argument(this, arg.Substring(s, arg.Length - s * 2));
                 }
+            }
+
+            public object[] Parse(Type[] types, bool[][] mandatory, Dict classes, CompileException err = null)
+            {
+                string[] unused;
+                return Parse(types, mandatory, out unused, classes, err);
+            }
+
+            public object[] Parse(Type[] types, bool[][] mandatory, out string[] unusedArgs,
+                Dict classes, CompileException err = null)
+            {
+                object[] values = new object[types.Length];
+
+                // parse command arguments
+                var lastArgUsed = 0;
+                for (var a = 0; a < Length; a++)
+                {
+                    var arg = this[a];
+                    var I = values
+                        .Zip(Enumerable.Range(0, types.Length), (x, i) => x == null ? i : -1)
+                        .Where(x => x >= 0);
+                    foreach (var i in I)
+                    {
+                        try
+                        {
+                            values[i] = types[i].IsSubclassOf(typeof(GLObject))
+                                ? classes.GetValueOrDefault<GLObject>(arg.Text)
+                                : types[i].IsEnum
+                                    ? Enum.Parse(types[i], arg.Text, true)
+                                    : Convert.ChangeType(arg.Text, types[i], App.Culture);
+                            if (values[i] != null)
+                            {
+                                lastArgUsed = a;
+                                break;
+                            }
+                        }
+                        catch { }
+                    }
+                }
+
+                // return list of unused arguments
+                unusedArgs = this.Skip(lastArgUsed + 1).Select(x => x.Text).ToArray();
+
+                // check for errors
+                var valid = values.Select(x => x != null);
+                for (int i = 0; i < mandatory.Length; i++)
+                    if (mandatory[i].Zip(valid, (m, v) => !m | v).All(x => x))
+                        return values;
+
+                err?.Add("Command has one or more invalid arguments.", this);
+                return values;
             }
 
             #region IEnumerable Interface
