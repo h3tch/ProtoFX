@@ -57,7 +57,7 @@ namespace App
         /// <summary>
         /// Unbind transform feedback object.
         /// </summary>
-        public void Unbind(bool pause)
+        public static void Unbind(bool pause)
         {
             // pause or end transform feedback
             if (pause)

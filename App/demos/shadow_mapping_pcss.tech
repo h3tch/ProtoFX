@@ -303,9 +303,9 @@ pass pass_shadowmap {
 	fragout out_shadowmap
 	
 	// OpenGL calls
-	Clear depthBit
-	Enable depthTest
-	//Enable CullFace
+	glClear depthBit
+	glEnable depthTest
+	glEnable CullFace
 
 	// execute camera code
 	exec cs_light
@@ -323,9 +323,9 @@ pass pass_render {
 	tex tex_shadowmap 0
 	
 	// OpenGL calls
-	ClearColor 0.1 0.3 1.0 0.0
-	Clear colorDepthBit
-	Enable depthTest
+	glClearColor 0.1 0.3 1.0 0.0
+	glClear colorDepthBit
+	glEnable depthTest
 
 	// execute camera code
 	exec cs_light
@@ -338,9 +338,10 @@ pass pass_render {
 }
 
 pass pass_reset {
-	ClearColor 0 0 0 0
-	Disable depthTest
-	Disable CullFace
+	tex 0
+	glClearColor 0 0 0 0
+	glDisable depthTest
+	glDisable CullFace
 }
 
 tech tech_simple {

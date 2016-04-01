@@ -24,14 +24,16 @@ namespace App
         private static GLBuffer buf;
         private static GLTexture tex;
         // allocate arrays for texture and image units
-        private static int[] texUnits;
-        private static int[] imgUnits;
+        private static TexUnit[] texUnits;
+        private static ImgUnit[] imgUnits;
         private static Dictionary<int, Uniforms> passes;
         public static DebugSettings Settings;
         // watch count for indexing
         private const int stage_size = 128;
         private static int OPEN_INDIC_LEN = DBG_OPEN.Length;
         private static int CLOSE_INDIC_LEN = DBG_CLOSE.Length;
+        private static string[] dbgUniforms = DBG_UNIFORMS.Split('\n').Select(x => x.Trim()).ToArray();
+        private static string[] dbgConditions = DBG_CONDITIONS.Split('\n').Select(x => x.Trim()).ToArray();
         private static int dbgVarCount;
         #endregion
 
@@ -45,8 +47,8 @@ namespace App
             DbgBufKey = "__dbgbuf__";
             DbgTexKey = "__dbgtex__";
             // allocate arrays for texture and image units
-            texUnits = new int[GL.GetInteger((GetPName)All.MaxTextureImageUnits)];
-            imgUnits = new int[GL.GetInteger((GetPName)All.MaxImageUnits)];
+            texUnits = new TexUnit[GL.GetInteger((GetPName)All.MaxTextureImageUnits)];
+            imgUnits = new ImgUnit[GL.GetInteger((GetPName)All.MaxImageUnits)];
             passes = new Dictionary<int, Uniforms>();
             Settings = new DebugSettings();
         }
@@ -60,7 +62,7 @@ namespace App
         {
             // allocate GPU resources
             buf = new GLBuffer(DbgBufKey, "dbg", BufferUsageHint.DynamicRead, stage_size * 6 * 16);
-            tex = new GLTexture(DbgTexKey, "dbg", GpuFormat.Rgba32f, null, buf, null);
+            tex = new GLTexture(DbgTexKey, "dbg", GpuFormat.Rgba32f, buf, null);
 
 #if DEBUG   // add to scene for debug inspection
             scene.Add(DbgBufKey, buf);
@@ -113,9 +115,13 @@ namespace App
             TextureAccess access, GpuFormat format, int glname)
         {
             // bind image to image load/store unit
-            imgUnits[unit] = glname;
-            GL.BindImageTexture(unit, glname, level, layered, Math.Max(layer, 0), access,
-                (SizedInternalFormat)format);
+            if ((imgUnits[unit].glname = glname) > 0)
+            {
+                imgUnits[unit].access = access;
+                imgUnits[unit].format = (SizedInternalFormat)format;
+            }
+            GL.BindImageTexture(unit, glname, level, layered, Math.Max(layer, 0),
+                imgUnits[unit].access, imgUnits[unit].format);
         }
 
         /// <summary>
@@ -127,23 +133,11 @@ namespace App
         public static void BindTex(int unit, TextureTarget target, int glname)
         {
             // bind texture to texture unit
-            texUnits[unit] = glname;
+            if ((texUnits[unit].glname = glname) > 0)
+                texUnits[unit].target = target;
             GL.ActiveTexture(TextureUnit.Texture0 + unit);
-            GL.BindTexture(target, glname);
+            GL.BindTexture(texUnits[unit].target, glname);
         }
-
-        /// <summary>
-        /// Unbind image/texture from image load/store unit.
-        /// </summary>
-        /// <param name="unit">binding unit</param>
-        public static void UnbindImg(int unit) => imgUnits[unit] = 0;
-
-        /// <summary>
-        /// Unbind texture from texture unit.
-        /// </summary>
-        /// <param name="unit">binding unit</param>
-        /// <param name="target">texture target type</param>
-        public static void UnbindTex(int unit, TextureTarget target) => BindTex(unit, target, 0);
         #endregion
 
         #region DEBUG VARIABLE
@@ -348,7 +342,8 @@ namespace App
         /// <param name="debug">Add debug information if true.
         /// Otherwise remove debug indicators.</param>
         /// <returns>Returns the new GLSL code with debug code added.</returns>
-        public static string AddDebugCode(Compiler.Block block, ShaderType type, bool debug, CompileException err)
+        public static string AddDebugCode(Compiler.Block block, ShaderType type, bool debug,
+            CompileException err)
         {
             var glsl = block.Text.BraceMatch('{', '}').Value;
             glsl = glsl.Substring(1, glsl.Length - 2);
@@ -405,20 +400,6 @@ namespace App
 
             // gather debug information
             int stage_index;
-            string[] debug_uniform = new[]
-            {
-                "ivec2 _dbgVert", "ivec2 _dbgTess", "int _dbgEval",
-                "ivec2 _dbgGeom", "ivec4 _dbgFrag", "uvec3 _dbgComp"
-            };
-            string[] debug_condition = new[]
-            {
-                "all(equal(_dbgVert, ivec2(gl_InstanceID, gl_VertexID)))",
-                "all(equal(_dbgTess, ivec2(gl_InvocationID, gl_PrimitiveID)))",
-                "_dbgEval == gl_PrimitiveID",
-                "all(equal(_dbgGeom, ivec2(gl_PrimitiveIDIn, gl_InvocationID)))",
-                "all(equal(_dbgFrag, ivec4(int(gl_FragCoord.x), int(gl_FragCoord.y), gl_Layer, gl_ViewportIndex)))",
-                "all(equal(_dbgComp, gl_GlobalInvocationID))"
-            };
             switch (type)
             {
                 case ShaderType.VertexShader: stage_index = 0; break;
@@ -434,9 +415,9 @@ namespace App
             var rsHead = Properties.Resources.dbg
                 .Replace($"{DBG_OPEN}stage offset{DBG_CLOSE}", (stage_size * stage_index).ToString());
             var rsBody = Properties.Resources.dbgBody
-                .Replace($"{DBG_OPEN}debug uniform{DBG_CLOSE}", debug_uniform[stage_index])
+                .Replace($"{DBG_OPEN}debug uniform{DBG_CLOSE}", dbgUniforms[stage_index])
                 .Replace($"{DBG_OPEN}debug frame{DBG_CLOSE}", "int _dbgFrame")
-                .Replace($"{DBG_OPEN}debug condition{DBG_CLOSE}", debug_condition[stage_index])
+                .Replace($"{DBG_OPEN}debug condition{DBG_CLOSE}", dbgConditions[stage_index])
                 .Replace($"{DBG_OPEN}debug code{DBG_CLOSE}", dbgBody)
                 .Replace($"{DBG_OPEN}runtime code{DBG_CLOSE}", runBody);
             
@@ -492,12 +473,12 @@ namespace App
                     return;
                 
                 // get last free unused image unit
-                unit = imgUnits.LastIndexOf(x => x == 0);
+                unit = imgUnits.LastIndexOf(x => x.glname == 0);
                 if (unit < 0)
                     return;
                 
                 // bind texture to image unit
-                tex.BindImg(unit, 0, 0, TextureAccess.WriteOnly, GpuFormat.Rgba32f);
+                GLTexture.BindImg(unit, tex, 0, 0, TextureAccess.WriteOnly, GpuFormat.Rgba32f);
                 GL.Uniform1(dbgOut, unit);
                 
                 // set debug uniform
@@ -530,7 +511,7 @@ namespace App
                 if (unit < 0)
                     return;
                 // unbind texture buffer
-                tex.UnbindImg(unit);
+                GLTexture.BindImg(unit, null);
                 // read generated debug information
                 buf.Read(ref data);
             }
@@ -596,6 +577,19 @@ namespace App
         {
             public int ID;
             public string Name;
+        }
+
+        private struct TexUnit
+        {
+            public int glname;
+            public TextureTarget target;
+        }
+
+        private struct ImgUnit
+        {
+            public int glname;
+            public TextureAccess access;
+            public SizedInternalFormat format;
         }
     }
 }

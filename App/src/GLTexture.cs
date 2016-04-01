@@ -5,11 +5,9 @@ namespace App
     class GLTexture : GLObject
     {
         #region FIELDS
-        [FxField] private string Samp = null;
         [FxField] private string Buff = null;
         [FxField] private string Img = null;
         [FxField] private GpuFormat Format = 0;
-        private GLSampler glSamp = null;
         private GLBuffer glBuff = null;
         private GLImage glImg = null;
         #endregion
@@ -21,17 +19,15 @@ namespace App
         /// <param name="name"></param>
         /// <param name="anno"></param>
         /// <param name="format"></param>
-        /// <param name="glsamp"></param>
         /// <param name="glbuff"></param>
         /// <param name="glimg"></param>
-        public GLTexture(string name, string anno, GpuFormat format, GLSampler glsamp, GLBuffer glbuff, GLImage glimg)
+        public GLTexture(string name, string anno, GpuFormat format, GLBuffer glbuff, GLImage glimg)
             : base(name, anno)
         {
             var err = new CompileException($"texture '{name}'");
 
             // set name
             this.Format = format;
-            this.glSamp = glsamp;
             this.glBuff = glbuff;
             this.glImg = glimg;
 
@@ -46,10 +42,9 @@ namespace App
         /// </summary>
         /// <param name="block"></param>
         /// <param name="scene"></param>
-        /// <param name="glsamp"></param>
         /// <param name="glbuff"></param>
         /// <param name="glimg"></param>
-        public GLTexture(Compiler.Block block, Dict scene, GLSampler glsamp, GLBuffer glbuff, GLImage glimg)
+        public GLTexture(Compiler.Block block, Dict scene, GLBuffer glbuff, GLImage glimg)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"texture '{name}'");
@@ -58,13 +53,10 @@ namespace App
             Cmds2Fields(block, err);
 
             // set name
-            this.glSamp = glsamp;
             this.glBuff = glbuff;
             this.glImg = glimg;
 
             // GET REFERENCES
-            if (Samp != null)
-                scene.TryGetValue(Samp, out this.glSamp, block, err);
             if (Buff != null)
                 scene.TryGetValue(Buff, out this.glBuff, block, err);
             if (Img != null)
@@ -91,7 +83,7 @@ namespace App
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
         public GLTexture(Compiler.Block block, Dict scene, bool debugging)
-            : this(block, scene, null, null, null)
+            : this(block, scene, null, null)
         {
         }
 
@@ -111,41 +103,23 @@ namespace App
         /// Bind texture to texture unit.
         /// </summary>
         /// <param name="unit">Texture unit.</param>
-        public void BindTex(int unit)
-        {
-            if (glSamp != null)
-                GL.BindSampler(unit, glSamp.glname);
-            FxDebugger.BindTex(unit, glImg != null ? glImg.Target : TextureTarget.TextureBuffer, glname);
-        }
-
-        /// <summary>
-        /// Unbind texture from texture unit.
-        /// </summary>
-        /// <param name="unit">Texture unit.</param>
-        public void UnbindTex(int unit)
-        {
-            if (glSamp != null)
-                GL.BindSampler(unit, 0);
-            FxDebugger.UnbindTex(unit, glImg != null ? glImg.Target : TextureTarget.TextureBuffer);
-        }
+        /// <param name="tex">Texture object.</param>
+        public static void BindTex(int unit, GLTexture tex)
+            => FxDebugger.BindTex(unit, tex?.glImg?.Target ?? TextureTarget.TextureBuffer, tex?.glname ?? 0);
 
         /// <summary>
         /// Bind texture to compute-image unit.
         /// </summary>
         /// <param name="unit">Image unit.</param>
+        /// <param name="tex">Texture object.</param>
         /// <param name="level">Texture mipmap level.</param>
         /// <param name="layer">Texture array index or texture depth.</param>
         /// <param name="access">How the texture will be accessed by the shader.</param>
         /// <param name="format">Pixel format of texture pixels.</param>
-        public void BindImg(int unit, int level, int layer, TextureAccess access, GpuFormat format)
-            => FxDebugger.BindImg(unit, level, glImg?.Length > 0, layer, access, format, glname);
-
-        /// <summary>
-        /// Unbind texture from compute-image unit.
-        /// </summary>
-        /// <param name="unit"></param>
-        public void UnbindImg(int unit) => FxDebugger.UnbindImg(unit);
-
+        public static void BindImg(int unit, GLTexture tex, int level = 0, int layer = 0,
+            TextureAccess access = TextureAccess.ReadOnly, GpuFormat format = GpuFormat.Rgba8)
+            => FxDebugger.BindImg(unit, level, tex?.glImg?.Length > 0, layer, access, format, tex?.glname ?? 0);
+        
         /// <summary>
         /// Link image or buffer object to the texture.
         /// </summary>
