@@ -573,6 +573,7 @@ namespace App
         }
         #endregion
 
+        #region UTIL STRUCTURE
         public struct DbgVar
         {
             public int ID;
@@ -591,5 +592,6 @@ namespace App
             public TextureAccess access;
             public SizedInternalFormat format;
         }
+        #endregion
     }
 }

@@ -26,6 +26,11 @@ buffer camera_viewport {
 	xml "scene.xml" data/camera/viewport
 }
 
+buffer camera_position {
+	usage staticDraw
+	xml "scene.xml" data/camera/position
+}
+
 // OBJECT INFORMATION
 
 buffer object_transform {
@@ -89,6 +94,11 @@ texture camera_transform_texture {
 
 texture camera_viewport_texture {
 	buff camera_viewport
+	format RGBA32f
+}
+
+texture camera_position_texture {
+	buff camera_position
 	format RGBA32f
 }
 
@@ -225,6 +235,7 @@ shader vert vs_render {
 	
 	layout(binding = 0) uniform samplerBuffer camTransform;
 	layout(binding = 1) uniform samplerBuffer camViewport;
+	layout(binding = 2) uniform samplerBuffer camPosition;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 position;
@@ -249,15 +260,16 @@ shader vert vs_render {
 		mat4 viewProj[MAX_CAMS];
 		
 		// create model matrix
-		mat4 model = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
-		vec3 scale = vec3(length(axisx.xyz), length(axisy.xyz), length(axisz.xyz));
-		mat3 modelRot = mat3(axisx.xyz / scale.x, axisy.xyz / scale.y, axisz.xyz / scale.z);
+		const mat4 model = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
 		
 		// create view matrix for every camera
-		for (count = 0; count < MAX_CAMS && camera[count / 4][count % 4] >= 0; count++)
+		for (count = 0;
+		     count < MAX_CAMS && camera[count / 4][count % 4] >= 0;
+		     count++)
 		{
 			int ptr = camera[count / 4][count % 4];
 			vp[count] = texelFetch(camViewport, ptr);
+			L[count] = texelFetch(camPosition, ptr);
 			ptr *= 4;
 			viewProj[count] = mat4(
 				texelFetch(camTransform, ptr + 0),
@@ -268,18 +280,24 @@ shader vert vs_render {
 		
 		// pass varyings on to next shader
 		for (int i = count; i < MAX_CAMS; i++)
-			pos[i] = vp[i] = vec4(0);
-		nor = vec4((normal.xyz / scale.xyz) * modelRot, normal.w);
+			pos[i] = vp[i] = L[i] = vec4(0);
+			
 		col = color;
-		vec4 world = position * model;
-		V = viewer.position - world;
+		
+		const vec3 scale = vec3(length(axisx.xyz), length(axisy.xyz), length(axisz.xyz));
+		const mat3 modelRot = mat3(axisx.xyz / scale.x, axisy.xyz / scale.y, axisz.xyz / scale.z);
+		nor = vec4((normal.xyz / scale.xyz) * modelRot, normal.w);
+		
+		const vec4 world = position * model;
+		V = <<viewer.position>> - world;
+		
 		gl_Position = viewer.viewProj * world;
 		
 		// compute model view projection position
 		for (int i = 0; i < count; i++)
 		{
 			pos[i] = viewProj[i] * world;
-			L[i] = vec4(0) - world;
+			L[i] -= world;
 		}
 	}
 }
@@ -287,7 +305,7 @@ shader vert vs_render {
 shader frag fs_render {
 	#version 450
 	
-	layout(binding = 2) uniform sampler2D shadowAtlas;
+	layout(binding = 3) uniform sampler2D shadowAtlas;
 	
 	// fragment shader input (see col in vs_simple)
 	layout(early_fragment_tests) in;
@@ -305,6 +323,8 @@ shader frag fs_render {
 	{
 		// pass color
 		col = vec4(0);
+		const vec3 v = normalize(V.xyz);
+		const vec3 n = normalize(normal.xyz);
 		
 		for (int i = 0; i < MAX_CAMS && position[i].w != 0; i++)
 		{
@@ -316,7 +336,10 @@ shader frag fs_render {
 			lpos.xy = lpos.xy * viewport[i].zw + viewport[i].xy;
 				
 			if (lpos.z < texture(shadowAtlas, lpos.xy).x)
-				col += color * (1.0/MAX_CAMS);
+			{
+				vec3 l = normalize(L[i].xyz);
+				col += color * max(0, dot(l, n)) + pow(dot(normalize(l + v), n), 16);
+			}
 		}
 	}
 }
@@ -328,7 +351,8 @@ shader frag fs_render {
 pass pass_init {
 	tex camera_transform_texture 0
 	tex camera_viewport_texture 1
-	tex depth_texture 2
+	tex camera_position_texture 2
+	tex depth_texture 3
 	glClearColor 0.1 0.3 1.0 0.0
 	glEnable depthTest
 	glEnable cullFace
