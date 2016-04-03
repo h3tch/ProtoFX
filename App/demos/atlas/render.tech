@@ -3,6 +3,14 @@
 // global variables
 #global MAX_CAMS 4
 
+csharp cs {
+	file "<csharp>/StaticCamera.cs" ...
+	     "<csharp>/SimpleCamera.cs" ...
+	     "<csharp>/UniformBlock.cs" ...
+	     "<csharp>/CsObject.cs" ...
+	     "<csharp>/Converter.cs"
+}
+
 //////////////////
 // DATA OBJECTS //
 //////////////////
@@ -18,7 +26,11 @@ buffer draw_calls {
 
 buffer camera_transform {
 	usage staticDraw
-	xml "scene.xml" data/camera/transform
+	xml "scene.xml" ...
+		data/camera/position ...
+		data/camera/rotation ...
+		data/camera/projection
+	class cs data.Converter Convert2ViewProjMatrix
 }
 
 buffer camera_viewport {
@@ -35,7 +47,11 @@ buffer camera_position {
 
 buffer object_transform {
 	usage staticDraw
-	xml "scene.xml" data/object/transform
+	xml "scene.xml"  ...
+		data/object/position ...
+		data/object/rotation ...
+		data/object/scale
+	class cs data.Converter Convert2ModelMatrix
 }
 
 buffer object_cameraid {
@@ -114,15 +130,8 @@ fragoutput fragout_shadowmap {
 // CONTROLS //
 //////////////
 
-csharp cs_util {
-	file "<csharp>/StaticCamera.cs" ...
-	     "<csharp>/SimpleCamera.cs" ...
-	     "<csharp>/UniformBlock.cs" ...
-	     "<csharp>/CsObject.cs"
-}
-
 instance cs_camera {
-	class cs_util csharp.SimpleCamera
+	class cs csharp.SimpleCamera
 	name SimpleCamera
 	pos -5 4 10
 	rot -20 -15 0
@@ -329,7 +338,7 @@ shader frag fs_render {
 		for (int i = 0; i < MAX_CAMS && position[i].w != 0; i++)
 		{
 			// if pixel outside light frustum clip space, do nothing
-			if (any(greaterThan(abs(position[i]), position[i].wwww)))
+			if (any(greaterThan(abs(position[i].xyz), position[i].www)))
 				continue;
 				
 			vec3 lpos = (position[i].xyz / position[i].w) * 0.5 + 0.5;
@@ -338,7 +347,9 @@ shader frag fs_render {
 			if (lpos.z < texture(shadowAtlas, lpos.xy).x)
 			{
 				vec3 l = normalize(L[i].xyz);
-				col += color * max(0, dot(l, n)) + pow(dot(normalize(l + v), n), 16);
+				const float Id = max(0, dot(l, n));
+				const float Is = max(0, pow(dot(normalize(l + v), n), 16));
+				col += color * (Id + Is);
 			}
 		}
 	}

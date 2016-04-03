@@ -84,6 +84,14 @@ namespace App
             if (Size == 0)
                 Size = data.Length;
 
+            // CONVERT DATA
+            var clazz = block["class"].FirstOrDefault();
+            if (clazz != null && Size > 0)
+            {
+                var converter = GLCsharp.GetMethod(clazz, scene, err);
+                data = (byte[])converter?.Invoke(null, new[] { data });
+            }
+
             // CREATE OPENGL OBJECT
             CreateBuffer(data);
             if (HasErrorOrGlError(err, block))
