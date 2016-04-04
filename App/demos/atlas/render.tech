@@ -348,7 +348,7 @@ shader frag fs_render {
 			{
 				vec3 l = normalize(L[i].xyz);
 				const float Id = max(0, dot(l, n));
-				const float Is = max(0, pow(dot(normalize(l + v), n), 16));
+				const float Is = max(0, pow(dot(normalize(l + v), n), 32));
 				col += color * (Id + Is);
 			}
 		}

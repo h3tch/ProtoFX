@@ -1,12 +1,13 @@
 ﻿using OpenTK;
 using System;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace data
 {
     class Converter
     {
+        private const float rad2deg = (float)(Math.PI / 180);
+
         /// <summary>
         /// Converts a byte array defined as
         /// struct {
@@ -20,73 +21,102 @@ namespace data
         /// <returns></returns>
         public static byte[] Convert2ViewProjMatrix(byte[] data)
         {
-            var values = Byte2Float(data);
-            var count = values.Length / (3 * 4); // 3 = pos,rot,proj; 4 = sizeof(float);
-            var matrix = Marshal.AllocHGlobal(Marshal.SizeOf<Matrix4>());
-            var output = new byte[4 * 16 * count];
-
-            for (int i = 0; i < count; i++)
-            {
-                var pos = values.Skip(4 * i).Take(3).ToArray();
-                var rot = values.Skip(4 * count + 4 * i).Take(2).ToArray();
-                var prj = values.Skip(8 * count + 4 * i).Take(4).ToArray();
-                var near = prj[0];
-                var far = prj[1];
-                var fov = prj[2];
-                var aspect = prj[3];
-                // This function is executed every frame at the beginning of a pass.
-                var view = Matrix4.CreateTranslation(-pos[0], -pos[1], -pos[2])
-                     * Matrix4.CreateRotationY(-rot[1] * rad2deg)
-                     * Matrix4.CreateRotationX(-rot[0] * rad2deg);
+            return Convert2<float, Matrix4>(data, 3, 4, (v, i) => {
+                var near = v[2, i, 0];
+                var far = v[2, i, 1];
+                var fov = v[2, i, 2];
+                var aspect = v[2, i, 3];
+                var view = Matrix4.CreateTranslation(-v[0, i, 0], -v[0, i, 1], -v[0, i, 2])
+                     * Matrix4.CreateRotationY(-v[1, i, 1] * rad2deg)
+                     * Matrix4.CreateRotationX(-v[1, i, 0] * rad2deg);
                 var proj = Matrix4.CreatePerspectiveFieldOfView(fov * rad2deg, aspect, near, far);
-
-                Marshal.StructureToPtr(view * proj, matrix, true);
-                Marshal.Copy(matrix, output, 4 * 16 * i, 4 * 16);
-            }
-
-            return output;
+                return view * proj;
+            });
         }
 
+        /// <summary>
+        /// Converts a byte array defined as
+        /// struct {
+        ///     vec4 position[count],
+        ///          rotation[count],
+        ///          scale[count];
+        /// }
+        /// into an array of model matrices.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public static byte[] Convert2ModelMatrix(byte[] data)
         {
-            var values = Byte2Float(data);
-            var count = values.Length / (3 * 4); // 3 = pos,rot,proj; 4 = sizeof(float);
-            var matrix = Marshal.AllocHGlobal(Marshal.SizeOf<Matrix4>());
-            var output = new byte[4 * 16 * count];
+            return Convert2<float, Matrix4>(data, 3, 4, (v, i) =>
+                Matrix4.CreateTranslation(v[0, i, 0], v[0, i, 1], v[0, i, 2])
+                * Matrix4.CreateRotationX(v[1, i, 2] * rad2deg)
+                * Matrix4.CreateRotationY(v[1, i, 1] * rad2deg)
+                * Matrix4.CreateRotationX(v[1, i, 0] * rad2deg)
+                * Matrix4.CreateScale(v[2, i, 0], v[2, i, 1], v[2, i, 2]));
+        }
 
-            for (int i = 0; i < count; i++)
+        /// <summary>
+        /// Convert a byte array into another byte array by
+        /// processing the original data with the specified function.
+        /// </summary>
+        /// <typeparam name="T1">Type stored in the data array.</typeparam>
+        /// <typeparam name="T2">Return type of the specified function.</typeparam>
+        /// <param name="data"></param>
+        /// <param name="arrayCount">Number of arrays stored in data.</param>
+        /// <param name="vectorSize">Size of the vectors stored in data.</param>
+        /// <param name="func">Function to process the source data.</param>
+        /// <returns></returns>
+        private static byte[] Convert2<T1,T2>(byte[] data, int arrayCount, int vectorSize,
+            Func<T1[,,], int, T2> func)
+        {
+            // convert and resize data array
+            var values = Resize2<T1>(data, arrayCount, vectorSize);
+            // allocate unmanaged memory for conversion
+            var mem = Marshal.AllocHGlobal(Marshal.SizeOf<T2>());
+            // allocate output array
+            var output = new byte[Marshal.SizeOf<T2>() * values.GetLength(1)];
+
+            for (int i = 0; i < values.GetLength(1); i++)
             {
-                var pos = values.Skip(4 * i).Take(3).ToArray();
-                var rot = values.Skip(4 * count + 4 * i).Take(3).ToArray();
-                var sca = values.Skip(8 * count + 4 * i).Take(3).ToArray();
-                // This function is executed every frame at the beginning of a pass.
-                var model = Matrix4.CreateTranslation(pos[0], pos[1], pos[2])
-                     * Matrix4.CreateRotationX(rot[2] * rad2deg)
-                     * Matrix4.CreateRotationY(rot[1] * rad2deg)
-                     * Matrix4.CreateRotationX(rot[0] * rad2deg)
-                     * Matrix4.CreateScale(sca[0], sca[1], sca[2]);
-
-                Marshal.StructureToPtr(model, matrix, true);
-                Marshal.Copy(matrix, output, 4 * 16 * i, 4 * 16);
+                // process data array and store the result in unmanaged memory
+                Marshal.StructureToPtr(func(values, i), mem, true);
+                // copy the result form the unmanaged memory to the output array
+                Marshal.Copy(mem, output, Marshal.SizeOf<T2>() * i, Marshal.SizeOf<T2>());
             }
 
+            // free unmanaged memory
+            Marshal.FreeHGlobal(mem);
             return output;
         }
-        
-        private const float rad2deg = (float)(Math.PI / 180);
 
-        private static float[] Byte2Float(byte[] array)
+        /// <summary>
+        /// Cast and resize the byte array.
+        /// </summary>
+        /// <typeparam name="T">Cast type.</typeparam>
+        /// <param name="data"></param>
+        /// <param name="arrayCount"></param>
+        /// <param name="vectorSize"></param>
+        /// <returns></returns>
+        private static T[,,] Resize2<T>(byte[] data, int arrayCount, int vectorSize)
         {
-            float[] floatArr = new float[array.Length / 4];
-            for (int i = 0; i < floatArr.Length; i++)
-            {
-                //if (BitConverter.IsLittleEndian)
-                //{
-                //    Array.Reverse(array, i * 4, 4);
-                //}
-                floatArr[i] = BitConverter.ToSingle(array, i * 4);
-            }
-            return floatArr;
+            var count = data.Length / (Marshal.SizeOf<T>() * arrayCount * vectorSize);
+            return (T[,,])Bytes2<T>(data, arrayCount, count, vectorSize);
+        }
+
+        /// <summary>
+        /// Cast and resize the byte array.
+        /// </summary>
+        /// <typeparam name="T">Cast type.</typeparam>
+        /// <param name="data"></param>
+        /// <param name="lengths"></param>
+        /// <returns></returns>
+        private static Array Bytes2<T>(byte[] data, params int[] lengths)
+        {
+            // allocate output array
+            var rs = Array.CreateInstance(typeof(T), lengths);
+            // copy data to output array
+            Buffer.BlockCopy(data, 0, rs, 0, data.Length);
+            return rs;
         }
     }
 }
