@@ -15,6 +15,8 @@ namespace csharp
             proj,
             viewProj,
             camera,
+            position,
+            rotation,
         }
 
         #region FIELDS
@@ -77,15 +79,23 @@ namespace csharp
                 uniform.Add(program, unif = new UniformBlock<Names>(program, name));
 
             // SET UNIFORM VALUES
-            unif.Set(Names.view, view.AsInt32());
+            if (unif[Names.view] >= 0)
+                unif.Set(Names.view, view.AsInt32());
 
-            unif.Set(Names.proj, proj.AsInt32());
+            if (unif[Names.proj] >= 0)
+                unif.Set(Names.proj, proj.AsInt32());
 
             if (unif[Names.viewProj] >= 0)
                 unif.Set(Names.viewProj, (view * proj).AsInt32());
 
             if (unif[Names.camera] >= 0)
                 unif.Set(Names.camera, new[] { fov * rad2deg, aspect, near, far }.AsInt32());
+
+            if (unif[Names.position] >= 0)
+                unif.Set(Names.position, pos.AsInt32());
+
+            if (unif[Names.rotation] >= 0)
+                unif.Set(Names.rotation, rot.AsInt32());
 
             // UPDATE UNIFORM BUFFER
             unif.Update();

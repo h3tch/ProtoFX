@@ -429,8 +429,8 @@ namespace App
             int skip = stride - cols * Marshal.SizeOf<T>();
 
             // read types from mem and store them in the array
-            for (int y = 0; y < rows; y++)
-                for (int x = 0; x < cols; x++, reader.Seek(skip))
+            for (int y = 0; y < rows; y++, reader.Seek(skip))
+                for (int x = 0; x < cols; x++)
                     array.SetValue(Read.Invoke(reader, null), y, x);
 
             return array;

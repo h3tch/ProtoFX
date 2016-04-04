@@ -9,11 +9,13 @@ namespace App
 {
     class Compiler
     {
+        #region FIELD
         public static Regex RegexBlock;
         public static Regex RegexFunction;
         public static Regex RegexLayout;
         private static HashSet<string> incpath = new HashSet<string>();
-        
+        #endregion
+
         static Compiler()
         {
             var open = "{";
@@ -327,14 +329,34 @@ namespace App
                 }
             }
 
-            public object[] Parse(Type[] types, bool[][] mandatory, Dict classes, CompileException err = null)
+            /// <summary>
+            /// Parse the command and extract arguments as values.
+            /// </summary>
+            /// <param name="types">List of argument types.</param>
+            /// <param name="mandatory">Specifies which of this arguments are mandatory.</param>
+            /// <param name="scene">Dictionary of scene objects.</param>
+            /// <param name="err"></param>
+            /// <returns>List of objects values. If a value could not be
+            /// parsed, the returned value will be null.</returns>
+            public object[] Parse(Type[] types, bool[][] mandatory, Dict scene,
+                CompileException err = null)
             {
                 string[] unused;
-                return Parse(types, mandatory, out unused, classes, err);
+                return Parse(types, mandatory, out unused, scene, err);
             }
 
-            public object[] Parse(Type[] types, bool[][] mandatory, out string[] unusedArgs,
-                Dict classes, CompileException err = null)
+            /// <summary>
+            /// Parse the command and extract arguments as values.
+            /// </summary>
+            /// <param name="types">List of argument types.</param>
+            /// <param name="mandatory">Specifies which of this arguments are mandatory.</param>
+            /// <param name="unusedArgs">List of arguments the where not parsed.</param>
+            /// <param name="scene">Dictionary of scene objects.</param>
+            /// <param name="err"></param>
+            /// <returns>List of objects values. If a value could not be
+            /// parsed, the returned value will be null.</returns>
+            public object[] Parse(Type[] types, bool[][] mandatory, out string[] unusedArgs, Dict scene,
+                CompileException err = null)
             {
                 object[] values = new object[types.Length];
 
@@ -351,7 +373,7 @@ namespace App
                         try
                         {
                             values[i] = types[i].IsSubclassOf(typeof(GLObject))
-                                ? classes.GetValueOrDefault<GLObject>(arg.Text)
+                                ? scene.GetValueOrDefault<GLObject>(arg.Text)
                                 : types[i].IsEnum
                                     ? Enum.Parse(types[i], arg.Text, true)
                                     : Convert.ChangeType(arg.Text, types[i], App.Culture);

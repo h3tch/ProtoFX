@@ -97,6 +97,27 @@ namespace App
         /// </summary>
         public override void Delete() { }
 
+        public static MethodInfo GetMethod(Compiler.Command cmd, Dict scene, CompileException err)
+        {
+            // check command
+            if (cmd.ArgCount < 1)
+            {
+                err.Add("'class' command must specify a csharp object name.", cmd);
+                return null;
+            }
+
+            // FIND CSHARP CLASS DEFINITION
+            var csharp = scene.GetValueOrDefault<GLCsharp>(cmd[0].Text);
+            if (csharp == null)
+            {
+                err.Add($"Could not find csharp code '{cmd[0].Text}' of command '{cmd.Text}' ", cmd);
+                return null;
+            }
+
+            // INSTANTIATE CSHARP CLASS
+            return csharp.GetMethod(cmd, err);
+        }
+
         /// <summary>
         /// Create a new external class instance by processing the specified compiler block.
         /// </summary>
@@ -119,7 +140,7 @@ namespace App
             // check command
             if (cmd.ArgCount < 1)
             {
-                err.Add("'class' command must specify a csharp object name.", block);
+                err.Add("'class' command must specify a csharp object name.", cmd);
                 return null;
             }
 
@@ -167,6 +188,26 @@ namespace App
             InvokeMethod<List<string>>(instance, "GetErrors")?.ForEach(msg => err.Add(msg, cmd));
 
             return instance;
+        }
+
+        private MethodInfo GetMethod(Compiler.Command cmd, CompileException err)
+        {
+            // check if the command is valid
+            if (cmd.ArgCount < 2)
+            {
+                err.Add("'class' command must specify a class name.", cmd);
+                return null;
+            }
+            if (cmd.ArgCount < 3)
+            {
+                err.Add("'class' command must specify a method name.", cmd);
+                return null;
+            }
+
+            var classname = cmd[1].Text;
+            var methodname = cmd[2].Text;
+            var type = CompilerResults.CompiledAssembly.GetType(classname);
+            return type?.GetMethod(methodname, BindingFlags.Public | BindingFlags.Static);
         }
 
         /// <summary>

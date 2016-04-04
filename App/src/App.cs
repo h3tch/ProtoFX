@@ -151,11 +151,13 @@ namespace App
                         toolBtnOpen_Click(sender, null);
                     break;
                 case Keys.Left:
-                    if (e.Control)
+                    if (e.Alt)
+                        // Fold all code
                         GetSelectedEditor()?.FoldAll(FoldAction.Contract);
                     break;
                 case Keys.Right:
-                    if (e.Control)
+                    if (e.Alt)
+                        // Expand all code
                         GetSelectedEditor()?.FoldAll(FoldAction.Expand);
                     break;
             }

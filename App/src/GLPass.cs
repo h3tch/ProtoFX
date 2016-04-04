@@ -133,12 +133,13 @@ namespace App
             if (err.HasErrors())
                 throw err;
         }
-        
+
         /// <summary>
         /// Execute pass.
         /// </summary>
         /// <param name="width">Width of the OpenGL control.</param>
         /// <param name="height">Height of the OpenGL control.</param>
+        /// <param name="frame">The ID of the current frame.</param>
         public void Exec(int width, int height, int frame)
         {
 #if DEBUG
