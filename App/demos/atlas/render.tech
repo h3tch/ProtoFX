@@ -154,7 +154,7 @@ shader vert vs_shadowmap {
 	layout(location = 3) in vec4 axisx;
 	layout(location = 4) in vec4 axisy;
 	layout(location = 5) in vec4 axisz;
-	layout(location = 6) in ivec4 camera[(MAX_CAMS+3)/4];
+	layout(location = 6) in ivec4 camera;
 
 	// vertex shader output
 	layout(location = 0) out vec4 pos[MAX_CAMS];
@@ -169,9 +169,9 @@ shader vert vs_shadowmap {
 		mat4 model = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
 		
 		// create view matrix for every camera
-		for (count = 0; count < MAX_CAMS && camera[count / 4][count % 4] >= 0; count++)
+		for (count = 0; count < MAX_CAMS && camera[count] >= 0; count++)
 		{
-			int ptr = camera[count / 4][count % 4];
+			int ptr = camera[count];
 			vp[count] = texelFetch(camViewport, ptr);
 			ptr *= 4;
 			viewProj[count] = mat4(
@@ -253,7 +253,7 @@ shader vert vs_render {
 	layout(location = 3) in vec4 axisx;
 	layout(location = 4) in vec4 axisy;
 	layout(location = 5) in vec4 axisz;
-	layout(location = 6) in ivec4 camera[(MAX_CAMS+3)/4];
+	layout(location = 6) in ivec4 camera;
 
 	// vertex shader output
 	layout(location = 0) out vec4 nor;
@@ -272,11 +272,9 @@ shader vert vs_render {
 		const mat4 model = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
 		
 		// create view matrix for every camera
-		for (count = 0;
-		     count < MAX_CAMS && camera[count / 4][count % 4] >= 0;
-		     count++)
+		for (count = 0; count < MAX_CAMS && camera[count] >= 0; count++)
 		{
-			int ptr = camera[count / 4][count % 4];
+			int ptr = camera[count];
 			vp[count] = texelFetch(camViewport, ptr);
 			L[count] = texelFetch(camPosition, ptr);
 			ptr *= 4;
@@ -298,7 +296,7 @@ shader vert vs_render {
 		nor = vec4((normal.xyz / scale.xyz) * modelRot, normal.w);
 		
 		const vec4 world = position * model;
-		V = <<viewer.position>> - world;
+		V = viewer.position - world;
 		
 		gl_Position = viewer.viewProj * world;
 		
