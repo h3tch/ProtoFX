@@ -172,9 +172,9 @@
   <object>
     <cameraid type='int' isbinary='false'>
       <!-- CUBE -->
-      0 1 -2 -3
+      0 1 2 3
       <!-- PLANE -->
-      0 1 -2 -3
+      0 1 2 3
     </cameraid>
     <position type='float' isbinary='false'>
       <!-- CUBE -->

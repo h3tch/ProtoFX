@@ -32,6 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(App));
             this.splitRenderCoding = new System.Windows.Forms.SplitContainer();
             this.splitRenderOutput = new System.Windows.Forms.SplitContainer();
+            this.glControl = new OpenTK.GraphicControl();
             this.tabOutput = new System.Windows.Forms.TabControl();
             this.tabCompile = new System.Windows.Forms.TabPage();
             this.output = new System.Windows.Forms.DataGridView();
@@ -79,7 +80,6 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.comboProp = new System.Windows.Forms.ComboBox();
-            this.glControl = new OpenTK.GraphicControl();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
             this.splitRenderCoding.Panel1.SuspendLayout();
             this.splitRenderCoding.Panel2.SuspendLayout();
@@ -157,6 +157,18 @@
             this.splitRenderOutput.SplitterDistance = 455;
             this.splitRenderOutput.SplitterWidth = 3;
             this.splitRenderOutput.TabIndex = 1;
+            // 
+            // glControl
+            // 
+            this.glControl.BackColor = System.Drawing.Color.Black;
+            this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.glControl.Location = new System.Drawing.Point(0, 0);
+            this.glControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.glControl.Name = "glControl";
+            this.glControl.Size = new System.Drawing.Size(693, 455);
+            this.glControl.TabIndex = 0;
+            this.glControl.VSync = false;
+            this.glControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseUp);
             // 
             // tabOutput
             // 
@@ -624,7 +636,7 @@
             this.tableLayoutBufferDef.RowCount = 2;
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutBufferDef.Size = new System.Drawing.Size(622, 622);
+            this.tableLayoutBufferDef.Size = new System.Drawing.Size(622, 620);
             this.tableLayoutBufferDef.TabIndex = 0;
             // 
             // tableBuf
@@ -771,18 +783,6 @@
             this.comboProp.Size = new System.Drawing.Size(630, 23);
             this.comboProp.TabIndex = 0;
             this.comboProp.SelectedIndexChanged += new System.EventHandler(this.comboProp_SelectedIndexChanged);
-            // 
-            // glControl
-            // 
-            this.glControl.BackColor = System.Drawing.Color.Black;
-            this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.glControl.Location = new System.Drawing.Point(0, 0);
-            this.glControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.glControl.Name = "glControl";
-            this.glControl.Size = new System.Drawing.Size(693, 455);
-            this.glControl.TabIndex = 0;
-            this.glControl.VSync = false;
-            this.glControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseUp);
             // 
             // App
             // 

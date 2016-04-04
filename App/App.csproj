@@ -104,7 +104,7 @@
     <Compile Include="src\CodeEditor.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="src\GLDebugger.cs" />
+    <Compile Include="src\FXDebugger.cs" />
     <Compile Include="src\GLInstance.cs" />
     <Compile Include="src\GLReference.cs" />
     <Compile Include="src\GLText.cs" />
