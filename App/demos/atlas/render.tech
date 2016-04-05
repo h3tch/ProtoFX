@@ -256,12 +256,15 @@ shader vert vs_render {
 	layout(location = 6) in ivec4 camera;
 
 	// vertex shader output
-	layout(location = 0) out vec4 nor;
-	layout(location = 1) out vec4 col;
-	layout(location = 2) out vec4 V;
-	layout(location = 3) out vec4 L[MAX_CAMS];
-	layout(location = 3+MAX_CAMS) out vec4 pos[MAX_CAMS];
-	layout(location = 3+2*MAX_CAMS) out vec4 vp[MAX_CAMS];
+	layout(location = 0) out Block
+	{
+		vec4 nor;
+		vec4 col;
+		vec4 V;
+		vec4 pos[MAX_CAMS];
+		vec4 L[MAX_CAMS];
+		vec4 vp[MAX_CAMS];
+	};
 	
 	void main ()
 	{
@@ -316,38 +319,41 @@ shader frag fs_render {
 	
 	// fragment shader input (see col in vs_simple)
 	layout(early_fragment_tests) in;
-	layout(location = 0) in vec4 normal;
-	layout(location = 1) in vec4 color;
-	layout(location = 2) in vec4 V;
-	layout(location = 3) in vec4 L[MAX_CAMS];
-	layout(location = 3+MAX_CAMS) in vec4 position[MAX_CAMS];
-	layout(location = 3+2*MAX_CAMS) in vec4 viewport[MAX_CAMS];
+	layout(location = 0) in Block
+	{
+		vec4 nor;
+		vec4 col;
+		vec4 V;
+		vec4 pos[MAX_CAMS];
+		vec4 L[MAX_CAMS];
+		vec4 vp[MAX_CAMS];
+	};
 	
 	// fragment color output
-	out vec4 col;
+	out vec4 color;
 	
 	void main ()
 	{
 		// pass color
-		col = vec4(0);
+		color = vec4(0);
 		const vec3 v = normalize(V.xyz);
-		const vec3 n = normalize(normal.xyz);
+		const vec3 n = normalize(nor.xyz);
 		
-		for (int i = 0; i < MAX_CAMS && position[i].w != 0; i++)
+		for (int i = 0; i < MAX_CAMS && pos[i].w != 0; i++)
 		{
 			// if pixel outside light frustum clip space, do nothing
-			if (any(greaterThan(abs(position[i].xyz), position[i].www)))
+			if (any(greaterThan(abs(pos[i].xyz), pos[i].www)))
 				continue;
 				
-			vec3 lpos = (position[i].xyz / position[i].w) * 0.5 + 0.5;
-			lpos.xy = lpos.xy * viewport[i].zw + viewport[i].xy;
+			vec3 lpos = (pos[i].xyz / pos[i].w) * 0.5 + 0.5;
+			lpos.xy = lpos.xy * vp[i].zw + vp[i].xy;
 				
 			if (lpos.z < texture(shadowAtlas, lpos.xy).x)
 			{
 				vec3 l = normalize(L[i].xyz);
 				const float Id = max(0, dot(l, n));
 				const float Is = max(0, pow(dot(normalize(l + v), n), 32));
-				col += color * (Id + Is);
+				color += col * (Id + Is);
 			}
 		}
 	}

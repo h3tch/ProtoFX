@@ -105,6 +105,7 @@
 [0]instance[2]class|class <csharp_name> <c#_class>
 [0]instance[2]name|name <new_name>
 [0]pass|pass <name>
+[0]pass[6]break
 [0]pass[2]comp|comp <shader_name>
 [0]pass[2]compute|Dispatch compute shader call.
    compute <num_group_x> <num_group_y> [num_group_z]
