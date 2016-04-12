@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using System;
 
 namespace App
 {
@@ -101,6 +102,9 @@ namespace App
             var QUAL = FxLexer.Defs["qualifier"].Prefix;
             var VAR = FxLexer.Defs["variable"].Prefix;
             var BRANCH = FxLexer.Defs["branching"].Prefix;
+
+            // make sure the text position lies within the text
+            position = Math.Max(0, Math.Min(TextLength-1, position));
 
             // get word and preceding word at caret position
             var word = GetWordFromPosition(position);

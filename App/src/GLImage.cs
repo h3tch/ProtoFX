@@ -47,7 +47,7 @@ namespace App
         {
             int f, t;
             this.glname = glname;
-            this.Size = new int[4];
+            this.Size = Enumerable.Repeat(1, 4).ToArray();
             GL.GetTextureParameter(glname, TexParameter.TextureTarget, out t);
             GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureInternalFormat, out f);
             GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureWidth, out Size[0]);
@@ -58,7 +58,7 @@ namespace App
             if (Type != TexTarget.Texture3D)
             {
                 Size[3] = Size[2];
-                Size[2] = 0;
+                Size[2] = 1;
             }
         }
 
@@ -82,33 +82,28 @@ namespace App
             if (err.HasErrors())
                 throw err;
 
+            // complete size array
             if (Size == null)
-                Size = new int[4];
+                Size = Enumerable.Repeat(1, 4).ToArray();
             else if (Size.Length < 4)
-                Size = Enumerable.Range(0, 4).Select(i => i < Size.Length ? Size[i] : 0).ToArray();
+                Size = Enumerable.Range(0, 4).Select(i => i < Size.Length ? Size[i] : 1).ToArray();
 
             // LOAD IMAGE DATA
             var dir = Path.GetDirectoryName(block.File) + Path.DirectorySeparatorChar;
-            var data = LoadImageFiles(dir, File, ref Size[0], ref Size[1], ref Size[2], Format);
+            var data = LoadImageFiles(dir, File, Size, Format);
 
             // if type was not specified
             if (Target == 0)
             {
-                if (Width > 0 && Height == 0 && Depth == 0 && Length == 0)
-                {
+                if (Width > 1 && Height == 1 && Depth == 1 && Length == 1)
                     Target = TexTarget.Texture1D;
-                    Height = 1;
-                }
-                else if (Width > 0 && Height == 0 && Depth == 0 && Length > 0)
-                {
+                else if (Width > 1 && Height == 1 && Depth == 1 && Length > 1)
                     Target = TexTarget.Texture1DArray;
-                    Height = 1;
-                }
-                else if (Width > 0 && Height > 0 && Depth == 0 && Length == 0)
+                else if (Width > 1 && Height > 1 && Depth == 1 && Length == 1)
                     Target = TexTarget.Texture2D;
-                else if (Width > 0 && Height > 0 && Depth == 0 && Length > 0)
+                else if (Width > 1 && Height > 1 && Depth == 1 && Length > 1)
                     Target = TexTarget.Texture2DArray;
-                else if (Width > 0 && Height > 0 && Depth > 0 && Length == 0)
+                else if (Width > 1 && Height > 1 && Depth > 1 && Length == 1)
                     Target = TexTarget.Texture3D;
                 else
                     err.Add("Texture type could not be derived from 'width', 'height', "
@@ -327,8 +322,7 @@ namespace App
         /// <param name="d">number of texture layers</param>
         /// <param name="gpuformat"></param>
         /// <returns></returns>
-        private static byte[] LoadImageFiles(string dir, string[] filepaths,
-            ref int w, ref int h, ref int d, GpuFormat gpuformat)
+        private static byte[] LoadImageFiles(string dir, string[] filepaths, int[] size, GpuFormat gpuformat)
         {
             // SET DEFAULT DATA FOR OUTPUTS
             byte[] data = null;
@@ -345,36 +339,39 @@ namespace App
                 var bmps = new Bitmap[filepaths.Length];
                 int imgW = int.MaxValue;
                 int imgH = int.MaxValue;
-                int imgD = d > 0 ? Math.Min(filepaths.Length, d) : filepaths.Length;
+                int imgL = size[3] > 0 ? Math.Min(filepaths.Length, size[3]) : filepaths.Length;
 
-                for (int i = 0; i < imgD; i++)
+                for (int i = 0; i < imgL; i++)
                 {
-                    var path = Path.IsPathRooted(filepaths[i]) ? filepaths[i] : dir + filepaths[i];
-                    bmps[i] = new Bitmap(path);
+                    var path = filepaths[i];
+                    bmps[i] = new Bitmap(Path.IsPathRooted(path) ? path : dir + path);
                     imgW = Math.Min(bmps[i].Width, imgW);
                     imgH = Math.Min(bmps[i].Height, imgH);
                 }
 
                 // if w, h and d where not set by the user,
                 // use the minimal image size
-                if (w == 0 && h == 0 && d == 0)
+                if (size.All(x => x == 1))
                 {
-                    w = imgW;
-                    h = imgH;
-                    d = imgD;
+                    size[0] = imgW;
+                    size[1] = imgH;
+                    size[2] = 1;
+                    size[3] = imgL;
                 }
+                else if (size[2] > 1 && size[3] > 1)
+                    size[2] = 1;
 
                 // allocate texture memory
-                data = new byte[pixelsize * w * h * d];
+                data = new byte[pixelsize * size[0] * size[1] * size[2] * size[3]];
 
                 // copy data to texture memory
-                for (int i = 0; i < imgD; i++)
+                for (int i = 0; i < imgL; i++)
                 {
                     bmps[i].RotateFlip(RotateFlipType.RotateNoneFlipY);
                     var bits = bmps[i].LockBits(
-                        new Rectangle(0, 0, Math.Min(bmps[i].Width, w), Math.Min(bmps[i].Height, h)),
+                        new Rectangle(0, 0, Math.Min(bmps[i].Width, size[0]), Math.Min(bmps[i].Height, size[1])),
                         LockMode.ReadOnly, fileformat);
-                    Marshal.Copy(bits.Scan0, data, pixelsize * w * h * i, bits.Stride * bits.Height);
+                    Marshal.Copy(bits.Scan0, data, pixelsize * size[0] * size[1] * i, bits.Stride * bits.Height);
                     bmps[i].UnlockBits(bits);
                 }
             }

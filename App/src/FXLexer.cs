@@ -37,6 +37,7 @@ namespace App
             Operator,
             Punctuation,
             Folding,
+            OperatorOrComment,
         }
 
         private enum FoldState : int
@@ -99,6 +100,7 @@ namespace App
             // Back up to the line start
             var length = 0;
             var state = StyleState.Unknown;
+            char c2;
 
             // Start styling
             editor.StartStyling(startPos);
@@ -115,18 +117,18 @@ namespace App
                         {
                             // could be comment
                             case '/':
-                                var c2 = (char)editor.GetCharAt(startPos + 1);
+                                c2 = NextChar(editor, startPos, endPos);
                                 // is line comment
                                 if (c2 == '/')
                                 {
-                                    editor.SetStyling(2, (int)Styles.Comment);
+                                    editor.SetStyling(1, (int)Styles.Comment);
                                     state = StyleState.LineComment;
                                     startPos++;
                                 }
                                 // is block comment
                                 else if (c2 == '*')
                                 {
-                                    editor.SetStyling(2, (int)Styles.Comment);
+                                    editor.SetStyling(1, (int)Styles.Comment);
                                     state = StyleState.BlockComment;
                                     startPos++;
                                 }
@@ -201,7 +203,8 @@ namespace App
                     // BLOCK COMMENT STATE
                     case StyleState.BlockComment:
                         // end of block comment
-                        if (c == '*' && (char)editor.GetCharAt(startPos + 1) == '/')
+                        c2 = NextChar(editor, startPos, endPos);
+                        if (c == '*' && c2 == '/')
                         {
                             editor.SetStyling(length + 2, (int)Styles.Comment);
                             length = 0;
@@ -330,6 +333,9 @@ namespace App
 
             return startPos;
         }
+
+        private char NextChar(Scintilla editor, int startPos, int endPos, char defaultChar = ' ')
+            => startPos + 1 < endPos? (char)editor.GetCharAt(startPos + 1) : defaultChar;
         
         /// <summary>
         /// Add folding between start and end position.

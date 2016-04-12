@@ -28,8 +28,7 @@ buffer buf_idx {
 
 image img_shadowmap {
 	// image size in pixels
-	width 1024
-	height 1024
+	size 1024 1024
 	// pixel format is a 32
 	// bit floating point depth
 	format depth32f
