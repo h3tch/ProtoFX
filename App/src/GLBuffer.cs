@@ -73,10 +73,10 @@ namespace App
             List<byte[]> datalist = new List<byte[]>();
 
             foreach (var cmd in block["txt"])
-                datalist.Add(loadText(err | $"command {cmd.Name} 'txt'", cmd, scene));
+                datalist.Add(LoadText(cmd, scene, err | $"command {cmd.Name} 'txt'"));
 
             foreach (var cmd in block["xml"])
-                datalist.Add(LoadXml(err | $"command {cmd.Name} 'xml'", cmd, scene));
+                datalist.Add(LoadXml(cmd, scene, err | $"command {cmd.Name} 'xml'"));
 
             // merge data into a single array
             var iter = datalist.Cat();
@@ -175,6 +175,10 @@ namespace App
         private static MethodInfo GLBufLabel = typeof(GLBuffer).GetMethod("GetLabel", new[] { typeof(int) });
 
         #region UTIL METHODS
+        /// <summary>
+        /// Create OpenGL buffer from data array.
+        /// </summary>
+        /// <param name="data"></param>
         private void CreateBuffer(byte[] data)
         {
             // CREATE OPENGL OBJECT
@@ -198,8 +202,15 @@ namespace App
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
         }
-        
-        private static byte[] LoadXml(CompileException err, Compiler.Command cmd, Dict scene)
+
+        /// <summary>
+        /// Get xml text from scene structure by processing the specified command.
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="scene"></param>
+        /// <param name="err"></param>
+        /// <returns></returns>
+        private static byte[] LoadXml(Compiler.Command cmd, Dict scene, CompileException err)
         {
             // Get text from file or text object
             string str = GetText(scene, cmd);
@@ -242,7 +253,14 @@ namespace App
             return null;
         }
         
-        private static byte[] loadText(CompileException err, Compiler.Command cmd, Dict scene)
+        /// <summary>
+        /// Get text from scene structure by processing the specified command.
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="scene"></param>
+        /// <param name="err"></param>
+        /// <returns></returns>
+        private static byte[] LoadText(Compiler.Command cmd, Dict scene, CompileException err)
         {
             // Get text from file or text object
             string str = GetText(scene, cmd);
@@ -257,6 +275,12 @@ namespace App
             return str.ToCharArray().ToBytes();
         }
         
+        /// <summary>
+        /// Get text from scene objects.
+        /// </summary>
+        /// <param name="scene"></param>
+        /// <param name="cmd"></param>
+        /// <returns></returns>
         private static string GetText(Dict scene, Compiler.Command cmd)
         {
             GLText text = null;

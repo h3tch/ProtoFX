@@ -97,6 +97,12 @@ namespace App
         /// </summary>
         public override void Delete() { }
 
+        /// <summary>
+        /// Create a new external method-call by processing the specified compiler command.
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="err"></param>
+        /// <returns></returns>
         public static MethodInfo GetMethod(Compiler.Command cmd, Dict scene, CompileException err)
         {
             // check command
@@ -190,6 +196,12 @@ namespace App
             return instance;
         }
 
+        /// <summary>
+        /// Create a new external method-call by processing the specified compiler command.
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="err"></param>
+        /// <returns></returns>
         private MethodInfo GetMethod(Compiler.Command cmd, CompileException err)
         {
             // check if the command is valid

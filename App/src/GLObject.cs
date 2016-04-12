@@ -183,15 +183,24 @@ namespace App
             if (err != null && err.HasErrors())
                 return;
 
-            var val = fieldType.IsArray 
-                // if this is an array pass the arguments as string
-                ? cmd.Select(x => x.Text).ToArray()
-                // if this is an enumerable type
-                : fieldType.IsEnum
+            object val = null;
+
+            if (fieldType.IsArray)
+            {
+                var elType = fieldType.GetElementType();
+                var array = Array.CreateInstance(elType, cmd.Length);
+                for (int i = 0; i < cmd.Length; i++)
+                    array.SetValue(Convert.ChangeType(cmd[i].Text, elType, App.Culture), i);
+                val = array;
+            }
+            else
+            {
+                val = fieldType.IsEnum
                     // if this is an enum, convert the string to an enum value
                     ? Convert.ChangeType(Enum.Parse(fieldType, cmd[0].Text, true), fieldType)
                     // else try to convert it to the field type
                     : Convert.ChangeType(cmd[0].Text, fieldType, App.Culture);
+            }
 
             // set value of the field
             field.GetType()

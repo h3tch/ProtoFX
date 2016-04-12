@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace App
 {
-    class FXLexer
+    class FxLexer
     {
         #region FIELDS
         public enum Styles : int
@@ -64,7 +64,7 @@ namespace App
         /// Create a lexer from a keyword definition list.
         /// </summary>
         /// <param name="keywordDef"></param>
-        public FXLexer(string keywordDef, Dictionary<string, KeyDef> defs)
+        public FxLexer(string keywordDef, Dictionary<string, KeyDef> defs)
         {
             Styles style;
 

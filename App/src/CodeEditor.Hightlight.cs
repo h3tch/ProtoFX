@@ -6,7 +6,7 @@ namespace App
 {
     partial class CodeEditor
     {
-        private static FXLexer FxLexer;
+        private static FxLexer FxLexer;
 
         /// <summary>
         /// Initialize code highlighting.
@@ -19,7 +19,7 @@ namespace App
             StyleClearAll();
 
             Styles[Style.LineNumber].ForeColor = Color.Gray;
-            Styles[(int)FXLexer.Styles.Folding].ForeColor = Color.Red;
+            Styles[(int)FxLexer.Styles.Folding].ForeColor = Color.Red;
 
             // set styles as defined in the keyword file
             foreach (var def in FxLexer.Defs)

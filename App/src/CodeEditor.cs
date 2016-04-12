@@ -74,13 +74,13 @@ namespace App
 
             // set keyword definitions
             var defs = keys.Select(x => x.Split(' ').Where(y => y.Length > 0).ToArray());
-            var Defs = new Dictionary<string, FXLexer.KeyDef>(defs.Count());
+            var Defs = new Dictionary<string, FxLexer.KeyDef>(defs.Count());
             foreach (var def in defs)
             {
                 int id = int.Parse(def[1]);
                 var foreColor = ColorTranslator.FromHtml(def[3]);
                 var backColor = def.Length > 4 ? ColorTranslator.FromHtml(def[4]) : Color.White;
-                Defs.Add(def[2], new FXLexer.KeyDef {
+                Defs.Add(def[2], new FxLexer.KeyDef {
                     Id = id, Prefix = $"{id}", ForeColor = foreColor, BackColor = backColor
                 });
             }
@@ -109,7 +109,7 @@ namespace App
                 v => v.Substring(v.IndexOfOrLength('|')));
 
             // create lexer
-            FxLexer = new FXLexer(Properties.Resources.keywords, Defs);
+            FxLexer = new FxLexer(Properties.Resources.keywords, Defs);
             FxLexer.FolingChar = HiddenLines[0];
         }
 

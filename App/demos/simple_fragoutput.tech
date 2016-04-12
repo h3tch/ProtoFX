@@ -36,17 +36,15 @@ buffer buf_idx {
 // Color image (used as a render target)
 image img_color {
 	// image size in pixels
-	width 1024
-	height 768
+	size 1024 768
 	// pixel format is (red,green,blue,alpha)
-	format RGBA8
+	format rgba8
 }
 
 // 32 bit floatingpoint depth image (used as a render target)
 image img_depth {
 	// image size in pixels
-	width 1024
-	height 768
+	size 1024 768
 	// pixel format is a 32 bit floating point depth
 	format depth32f
 }

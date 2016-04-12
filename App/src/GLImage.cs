@@ -1,8 +1,10 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Reflection;
 using LockMode = System.Drawing.Imaging.ImageLockMode;
 using TexTarget = OpenTK.Graphics.OpenGL4.TextureTarget;
 using TexParamName = OpenTK.Graphics.OpenGL4.TextureParameterName;
@@ -11,8 +13,7 @@ using CpuFormat = System.Drawing.Imaging.PixelFormat;
 using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
 using GpuColorFormat = OpenTK.Graphics.OpenGL4.PixelInternalFormat;
 using TexParameter = OpenTK.Graphics.OpenGL4.GetTextureParameter;
-using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 
 namespace App
 {
@@ -20,16 +21,17 @@ namespace App
     {
         #region FIELDS
         [FxField] private string[] File = null;
-        [FxField] public int Width = 1;
-        [FxField] public int Height = 0;
-        [FxField] public int Depth = 0;
-        [FxField] public int Length = 0;
+        [FxField] public int[] Size = null;
         [FxField] public int Mipmaps = 0;
         [FxField] private TexTarget Type = 0;
         [FxField] private GpuFormat Format = GpuFormat.Rgba8;
         #endregion
 
         #region PROPERTIES
+        public int Width { get { return Size[0]; } set { Size[0] = value; } }
+        public int Height { get { return Size[1]; } set { Size[1] = value; } }
+        public int Depth { get { return Size[2]; } set { Size[2] = value; } }
+        public int Length { get { return Size[3]; } set { Size[3] = value; } }
         public TexTarget Target { get { return Type; } private set { Type = value; } }
         public GpuFormat GpuFormat { get { return Format; } private set { Format = value; } }
         #endregion
@@ -45,17 +47,18 @@ namespace App
         {
             int f, t;
             this.glname = glname;
+            this.Size = new int[4];
             GL.GetTextureParameter(glname, TexParameter.TextureTarget, out t);
             GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureInternalFormat, out f);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureWidth, out Width);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureHeight, out Height);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureDepth, out Depth);
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureWidth, out Size[0]);
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureHeight, out Size[1]);
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureDepth, out Size[2]);
             Type = (TexTarget)t;
             Format = (GpuFormat)f;
             if (Type != TexTarget.Texture3D)
             {
-                Length = Depth;
-                Depth = 0;
+                Size[3] = Size[2];
+                Size[2] = 0;
             }
         }
 
@@ -71,32 +74,47 @@ namespace App
             // PARSE ARGUMENTS
             Cmds2Fields(block, err);
 
+            if (Target == 0 && Size == null)
+                err.Add("Texture needs to specify a file or texture size " +
+                    "(e.g., size <width> <height> <depth> <length>).", block);
+
             // on errors throw an exception
             if (err.HasErrors())
                 throw err;
 
+            if (Size == null)
+                Size = new int[4];
+            else if (Size.Length < 4)
+                Size = Enumerable.Range(0, 4).Select(i => i < Size.Length ? Size[i] : 0).ToArray();
+
+            // LOAD IMAGE DATA
+            var dir = Path.GetDirectoryName(block.File) + Path.DirectorySeparatorChar;
+            var data = LoadImageFiles(dir, File, ref Size[0], ref Size[1], ref Size[2], Format);
+
             // if type was not specified
             if (Target == 0)
             {
-                if (Width > 0 && Height == 1 && Depth == 0 && Length == 0)
+                if (Width > 0 && Height == 0 && Depth == 0 && Length == 0)
+                {
                     Target = TexTarget.Texture1D;
-                else if (Width > 0 && Height == 1 && Depth == 0 && Length > 0)
+                    Height = 1;
+                }
+                else if (Width > 0 && Height == 0 && Depth == 0 && Length > 0)
+                {
                     Target = TexTarget.Texture1DArray;
-                else if (Width > 0 && Height > 1 && Depth == 0 && Length == 0)
+                    Height = 1;
+                }
+                else if (Width > 0 && Height > 0 && Depth == 0 && Length == 0)
                     Target = TexTarget.Texture2D;
-                else if (Width > 0 && Height > 1 && Depth == 0 && Length > 0)
+                else if (Width > 0 && Height > 0 && Depth == 0 && Length > 0)
                     Target = TexTarget.Texture2DArray;
-                else if (Width > 0 && Height > 1 && Depth > 0 && Length == 0)
+                else if (Width > 0 && Height > 0 && Depth > 0 && Length == 0)
                     Target = TexTarget.Texture3D;
                 else
                     err.Add("Texture type could not be derived from 'width', 'height', "
                         + "'depth' and 'length'. Please check these parameters or specify "
                         + "the type directly (e.g. 'type = texture2D').", block);
             }
-
-            // LOAD IMAGE DATA
-            string dir = Path.GetDirectoryName(block.File) + Path.DirectorySeparatorChar;
-            var data = LoadImageFiles(dir, File, ref Width, ref Height, ref Depth, Format);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenTexture();
@@ -339,7 +357,7 @@ namespace App
 
                 // if w, h and d where not set by the user,
                 // use the minimal image size
-                if (w == 1 && h == 0 && d == 0)
+                if (w == 0 && h == 0 && d == 0)
                 {
                     w = imgW;
                     h = imgH;
