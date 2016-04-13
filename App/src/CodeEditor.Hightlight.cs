@@ -19,7 +19,6 @@ namespace App
             StyleClearAll();
 
             Styles[Style.LineNumber].ForeColor = Color.Gray;
-            Styles[(int)FxLexer.Styles.Folding].ForeColor = Color.Red;
 
             // set styles as defined in the keyword file
             foreach (var def in FxLexer.Defs)
