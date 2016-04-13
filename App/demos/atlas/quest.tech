@@ -1,0 +1,88 @@
+//
+text xml_quad {
+	<?xml version='1.0'?>
+	<data>
+		<position type='float' isbinary='false'>
+			-1.0 -1.0  0.0  1.0
+			 1.0 -1.0  0.0  1.0
+			 1.0  1.0  0.0  1.0
+			-1.0  1.0  0.0  1.0
+			-1.0 -1.0  0.0  1.0
+			 1.0 -1.0  0.0  1.0
+			 1.0  1.0  0.0  1.0
+			-1.0  1.0  0.0  1.0
+		</position>
+		<index type='ushort' isbinary='false'>
+			0  1  2
+			2  3  0
+		</index>
+	</data>
+}
+
+buffer buf_pos {
+	usage staticDraw
+	xml xml_quad data/position
+}
+
+buffer buf_idx {
+	usage staticDraw
+	xml xml_quad data/index
+}
+
+vertinput in_vert {
+	attr buf_pos float 4
+}
+
+image img_color {
+	size 1024 768
+	format rgba8
+}
+
+shader vert vs_quest {
+	#version 450
+	
+	layout(location = 0) in vec4 position;
+	
+	void main() {
+		gl_Position = position;
+	}
+}
+
+shader frag fs_quest {
+	#version 450
+	
+	layout(pixel_center_integer) in vec4 gl_FragCoord;
+	
+	out vec4 color;
+	
+	vec4 sampleArtifact(vec2 pos, vec3 hesseLine, float artifactSize) {
+		pos = floor(pos / artifactSize) * artifactSize;
+		return dot(pos, hesseLine.xy) < hesseLine.z ? vec4(0) : vec4(1);
+	}
+	
+	void main() {
+		float lineAngle = 1.5;
+		float lineDist = 100;
+		float randomAngle = 0.5;
+		vec2 resolution  = vec2(600);
+		
+		vec3 hesseLine = vec3(cos(lineAngle), sin(lineAngle), lineDist);
+		mat2 M = mat2(vec2( cos(randomAngle), sin(randomAngle)),
+		              vec2(-sin(randomAngle), cos(randomAngle)));
+		              
+		color = sampleArtifact((gl_FragCoord.xy - resolution * 0.5) * M, hesseLine, 5);
+	}
+}
+
+pass pass_render {
+	vert vs_quest
+	frag fs_quest
+	
+	glClear ColorDepthBit
+	
+	draw buf_idx in_vert ushort triangles 0 0 6
+}
+
+tech tech_quest {
+	pass pass_render
+}
