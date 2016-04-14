@@ -110,7 +110,6 @@ namespace App
 
             // create lexer
             FxLexer = new FxLexer(Properties.Resources.keywords, Defs);
-            FxLexer.FolingChar = HiddenLines[0];
         }
 
         /// <summary>
@@ -167,7 +166,6 @@ namespace App
             Text = text != null ? text : "";
             UpdateLineNumbers();
             UpdateCodeFolding(0, Lines.Count);
-            UpdateCodeStyling(0, Text.Length);
         }
 
         /// <summary>

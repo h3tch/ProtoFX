@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using static App.FxLexer.Styles;
 
 namespace App
 {
@@ -43,7 +44,6 @@ namespace App
         public Dictionary<string, KeyDef> Defs { get; private set; }
         public int KeywordStylesStart => (int)Styles.Punctuation + 1;
         public int KeywordStylesEnd => KeywordStylesStart + keywords.Length;
-        public char FolingChar = (char)177;
         #endregion
 
         /// <summary>
@@ -76,178 +76,148 @@ namespace App
         /// Style editor text between start and end position.
         /// </summary>
         /// <param name="editor"></param>
-        /// <param name="startPos"></param>
+        /// <param name="pos"></param>
         /// <param name="endPos"></param>
         /// <param name="keyStyles"></param>
         /// <returns></returns>
-        public int Style(Scintilla editor, int startPos, int endPos)
+        public int Style(Scintilla editor, int pos, int endPos)
         {
-            // Back up to the line start
-            var length = 0;
-            var state = (Styles)editor.GetStyleAt(startPos);
-            char c2;
+            var newpos = editor.Lines[editor.LineFromPosition(pos)].Position;
+            Styles state = (Styles)editor.GetStyleAt(Math.Max(0, newpos != pos ? newpos : pos - 1));
+            if (state != BlockComment)
+                state = Default;
+            pos = newpos;
+            var textLength = editor.TextLength;
+            bool possibleStartComment = false;
+            bool possibleEndComment = false;
 
             // Start styling
-            editor.StartStyling(startPos);
-            while (startPos < endPos)
+            editor.StartStyling(pos);
+
+            for (int length = 0; (pos < endPos || state != Default) && pos < textLength; pos++)
             {
-                var c = (char)editor.GetCharAt(startPos);
-                
+                var c = (char)editor.GetCharAt(pos);
+
+                if (possibleStartComment)
+                {
+                    possibleStartComment = false;
+                    Styles initialState = state;
+                    if (c == '/')
+                        state = LineComment;
+                    else if (c == '*')
+                        state = BlockComment;
+                    if (state != initialState)
+                    {
+                        editor.StartStyling(pos - length);
+                        StyleCode(editor, length, initialState);
+                        editor.StartStyling(pos - 1);
+                        StyleCode(editor, 1, state);
+                    }
+                }
+
+                if (possibleEndComment)
+                {
+                    possibleEndComment = false;
+                    if (c == '/')
+                    {
+                        StyleCode(editor, 1, state);
+                        state = Default;
+                        endPos = textLength;
+                        continue;
+                    }
+                }
+
                 REPROCESS:
+
                 switch (state)
                 {
                     // UNKNOWN STATE
-                    case Styles.Default:
+                    case Default:
                         switch (c)
                         {
-                            // could be comment
-                            case '/':
-                                c2 = NextChar(editor, startPos, endPos);
-                                // is line comment
-                                if (c2 == '/')
-                                    state = Styles.LineComment;
-                                // is block comment
-                                else if (c2 == '*')
-                                    state = Styles.BlockComment;
-                                else
-                                    state = Styles.Operator;
-                                editor.SetStyling(1, (int)state);
-                                break;
                             // is string
                             case '"':
                             case '\'':
                                 state = Styles.String;
-                                editor.SetStyling(1, (int)state);
+                                StyleCode(editor, 1, state);
                                 break;
+
                             // is preprocessor
                             case '#':
-                                state = Styles.Preprocessor;
-                                editor.SetStyling(1, (int)state);
-                                break;
+                                state = Preprocessor;
+                                goto REPROCESS;
+
                             default:
                                 // is operator
                                 if (IsMathSymbol(c))
-                                {
-                                    editor.SetStyling(1, (int)Styles.Operator);
-                                    state = Styles.Operator;
-                                }
+                                    state = Operator;
                                 // is punctuation
                                 else if (Punctuation.Any(x => x == char.GetUnicodeCategory(c)))
                                 {
-                                    editor.SetStyling(1, (int)Styles.Punctuation);
-                                    state = Styles.Operator;
+                                    StyleCode(editor, 1, Styles.Punctuation);
+                                    break;
                                 }
                                 // is number
                                 else if (char.IsDigit(c))
-                                {
-                                    state = Styles.Number;
-                                    goto REPROCESS;
-                                }
+                                    state = Number;
                                 // is letter
                                 else if (char.IsLetter(c))
-                                {
-                                    state = Styles.Identifier;
-                                    goto REPROCESS;
-                                }
+                                    state = Identifier;
                                 // is default styling
                                 else
-                                    editor.SetStyling(1, (int)Styles.Default);
-                                break;
+                                {
+                                    StyleCode(editor, 1, Default);
+                                    break;
+                                }
+                                goto REPROCESS;
                         }
                         break;
 
                     // LINE COMMENT STATE
-                    case Styles.LineComment:
+                    case LineComment:
+                        StyleCode(editor, 1, state);
                         // end of line comment
                         if (c == '\n')
-                        {
-                            editor.SetStyling(length + 1, (int)state);
-                            length = 0;
-                            state = Styles.Default;
-                        }
-                        // still in line comment
-                        else
-                            length++;
+                            state = Default;
                         break;
 
                     // BLOCK COMMENT STATE
-                    case Styles.BlockComment:
-                        // end of block comment
-                        if (c == '/' && PrevChar(editor, startPos) == '*')
-                        {
-                            editor.SetStyling(length + 1, (int)state);
-                            length = 0;
-                            state = Styles.Default;
-                        }
-                        // still in block comment
-                        else
-                            length++;
+                    case BlockComment:
+                        possibleEndComment = c == '*';
+                        StyleCode(editor, 1, state);
                         break;
 
                     // STRING STATE
                     case Styles.String:
+                        StyleCode(editor, 1, state);
                         // end of string
-                        if (c == '"' || c == '\'')
-                        {
-                            editor.SetStyling(length + 1, (int)Styles.String);
-                            length = 0;
-                            state = Styles.Default;
-                        }
-                        // still in string
-                        else
-                            length++;
+                        if (c == '"' || c == '\'' || c == '\n')
+                            state = Default;
                         break;
 
                     // PREPROCESSOR STATE
-                    case Styles.Preprocessor:
+                    case Preprocessor:
+                        StyleCode(editor, 1, state);
                         // end of preprocessor
-                        if (c == ' ' || c == '\r' || c == '\n')
-                        {
-                            editor.SetStyling(length + 1, (int)Styles.Preprocessor);
-                            length = 0;
-                            state = Styles.Default;
-                        }
-                        // still preprocessor
-                        else
-                            length++;
+                        if (c == ' ' || c == '\n')
+                            state = Default;
                         break;
 
                     // OPERATOR STATE
-                    case Styles.Operator:
-                        // is multi char operator like >=
-                        if (IsMathSymbol(c) && c != FolingChar)
-                        {
-                            length++;
-                        }
+                    case Operator:
+                        possibleStartComment = c == '/';
+                        if (IsMathSymbol(c))
+                            StyleCode(editor, 1, state);
                         // end of operator
                         else
                         {
-                            editor.SetStyling(length, (int)Styles.Operator);
-                            length = 0;
-                            state = Styles.Default;
-                            goto REPROCESS;
-                        }
-                        break;
-
-                    // PUNCTUATION STATE
-                    case Styles.Punctuation:
-                        // is multi char operator like >=
-                        if (Punctuation.Any(x => x == char.GetUnicodeCategory(c)))
-                        {
-                            length++;
-                        }
-                        // end of operator
-                        else
-                        {
-                            editor.SetStyling(length, (int)Styles.Punctuation);
-                            length = 0;
-                            state = Styles.Default;
+                            state = Default;
                             goto REPROCESS;
                         }
                         break;
 
                     // NUMBER STATE
-                    case Styles.Number:
+                    case Number:
                         // still a number
                         if (char.IsDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || c == 'x' || c == '.')
                         {
@@ -256,17 +226,17 @@ namespace App
                         // end of number
                         else
                         {
-                            editor.SetStyling(length, (int)Styles.Number);
+                            StyleCode(editor, length, state);
                             length = 0;
-                            state = Styles.Default;
+                            state = Default;
                             goto REPROCESS;
                         }
                         break;
 
                     // IDENTIFIER STATE
-                    case Styles.Identifier:
+                    case Identifier:
                         // still an identifier and possible keyword
-                        if (char.IsLetterOrDigit(c) || c == '_' || c == '/')
+                        if (char.IsLetterOrDigit(c) || c == '_')
                         {
                             length++;
                         }
@@ -274,33 +244,35 @@ namespace App
                         else
                         {
                             // get possible keyword string from identifier range
-                            var style = (int)Styles.Identifier;
-                            var identifier = editor.GetTextRange(startPos - length, length);
+                            var style = Identifier;
+                            var identifier = editor.GetTextRange(pos - length, length);
 
                             // if part of a keyword list, use the respective style
                             for (int i = 0; i < keywords.Length; i++)
                             {
                                 if (keywords[i].Contains(identifier))
                                 {
-                                    style = KeywordStylesStart + i;
+                                    style = (Styles)(KeywordStylesStart + i);
                                     break;
                                 }
                             }
 
                             // set styling
-                            editor.SetStyling(length, style);
+                            StyleCode(editor, length, style);
                             length = 0;
-                            state = Styles.Default;
+                            state = Default;
                             goto REPROCESS;
                         }
                         break;
                 }
-
-                // next character position
-                startPos++;
             }
 
-            return startPos;
+            return pos;
+        }
+
+        void StyleCode(Scintilla editor, int length, Styles style)
+        {
+            editor.SetStyling(length, (int)style);
         }
 
         private char NextChar(Scintilla editor, int idx, int endPos, char defaultChar = ' ')
@@ -389,7 +361,7 @@ namespace App
         /// <param name="c"></param>
         /// <returns>True if character is a math symbol.</returns>
         private bool IsMathSymbol(char c) 
-            => char.IsSymbol(c) || c == '*' || c == '-' || c == '&' || c == '|';
+            => char.IsSymbol(c) || c == '/' || c == '*' || c == '-' || c == '&' || c == '|';
         
         public class KeyDef
         {

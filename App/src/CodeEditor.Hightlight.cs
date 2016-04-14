@@ -13,6 +13,8 @@ namespace App
         /// </summary>
         private void InitializeHighlighting()
         {
+            StyleNeeded += new EventHandler<StyleNeededEventArgs>(HandleStyleNeeded);
+
             StyleResetDefault();
             Styles[Style.Default].Font = "Consolas";
             Styles[Style.Default].Size = 10;
@@ -33,18 +35,11 @@ namespace App
             Lexer = Lexer.Container;
         }
 
-        /// <summary>
-        /// Update code styling between start and end position.
-        /// </summary>
-        /// <param name="startPos"></param>
-        /// <param name="endPos"></param>
-        private void UpdateCodeStyling(int startPos, int endPos)
+        private void HandleStyleNeeded(object sender, StyleNeededEventArgs e)
         {
-            var line = LineFromPosition(GetEndStyled());
-            // get start and end position of the region that needs to be styled
-            FxLexer.Style(this, Lines[line].Position, endPos);
+            FxLexer.Style(this, GetEndStyled(), e.Position);
         }
-
+        
         /// <summary>
         /// Update code folding between start and end line.
         /// </summary>

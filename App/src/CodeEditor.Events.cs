@@ -43,14 +43,14 @@ namespace App
                 e.Text = "";
 
             // auto indent
-            if ((e.Text.EndsWith("\r") || e.Text.EndsWith("\n")))
+            if (e.Text.EndsWith("\n"))
             {
                 // get text of line above
                 var text = editor.Lines[editor.LineFromPosition(editor.CurrentPosition)].Text;
                 // insert indent of line above
-                e.Text += Regex.Match(text, "^[ \\t]*").Value;
+                e.Text += Regex.Match(text, @"^[ \t]*").Value;
                 // if line above ends with '{' insert indent
-                if (Regex.IsMatch(text, "{\\s*$"))
+                if (Regex.IsMatch(text, @"{\s*$"))
                     e.Text += '\t';
             }
         }
@@ -98,9 +98,7 @@ namespace App
             editor.UpdateLineNumbers();
 
             // update code folding
-            int startLine = FirstVisibleLine, endLine = LastVisibleLine;
-            UpdateCodeFolding(startLine, endLine);
-            UpdateCodeStyling(Lines[startLine].Position, Lines[endLine].EndPosition);
+            UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
         }
 
         /// <summary>
@@ -131,9 +129,7 @@ namespace App
                 case UpdateChange.HScroll:
                 case UpdateChange.VScroll:
                     // update code folding
-                    int startLine = FirstVisibleLine, endLine = LastVisibleLine;
-                    UpdateCodeFolding(startLine, endLine);
-                    UpdateCodeStyling(Lines[startLine].Position, Lines[endLine].EndPosition);
+                    UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
                     break;
             }
         }
@@ -146,9 +142,7 @@ namespace App
         private void HandleMouseWheel(object sender, MouseEventArgs e)
         {
             // update code folding and styling
-            int startLine = FirstVisibleLine, endLine = LastVisibleLine;
-            UpdateCodeFolding(startLine, endLine);
-            UpdateCodeStyling(Lines[startLine].Position, Lines[endLine].EndPosition);
+            UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
         }
 
         /// <summary>
@@ -237,6 +231,10 @@ namespace App
                         e.SuppressKeyPress = true;
                         DisableEditing = true;
                     }
+                    break;
+                case Keys.Z:
+                    if (e.Control)
+                        FxLexer.Style(this, 0, TextLength);
                     break;
             }
         }
