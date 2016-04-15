@@ -1,7 +1,6 @@
 ﻿using ScintillaNET;
 using System;
 using System.Drawing;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -35,18 +34,16 @@ namespace App
         /// <param name="e"></param>
         private void HandleInsertCheck(object sender, InsertCheckEventArgs e)
         {
-            var editor = (CodeEditor)sender;
-
             // do not insert text when
             // the Ctrl key is pressed
-            if (editor.DisableEditing)
+            if (DisableEditing)
                 e.Text = "";
 
             // auto indent
             if (e.Text.EndsWith("\n"))
             {
                 // get text of line above
-                var text = editor.Lines[editor.LineFromPosition(editor.CurrentPosition)].Text;
+                var text = Lines[LineFromPosition(CurrentPosition)].Text;
                 // insert indent of line above
                 e.Text += Regex.Match(text, @"^[ \t]*").Value;
                 // if line above ends with '{' insert indent
@@ -62,21 +59,19 @@ namespace App
         /// <param name="e"></param>
         private void HandleCharAdded(object sender, CharAddedEventArgs e)
         {
-            var editor = (CodeEditor)sender;
-
             // auto indent
             if (e.Char == '}')
             {
-                int curLine = editor.LineFromPosition(editor.CurrentPosition);
+                int curLine = LineFromPosition(CurrentPosition);
                 // Check whether the bracket is the only non
                 // whitespace in the line. For cases like "if() { }".
-                if (editor.Lines[curLine].Text.Trim() == "}")
-                    editor.SetIndent(curLine, editor.GetIndent(curLine) - 4);
+                if (Lines[curLine].Text.Trim() == "}")
+                    SetIndent(curLine, GetIndent(curLine) - 4);
             }
 
             // auto complete
             if (char.IsLetter((char)e.Char))
-                editor.AutoCShow(editor.CurrentPosition);
+                AutoCShow(CurrentPosition);
         }
 
         /// <summary>
@@ -87,15 +82,14 @@ namespace App
         private void HandleTextChanged(object sender, EventArgs e)
         {
             // get class references
-            var editor = (CodeEditor)sender;
-            var tab = (TabPage)editor.Parent;
+            var tab = (TabPage)Parent;
 
             // add file changed indicator '*'
             if (tab != null && !tab.Text.EndsWith("*"))
                 tab.Text = tab.Text + '*';
 
             // update line number margins
-            editor.UpdateLineNumbers();
+            UpdateLineNumbers();
 
             // update code folding
             UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
@@ -108,22 +102,19 @@ namespace App
         /// <param name="e"></param>
         private void HandleUpdateUI(object sender, UpdateUIEventArgs e)
         {
-            // get class references
-            var editor = (CodeEditor)sender;
-
             // handle selection changed events
             switch (e.Change)
             {
                 case UpdateChange.Selection:
                     // Update indicators only if the editor is in focus. This
                     // is necessary, because they are also used by 'Find & Replace'.
-                    if (editor.Focused)
+                    if (Focused)
                     {
                         // get whole words from selections and get ranges from these words
-                        var ranges = editor.FindWordRanges(editor.GetWordsFromSelections());
+                        var ranges = FindWordRanges(GetWordsFromSelections());
                         // highlight all selected words
-                        editor.ClearIndicators(HighlightIndicatorIndex);
-                        editor.AddIndicators(HighlightIndicatorIndex, ranges);
+                        ClearIndicators(HighlightIndicatorIndex);
+                        AddIndicators(HighlightIndicatorIndex, ranges);
                     }
                     break;
                 case UpdateChange.HScroll:
@@ -140,10 +131,7 @@ namespace App
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void HandleMouseWheel(object sender, MouseEventArgs e)
-        {
-            // update code folding and styling
-            UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
-        }
+            => UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
 
         /// <summary>
         /// Handle drag and drop of text parts in the editor.
@@ -152,28 +140,26 @@ namespace App
         /// <param name="e"></param>
         private void HandleDragOver(object sender, DragEventArgs e)
         {
-            var editor = (CodeEditor)sender;
-
             // convert cursor position to text position
-            var point = editor.PointToClient(new Point(e.X, e.Y));
-            int pos = editor.CharPositionFromPoint(point.X, point.Y);
+            var point = PointToClient(new Point(e.X, e.Y));
+            int pos = CharPositionFromPoint(point.X, point.Y);
 
             // refresh text control
-            editor.Refresh();
+            Refresh();
 
             // if the mouse is over a selected area, dropping will not be possible
-            if (editor.Selections.IndexOf(x => x.Start <= pos && pos < x.End) >= 0)
+            if (Selections.IndexOf(x => x.Start <= pos && pos < x.End) >= 0)
             {
                 e.Effect = DragDropEffects.None;
                 return;
             }
 
             // draw line at cursor position in text
-            var g = editor.CreateGraphics();
+            var g = CreateGraphics();
             var pen = new Pen(Color.Black, 2);
-            var height = TextRenderer.MeasureText("0", editor.Font).Height;
-            point.X = editor.PointXFromPosition(pos);
-            point.Y = editor.PointYFromPosition(pos);
+            var height = TextRenderer.MeasureText("0", Font).Height;
+            point.X = PointXFromPosition(pos);
+            point.Y = PointYFromPosition(pos);
             g.DrawLine(pen, point.X, point.Y, point.X, point.Y + height);
 
             // show "MOVE" cursor
@@ -187,14 +173,12 @@ namespace App
         /// <param name="e"></param>
         private void HandleDragDrop(object sender, DragEventArgs e)
         {
-            var editor = (CodeEditor)sender;
-
             // convert cursor position to text position
-            var point = editor.PointToClient(new Point(e.X, e.Y));
-            int pos = editor.CharPositionFromPoint(point.X, point.Y);
+            var point = PointToClient(new Point(e.X, e.Y));
+            int pos = CharPositionFromPoint(point.X, point.Y);
             
             // is dropping possible
-            foreach (var selection in editor.Selections)
+            foreach (var selection in Selections)
             {
                 if (selection.Start <= pos && pos < selection.End)
                     return;
@@ -206,10 +190,10 @@ namespace App
             // cut the selected text to the clipboard,
             // move caret to the insert position and
             // insert cut text from clipboard
-            editor.Cut();
-            editor.CurrentPosition = pos;
-            editor.AnchorPosition = pos;
-            editor.Paste();
+            Cut();
+            CurrentPosition = pos;
+            AnchorPosition = pos;
+            Paste();
         }
 
         /// <summary>
@@ -249,7 +233,6 @@ namespace App
             // only disable editing if Ctrl is pressed
             DisableEditing = false;
             
-            var editor = (CodeEditor)sender;
             switch (e.KeyCode)
             {
                 case Keys.F:
@@ -257,8 +240,8 @@ namespace App
                     {
                         // start text search
                         DisableEditing = true;
-                        editor.FindText.Clear();
-                        editor.FindText.Focus();
+                        FindText.Clear();
+                        FindText.Focus();
                     }
                     break;
                 case Keys.R:
@@ -266,7 +249,7 @@ namespace App
                     {
                         // select all indicator to allow text replacement
                         DisableEditing = true;
-                        editor.SelectIndicators(HighlightIndicatorIndex);
+                        SelectIndicators(HighlightIndicatorIndex);
                     }
                     break;
                 case Keys.Space:
@@ -274,7 +257,7 @@ namespace App
                     {
                         // show auto complete menu
                         DisableEditing = true;
-                        editor.AutoCShow(editor.CurrentPosition);
+                        AutoCShow(CurrentPosition);
                     }
                     break;
             }

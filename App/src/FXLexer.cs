@@ -34,16 +34,16 @@ namespace App
             EndFolding,
         }
 
-        private UnicodeCategory[] Punctuation = new[] {
+        private static UnicodeCategory[] Punctuation = new[] {
             UnicodeCategory.OpenPunctuation,
             UnicodeCategory.ClosePunctuation,
             UnicodeCategory.ConnectorPunctuation,
         };
 
-        private HashSet<string>[] keywords;
-        public Dictionary<string, KeyDef> Defs { get; private set; }
-        public int KeywordStylesStart => (int)Styles.Punctuation + 1;
-        public int KeywordStylesEnd => KeywordStylesStart + keywords.Length;
+        private static HashSet<string>[] keywords = null;
+        public static Dictionary<string, KeyDef> Defs { get; private set; } = null;
+        public static int KeywordStylesStart => (int)Styles.Punctuation + 1;
+        public static int KeywordStylesEnd => KeywordStylesStart + keywords.Length;
         #endregion
 
         /// <summary>
@@ -54,21 +54,24 @@ namespace App
         {
             Styles style;
 
-            // adapt style IDs
-            foreach (var def in (Defs = defs))
-                def.Value.Id = Enum.TryParse(def.Key, true, out style)
-                    ? (int)style : KeywordStylesStart + def.Value.Id;
-
-            // allocate hashsets for keywords
-            keywords = new HashSet<string>[Defs.Select(x => x.Value.Id).Max() + 1];
-
-            // search for keywords and fill hashsets
-            foreach (var def in Defs)
+            if (Defs == null)
             {
-                var id = $"{def.Value.Id}";
-                var words = from x in Regex.Matches(keywordDef, @"\[" + id + @"\]\w+").Cast<Match>()
-                            select x.Value.Substring(id.Length + 2);
-                keywords[def.Value.Id] = new HashSet<string>(words);
+                // adapt style IDs
+                foreach (var def in (Defs = defs))
+                    def.Value.Id = Enum.TryParse(def.Key, true, out style)
+                        ? (int)style : KeywordStylesStart + def.Value.Id;
+
+                // allocate hashsets for keywords
+                keywords = new HashSet<string>[Defs.Select(x => x.Value.Id).Max() + 1];
+
+                // search for keywords and fill hashsets
+                foreach (var def in Defs)
+                {
+                    var id = $"{def.Value.Id}";
+                    var words = from x in Regex.Matches(keywordDef, @"\[" + id + @"\]\w+").Cast<Match>()
+                                select x.Value.Substring(id.Length + 2);
+                    keywords[def.Value.Id] = new HashSet<string>(words);
+                }
             }
         }
 
@@ -80,16 +83,17 @@ namespace App
         /// <param name="endPos"></param>
         /// <param name="keyStyles"></param>
         /// <returns></returns>
-        public int Style(Scintilla editor, int pos, int endPos)
+        public static int Style(Scintilla editor, int pos, int endPos)
         {
+            var possibleStartComment = false;
+            var possibleEndComment = false;
+            var textLength = editor.TextLength;
+
             var newpos = editor.Lines[editor.LineFromPosition(pos)].Position;
-            Styles state = (Styles)editor.GetStyleAt(Math.Max(0, newpos != pos ? newpos : pos - 1));
+            var state = (Styles)editor.GetStyleAt(Math.Max(0, newpos != pos ? newpos : pos - 1));
             if (state != BlockComment)
                 state = Default;
             pos = newpos;
-            var textLength = editor.TextLength;
-            bool possibleStartComment = false;
-            bool possibleEndComment = false;
 
             // Start styling
             editor.StartStyling(pos);
@@ -98,29 +102,28 @@ namespace App
             {
                 var c = (char)editor.GetCharAt(pos);
 
+                // check if the state needs to be changed to a comment state
                 if (possibleStartComment)
                 {
                     possibleStartComment = false;
-                    Styles initialState = state;
-                    if (c == '/')
-                        state = LineComment;
-                    else if (c == '*')
-                        state = BlockComment;
-                    if (state != initialState)
+                    var curState = state;
+                    state = c == '/' ? LineComment : c == '*' ? BlockComment : state;
+                    if (state != curState)
                     {
                         editor.StartStyling(pos - length);
-                        StyleCode(editor, length, initialState);
+                        editor.SetStyling(length, (int)curState);
                         editor.StartStyling(pos - 1);
-                        StyleCode(editor, 1, state);
+                        editor.SetStyling(1, (int)state);
                     }
                 }
 
+                // check if the state needs to be changed to default state
                 if (possibleEndComment)
                 {
                     possibleEndComment = false;
                     if (c == '/')
                     {
-                        StyleCode(editor, 1, state);
+                        editor.SetStyling(1, (int)state);
                         state = Default;
                         endPos = textLength;
                         continue;
@@ -139,7 +142,7 @@ namespace App
                             case '"':
                             case '\'':
                                 state = Styles.String;
-                                StyleCode(editor, 1, state);
+                                editor.SetStyling(1, (int)state);
                                 break;
 
                             // is preprocessor
@@ -154,7 +157,7 @@ namespace App
                                 // is punctuation
                                 else if (Punctuation.Any(x => x == char.GetUnicodeCategory(c)))
                                 {
-                                    StyleCode(editor, 1, Styles.Punctuation);
+                                    editor.SetStyling(1, (int)Styles.Punctuation);
                                     break;
                                 }
                                 // is number
@@ -166,7 +169,7 @@ namespace App
                                 // is default styling
                                 else
                                 {
-                                    StyleCode(editor, 1, Default);
+                                    editor.SetStyling(1, (int)Default);
                                     break;
                                 }
                                 goto REPROCESS;
@@ -175,7 +178,7 @@ namespace App
 
                     // LINE COMMENT STATE
                     case LineComment:
-                        StyleCode(editor, 1, state);
+                        editor.SetStyling(1, (int)state);
                         // end of line comment
                         if (c == '\n')
                             state = Default;
@@ -184,12 +187,12 @@ namespace App
                     // BLOCK COMMENT STATE
                     case BlockComment:
                         possibleEndComment = c == '*';
-                        StyleCode(editor, 1, state);
+                        editor.SetStyling(1, (int)state);
                         break;
 
                     // STRING STATE
                     case Styles.String:
-                        StyleCode(editor, 1, state);
+                        editor.SetStyling(1, (int)state);
                         // end of string
                         if (c == '"' || c == '\'' || c == '\n')
                             state = Default;
@@ -197,7 +200,7 @@ namespace App
 
                     // PREPROCESSOR STATE
                     case Preprocessor:
-                        StyleCode(editor, 1, state);
+                        editor.SetStyling(1, (int)state);
                         // end of preprocessor
                         if (c == ' ' || c == '\n')
                             state = Default;
@@ -207,7 +210,7 @@ namespace App
                     case Operator:
                         possibleStartComment = c == '/';
                         if (IsMathSymbol(c))
-                            StyleCode(editor, 1, state);
+                            editor.SetStyling(1, (int)state);
                         // end of operator
                         else
                         {
@@ -226,7 +229,7 @@ namespace App
                         // end of number
                         else
                         {
-                            StyleCode(editor, length, state);
+                            editor.SetStyling(length, (int)state);
                             length = 0;
                             state = Default;
                             goto REPROCESS;
@@ -258,7 +261,7 @@ namespace App
                             }
 
                             // set styling
-                            StyleCode(editor, length, style);
+                            editor.SetStyling(length, (int)style);
                             length = 0;
                             state = Default;
                             goto REPROCESS;
@@ -269,25 +272,14 @@ namespace App
 
             return pos;
         }
-
-        void StyleCode(Scintilla editor, int length, Styles style)
-        {
-            editor.SetStyling(length, (int)style);
-        }
-
-        private char NextChar(Scintilla editor, int idx, int endPos, char defaultChar = ' ')
-            => idx + 1 < endPos ? (char)editor.GetCharAt(idx + 1) : defaultChar;
-
-        private char PrevChar(Scintilla editor, int idx, char defaultChar = ' ')
-            => idx - 1 >= 0 ? (char)editor.GetCharAt(idx - 1) : defaultChar;
-
+        
         /// <summary>
         /// Add folding between start and end position.
         /// </summary>
         /// <param name="editor"></param>
         /// <param name="startPos"></param>
         /// <param name="endPos"></param>
-        public void Folding(Scintilla editor, int startPos, int endPos)
+        public static void Folding(Scintilla editor, int startPos, int endPos)
         {
             var state = FoldState.Unknown;
             var line = editor.LineFromPosition(startPos);
@@ -360,7 +352,7 @@ namespace App
         /// </summary>
         /// <param name="c"></param>
         /// <returns>True if character is a math symbol.</returns>
-        private bool IsMathSymbol(char c) 
+        private static bool IsMathSymbol(char c) 
             => char.IsSymbol(c) || c == '/' || c == '*' || c == '-' || c == '&' || c == '|';
         
         public class KeyDef

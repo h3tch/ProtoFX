@@ -25,20 +25,17 @@ namespace App
             // set styles as defined in the keyword file
             foreach (var def in FxLexer.Defs)
             {
-                if (def.Value != null)
-                {
-                    Styles[def.Value.Id].ForeColor = def.Value.ForeColor;
-                    Styles[def.Value.Id].BackColor = def.Value.BackColor;
-                }
+                if (def.Value == null)
+                    continue;
+                Styles[def.Value.Id].ForeColor = def.Value.ForeColor;
+                Styles[def.Value.Id].BackColor = def.Value.BackColor;
             }
 
             Lexer = Lexer.Container;
         }
 
         private void HandleStyleNeeded(object sender, StyleNeededEventArgs e)
-        {
-            FxLexer.Style(this, GetEndStyled(), e.Position);
-        }
+            => FxLexer.Style(this, GetEndStyled(), e.Position);
         
         /// <summary>
         /// Update code folding between start and end line.
