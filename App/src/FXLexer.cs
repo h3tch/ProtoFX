@@ -85,20 +85,29 @@ namespace App
         /// <returns></returns>
         public static int Style(Scintilla editor, int pos, int endPos)
         {
+            // additional special states
             var possibleStartComment = false;
             var possibleEndComment = false;
-            var textLength = editor.TextLength;
 
-            var newpos = editor.Lines[editor.LineFromPosition(pos)].Position;
-            var state = (Styles)editor.GetStyleAt(Math.Max(0, newpos != pos ? newpos : pos - 1));
+            // GET CURRENT STATE //
+
+            // get the start position of the line
+            var linepos = editor.Lines[editor.LineFromPosition(pos)].Position;
+            // get the state at the line position or the last position in the previous line
+            var state = (Styles)editor.GetStyleAt(linepos != pos ? linepos : Math.Max(0, pos - 1));
+            pos = linepos;
+            // check, if the previous state needs to be continued
             if (state != BlockComment)
                 state = Default;
-            pos = newpos;
 
-            // Start styling
+            // START STYLING //
+
             editor.StartStyling(pos);
 
-            for (int length = 0; (pos < endPos || state != Default) && pos < textLength; pos++)
+            // for each character that needs to be styled
+            for (int length = 0, textLength = editor.TextLength;
+                (pos < endPos || state != Default) && pos < textLength;
+                pos++)
             {
                 var c = (char)editor.GetCharAt(pos);
 
@@ -106,14 +115,19 @@ namespace App
                 if (possibleStartComment)
                 {
                     possibleStartComment = false;
+                    // if new state is a comment state
+                    // that changes the previous state
                     var curState = state;
                     state = c == '/' ? LineComment : c == '*' ? BlockComment : state;
                     if (state != curState)
                     {
+                        // style for previous state
                         editor.StartStyling(pos - length);
                         editor.SetStyling(length, (int)curState);
+                        // style using the new comment state
                         editor.StartStyling(pos - 1);
-                        editor.SetStyling(1, (int)state);
+                        editor.SetStyling(2, (int)state);
+                        continue;
                     }
                 }
 
@@ -121,11 +135,12 @@ namespace App
                 if (possibleEndComment)
                 {
                     possibleEndComment = false;
+                    // if is end of comment
                     if (c == '/')
                     {
                         editor.SetStyling(1, (int)state);
                         state = Default;
-                        endPos = textLength;
+                        //endPos = textLength;
                         continue;
                     }
                 }
@@ -186,6 +201,7 @@ namespace App
 
                     // BLOCK COMMENT STATE
                     case BlockComment:
+                        // could indicate the end of a block comment
                         possibleEndComment = c == '*';
                         editor.SetStyling(1, (int)state);
                         break;
@@ -208,7 +224,9 @@ namespace App
 
                     // OPERATOR STATE
                     case Operator:
+                        // could indicate the start of a comment
                         possibleStartComment = c == '/';
+                        // is still a math symbol
                         if (IsMathSymbol(c))
                             editor.SetStyling(1, (int)state);
                         // end of operator
@@ -222,10 +240,11 @@ namespace App
                     // NUMBER STATE
                     case Number:
                         // still a number
-                        if (char.IsDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || c == 'x' || c == '.')
-                        {
+                        if (char.IsDigit(c)
+                            || (c >= 'a' && c <= 'f')
+                            || (c >= 'A' && c <= 'F')
+                            || c == 'x' || c == '.')
                             length++;
-                        }
                         // end of number
                         else
                         {
@@ -240,9 +259,7 @@ namespace App
                     case Identifier:
                         // still an identifier and possible keyword
                         if (char.IsLetterOrDigit(c) || c == '_')
-                        {
                             length++;
-                        }
                         // end of identifier/keyword
                         else
                         {
