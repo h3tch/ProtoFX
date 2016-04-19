@@ -136,7 +136,8 @@ namespace App
             if ((texUnits[unit].glname = glname) > 0)
                 texUnits[unit].target = target;
             GL.ActiveTexture(TextureUnit.Texture0 + unit);
-            GL.BindTexture(texUnits[unit].target, glname);
+            if (texUnits[unit].target != 0)
+                GL.BindTexture(texUnits[unit].target, glname);
         }
         #endregion
 

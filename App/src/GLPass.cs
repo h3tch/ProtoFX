@@ -147,7 +147,7 @@ namespace App
             // OpenGL sate is valid
             var errcode = GL.GetError();
             if (errcode != ErrorCode.NoError)
-                throw new Exception($"OpenGL error '{errcode}'.");
+                throw new Exception($"OpenGL error '{errcode}' at the start of pass '{name}'.");
 #endif
 
             int fbWidth = width, fbHeight = height;
@@ -167,6 +167,8 @@ namespace App
 
             // CALL USER SPECIFIED OPENGL FUNCTIONS
             glfunc.ForEach(call => call.mtype.Invoke(null, call.inval));
+            if ((errcode = GL.GetError()) != ErrorCode.NoError)
+                throw new Exception($"OpenGL error '{errcode}' OpenGL function calls of pass '{name}'.");
 
             // BIND PROGRAM
             if (glname > 0) GL.UseProgram(glname);
@@ -174,11 +176,19 @@ namespace App
             // BIND VERTEX OUTPUT (transform feedback)
             // (must be done after glUseProgram)
             vertoutput?.Bind();
+            if ((errcode = GL.GetError()) != ErrorCode.NoError)
+                throw new Exception($"OpenGL error '{errcode}' vertex output binding of pass '{name}'.");
 
             // BIND TEXTURES
             textures.ForEach(x => GLTexture.BindTex(x.unit, x.obj));
+            if ((errcode = GL.GetError()) != ErrorCode.NoError)
+                throw new Exception($"OpenGL error '{errcode}' in textures of pass '{name}'.");
             texImages.ForEach(x => GLTexture.BindImg(x.unit, x.obj, x.level, x.layer, x.access, x.format));
+            if ((errcode = GL.GetError()) != ErrorCode.NoError)
+                throw new Exception($"OpenGL error '{errcode}' in images of pass '{name}'.");
             sampler.ForEach(x => GL.BindSampler(x.unit, x.obj?.glname ?? 0));
+            if ((errcode = GL.GetError()) != ErrorCode.NoError)
+                throw new Exception($"OpenGL error '{errcode}' in samplers pass '{name}'.");
 
             // EXECUTE EXTERNAL CODE
             csexec.ForEach(exe => exe.Update(glname, width, height, fbWidth, fbHeight));
@@ -210,7 +220,7 @@ namespace App
             // in debug mode check if the pass
             // left a valid OpenGL sate
             if ((errcode = GL.GetError()) != ErrorCode.NoError)
-                throw new Exception($"OpenGL error '{errcode}'.");
+                throw new Exception($"OpenGL error '{errcode}' at the end of pass '{name}'.");
 #endif
         }
 

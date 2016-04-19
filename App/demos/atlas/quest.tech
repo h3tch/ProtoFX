@@ -1,4 +1,4 @@
-//
+// FULL SCREEN QUAD
 text xml_quad {
 	<?xml version='1.0'?>
 	<data>
@@ -33,12 +33,46 @@ vertinput in_vert {
 	attr buf_pos float 4
 }
 
-image img_color {
-	size 1024 768
-	format rgba8
+image img_artifact {
+	size 2048 2048
+	format r32f
 }
 
-shader vert vs_quest {
+image img_filterX {
+	size 1024 2048
+	format r32f
+}
+
+image img_filterY {
+	size 1024 1024
+	format r32f
+}
+
+texture tex_artifact {
+	img img_artifact
+}
+
+texture tex_filterX {
+	img img_filterX
+}
+
+texture tex_filterY {
+	img img_filterY
+}
+
+fragoutput out_artifact {
+	color img_artifact
+}
+
+fragoutput out_filterX {
+	color img_filterX
+}
+
+fragoutput out_filterY {
+	color img_filterY
+}
+
+shader vert vs_shader {
 	#version 450
 	
 	layout(location = 0) in vec4 position;
@@ -48,41 +82,177 @@ shader vert vs_quest {
 	}
 }
 
-shader frag fs_quest {
+shader frag fs_artifact {
 	#version 450
+	
+	layout(binding = 0, std140) uniform QuestSetup {
+		layout(offset = 0) vec2 resolutionArtifact;
+		layout(offset = 8) vec2 resolutionFilterX;
+		layout(offset = 16) vec2 resolutionFilterY;
+		layout(offset = 20) float lineAngle;
+		layout(offset = 24) float lineDist;
+		layout(offset = 28) float randomAngle;
+		layout(offset = 32) float artifactSize;
+		layout(offset = 34) int filterRadius;
+	} setup;
 	
 	layout(pixel_center_integer) in vec4 gl_FragCoord;
 	
-	out vec4 color;
+	out float color;
 	
-	vec4 sampleArtifact(vec2 pos, vec3 hesseLine, float artifactSize) {
+	float sampleArtifact(vec2 pos, vec3 hesseLine, float artifactSize) {
 		pos = floor(pos / artifactSize) * artifactSize;
-		return dot(pos, hesseLine.xy) < hesseLine.z ? vec4(0) : vec4(1);
+		return dot(pos, hesseLine.xy) < hesseLine.z ? 0 : 1;
 	}
 	
 	void main() {
 		float lineAngle = 1.5;
 		float lineDist = 100;
 		float randomAngle = 0.5;
-		vec2 resolution  = vec2(600);
+		vec2 resolution  = vec2(2048);
 		
-		vec3 hesseLine = vec3(cos(lineAngle), sin(lineAngle), lineDist);
-		mat2 M = mat2(vec2( cos(randomAngle), sin(randomAngle)),
-		              vec2(-sin(randomAngle), cos(randomAngle)));
+		vec3 hesseLine = vec3(cos(setup.lineAngle), sin(setup.lineAngle), setup.lineDist);
+		mat2 M = mat2(vec2( cos(setup.randomAngle), sin(setup.randomAngle)),
+		              vec2(-sin(setup.randomAngle), cos(setup.randomAngle)));
 		              
-		color = sampleArtifact((gl_FragCoord.xy - resolution * 0.5) * M, hesseLine, 5);
+		color = sampleArtifact((gl_FragCoord.xy - setup.resolutionArtifact * 0.5) * M, hesseLine, 5);
 	}
 }
 
-pass pass_render {
-	vert vs_quest
-	frag fs_quest
+shader frag fs_filterX {
+	#version 450
 	
-	glClear ColorDepthBit
+	layout(binding = 0, std140) uniform QuestSetup {
+		layout(offset = 0) vec2 resolutionArtifact;
+		layout(offset = 8) vec2 resolutionFilterX;
+		layout(offset = 16) vec2 resolutionFilterY;
+		layout(offset = 20) float lineAngle;
+		layout(offset = 24) float lineDist;
+		layout(offset = 28) float randomAngle;
+		layout(offset = 32) float artifactSize;
+		layout(offset = 34) int filterRadius;
+	} setup;
+	
+	layout(binding = 0) uniform sampler2D artifacts;
+	
+	layout(pixel_center_integer) in vec4 gl_FragCoord;
+	
+	out float color;
+	
+	void main() {
+		int filterRadius = 32;
+		vec2 resolution  = vec2(1024, 2048);
+		
+		vec2 offset = (textureSize(artifacts, 0).xy - setup.resolutionFilterX) / 2;
+		ivec2 center = ivec2(offset + gl_FragCoord.xy);
+		
+		float I = 0;
+		for (int i = -setup.filterRadius; i <= setup.filterRadius; i++)
+			I += texelFetch(artifacts, center + ivec2(i, 0), 0).x;
+			
+		color = float(I / (2*setup.filterRadius+1));
+	}
+}
+
+shader frag fs_filterY {
+	#version 450
+	
+	layout(binding = 0, std140) uniform QuestSetup {
+		layout(offset = 0) vec2 resolutionArtifact;
+		layout(offset = 8) vec2 resolutionFilterX;
+		layout(offset = 16) vec2 resolutionFilterY;
+		layout(offset = 20) float lineAngle;
+		layout(offset = 24) float lineDist;
+		layout(offset = 28) float randomAngle;
+		layout(offset = 32) float artifactSize;
+		layout(offset = 34) int filterRadius;
+	} setup;
+	
+	layout(binding = 0) uniform sampler2D filterX;
+	
+	layout(pixel_center_integer) in vec4 gl_FragCoord;
+	
+	out float color;
+	
+	void main() {
+		int filterRadius = 32;
+		vec2 resolution  = vec2(1024);
+		
+		vec2 offset = (textureSize(filterX, 0).xy - setup.resolutionFilterY) / 2;
+		ivec2 center = ivec2(offset + gl_FragCoord.xy);
+		
+		float I = 0;
+		for (int i = -setup.filterRadius; i <= setup.filterRadius; i++)
+			I += texelFetch(filterX, center + ivec2(0, i), 0).x;
+			
+		color = float(I / (2*setup.filterRadius+1));
+	}
+}
+
+shader frag fs_render {
+	#version 450
+	
+	layout(binding = 0) uniform sampler2D filterY;
+	
+	layout(pixel_center_integer) in vec4 gl_FragCoord;
+	
+	out vec4 color;
+	
+	void main() {
+		color = texelFetch(filterY, ivec2(gl_FragCoord.xy), 0).xxxx;
+	}
+}
+
+pass pass_artifact {
+	vert vs_shader
+	frag fs_artifact
+	fragout out_artifact
+	
+	tex 0
+	
+	glClear ColorBit
+	
+	draw buf_idx in_vert ushort triangles 0 0 6
+}
+
+pass pass_filterX {
+	vert vs_shader
+	frag fs_filterX
+	fragout out_filterX
+	
+	tex tex_artifact 0
+	
+	glClear ColorBit
+	
+	draw buf_idx in_vert ushort triangles 0 0 6
+}
+
+pass pass_filterY {
+	vert vs_shader
+	frag fs_filterY
+	fragout out_filterY
+	
+	tex tex_filterX 0
+	
+	glClear ColorBit
+	
+	draw buf_idx in_vert ushort triangles 0 0 6
+}
+
+pass pass_render {
+	vert vs_shader
+	frag fs_render
+	
+	tex tex_filterY 0
+	
+	glClear ColorBit
 	
 	draw buf_idx in_vert ushort triangles 0 0 6
 }
 
 tech tech_quest {
+	pass pass_artifact
+	pass pass_filterX
+	pass pass_filterY
 	pass pass_render
 }
