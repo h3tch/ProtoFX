@@ -12,6 +12,8 @@ namespace App
     {
         private TextBox FindText;
 
+        public int GetLinePosition(int position) => Lines[LineFromPosition(position)].Position;
+
         /// <summary>
         /// Initialize find and replace.
         /// </summary>

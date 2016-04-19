@@ -34,6 +34,11 @@ namespace App
             Lexer = Lexer.Container;
         }
 
+        /// <summary>
+        /// Handle style needed event.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void HandleStyleNeeded(object sender, StyleNeededEventArgs e)
             => FxLexer.Style(this, GetEndStyled(), e.Position);
         

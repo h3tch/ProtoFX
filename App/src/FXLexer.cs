@@ -83,22 +83,17 @@ namespace App
         /// <param name="endPos"></param>
         /// <param name="keyStyles"></param>
         /// <returns></returns>
-        public static int Style(Scintilla editor, int pos, int endPos)
+        public static int Style(CodeEditor editor, int pos, int endPos)
         {
             // additional special states
             var possibleStartComment = false;
             var possibleEndComment = false;
 
             // GET CURRENT STATE //
-
-            // get the start position of the line
-            var linepos = editor.Lines[editor.LineFromPosition(pos)].Position;
-            // get the state at the line position or the last position in the previous line
-            var state = (Styles)editor.GetStyleAt(linepos != pos ? linepos : Math.Max(0, pos - 1));
-            pos = linepos;
-            // check, if the previous state needs to be continued
-            if (state != BlockComment)
-                state = Default;
+            pos = editor.GetLinePosition(pos);
+            while (pos > 0 && editor.GetStyleAt(pos) != 0)
+                pos--;
+            var state = Default;
 
             // START STYLING //
 
@@ -294,73 +289,87 @@ namespace App
         /// Add folding between start and end position.
         /// </summary>
         /// <param name="editor"></param>
-        /// <param name="startPos"></param>
+        /// <param name="pos"></param>
         /// <param name="endPos"></param>
-        public static void Folding(Scintilla editor, int startPos, int endPos)
+        public static void Folding(Scintilla editor, int pos, int endPos)
         {
-            var state = FoldState.Unknown;
-            var line = editor.LineFromPosition(startPos);
+            // setup state machine
+            var line = editor.LineFromPosition(pos);
             var lastLine = -1;
             var lastCharPos = line;
             var foldLevel = editor.Lines[line].FoldLevel;
-            var textLength = editor.Text.Length;
+            var textLength = editor.TextLength;
 
-            while (state == FoldState.Unknown ? startPos < endPos : startPos < textLength)
+            // for each character
+            for (var state = FoldState.Unknown;
+                state == FoldState.Unknown ? pos < endPos : pos < textLength;
+                pos++)
             {
-                var c = (char)editor.GetCharAt(startPos);
+                var c = (char)editor.GetCharAt(pos);
 
                 switch (c)
                 {
-                    case '{':
-                        state = FoldState.StartFolding;
-                        break;
-                    case '}':
-                        state = FoldState.EndFolding;
-                        break;
-                    case '\n':
-                        line++;
-                        break;
+                    // open folding
+                    case '{': state = FoldState.StartFolding; break;
+                    // close folding
+                    case '}': state = FoldState.EndFolding; break;
+                    // next line
+                    case '\n': line++; break;
+                        // remember last character to place
+                        // fold icon in the last character line
                     default:
                         if (char.IsLetterOrDigit(c))
-                            lastCharPos = startPos;
+                            lastCharPos = pos;
                         break;
                 }
 
                 switch (state)
                 {
+                    // STATE: open folding
                     case FoldState.StartFolding:
                         var lastCharLine = editor.LineFromPosition(lastCharPos);
+                        // start folding at last character containing line
                         editor.Lines[lastCharLine].FoldLevelFlags = FoldLevelFlags.Header;
                         editor.Lines[lastCharLine].FoldLevel = foldLevel++;
+                        // for all other lines up to the current position also add folding
                         for (int i = lastCharLine + 1; i <= line; i++)
                         {
                             editor.Lines[i].FoldLevelFlags = FoldLevelFlags.White;
                             editor.Lines[i].FoldLevel = foldLevel;
                         }
                         lastLine = line;
+                        // switch to folding state
                         state = FoldState.Foldable;
                         break;
+                    // STATE: close folding
                     case FoldState.EndFolding:
+                        // end folding
                         editor.Lines[line].FoldLevel = foldLevel;
+                        // decrease fold level
                         foldLevel = Math.Max(--foldLevel, 1024);
                         lastLine = line;
+                        // switch to folding state (which will
+                        // switch to unknown state if the most
+                        // outer fold level is reached)
                         state = FoldState.Foldable;
                         break;
+                    // STATE: folding
                     case FoldState.Foldable:
+                        // still in folding state
                         if (foldLevel > 1024)
                         {
                             if (line != lastLine)
                             {
+                                // set fold level for line
                                 editor.Lines[line].FoldLevel = foldLevel;
                                 lastLine = line;
                             }
                         }
+                        // end folding state
                         else
                             state = FoldState.Unknown;
                         break;
                 }
-
-                startPos++;
             }
         }
 
