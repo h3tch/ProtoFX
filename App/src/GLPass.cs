@@ -190,21 +190,21 @@ namespace App
                 GLTexture.BindTex(x.unit, x.obj);
 #if DEBUG
                 if ((errcode = GL.GetError()) != ErrorCode.NoError)
-                    throw new Exception($"OpenGL error '{errcode}' in textures of pass '{name}'.");
+                    throw new Exception($"OpenGL error '{errcode}' in texture '{x.obj.name}' of pass '{name}'.");
 #endif
             });
             texImages.ForEach(x => {
                 GLTexture.BindImg(x.unit, x.obj, x.level, x.layer, x.access, x.format);
 #if DEBUG
                 if ((errcode = GL.GetError()) != ErrorCode.NoError)
-                    throw new Exception($"OpenGL error '{errcode}' in images of pass '{name}'.");
+                    throw new Exception($"OpenGL error '{errcode}' in image '{x.obj.name}' of pass '{name}'.");
 #endif
             });
             sampler.ForEach(x => {
                 GL.BindSampler(x.unit, x.obj?.glname ?? 0);
 #if DEBUG
                 if ((errcode = GL.GetError()) != ErrorCode.NoError)
-                    throw new Exception($"OpenGL error '{errcode}' in samplers pass '{name}'.");
+                    throw new Exception($"OpenGL error '{errcode}' in sampler '{x.obj.name}' of pass '{name}'.");
 #endif
             });
 
@@ -213,7 +213,7 @@ namespace App
                 exe.Update(glname, width, height, fbWidth, fbHeight);
 #if DEBUG
                 if ((errcode = GL.GetError()) != ErrorCode.NoError)
-                    throw new Exception($"OpenGL error '{errcode}' in C# execution of pass '{name}'.");
+                    throw new Exception($"OpenGL error '{errcode}' in C# execution '{exe.name}' of pass '{name}'.");
 #endif
             });
 
