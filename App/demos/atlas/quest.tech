@@ -1,3 +1,6 @@
+#global RESOLUTION 2048
+#global HALF_RESOLUTION 1024
+
 // FULL SCREEN QUAD
 text xml_quad {
 	<?xml version='1.0'?>
@@ -34,17 +37,17 @@ vertinput in_vert {
 }
 
 image img_artifact {
-	size 2048 2048
+	size RESOLUTION RESOLUTION
 	format r32f
 }
 
 image img_filterX {
-	size 1024 2048
+	size HALF_RESOLUTION RESOLUTION
 	format r32f
 }
 
 image img_filterY {
-	size 1024 1024
+	size HALF_RESOLUTION HALF_RESOLUTION
 	format r32f
 }
 
@@ -85,23 +88,24 @@ shader vert vs_shader {
 shader frag fs_artifact {
 	#version 450
 	
+	const vec2 resolutionArtifact = vec2(RESOLUTION);
+	const vec2 resolutionFilterX = vec2(HALF_RESOLUTION, RESOLUTION);
+	const vec2 resolutionFilterY = vec2(HALF_RESOLUTION);
+	
 	layout(binding = 0, std140) uniform QuestSetup {
-		layout(offset = 0) vec2 resolutionArtifact;
-		layout(offset = 8) vec2 resolutionFilterX;
-		layout(offset = 16) vec2 resolutionFilterY;
-		layout(offset = 20) float lineAngle;
-		layout(offset = 24) float lineDist;
-		layout(offset = 28) float randomAngle;
-		layout(offset = 32) float artifactSize;
-		layout(offset = 34) int filterRadius;
+		layout(offset = 0) float lineAngle;
+		layout(offset = 4) float lineDist;
+		layout(offset = 8) float randomAngle;
+		layout(offset = 12) float artifactSize;
+		layout(offset = 16) int filterRadius;
 	} setup;
 	
 	layout(pixel_center_integer) in vec4 gl_FragCoord;
 	
 	out float color;
 	
-	float sampleArtifact(vec2 pos, vec3 hesseLine, float artifactSize) {
-		pos = floor(pos / artifactSize) * artifactSize;
+	float sampleArtifact(vec2 pos, vec3 hesseLine) {
+		pos = floor(pos / setup.artifactSize) * setup.artifactSize;
 		return dot(pos, hesseLine.xy) < hesseLine.z ? 0 : 1;
 	}
 	
@@ -115,22 +119,23 @@ shader frag fs_artifact {
 		mat2 M = mat2(vec2( cos(setup.randomAngle), sin(setup.randomAngle)),
 		              vec2(-sin(setup.randomAngle), cos(setup.randomAngle)));
 		              
-		color = sampleArtifact((gl_FragCoord.xy - setup.resolutionArtifact * 0.5) * M, hesseLine, 5);
+		color = sampleArtifact((gl_FragCoord.xy - resolutionArtifact * 0.5) * M, hesseLine);
 	}
 }
 
 shader frag fs_filterX {
 	#version 450
 	
+	const vec2 resolutionArtifact = vec2(RESOLUTION);
+	const vec2 resolutionFilterX = vec2(HALF_RESOLUTION, RESOLUTION);
+	const vec2 resolutionFilterY = vec2(HALF_RESOLUTION);
+	
 	layout(binding = 0, std140) uniform QuestSetup {
-		layout(offset = 0) vec2 resolutionArtifact;
-		layout(offset = 8) vec2 resolutionFilterX;
-		layout(offset = 16) vec2 resolutionFilterY;
-		layout(offset = 20) float lineAngle;
-		layout(offset = 24) float lineDist;
-		layout(offset = 28) float randomAngle;
-		layout(offset = 32) float artifactSize;
-		layout(offset = 34) int filterRadius;
+		layout(offset = 0) float lineAngle;
+		layout(offset = 4) float lineDist;
+		layout(offset = 8) float randomAngle;
+		layout(offset = 12) float artifactSize;
+		layout(offset = 16) int filterRadius;
 	} setup;
 	
 	layout(binding = 0) uniform sampler2D artifacts;
@@ -143,7 +148,7 @@ shader frag fs_filterX {
 		int filterRadius = 32;
 		vec2 resolution  = vec2(1024, 2048);
 		
-		vec2 offset = (textureSize(artifacts, 0).xy - setup.resolutionFilterX) / 2;
+		vec2 offset = (textureSize(artifacts, 0).xy - resolutionFilterX) / 2;
 		ivec2 center = ivec2(offset + gl_FragCoord.xy);
 		
 		float I = 0;
@@ -157,15 +162,16 @@ shader frag fs_filterX {
 shader frag fs_filterY {
 	#version 450
 	
+	const vec2 resolutionArtifact = vec2(RESOLUTION);
+	const vec2 resolutionFilterX = vec2(HALF_RESOLUTION, RESOLUTION);
+	const vec2 resolutionFilterY = vec2(HALF_RESOLUTION);
+	
 	layout(binding = 0, std140) uniform QuestSetup {
-		layout(offset = 0) vec2 resolutionArtifact;
-		layout(offset = 8) vec2 resolutionFilterX;
-		layout(offset = 16) vec2 resolutionFilterY;
-		layout(offset = 20) float lineAngle;
-		layout(offset = 24) float lineDist;
-		layout(offset = 28) float randomAngle;
-		layout(offset = 32) float artifactSize;
-		layout(offset = 34) int filterRadius;
+		layout(offset = 0) float lineAngle;
+		layout(offset = 4) float lineDist;
+		layout(offset = 8) float randomAngle;
+		layout(offset = 12) float artifactSize;
+		layout(offset = 16) int filterRadius;
 	} setup;
 	
 	layout(binding = 0) uniform sampler2D filterX;
@@ -178,7 +184,7 @@ shader frag fs_filterY {
 		int filterRadius = 32;
 		vec2 resolution  = vec2(1024);
 		
-		vec2 offset = (textureSize(filterX, 0).xy - setup.resolutionFilterY) / 2;
+		vec2 offset = (textureSize(filterX, 0).xy - resolutionFilterY) / 2;
 		ivec2 center = ivec2(offset + gl_FragCoord.xy);
 		
 		float I = 0;
