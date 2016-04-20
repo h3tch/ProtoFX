@@ -1,6 +1,19 @@
 #global RESOLUTION 2048
 #global HALF_RESOLUTION 1024
 
+csharp cs {
+	file "<csharp>/ArtifactQuest.cs" ...
+	     "<csharp>/UniformBlock.cs" ...
+	     "<csharp>/CsObject.cs" ...
+	     "<csharp>/Converter.cs"
+}
+
+instance cs_quest {
+	class cs csharp.ArtifactQuest
+	name QuestSetup
+}
+
+
 // FULL SCREEN QUAD
 text xml_quad {
 	<?xml version='1.0'?>
@@ -219,6 +232,8 @@ pass pass_artifact {
 	glClear ColorBit
 	
 	draw buf_idx in_vert ushort triangles 0 0 6
+	
+	exec cs_quest
 }
 
 pass pass_filterX {

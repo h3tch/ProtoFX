@@ -145,9 +145,7 @@ namespace App
 #if DEBUG
             // in debug mode check if the
             // OpenGL sate is valid
-            var errcode = GL.GetError();
-            if (errcode != ErrorCode.NoError)
-                throw new Exception($"OpenGL error '{errcode}' at the start of pass '{name}'.");
+            ThrowOnError($"OpenGL error at the beginning of pass '{name}'.");
 #endif
 
             int fbWidth = width, fbHeight = height;
@@ -169,8 +167,7 @@ namespace App
             glfunc.ForEach(x => {
                 x.mtype.Invoke(null, x.inval);
 #if DEBUG
-                if ((errcode = GL.GetError()) != ErrorCode.NoError)
-                    throw new Exception($"OpenGL error '{errcode}' in OpenGL function '{x.mtype.Name}' of pass '{name}'.");
+                ThrowOnError($"OpenGL error in OpenGL function '{x.mtype.Name}' of pass '{name}'.");
 #endif
             });
 
@@ -181,30 +178,26 @@ namespace App
             // (must be done after glUseProgram)
             vertoutput?.Bind();
 #if DEBUG
-            if ((errcode = GL.GetError()) != ErrorCode.NoError)
-                throw new Exception($"OpenGL error '{errcode}' vertex output binding of pass '{name}'.");
+            ThrowOnError($"OpenGL error vertex output binding of pass '{name}'.");
 #endif
 
             // BIND TEXTURES
             textures.ForEach(x => {
                 GLTexture.BindTex(x.unit, x.obj);
 #if DEBUG
-                if ((errcode = GL.GetError()) != ErrorCode.NoError)
-                    throw new Exception($"OpenGL error '{errcode}' in texture '{x.obj.name}' of pass '{name}'.");
+                ThrowOnError($"OpenGL error in texture '{x.obj?.name}' of pass '{name}'.");
 #endif
             });
             texImages.ForEach(x => {
                 GLTexture.BindImg(x.unit, x.obj, x.level, x.layer, x.access, x.format);
 #if DEBUG
-                if ((errcode = GL.GetError()) != ErrorCode.NoError)
-                    throw new Exception($"OpenGL error '{errcode}' in image '{x.obj.name}' of pass '{name}'.");
+                ThrowOnError($"OpenGL error in image '{x.obj?.name}' of pass '{name}'.");
 #endif
             });
             sampler.ForEach(x => {
                 GL.BindSampler(x.unit, x.obj?.glname ?? 0);
 #if DEBUG
-                if ((errcode = GL.GetError()) != ErrorCode.NoError)
-                    throw new Exception($"OpenGL error '{errcode}' in sampler '{x.obj.name}' of pass '{name}'.");
+                ThrowOnError($"OpenGL error in sampler '{x.obj?.name}' of pass '{name}'.");
 #endif
             });
 
@@ -212,8 +205,7 @@ namespace App
             csexec.ForEach(exe => {
                 exe.Update(glname, width, height, fbWidth, fbHeight);
 #if DEBUG
-                if ((errcode = GL.GetError()) != ErrorCode.NoError)
-                    throw new Exception($"OpenGL error '{errcode}' in C# execution '{exe.name}' of pass '{name}'.");
+                ThrowOnError($"OpenGL error in C# execution '{exe.name}' of pass '{name}'.");
 #endif
             });
 
@@ -240,12 +232,19 @@ namespace App
             GL.BindBuffer(BufferTarget.DrawIndirectBuffer, 0);
             GL.BindBuffer(BufferTarget.DispatchIndirectBuffer, 0);
             GL.BindVertexArray(0);
+
 #if DEBUG
             // in debug mode check if the pass
             // left a valid OpenGL sate
-            if ((errcode = GL.GetError()) != ErrorCode.NoError)
-                throw new Exception($"OpenGL error '{errcode}' at the end of pass '{name}'.");
+            ThrowOnError($"OpenGL error at the end of pass '{name}'.");
 #endif
+        }
+
+        private static void ThrowOnError(string message)
+        {
+            ErrorCode errcode;
+            if ((errcode = GL.GetError()) != ErrorCode.NoError)
+                throw new Exception($"{errcode}: " + message);
         }
 
         /// <summary>
