@@ -72,7 +72,7 @@ namespace App
             MethodInfo glIs, MethodInfo glLabel, int range)
         {
             // select all object IDs in the scene that are of one of the specified types
-            var internID = from x in existing where x.TypeIs(types) select x.glname;
+            var internID = from x in existing where types.Any(y => y == x.GetType()) select x.glname;
             // find all external object IDs of the same type in OpenGL
             var externID = from x in Enumerable.Range(0, range)
                            where !internID.Contains(x) && (bool)glIs.Invoke(null, new object[] { x })

@@ -41,10 +41,14 @@ namespace csharp
 
             // SET UNIFORM VALUES
             if (unif[Names.lineAngle] >= 0)
-                unif.Set(Names.lineAngle, new[] { lineAngle, lineDist, randomAngle, artifactSize });
+                unif.Set(Names.lineAngle, new[] { lineAngle, lineDist, randomAngle, artifactSize }.AsInt32());
 
             if (unif[Names.filterRadius] >= 0)
                 unif.Set(Names.filterRadius, new[] { filterRadius });
+
+            // UPDATE UNIFORM BUFFER
+            unif.Update();
+            unif.Bind();
         }
 
         public void KeyUp(object sender, KeyEventArgs args)

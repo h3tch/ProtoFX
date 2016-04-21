@@ -13,7 +13,6 @@ instance cs_quest {
 	name QuestSetup
 }
 
-
 // FULL SCREEN QUAD
 text xml_quad {
 	<?xml version='1.0'?>
