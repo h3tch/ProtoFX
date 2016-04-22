@@ -89,7 +89,7 @@ namespace App
                 Size = Enumerable.Range(0, 4).Select(i => i < Size.Length ? Size[i] : 1).ToArray();
 
             // LOAD IMAGE DATA
-            var dir = Path.GetDirectoryName(block.File) + Path.DirectorySeparatorChar;
+            var dir = Path.GetDirectoryName(block.Filename) + Path.DirectorySeparatorChar;
             var data = LoadImageFiles(dir, File, Size, Format);
 
             // if type was not specified

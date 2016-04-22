@@ -2,6 +2,7 @@
 #global HALF_RESOLUTION 1024
 
 csharp cs {
+	assembly "Interop.MLApp.dll"
 	file "<csharp>/ArtifactQuest.cs" ...
 	     "<csharp>/UniformBlock.cs" ...
 	     "<csharp>/CsObject.cs" ...
@@ -100,16 +101,17 @@ shader vert vs_shader {
 shader frag fs_artifact {
 	#version 450
 	
-	const vec2 resolutionArtifact = vec2(RESOLUTION);
-	const vec2 resolutionFilterX = vec2(HALF_RESOLUTION, RESOLUTION);
-	const vec2 resolutionFilterY = vec2(HALF_RESOLUTION);
+	const ivec2 resolutionArtifact = ivec2(RESOLUTION);
+	const ivec2 resolutionFilterX = ivec2(HALF_RESOLUTION, RESOLUTION);
+	const ivec2 resolutionFilterY = ivec2(HALF_RESOLUTION);
 	
 	layout(binding = 0, std140) uniform QuestSetup {
-		layout(offset = 0) float lineAngle;
-		layout(offset = 4) float lineDist;
-		layout(offset = 8) float randomAngle;
-		layout(offset = 12) float artifactSize;
-		layout(offset = 16) int filterRadius;
+		layout(offset = 0) ivec2 resolutionFramebuffer;
+		layout(offset = 8) float lineAngle;
+		layout(offset = 12) float lineDist;
+		layout(offset = 16) float randomAngle;
+		layout(offset = 20) float artifactSize;
+		layout(offset = 24) int filterRadius;
 	} setup;
 	
 	layout(pixel_center_integer) in vec4 gl_FragCoord;
@@ -122,12 +124,7 @@ shader frag fs_artifact {
 	}
 	
 	void main() {
-		float lineAngle = 1.5;
-		float lineDist = 100;
-		float randomAngle = 0.5;
-		vec2 resolution  = vec2(2048);
-		
-		vec3 hesseLine = vec3(cos(setup.lineAngle), sin(setup.lineAngle), setup.lineDist);
+		vec3 hesseLine = vec3(cos(setup.lineAngle+1), sin(setup.lineAngle+1), setup.lineDist);
 		mat2 M = mat2(vec2( cos(setup.randomAngle), sin(setup.randomAngle)),
 		              vec2(-sin(setup.randomAngle), cos(setup.randomAngle)));
 		              
@@ -138,16 +135,17 @@ shader frag fs_artifact {
 shader frag fs_filterX {
 	#version 450
 	
-	const vec2 resolutionArtifact = vec2(RESOLUTION);
-	const vec2 resolutionFilterX = vec2(HALF_RESOLUTION, RESOLUTION);
-	const vec2 resolutionFilterY = vec2(HALF_RESOLUTION);
+	const ivec2 resolutionArtifact = ivec2(RESOLUTION);
+	const ivec2 resolutionFilterX = ivec2(HALF_RESOLUTION, RESOLUTION);
+	const ivec2 resolutionFilterY = ivec2(HALF_RESOLUTION);
 	
 	layout(binding = 0, std140) uniform QuestSetup {
-		layout(offset = 0) float lineAngle;
-		layout(offset = 4) float lineDist;
-		layout(offset = 8) float randomAngle;
-		layout(offset = 12) float artifactSize;
-		layout(offset = 16) int filterRadius;
+		layout(offset = 0) ivec2 resolutionFramebuffer;
+		layout(offset = 8) float lineAngle;
+		layout(offset = 12) float lineDist;
+		layout(offset = 16) float randomAngle;
+		layout(offset = 20) float artifactSize;
+		layout(offset = 24) int filterRadius;
 	} setup;
 	
 	layout(binding = 0) uniform sampler2D artifacts;
@@ -157,9 +155,6 @@ shader frag fs_filterX {
 	out float color;
 	
 	void main() {
-		int filterRadius = 32;
-		vec2 resolution  = vec2(1024, 2048);
-		
 		vec2 offset = (textureSize(artifacts, 0).xy - resolutionFilterX) / 2;
 		ivec2 center = ivec2(offset + gl_FragCoord.xy);
 		
@@ -174,16 +169,17 @@ shader frag fs_filterX {
 shader frag fs_filterY {
 	#version 450
 	
-	const vec2 resolutionArtifact = vec2(RESOLUTION);
-	const vec2 resolutionFilterX = vec2(HALF_RESOLUTION, RESOLUTION);
-	const vec2 resolutionFilterY = vec2(HALF_RESOLUTION);
+	const ivec2 resolutionArtifact = ivec2(RESOLUTION);
+	const ivec2 resolutionFilterX = ivec2(HALF_RESOLUTION, RESOLUTION);
+	const ivec2 resolutionFilterY = ivec2(HALF_RESOLUTION);
 	
 	layout(binding = 0, std140) uniform QuestSetup {
-		layout(offset = 0) float lineAngle;
-		layout(offset = 4) float lineDist;
-		layout(offset = 8) float randomAngle;
-		layout(offset = 12) float artifactSize;
-		layout(offset = 16) int filterRadius;
+		layout(offset = 0) ivec2 resolutionFramebuffer;
+		layout(offset = 8) float lineAngle;
+		layout(offset = 12) float lineDist;
+		layout(offset = 16) float randomAngle;
+		layout(offset = 20) float artifactSize;
+		layout(offset = 24) int filterRadius;
 	} setup;
 	
 	layout(binding = 0) uniform sampler2D filterX;
@@ -193,9 +189,6 @@ shader frag fs_filterY {
 	out float color;
 	
 	void main() {
-		int filterRadius = 32;
-		vec2 resolution  = vec2(1024);
-		
 		vec2 offset = (textureSize(filterX, 0).xy - resolutionFilterY) / 2;
 		ivec2 center = ivec2(offset + gl_FragCoord.xy);
 		
@@ -210,6 +203,17 @@ shader frag fs_filterY {
 shader frag fs_render {
 	#version 450
 	
+	const ivec2 resolutionFilterY = ivec2(HALF_RESOLUTION);
+	
+	layout(binding = 0, std140) uniform QuestSetup {
+		layout(offset = 0) ivec2 resolutionFramebuffer;
+		layout(offset = 8) float lineAngle;
+		layout(offset = 12) float lineDist;
+		layout(offset = 16) float randomAngle;
+		layout(offset = 20) float artifactSize;
+		layout(offset = 24) int filterRadius;
+	} setup;
+	
 	layout(binding = 0) uniform sampler2D filterY;
 	
 	layout(pixel_center_integer) in vec4 gl_FragCoord;
@@ -217,7 +221,8 @@ shader frag fs_render {
 	out vec4 color;
 	
 	void main() {
-		color = texelFetch(filterY, ivec2(gl_FragCoord.xy), 0).xxxx;
+		vec2 offset = 0.5 * (resolutionFilterY - setup.resolutionFramebuffer);
+		color = texelFetch(filterY, ivec2(offset + gl_FragCoord.xy), 0).xxxx;
 	}
 }
 

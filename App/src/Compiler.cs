@@ -180,7 +180,7 @@ namespace App
             public string Type { get; private set; }
             public string Name { get; private set; }
             public string Anno { get; private set; }
-            public string File { get { return Owner.Path; } }
+            public string Filename { get { return Owner.Path; } }
             public Command[] Cmds { get; private set; }
             public Command this[int i] { get { return Cmds[i]; } }
             public IEnumerable<Command> this[string name] { get { return GetCommands(name); } }
@@ -545,14 +545,14 @@ namespace App
         public static bool TryGetValue<T>(this Dict dict, string key, out T obj,
             Compiler.Block block, CompileException err)
             where T : GLObject
-            => dict.TryGetValue(key, out obj, block.LineInFile, block.File, err);
+            => dict.TryGetValue(key, out obj, block.LineInFile, block.Filename, err);
     }
 
     // convenience extensions to the compiler exception class
     static class CompilerExeptionExtensions
     {
         public static CompileException Add(this CompileException err, string message, Compiler.Block block)
-            => err.Add(message, block.File, block.LineInFile);
+            => err.Add(message, block.Filename, block.LineInFile);
 
         public static CompileException Add(this CompileException err, string message, Compiler.Command cmd)
             => err.Add(message, cmd.File, cmd.LineInFile);

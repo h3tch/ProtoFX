@@ -1,4 +1,4 @@
-﻿//using MLApp;
+﻿using MLApp;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using Commands = System.Collections.Generic.Dictionary<string, string[]>;
@@ -10,6 +10,7 @@ namespace csharp
     {
         public enum Names
         {
+            resolutionFramebuffer,
             lineAngle,
             lineDist,
             randomAngle,
@@ -46,6 +47,9 @@ namespace csharp
             if (unif[Names.filterRadius] >= 0)
                 unif.Set(Names.filterRadius, new[] { filterRadius });
 
+            if (unif[Names.resolutionFramebuffer] >= 0)
+                unif.Set(Names.resolutionFramebuffer, new[] { width, height });
+
             // UPDATE UNIFORM BUFFER
             unif.Update();
             unif.Bind();
@@ -53,7 +57,14 @@ namespace csharp
 
         public void KeyUp(object sender, KeyEventArgs args)
         {
+            if (args.KeyCode == Keys.LControlKey)
+            {
 
+            }
+            else if (args.KeyCode == Keys.RControlKey)
+            {
+
+            }
         }
     }
 }

@@ -34,6 +34,7 @@
 [0]buffer[2]usage[3]streamRead
 [0]buffer[2]xml|xml <path> <node>
 [0]csharp|csharp <name>
+[0]csharp[2]assembly|assembly <path> [path] [...]
 [0]csharp[2]file|file <path> [path] [...]
 [0]fragoutput|fragoutput <name>
 [0]fragoutput[2]color|color <image_name>
