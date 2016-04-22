@@ -7,7 +7,8 @@ namespace csharp
 {
     class CsObject
     {
-        public static CultureInfo culture = new CultureInfo("en");
+        public static CultureInfo EN = new CultureInfo("en");
+        public static CultureInfo culture = EN;
         protected List<string> errors = new List<string>();
         
         public List<string> GetErrors()
