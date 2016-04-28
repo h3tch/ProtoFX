@@ -26,7 +26,7 @@ namespace App
             int[] skip;
 
             // create search string
-            SelectString(position, out search, out skip);
+            SelectStringBlock(position, out search, out skip);
 
             // search for all keywords starting with the
             // search string and not containing subkeywords
@@ -69,42 +69,33 @@ namespace App
                 if (word?.Length > 0)
                 {
                     // create search string
-                    SelectString(pos, out search, out skip);
+                    SelectStringBlock(pos, out search, out skip);
 
                     // select hint
                     for (int i = 0; i < search.Length; i++)
+                    {
                         if (Hint.TryGetValue(search[i], out hint) && hint.Length > 0)
                         {
                             CallTipShow(WordStartPosition(pos, true), hint.Substring(1));
                             return;
                         }
+                    }
                 }
             }
 
             CallTipCancel();
         }
-
+        
         /// <summary>
         /// Create select string for the specified text position.
         /// </summary>
         /// <param name="position"></param>
         /// <param name="search"></param>
         /// <param name="skip"></param>
-        public void SelectString(int position, out string[] search, out int[] skip)
+        private void SelectStringBlock(int position, out string[] search, out int[] skip)
         {
-            var BLOCK = FxLexer.Defs["block"].Prefix;
-            var ANNO = FxLexer.Defs["annotation"].Prefix;
-            var CMD = FxLexer.Defs["command"].Prefix;
-            var ARG = FxLexer.Defs["argument"].Prefix;
-            var FUNC = FxLexer.Defs["function"].Prefix;
-            var TYPE = FxLexer.Defs["type"].Prefix;
-            var SPEC = FxLexer.Defs["specifications"].Prefix;
-            var QUAL = FxLexer.Defs["qualifier"].Prefix;
-            var VAR = FxLexer.Defs["variable"].Prefix;
-            var BRANCH = FxLexer.Defs["branching"].Prefix;
-
             // make sure the text position lies within the text
-            position = Math.Max(0, Math.Min(TextLength-1, position));
+            position = Math.Max(0, Math.Min(TextLength - 1, position));
 
             // get word and preceding word at caret position
             var word = GetWordFromPosition(position);
@@ -120,72 +111,15 @@ namespace App
                     .Split(new[] { ' ', '\t', '\n', '\r' })
                     .Where(x => x.Length > 0)
                     .ToArray();
-                var type = header[0];
-                var anno = header[1];
 
-                // get function surrounding caret position
-                var function = FunctionPosition(position, block);
-
-                // inside the body of the function
-                if (function != null && function[1] < position)
+                switch (header[0])
                 {
-                    search = new[] {
-                        // list local variables
-                        $"[{BLOCK}]{type}[{ANNO}]{anno}[{VAR}]{word}",
-                        // list local functions
-                        $"[{BLOCK}]{type}[{ANNO}]{anno}[{FUNC}]{word}",
-                        // list global variables
-                        $"[{BLOCK}]{type}[{VAR}]{word}",
-                        // list global functions
-                        $"[{BLOCK}]{type}[{FUNC}]{word}",
-                        // list global types
-                        $"[{BLOCK}]{type}[{TYPE}]{word}",
-                    };
-                }
-                else
-                {
-                    // get layout surrounding caret position
-                    var layout = LayoutPosition(position, block);
-
-                    // inside the body of the layout
-                    if (layout != null && layout[1] < position)
-                    {
-                        var text = GetTextRange(layout[0], layout[2] - layout[0]);
-                        var prec = GetWordFromPosition(layout[0]);
-                        var next = GetWordFromPosition(NextWordStartPosition(layout[2]));
-                        
-                        search = new[] {
-                            // list local qualifiers
-                            $"[{BLOCK}]{type}[{ANNO}]{anno}[{SPEC}]{prec}[{SPEC}]{next}[{QUAL}]{word}",
-                            $"[{BLOCK}]{type}[{ANNO}]{anno}[{SPEC}]{prec}[{QUAL}]{word}",
-                            // list global qualifiers
-                            $"[{BLOCK}]{type}[{SPEC}]{prec}[{SPEC}]{next}[{QUAL}]{word}",
-                            $"[{BLOCK}]{type}[{SPEC}]{prec}[{QUAL}]{word}",
-                        };
-                    }
-                    else
-                    {
-                        // first word in line
-                        var cmd = GetWordFromPosition(NextWordStartPosition(
-                                Lines[LineFromPosition(position)].Position));
-                        
-                        search = new[] {
-                            // list local arguments
-                            $"[{BLOCK}]{type}[{ANNO}]{anno}[{SPEC}]{cmd}[{QUAL}]{word}",
-                            // list local commands
-                            $"[{BLOCK}]{type}[{ANNO}]{anno}[{SPEC}]{word}",
-                            // list local specifications
-                            $"[{BLOCK}]{type}[{ANNO}]{anno}[{CMD}]{word}",
-                            // list global arguments
-                            $"[{BLOCK}]{type}[{SPEC}]{cmd}[{QUAL}]{word}",
-                            // list global commands
-                            $"[{BLOCK}]{type}[{SPEC}]{word}",
-                            // list global specifications
-                            $"[{BLOCK}]{type}[{CMD}]{word}",
-                            // list global types
-                            $"[{BLOCK}]{type}[{TYPE}]{word}",
-                        };
-                    }
+                    case "shader":
+                        SelectStringGlsl(position, block, header, word, out search);
+                        break;
+                    default:
+                        SelectStringDefault(position, header, word, out search);
+                        break;
                 }
             }
             else
@@ -203,6 +137,103 @@ namespace App
             }
 
             skip = search.Select(x => x.Length - word.Length).ToArray();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="header"></param>
+        /// <param name="word"></param>
+        /// <param name="search"></param>
+        private void SelectStringDefault(int position, string[] header, string word, out string[] search)
+        {
+            // first word in line
+            var cmd = GetWordFromPosition(NextWordStartPosition(
+                    Lines[LineFromPosition(position)].Position));
+
+            search = new[] {
+                $"[{BLOCK}]{header[0]}[{CMD}]{cmd}[{ARG}]{word}",
+                $"[{BLOCK}]{header[0]}[{CMD}]{word}",
+            };
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="block"></param>
+        /// <param name="header"></param>
+        /// <param name="word"></param>
+        /// <param name="search"></param>
+        private void SelectStringGlsl(int position, int[] block, string[] header, string word, out string[] search)
+        {
+            // get block header
+            var type = header[0];
+            var anno = header[1];
+
+            // get function surrounding caret position
+            var function = FunctionPosition(position, block);
+
+            // inside the body of the function
+            if (function != null && function[1] < position)
+            {
+                search = new[] {
+                    // list local variables
+                    $"[{BLOCK}]{type}[{ANNO}]{anno}[{VAR}]{word}",
+                    // list local functions
+                    $"[{BLOCK}]{type}[{ANNO}]{anno}[{FUNC}]{word}",
+                    // list global variables
+                    $"[{BLOCK}]{type}[{VAR}]{word}",
+                    // list global functions
+                    $"[{BLOCK}]{type}[{FUNC}]{word}",
+                    // list global types
+                    $"[{BLOCK}]{type}[{TYPE}]{word}",
+                };
+                return;
+            }
+
+            // get layout surrounding caret position
+            var layout = LayoutPosition(position, block);
+
+            // inside the body of the layout
+            if (layout != null && layout[1] < position)
+            {
+                var text = GetTextRange(layout[0], layout[2] - layout[0]);
+                var prec = GetWordFromPosition(layout[0]);
+                var next = GetWordFromPosition(NextWordStartPosition(layout[2]));
+
+                search = new[] {
+                    // list local qualifiers
+                    $"[{BLOCK}]{type}[{ANNO}]{anno}[{SPEC}]{prec}[{SPEC}]{next}[{QUAL}]{word}",
+                    $"[{BLOCK}]{type}[{ANNO}]{anno}[{SPEC}]{prec}[{QUAL}]{word}",
+                    // list global qualifiers
+                    $"[{BLOCK}]{type}[{SPEC}]{prec}[{SPEC}]{next}[{QUAL}]{word}",
+                    $"[{BLOCK}]{type}[{SPEC}]{prec}[{QUAL}]{word}",
+                };
+                return;
+            }
+
+            // first word in line
+            var cmd = GetWordFromPosition(NextWordStartPosition(
+                    Lines[LineFromPosition(position)].Position));
+
+            search = new[] {
+                // list local arguments
+                $"[{BLOCK}]{type}[{ANNO}]{anno}[{SPEC}]{cmd}[{QUAL}]{word}",
+                // list local commands
+                $"[{BLOCK}]{type}[{ANNO}]{anno}[{SPEC}]{word}",
+                // list local specifications
+                $"[{BLOCK}]{type}[{ANNO}]{anno}[{CMD}]{word}",
+                // list global arguments
+                $"[{BLOCK}]{type}[{SPEC}]{cmd}[{QUAL}]{word}",
+                // list global commands
+                $"[{BLOCK}]{type}[{SPEC}]{word}",
+                // list global specifications
+                $"[{BLOCK}]{type}[{CMD}]{word}",
+                // list global types
+                $"[{BLOCK}]{type}[{TYPE}]{word}",
+            };
         }
 
         /// <summary>

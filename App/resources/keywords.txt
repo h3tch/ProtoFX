@@ -42,7 +42,6 @@
 [0]fragoutput[2]height|height <pixels>
 [0]fragoutput[2]width|width <pixels>
 [0]image|image <name>
-[0]image[2]depth|depth <layers>
 [0]image[2]file|file <path> [path] [...]
 [0]image[2]format|format <pixel_format>
 [0]image[2]format[3]depth
@@ -93,15 +92,13 @@
 [0]image[2]format[3]rgba32i
 [0]image[2]format[3]rgba32ui
 [0]image[2]format[3]rgba32f
-[0]image[2]height|height <pixels>
-[0]image[2]length|length <layers>
+[0]image[2]size|width <width> <height> <depth> <length>
 [0]image[2]type|type <texture_type>
 [0]image[2]type[3]texture1D|1D texture
 [0]image[2]type[3]texture2D|2D texture
 [0]image[2]type[3]texture3D|3D texture/volume texture
 [0]image[2]type[3]texture1DArray|1D texture array
 [0]image[2]type[3]texture2DArray|2D texture array
-[0]image[2]width|width <pixels>
 [0]instance|instance <name>
 [0]instance[2]class|class <csharp_name> <c#_class>
 [0]instance[2]name|name <new_name>
