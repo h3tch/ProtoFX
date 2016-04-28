@@ -40,7 +40,16 @@ namespace App
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void HandleStyleNeeded(object sender, StyleNeededEventArgs e)
-            => FxLexer.Style(this, GetEndStyled(), e.Position);
+        {
+            try
+            {
+                FxLexer.Style(this, GetEndStyled(), e.Position);
+            }
+            catch
+            {
+
+            }
+        }
         
         /// <summary>
         /// Update code folding between start and end line.

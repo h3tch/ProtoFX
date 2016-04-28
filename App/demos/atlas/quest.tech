@@ -64,6 +64,11 @@ image img_filterY {
 	format r32f
 }
 
+sampler samp_linear {
+	minfilter linear
+	magfilter linear
+}
+
 texture tex_artifact {
 	img img_artifact
 }
@@ -110,25 +115,23 @@ shader frag fs_artifact {
 		layout(offset = 8) float lineAngle;
 		layout(offset = 12) float lineDist;
 		layout(offset = 16) float randomAngle;
-		layout(offset = 20) float artifactSize;
+		layout(offset = 20) int artifactSize;
 		layout(offset = 24) int filterRadius;
 	} setup;
 	
-	layout(pixel_center_integer) in vec4 gl_FragCoord;
+	in vec4 gl_FragCoord;
 	
 	out float color;
 	
-	float sampleArtifact(vec2 pos, vec3 hesseLine) {
-		pos = floor(pos / setup.artifactSize) * setup.artifactSize;
-		return dot(pos, hesseLine.xy) < hesseLine.z ? 0 : 1;
+	float sampleArtifact(ivec2 pos, vec3 hesseLine) {
+		pos = pos / setup.artifactSize * setup.artifactSize;
+		return dot(vec2(pos), hesseLine.xy) < hesseLine.z ? 0 : 1;
 	}
 	
 	void main() {
-		vec3 hesseLine = vec3(cos(setup.lineAngle+1), sin(setup.lineAngle+1), setup.lineDist);
-		mat2 M = mat2(vec2( cos(setup.randomAngle), sin(setup.randomAngle)),
-		              vec2(-sin(setup.randomAngle), cos(setup.randomAngle)));
+		vec3 hesseLine = vec3(cos(setup.lineAngle), sin(setup.lineAngle), setup.lineDist);
 		              
-		color = sampleArtifact((gl_FragCoord.xy - resolutionArtifact * 0.5) * M, hesseLine);
+		color = sampleArtifact(ivec2(gl_FragCoord.xy), hesseLine);
 	}
 }
 
@@ -144,7 +147,7 @@ shader frag fs_filterX {
 		layout(offset = 8) float lineAngle;
 		layout(offset = 12) float lineDist;
 		layout(offset = 16) float randomAngle;
-		layout(offset = 20) float artifactSize;
+		layout(offset = 20) int artifactSize;
 		layout(offset = 24) int filterRadius;
 	} setup;
 	
@@ -159,10 +162,15 @@ shader frag fs_filterX {
 		ivec2 center = ivec2(offset + gl_FragCoord.xy);
 		
 		float I = 0;
+		int C = 0;
 		for (int i = -setup.filterRadius; i <= setup.filterRadius; i++)
+		{
 			I += texelFetch(artifacts, center + ivec2(i, 0), 0).x;
+			C ++;
+		}
 			
-		color = float(I / (2*setup.filterRadius+1));
+		color = float(I / C);
+		//color = texelFetch(artifacts, center, 0).x;
 	}
 }
 
@@ -178,7 +186,7 @@ shader frag fs_filterY {
 		layout(offset = 8) float lineAngle;
 		layout(offset = 12) float lineDist;
 		layout(offset = 16) float randomAngle;
-		layout(offset = 20) float artifactSize;
+		layout(offset = 20) int artifactSize;
 		layout(offset = 24) int filterRadius;
 	} setup;
 	
@@ -193,10 +201,14 @@ shader frag fs_filterY {
 		ivec2 center = ivec2(offset + gl_FragCoord.xy);
 		
 		float I = 0;
-		for (int i = -setup.filterRadius; i <= setup.filterRadius; i++)
+		int C = 0;
+		for (int i = -setup.filterRadius; i <= setup.filterRadius; i++) {
 			I += texelFetch(filterX, center + ivec2(0, i), 0).x;
+			C ++;
+		}
 			
-		color = float(I / (2*setup.filterRadius+1));
+		color = float(I / C);
+		//color = texelFetch(filterX, center, 0).x;
 	}
 }
 
@@ -210,7 +222,7 @@ shader frag fs_render {
 		layout(offset = 8) float lineAngle;
 		layout(offset = 12) float lineDist;
 		layout(offset = 16) float randomAngle;
-		layout(offset = 20) float artifactSize;
+		layout(offset = 20) int artifactSize;
 		layout(offset = 24) int filterRadius;
 	} setup;
 	
@@ -221,8 +233,11 @@ shader frag fs_render {
 	out vec4 color;
 	
 	void main() {
-		vec2 offset = 0.5 * (resolutionFilterY - setup.resolutionFramebuffer);
-		color = texelFetch(filterY, ivec2(offset + gl_FragCoord.xy), 0).xxxx;
+		mat2 M = mat2(vec2( cos(setup.randomAngle), sin(setup.randomAngle)),
+		              vec2(-sin(setup.randomAngle), cos(setup.randomAngle)));
+		vec2 coord = gl_FragCoord.xy / setup.resolutionFramebuffer - 0.5;
+		coord = (coord * setup.resolutionFramebuffer / resolutionFilterY) * M + 0.5;
+		color = texture(filterY, coord).xxxx;
 	}
 }
 
@@ -232,6 +247,7 @@ pass pass_artifact {
 	fragout out_artifact
 	
 	tex 0
+	samp 0
 	
 	glClear ColorBit
 	
@@ -269,6 +285,7 @@ pass pass_render {
 	frag fs_render
 	
 	tex tex_filterY 0
+	samp samp_linear 0
 	
 	glClear ColorBit
 	

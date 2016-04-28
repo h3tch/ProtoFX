@@ -158,6 +158,11 @@ namespace OpenTK
             if (render)
                 Render();
         }
+
+        public void HandleKey(object sender, KeyEventArgs e)
+        {
+            Render();
+        }
         #endregion
     }
 }

@@ -1,7 +1,7 @@
-﻿using MLApp;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Linq;
 using Commands = System.Collections.Generic.Dictionary<string, string[]>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
@@ -31,9 +31,15 @@ namespace csharp
 
         #region MATLAB
         private MLApp.MLApp matlab = new MLApp.MLApp();
-        private double[,] intensities = new[,] { { 0.0, 1.0 }, { 0.0, 0.5 }, { 0.5, 1.0 } };
+        private double[][] intensities = new[] { new[] { 0.0, 1.0 }, new[] { 0.0, 0.5 }, new[] { 0.5, 1.0 } };
         private int[] artifactSize = new[] { 5, 10, 20 };
-        private double[] lineAngles = new[] { 0.1, 0.7 };
+        private double[] lineAngles = new[] { deg2rad * 1, deg2rad * 45 };
+        private int[][] questsId;
+        private int[] nQuests;
+        private int activeQuest;
+        private Random rnd = new Random();
+        private const double deg2rad = Math.PI / 180;
+        private const double factor = 20;
         #endregion
 
         public ArtifactQuest(string name, Commands cmds, GLNames glNames)
@@ -43,7 +49,11 @@ namespace csharp
 
             // CREATE PSYCHOPHYSICS TOOLBOX QUESTS //
 
+            nQuests = new int[intensities.Length * artifactSize.Length * lineAngles.Length];
+            questsId = new int[intensities.Length * artifactSize.Length * lineAngles.Length][];
+
             // clear matlab workspace
+            //matlab.Visible = 0;
             matlab.Execute("clear all;");
 
             // default parameters
@@ -51,18 +61,19 @@ namespace csharp
             var delta = 0.01;
             var gamma = 0.5;
 
-            // for each line angle
-            for (int lineId = 0, questId = 0; lineId < lineAngles.Length; lineId++)
+            // for each intensity pair
+            for (int intensityId = 0, questId = 0; intensityId < intensities.Length; intensityId++)
             {
-                // for each intensity pair
-                for (int intensityId = 0; intensityId < intensities.GetLength(1); intensityId++)
+                // for each artifact size
+                for (int artifactId = 0; artifactId < artifactSize.Length; artifactId++)
                 {
-                    // for each artifact size
-                    for (int artifactId = 0; artifactId < artifactSize.Length; artifactId++, questId++)
+                    // for each line angle
+                    for (int lineId = 0; lineId < lineAngles.Length; lineId++, questId++)
                     {
-                        var contrast = Math.Abs(intensities[intensityId, 0] - intensities[intensityId, 1]);
-                        var tGuess = 0.03 * artifactSize[artifactId] * contrast;
-                        var tGuessSd = 0.028 * artifactSize[artifactId] * contrast;
+                        questsId[questId] = new int[] { intensityId, artifactId, lineId };
+                        var contrast = Math.Abs(intensities[intensityId][0] - intensities[intensityId][1]);
+                        var tGuess = 3.5 * artifactSize[artifactId] * contrast / factor;
+                        var tGuessSd = 3.0 * artifactSize[artifactId] * contrast / factor;
                         var pThreshold = 0.82;
                         // create quest
                         matlab.Execute(string.Format(EN, "Q{0} = QuestCreate({1},{2},{3},{4},{5},{6});",
@@ -70,24 +81,63 @@ namespace csharp
                     }
                 }
             }
+
+            activeQuest = NextRandomQuest();
+            randomAngle = NextRandomAngle();
         }
 
-        public void Update(int program, int width, int height, int widthTex, int heightTex)
+        private int sub2ind(int intensityId, int artifactId, int lineId)
         {
+            return intensities.GetLength(1) * artifactSize.Length * intensityId
+                + artifactSize.Length * artifactId + lineId;
+        }
+
+        private int[] ind2sub(int index)
+        {
+            return questsId[index];
+        }
+
+        private T MatlabVar<T>(string var)
+        {
+            object val;
+            matlab.GetWorkspaceData(var, "base", out val);
+            return (T)val;
+        }
+
+        private int NextRandomQuest()
+        {
+            var min = nQuests.Min();
+            var minIds = Enumerable.Range(0, nQuests.Length).Where(x => nQuests[x] == min).ToArray();
+            return minIds[rnd.Next(minIds.Length)];
+        }
+
+        private float NextRandomAngle()
+        {
+            return (float)(360 * deg2rad * rnd.NextDouble());
+        }
+
+        public void Update(int program, int widthScreen, int heightScreen, int widthTex, int heightTex)
+        {
+            matlab.Execute("quantile" + activeQuest + " = QuestQuantile(Q" + activeQuest + ");");
+            var quantile = MatlabVar<double>("quantile" + activeQuest);
+
+            var sub = ind2sub(activeQuest);
+            var I = intensities[sub[0]];
+            var size = artifactSize[sub[1]];
+            var angle = lineAngles[sub[2]];
+
+            var line = new[] { (float)Math.Sin(angle), (float)Math.Cos(angle), 0 };
+            line[2] = line[0] * widthTex / 2 + line[1] * heightTex / 2;
+
             // GET OR CREATE CAMERA UNIFORMS FOR program
             UniformBlock<Names> unif;
             if (uniform.TryGetValue(program, out unif) == false)
                 uniform.Add(program, unif = new UniformBlock<Names>(program, name));
 
             // SET UNIFORM VALUES
-            if (unif[Names.lineAngle] >= 0)
-                unif.Set(Names.lineAngle, new[] { lineAngle, lineDist, randomAngle, artifactSize[0] });
-
-            if (unif[Names.filterRadius] >= 0)
-                unif.Set(Names.filterRadius, new[] { filterRadius });
-
-            if (unif[Names.resolutionFramebuffer] >= 0)
-                unif.Set(Names.resolutionFramebuffer, new[] { width, height });
+            unif.Set(Names.lineAngle, new[] { (float)angle, line[2], randomAngle });
+            unif.Set(Names.artifactSize, new[] { size, (int)Math.Round(quantile * factor) });
+            unif.Set(Names.resolutionFramebuffer, new[] { widthScreen, heightScreen });
 
             // UPDATE UNIFORM BUFFER
             unif.Update();
@@ -96,14 +146,35 @@ namespace csharp
 
         public void KeyUp(object sender, KeyEventArgs args)
         {
-            if (args.KeyCode == Keys.LControlKey)
-            {
+            var sub = ind2sub(activeQuest);
+            int response = -1;
 
-            }
-            else if (args.KeyCode == Keys.RControlKey)
+            switch (args.KeyData)
             {
-
+                case Keys.Space:
+                    response = 1;
+                    break;
+                case Keys.Escape:
+                    response = 0;
+                    break;
+                case Keys.Left:
+                    lineAngles[sub[2]] += deg2rad * 0.5;
+                    return;
+                case Keys.Right:
+                    lineAngles[sub[2]] -= deg2rad * 0.5;
+                    return;
             }
+
+            if (response != -1)
+            {
+                var quest = "Q" + activeQuest;
+                var quantile = "QuestQuantile(" + quest + ")";
+                var cmd = quest + "=QuestUpdate(" + quest + "," + quantile + "," + response + ");";
+                matlab.Execute(cmd);
+            }
+
+            activeQuest = NextRandomQuest();
+            //randomAngle = NextRandomAngle();
         }
     }
 }
