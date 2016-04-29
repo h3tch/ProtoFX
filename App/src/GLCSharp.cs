@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using OpenTK;
+using OpenTK.Graphics.OpenGL4;
 
 namespace App
 {
@@ -38,23 +40,26 @@ namespace App
                 return;
 
             // LOAD ADDITIONAL ASSEMBLIES
-            foreach (var assemblypath in Assembly)
+            if (Assembly != null)
             {
-                try
+                foreach (var assemblypath in Assembly)
                 {
-                    System.Reflection.Assembly.LoadFrom(assemblypath);
-                }
-                catch (FileNotFoundException)
-                {
-                    err.Add($"Assembly file '{assemblypath}' cound not be found.", block);
-                }
-                catch (FileLoadException)
-                {
-                    err.Add($"Assembly '{assemblypath}' cound not be loaded.", block);
-                }
-                catch
-                {
-                    err.Add($"Unknown exception when loading assembly '{assemblypath}'.", block);
+                    try
+                    {
+                        System.Reflection.Assembly.LoadFrom(assemblypath);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        err.Add($"Assembly file '{assemblypath}' cound not be found.", block);
+                    }
+                    catch (FileLoadException)
+                    {
+                        err.Add($"Assembly '{assemblypath}' cound not be loaded.", block);
+                    }
+                    catch
+                    {
+                        err.Add($"Unknown exception when loading assembly '{assemblypath}'.", block);
+                    }
                 }
             }
 
@@ -101,6 +106,12 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Process paths to replace predefined placeholders like <code>"<sharp>"</code>.
+        /// </summary>
+        /// <param name="abspath"></param>
+        /// <param name="paths"></param>
+        /// <returns></returns>
         private IEnumerable<string> ProcessPaths(string abspath, string[] paths)
         {
             // replace placeholders with actual path

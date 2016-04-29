@@ -241,8 +241,7 @@ namespace App
             // clear scene and output
             output.Rows.Clear();
             glControl.ClearScene();
-            // remove key update event
-            glControl.KeyUp -= new KeyEventHandler(glControl.HandleKey);
+            glControl.RemoveEvents();
 
             // get include directory
             var includeDir = (sourceTab.filepath != null
@@ -258,8 +257,8 @@ namespace App
 
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
             var ex = root.Catch(x => glControl.AddObject(x, debugging)).ToArray();
-            // add key update event
-            glControl.KeyUp += new KeyEventHandler(glControl.HandleKey);
+            // add events to the end of the event list
+            glControl.AddEvents();
 
             // show errors
             var exc = from x in ex
