@@ -39,7 +39,7 @@ namespace csharp
         private int activeQuest;
         private Random rnd = new Random();
         private const double deg2rad = Math.PI / 180;
-        private const double factor = 20;
+        private double factor = 20;
         #endregion
 
         public ArtifactQuest(string name, Commands cmds, GLNames glNames)
@@ -51,6 +51,7 @@ namespace csharp
 
             nQuests = new int[intensities.Length * artifactSize.Length * lineAngles.Length];
             questsId = new int[intensities.Length * artifactSize.Length * lineAngles.Length][];
+            factor = artifactSize.Max();
 
             // clear matlab workspace
             //matlab.Visible = 0;
