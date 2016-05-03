@@ -107,6 +107,8 @@ shader vert vs_shader {
 shader frag fs_artifact {
 	#version 450
 	
+	precision highp float;
+	
 	const ivec2 resolutionArtifact = ivec2(RESOLUTION);
 	const ivec2 resolutionFilterX = ivec2(HALF_RESOLUTION, RESOLUTION);
 	const ivec2 resolutionFilterY = ivec2(HALF_RESOLUTION);
@@ -124,7 +126,7 @@ shader frag fs_artifact {
 	
 	out vec4 color;
 	
-	// returns the positive root of intersection of line y = h
+	/*// returns the positive root of intersection of line y = h
 	// with circle centered at the origin and radius r
 	float section(float h, float r) {
 		return (h < r) ? sqrt(r * r - h * h) : 0;
@@ -150,7 +152,7 @@ shader frag fs_artifact {
 	//	// integrate the area
 	//	return circleSegIntegral(max(-s, min(s, x1)), h, r) - circleSegIntegral(max(-s, min(s, x0)), h, r);
 	//}
-	float area2(vec2 x, float h, float r) {
+	float circleSegArea(vec2 x, float h, float r) {
 		// this must be sorted otherwise we get a negative area
 		float s = section(h, r);
 		x = clamp(x, -s, s);
@@ -173,7 +175,7 @@ shader frag fs_artifact {
 	//}
 	float area(vec2 x, vec2 y, float r) {
 		// area of the lower box minus area of the higher box
-		return area2(x, y.x, r) - area2(x, y.y, r);
+		return circleSegArea(x, y.x, r) - circleSegArea(x, y.y, r);
 	}
 	
 
@@ -232,7 +234,27 @@ shader frag fs_artifact {
 	//float sampleArtifact(ivec2 pos, vec3 hesseLine) {
 	//	pos = pos / setup.artifactSize * setup.artifactSize;
 	//	return dot(vec2(pos), hesseLine.xy) < hesseLine.z ? 0 : 1;
-	//}
+	//}*/
+	float circleSegAreaDefault(float h, float r) {
+		return r * r * acos(1 - h / r) - (r - h) * sqrt(2*r*h - h*h);
+	}
+	
+	float circleSegArea(float h, float r) {
+		if (h <= -r)
+			return 0;
+		if (h >= r)
+			return PI * r * r;
+		if (h < 0)
+		{
+			h = r + h;
+			return circleSegAreaDefault(h, r);
+		}
+		else
+		{
+			h = r - h;
+			return (PI * r * r) - circleSegAreaDefault(h, r);
+		}
+	}
 	
 	void main() {
 		float filterRadius = 300.0;
@@ -245,7 +267,7 @@ shader frag fs_artifact {
 		while (a <= b) {
 			vec2 <<x>> = vec2(float(a), float(a+1)) * artifactSize;
 			vec2 <<y>> = vec2(-filterRadius*2, x.x);
-			float A = areaRectCircle(vec4(x, y), gl_FragCoord.xy, filterRadius);
+			float A = area(x.x, x.y, y.x, y.y, gl_FragCoord.x, gl_FragCoord.y, filterRadius);
 			if (isnan(A)) {
 				vec2 <<C>> = gl_FragCoord.xy;
 				vec4 <<rect>> = vec4(x, y);
