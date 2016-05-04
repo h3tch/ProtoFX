@@ -10,10 +10,10 @@ csharp cs {
 	     "<csharp>/Converter.cs"
 }
 
-instance cs_quest {
-	class cs csharp.ArtifactQuest
-	name QuestSetup
-}
+//instance cs_quest {
+//	class cs csharp.ArtifactQuest
+//	name QuestSetup
+//}
 
 // FULL SCREEN QUAD
 text xml_quad {
@@ -107,8 +107,6 @@ shader vert vs_shader {
 shader frag fs_artifact {
 	#version 450
 	
-	precision highp float;
-	
 	const ivec2 resolutionArtifact = ivec2(RESOLUTION);
 	const ivec2 resolutionFilterX = ivec2(HALF_RESOLUTION, RESOLUTION);
 	const ivec2 resolutionFilterY = ivec2(HALF_RESOLUTION);
@@ -126,33 +124,18 @@ shader frag fs_artifact {
 	
 	out vec4 color;
 	
-	/*// returns the positive root of intersection of line y = h
+	// returns the positive root of intersection of line y = h
 	// with circle centered at the origin and radius r
 	float section(float h, float r) {
-		return (h < r) ? sqrt(r * r - h * h) : 0;
+		return (h < r) ? sqrt(max(0, r * r - h * h)) : 0;
 	}
 
 	// indefinite integral of circle segment
 	float circleSegIntegral(float x, float h, float r) {
-		return 0.5 * (sqrt(1 - x * x / (r * r)) * x * r + r * r * asin(x / r) - 2 * h * x);
+		return 0.5 * (sqrt(max(0,1 - x * x / (r * r))) * x * r + r * r * asin(clamp(x / r, -1, 1)) - 2 * h * x);
 	}
 	
-	// area of intersection of an infinitely tall box with left edge at x0,
-	// right edge at x1, bottom edge at h and top edge at infinity, with
-	// circle centered at the origin with radius r
-	//float area2(float x0, float x1, float h, float r) {
-	//	// this must be sorted otherwise we get negative area
-	//	if(x0 > x1)
-	//	{
-	//		float x = x0;
-	//		x0 = x1;
-	//		x1 = x;
-	//	}
-	//	float s = section(h, r);
-	//	// integrate the area
-	//	return circleSegIntegral(max(-s, min(s, x1)), h, r) - circleSegIntegral(max(-s, min(s, x0)), h, r);
-	//}
-	float circleSegArea(vec2 x, float h, float r) {
+	float area2(vec2 x, float h, float r) {
 		// this must be sorted otherwise we get a negative area
 		float s = section(h, r);
 		x = clamp(x, -s, s);
@@ -160,47 +143,12 @@ shader frag fs_artifact {
 		return circleSegIntegral(x.y, h, r) - circleSegIntegral(x.x, h, r);
 	}
 
-	// area of the intersection of a finite box with a
-	// circle centered at the origin with radius r
-	//float area(float x0, float x1, float y0, float y1, float r) {
-	//	// this will simplify the reasoning
-	//	if(y0 > y1)
-	//	{
-	//		float y = y0;
-	//		y0 = y1;
-	//		y1 = y;
-	//	}
-	//	// area of the lower box minus area of the higher box
-	//	return area2(x0, x1, y0, r) - area2(x0, x1, y1, r);
-	//}
 	float area(vec2 x, vec2 y, float r) {
 		// area of the lower box minus area of the higher box
-		return circleSegArea(x, y.x, r) - circleSegArea(x, y.y, r);
+		return area2(x, y.x, r) - area2(x, y.y, r);
 	}
 	
-
-	// area of the intersection of a finite box with a
-	// circle centered at the origin with radius r
-	//float selectCase(float x0, float x1, float y0, float y1, float r) {
-	//	// this will simplify the reasoning
-	//	if(y0 > y1)
-	//	{
-	//		float y = y0;
-	//		y0 = y1;
-	//		y1 = y;
-	//	}
-	//	if(y0 < 0) {
-	//		if(y1 < 0)
-	//			// the box is completely under, just flip it above and try again
-	//			return area(x0, x1, -y0, -y1, r);
-	//		else
-	//			// the box is both above and below, divide it to two boxes and go again
-	//			return area(x0, x1, 0, -y0, r) + area(x0, x1, 0, y1, r);
-	//	} else
-	//		// area of the lower box minus area of the higher box
-	//		return area(x0, x1, y0, y1, r);
-	//}
-	float selectCase(vec2 x, vec2 y, float r) {
+	float areaRectCircle(vec2 x, vec2 y, float r) {
 		if(y.x < 0) {
 			if(y.y < 0)
 				// the box is completely under, just flip it above and try again
@@ -213,74 +161,34 @@ shader frag fs_artifact {
 			return area(x, y, r);
 	}
 	
-
-	// area of the intersection of a general box with a general circle
-	//float sampleArtifact(float x0, float x1, float y0, float y1, float cx, float cy, float r)
-	//{
-	//	x0 -= cx;
-	//	x1 -= cx;
-	//	y0 -= cy;
-	//	y1 -= cy;
-	//	// get rid of the circle center
-	//	return selectCase(x0, x1, y0, y1, r);
-	//}
-	float areaRectCircle(vec4 rect, vec2 c, float r)
-	{
-		// get rid of the circle center
-		rect -= c.xxyy;
-		return selectCase(rect.xy, rect.zw, r);
-	}
-	
-	//float sampleArtifact(ivec2 pos, vec3 hesseLine) {
-	//	pos = pos / setup.artifactSize * setup.artifactSize;
-	//	return dot(vec2(pos), hesseLine.xy) < hesseLine.z ? 0 : 1;
-	//}*/
-	float circleSegAreaDefault(float h, float r) {
-		return r * r * acos(1 - h / r) - (r - h) * sqrt(2*r*h - h*h);
-	}
-	
-	float circleSegArea(float h, float r) {
-		if (h <= -r)
-			return 0;
-		if (h >= r)
-			return PI * r * r;
-		if (h < 0)
-		{
-			h = r + h;
-			return circleSegAreaDefault(h, r);
-		}
-		else
-		{
-			h = r - h;
-			return (PI * r * r) - circleSegAreaDefault(h, r);
-		}
-	}
-	
 	void main() {
-		float filterRadius = 300.0;
+		float filterRadius = 100;
 		float artifactSize = 50.0;
-		int <<a>> = int((gl_FragCoord.x - filterRadius) / artifactSize) - 1;
-		int <<b>> = int((gl_FragCoord.x + filterRadius) / artifactSize);
-		float areaCircle = filterRadius * filterRadius * PI;
+		
+		vec2 C = gl_FragCoord.xy / artifactSize;
+		float r = filterRadius / artifactSize;
+		
 		float areaRect = 0;
 		
-		while (a <= b) {
-			vec2 <<x>> = vec2(float(a), float(a+1)) * artifactSize;
-			vec2 <<y>> = vec2(-filterRadius*2, x.x);
-			float A = area(x.x, x.y, y.x, y.y, gl_FragCoord.x, gl_FragCoord.y, filterRadius);
-			if (isnan(A)) {
-				vec2 <<C>> = gl_FragCoord.xy;
-				vec4 <<rect>> = vec4(x, y);
-			} else
-				areaRect += A;
-			a++;
+		for (int a = int(C.x - r) - 1, b = int(C.x + r); a <= b; a++) {
+			vec4 <<rect>> = vec4(float(a), float(a+1), -r*2, float(a)) - C.xxyy;
+			areaRect += areaRectCircle(rect.xy, rect.zw, r);
+			//float A = areaRectCircle(rect.xy, rect.zw, r);
+			//if (isnan(A)) {
+			//	float <<X>> = x.y;
+			//	float <<h>> = -y.y;
+			//	float s = section(h, r);
+			//	<<X>> = clamp(X, -s, s);
+			//	float <<db1>> = sqrt(max(0,1 - X * X / (r * r))) * X * r;
+			//	float <<db2>> = r * r * asin(clamp(X / r, -1, 1)) - 2 * h * X;
+			//	vec2 <<C>> = gl_FragCoord.xy;
+			//	vec4 <<rect>> = vec4(x, y);
+			//} 
+			//areaRect += A;
 		}
 		
+		float areaCircle = r * r * PI;
 		color.xyzw = vec4(<<areaRect>> / <<areaCircle>>);
-		
-		//vec3 hesseLine = vec3(cos(setup.lineAngle), sin(setup.lineAngle), setup.lineDist);
-		//              
-		//color = sampleArtifact(ivec2(gl_FragCoord.xy), hesseLine);
 	}
 }
 
