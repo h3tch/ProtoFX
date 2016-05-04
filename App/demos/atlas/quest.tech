@@ -10,10 +10,10 @@ csharp cs {
 	     "<csharp>/Converter.cs"
 }
 
-//instance cs_quest {
-//	class cs csharp.ArtifactQuest
-//	name QuestSetup
-//}
+instance cs_quest {
+	class cs csharp.ArtifactQuest
+	name QuestSetup
+}
 
 // FULL SCREEN QUAD
 text xml_quad {
@@ -55,16 +55,6 @@ image img_artifact {
 	format r32f
 }
 
-image img_filterX {
-	size HALF_RESOLUTION RESOLUTION
-	format r32f
-}
-
-image img_filterY {
-	size HALF_RESOLUTION HALF_RESOLUTION
-	format r32f
-}
-
 sampler samp_linear {
 	minfilter linear
 	magfilter linear
@@ -74,24 +64,8 @@ texture tex_artifact {
 	img img_artifact
 }
 
-texture tex_filterX {
-	img img_filterX
-}
-
-texture tex_filterY {
-	img img_filterY
-}
-
 fragoutput out_artifact {
 	color img_artifact
-}
-
-fragoutput out_filterX {
-	color img_filterX
-}
-
-fragoutput out_filterY {
-	color img_filterY
 }
 
 shader vert vs_shader {
@@ -107,17 +81,13 @@ shader vert vs_shader {
 shader frag fs_artifact {
 	#version 450
 	
-	const ivec2 resolutionArtifact = ivec2(RESOLUTION);
-	const ivec2 resolutionFilterX = ivec2(HALF_RESOLUTION, RESOLUTION);
-	const ivec2 resolutionFilterY = ivec2(HALF_RESOLUTION);
-	
 	layout(binding = 0, std140) uniform QuestSetup {
 		layout(offset = 0) ivec2 resolutionFramebuffer;
 		layout(offset = 8) float lineAngle;
 		layout(offset = 12) float lineDist;
 		layout(offset = 16) float randomAngle;
-		layout(offset = 20) int artifactSize;
-		layout(offset = 24) int filterRadius;
+		layout(offset = 20) float artifactSize;
+		layout(offset = 24) float filterRadius;
 	} setup;
 	
 	layout(pixel_center_integer) in vec4 gl_FragCoord;
@@ -135,7 +105,7 @@ shader frag fs_artifact {
 		return 0.5 * (sqrt(max(0,1 - x * x / (r * r))) * x * r + r * r * asin(clamp(x / r, -1, 1)) - 2 * h * x);
 	}
 	
-	float area2(vec2 x, float h, float r) {
+	float areaHorizontal(vec2 x, float h, float r) {
 		// this must be sorted otherwise we get a negative area
 		float s = section(h, r);
 		x = clamp(x, -s, s);
@@ -143,129 +113,37 @@ shader frag fs_artifact {
 		return circleSegIntegral(x.y, h, r) - circleSegIntegral(x.x, h, r);
 	}
 
-	float area(vec2 x, vec2 y, float r) {
+	float areaVertical(vec2 x, vec2 y, float r) {
 		// area of the lower box minus area of the higher box
-		return area2(x, y.x, r) - area2(x, y.y, r);
+		return areaHorizontal(x, y.x, r) - areaHorizontal(x, y.y, r);
 	}
 	
 	float areaRectCircle(vec2 x, vec2 y, float r) {
 		if(y.x < 0) {
 			if(y.y < 0)
 				// the box is completely under, just flip it above and try again
-				return area(x, -y.yx, r);
+				y = -y.yx;
 			else
 				// the box is both above and below, divide it to two boxes and go again
-				return area(x, vec2(0, -y.x), r) + area(x, vec2(0, y.y), r);
-		} else
-			// area of the lower box minus area of the higher box
-			return area(x, y, r);
+				return areaVertical(x, vec2(0, -y.x), r) + areaVertical(x, vec2(0, y.y), r);
+		} 
+		// area of the lower box minus area of the higher box
+		return areaVertical(x, y, r);
 	}
 	
 	void main() {
-		float filterRadius = 100;
-		float artifactSize = 50.0;
-		
-		vec2 C = gl_FragCoord.xy / artifactSize;
-		float r = filterRadius / artifactSize;
+		vec2 C = gl_FragCoord.xy / setup.artifactSize;
+		float r = setup.filterRadius / setup.artifactSize;
 		
 		float areaRect = 0;
 		
 		for (int a = int(C.x - r) - 1, b = int(C.x + r); a <= b; a++) {
 			vec4 <<rect>> = vec4(float(a), float(a+1), -r*2, float(a)) - C.xxyy;
 			areaRect += areaRectCircle(rect.xy, rect.zw, r);
-			//float A = areaRectCircle(rect.xy, rect.zw, r);
-			//if (isnan(A)) {
-			//	float <<X>> = x.y;
-			//	float <<h>> = -y.y;
-			//	float s = section(h, r);
-			//	<<X>> = clamp(X, -s, s);
-			//	float <<db1>> = sqrt(max(0,1 - X * X / (r * r))) * X * r;
-			//	float <<db2>> = r * r * asin(clamp(X / r, -1, 1)) - 2 * h * X;
-			//	vec2 <<C>> = gl_FragCoord.xy;
-			//	vec4 <<rect>> = vec4(x, y);
-			//} 
-			//areaRect += A;
 		}
 		
 		float areaCircle = r * r * PI;
 		color.xyzw = vec4(<<areaRect>> / <<areaCircle>>);
-	}
-}
-
-shader frag fs_filterX {
-	#version 450
-	
-	const ivec2 resolutionArtifact = ivec2(RESOLUTION);
-	const ivec2 resolutionFilterX = ivec2(HALF_RESOLUTION, RESOLUTION);
-	const ivec2 resolutionFilterY = ivec2(HALF_RESOLUTION);
-	
-	layout(binding = 0, std140) uniform QuestSetup {
-		layout(offset = 0) ivec2 resolutionFramebuffer;
-		layout(offset = 8) float lineAngle;
-		layout(offset = 12) float lineDist;
-		layout(offset = 16) float randomAngle;
-		layout(offset = 20) int artifactSize;
-		layout(offset = 24) int filterRadius;
-	} setup;
-	
-	layout(binding = 0) uniform sampler2D artifacts;
-	
-	layout(pixel_center_integer) in vec4 gl_FragCoord;
-	
-	out float color;
-	
-	void main() {
-		vec2 offset = (textureSize(artifacts, 0).xy - resolutionFilterX) / 2;
-		ivec2 center = ivec2(offset + gl_FragCoord.xy);
-		
-		float I = 0;
-		int C = 0;
-		for (int i = -setup.filterRadius; i <= setup.filterRadius; i++)
-		{
-			I += texelFetch(artifacts, center + ivec2(i, 0), 0).x;
-			C ++;
-		}
-			
-		color = float(I / C);
-		//color = texelFetch(artifacts, center, 0).x;
-	}
-}
-
-shader frag fs_filterY {
-	#version 450
-	
-	const ivec2 resolutionArtifact = ivec2(RESOLUTION);
-	const ivec2 resolutionFilterX = ivec2(HALF_RESOLUTION, RESOLUTION);
-	const ivec2 resolutionFilterY = ivec2(HALF_RESOLUTION);
-	
-	layout(binding = 0, std140) uniform QuestSetup {
-		layout(offset = 0) ivec2 resolutionFramebuffer;
-		layout(offset = 8) float lineAngle;
-		layout(offset = 12) float lineDist;
-		layout(offset = 16) float randomAngle;
-		layout(offset = 20) int artifactSize;
-		layout(offset = 24) int filterRadius;
-	} setup;
-	
-	layout(binding = 0) uniform sampler2D filterX;
-	
-	layout(pixel_center_integer) in vec4 gl_FragCoord;
-	
-	out float color;
-	
-	void main() {
-		vec2 offset = (textureSize(filterX, 0).xy - resolutionFilterY) / 2;
-		ivec2 center = ivec2(offset + gl_FragCoord.xy);
-		
-		float I = 0;
-		int C = 0;
-		for (int i = -setup.filterRadius; i <= setup.filterRadius; i++) {
-			I += texelFetch(filterX, center + ivec2(0, i), 0).x;
-			C ++;
-		}
-			
-		color = float(I / C);
-		//color = texelFetch(filterX, center, 0).x;
 	}
 }
 
@@ -279,11 +157,11 @@ shader frag fs_render {
 		layout(offset = 8) float lineAngle;
 		layout(offset = 12) float lineDist;
 		layout(offset = 16) float randomAngle;
-		layout(offset = 20) int artifactSize;
-		layout(offset = 24) int filterRadius;
+		layout(offset = 20) float artifactSize;
+		layout(offset = 24) float filterRadius;
 	} setup;
 	
-	layout(binding = 0) uniform sampler2D filterY;
+	layout(binding = 0) uniform sampler2D filteredArtifacts;
 	
 	layout(pixel_center_integer) in vec4 gl_FragCoord;
 	
@@ -293,15 +171,15 @@ shader frag fs_render {
 		mat2 M = mat2(vec2( cos(setup.randomAngle), sin(setup.randomAngle)),
 		              vec2(-sin(setup.randomAngle), cos(setup.randomAngle)));
 		vec2 coord = gl_FragCoord.xy / setup.resolutionFramebuffer - 0.5;
-		coord = (coord * setup.resolutionFramebuffer / resolutionFilterY) * M + 0.5;
-		color = texture(filterY, coord).xxxx;
+		coord = (coord * setup.resolutionFramebuffer / textureSize(filteredArtifacts, 0 )) * M + 0.5;
+		color = texture(filteredArtifacts, coord).xxxx;
 	}
 }
 
 pass pass_artifact {
 	vert vs_shader
 	frag fs_artifact
-	//fragout out_artifact
+	fragout out_artifact
 	
 	tex 0
 	samp 0
@@ -310,38 +188,14 @@ pass pass_artifact {
 	
 	draw buf_idx in_vert ushort triangles 0 0 6
 	
-	//exec cs_quest
-}
-
-pass pass_filterX {
-	vert vs_shader
-	frag fs_filterX
-	fragout out_filterX
-	
-	tex tex_artifact 0
-	
-	glClear ColorBit
-	
-	draw buf_idx in_vert ushort triangles 0 0 6
-}
-
-pass pass_filterY {
-	vert vs_shader
-	frag fs_filterY
-	fragout out_filterY
-	
-	tex tex_filterX 0
-	
-	glClear ColorBit
-	
-	draw buf_idx in_vert ushort triangles 0 0 6
+	exec cs_quest
 }
 
 pass pass_render {
 	vert vs_shader
 	frag fs_render
 	
-	tex tex_filterY 0
+	tex tex_artifact 0
 	samp samp_linear 0
 	
 	glClear ColorBit
@@ -351,7 +205,5 @@ pass pass_render {
 
 tech tech_quest {
 	pass pass_artifact
-	//pass pass_filterX
-	//pass pass_filterY
-	//pass pass_render
+	pass pass_render
 }

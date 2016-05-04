@@ -137,7 +137,7 @@ namespace csharp
 
             // SET UNIFORM VALUES
             unif.Set(Names.lineAngle, new[] { (float)angle, line[2], randomAngle });
-            unif.Set(Names.artifactSize, new[] { size, (int)Math.Round(quantile * factor) });
+            unif.Set(Names.artifactSize, new[] { (float)size, (float)Math.Round(quantile * factor) });
             unif.Set(Names.resolutionFramebuffer, new[] { widthScreen, heightScreen });
 
             // UPDATE UNIFORM BUFFER
