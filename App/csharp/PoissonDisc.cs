@@ -12,8 +12,8 @@ namespace csharp
         public enum Names
         {
             numPoints,
-            points,
             radius,
+            points,
         }
 
         #region FIELDS
@@ -122,8 +122,8 @@ namespace csharp
                 uniform.Add(program, unif = new UniformBlock<Names>(program, name));
                 // SET UNIFORM VALUES
                 unif.Set(Names.numPoints, new[] { points.GetLength(0) });
-                unif.Set(Names.points, points);
                 unif.Set(Names.radius, radius);
+                unif.Set(Names.points, points);
                 // UPDATE UNIFORM BUFFER
                 unif.Update();
             }
@@ -200,9 +200,10 @@ namespace csharp
                 var indices = new List<int>();
 
                 // create grid
-                var gridsize = (int)(1 / (r / resolution));
-                var grid = Enumerable.Range(0, gridsize * gridsize).ToList();
-                var mask = ComputeMask(resolution, gridsize);
+                var gridsize = (((int)(1 / (r / resolution)) + 1) / 2) * 2;
+                //var grid = Enumerable.Range(0, gridsize * gridsize).ToList();
+                var grid = ComputeGridIdx(gridsize).ToList();
+                var mask = ComputeMask(resolution);
 
                 try
                 {
@@ -240,7 +241,22 @@ namespace csharp
                 Points = Indices2Uv(indices, gridsize).ToList();
             }
 
-            private int[][] ComputeMask(int resolution, int gridsize)
+            private IEnumerable<int> ComputeGridIdx(int gridsize)
+            {
+                int r = gridsize / 2;
+                int min = -r;
+                int max = r;
+                for (int y = min, idx = 0; y < max; y++)
+                {
+                    for (int x = min; x < max; x++, idx++)
+                    {
+                        if (x * x + y * y < r * r)
+                            yield return idx;
+                    }
+                }
+            }
+
+            private int[][] ComputeMask(int resolution)
             {
                 var mask = new List<int[]>();
 

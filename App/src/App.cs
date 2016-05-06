@@ -259,6 +259,7 @@ namespace App
             var ex = root.Catch(x => glControl.AddObject(x, debugging)).ToArray();
             // add events to the end of the event list
             glControl.AddEvents();
+            glControl.MouseUp += new MouseEventHandler(glControl_MouseUp);
 
             // show errors
             var exc = from x in ex

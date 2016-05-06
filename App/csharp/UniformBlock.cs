@@ -109,9 +109,7 @@ namespace csharp
             int elementSize = Marshal.SizeOf(src.GetType().GetElementType());
             // get the size of the whole array, but
             // make sure it is not bigger than the buffer
-            int size = Math.Min(
-                length[idx] * Math.Max(stride[idx], matstride[idx]),
-                elementSize * src.Length);
+            int size = Math.Min(this.size - offset[idx], elementSize * src.Length);
             // copy array to buffer
             Buffer.BlockCopy(src, 0, data, offset[idx], size);
         }

@@ -2,13 +2,13 @@
 #global PI 3.14159265359
 #global MAX_POISSON_POINTS 256
 
-//csharp cs_quest {
-//	assembly "Interop.MLApp.dll"
-//	file "<csharp>/ArtifactQuest.cs" ...
-//	     "<csharp>/UniformBlock.cs" ...
-//	     "<csharp>/CsObject.cs" ...
-//	     "<csharp>/Converter.cs"
-//}
+csharp cs_quest {
+	assembly "Interop.MLApp.dll"
+	file "<csharp>/ArtifactQuest.cs" ...
+	     "<csharp>/UniformBlock.cs" ...
+	     "<csharp>/CsObject.cs" ...
+	     "<csharp>/Converter.cs"
+}
 
 csharp cs_poisson {
 	file "<csharp>/PoissonDisc.cs" ...
@@ -17,15 +17,15 @@ csharp cs_poisson {
 	     "<csharp>/Converter.cs"
 }
 
-//instance inst_quest {
-//	class cs_quest csharp.ArtifactQuest
-//	name QuestSetup
-//}
+instance inst_quest {
+	class cs_quest csharp.ArtifactQuest
+	name QuestSetup
+}
 
 instance inst_poisson {
 	class cs_poisson csharp.PoissonDisc
 	name PoissonDisc
-	minRadius 0.1
+	minRadius 0.05
 }
 
 // FULL SCREEN QUAD
@@ -95,12 +95,13 @@ shader frag fs_artifact {
 	#version 450
 	
 	layout(binding = 0, std140) uniform QuestSetup {
-		layout(offset = 0) ivec2 resolutionOutput;
-		layout(offset = 8) float randomAngle;
-		layout(offset = 12) float artifactSize;
-		layout(offset = 16) float filterRadius;
-		layout(offset = 20) int filterType;
-		layout(offset = 24) int filterSamples;
+		layout(offset = 0) ivec2 rendertargetSize;
+		layout(offset = 8) ivec2 framebufferSize;
+		layout(offset = 16) int filterSamples;
+		layout(offset = 20) float lineAngle;
+		layout(offset = 24) float randomAngle;
+		layout(offset = 28) float artifactSize;
+		layout(offset = 32) float filterRadius;
 	} setup;
 	
 	layout(binding = 1, std140) uniform PoissonDisc {
@@ -160,15 +161,17 @@ shader frag fs_artifact {
 	}
 	
 	void main() {
-		if (false) {
-			vec2 C = gl_FragCoord.xy / setup.artifactSize;
+		if (setup.filterSamples == 0) {
+			float <<d>> = tan(setup.lineAngle);
+			vec2 C = (gl_FragCoord.xy - setup.rendertargetSize.xy / 2) / setup.artifactSize;
 			float r = setup.filterRadius / setup.artifactSize;
 			
 			float areaRect = 0;
 			
 			for (int a = int(C.x - r) - 1, b = int(C.x + r); a <= b; a++) {
-				vec4 rect = vec4(float(a), float(a+1), -r*2, float(a)) - C.xxyy;
-				areaRect += areaRectCircle(rect.xy, rect.zw, r);
+				vec2 x = vec2(float(a), float(a+1));
+				vec2 <<y>> = vec2(-setup.rendertargetSize.y, floor(x.x * d));
+				areaRect += areaRectCircle(x - C.xx, y - C.yy, r);
 			}
 			
 			float areaCircle = r * r * PI;
@@ -176,16 +179,21 @@ shader frag fs_artifact {
 		}
 		else
 		{
-			int count = 0;
-			int nPoints = min(disc.numPoints, 25);
-			mat2 <<R>> = randRot(2 * PI * rand(gl_FragCoord.xy));
+			vec2 <<lineN>> = vec2(-sin(setup.lineAngle), cos(setup.lineAngle));
+			vec2 <<C>> = gl_FragCoord.xy - setup.rendertargetSize.xy / 2;
+			int <<nPoints>> = 1;//min(disc.numPoints, setup.filterSamples);
+			mat2 R = randRot(2 * PI * rand(gl_FragCoord.xy));
 			
-			for (int i = 0; i < nPoints; i++) {
-				vec2 <<p>> = R * disc.points[i] * 30;
-				ivec2 <<C>> = ivec2((gl_FragCoord.xy + p) / 20);
-				if (C.x > C.y)
+			int count = 0;
+			int i;
+			for (i = 0; i < nPoints; i++) {
+				vec2 <<p>> = R * disc.points[i] * setup.filterRadius;
+				vec2 <<c>> = floor((C + p) / setup.artifactSize);
+				if (dot(lineN, c) <= 0)
 					count++;
 			}
+			
+			i = <<i>>;
 			
 			color.xyzw = vec4(float(<<count>>) / float(<<nPoints>>));
 		}
@@ -196,12 +204,13 @@ shader frag fs_render {
 	#version 450
 	
 	layout(binding = 0, std140) uniform QuestSetup {
-		layout(offset = 0) ivec2 resolutionOutput;
-		layout(offset = 8) float randomAngle;
-		layout(offset = 12) float artifactSize;
-		layout(offset = 16) float filterRadius;
-		layout(offset = 20) int filterType;
-		layout(offset = 24) int filterSamples;
+		layout(offset = 0) ivec2 rendertargetSize;
+		layout(offset = 8) ivec2 framebufferSize;
+		layout(offset = 16) int filterSamples;
+		layout(offset = 20) float lineAngle;
+		layout(offset = 24) float randomAngle;
+		layout(offset = 28) float artifactSize;
+		layout(offset = 32) float filterRadius;
 	} setup;
 	
 	layout(binding = 0) uniform sampler2D filteredArtifacts;
@@ -213,8 +222,8 @@ shader frag fs_render {
 	void main() {
 		mat2 M = mat2(vec2( cos(setup.randomAngle), sin(setup.randomAngle)),
 		              vec2(-sin(setup.randomAngle), cos(setup.randomAngle)));
-		vec2 coord = gl_FragCoord.xy / setup.resolutionOutput - 0.5;
-		coord = (coord * setup.resolutionOutput / textureSize(filteredArtifacts, 0 )) * M + 0.5;
+		vec2 coord = gl_FragCoord.xy / setup.framebufferSize - 0.5;
+		coord = (coord * setup.framebufferSize / textureSize(filteredArtifacts, 0 )) * M + 0.5;
 		color = texture(filteredArtifacts, coord).xxxx;
 	}
 }
