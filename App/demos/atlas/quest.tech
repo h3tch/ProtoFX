@@ -1,18 +1,31 @@
 #global RESOLUTION 2048
-#global HALF_RESOLUTION 1024
 #global PI 3.14159265359
+#global MAX_POISSON_POINTS 256
 
-csharp cs {
-	assembly "Interop.MLApp.dll"
-	file "<csharp>/ArtifactQuest.cs" ...
+//csharp cs_quest {
+//	assembly "Interop.MLApp.dll"
+//	file "<csharp>/ArtifactQuest.cs" ...
+//	     "<csharp>/UniformBlock.cs" ...
+//	     "<csharp>/CsObject.cs" ...
+//	     "<csharp>/Converter.cs"
+//}
+
+csharp cs_poisson {
+	file "<csharp>/PoissonDisc.cs" ...
 	     "<csharp>/UniformBlock.cs" ...
 	     "<csharp>/CsObject.cs" ...
 	     "<csharp>/Converter.cs"
 }
 
-instance cs_quest {
-	class cs csharp.ArtifactQuest
-	name QuestSetup
+//instance inst_quest {
+//	class cs_quest csharp.ArtifactQuest
+//	name QuestSetup
+//}
+
+instance inst_poisson {
+	class cs_poisson csharp.PoissonDisc
+	name PoissonDisc
+	minRadius 0.1
 }
 
 // FULL SCREEN QUAD
@@ -82,17 +95,32 @@ shader frag fs_artifact {
 	#version 450
 	
 	layout(binding = 0, std140) uniform QuestSetup {
-		layout(offset = 0) ivec2 resolutionFramebuffer;
-		layout(offset = 8) float lineAngle;
-		layout(offset = 12) float lineDist;
-		layout(offset = 16) float randomAngle;
-		layout(offset = 20) float artifactSize;
-		layout(offset = 24) float filterRadius;
+		layout(offset = 0) ivec2 resolutionOutput;
+		layout(offset = 8) float randomAngle;
+		layout(offset = 12) float artifactSize;
+		layout(offset = 16) float filterRadius;
+		layout(offset = 20) int filterType;
+		layout(offset = 24) int filterSamples;
 	} setup;
+	
+	layout(binding = 1, std140) uniform PoissonDisc {
+		layout(offset = 0) int numPoints;
+		layout(offset = 16) vec2 points[MAX_POISSON_POINTS];
+	} disc;
 	
 	layout(pixel_center_integer) in vec4 gl_FragCoord;
 	
 	out vec4 color;
+	
+	float rand(vec2 xy) {
+		return fract(sin(dot(xy, vec2(12.9898,78.233))) * 43758.5453);
+	}
+
+	mat2 randRot(float angle) {
+		float sa = sin(angle);
+		float ca = cos(angle);
+		return mat2(ca, -sa, ca, sa);
+	}
 	
 	// returns the positive root of intersection of line y = h
 	// with circle centered at the origin and radius r
@@ -132,33 +160,48 @@ shader frag fs_artifact {
 	}
 	
 	void main() {
-		vec2 C = gl_FragCoord.xy / setup.artifactSize;
-		float r = setup.filterRadius / setup.artifactSize;
-		
-		float areaRect = 0;
-		
-		for (int a = int(C.x - r) - 1, b = int(C.x + r); a <= b; a++) {
-			vec4 <<rect>> = vec4(float(a), float(a+1), -r*2, float(a)) - C.xxyy;
-			areaRect += areaRectCircle(rect.xy, rect.zw, r);
+		if (false) {
+			vec2 C = gl_FragCoord.xy / setup.artifactSize;
+			float r = setup.filterRadius / setup.artifactSize;
+			
+			float areaRect = 0;
+			
+			for (int a = int(C.x - r) - 1, b = int(C.x + r); a <= b; a++) {
+				vec4 rect = vec4(float(a), float(a+1), -r*2, float(a)) - C.xxyy;
+				areaRect += areaRectCircle(rect.xy, rect.zw, r);
+			}
+			
+			float areaCircle = r * r * PI;
+			color.xyzw = vec4(areaRect / areaCircle);
 		}
-		
-		float areaCircle = r * r * PI;
-		color.xyzw = vec4(<<areaRect>> / <<areaCircle>>);
+		else
+		{
+			int count = 0;
+			int nPoints = min(disc.numPoints, 25);
+			mat2 <<R>> = randRot(2 * PI * rand(gl_FragCoord.xy));
+			
+			for (int i = 0; i < nPoints; i++) {
+				vec2 <<p>> = R * disc.points[i] * 30;
+				ivec2 <<C>> = ivec2((gl_FragCoord.xy + p) / 20);
+				if (C.x > C.y)
+					count++;
+			}
+			
+			color.xyzw = vec4(float(<<count>>) / float(<<nPoints>>));
+		}
 	}
 }
 
 shader frag fs_render {
 	#version 450
 	
-	const ivec2 resolutionFilterY = ivec2(HALF_RESOLUTION);
-	
 	layout(binding = 0, std140) uniform QuestSetup {
-		layout(offset = 0) ivec2 resolutionFramebuffer;
-		layout(offset = 8) float lineAngle;
-		layout(offset = 12) float lineDist;
-		layout(offset = 16) float randomAngle;
-		layout(offset = 20) float artifactSize;
-		layout(offset = 24) float filterRadius;
+		layout(offset = 0) ivec2 resolutionOutput;
+		layout(offset = 8) float randomAngle;
+		layout(offset = 12) float artifactSize;
+		layout(offset = 16) float filterRadius;
+		layout(offset = 20) int filterType;
+		layout(offset = 24) int filterSamples;
 	} setup;
 	
 	layout(binding = 0) uniform sampler2D filteredArtifacts;
@@ -170,8 +213,8 @@ shader frag fs_render {
 	void main() {
 		mat2 M = mat2(vec2( cos(setup.randomAngle), sin(setup.randomAngle)),
 		              vec2(-sin(setup.randomAngle), cos(setup.randomAngle)));
-		vec2 coord = gl_FragCoord.xy / setup.resolutionFramebuffer - 0.5;
-		coord = (coord * setup.resolutionFramebuffer / textureSize(filteredArtifacts, 0 )) * M + 0.5;
+		vec2 coord = gl_FragCoord.xy / setup.resolutionOutput - 0.5;
+		coord = (coord * setup.resolutionOutput / textureSize(filteredArtifacts, 0 )) * M + 0.5;
 		color = texture(filteredArtifacts, coord).xxxx;
 	}
 }
@@ -188,7 +231,8 @@ pass pass_artifact {
 	
 	draw buf_idx in_vert ushort triangles 0 0 6
 	
-	exec cs_quest
+	exec inst_quest
+	exec inst_poisson
 }
 
 pass pass_render {

@@ -95,6 +95,10 @@ namespace App
             {
                 throw err.Add(ex.Message, block);
             }
+            catch (FileNotFoundException ex)
+            {
+                throw err.Add(ex.Message, block);
+            }
 
             // check for compiler errors
             if (CompilerResults.Errors.Count != 0)

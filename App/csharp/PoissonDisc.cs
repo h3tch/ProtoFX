@@ -11,8 +11,8 @@ namespace csharp
     {
         public enum Names
         {
-            points,
             numPoints,
+            points,
             radius,
         }
 
@@ -46,7 +46,7 @@ namespace csharp
 
             if (minRadius <= 0f)
             {
-                errors.Add("At least 'radius' (minimal sample distance) "
+                errors.Add("At least 'minRadius' (minimal sample distance) "
                     + "needs to be defined and has to be bigger than 0.0.");
                 return;
             }
@@ -121,8 +121,8 @@ namespace csharp
             {
                 uniform.Add(program, unif = new UniformBlock<Names>(program, name));
                 // SET UNIFORM VALUES
-                unif.Set(Names.points, points);
                 unif.Set(Names.numPoints, new[] { points.GetLength(0) });
+                unif.Set(Names.points, points);
                 unif.Set(Names.radius, radius);
                 // UPDATE UNIFORM BUFFER
                 unif.Update();

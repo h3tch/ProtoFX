@@ -12,17 +12,15 @@ namespace csharp
         #region FIELDS
         public enum Names
         {
-            resolutionFramebuffer,
-            lineAngle,
-            lineDist,
+            resolutionOutput,
             randomAngle,
             artifactSize,
             filterRadius,
+            filterType,
+            filterSamples,
         }
 
         private string name;
-        private float lineAngle = 0;
-        private float lineDist = 0;
         private float randomAngle = 0;
         private int filterRadius = 16;
         protected Dictionary<int, UniformBlock<Names>> uniform =
@@ -136,9 +134,11 @@ namespace csharp
                 uniform.Add(program, unif = new UniformBlock<Names>(program, name));
 
             // SET UNIFORM VALUES
-            unif.Set(Names.lineAngle, new[] { (float)angle, line[2], randomAngle });
-            unif.Set(Names.artifactSize, new[] { (float)size, (float)Math.Round(quantile * factor) });
-            unif.Set(Names.resolutionFramebuffer, new[] { widthScreen, heightScreen });
+            unif.Set(Names.resolutionOutput, new[] { widthScreen, heightScreen });
+            unif.Set(Names.randomAngle, new[] {
+                (float)angle, size, (float)Math.Round(quantile * factor)
+            });
+            unif.Set(Names.filterType, new int[] { 1, 25 });
 
             // UPDATE UNIFORM BUFFER
             unif.Update();

@@ -557,6 +557,7 @@
 [0]shader[4]faceforward|return a vector pointing in the same direction as another
    genType  faceforward(genType  N, genType  I, genType  Nref)
    genDType faceforward(genDType N, genDType I, genDType Nref)
+[0]shader[9]false
 [0]shader[4]findLSB|find the index of the least significant
  bit set to 1 in an integer
    genIType findLSB(genIType value)
@@ -1529,6 +1530,7 @@
    dmat3x4 transpose(dmat4x3 m)
    dmat4x2 transpose(dmat2x4 m)
    dmat4x3 transpose(dmat3x4 m)
+[0]shader[9]true
 [0]shader[4]trunc|find the nearest integer less
  than or equal to the parameter
    genType  trunc(genType  x)
