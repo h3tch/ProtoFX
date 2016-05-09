@@ -185,6 +185,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="resources\dbgBody.txt" />
+    <None Include="resources\ImgUncomment.png" />
+    <None Include="resources\ImgComment.png" />
     <None Include="resources\keywords.txt" />
     <None Include="resources\ImgPick.png" />
     <None Include="resources\ImgDbg.png" />

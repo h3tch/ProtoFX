@@ -172,6 +172,16 @@ namespace App.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ImgComment {
+            get {
+                object obj = ResourceManager.GetObject("ImgComment", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ImgDbg {
             get {
                 object obj = ResourceManager.GetObject("ImgDbg", resourceCulture);
@@ -250,17 +260,27 @@ namespace App.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ImgUncomment {
+            get {
+                object obj = ResourceManager.GetObject("ImgUncomment", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to // 0 default #C0C0C0
         ///// 0 identifier #000000
-        ///// 0 comment #7F9F00
-        ///// 0 operator #6080D0
-        ///// 0 punctuation #C0C0C0
-        ///// 0 preprocessor #E47426
         ///// 0 number #108030
         ///// 0 string #800000
         ///// 0 char #A03030
+        ///// 0 linecomment #7F9F00
+        ///// 0 blockcomment #7F9F00
+        ///// 0 preprocessor #E47426
+        ///// 0 operator #6080D0
+        ///// 0 punctuation #C0C0C0
         ///// 0 block #0000FF
-        ///// 0 folding #AAAAAA
         ///// 1 annotation #0099CC
         ///// 2 command #6666FF
         ///// 3 argument #6633CC
@@ -271,8 +291,7 @@ namespace App.Properties {
         ///// 8 variable #0000FF
         ///// 9 branching #0000FF
         ///// 10 opengl #993333
-        ///[0]buffer|buffer &lt;name&gt;
-        ///[0]bu [rest of string was truncated]&quot;;.
+        ///[0]buffer|buffer &lt;nam [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string keywords {
             get {

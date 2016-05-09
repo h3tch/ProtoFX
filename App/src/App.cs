@@ -349,14 +349,14 @@ namespace App
         {
             if (tabSource.SelectedIndex < 0 || tabSource.SelectedIndex >= tabSource.TabPages.Count)
                 return;
-            var tabSourcePage = (TabPageEx)tabSource.SelectedTab;
-            if (tabSourcePage.Text.EndsWith("*"))
+            var tab = (TabPageEx)tabSource.SelectedTab;
+            if (tab.Text.EndsWith("*"))
             {
                 DialogResult answer = MessageBox.Show(
                     "Do you want to save the file before closing it?",
                     "File changed", MessageBoxButtons.YesNo);
                 if (answer == DialogResult.Yes)
-                    SaveTabPage(tabSourcePage, false);
+                    SaveTabPage(tab, false);
             }
             tabSource.TabPages.RemoveAt(tabSource.SelectedIndex);
         }
@@ -368,8 +368,32 @@ namespace App
         /// <param name="e"></param>
         private void toolBtnPick_CheckedChanged(object sender, EventArgs e)
             => glControl.Cursor = toolBtnPick.Checked ? Cursors.Cross : Cursors.Default;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolBtnComment_Click(object sender, EventArgs e)
+        {
+            var editor = (CodeEditor)((TabPageEx)tabSource.SelectedTab)?.Controls[0];
+            if (editor == null)
+                return;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolBtnUncomment_Click(object sender, EventArgs e)
+        {
+            var editor = (CodeEditor)((TabPageEx)tabSource.SelectedTab)?.Controls[0];
+            if (editor == null)
+                return;
+        }
         #endregion
-        
+
         #region UTIL
         /// <summary>
         /// Save tab.
