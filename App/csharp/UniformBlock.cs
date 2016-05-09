@@ -20,7 +20,15 @@ namespace csharp
         private int[] data;
         #endregion
 
-        public int this[Names name] { get { return location[Convert.ToInt32(name)]; } }
+        public Info this[Names name] { get {
+                return new Info {
+                    location = location[Convert.ToInt32(name)],
+                    length = length[Convert.ToInt32(name)],
+                    offset = offset[Convert.ToInt32(name)],
+                    stride = stride[Convert.ToInt32(name)],
+                    matstride = matstride[Convert.ToInt32(name)],
+                };
+        } }
 
         public UniformBlock(int program, string name)
         {
@@ -100,6 +108,11 @@ namespace csharp
             GL.UnmapNamedBuffer(glbuf);
         }
 
+        public bool Has(Names name)
+        {
+            return location[Convert.ToInt32(name)] >= 0;
+        }
+
         public void Set(Names name, Array src)
         {
             int idx = Convert.ToInt32(name);
@@ -121,6 +134,15 @@ namespace csharp
                 GL.DeleteBuffer(glbuf);
                 glbuf = 0;
             }
+        }
+
+        public struct Info
+        {
+            public int location;
+            public int length;
+            public int offset;
+            public int stride;
+            public int matstride;
         }
     }
 

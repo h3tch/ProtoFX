@@ -139,7 +139,7 @@ shader frag fs_render {
 	mat2 randRot(float angle) {
 		float sa = sin(angle);
 		float ca = cos(angle);
-		return mat2(ca, -sa, ca, sa);
+		return mat2(ca, -sa, sa, ca);
 	}
 	
 	vec2 depthNormalBias(vec3 lpos) {

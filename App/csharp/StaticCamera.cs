@@ -79,22 +79,22 @@ namespace csharp
                 uniform.Add(program, unif = new UniformBlock<Names>(program, name));
 
             // SET UNIFORM VALUES
-            if (unif[Names.view] >= 0)
+            if (unif.Has(Names.view))
                 unif.Set(Names.view, view.AsInt32());
 
-            if (unif[Names.proj] >= 0)
+            if (unif.Has(Names.proj))
                 unif.Set(Names.proj, proj.AsInt32());
 
-            if (unif[Names.viewProj] >= 0)
+            if (unif.Has(Names.viewProj))
                 unif.Set(Names.viewProj, (view * proj).AsInt32());
 
-            if (unif[Names.camera] >= 0)
+            if (unif.Has(Names.camera))
                 unif.Set(Names.camera, new[] { fov * rad2deg, aspect, near, far }.AsInt32());
 
-            if (unif[Names.position] >= 0)
+            if (unif.Has(Names.position))
                 unif.Set(Names.position, pos.AsInt32());
 
-            if (unif[Names.rotation] >= 0)
+            if (unif.Has(Names.rotation))
                 unif.Set(Names.rotation, rot.AsInt32());
 
             // UPDATE UNIFORM BUFFER
