@@ -379,6 +379,25 @@ namespace App
             var editor = (CodeEditor)((TabPageEx)tabSource.SelectedTab)?.Controls[0];
             if (editor == null)
                 return;
+
+            int tabWidth = editor.TabWidth;
+            int startLine = editor.LineFromPosition(editor.SelectionStart);
+            int endLine = editor.LineFromPosition(editor.SelectionEnd);
+
+            var offsets = editor.Lines.Skip(startLine).Take(endLine - startLine + 1)
+                .Select(x => x.Text.TakeWhile(c => c == '\t' || c == ' ')
+                    .Select(c => c == '\t' ? tabWidth : 1)
+                    .Sum()).ToArray();
+            var minOffset = offsets.Min();
+
+            for (int i = startLine; i <= endLine; i++)
+            {
+                var text = editor.Lines[i].Text;
+                int offset = 0;
+                for (int n = minOffset; offset < text.Length && n > 0; offset++)
+                    n -= text[offset] == '\t' ? tabWidth : 1;
+                editor.InsertText(editor.Lines[i].Position + offset, "// ");
+            }
         }
 
         /// <summary>
