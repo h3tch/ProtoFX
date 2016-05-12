@@ -14,6 +14,7 @@ namespace App
     {
         #region FIELDS
         [FxField] private string Version = null;
+        [FxField] private string[] Assembly = null;
         [FxField] private string[] File = null;
         private CompilerResults CompilerResults;
         #endregion
@@ -38,22 +39,35 @@ namespace App
             if (File == null || File.Length == 0)
                 return;
 
+            // LOAD ADDITIONAL ASSEMBLIES
+            if (Assembly != null)
+            {
+                foreach (var assemblypath in Assembly)
+                {
+                    try
+                    {
+                        System.Reflection.Assembly.LoadFrom(assemblypath);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        err.Add($"Assembly file '{assemblypath}' cound not be found.", block);
+                    }
+                    catch (FileLoadException)
+                    {
+                        err.Add($"Assembly '{assemblypath}' cound not be loaded.", block);
+                    }
+                    catch
+                    {
+                        err.Add($"Unknown exception when loading assembly '{assemblypath}'.", block);
+                    }
+                }
+            }
+
             // replace placeholders with actual path
-            var path = (IEnumerable<string>)File;
-            var curDir = Directory.GetCurrentDirectory() + "/";
-            var placeholders = new[] { new[] { "<csharp>", curDir + "../csharp" } };
-            foreach (var placeholder in placeholders)
-                path = path.Select(x => x.Replace(placeholder[0], placeholder[1]));
+            var dir = Path.GetDirectoryName(block.Filename) + Path.DirectorySeparatorChar;
+            var filepath = ProcessPaths(dir, File);
 
-            // convert relative file paths to absolut file paths
-            var dir = Path.GetDirectoryName(block.File) + Path.DirectorySeparatorChar;
-            path = path.Select(x => Path.IsPathRooted(x) ? x : dir + x);
-
-            // use '\\' file paths instead of '/' and set absolute directory path
-            if (Path.DirectorySeparatorChar != '/')
-                path = path.Select(x => x.Replace('/', Path.DirectorySeparatorChar));
-
-            // compile files
+            // COMPILE FILES
             try
             {
                 // set compiler parameters and assemblies
@@ -75,9 +89,13 @@ namespace App
                 CSharpCodeProvider provider = Version != null ?
                     new CSharpCodeProvider(new Dictionary<string, string> { { "CompilerVersion", Version } }) :
                     new CSharpCodeProvider();
-                CompilerResults = provider.CompileAssemblyFromFile(compilerParams, path.ToArray());
+                CompilerResults = provider.CompileAssemblyFromFile(compilerParams, filepath.ToArray());
             }
             catch (DirectoryNotFoundException ex)
+            {
+                throw err.Add(ex.Message, block);
+            }
+            catch (FileNotFoundException ex)
             {
                 throw err.Add(ex.Message, block);
             }
@@ -93,10 +111,41 @@ namespace App
         }
 
         /// <summary>
+        /// Process paths to replace predefined placeholders like <code>"<sharp>"</code>.
+        /// </summary>
+        /// <param name="abspath"></param>
+        /// <param name="paths"></param>
+        /// <returns></returns>
+        private IEnumerable<string> ProcessPaths(string abspath, string[] paths)
+        {
+            // replace placeholders with actual path
+            var path = (IEnumerable<string>)paths;
+            var curDir = Directory.GetCurrentDirectory() + "/";
+            var placeholders = new[] { new[] { "<csharp>", curDir + "../csharp" } };
+            foreach (var placeholder in placeholders)
+                path = path.Select(x => x.Replace(placeholder[0], placeholder[1]));
+
+            // convert relative file paths to absolut file paths
+            path = path.Select(x => Path.IsPathRooted(x) ? x : abspath + x);
+
+            // use '\\' file paths instead of '/' and set absolute directory path
+            if (Path.DirectorySeparatorChar != '/')
+                path = path.Select(x => x.Replace('/', Path.DirectorySeparatorChar));
+
+            return path;
+        }
+
+        /// <summary>
         /// Standard object destructor for ProtoFX.
         /// </summary>
         public override void Delete() { }
 
+        /// <summary>
+        /// Create a new external method-call by processing the specified compiler command.
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="err"></param>
+        /// <returns></returns>
         public static MethodInfo GetMethod(Compiler.Command cmd, Dict scene, CompileException err)
         {
             // check command
@@ -190,6 +239,12 @@ namespace App
             return instance;
         }
 
+        /// <summary>
+        /// Create a new external method-call by processing the specified compiler command.
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="err"></param>
+        /// <returns></returns>
         private MethodInfo GetMethod(Compiler.Command cmd, CompileException err)
         {
             // check if the command is valid

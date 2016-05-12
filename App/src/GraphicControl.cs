@@ -1,8 +1,10 @@
 ﻿using App;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
+using static System.Reflection.BindingFlags;
 
 namespace OpenTK
 {
@@ -29,14 +31,26 @@ namespace OpenTK
         /// </summary>
         public GraphicControl() : base()
         {
+        }
+
+        /// <summary>
+        /// Setup all internal events of the class.
+        /// </summary>
+        public void AddEvents()
+        {
             Paint += new PaintEventHandler(HandlePaint);
             MouseDown += new MouseEventHandler(HandleMouseDown);
             MouseMove += new MouseEventHandler(HandleMouseMove);
             MouseUp += new MouseEventHandler(HandleMouseUp);
             Resize += new EventHandler(HandleResize);
-            Load += new EventHandler(HandleLoad);
+            KeyUp += new KeyEventHandler(HandleKeyUp);
         }
-        
+
+        /// <summary>
+        /// Remove all events from the class.
+        /// </summary>
+        public void RemoveEvents() => Events.Dispose();
+
         /// <summary>
         /// Render scene.
         /// </summary>
@@ -101,6 +115,8 @@ namespace OpenTK
         /// </summary>
         public void ClearScene()
         {
+            Events.Dispose();
+            //InitHandlers();
             // call delete method of OpenGL resources
             scene.ForEach(x => x.Value.Delete());
             // clear list of classes
@@ -110,7 +126,7 @@ namespace OpenTK
             // (re)initialize OpenGL/GLSL debugger
             FxDebugger.Initilize(scene);
         }
-
+        
         #region EVENTS
         /// <summary>
         /// On load get the compiler error output control.
@@ -157,6 +173,11 @@ namespace OpenTK
         {
             if (render)
                 Render();
+        }
+
+        public void HandleKeyUp(object sender, KeyEventArgs e)
+        {
+            Render();
         }
         #endregion
     }

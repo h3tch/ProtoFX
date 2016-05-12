@@ -84,8 +84,7 @@ buffer mesh_triangles {
 // RENDER BUFFERS
 
 image img_depth {
-	width 1024
-	height 1024
+	size 1024 1024
 	format depth32f
 }
 
@@ -149,16 +148,20 @@ shader vert vs_shadowmap {
 	layout(binding = 0) uniform samplerBuffer camTransform;
 	layout(binding = 1) uniform samplerBuffer camViewport;
 	
-	// vertex input as specified by 'in_vert'
+	// per vertex input
 	layout(location = 0) in vec4 position;
+	// per instance input
 	layout(location = 3) in vec4 axisx;
 	layout(location = 4) in vec4 axisy;
 	layout(location = 5) in vec4 axisz;
 	layout(location = 6) in ivec4 camera;
 
 	// vertex shader output
-	layout(location = 0) out vec4 pos[MAX_CAMS];
-	layout(location = MAX_CAMS) out vec4 vp[MAX_CAMS];
+	layout(location = 0) out Block
+	{
+		vec4 position[MAX_CAMS];
+		vec4 viewport[MAX_CAMS];
+	} OUT;
 	
 	void main ()
 	{
@@ -172,7 +175,7 @@ shader vert vs_shadowmap {
 		for (count = 0; count < MAX_CAMS && camera[count] >= 0; count++)
 		{
 			int ptr = camera[count];
-			vp[count] = texelFetch(camViewport, ptr);
+			OUT.viewport[count] = texelFetch(camViewport, ptr);
 			ptr *= 4;
 			viewProj[count] = mat4(
 				texelFetch(camTransform, ptr + 0),
@@ -183,12 +186,12 @@ shader vert vs_shadowmap {
 		
 		// pass varyings on to next shader
 		for (int i = count; i < MAX_CAMS; i++)
-			pos[i] = vp[i] = vec4(0);
+			OUT.position[i] = OUT.viewport[i] = vec4(0);
 		
 		// compute model view projection position
 		vec4 world = position * model;
 		for (int i = 0; i < count; i++)
-			pos[i] = viewProj[i] * world;
+			OUT.position[i] = viewProj[i] * world;
 	}
 }
 
@@ -196,21 +199,24 @@ shader geom gs_shadowmap {
 	#version 450
 	
 	layout(triangles) in;
-	layout(location = 0) in vec4 position[][MAX_CAMS];
-	layout(location = MAX_CAMS) in vec4 viewport[][MAX_CAMS];
+	layout(location = 0) in Block
+	{
+		vec4 position[MAX_CAMS];
+		vec4 viewport[MAX_CAMS];
+	} IN[];
 	
 	layout(triangle_strip, max_vertices = 3*MAX_CAMS) out;
 	
 	void main ()
 	{
 		// for each camera
-		for (int c = 0; c < MAX_CAMS && position[0][c].w != 0; c++)
+		for (int c = 0; c < MAX_CAMS && IN[0].position[c].w != 0; c++)
 		{
 			// for each vertex in the triangle
 			for (int v = 0; v < gl_in.length(); v++)
 			{
-				vec4 pos = position[v][c];
-				vec4 vp = viewport[v][c];
+				vec4 pos = IN[v].position[c];
+				vec4 vp = IN[v].viewport[c];
 				
 				// viewport clipping
 				gl_ClipDistance[0] = pos.w - pos.x;
@@ -242,7 +248,7 @@ shader vert vs_render {
 		vec4 position;
 	} viewer;
 	
-	layout(binding = 0) uniform samplerBuffer camTransform;
+	layout(binding = 0) uniform samplerBuffer camViewProj;
 	layout(binding = 1) uniform samplerBuffer camViewport;
 	layout(binding = 2) uniform samplerBuffer camPosition;
 	
@@ -256,12 +262,15 @@ shader vert vs_render {
 	layout(location = 6) in ivec4 camera;
 
 	// vertex shader output
-	layout(location = 0) out vec4 nor;
-	layout(location = 1) out vec4 col;
-	layout(location = 2) out vec4 V;
-	layout(location = 3) out vec4 L[MAX_CAMS];
-	layout(location = 3+MAX_CAMS) out vec4 pos[MAX_CAMS];
-	layout(location = 3+2*MAX_CAMS) out vec4 vp[MAX_CAMS];
+	layout(location = 0) out Block
+	{
+		vec4 normal;
+		vec4 color;
+		vec4 viewer;
+		vec4 position[MAX_CAMS];
+		vec4 light[MAX_CAMS];
+		vec4 viewport[MAX_CAMS];
+	} OUT;
 	
 	void main ()
 	{
@@ -275,36 +284,36 @@ shader vert vs_render {
 		for (count = 0; count < MAX_CAMS && camera[count] >= 0; count++)
 		{
 			int ptr = camera[count];
-			vp[count] = texelFetch(camViewport, ptr);
-			L[count] = texelFetch(camPosition, ptr);
+			OUT.viewport[count] = texelFetch(camViewport, ptr);
+			OUT.light[count] = texelFetch(camPosition, ptr);
 			ptr *= 4;
 			viewProj[count] = mat4(
-				texelFetch(camTransform, ptr + 0),
-				texelFetch(camTransform, ptr + 1),
-				texelFetch(camTransform, ptr + 2),
-				texelFetch(camTransform, ptr + 3));
+				texelFetch(camViewProj, ptr + 0),
+				texelFetch(camViewProj, ptr + 1),
+				texelFetch(camViewProj, ptr + 2),
+				texelFetch(camViewProj, ptr + 3));
 		}
 		
 		// pass varyings on to next shader
 		for (int i = count; i < MAX_CAMS; i++)
-			pos[i] = vp[i] = L[i] = vec4(0);
+			OUT.position[i] = OUT.viewport[i] = OUT.light[i] = vec4(0);
 			
-		col = color;
+		OUT.color = color;
 		
 		const vec3 scale = vec3(length(axisx.xyz), length(axisy.xyz), length(axisz.xyz));
 		const mat3 modelRot = mat3(axisx.xyz / scale.x, axisy.xyz / scale.y, axisz.xyz / scale.z);
-		nor = vec4((normal.xyz / scale.xyz) * modelRot, normal.w);
+		OUT.normal = vec4((normal.xyz / scale.xyz) * modelRot, normal.w);
 		
 		const vec4 world = position * model;
-		V = viewer.position - world;
+		OUT.viewer = viewer.position - world;
 		
 		gl_Position = viewer.viewProj * world;
 		
 		// compute model view projection position
 		for (int i = 0; i < count; i++)
 		{
-			pos[i] = viewProj[i] * world;
-			L[i] -= world;
+			OUT.position[i] = viewProj[i] * world;
+			OUT.light[i] -= world;
 		}
 	}
 }
@@ -316,38 +325,41 @@ shader frag fs_render {
 	
 	// fragment shader input (see col in vs_simple)
 	layout(early_fragment_tests) in;
-	layout(location = 0) in vec4 normal;
-	layout(location = 1) in vec4 color;
-	layout(location = 2) in vec4 V;
-	layout(location = 3) in vec4 L[MAX_CAMS];
-	layout(location = 3+MAX_CAMS) in vec4 position[MAX_CAMS];
-	layout(location = 3+2*MAX_CAMS) in vec4 viewport[MAX_CAMS];
+	layout(location = 0) in Block
+	{
+		vec4 normal;
+		vec4 color;
+		vec4 viewer;
+		vec4 position[MAX_CAMS];
+		vec4 light[MAX_CAMS];
+		vec4 viewport[MAX_CAMS];
+	} IN;
 	
 	// fragment color output
-	out vec4 col;
+	out vec4 color;
 	
 	void main ()
 	{
 		// pass color
-		col = vec4(0);
-		const vec3 v = normalize(V.xyz);
-		const vec3 n = normalize(normal.xyz);
+		color = vec4(0);
+		const vec3 V = normalize(IN.viewer.xyz);
+		const vec3 N = normalize(IN.normal.xyz);
 		
-		for (int i = 0; i < MAX_CAMS && position[i].w != 0; i++)
+		for (int i = 0; i < MAX_CAMS && IN.position[i].w != 0; i++)
 		{
 			// if pixel outside light frustum clip space, do nothing
-			if (any(greaterThan(abs(position[i].xyz), position[i].www)))
+			if (any(greaterThan(abs(IN.position[i].xyz), IN.position[i].www * 0.99)))
 				continue;
 				
-			vec3 lpos = (position[i].xyz / position[i].w) * 0.5 + 0.5;
-			lpos.xy = lpos.xy * viewport[i].zw + viewport[i].xy;
+			vec3 lpos = (IN.position[i].xyz / IN.position[i].w) * 0.5 + 0.5;
+			lpos.xy = lpos.xy * IN.viewport[i].zw + IN.viewport[i].xy;
 				
 			if (lpos.z < texture(shadowAtlas, lpos.xy).x)
 			{
-				vec3 l = normalize(L[i].xyz);
-				const float Id = max(0, dot(l, n));
-				const float Is = max(0, pow(dot(normalize(l + v), n), 32));
-				col += color * (Id + Is);
+				const vec3 L = normalize(IN.light[i].xyz);
+				const float Id = max(0, dot(L, N));
+				const float Is = max(0, pow(dot(normalize(L + V), N), 32));
+				color += IN.color * (Id + Is);
 			}
 		}
 	}

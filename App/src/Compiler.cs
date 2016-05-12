@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace App
@@ -179,7 +180,7 @@ namespace App
             public string Type { get; private set; }
             public string Name { get; private set; }
             public string Anno { get; private set; }
-            public string File { get { return Owner.Path; } }
+            public string Filename { get { return Owner.Path; } }
             public Command[] Cmds { get; private set; }
             public Command this[int i] { get { return Cmds[i]; } }
             public IEnumerable<Command> this[string name] { get { return GetCommands(name); } }
@@ -466,30 +467,25 @@ namespace App
         /// <returns>String with resolved #global definitions.</returns>
         public static string ResolvePreprocessorDefinitions(string text)
         {
-            // find include files
+            var offset = 0;
+
+            // find global definition matches
             var matches = Regex.Matches(text, @"#global(\s+\w+){2}");
 
-            // insert all include files
+            // remove global definitions and store them in a dictionary
+            var definitions = new Dictionary<string, string>(matches.Count);
             foreach (Match match in matches)
             {
-                // get defined preprocessor string
-                var definitions = Regex.Split(match.Value, @"[ ]+");
-                var key = definitions[1];
-                var value = definitions[2];
-                text = text.Substring(0, match.Index) + text.Substring(match.Index + match.Length);
-
-                int offset = 0;
-                foreach (Match m in Regex.Matches(text, key))
-                {
-                    // replace preprocessor definition with defined preprocessor string
-                    text = text.Substring(0, m.Index + offset) + value
-                         + text.Substring(m.Index + offset + m.Length);
-
-                    // because the string now has a different 
-                    // length, we need to remember the offset
-                    offset += value.Length - m.Length;
-                }
+                var definition = Regex.Split(match.Value, @"[ ]+");
+                definitions.Add(definition[1], definition[2]);
+                text = text.Substring(0, offset + match.Index)
+                     + text.Substring(offset + match.Index + match.Length);
+                offset -= match.Length;
             }
+
+            // replace all definitions
+            foreach (var definition in definitions)
+                text = Regex.Replace(text, $"\\b{definition.Key}\\b", definition.Value);
 
             return text;
         }
@@ -549,14 +545,14 @@ namespace App
         public static bool TryGetValue<T>(this Dict dict, string key, out T obj,
             Compiler.Block block, CompileException err)
             where T : GLObject
-            => dict.TryGetValue(key, out obj, block.LineInFile, block.File, err);
+            => dict.TryGetValue(key, out obj, block.LineInFile, block.Filename, err);
     }
 
     // convenience extensions to the compiler exception class
     static class CompilerExeptionExtensions
     {
         public static CompileException Add(this CompileException err, string message, Compiler.Block block)
-            => err.Add(message, block.File, block.LineInFile);
+            => err.Add(message, block.Filename, block.LineInFile);
 
         public static CompileException Add(this CompileException err, string message, Compiler.Command cmd)
             => err.Add(message, cmd.File, cmd.LineInFile);

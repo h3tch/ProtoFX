@@ -1,8 +1,10 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Reflection;
 using LockMode = System.Drawing.Imaging.ImageLockMode;
 using TexTarget = OpenTK.Graphics.OpenGL4.TextureTarget;
 using TexParamName = OpenTK.Graphics.OpenGL4.TextureParameterName;
@@ -11,8 +13,7 @@ using CpuFormat = System.Drawing.Imaging.PixelFormat;
 using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
 using GpuColorFormat = OpenTK.Graphics.OpenGL4.PixelInternalFormat;
 using TexParameter = OpenTK.Graphics.OpenGL4.GetTextureParameter;
-using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 
 namespace App
 {
@@ -20,16 +21,17 @@ namespace App
     {
         #region FIELDS
         [FxField] private string[] File = null;
-        [FxField] public int Width = 1;
-        [FxField] public int Height = 0;
-        [FxField] public int Depth = 0;
-        [FxField] public int Length = 0;
+        [FxField] public int[] Size = null;
         [FxField] public int Mipmaps = 0;
         [FxField] private TexTarget Type = 0;
         [FxField] private GpuFormat Format = GpuFormat.Rgba8;
         #endregion
 
         #region PROPERTIES
+        public int Width { get { return Size[0]; } set { Size[0] = value; } }
+        public int Height { get { return Size[1]; } set { Size[1] = value; } }
+        public int Depth { get { return Size[2]; } set { Size[2] = value; } }
+        public int Length { get { return Size[3]; } set { Size[3] = value; } }
         public TexTarget Target { get { return Type; } private set { Type = value; } }
         public GpuFormat GpuFormat { get { return Format; } private set { Format = value; } }
         #endregion
@@ -45,17 +47,18 @@ namespace App
         {
             int f, t;
             this.glname = glname;
+            this.Size = Enumerable.Repeat(1, 4).ToArray();
             GL.GetTextureParameter(glname, TexParameter.TextureTarget, out t);
             GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureInternalFormat, out f);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureWidth, out Width);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureHeight, out Height);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureDepth, out Depth);
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureWidth, out Size[0]);
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureHeight, out Size[1]);
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureDepth, out Size[2]);
             Type = (TexTarget)t;
             Format = (GpuFormat)f;
             if (Type != TexTarget.Texture3D)
             {
-                Length = Depth;
-                Depth = 0;
+                Size[3] = Size[2];
+                Size[2] = 1;
             }
         }
 
@@ -71,32 +74,42 @@ namespace App
             // PARSE ARGUMENTS
             Cmds2Fields(block, err);
 
+            if (Target == 0 && Size == null)
+                err.Add("Texture needs to specify a file or texture size " +
+                    "(e.g., size <width> <height> <depth> <length>).", block);
+
             // on errors throw an exception
             if (err.HasErrors())
                 throw err;
 
+            // complete size array
+            if (Size == null)
+                Size = Enumerable.Repeat(1, 4).ToArray();
+            else if (Size.Length < 4)
+                Size = Enumerable.Range(0, 4).Select(i => i < Size.Length ? Size[i] : 1).ToArray();
+
+            // LOAD IMAGE DATA
+            var dir = Path.GetDirectoryName(block.Filename) + Path.DirectorySeparatorChar;
+            var data = LoadImageFiles(dir, File, Size, Format);
+
             // if type was not specified
             if (Target == 0)
             {
-                if (Width > 0 && Height == 1 && Depth == 0 && Length == 0)
+                if (Width > 1 && Height == 1 && Depth == 1 && Length == 1)
                     Target = TexTarget.Texture1D;
-                else if (Width > 0 && Height == 1 && Depth == 0 && Length > 0)
+                else if (Width > 1 && Height == 1 && Depth == 1 && Length > 1)
                     Target = TexTarget.Texture1DArray;
-                else if (Width > 0 && Height > 1 && Depth == 0 && Length == 0)
+                else if (Width > 1 && Height > 1 && Depth == 1 && Length == 1)
                     Target = TexTarget.Texture2D;
-                else if (Width > 0 && Height > 1 && Depth == 0 && Length > 0)
+                else if (Width > 1 && Height > 1 && Depth == 1 && Length > 1)
                     Target = TexTarget.Texture2DArray;
-                else if (Width > 0 && Height > 1 && Depth > 0 && Length == 0)
+                else if (Width > 1 && Height > 1 && Depth > 1 && Length == 1)
                     Target = TexTarget.Texture3D;
                 else
                     err.Add("Texture type could not be derived from 'width', 'height', "
                         + "'depth' and 'length'. Please check these parameters or specify "
                         + "the type directly (e.g. 'type = texture2D').", block);
             }
-
-            // LOAD IMAGE DATA
-            string dir = Path.GetDirectoryName(block.File) + Path.DirectorySeparatorChar;
-            var data = LoadImageFiles(dir, File, ref Width, ref Height, ref Depth, Format);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenTexture();
@@ -309,8 +322,7 @@ namespace App
         /// <param name="d">number of texture layers</param>
         /// <param name="gpuformat"></param>
         /// <returns></returns>
-        private static byte[] LoadImageFiles(string dir, string[] filepaths,
-            ref int w, ref int h, ref int d, GpuFormat gpuformat)
+        private static byte[] LoadImageFiles(string dir, string[] filepaths, int[] size, GpuFormat gpuformat)
         {
             // SET DEFAULT DATA FOR OUTPUTS
             byte[] data = null;
@@ -327,36 +339,39 @@ namespace App
                 var bmps = new Bitmap[filepaths.Length];
                 int imgW = int.MaxValue;
                 int imgH = int.MaxValue;
-                int imgD = d > 0 ? Math.Min(filepaths.Length, d) : filepaths.Length;
+                int imgL = size[3] > 0 ? Math.Min(filepaths.Length, size[3]) : filepaths.Length;
 
-                for (int i = 0; i < imgD; i++)
+                for (int i = 0; i < imgL; i++)
                 {
-                    var path = Path.IsPathRooted(filepaths[i]) ? filepaths[i] : dir + filepaths[i];
-                    bmps[i] = new Bitmap(path);
+                    var path = filepaths[i];
+                    bmps[i] = new Bitmap(Path.IsPathRooted(path) ? path : dir + path);
                     imgW = Math.Min(bmps[i].Width, imgW);
                     imgH = Math.Min(bmps[i].Height, imgH);
                 }
 
                 // if w, h and d where not set by the user,
                 // use the minimal image size
-                if (w == 1 && h == 0 && d == 0)
+                if (size.All(x => x == 1))
                 {
-                    w = imgW;
-                    h = imgH;
-                    d = imgD;
+                    size[0] = imgW;
+                    size[1] = imgH;
+                    size[2] = 1;
+                    size[3] = imgL;
                 }
+                else if (size[2] > 1 && size[3] > 1)
+                    size[2] = 1;
 
                 // allocate texture memory
-                data = new byte[pixelsize * w * h * d];
+                data = new byte[pixelsize * size[0] * size[1] * size[2] * size[3]];
 
                 // copy data to texture memory
-                for (int i = 0; i < imgD; i++)
+                for (int i = 0; i < imgL; i++)
                 {
                     bmps[i].RotateFlip(RotateFlipType.RotateNoneFlipY);
                     var bits = bmps[i].LockBits(
-                        new Rectangle(0, 0, Math.Min(bmps[i].Width, w), Math.Min(bmps[i].Height, h)),
+                        new Rectangle(0, 0, Math.Min(bmps[i].Width, size[0]), Math.Min(bmps[i].Height, size[1])),
                         LockMode.ReadOnly, fileformat);
-                    Marshal.Copy(bits.Scan0, data, pixelsize * w * h * i, bits.Stride * bits.Height);
+                    Marshal.Copy(bits.Scan0, data, pixelsize * size[0] * size[1] * i, bits.Stride * bits.Height);
                     bmps[i].UnlockBits(bits);
                 }
             }

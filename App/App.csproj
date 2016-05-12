@@ -153,6 +153,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="demos\atlas\quest.tech" />
     <None Include="demos\shadow_mapping.tech" />
     <None Include="demos\shadow_mapping_pcf.tech" />
     <None Include="demos\shadow_mapping_pcf2.tech" />
@@ -184,6 +185,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="resources\dbgBody.txt" />
+    <None Include="resources\Poisson.txt" />
+    <None Include="resources\ImgUncomment.png" />
+    <None Include="resources\ImgComment.png" />
     <None Include="resources\keywords.txt" />
     <None Include="resources\ImgPick.png" />
     <None Include="resources\ImgDbg.png" />
@@ -221,6 +225,17 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="resources\wiki\" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="MLApp">
+      <Guid>{C36E46AB-6A81-457B-9F91-A7719A06287F}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace App
@@ -13,12 +14,13 @@ namespace App
     {
         public static CultureInfo Culture = new CultureInfo("en");
         public CodeEditor CompiledEditor = null;
+        private Regex RegexLineComment = new Regex(@"\s*//");
 
         public App()
         {
             InitializeComponent();
         }
-
+        
         #region Form Control
         /// <summary>
         /// On loading the app, load form settings and instantiate GLSL debugger.
@@ -241,6 +243,7 @@ namespace App
             // clear scene and output
             output.Rows.Clear();
             glControl.ClearScene();
+            glControl.RemoveEvents();
 
             // get include directory
             var includeDir = (sourceTab.filepath != null
@@ -256,6 +259,9 @@ namespace App
 
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
             var ex = root.Catch(x => glControl.AddObject(x, debugging)).ToArray();
+            // add events to the end of the event list
+            glControl.AddEvents();
+            glControl.MouseUp += new MouseEventHandler(glControl_MouseUp);
 
             // show errors
             var exc = from x in ex
@@ -275,7 +281,7 @@ namespace App
 
             // SHOW SCENE
             glControl.Render();
-            
+
             // add externally created textures to the scene
             var existing = glControl.Scene.Values.ToArray();
             GLImage.FindTextures(existing).ForEach(x => glControl.Scene.Add(x.name, x));
@@ -345,14 +351,14 @@ namespace App
         {
             if (tabSource.SelectedIndex < 0 || tabSource.SelectedIndex >= tabSource.TabPages.Count)
                 return;
-            var tabSourcePage = (TabPageEx)tabSource.SelectedTab;
-            if (tabSourcePage.Text.EndsWith("*"))
+            var tab = (TabPageEx)tabSource.SelectedTab;
+            if (tab.Text.EndsWith("*"))
             {
                 DialogResult answer = MessageBox.Show(
                     "Do you want to save the file before closing it?",
                     "File changed", MessageBoxButtons.YesNo);
                 if (answer == DialogResult.Yes)
-                    SaveTabPage(tabSourcePage, false);
+                    SaveTabPage(tab, false);
             }
             tabSource.TabPages.RemoveAt(tabSource.SelectedIndex);
         }
@@ -364,8 +370,83 @@ namespace App
         /// <param name="e"></param>
         private void toolBtnPick_CheckedChanged(object sender, EventArgs e)
             => glControl.Cursor = toolBtnPick.Checked ? Cursors.Cross : Cursors.Default;
+
+        /// <summary>
+        /// Insert comment in all selected lines.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolBtnComment_Click(object sender, EventArgs e)
+        {
+            var editor = (CodeEditor)((TabPageEx)tabSource.SelectedTab)?.Controls[0];
+            if (editor == null)
+                return;
+
+            // gather some information
+            int tabWidth = editor.TabWidth;
+            int startLine = editor.LineFromPosition(editor.SelectionStart);
+            int endLine = editor.LineFromPosition(editor.SelectionEnd);
+
+            // find the minimal indent of blank spaces
+            var minOffset = editor.Lines
+                // for all selected lines 
+                .Skip(startLine).Take(endLine - startLine + 1).Select(x => x.Text
+                    // while lines starts with whitespace
+                    .TakeWhile(c => c == '\t' || c == ' ')
+                    // count space
+                    .Select(c => c == '\t' ? tabWidth : 1).Sum())
+                // find minimum
+                .Min();
+
+            // for all selected lines, insert the comment at minOffset
+            for (int i = startLine; i <= endLine; i++)
+            {
+                var text = editor.Lines[i].Text;
+
+                // get insert offset
+                int offset = 0, n;
+                for (n = minOffset; offset < text.Length && n > 0; offset++)
+                    n -= text[offset] == '\t' ? tabWidth : 1;
+
+                // insert comment
+                editor.InsertText(editor.Lines[i].Position + offset, "//");
+            }
+
+            // reselect text
+            editor.SelectionStart = editor.Lines[startLine].Position;
+            editor.SelectionEnd = editor.Lines[endLine].EndPosition - 1;
+        }
+
+        /// <summary>
+        /// Remove the leading line comment of the selected lines.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolBtnUncomment_Click(object sender, EventArgs e)
+        {
+            var editor = (CodeEditor)((TabPageEx)tabSource.SelectedTab)?.Controls[0];
+            if (editor == null)
+                return;
+
+            // gather some information
+            int startLine = editor.LineFromPosition(editor.SelectionStart);
+            int endLine = editor.LineFromPosition(editor.SelectionEnd);
+
+            // for all selected lines, remove the comment
+            for (int i = startLine; i <= endLine; i++)
+            {
+                var line = editor.Lines[i];
+                var match = RegexLineComment.Match(line.Text);
+                if (match.Success)
+                    editor.DeleteRange(line.Position + match.Index + match.Length - 2, 2);
+            }
+
+            // reselect text
+            editor.SelectionStart = editor.Lines[startLine].Position;
+            editor.SelectionEnd = editor.Lines[endLine].EndPosition - 1;
+        }
         #endregion
-        
+
         #region UTIL
         /// <summary>
         /// Save tab.

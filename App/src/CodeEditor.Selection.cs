@@ -12,7 +12,7 @@ namespace App
             // setup indicator colors
             Indicators[HighlightIndicatorIndex].Style = IndicatorStyle.StraightBox;
             Indicators[HighlightIndicatorIndex].Under = true;
-            Indicators[HighlightIndicatorIndex].ForeColor = Color.Crimson;
+            Indicators[HighlightIndicatorIndex].ForeColor = ColorTranslator.FromHtml("0xFF3C14DC");
             Indicators[HighlightIndicatorIndex].OutlineAlpha = 60;
             Indicators[HighlightIndicatorIndex].Alpha = 40;
             Indicators[DebugIndicatorIndex].ForeColor = Color.Red;

@@ -6,46 +6,51 @@ namespace App
 {
     partial class CodeEditor
     {
-        private static FXLexer FxLexer;
+        private static FxLexer FxLexer;
 
         /// <summary>
         /// Initialize code highlighting.
         /// </summary>
         private void InitializeHighlighting()
         {
+            StyleNeeded += new EventHandler<StyleNeededEventArgs>(HandleStyleNeeded);
+
             StyleResetDefault();
             Styles[Style.Default].Font = "Consolas";
             Styles[Style.Default].Size = 10;
             StyleClearAll();
 
             Styles[Style.LineNumber].ForeColor = Color.Gray;
-            Styles[(int)FXLexer.Styles.Folding].ForeColor = Color.Red;
 
             // set styles as defined in the keyword file
             foreach (var def in FxLexer.Defs)
             {
-                if (def.Value != null)
-                {
-                    Styles[def.Value.Id].ForeColor = def.Value.ForeColor;
-                    Styles[def.Value.Id].BackColor = def.Value.BackColor;
-                }
+                if (def.Value == null)
+                    continue;
+                Styles[def.Value.Id].ForeColor = def.Value.ForeColor;
+                Styles[def.Value.Id].BackColor = def.Value.BackColor;
             }
 
             Lexer = Lexer.Container;
         }
 
         /// <summary>
-        /// Update code styling between start and end position.
+        /// Handle style needed event.
         /// </summary>
-        /// <param name="startPos"></param>
-        /// <param name="endPos"></param>
-        private void UpdateCodeStyling(int startPos, int endPos)
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleStyleNeeded(object sender, StyleNeededEventArgs e)
         {
-            var line = LineFromPosition(GetEndStyled());
-            // get start and end position of the region that needs to be styled
-            FxLexer.Style(this, Lines[line].Position, endPos);
-        }
+            try
+            {
+                FxLexer.Style(this, GetEndStyled(), e.Position);
+            }
+            catch
+            {
 
+            }
+        }
+        
         /// <summary>
         /// Update code folding between start and end line.
         /// </summary>

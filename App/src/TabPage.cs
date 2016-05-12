@@ -21,8 +21,11 @@
         public static int IndexOf(this TabControl.TabPageCollection tab, string path)
         {
             for (int i = 0; i < tab.Count; i++)
-                if (((TabPageEx)tab[i]).filepath.Equals(path, StringComparison.CurrentCultureIgnoreCase))
+            {
+                var t = (TabPageEx)tab[i];
+                if (t.filepath != null && t.filepath.Equals(path, StringComparison.CurrentCultureIgnoreCase))
                     return i;
+            }
             return -1;
         }
     }

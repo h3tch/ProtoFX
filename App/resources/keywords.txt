@@ -1,14 +1,14 @@
 ﻿// 0 default #C0C0C0
 // 0 identifier #000000
-// 0 comment #7F9F00
-// 0 operator #6080D0
-// 0 punctuation #C0C0C0
-// 0 preprocessor #E47426
 // 0 number #108030
 // 0 string #800000
 // 0 char #A03030
+// 0 linecomment #7F9F00
+// 0 blockcomment #7F9F00
+// 0 preprocessor #E47426
+// 0 operator #6080D0
+// 0 punctuation #C0C0C0
 // 0 block #0000FF
-// 0 folding #AAAAAA
 // 1 annotation #0099CC
 // 2 command #6666FF
 // 3 argument #6633CC
@@ -34,6 +34,7 @@
 [0]buffer[2]usage[3]streamRead
 [0]buffer[2]xml|xml <path> <node>
 [0]csharp|csharp <name>
+[0]csharp[2]assembly|assembly <path> [path] [...]
 [0]csharp[2]file|file <path> [path] [...]
 [0]fragoutput|fragoutput <name>
 [0]fragoutput[2]color|color <image_name>
@@ -41,7 +42,6 @@
 [0]fragoutput[2]height|height <pixels>
 [0]fragoutput[2]width|width <pixels>
 [0]image|image <name>
-[0]image[2]depth|depth <layers>
 [0]image[2]file|file <path> [path] [...]
 [0]image[2]format|format <pixel_format>
 [0]image[2]format[3]depth
@@ -92,19 +92,18 @@
 [0]image[2]format[3]rgba32i
 [0]image[2]format[3]rgba32ui
 [0]image[2]format[3]rgba32f
-[0]image[2]height|height <pixels>
-[0]image[2]length|length <layers>
+[0]image[2]size|width <width> <height> <depth> <length>
 [0]image[2]type|type <texture_type>
 [0]image[2]type[3]texture1D|1D texture
 [0]image[2]type[3]texture2D|2D texture
 [0]image[2]type[3]texture3D|3D texture/volume texture
 [0]image[2]type[3]texture1DArray|1D texture array
 [0]image[2]type[3]texture2DArray|2D texture array
-[0]image[2]width|width <pixels>
 [0]instance|instance <name>
 [0]instance[2]class|class <csharp_name> <c#_class>
 [0]instance[2]name|name <new_name>
 [0]pass|pass <name>
+[0]pass[6]break
 [0]pass[2]comp|comp <shader_name>
 [0]pass[2]compute|Dispatch compute shader call.
    compute <num_group_x> <num_group_y> [num_group_z]
@@ -558,6 +557,7 @@
 [0]shader[4]faceforward|return a vector pointing in the same direction as another
    genType  faceforward(genType  N, genType  I, genType  Nref)
    genDType faceforward(genDType N, genDType I, genDType Nref)
+[0]shader[9]false
 [0]shader[4]findLSB|find the index of the least significant
  bit set to 1 in an integer
    genIType findLSB(genIType value)
@@ -1530,6 +1530,7 @@
    dmat3x4 transpose(dmat4x3 m)
    dmat4x2 transpose(dmat2x4 m)
    dmat4x3 transpose(dmat3x4 m)
+[0]shader[9]true
 [0]shader[4]trunc|find the nearest integer less
  than or equal to the parameter
    genType  trunc(genType  x)

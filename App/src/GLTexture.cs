@@ -71,7 +71,7 @@ namespace App
                 throw err;
 
             // INCASE THIS IS A TEXTURE OBJECT
-            Link(block.File, block.LineInFile, err);
+            Link(block.Filename, block.LineInFile, err);
             if (HasErrorOrGlError(err, block))
                 throw err;
         }

@@ -72,7 +72,7 @@ namespace App
             MethodInfo glIs, MethodInfo glLabel, int range)
         {
             // select all object IDs in the scene that are of one of the specified types
-            var internID = from x in existing where x.TypeIs(types) select x.glname;
+            var internID = from x in existing where types.Any(y => y == x.GetType()) select x.glname;
             // find all external object IDs of the same type in OpenGL
             var externID = from x in Enumerable.Range(0, range)
                            where !internID.Contains(x) && (bool)glIs.Invoke(null, new object[] { x })
@@ -183,15 +183,24 @@ namespace App
             if (err != null && err.HasErrors())
                 return;
 
-            var val = fieldType.IsArray 
-                // if this is an array pass the arguments as string
-                ? cmd.Select(x => x.Text).ToArray()
-                // if this is an enumerable type
-                : fieldType.IsEnum
+            object val = null;
+
+            if (fieldType.IsArray)
+            {
+                var elType = fieldType.GetElementType();
+                var array = Array.CreateInstance(elType, cmd.Length);
+                for (int i = 0; i < cmd.Length; i++)
+                    array.SetValue(Convert.ChangeType(cmd[i].Text, elType, App.Culture), i);
+                val = array;
+            }
+            else
+            {
+                val = fieldType.IsEnum
                     // if this is an enum, convert the string to an enum value
                     ? Convert.ChangeType(Enum.Parse(fieldType, cmd[0].Text, true), fieldType)
                     // else try to convert it to the field type
                     : Convert.ChangeType(cmd[0].Text, fieldType, App.Culture);
+            }
 
             // set value of the field
             field.GetType()
