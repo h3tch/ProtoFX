@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace App
@@ -13,6 +14,7 @@ namespace App
     {
         public static CultureInfo Culture = new CultureInfo("en");
         public CodeEditor CompiledEditor = null;
+        private Regex RegexLineComment = new Regex(@"\s*//");
 
         public App()
         {
@@ -370,7 +372,7 @@ namespace App
             => glControl.Cursor = toolBtnPick.Checked ? Cursors.Cross : Cursors.Default;
 
         /// <summary>
-        /// 
+        /// Insert comment in all selected lines.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -380,28 +382,43 @@ namespace App
             if (editor == null)
                 return;
 
+            // gather some information
             int tabWidth = editor.TabWidth;
             int startLine = editor.LineFromPosition(editor.SelectionStart);
             int endLine = editor.LineFromPosition(editor.SelectionEnd);
 
-            var offsets = editor.Lines.Skip(startLine).Take(endLine - startLine + 1)
-                .Select(x => x.Text.TakeWhile(c => c == '\t' || c == ' ')
-                    .Select(c => c == '\t' ? tabWidth : 1)
-                    .Sum()).ToArray();
-            var minOffset = offsets.Min();
+            // find the minimal indent of blank spaces
+            var minOffset = editor.Lines
+                // for all selected lines 
+                .Skip(startLine).Take(endLine - startLine + 1).Select(x => x.Text
+                    // while lines starts with whitespace
+                    .TakeWhile(c => c == '\t' || c == ' ')
+                    // count space
+                    .Select(c => c == '\t' ? tabWidth : 1).Sum())
+                // find minimum
+                .Min();
 
+            // for all selected lines, insert the comment at minOffset
             for (int i = startLine; i <= endLine; i++)
             {
                 var text = editor.Lines[i].Text;
-                int offset = 0;
-                for (int n = minOffset; offset < text.Length && n > 0; offset++)
+
+                // get insert offset
+                int offset = 0, n;
+                for (n = minOffset; offset < text.Length && n > 0; offset++)
                     n -= text[offset] == '\t' ? tabWidth : 1;
-                editor.InsertText(editor.Lines[i].Position + offset, "// ");
+
+                // insert comment
+                editor.InsertText(editor.Lines[i].Position + offset, "//");
             }
+
+            // reselect text
+            editor.SelectionStart = editor.Lines[startLine].Position;
+            editor.SelectionEnd = editor.Lines[endLine].EndPosition - 1;
         }
 
         /// <summary>
-        /// 
+        /// Remove the leading line comment of the selected lines.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -410,6 +427,23 @@ namespace App
             var editor = (CodeEditor)((TabPageEx)tabSource.SelectedTab)?.Controls[0];
             if (editor == null)
                 return;
+
+            // gather some information
+            int startLine = editor.LineFromPosition(editor.SelectionStart);
+            int endLine = editor.LineFromPosition(editor.SelectionEnd);
+
+            // for all selected lines, remove the comment
+            for (int i = startLine; i <= endLine; i++)
+            {
+                var line = editor.Lines[i];
+                var match = RegexLineComment.Match(line.Text);
+                if (match.Success)
+                    editor.DeleteRange(line.Position + match.Index + match.Length - 2, 2);
+            }
+
+            // reselect text
+            editor.SelectionStart = editor.Lines[startLine].Position;
+            editor.SelectionEnd = editor.Lines[endLine].EndPosition - 1;
         }
         #endregion
 
