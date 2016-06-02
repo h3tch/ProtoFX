@@ -29,7 +29,8 @@ namespace App
         /// <param name="e"></param>
         private void App_Load(object sender, EventArgs e)
         {
-            // load previous window state
+            // LOAD PREVIOUS WINDOW STATE
+
             if (System.IO.File.Exists(Properties.Resources.WINDOW_SETTINGS_FILE))
             {
                 // load settings
@@ -42,12 +43,15 @@ namespace App
                 Width = settings.Width;
                 Height = settings.Height;
                 WindowState = settings.WindowState;
+
+                // place splitters by percentage
                 splitRenderCoding.SplitterDistance = (int)(settings.SplitRenderCoding * splitRenderCoding.Width);
                 splitRenderOutput.SplitterDistance = (int)(settings.SplitRenderOutput * splitRenderOutput.Height);
                 splitDebug.SplitterDistance = (int)(settings.SplitDebug * splitDebug.Height);
             }
             else
             {
+                // place splitters by percentage
                 splitRenderCoding.SplitterDistance = (int)(0.4 * splitRenderCoding.Width);
                 splitRenderOutput.SplitterDistance = (int)(0.7 * splitRenderOutput.Height);
                 splitDebug.SplitterDistance = (int)(0.55 * splitDebug.Width);
@@ -55,13 +59,20 @@ namespace App
 
             // select 'float' as the default buffer value type
             comboBufType.SelectedIndex = 8;
+            
+            // LINK PROPERTY VIEWER TO DEBUG SETTINGS
 
-            // place splitters by percentage
-
-            // link property viewer to debug settings
             FxDebugger.Instantiate();
             debugProperty.SelectedObject = FxDebugger.Settings;
             debugProperty.CollapseAllGridItems();
+
+            // PROCESS COMMAND LINE ARGUMENTS
+
+            ProcessCommandLineArgs(Environment.GetCommandLineArgs());
+
+            // CLEAR OPENGL CONTROL
+
+            glControl.Render();
         }
 
         /// <summary>
@@ -507,6 +518,55 @@ namespace App
             return tabSource.TabPages.Count - 1;
         }
 
+        private void ProcessCommandLineArgs(string[] args)
+        {
+            // process potential tech files
+            foreach (var techfile in args.Skip(1).Where(x => !x.StartsWith("-")))
+            {
+                if (System.IO.File.Exists(techfile))
+                    tabSource.SelectedIndex = AddTab(techfile);
+            }
+
+            // process potential settings
+            foreach (var arg in args.Skip(1).Where(x => x.StartsWith("-")))
+            {
+                var a = arg.Split(new[] { ':' });
+                switch (a[0])
+                {
+                    case "-HideGui":
+                        HideDeveloperGui(true);
+                        break;
+                    case "-Compile":
+                        toolBtnRunDebug_Click(null, null);
+                        break;
+                    case "-Title":
+                        if (a.Length > 1)
+                            Text = a[1];
+                        break;
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Hide or show developer graphical user interface.
+        /// </summary>
+        /// <param name="hide"></param>
+        private void HideDeveloperGui(bool hide)
+        {
+            splitRenderCoding.Panel2Collapsed = hide;
+            splitRenderOutput.Panel2Collapsed = hide;
+            if (hide)
+            {
+                splitRenderCoding.Panel2.Hide();
+                splitRenderOutput.Panel2.Hide();
+            }
+            else
+            {
+                splitRenderCoding.Panel2.Show();
+                splitRenderOutput.Panel2.Show();
+            }
+        }
+        
         /// <summary>
         /// Get code editor of the currently active tab.
         /// </summary>
