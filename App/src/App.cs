@@ -47,7 +47,7 @@ namespace App
                 // place splitters by percentage
                 splitRenderCoding.SplitterDistance = (int)(settings.SplitRenderCoding * splitRenderCoding.Width);
                 splitRenderOutput.SplitterDistance = (int)(settings.SplitRenderOutput * splitRenderOutput.Height);
-                splitDebug.SplitterDistance = (int)(settings.SplitDebug * splitDebug.Height);
+                splitDebug.SplitterDistance = (int)(settings.SplitDebug * splitDebug.Width);
             }
             else
             {
@@ -68,10 +68,11 @@ namespace App
 
             // PROCESS COMMAND LINE ARGUMENTS
 
-            ProcessCommandLineArgs(Environment.GetCommandLineArgs());
+            ProcessArgs(Environment.GetCommandLineArgs());
 
             // CLEAR OPENGL CONTROL
 
+            glControl.AddEvents();
             glControl.Render();
         }
 
@@ -114,6 +115,7 @@ namespace App
                 Left = Left, Top = Top, Width = Width, Height = Height, WindowState = WindowState,
                 SplitRenderCoding = (float)splitRenderCoding.SplitterDistance / splitRenderCoding.Width,
                 SplitRenderOutput = (float)splitRenderOutput.SplitterDistance / splitRenderOutput.Height,
+                SplitDebug = (float)splitDebug.SplitterDistance / splitDebug.Width,
             };
 
             // if the state is not normal, make it normal
@@ -518,14 +520,16 @@ namespace App
             return tabSource.TabPages.Count - 1;
         }
 
-        private void ProcessCommandLineArgs(string[] args)
+        /// <summary>
+        /// Process list of command line arguments.
+        /// </summary>
+        /// <param name="args">command line arguments</param>
+        private void ProcessArgs(string[] args)
         {
             // process potential tech files
-            foreach (var techfile in args.Skip(1).Where(x => !x.StartsWith("-")))
-            {
-                if (System.IO.File.Exists(techfile))
-                    tabSource.SelectedIndex = AddTab(techfile);
-            }
+            tabSource.SelectedIndex = args.Skip(1)
+                .Where(x => !x.StartsWith("-") && System.IO.File.Exists(x))
+                .Select(x => AddTab(x)).LastOrDefault();
 
             // process potential settings
             foreach (var arg in args.Skip(1).Where(x => x.StartsWith("-")))
@@ -533,16 +537,9 @@ namespace App
                 var a = arg.Split(new[] { ':' });
                 switch (a[0])
                 {
-                    case "-HideGui":
-                        HideDeveloperGui(true);
-                        break;
-                    case "-Compile":
-                        toolBtnRunDebug_Click(null, null);
-                        break;
-                    case "-Title":
-                        if (a.Length > 1)
-                            Text = a[1];
-                        break;
+                    case "-HideGui": HideDeveloperGui(true); break;
+                    case "-Compile": toolBtnRunDebug_Click(null, null); break;
+                    case "-Title": Text = a.Length > 1 ? a[1] : Text; break;
                 }
             }
         }
