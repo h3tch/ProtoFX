@@ -39,9 +39,6 @@ namespace App
             settings.PlaceOnScreen(this);
             // place splitters
             settings.AdjustGUI(this);
-
-            // select 'float' as the default buffer value type
-            comboBufType.SelectedIndex = 8;
             
             // LINK PROPERTY VIEWER TO DEBUG SETTINGS
 
@@ -642,6 +639,8 @@ namespace App
                     (int)(SplitRenderOutput * app.splitRenderOutput.Height);
                 app.splitDebug.SplitterDistance =
                     (int)(SplitDebug * app.splitDebug.Width);
+                // select 'float' as the default buffer value type
+                app.comboBufType.SelectedIndex = 8;
             }
         }
         #endregion
