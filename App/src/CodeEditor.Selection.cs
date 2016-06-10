@@ -7,6 +7,9 @@ namespace App
 {
     partial class CodeEditor
     {
+        /// <summary>
+        /// Initialize background selection part of the class.
+        /// </summary>
         private void InitializeSelection()
         {
             // setup indicator colors
@@ -114,6 +117,10 @@ namespace App
                     GetWordFromPosition(selection.Caret) :
                     // get selected text
                     GetTextRange(selection.Start, len);
+
+                // trim word to make sure
+                // blanks are not selected
+                word = word.Trim();
 
                 // do not add empty strings 
                 // (GetWordFromPosition can return those)

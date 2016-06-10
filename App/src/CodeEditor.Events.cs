@@ -10,6 +10,9 @@ namespace App
     {
         private bool DisableEditing = false;
 
+        /// <summary>
+        /// Initialize class events.
+        /// </summary>
         private void InitializeEvents()
         {
             // enable drag & drop
