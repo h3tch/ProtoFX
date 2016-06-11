@@ -175,10 +175,12 @@ namespace OpenTK
                 Render();
         }
 
-        public void HandleKeyUp(object sender, KeyEventArgs e)
-        {
-            Render();
-        }
+        /// <summary>
+        /// On key up, render.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void HandleKeyUp(object sender, KeyEventArgs e) => Render();
         #endregion
     }
 }

@@ -29,39 +29,31 @@ namespace App
         /// <param name="e"></param>
         private void App_Load(object sender, EventArgs e)
         {
-            // load previous window state
-            if (System.IO.File.Exists(Properties.Resources.WINDOW_SETTINGS_FILE))
-            {
-                // load settings
-                var settings = XmlSerializer.Load<FormSettings>(Properties.Resources.WINDOW_SETTINGS_FILE);
-                // place form completely inside a screen
-                settings.PlaceOnScreen();
-                // update window
-                Left = Math.Max(0, settings.Left);
-                Top = Math.Max(0, settings.Top);
-                Width = settings.Width;
-                Height = settings.Height;
-                WindowState = settings.WindowState;
-                splitRenderCoding.SplitterDistance = (int)(settings.SplitRenderCoding * splitRenderCoding.Width);
-                splitRenderOutput.SplitterDistance = (int)(settings.SplitRenderOutput * splitRenderOutput.Height);
-                splitDebug.SplitterDistance = (int)(settings.SplitDebug * splitDebug.Height);
-            }
-            else
-            {
-                splitRenderCoding.SplitterDistance = (int)(0.4 * splitRenderCoding.Width);
-                splitRenderOutput.SplitterDistance = (int)(0.7 * splitRenderOutput.Height);
-                splitDebug.SplitterDistance = (int)(0.55 * splitDebug.Width);
-            }
+            // LOAD PREVIOUS WINDOW STATE
+            
+            // load settings
+            var settings = System.IO.File.Exists(Properties.Resources.WINDOW_SETTINGS_FILE)
+                ? XmlSerializer.Load<FormSettings>(Properties.Resources.WINDOW_SETTINGS_FILE)
+                : new FormSettings(this);
+            // place form completely inside a screen
+            settings.PlaceOnScreen(this);
+            // place splitters
+            settings.AdjustGUI(this);
+            
+            // LINK PROPERTY VIEWER TO DEBUG SETTINGS
 
-            // select 'float' as the default buffer value type
-            comboBufType.SelectedIndex = 8;
-
-            // place splitters by percentage
-
-            // link property viewer to debug settings
             FxDebugger.Instantiate();
             debugProperty.SelectedObject = FxDebugger.Settings;
             debugProperty.CollapseAllGridItems();
+
+            // PROCESS COMMAND LINE ARGUMENTS
+
+            ProcessArgs(Environment.GetCommandLineArgs());
+
+            // CLEAR OPENGL CONTROL
+
+            glControl.AddEvents();
+            glControl.Render();
         }
 
         /// <summary>
@@ -103,6 +95,7 @@ namespace App
                 Left = Left, Top = Top, Width = Width, Height = Height, WindowState = WindowState,
                 SplitRenderCoding = (float)splitRenderCoding.SplitterDistance / splitRenderCoding.Width,
                 SplitRenderOutput = (float)splitRenderOutput.SplitterDistance / splitRenderOutput.Height,
+                SplitDebug = (float)splitDebug.SplitterDistance / splitDebug.Width,
             };
 
             // if the state is not normal, make it normal
@@ -508,6 +501,50 @@ namespace App
         }
 
         /// <summary>
+        /// Process list of command line arguments.
+        /// </summary>
+        /// <param name="args">command line arguments</param>
+        private void ProcessArgs(string[] args)
+        {
+            // process potential tech files
+            tabSource.SelectedIndex = args.Skip(1)
+                .Where(x => !x.StartsWith("-") && System.IO.File.Exists(x))
+                .Select(x => AddTab(x)).LastOrDefault();
+
+            // process potential settings
+            foreach (var arg in args.Skip(1).Where(x => x.StartsWith("-")))
+            {
+                var a = arg.Split(new[] { ':' });
+                switch (a[0])
+                {
+                    case "-HideGui": HideDeveloperGui(true); break;
+                    case "-Compile": toolBtnRunDebug_Click(null, null); break;
+                    case "-Title": Text = a.Length > 1 ? a[1] : Text; break;
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Hide or show developer graphical user interface.
+        /// </summary>
+        /// <param name="hide"></param>
+        private void HideDeveloperGui(bool hide)
+        {
+            splitRenderCoding.Panel2Collapsed = hide;
+            splitRenderOutput.Panel2Collapsed = hide;
+            if (hide)
+            {
+                splitRenderCoding.Panel2.Hide();
+                splitRenderOutput.Panel2.Hide();
+            }
+            else
+            {
+                splitRenderCoding.Panel2.Show();
+                splitRenderOutput.Panel2.Show();
+            }
+        }
+        
+        /// <summary>
         /// Get code editor of the currently active tab.
         /// </summary>
         /// <returns></returns>
@@ -530,9 +567,26 @@ namespace App
             public float SplitDebug;
 
             /// <summary>
+            /// Default constructor.
+            /// </summary>
+            /// <param name="form"></param>
+            public FormSettings(Form form)
+            {
+                Left = form.Left;
+                Top = form.Top;
+                Width = form.Width;
+                Height = form.Height;
+                WindowState = form.WindowState;
+                SplitRenderCoding = 0.4f;
+                SplitRenderOutput = 0.7f;
+                SplitDebug = 0.55f;
+            }
+
+            /// <summary>
             /// Place the form rectangle completely inside the nearest screen.
             /// </summary>
-            public void PlaceOnScreen()
+            /// <param name="form"></param>
+            public void PlaceOnScreen(Form form)
             {
                 int L1 = int.MaxValue;
                 int X = Left, Y = Top, W = Width, H = Height;
@@ -563,6 +617,30 @@ namespace App
                 Top = Y;
                 Width = W;
                 Height = H;
+                
+                // update window
+                form.Left = Math.Max(0, Left);
+                form.Top = Math.Max(0, Top);
+                form.Width = Width;
+                form.Height = Height;
+                form.WindowState = WindowState;
+            }
+
+            /// <summary>
+            /// Adjust graphical user interface objects.
+            /// </summary>
+            /// <param name="app"></param>
+            public void AdjustGUI(App app)
+            {
+                // place splitters by percentage
+                app.splitRenderCoding.SplitterDistance =
+                    (int)(SplitRenderCoding * app.splitRenderCoding.Width);
+                app.splitRenderOutput.SplitterDistance =
+                    (int)(SplitRenderOutput * app.splitRenderOutput.Height);
+                app.splitDebug.SplitterDistance =
+                    (int)(SplitDebug * app.splitDebug.Width);
+                // select 'float' as the default buffer value type
+                app.comboBufType.SelectedIndex = 8;
             }
         }
         #endregion

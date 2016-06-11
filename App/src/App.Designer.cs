@@ -83,6 +83,7 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.comboProp = new System.Windows.Forms.ComboBox();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
             this.splitRenderCoding.Panel1.SuspendLayout();
             this.splitRenderCoding.Panel2.SuspendLayout();
@@ -386,6 +387,7 @@
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolBtnClose,
             this.toolBtnNew,
+            this.toolStripSeparator4,
             this.toolBtnOpen,
             this.toolBtnSave,
             this.toolBtnSaveAll,
@@ -400,7 +402,7 @@
             this.toolBtnUncomment});
             this.toolStrip.Location = new System.Drawing.Point(0, 3);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(47, 486);
+            this.toolStrip.Size = new System.Drawing.Size(47, 492);
             this.toolStrip.TabIndex = 0;
             // 
             // toolBtnClose
@@ -799,6 +801,11 @@
             this.comboProp.TabIndex = 0;
             this.comboProp.SelectedIndexChanged += new System.EventHandler(this.comboProp_SelectedIndexChanged);
             // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(45, 6);
+            // 
             // App
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -915,5 +922,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton toolBtnComment;
         private System.Windows.Forms.ToolStripButton toolBtnUncomment;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
     }
 }
