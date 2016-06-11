@@ -26,6 +26,11 @@ namespace App
             MouseSelectionRectangularSwitch = true;
             AdditionalSelectionTyping = true;
             VirtualSpaceOptions = VirtualSpace.RectangularSelection;
+
+            // instantiate fields
+            IndicatorRanges = new List<int[]>[Indicators.Count];
+            for (int i = 0; i < Indicators.Count; i++)
+                IndicatorRanges[i] = new List<int[]>();
         }
 
         /// <summary>

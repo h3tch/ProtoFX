@@ -73,9 +73,9 @@ namespace csharp
         #region INNER CLASSES
         class Disc
         {
-            private class DefaultPRNG
+            private class DefaultRandom
             {
-                public DefaultPRNG()
+                public DefaultRandom()
                 {
                     rnd = new Random();
                 }
@@ -93,20 +93,20 @@ namespace csharp
                 private Random rnd;
             };
 
-            private struct sPoint
+            private struct Point
             {
                 public float x;
                 public float y;
                 public bool m_Valid;
 
-                public sPoint(bool valid = false)
+                public Point(bool valid = false)
                 {
                     x = 0;
                     y = 0;
                     m_Valid = valid;
                 }
 
-                public sPoint(float X, float Y)
+                public Point(float X, float Y)
                 {
                     x = X;
                     y = Y;
@@ -130,56 +130,56 @@ namespace csharp
                     return x* x + y* y;
                 }
 
-                public sPoint Sub(sPoint b)
+                public Point Sub(Point b)
                 {
-                    return new sPoint(x - b.x, y - b.y);
+                    return new Point(x - b.x, y - b.y);
                 }
             };
 
-            private struct sGridPoint
+            private struct GridPoint
             {
                 public int x;
                 public int y;
 
-                public sGridPoint(int X, int Y)
+                public GridPoint(int X, int Y)
                 {
                     x = X;
                     y = Y;
                 }
             };
 
-            private static float GetDistance(sPoint P1, sPoint P2 )
+            private static float GetDistance(Point P1, Point P2 )
             {
                 return (float)Math.Sqrt((P1.x - P2.x) * (P1.x - P2.x) + (P1.y - P2.y) * (P1.y - P2.y));
             }
 
-            private static sGridPoint ImageToGrid(sPoint P, float CellSize)
+            private static GridPoint ImageToGrid(Point P, float CellSize)
             {
-                return new sGridPoint((int)(P.x / CellSize), (int)(P.y / CellSize));
+                return new GridPoint((int)(P.x / CellSize), (int)(P.y / CellSize));
             }
 
-            private struct sGrid
+            private struct Grid
             {
-                public sGrid(int W, int H, float CellSize)
+                public Grid(int W, int H, float CellSize)
                 {
                     m_W = W;
                     m_H = H;
                     m_CellSize = CellSize;
-                    m_Grid = new sPoint[m_H][];
+                    m_Grid = new Point[m_H][];
 
                     for (var i = 0; i != m_Grid.Length; i++)
-                        m_Grid[i] = new sPoint[m_W];
+                        m_Grid[i] = new Point[m_W];
                 }
 
-                public void Insert(sPoint P )
+                public void Insert(Point P )
                 {
-                    sGridPoint G = ImageToGrid(P, m_CellSize);
+                    GridPoint G = ImageToGrid(P, m_CellSize);
                     m_Grid[G.x][G.y] = P;
                 }
 
-                public bool IsInNeighbourhood(sPoint Point, float MinDist, float CellSize)
+                public bool IsInNeighbourhood(Point Point, float MinDist, float CellSize)
                 {
-                    sGridPoint G = ImageToGrid(Point, CellSize);
+                    GridPoint G = ImageToGrid(Point, CellSize);
 
                     // number of adjucent cells to look for neighbour points
                     const int D = 5;
@@ -191,7 +191,7 @@ namespace csharp
                         {
                             if (i >= 0 && i < m_W && j >= 0 && j < m_H)
                             {
-                                sPoint P = m_Grid[i][j];
+                                Point P = m_Grid[i][j];
                                 if (P.m_Valid && GetDistance(P, Point) < MinDist)
                                     return true;
                             }
@@ -204,18 +204,18 @@ namespace csharp
                 public int m_W;
                 public int m_H;
                 public float m_CellSize;
-                sPoint[][] m_Grid;
+                Point[][] m_Grid;
             };
 
-            private static sPoint PopRandom(List<sPoint> Points, DefaultPRNG Generator)
+            private static Point PopRandom(List<Point> Points, DefaultRandom Generator)
             {
                 int Idx = Generator.RandomInt(Points.Count - 1);
-                sPoint P = Points[Idx];
+                Point P = Points[Idx];
                 Points.RemoveAt(Idx);
                 return P;
             }
             
-            private static sPoint GenerateRandomPointAround(sPoint P, float MinDist, DefaultPRNG Generator )
+            private static Point GenerateRandomPointAround(Point P, float MinDist, DefaultRandom Generator )
             {
                 // start with non-uniform distribution
                 float R1 = Generator.RandomFloat();
@@ -231,7 +231,7 @@ namespace csharp
                 float X = (float)(P.x + Radius * Math.Cos(Angle));
                 float Y = (float)(P.y + Radius * Math.Sin(Angle));
 
-                return new sPoint(X, Y);
+                return new Point(X, Y);
             }
             
             public static float[,] Generate(int NumPoints = 0, float MinDist = -1f,
@@ -244,9 +244,9 @@ namespace csharp
                 if (NumPoints <= 0)
                     NumPoints = (int)(1 / (MinDist * MinDist));
 
-                var Generator = new DefaultPRNG();
-                var SamplePoints = new List<sPoint>();
-                var ProcessList = new List<sPoint>();
+                var Generator = new DefaultRandom();
+                var SamplePoints = new List<Point>();
+                var ProcessList = new List<Point>();
 
                 // create the grid
                 float CellSize = MinDist / (float)Math.Sqrt(2.0f);
@@ -254,12 +254,12 @@ namespace csharp
                 int GridW = (int)Math.Ceiling(1.0f / CellSize);
                 int GridH = (int)Math.Ceiling(1.0f / CellSize);
 
-                sGrid Grid = new sGrid(GridW, GridH, CellSize);
+                Grid Grid = new Grid(GridW, GridH, CellSize);
 
-                sPoint FirstPoint;
+                Point FirstPoint;
                 do
                 {
-                    FirstPoint = new sPoint(Generator.RandomFloat(), Generator.RandomFloat());
+                    FirstPoint = new Point(Generator.RandomFloat(), Generator.RandomFloat());
                 } while (!(Circle ? FirstPoint.IsInCircle() : FirstPoint.IsInRectangle()));
 
                 // update containers
@@ -270,11 +270,11 @@ namespace csharp
                 // generate new points for each point in the queue
                 while (ProcessList.Count > 0 && SamplePoints.Count < NumPoints)
                 {
-                    sPoint Point = PopRandom(ProcessList, Generator);
+                    Point Point = PopRandom(ProcessList, Generator);
 
                     for (int i = 0; i < NewPointsCount; i++)
                     {
-                        sPoint NewPoint = GenerateRandomPointAround(Point, MinDist, Generator);
+                        Point NewPoint = GenerateRandomPointAround(Point, MinDist, Generator);
 
                         bool Fits = Circle ? NewPoint.IsInCircle() : NewPoint.IsInRectangle();
 

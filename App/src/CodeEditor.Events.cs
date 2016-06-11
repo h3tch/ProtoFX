@@ -15,6 +15,9 @@ namespace App
         /// </summary>
         private void InitializeEvents()
         {
+            TextChanged += new EventHandler(HandleTextChanged);
+            UpdateUI += new EventHandler<UpdateUIEventArgs>(HandleUpdateUI);
+
             // enable drag & drop
             AllowDrop = true;
             DragOver += new DragEventHandler(HandleDragOver);

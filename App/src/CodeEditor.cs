@@ -1,5 +1,4 @@
 ﻿using ScintillaNET;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -123,19 +122,28 @@ namespace App
             InitializeSelection();
             InitializeEvents();
             InitializeAutoC();
+            InitializeCodeFolding();
+            InitializeLayout();
+            
+            // insert text
+            Text = text != null ? text : "";
+            UpdateLineNumbers();
+            UpdateCodeFolding(0, Lines.Count);
+        }
 
-            // instantiate fields
-            IndicatorRanges = new List<int[]>[Indicators.Count];
-            for (int i = 0; i < Indicators.Count; i++)
-                IndicatorRanges[i] = new List<int[]>();
-
-            // setup code folding
+        /// <summary>
+        /// Initialize Scintilla code folding.
+        /// </summary>
+        private void InitializeCodeFolding()
+        {
             SetProperty("fold", "1");
             SetProperty("fold.compact", "1");
+
             Margins[2].Type = MarginType.Symbol;
             Margins[2].Mask = Marker.MaskFolders;
             Margins[2].Sensitive = true;
             Margins[2].Width = 20;
+
             Markers[Marker.FolderEnd].Symbol = MarkerSymbol.BoxPlusConnected;
             Markers[Marker.FolderOpenMid].Symbol = MarkerSymbol.BoxMinusConnected;
             Markers[Marker.FolderMidTail].Symbol = MarkerSymbol.TCorner;
@@ -143,29 +151,36 @@ namespace App
             Markers[Marker.FolderSub].Symbol = MarkerSymbol.VLine;
             Markers[Marker.Folder].Symbol = MarkerSymbol.BoxPlus;
             Markers[Marker.FolderOpen].Symbol = MarkerSymbol.BoxMinus;
+
             for (int i = Marker.FolderEnd; i <= Marker.FolderOpen; i++)
             {
                 Markers[i].SetForeColor(SystemColors.ControlLightLight);
                 Markers[i].SetBackColor(SystemColors.ControlDark);
             }
-            AutomaticFold = (AutomaticFold.Show | AutomaticFold.Click | AutomaticFold.Change);
 
-            // setup layout
+            AutomaticFold = AutomaticFold.Show | AutomaticFold.Click | AutomaticFold.Change;
+        }
+
+        /// <summary>
+        /// Initialize Scintilla editor layout.
+        /// </summary>
+        private void InitializeLayout()
+        {
+            // automatically adjust horizontal scroll bar
+            ScrollWidthTracking = true;
+            ScrollWidth = 5;
+
+            // use tabs instead of spaces
             IndentWidth = 4;
             UseTabs = true;
+
+            // UI style
             BorderStyle = BorderStyle.None;
             Dock = DockStyle.Fill;
             Font = new Font("Consolas", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             Location = new Point(0, 0);
             Margin = new Padding(0);
             TabIndex = 0;
-            TextChanged += new EventHandler(HandleTextChanged);
-            UpdateUI += new EventHandler<UpdateUIEventArgs>(HandleUpdateUI);
-            
-            // insert text
-            Text = text != null ? text : "";
-            UpdateLineNumbers();
-            UpdateCodeFolding(0, Lines.Count);
         }
 
         /// <summary>
