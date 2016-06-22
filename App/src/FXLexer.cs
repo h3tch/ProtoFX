@@ -389,4 +389,197 @@ namespace App
             public Color BackColor;
         }
     }
+
+    public class Fx2Lexer
+    {
+        private Node root;
+
+        /// <summary>
+        /// Default constructor.
+        /// Parses the keyword.txt file and sets up the lexer.
+        /// </summary>
+        public Fx2Lexer()
+        {
+            root = Node.LoadText(Properties.Resources.keywords2);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="pos"></param>
+        /// <param name="endPos"></param>
+        private void Style(CodeEditor editor, int pos, int endPos)
+        {
+        }
+
+        /// <summary>
+        /// Get the style of the word at the specified position. If the word
+        /// could not be found the default style 0 will be returned.
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="position"></param>
+        /// <returns>Returns the style for the word at the specified position or 0.</returns>
+        public int GetKeywordStyle(string text, string word, int position)
+            => GetPotentialKeywordDefs(text, word, position).FirstOrDefault().style;
+
+        /// <summary>
+        /// Get the hint of the word at the specified position. If the word
+        /// could not be found <code>null</code> be returned.
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="position"></param>
+        /// <returns>Returns the style for the word at the specified
+        /// position or <code>null</code>.</returns>
+        public string GetKeywordHint(string text, string word, int position) 
+            => GetPotentialKeywordDefs(text, word, position).FirstOrDefault().hint;
+
+        /// <summary>
+        /// Find all potential keywords starting with the word at the specified position.
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="position"></param>
+        /// <returns>Returns a list of keywords.</returns>
+        public IEnumerable<string> GetPotentialKeywords(string text, string word, int position)
+        {
+            foreach (var def in GetPotentialKeywordDefs(text, word, position))
+                yield return def.word;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="word"></param>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        private IEnumerable<Node.KeywordDef> GetPotentialKeywordDefs(string text, string word, int position)
+        {
+            foreach (var def in root.GetKeywordDefs(text, position, word))
+                yield return def;
+        }
+
+        private class Node
+        {
+            private Regex regex;
+            private Dictionary<int, Trie<Keyword>> keywordTries;
+            private Node[] children;
+
+            public static Node LoadText(string text)
+            {
+                int cur = 0;
+                var lines = text.Split(new[] { '\n' });
+                return new Node(lines, ref cur);
+            }
+
+            private Node(string[] lines, ref int cur)
+            {
+                keywordTries = new Dictionary<int, Trie<Keyword>>();
+                var children = new List<Node>();
+                var headerLine = lines[cur];
+
+                // get number of tabs that define a keyword line
+                var headerTabs = headerLine.LastIndexOf('┬');
+
+                // get header
+                var header = headerLine.Substring(headerTabs + 1).Trim().Split(new[] { '|' });
+
+                // compile regular expression
+                regex = new Regex(header[0]);
+
+                // process all lines
+                for (cur++; cur < lines.Length; cur++)
+                {
+                    var line = lines[cur];
+                    // get number of tabs of the line
+                    var tabs = line.LastIndexOf('┬');
+                    // add keyword line to keywords
+                    if (tabs == -1)
+                        AddKeyword(line);
+                    // belongs to child node
+                    else if (tabs > headerTabs)
+                        children.Add(new Node(lines, ref cur));
+                    // belongs to parent node
+                    else
+                    {
+                        cur--;
+                        break;
+                    }
+                }
+
+                // convert child node lint to array
+                this.children = children.ToArray();
+            }
+
+            private void AddKeyword(string line)
+            {
+                // process keyword definition
+                var offset = line.IndexOf('├');
+                var def = line.Substring(offset + 1).Trim().Split('|');
+                var style = int.Parse(def[0]);
+                // create new trie if none exists for this style
+                if (!keywordTries.ContainsKey(style))
+                    keywordTries.Add(style, new Trie<Keyword>());
+                // add keyword to trie
+                var keyword = new Keyword { word = def[1], hint = def.Length > 2 ? def[2] : "" };
+                keywordTries[style].Add(def[1], keyword);
+            }
+
+            private bool IsActiveNode(string text, int position)
+            {
+                foreach (Match match in regex.Matches(text))
+                {
+                    if (match.Index <= position && position < match.Index + match.Length)
+                        return true;
+                }
+                return false;
+            }
+            
+            public IEnumerable<KeywordDef> GetKeywordDefs(string text, int position, string word)
+            {
+                // is the keyword within a block handled by this node?
+                if (!IsActiveNode(text, position))
+                    // word not handled by this node
+                    yield break;
+
+                // is the keyword within a block handled by a child node?
+                foreach (var child in children)
+                {
+                    var keywords = child.GetKeywordDefs(text, position, word);
+                    foreach (var keyword in keywords)
+                        yield return keyword;
+                }
+
+                // check whether the word is a keyword of this node
+                foreach (var trie in keywordTries)
+                {
+                    // try to find the keyword
+                    var keywords = trie.Value[word];
+                    // if a keyword could be found
+                    foreach (var keyword in keywords)
+                    {
+                        yield return new KeywordDef
+                        {
+                            style = trie.Key,
+                            word = keyword.word,
+                            hint = keyword.hint
+                        };
+                    }
+                }
+            }
+
+            private struct Keyword
+            {
+                public string word;
+                public string hint;
+            }
+
+            public struct KeywordDef
+            {
+                public int style;
+                public string word;
+                public string hint;
+            }
+        }
+    }
 }

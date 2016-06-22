@@ -300,6 +300,15 @@ namespace App.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string keywords2 {
+            get {
+                return ResourceManager.GetString("keywords2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to settings.xml.
         /// </summary>
         internal static string WINDOW_SETTINGS_FILE {
