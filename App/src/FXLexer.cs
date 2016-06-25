@@ -465,7 +465,13 @@ namespace App
             private Dictionary<int, Trie<Keyword>> keywordTries;
             private Node[] children;
             const char SPLIT = '║';
+            const char NL = '¶';
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="text"></param>
+            /// <returns></returns>
             public static Node LoadText(string text)
             {
                 int cur = 0;
@@ -473,6 +479,11 @@ namespace App
                 return new Node(lines, ref cur);
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="lines"></param>
+            /// <param name="cur"></param>
             private Node(string[] lines, ref int cur)
             {
                 keywordTries = new Dictionary<int, Trie<Keyword>>();
@@ -491,12 +502,11 @@ namespace App
                 // process all lines
                 for (cur++; cur < lines.Length; cur++)
                 {
-                    var line = lines[cur];
                     // get number of tabs of the line
-                    var tabs = line.LastIndexOf('┬');
+                    var tabs = lines[cur].LastIndexOf('┬');
                     // add keyword line to keywords
                     if (tabs == -1)
-                        AddKeyword(line);
+                        AddKeyword(lines, ref cur);
                     // belongs to child node
                     else if (tabs > headerTabs)
                         children.Add(new Node(lines, ref cur));
@@ -512,20 +522,44 @@ namespace App
                 this.children = children.ToArray();
             }
 
-            private void AddKeyword(string line)
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="lines"></param>
+            /// <param name="cur"></param>
+            private void AddKeyword(string[] lines, ref int cur)
             {
+                // GET LINE STRING
+
+                var line = lines[cur];
+                // as long as there are new line chars append the line string
+                for (int i = line.IndexOf(NL); i >= 0 && cur < lines.Length - 1; i = line.IndexOf(NL))
+                {
+                    var text = lines[++cur];
+                    line = line.Substring(0, i) + '\n';
+                    line += text.Substring(text.LastIndexOf(SPLIT)+1);
+                }
+                
                 // process keyword definition
                 var offset = line.IndexOf('├');
                 var def = line.Substring(offset + 1).Trim().Split(SPLIT);
                 var style = int.Parse(def[0]);
+
                 // create new trie if none exists for this style
                 if (!keywordTries.ContainsKey(style))
                     keywordTries.Add(style, new Trie<Keyword>());
+
                 // add keyword to trie
                 var keyword = new Keyword { word = def[1], hint = def.Length > 2 ? def[2] : "" };
                 keywordTries[style].Add(def[1], keyword);
             }
 
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="text"></param>
+            /// <param name="position"></param>
+            /// <returns></returns>
             private Match IsActiveNode(string text, int position)
             {
                 foreach (Match match in regex.Matches(text))
@@ -536,6 +570,13 @@ namespace App
                 return null;
             }
             
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="text"></param>
+            /// <param name="position"></param>
+            /// <param name="word"></param>
+            /// <returns></returns>
             public IEnumerable<KeywordDef> GetKeywordDefs(string text, int position, string word)
             {
                 // is the keyword within a block handled by this node?

@@ -3,6 +3,8 @@
 ├1║csharp║assembly <path> [path] [...]
 ├1║fragoutput║fragoutput <name>
 ├1║image║image <name>
+├1║instance║instance <name>
+├1║pass║pass <name>
 ├1║shader║shader <shader_type> <name>
 ├┬(?<=buffer\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
 │├3║size║size <bytes>
@@ -86,6 +88,214 @@
 │ ├4║texture3D║3D texture/volume texture
 │ ├4║texture1DArray║1D texture array
 │ ├4║texture2DArray║2D texture array
+├┬(?<=instance\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
+│├3║class║class <csharp_name> <c#_class>
+│├3║name║name <new_name>
+├┬(?<=pass\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
+│├4║break
+│├3║comp║comp <shader_name>
+│├3║compute║Dispatch compute shader call.¶
+││         ║> compute <num_group_x> <num_group_y> [num_group_z]¶
+││         ║> compute <callbuffer_name>
+│├3║draw║Draw vertex based (possibly indexed) geometry.¶
+││      ║¶
+││      ║> draw <vertinput_name> <primitive_type> <base_vertex> <vertex_count>¶
+││      ║       [base_instance] [instance_count]¶
+││      ║> draw <vertinput_name> <indexbuffer_name> <index_type> <primitive_type>¶
+││      ║       <base_vertex> <base_index> <index_count> [base_instance] [instance_count]¶
+││      ║> draw <vertinput_name> <callbuffer_name> <primitive_type>¶
+││      ║       [buffer_offset] [draw_count] [stride]¶
+││      ║> draw <vertinput_name> <indexbuffer_name> <index_type> <callbuffer_name>¶
+││      ║       <primitive_type> [buffer_offset]  [draw_count] [stride]¶
+││      ║> draw <vertoutput_name> <primitive_type> [vertoutput_stream] [instance_count]¶
+││      ║¶
+││      ║primitive_type¶
+││      ║    points, lines, lineLoop, lineStrip, triangles, triangleStrip, triangleFan, patch,¶
+││      ║    linesAdjacency, lineStripAdjacency, trianglesAdjacency, triangleStripAdjacency¶
+││      ║index_type¶
+││      ║    ubyte, ushort, uint
+│├┬(?<=draw\s+)(\w\d\s)*(?=\n)
+│|├4║lineLoop
+│|├4║lines
+│|├4║linesAdjacency
+│|├4║lineStrip
+│|├4║lineStripAdjacency
+│|├4║patch
+│|├4║points
+│|├4║triangleFan
+│|├4║triangles
+│|├4║trianglesAdjacency
+│|├4║triangleStrip
+│|├4║triangleStripAdjacency
+│|├4║ubyte║index buffer type is unsigned byte
+│|├4║uint║index buffer type is unsigned integer
+│|├4║ushort║index buffer type is unsigned short
+│├3║fragout║fragout <fragoutput_name>
+│├3║vertout║vertout <vertoutput_name> <output_primitive_type> [write_mode] <output_varying_name>¶
+││	       ║¶
+││         ║The optional argument [write_mode] can be 'gl_SeparateAttribs' (write every¶
+││         ║<output_varying_name> to a new buffer) or the default 'gl_InterleavedAttribs'¶
+││         ║(output varyings for different buffers need to be separated by 'gl_NextBuffer')
+│├┬(?<=vertout\s+)\w*\s*(?=\n)
+│|├4║lines
+│|├4║points
+│|├4║triangles
+│├3║eval║eval <shader_name>
+│├3║exec║exec <instance_name>
+│├3║frag║frag <shader_name>
+│├3║geom║geom <shader_name>
+│├3║tess║tess <shader_name>
+│├3║tex║Bind or unbind a texture from a texture unit.¶
+││     ║tex <texture_name> <unit> -- bind to unit¶
+││     ║tex <unit>                -- unbind unit
+│├3║img║Bind or unbind a texture from an image unit.¶
+││     ║img <texture_name> <unit> <level> <layer> <access> <format> -- bind to unit¶
+││     ║img <unit>                                                  -- unbind unit
+│├3║vert║vert <shader_name>
+│├10║glBeginConditionalRender
+│├10║glBeginQuery
+│├10║glBeginQueryIndexed
+│├10║glBlendColor
+│├10║glBlendEquation
+│├10║glBlendEquationi
+│├10║glBlendEquationSeparate
+│├10║glBlendEquationSeparatei
+│├10║glBlendFunc
+│├10║glBlendFunci
+│├10║glBlendFuncSeparate
+│├10║glBlendFuncSeparatei
+│├10║glClampColor
+│├10║glClear
+│├10║glClearBuffer
+│├10║glClearBufferData
+│├10║glClearBufferfi
+│├10║glClearBufferfv
+│├10║glClearBufferiv
+│├10║glClearBufferSubData
+│├10║glClearBufferuiv
+│├10║glClearColor
+│├10║glClearDepth
+│├10║glClearDepthf
+│├10║glClearNamedBufferData
+│├10║glClearNamedBufferSubData
+│├10║glClearNamedFramebufferfi
+│├10║glClearNamedFramebufferfv
+│├10║glClearNamedFramebufferiv
+│├10║glClearNamedFramebufferuiv
+│├10║glClearStencil
+│├10║glClearTexImage
+│├10║glClearTexSubImage
+│├10║glClientWaitSync
+│├10║glClipControl
+│├10║glColorMask
+│├10║glColorMaski
+│├10║glCullFace
+│├10║glDepthFunc
+│├10║glDepthMask
+│├10║glDepthRange
+│├10║glDepthRangeArray
+│├10║glDepthRangeArrayv
+│├10║glDepthRangef
+│├10║glDepthRangeIndexed
+│├10║glDetachShader
+│├10║glDisable
+│├10║glDisablei
+│├10║glEnable
+│├10║glEnablei
+│├10║glEndConditionalRender
+│├10║glEndQuery
+│├10║glEndQueryIndexed
+│├10║glEndTransformFeedback
+│├10║glFlush
+│├10║glFrontFace
+│├10║glLineWidth
+│├10║glLogicOp
+│├10║glMemoryBarrier
+│├10║glMemoryBarrierByRegion
+│├10║glMinSampleShading
+│├10║glPatchParameter
+│├10║glPatchParameterfv
+│├10║glPatchParameteri
+│├10║glPauseTransformFeedback
+│├10║glPointParameter
+│├10║glPointParameterf
+│├10║glPointParameterfv
+│├10║glPointParameteri
+│├10║glPointParameteriv
+│├10║glPointSize
+│├10║glPolygonMode
+│├10║glPolygonOffset
+│├10║glPopDebugGroup
+│├10║glPrimitiveRestartIndex
+│├10║glProvokingVertex
+│├10║glPushDebugGroup
+│├10║glQueryCounter
+│├10║glResumeTransformFeedback
+│├10║glSampleCoverage
+│├10║glSampleMaski
+│├10║glSamplerParameter
+│├10║glSamplerParameterf
+│├10║glSamplerParameterfv
+│├10║glSamplerParameteri
+│├10║glSamplerParameterIiv
+│├10║glSamplerParameterIuiv
+│├10║glSamplerParameteriv
+│├10║glScissor
+│├10║glScissorArray
+│├10║glScissorArrayv
+│├10║glScissorIndexed
+│├10║glScissorIndexedv
+│├10║glShaderStorageBlockBinding
+│├10║glStencilFunc
+│├10║glStencilFuncSeparate
+│├10║glStencilMask
+│├10║glStencilMaskSeparate
+│├10║glStencilOp
+│├10║glStencilOpSeparate
+│├10║glTextureBarrier
+│├10║glUniform1f
+│├10║glUniform1fv
+│├10║glUniform1i
+│├10║glUniform1iv
+│├10║glUniform1ui
+│├10║glUniform1uiv
+│├10║glUniform2f
+│├10║glUniform2fv
+│├10║glUniform2i
+│├10║glUniform2iv
+│├10║glUniform2ui
+│├10║glUniform2uiv
+│├10║glUniform3f
+│├10║glUniform3fv
+│├10║glUniform3i
+│├10║glUniform3iv
+│├10║glUniform3ui
+│├10║glUniform3uiv
+│├10║glUniform4f
+│├10║glUniform4fv
+│├10║glUniform4i
+│├10║glUniform4iv
+│├10║glUniform4ui
+│├10║glUniform4uiv
+│├10║glUniformBlockBinding
+│├10║glUniformMatrix2fv
+│├10║glUniformMatrix2x3fv
+│├10║glUniformMatrix2x4fv
+│├10║glUniformMatrix3fv
+│├10║glUniformMatrix3x2fv
+│├10║glUniformMatrix3x4fv
+│├10║glUniformMatrix4fv
+│├10║glUniformMatrix4x2fv
+│├10║glUniformMatrix4x3fv
+│├10║glUniformSubroutines
+│├10║glUniformSubroutinesuiv
+│├10║glViewport
+│├10║glViewportArray
+│├10║glViewportArrayv
+│├10║glViewportIndexed
+│├10║glViewportIndexedf
+│├10║glViewportIndexedfv
+│├10║glWaitSync
 ├┬(?:shader(\s+\w+){0,2}\s*)\{(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))\}
  ├┬(?<=shader)(\s+\w+){0,2}\s*(?=\})
  │├2║vert║
