@@ -464,6 +464,7 @@ namespace App
             private Regex regex;
             private Dictionary<int, Trie<Keyword>> keywordTries;
             private Node[] children;
+            const char SPLIT = '║';
 
             public static Node LoadText(string text)
             {
@@ -482,10 +483,10 @@ namespace App
                 var headerTabs = headerLine.LastIndexOf('┬');
 
                 // get header
-                var header = headerLine.Substring(headerTabs + 1).Trim().Split(new[] { '|' });
+                var header = headerLine.Substring(headerTabs + 1).Trim().Split(SPLIT);
 
                 // compile regular expression
-                regex = new Regex(header[0]);
+                regex = new Regex(header[0], RegexOptions.Singleline);
 
                 // process all lines
                 for (cur++; cur < lines.Length; cur++)
@@ -515,7 +516,7 @@ namespace App
             {
                 // process keyword definition
                 var offset = line.IndexOf('├');
-                var def = line.Substring(offset + 1).Trim().Split('|');
+                var def = line.Substring(offset + 1).Trim().Split(SPLIT);
                 var style = int.Parse(def[0]);
                 // create new trie if none exists for this style
                 if (!keywordTries.ContainsKey(style))
@@ -525,29 +526,32 @@ namespace App
                 keywordTries[style].Add(def[1], keyword);
             }
 
-            private bool IsActiveNode(string text, int position)
+            private Match IsActiveNode(string text, int position)
             {
                 foreach (Match match in regex.Matches(text))
                 {
                     if (match.Index <= position && position < match.Index + match.Length)
-                        return true;
+                        return match;
                 }
-                return false;
+                return null;
             }
             
             public IEnumerable<KeywordDef> GetKeywordDefs(string text, int position, string word)
             {
                 // is the keyword within a block handled by this node?
-                if (!IsActiveNode(text, position))
+                var match = IsActiveNode(text, position);
+                if (match == null)
                     // word not handled by this node
                     yield break;
 
                 // is the keyword within a block handled by a child node?
                 foreach (var child in children)
                 {
-                    var keywords = child.GetKeywordDefs(text, position, word);
+                    var keywords = child.GetKeywordDefs(match.Value, position - match.Index, word);
                     foreach (var keyword in keywords)
                         yield return keyword;
+                    if (keywords.Count() > 0)
+                        yield break;
                 }
 
                 // check whether the word is a keyword of this node

@@ -1,105 +1,105 @@
 ﻿┬.*
-├0|buffer|buffer <name>
-├0|csharp|assembly <path> [path] [...]
-├0|fragoutput|fragoutput <name>
-├0|image|image <name>
-├0|shader|shader <shader_type> <name>
-├┬(?<=buffer\s+\w+\s*)?\{.*\}
-│├2|size|size <bytes>
-│├2|xml|xml <path> <node>
-│├2|txt|txt <text_name>
-│├2|usage|usage <usage_hint>
-│├┬(?<=usage\s+)?\w*\s*\n
-│ ├3|dynamicCopy
-│ ├3|dynamicDraw
-│ ├3|dynamicRead
-│ ├3|staticCopy
-│ ├3|staticDraw
-│ ├3|staticRead
-│ ├3|streamCopy
-│ ├3|streamDraw
-│ ├3|streamRead
-├┬(?<=csharp\s+\w+\s*)?\{.*\}
-│├2|assembly|assembly <path> [path] [...]
-│├2|file|file <path> [path] [...]
-├┬(?<=fragoutput\s+\w+\s*)?\{.*\}
-│├2|color|color <image_name>
-│├2|depth|depth <image_name>
-│├2|height|height <pixels>
-│├2|width|width <pixels>
-├┬(?<=image\s+\w+\s*)?\{.*\}
-│├0|image|image <name>
-│├2|format|format <pixel_format>
-│├2|size|width <width> <height> <depth> <length>
-│├2|file|file <path> [path] [...]
-│├┬(?<=format\s+)?\w*\s*\n
-││├3|depth
-││├3|depth16
-││├3|depth24
-││├3|depth24stencil8
-││├3|depth32
-││├3|depth32f
-││├3|depth32fstencil8
-││├3|depthstencil
-││├3|r8
-││├3|r8i
-││├3|r8ui
-││├3|r16
-││├3|r16i
-││├3|r16ui
-││├3|r16f
-││├3|r32i
-││├3|r32ui
-││├3|r32f
-││├3|rg8
-││├3|rg8i
-││├3|rg8ui
-││├3|rg16
-││├3|rg16i
-││├3|rg16ui
-││├3|rg16f
-││├3|rg32i
-││├3|rg32ui
-││├3|rg32f
-││├3|rgb8
-││├3|rgb8i
-││├3|rgb8ui
-││├3|rgb16
-││├3|rgb16i
-││├3|rgb16ui
-││├3|rgb16f
-││├3|rgb32i
-││├3|rgb32ui
-││├3|rgb32f
-││├3|rgba8
-││├3|rgba8i
-││├3|rgba8ui
-││├3|rgba16
-││├3|rgba16i
-││├3|rgba16ui
-││├3|rgba16f
-││├3|rgba32i
-││├3|rgba32ui
-││├3|rgba32f
-│├┬(?<=type\s+)?\w*\s*\n
-│ ├3|texture1D|1D texture
-│ ├3|texture2D|2D texture
-│ ├3|texture3D|3D texture/volume texture
-│ ├3|texture1DArray|1D texture array
-│ ├3|texture2DArray|2D texture array
-├┬(?<=shader\s+)?\w+\s+\w+\s*\{.*\}
- ├1|vert|
- ├1|tess|
- ├1|eval|
- ├1|geom|
- ├1|frag|
- ├1|comp|
- ├┬frag\s*{.*\}
- │├6|centroid|
- │├7|discard|
- ├┬\{.*\}
-  ├4|bool|
-  ├4|int|
-  ├4|uint|
-  ├4|float|
-  ├5|abs|
+├1║buffer║buffer <name>
+├1║csharp║assembly <path> [path] [...]
+├1║fragoutput║fragoutput <name>
+├1║image║image <name>
+├1║shader║shader <shader_type> <name>
+├┬(?<=buffer\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
+│├3║size║size <bytes>
+│├3║xml║xml <path> <node>
+│├3║txt║txt <text_name>
+│├3║usage║usage <usage_hint>
+│├┬(?<=usage\s+)\w*\s*(?=\n)
+│ ├4║dynamicCopy
+│ ├4║dynamicDraw
+│ ├4║dynamicRead
+│ ├4║staticCopy
+│ ├4║staticDraw
+│ ├4║staticRead
+│ ├4║streamCopy
+│ ├4║streamDraw
+│ ├4║streamRead
+├┬(?<=csharp\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
+│├3║assembly║assembly <path> [path] [...]
+│├3║file║file <path> [path] [...]
+├┬(?<=fragoutput\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
+│├3║color║color <image_name>
+│├3║depth║depth <image_name>
+│├3║height║height <pixels>
+│├3║width║width <pixels>
+├┬(?<=image\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
+│├3║format║format <pixel_format>
+│├3║size║width <width> <height> <depth> <length>
+│├3║file║file <path> [path] [...]
+│├┬(?<=format\s+)\w*\s*(?=\n)
+││├4║depth
+││├4║depth16
+││├4║depth24
+││├4║depth24stencil8
+││├4║depth32
+││├4║depth32f
+││├4║depth32fstencil8
+││├4║depthstencil
+││├4║r8
+││├4║r8i
+││├4║r8ui
+││├4║r16
+││├4║r16i
+││├4║r16ui
+││├4║r16f
+││├4║r32i
+││├4║r32ui
+││├4║r32f
+││├4║rg8
+││├4║rg8i
+││├4║rg8ui
+││├4║rg16
+││├4║rg16i
+││├4║rg16ui
+││├4║rg16f
+││├4║rg32i
+││├4║rg32ui
+││├4║rg32f
+││├4║rgb8
+││├4║rgb8i
+││├4║rgb8ui
+││├4║rgb16
+││├4║rgb16i
+││├4║rgb16ui
+││├4║rgb16f
+││├4║rgb32i
+││├4║rgb32ui
+││├4║rgb32f
+││├4║rgba8
+││├4║rgba8i
+││├4║rgba8ui
+││├4║rgba16
+││├4║rgba16i
+││├4║rgba16ui
+││├4║rgba16f
+││├4║rgba32i
+││├4║rgba32ui
+││├4║rgba32f
+│├┬(?<=type\s+)\w*\s*(?=\n)
+│ ├4║texture1D║1D texture
+│ ├4║texture2D║2D texture
+│ ├4║texture3D║3D texture/volume texture
+│ ├4║texture1DArray║1D texture array
+│ ├4║texture2DArray║2D texture array
+├┬(?:shader(\s+\w+){0,2}\s*)\{(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))\}
+ ├┬(?<=shader)(\s+\w+){0,2}\s*(?=\})
+ │├2║vert║
+ │├2║tess║
+ │├2║eval║
+ │├2║geom║
+ │├2║frag║
+ │├2║comp║
+ ├┬(?<=shader\s+frag\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
+ │├7║centroid║
+ │├8║discard║
+ ├┬(?<=\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
+  ├5║bool║
+  ├5║int║
+  ├5║uint║
+  ├5║float║
+  ├6║abs║
