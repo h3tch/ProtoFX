@@ -465,7 +465,7 @@ namespace App
             private Dictionary<int, Trie<Keyword>> keywordTries;
             private Node[] children;
             const char SPLIT = '║';
-            const char NL = '¶';
+            const char END = '¶';
 
             /// <summary>
             /// 
@@ -533,12 +533,12 @@ namespace App
 
                 var line = lines[cur];
                 // as long as there are new line chars append the line string
-                for (int i = line.IndexOf(NL); i >= 0 && cur < lines.Length - 1; i = line.IndexOf(NL))
+                while (line.LastIndexOf(END) < 0)
                 {
                     var text = lines[++cur];
-                    line = line.Substring(0, i) + '\n';
-                    line += text.Substring(text.LastIndexOf(SPLIT)+1);
+                    line += text.Substring(text.LastIndexOf(SPLIT) + 1);
                 }
+                line = line.Substring(0, line.LastIndexOf(END));
                 
                 // process keyword definition
                 var offset = line.IndexOf('├');
