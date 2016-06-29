@@ -80,7 +80,12 @@ namespace App
         public static string Subrange(this string s, int start, int end)
             => s.Substring(start, end - start);
 
-
+        /// <summary>
+        /// Get the word surrounding the specified position.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="position"></param>
+        /// <returns></returns>
         public static string WordFromPosition(this string s, int position)
         {
             int end = position;
