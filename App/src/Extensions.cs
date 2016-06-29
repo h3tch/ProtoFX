@@ -79,6 +79,20 @@ namespace App
         /// <returns></returns>
         public static string Subrange(this string s, int start, int end)
             => s.Substring(start, end - start);
+
+
+        public static string WordFromPosition(this string s, int position)
+        {
+            int end = position;
+            while (end < s.Length && char.IsLetterOrDigit(s[end]))
+                end++;
+
+            int start = position;
+            while (start - 1 > 0 && char.IsLetterOrDigit(s[start - 1]))
+                start--;
+
+            return end - start > 0 ? s.Subrange(start, end) : string.Empty;
+        }
         #endregion
 
         #region Extensions For All Types
@@ -137,6 +151,19 @@ namespace App
                 i++;
             }
             return rs;
+        }
+
+        /// <summary>
+        /// Return the first element or a default value.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ie"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static T FirstOr<T>(this IEnumerable<T> ie, T defaultValue)
+        {
+            T rs = ie.FirstOrDefault();
+            return rs.IsDefault() ? defaultValue : rs;
         }
 
         /// <summary>

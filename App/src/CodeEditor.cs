@@ -1,4 +1,5 @@
-﻿using ScintillaNET;
+﻿using App.Lexer;
+using ScintillaNET;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -14,18 +15,18 @@ namespace App
         private static int HighlightIndicatorIndex = 8;
         public static int DebugIndicatorIndex { get; } = 9;
         private List<int[]>[] IndicatorRanges;
-        private static Trie<string> KeywordTrie;
-        private static Dictionary<string, string> Hint;
-        private static int BLOCK;
-        private static int ANNO;
-        private static int CMD;
-        private static int ARG;
-        private static int FUNC;
-        private static int TYPE;
-        private static int SPEC;
-        private static int QUAL;
-        private static int VAR;
-        private static int BRANCH;
+        //private static Trie<string> KeywordTrie;
+        //private static Dictionary<string, string> Hint;
+        //private static int BLOCK;
+        //private static int ANNO;
+        //private static int CMD;
+        //private static int ARG;
+        //private static int FUNC;
+        //private static int TYPE;
+        //private static int SPEC;
+        //private static int QUAL;
+        //private static int VAR;
+        //private static int BRANCH;
         private static string HiddenLines = $"{(char)177}";
         
         public new int FirstVisibleLine
@@ -53,63 +54,64 @@ namespace App
         }
         #endregion
 
-        /// <summary>
-        /// Constructor for static fields.
-        /// </summary>
-        static CodeEditor()
-        {
-            // process keyword definition file
-            var lines = Regex.Split(Properties.Resources.keywords, "\r\n", RegexOptions.None);
-            var keys = lines.TakeWhile(x => x.StartsWith("//"));
-            int start = keys.Count();
-            int end = start;
-            foreach (var line in lines.Skip(start))
-            {
-                if (line[0] == ' ')
-                    lines[end - 1] += $"\n{line.Substring(1)}";
-                else
-                    lines[end++] = line;
-            }
+        ///// <summary>
+        ///// Constructor for static fields.
+        ///// </summary>
+        //static CodeEditor()
+        //{
+        //    // process keyword definition file
+        //    var lines = Regex.Split(Properties.Resources.keywords, "\r\n", RegexOptions.None);
+        //    var keys = lines.TakeWhile(x => x.StartsWith("//"));
+        //    int start = keys.Count();
+        //    int end = start;
+        //    foreach (var line in lines.Skip(start))
+        //    {
+        //        if (line[0] == ' ')
+        //            lines[end - 1] += $"\n{line.Substring(1)}";
+        //        else
+        //            lines[end++] = line;
+        //    }
 
-            // set keyword definitions
-            var defs = keys.Select(x => x.Split(' ').Where(y => y.Length > 0).ToArray());
-            var Defs = new Dictionary<string, FxLexer.KeyDef>(defs.Count());
-            foreach (var def in defs)
-            {
-                int id = int.Parse(def[1]);
-                var foreColor = ColorTranslator.FromHtml(def[3]);
-                var backColor = def.Length > 4 ? ColorTranslator.FromHtml(def[4]) : Color.White;
-                Defs.Add(def[2], new FxLexer.KeyDef {
-                    Id = id, Prefix = $"{id}", ForeColor = foreColor, BackColor = backColor
-                });
-            }
+        //    // set keyword definitions
+        //    var colors = Regex.Split(Properties.Resources.colors, "\r\n", RegexOptions.None);
+        //    var defs = colors.Select(x => x.Split(' ').ToArray());
+        //    var Defs = new Dictionary<string, FxLexer.KeyDef>(defs.Count());
+        //    foreach (var def in defs)
+        //    {
+        //        int id = int.TryParse(def[0], out id) ? id : -1;
+        //        var foreColor = ColorTranslator.FromHtml(def[2]);
+        //        var backColor = def.Length > 3 ? ColorTranslator.FromHtml(def[3]) : Color.White;
+        //        Defs.Add(def[1], new FxLexer.KeyDef {
+        //            Id = id, Prefix = $"{id}", ForeColor = foreColor, BackColor = backColor
+        //        });
+        //    }
 
-            // get keyword IDs
-            BLOCK = Defs["block"].Id;
-            ANNO = Defs["annotation"].Id;
-            CMD = Defs["command"].Id;
-            ARG = Defs["argument"].Id;
-            FUNC = Defs["function"].Id;
-            TYPE = Defs["type"].Id;
-            SPEC = Defs["specifications"].Id;
-            QUAL = Defs["qualifier"].Id;
-            VAR = Defs["variable"].Id;
-            BRANCH = Defs["branching"].Id;
+        //    // get keyword IDs
+        //    BLOCK = Defs["block"].Id;
+        //    ANNO = Defs["annotation"].Id;
+        //    CMD = Defs["command"].Id;
+        //    ARG = Defs["argument"].Id;
+        //    FUNC = Defs["function"].Id;
+        //    TYPE = Defs["type"].Id;
+        //    SPEC = Defs["specifications"].Id;
+        //    QUAL = Defs["qualifier"].Id;
+        //    VAR = Defs["variable"].Id;
+        //    BRANCH = Defs["branching"].Id;
 
-            // set keyword list
-            var list = lines.Skip(start).Take(end - start)
-                .Select(k => k.Substring(0, k.IndexOfOrLength('|')))
-                .ToArray();
-            KeywordTrie = new Trie<string>(list, list);
+        //    // set keyword list
+        //    var list = lines.Skip(start).Take(end - start)
+        //        .Select(k => k.Substring(0, k.IndexOfOrLength('|')))
+        //        .ToArray();
+        //    KeywordTrie = new Trie<string>(list, list);
 
-            // set hint list
-            Hint = lines.Skip(start).Take(end - start).ToDictionary(
-                k => k.Substring(0, k.IndexOfOrLength('|')),
-                v => v.Substring(v.IndexOfOrLength('|')));
+        //    // set hint list
+        //    Hint = lines.Skip(start).Take(end - start).ToDictionary(
+        //        k => k.Substring(0, k.IndexOfOrLength('|')),
+        //        v => v.Substring(v.IndexOfOrLength('|')));
 
-            // create lexer
-            FxLexer = new FxLexer(Properties.Resources.keywords, Defs);
-        }
+        //    // create lexer
+        //    FxLexer = new FxLexer(Properties.Resources.keywords, Defs);
+        //}
 
         /// <summary>
         /// Instantiate and initialize ScintillaNET based code editor for ProtoGL.

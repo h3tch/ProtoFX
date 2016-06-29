@@ -1,4 +1,4 @@
-﻿using App;
+﻿using App.Lexer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
@@ -25,10 +25,10 @@ namespace UnitTests
         {
             var word = "buffer";
             var pos = code.IndexOf("buffer buf_pos");
-            var keywords = lexer.GetPotentialKeywords(code, word, pos);
+            var keywords = lexer.GetPotentialKeywords(code, pos, word);
             foreach (var keyword in keywords)
                 Assert.IsTrue(keyword.StartsWith(word));
-            Assert.AreEqual(keywords.Count(), 1);
+            Assert.AreEqual(1, keywords.Count());
         }
 
         [TestMethod]
@@ -36,22 +36,33 @@ namespace UnitTests
         {
             var word = "";
             var pos = code.IndexOf("usage staticDraw");
-            var keywords = lexer.GetPotentialKeywords(code, word, pos);
-            Assert.AreEqual(keywords.Count(), 4);
+            var keywords = lexer.GetPotentialKeywords(code, pos, word);
+            Assert.AreEqual(4, keywords.Count());
             word = "usa";
             pos += word.Length;
-            keywords = lexer.GetPotentialKeywords(code, word, pos);
-            Assert.AreEqual(keywords.Count(), 1);
-            Assert.AreEqual(keywords.First(), "usage");
+            keywords = lexer.GetPotentialKeywords(code, pos, word);
+            Assert.AreEqual(1, keywords.Count());
+            Assert.AreEqual("usage", keywords.First());
         }
 
         [TestMethod]
         public void TestMethodFindKeywords()
         {
             var word = "";
-            var pos = code.IndexOf(word);
-            var keywords = lexer.GetPotentialKeywords(code, word, 0);
-            Assert.AreEqual(keywords.Count(), 5);
+            var keywords = lexer.GetPotentialKeywords(code, 0, word);
+            Assert.AreEqual(13, keywords.Count());
+            word = "s";
+            keywords = lexer.GetPotentialKeywords(code, 0, word);
+            Assert.AreEqual(2, keywords.Count());
+            word = "t";
+            keywords = lexer.GetPotentialKeywords(code, 0, word);
+            Assert.AreEqual(3, keywords.Count());
+            word = "tex";
+            keywords = lexer.GetPotentialKeywords(code, 0, word);
+            Assert.AreEqual(2, keywords.Count());
+            word = "textu";
+            keywords = lexer.GetPotentialKeywords(code, 0, word);
+            Assert.AreEqual(1, keywords.Count());
         }
 
         [TestMethod]
@@ -59,8 +70,8 @@ namespace UnitTests
         {
             var word = "buffer";
             var pos = code.IndexOf(word);
-            var style = lexer.GetKeywordStyle(code, word, pos);
-            Assert.AreEqual(style, 1);
+            var style = lexer.GetKeywordStyle(code, pos, word);
+            Assert.AreEqual(1, style);
         }
 
         [TestMethod]
@@ -68,7 +79,7 @@ namespace UnitTests
         {
             var word = "buffer";
             var pos = code.IndexOf(word);
-            var hint = lexer.GetKeywordHint(code, word, pos);
+            var hint = lexer.GetKeywordHint(code, pos, word);
             Assert.IsNotNull(hint);
         }
     }

@@ -184,6 +184,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\colors.txt" />
     <Content Include="resources\dbgBody.txt" />
     <None Include="resources\keywords2.txt" />
     <None Include="resources\ImgUncomment.png" />

@@ -639,7 +639,7 @@
 [0]shader[1]frag[8]gl_PrimitiveID|If no geomery shader is present then gl_PrimitiveID in the
  fragment language behaves identically as it would in the
  tessellation control and evaluation languages. If a geometry
- [0]shader is present but does not write to gl_PrimitiveID, the
+ shader is present but does not write to gl_PrimitiveID, the
  value of gl_PrimitiveID in the fragment shader is undefined.
 [0]shader[1]eval[8]gl_PrimitiveID|is an output variable that is passed to the
  corresponding gl_PrimitiveID input variable

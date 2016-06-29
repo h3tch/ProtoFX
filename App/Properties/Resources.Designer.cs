@@ -61,6 +61,15 @@ namespace App.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string colors {
+            get {
+                return ResourceManager.GetString("colors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to #define _DBG_BOOL 1
         ///#define _DBG_INT 2
         ///#define _DBG_UINT 3
@@ -300,7 +309,23 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to ┬.*
+        ///├1║buffer║buffer &lt;name&gt;¶
+        ///├1║csharp║assembly &lt;path&gt; [path] [...]¶
+        ///├1║fragoutput║fragoutput &lt;name&gt;¶
+        ///├1║image║image &lt;name&gt;¶
+        ///├1║instance║instance &lt;name&gt;¶
+        ///├1║pass║pass &lt;name&gt;¶
+        ///├1║sampler║sampler &lt;name&gt;¶
+        ///├1║shader║shader &lt;shader_type&gt; &lt;name&gt;¶
+        ///├1║tech║tech &lt;name&gt;¶
+        ///├1║text║text &lt;name&gt;¶
+        ///├1║texture║texture &lt;name&gt;¶
+        ///├1║vertinput║vertinput &lt;name&gt;¶
+        ///├1║vertoutput║vertoutput &lt;name&gt;¶
+        ///├┬(?&lt;=buffer\s+\w+\s*\{)(?:[^{}]|(?&lt;open&gt;\{)|(?&lt;-open&gt;\}))+(?(open)(?!))(?=\})
+        ///│├3║size║size &lt;bytes&gt;¶
+        ///│├3║xml║xml &lt;path&gt; &lt; [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string keywords2 {
             get {
