@@ -5,8 +5,6 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
-//using static App.Lexer.FxLexer.Styles;
 
 namespace App.Lexer
 {
@@ -450,6 +448,275 @@ namespace App.Lexer
             => char.IsSymbol(c) || c == '/' || c == '*' || c == '-' || c == '&' || c == '|';
 
         #region INNER CLASSES
+        private class Node
+        {
+            #region FIELDS
+            private string pre;
+            private string post;
+            private string anno;
+            private char openBrace = ' ';
+            private char closeBrace = '\n';
+            private const char splitChar = '║';
+            private const char endChar = '¶';
+            private bool keep;
+            private Dictionary<int, Trie<Keyword>> keywordTries;
+            private Node[] children;
+            #endregion
+
+            /// <summary>
+            /// Create node structure from input string.
+            /// </summary>
+            /// <param name="text"></param>
+            /// <returns></returns>
+            public static Node LoadText(string text)
+            {
+                int cur = 0;
+                var lines = text.Split(new[] { '\n' });
+                return new Node(lines, ref cur);
+            }
+
+            /// <summary>
+            /// Create node tree from array of text file lines.
+            /// </summary>
+            /// <param name="lines"></param>
+            /// <param name="cur"></param>
+            private Node(string[] lines, ref int cur)
+            {
+                keywordTries = new Dictionary<int, Trie<Keyword>>();
+                var children = new List<Node>();
+                var headerLine = lines[cur];
+
+                // get number of tabs that define a keyword line
+                var headerTabs = headerLine.LastIndexOf('┬');
+
+                // get header
+                var header = headerLine.Substring(headerTabs + 1).Trim().Split(splitChar);
+
+                // compile regular expression
+                var def = header[0].Split('|').Select(x => x.Trim()).ToArray();
+                pre = def.Length > 0 && def[0].Length > 0 ? def[0] : null;
+                anno = def.Length > 1 && def[1].Length > 0 ? def[1] : null;
+                openBrace = def.Length > 2 && def[2].Length > 0 ? def[2][0] : openBrace;
+                closeBrace = def.Length > 3 && def[3].Length > 0 ? def[3][0] : closeBrace;
+                post = def.Length > 4 && def[4].Length > 0 ? def[4] : null;
+                keep = def.Length > 5 && def[5].Length > 0 ? (def[5] == "keep") : false;
+
+                // process all lines
+                for (cur++; cur < lines.Length; cur++)
+                {
+                    // get number of tabs of the line
+                    var tabs = lines[cur].LastIndexOf('┬');
+                    // add keyword line to keywords
+                    if (tabs == -1)
+                        AddKeyword(lines, ref cur);
+                    // belongs to child node
+                    else if (tabs > headerTabs)
+                        children.Add(new Node(lines, ref cur));
+                    // belongs to parent node
+                    else
+                    {
+                        cur--;
+                        break;
+                    }
+                }
+
+                // convert child node lint to array
+                this.children = children.ToArray();
+            }
+
+            /// <summary>
+            /// Parse keyword starting at the current line.
+            /// </summary>
+            /// <param name="lines"></param>
+            /// <param name="cur"></param>
+            private void AddKeyword(string[] lines, ref int cur)
+            {
+                // GET LINE STRING
+
+                var line = lines[cur];
+                // as long as there are new line chars append the line string
+                while (line.LastIndexOf(endChar) < 0)
+                {
+                    var text = lines[++cur];
+                    line += '\n' + text.Substring(text.LastIndexOf(splitChar) + 1);
+                }
+                line = line.Substring(0, line.LastIndexOf(endChar));
+                
+                // process keyword definition
+                var offset = line.IndexOf('├');
+                var def = line.Substring(offset + 1).Trim().Split(splitChar);
+                var style = int.Parse(def[0]);
+
+                // create new trie if none exists for this style
+                if (!keywordTries.ContainsKey(style))
+                    keywordTries.Add(style, new Trie<Keyword>());
+
+                // add keyword to trie
+                var keyword = new Keyword { word = def[1], hint = def.Length > 2 ? def[2] : "" };
+                keywordTries[style].Add(def[1], keyword);
+            }
+
+            /// <summary>
+            /// Check whether the specified position is within the pattern defined by the node.
+            /// </summary>
+            /// <param name="text"></param>
+            /// <param name="position"></param>
+            /// <returns></returns>
+            private Match IsActiveNode(string text, int position, int startIndex, int count)
+            {
+                // if no pre keyword has been specified return everything
+                if (pre == null)
+                    return new Match { Index = 0, Length = text.Length };
+
+                // Search for the first occurence of the pre keyword and seach for the first string
+                // combination that matches the defined pattern (e.g., "pre anno { ... } post").
+                for (int i = text.IndexOfWholeWords(pre, startIndex, count), endIndex = startIndex + count;
+                    i >= 0 && i < endIndex;
+                    i = text.IndexOfWholeWords(pre, i + 1, endIndex - i - 1))
+                {
+                    // if the index of the pre keyword is behind the position we can stop searching
+                    if (position < i)
+                        break;
+
+                    if (keep)
+                    {
+                        // get the index of the annotation (if specified)
+                        int annoIndex = anno == null ? i : NextIs(text, anno, i, endIndex - i);
+                        if (annoIndex < 0)
+                            continue;
+
+                        int nameIndex = SkipWord(text, annoIndex, endIndex - annoIndex);
+                        if (nameIndex < 0)
+                            continue;
+
+                        // get the index of the open brace (if specified)
+                        int openIndex = NextIs(text, openBrace.ToString(), nameIndex, endIndex - nameIndex);
+                        if (openIndex < 0)
+                            continue;
+
+                        // get the index of the close brace (if specified)
+                        int closeIndex = text.IndexOfBraceMatch(openBrace, closeBrace, openIndex, endIndex - openIndex);
+                        if (closeIndex < 0)
+                            continue;
+
+                        // get the index of the post keyword (if specified)
+                        int postIndex = post == null ? closeIndex : NextIs(text, post, closeIndex, endIndex - closeIndex);
+                        if (postIndex < 0 || postIndex < position)
+                            continue;
+
+                        return new Match { Index = i, Length = postIndex - i };
+                    }
+                    else
+                    {
+                        // get the index of the annotation (if specified)
+                        int annoIndex = anno == null ? i : text.IndexOfWholeWords(anno, i, endIndex - i);
+                        if (annoIndex < 0 || position < annoIndex)
+                            break;
+
+                        // get the index of the open brace (if specified)
+                        int openIndex = text.IndexOf(openBrace, annoIndex, endIndex - annoIndex);
+                        if (openIndex < 0 || position < openIndex)
+                            break;
+
+                        // get the index of the close brace (if specified)
+                        int closeIndex = text.IndexOfBraceMatch(openBrace, closeBrace, openIndex, endIndex - openIndex);
+                        if (closeIndex < 0 || closeIndex < position)
+                            continue;
+
+                        // get the index of the post keyword (if specified)
+                        int postIndex = post == null ? closeIndex : text.IndexOfWholeWords(post, closeIndex, endIndex - closeIndex);
+                        if (postIndex < 0 || postIndex < position)
+                            continue;
+
+                        return new Match { Index = openIndex, Length = closeIndex - openIndex };
+                    }
+                }
+
+                return default(Match);
+            }
+
+            private int NextIs(string text, string str, int startIndex, int count)
+            {
+                return -1;
+            }
+
+            private int SkipWord(string text, int startIndex, int count)
+            {
+                return -1;
+            }
+
+            /// <summary>
+            /// Search for all keywords that are defined at the
+            /// specified position within the specified range.
+            /// </summary>
+            /// <param name="text"></param>
+            /// <param name="position"></param>
+            /// <param name="word"></param>
+            /// <returns></returns>
+            public IEnumerable<KeywordDef> GetKeywordDefs(string text, int position, int startIndex, int count, string word)
+            {
+                if (pre != null && pre == "shader")
+                    pre = "shader";
+                // if no word has been specified
+                if (word == null)
+                    word = text.WordFromPosition(position);
+
+                // is the keyword within a block handled by this node?
+                var match = IsActiveNode(text, position, startIndex, count);
+                if (match.IsDefault())
+                    // word not handled by this node
+                    yield break;
+
+                // is the keyword within a block handled by a child node?
+                foreach (var child in children)
+                {
+                    var keywords = child.GetKeywordDefs(text, position, match.Index, match.Length, word);
+                    foreach (var keyword in keywords)
+                        yield return keyword;
+                    if (keywords.Count() > 0)
+                        yield break;
+                }
+
+                // check whether the word is a keyword of this node
+                foreach (var trie in keywordTries)
+                {
+                    // try to find the keyword
+                    var keywords = trie.Value[word];
+                    // if a keyword could be found
+                    foreach (var keyword in keywords)
+                    {
+                        yield return new KeywordDef
+                        {
+                            style = trie.Key,
+                            word = keyword.word,
+                            hint = keyword.hint
+                        };
+                    }
+                }
+            }
+
+            #region INNER
+            private struct Keyword
+            {
+                public string word;
+                public string hint;
+            }
+
+            public struct KeywordDef
+            {
+                public int style;
+                public string word;
+                public string hint;
+            }
+
+            private struct Match
+            {
+                public int Index;
+                public int Length;
+            }
+            #endregion
+        }
+
         private static UnicodeCategory[] PunctuationCategory = new[] {
             UnicodeCategory.OpenPunctuation,
             UnicodeCategory.ClosePunctuation,
@@ -495,238 +762,6 @@ namespace App.Lexer
             public int Preprocessor = -1;
             public int Operator = -1;
             public int Punctuation = -1;
-        }
-
-        private class Node
-        {
-            private string pre;
-            private string post;
-            private string anno;
-            private char openBrace = ' ';
-            private char closeBrace = '\n';
-            //private Regex regex;
-            private Dictionary<int, Trie<Keyword>> keywordTries;
-            private Node[] children;
-            const char SPLIT = '║';
-            const char END = '¶';
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="text"></param>
-            /// <returns></returns>
-            public static Node LoadText(string text)
-            {
-                int cur = 0;
-                var lines = text.Split(new[] { '\n' });
-                return new Node(lines, ref cur);
-            }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="lines"></param>
-            /// <param name="cur"></param>
-            private Node(string[] lines, ref int cur)
-            {
-                keywordTries = new Dictionary<int, Trie<Keyword>>();
-                var children = new List<Node>();
-                var headerLine = lines[cur];
-
-                // get number of tabs that define a keyword line
-                var headerTabs = headerLine.LastIndexOf('┬');
-
-                // get header
-                var header = headerLine.Substring(headerTabs + 1).Trim().Split(SPLIT);
-
-                // compile regular expression
-                //regex = new Regex(header[0], RegexOptions.Singleline);
-                var def = header[0].Split('|').Select(x => x.Trim()).ToArray();
-                pre = def[0].Length > 0 ? def[0] : null;
-                anno = def[1].Length > 0 ? def[1] : null;
-                openBrace = def[2].Length > 0 ? def[2][0] : openBrace;
-                closeBrace = def[3].Length > 0 ? def[3][0] : closeBrace;
-                post = def[4].Length > 0 ? def[4] : null;
-
-                // process all lines
-                for (cur++; cur < lines.Length; cur++)
-                {
-                    // get number of tabs of the line
-                    var tabs = lines[cur].LastIndexOf('┬');
-                    // add keyword line to keywords
-                    if (tabs == -1)
-                        AddKeyword(lines, ref cur);
-                    // belongs to child node
-                    else if (tabs > headerTabs)
-                        children.Add(new Node(lines, ref cur));
-                    // belongs to parent node
-                    else
-                    {
-                        cur--;
-                        break;
-                    }
-                }
-
-                // convert child node lint to array
-                this.children = children.ToArray();
-            }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="lines"></param>
-            /// <param name="cur"></param>
-            private void AddKeyword(string[] lines, ref int cur)
-            {
-                // GET LINE STRING
-
-                var line = lines[cur];
-                // as long as there are new line chars append the line string
-                while (line.LastIndexOf(END) < 0)
-                {
-                    var text = lines[++cur];
-                    line += '\n' + text.Substring(text.LastIndexOf(SPLIT) + 1);
-                }
-                line = line.Substring(0, line.LastIndexOf(END));
-                
-                // process keyword definition
-                var offset = line.IndexOf('├');
-                var def = line.Substring(offset + 1).Trim().Split(SPLIT);
-                var style = int.Parse(def[0]);
-
-                // create new trie if none exists for this style
-                if (!keywordTries.ContainsKey(style))
-                    keywordTries.Add(style, new Trie<Keyword>());
-
-                // add keyword to trie
-                var keyword = new Keyword { word = def[1], hint = def.Length > 2 ? def[2] : "" };
-                keywordTries[style].Add(def[1], keyword);
-            }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="text"></param>
-            /// <param name="position"></param>
-            /// <returns></returns>
-            //private Match IsActiveNode(string text, int position)
-            //{
-            //    foreach (Match match in regex.Matches(text))
-            //    {
-            //        if (match.Index <= position && position < match.Index + match.Length)
-            //            return match;
-            //    }
-            //    return null;
-            //}
-
-            private MATCH IsActiveNode2(string text, int position, int startIndex, int count)
-            {
-                if (pre == null)
-                {
-                    return new MATCH
-                    {
-                        Index = 0,
-                        Length = text.Length
-                    };
-                }
-
-                for (int i = text.IndexOfWholeWords(pre, startIndex, count), endIndex = startIndex + count;
-                    i >= 0 && i < endIndex;
-                    i = text.IndexOfWholeWords(pre, i + 1, endIndex - i - 1))
-                {
-                    if (position < i)
-                        break;
-
-                    int annoIndex = anno == null ? i : text.IndexOfWholeWords(anno, i, endIndex - i);
-                    if (annoIndex < 0 || position < annoIndex)
-                        break;
-
-                    int openIndex = text.IndexOf(openBrace, annoIndex, endIndex - annoIndex);
-                    if (openIndex < 0 || position < openIndex)
-                        break;
-
-                    int closeIndex = text.IndexOfBraceMatch(openBrace, closeBrace, openIndex, endIndex - openIndex);
-                    if (closeIndex < 0 || closeIndex < position)
-                        continue;
-
-                    int postIndex = post == null ? closeIndex : text.IndexOfWholeWords(post, closeIndex, endIndex - closeIndex);
-                    if (postIndex < 0 || postIndex < position)
-                        continue;
-                    
-                    return new MATCH
-                    {
-                        Index = openIndex,
-                        Length = closeIndex - openIndex
-                    };
-                }
-                return default(MATCH);
-            }
-
-            private struct MATCH
-            {
-                public int Index;
-                public int Length;
-            }
-
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="text"></param>
-            /// <param name="position"></param>
-            /// <param name="word"></param>
-            /// <returns></returns>
-            public IEnumerable<KeywordDef> GetKeywordDefs(string text, int position, int startIndex, int count, string word)
-            {
-                // if no word has been specified
-                if (word == null)
-                    word = text.WordFromPosition(position);
-
-                // is the keyword within a block handled by this node?
-                var match = IsActiveNode2(text, position, startIndex, count);
-                if (match.IsDefault())
-                    // word not handled by this node
-                    yield break;
-
-                // is the keyword within a block handled by a child node?
-                foreach (var child in children)
-                {
-                    var keywords = child.GetKeywordDefs(text, position, match.Index, match.Length, word);
-                    foreach (var keyword in keywords)
-                        yield return keyword;
-                    if (keywords.Count() > 0)
-                        yield break;
-                }
-
-                // check whether the word is a keyword of this node
-                foreach (var trie in keywordTries)
-                {
-                    // try to find the keyword
-                    var keywords = trie.Value[word];
-                    // if a keyword could be found
-                    foreach (var keyword in keywords)
-                    {
-                        yield return new KeywordDef
-                        {
-                            style = trie.Key,
-                            word = keyword.word,
-                            hint = keyword.hint
-                        };
-                    }
-                }
-            }
-
-            private struct Keyword
-            {
-                public string word;
-                public string hint;
-            }
-
-            public struct KeywordDef
-            {
-                public int style;
-                public string word;
-                public string hint;
-            }
         }
         #endregion
     }
