@@ -104,5 +104,14 @@ namespace UnitTests
             var hint = lexer.GetKeywordHint(code, pos, word);
             Assert.IsNotNull(hint);
         }
+
+        [TestMethod]
+        public void TestMethodFindShaderAnnotations()
+        {
+            var word = "";
+            var pos = code.IndexOf("vert vs_simple");
+            var keywords = lexer.GetPotentialKeywords(code, pos, word);
+            Assert.AreEqual(6, keywords.Count());
+        }
     }
 }

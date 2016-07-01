@@ -1,4 +1,4 @@
-﻿┬||||
+﻿┬
 ├1║buffer║buffer <name>¶
 ├1║csharp║assembly <path> [path] [...]¶
 ├1║fragoutput║fragoutput <name>¶
@@ -12,12 +12,12 @@
 ├1║texture║texture <name>¶
 ├1║vertinput║vertinput <name>¶
 ├1║vertoutput║vertoutput <name>¶
-├┬buffer||{|}|
+├┬buffer||{|}
 │├3║size║size <bytes>¶
 │├3║xml║xml <path> <node>¶
 │├3║txt║txt <text_name>¶
 │├3║usage║usage <usage_hint>¶
-│├┬usage||||
+│├┬usage
 │ ├4║dynamicCopy¶
 │ ├4║dynamicDraw¶
 │ ├4║dynamicRead¶
@@ -27,19 +27,19 @@
 │ ├4║streamCopy¶
 │ ├4║streamDraw¶
 │ ├4║streamRead¶
-├┬csharp||{|}|
+├┬csharp||{|}
 │├3║assembly║assembly <path> [path] [...]¶
 │├3║file║file <path> [path] [...]¶
-├┬fragout||{|}|
+├┬fragout||{|}
 │├3║color║color <image_name>¶
 │├3║depth║depth <image_name>¶
 │├3║height║height <pixels>¶
 │├3║width║width <pixels>¶
-├┬image||{|}|
+├┬image||{|}
 │├3║format║format <pixel_format>¶
 │├3║size║width <width> <height> <depth> <length>¶
 │├3║file║file <path> [path] [...]¶
-│├┬format||||
+│├┬format
 ││├4║depth¶
 ││├4║depth16¶
 ││├4║depth24¶
@@ -88,18 +88,17 @@
 ││├4║rgba32i¶
 ││├4║rgba32ui¶
 ││├4║rgba32f¶
-│├┬type||||
+│├┬type
 │ ├4║texture1D║1D texture¶
 │ ├4║texture2D║2D texture¶
 │ ├4║texture3D║3D texture/volume texture¶
 │ ├4║texture1DArray║1D texture array¶
 │ ├4║texture2DArray║2D texture array¶
-├┬instance||{|}|
+├┬instance||{|}
 │├3║class║class <csharp_name> <c#_class>¶
 │├3║name║name <new_name>¶
-├┬pass||{|}|
+├┬pass||{|}
 │├4║break¶
-│├3║comp║comp <shader_name>¶
 │├3║compute║Dispatch compute shader call.
 ││         ║> compute <num_group_x> <num_group_y> [num_group_z]
 ││         ║> compute <callbuffer_name>¶
@@ -120,7 +119,7 @@
 ││      ║    linesAdjacency, lineStripAdjacency, trianglesAdjacency, triangleStripAdjacency
 ││      ║index_type
 ││      ║    ubyte, ushort, uint¶
-│├┬draw||||
+│├┬draw
 │|├4║lineLoop¶
 │|├4║lines¶
 │|├4║linesAdjacency¶
@@ -142,22 +141,23 @@
 ││         ║The optional argument [write_mode] can be 'gl_SeparateAttribs' (write every
 ││         ║<output_varying_name> to a new buffer) or the default 'gl_InterleavedAttribs'
 ││         ║(output varyings for different buffers need to be separated by 'gl_NextBuffer')¶
-│├┬vertout||||
+│├┬vertout
 │|├4║lines¶
 │|├4║points¶
 │|├4║triangles¶
-│├3║eval║eval <shader_name>¶
 │├3║exec║exec <instance_name>¶
-│├3║frag║frag <shader_name>¶
-│├3║geom║geom <shader_name>¶
+│├3║comp║comp <shader_name>¶
+│├3║vert║vert <shader_name>¶
 │├3║tess║tess <shader_name>¶
+│├3║eval║eval <shader_name>¶
+│├3║geom║geom <shader_name>¶
+│├3║frag║frag <shader_name>¶
 │├3║tex║Bind or unbind a texture from a texture unit.
 ││     ║tex <texture_name> <unit> -- bind to unit
 ││     ║tex <unit>                -- unbind unit¶
 │├3║img║Bind or unbind a texture from an image unit.
 ││     ║img <texture_name> <unit> <level> <layer> <access> <format> -- bind to unit
 ││     ║img <unit>                                                  -- unbind unit¶
-│├3║vert║vert <shader_name>¶
 │├10║glBeginConditionalRender¶
 │├10║glBeginQuery¶
 │├10║glBeginQueryIndexed¶
@@ -302,26 +302,26 @@
 │├10║glViewportIndexedf¶
 │├10║glViewportIndexedfv¶
 │├10║glWaitSync¶
-├┬sampler||{|}|
+├┬sampler||{|}
 │├3║magfilter║magfilter <filter_type>¶
 │├3║minfilter║minfilter <filter_type>¶
 │├3║wrap║wrap <wrap_type>¶
-│├┬magfilter||||
+│├┬magfilter
 ││├4║linear¶
 ││├4║nearest¶
-│├┬minfilter||||
+│├┬minfilter
 ││├4║linear¶
 ││├4║nearest¶
 ││├4║linearMipmapLinear¶
 ││├4║linearMipmapNearest¶
 ││├4║nearestMipmapLinear¶
 ││├4║nearestMipmapNearest¶
-│├┬wrap||||
+│├┬wrap
 │ ├4║clampToBorder¶
 │ ├4║clampToEdge¶
 │ ├4║mirroredRepeat¶
 │ ├4║repeat¶
-├┬tech||{|}|
+├┬tech||{|}
 │├3║pass║Execute this pass every frame.
 ││      ║  pass <name>¶
 │├3║init║Execute this pass only once
@@ -330,13 +330,13 @@
 │├3║uninit║Execute this pass only once
 │         ║before the technique is destroyed.
 │         ║  uninit <name>¶
-├┬texture||{|}|
+├┬texture||{|}
 │├3║buff║buff <name>¶
 │├3║img║img <name>¶
 │├3║samp║samp <name>¶
-├┬vertinput||{|}|
+├┬vertinput||{|}
 │├3║attr║attr <buff_name> <type> <dim> [stride] [offset] [divisor]¶
-│├┬attr||||
+│├┬attr
 │ ├4║byte¶
 │ ├4║double¶
 │ ├4║float¶
@@ -348,198 +348,198 @@
 │ ├4║unsignedInt¶
 │ ├4║unsignedShort¶
 │ ├4║ushort¶
-├┬vertoutput||{|}|
+├┬vertoutput||{|}
 │├3║buff║buff <name>¶
 │├3║pause║pause <true_false>¶
 │├3║resume║resume <true_false>¶
-├┬shader|||{|
-│├2║comp║Compute shader annotation.
-││      ║  in  uvec3 gl_NumWorkGroups
-││      ║  in  uvec3 gl_WorkGroupSize
-││      ║  in  uvec3 gl_WorkGroupID
-││      ║  in  uvec3 gl_LocalInvocationID
-││      ║  in  uvec3 gl_GlobalInvocationID
-││      ║  in  uint  gl_LocalInvocationIndex¶
-│├2║vert║Vertex shader annotation.
-││      ║  in  int   gl_VertexID
-││      ║  in  int   gl_InstanceID
-││      ║  out vec4  gl_Position
-││      ║  out float gl_PointSize
-││      ║  out float gl_ClipDistance[]¶
-│├2║tess║Tesselation control annotation.
-││      ║  in  int   gl_PatchVerticesIn
-││      ║  in  int   gl_PrimitiveID
-││      ║  in  int   gl_InvocationID
-││      ║  in  vec4  gl_in[].gl_Position
-││      ║  in  float gl_in[].gl_PointSize
-││      ║  in  float gl_in[].gl_ClipDistance[]
-││      ║  out float gl_TessLevelOuter[3]
-││      ║  out float gl_TessLevelInner[3]
-││      ║  out vec4  gl_out[].gl_Position
-││      ║  out float gl_out[].gl_PointSize
-││      ║  out float gl_out[].gl_ClipDistance[]¶
-│├2║eval║Tesselation evaluation shader annotation.
-││      ║  in  vec3  gl_TessCoord
-││      ║  in  int   gl_PatchVerticesIn
-││      ║  in  int   gl_PrimitiveID
-││      ║  in  float gl_TessLevelOuter[3]
-││      ║  in  float gl_TessLevelInner[1]
-││      ║  in  vec4  gl_in[].gl_Position
-││      ║  in  float gl_in[].gl_PointSize
-││      ║  in  float gl_in[].gl_ClipDistance[]
-││      ║  out vec4  gl_Position
-││      ║  out float gl_PointSize
-││      ║  out float gl_ClipDistance[]¶
-│├2║geom║Geometry shader annotation.
-││      ║   in  int   gl_PrimitiveIDIn
-││      ║   in  int   gl_InvocationID
-││      ║   in  vec4  gl_in[].gl_Position
-││      ║   in  float gl_in[].gl_PointSize
-││      ║   in  float gl_in[].gl_ClipDistance[]
-││      ║   out int   gl_PrimitiveID
-││      ║   out int   gl_Layer
-││      ║   out int   gl_ViewportIndex
-││      ║   out vec4  gl_Position
-││      ║   out float gl_PointSize
-││      ║   out float gl_ClipDistance[]¶
-│├2║frag║Fragment shader annotation.
-│       ║  in  vec4  gl_FragCoord
-│       ║  in  bool  gl_FrontFacing
-│       ║  in  vec2  gl_PointCoord
-│       ║  in  int   gl_SampleID
-│       ║  in  vec2  gl_SamplePosition
-│       ║  in  int   gl_SampleMaskIn[]
-│       ║  in  float gl_ClipDistance[]
-│       ║  in  int   gl_PrimitiveID
-│       ║  in  int   gl_Layer
-│       ║  in  int   gl_ViewportIndex
-│       ║  out float gl_FragDepth
-│       ║  out int   gl_SampleMask[]¶
-├┬shader|comp|{|}|
-│├┬layout||(|)|in
-│ ├7║local_size_x¶
-│ ├7║local_size_y¶
-│ ├7║local_size_z¶
-├┬shader|vert|{|}|
-│├9║gl_InstanceID║contains the index of the current primitive in an instanced draw command¶
-│├9║gl_VertexID║contains the index of the current vertex¶
-├┬shader|tess|{|}|
-│├9║gl_InvocationID║contains the index of the output patch
-││                 ║vertex assigned to the shader invocation¶
-│├9║gl_MaxPatchVertices║the maximum number of patch vertices supported¶
-│├9║gl_PatchVerticesIn║contains the number of vertices in the current patch¶
-│├9║gl_PrimitiveID║holds the number of primitives processed by the
-││                ║shader since the current set of rendering
-││                ║primitives was started¶
-│├9║gl_TessLevelInner║is used to assign values to the corresponding inner tesellation
-││                   ║levels of the current patch. The values written into
-││                   ║gl_TessLevelInner by the tessellation control shader are used
-││                   ║by the tessellation primitive generator to control primitive
-││                   ║tessellation and may be read by the subsequent tessellation
-││                   ║evaluation shader.¶
-│├9║gl_TessLevelOuter║is used to assign values to the corresponding outer tesellation
-││                   ║levels of the current patch. The values written into
-││                   ║gl_TessLevelOuter by the tessellation control shader are used
-││                   ║by the tessellation primitive generator to control primitive
-││                   ║tessellation and may be read by the subsequent tessellation
-││                   ║evaluation shader.¶
-│├9║gl_in║vertex input varying structure of the patch¶
-│├9║gl_out║vertex output varying structure of the patch¶
-│├┬layout||(|)|out
-│ ├7║vertices║Specify a particular vertex count for Tessellation Control Shaders output patches.¶
-├┬shader|eval|{|}|
-│├9║gl_MaxPatchVertices║the maximum number of patch vertices supported¶
-│├9║gl_PatchVerticesIn║contains the number of vertices in the current patch¶
-│├9║gl_PrimitiveID║is an output variable that is passed to the
-││                ║corresponding gl_PrimitiveID input variable
-││                ║in the fragment shader¶
-│├9║gl_TessLevelInner║contains the values written by the tessellation control shader,
-││                   ║if present. If no tessellation control shader is present, it
-││                   ║contains the default tessellation level.¶
-│├9║gl_TessLevelOuter║contains the values written by the tessellation control shader,
-││                   ║if present. If no tessellation control shader is present, it
-││                   ║contains the default tessellation level.¶
-│├9║gl_in║vertex input varying structure of the patch¶
-├┬shader|geom|{|}|
-│├9║gl_InvocationID║identifies the invocation number assigned
-││                 ║to the geometry shader invocation¶
-│├9║gl_Layer║contains the selected layer of a multi-layer framebuffer attachment¶
-│├9║gl_PrimitiveID║is an output variable that is passed to the
-││                ║corresponding gl_PrimitiveID input variable
-││                ║in the fragment shader¶
-│├9║gl_PrimitiveIDIn║holds the number of primitives processed by the shader since
-││                  ║the current set of rendering primitives was started¶
-│├9║gl_ViewportIndex║contains the index of the viewport to be used
-││                  ║in viewport transformation and scissoring¶
-│├9║gl_in║vertex input varying structure of the primitive¶
-│├6║EmitStreamVertex║emit a vertex to a specified stream
-││                  ║  void EmitStreamVertex(int stream)¶
-│├6║EmitVertex║emit a vertex to the first vertex stream
-││            ║  void EmitVertex(void)¶
-│├6║EndPrimitive║complete the current output primitive
-││              ║on the first vertex stream
-││              ║  void EndPrimitive(void)¶
-│├6║EndStreamPrimitive║complete the current output primitive on a specified stream
-││                    ║  void EndStreamPrimitive(int stream)¶
-│├┬layout||(|)|in
-││├7║points║The input primitive type of the geometry shader are points.¶
-││├7║lines║The input primitive type of the geometry shader are lines.¶
-││├7║triangles║The input primitive type of the geometry shader are triangles.¶
-│├┬layout||(|)|out
-│ ├7║points║The output primitive type of the geometry shader are points.¶
-│ ├7║lines║The output primitive type of the geometry shader are lines.¶
-│ ├7║lines_adjacency║The output primitive type of the geometry shader are adjacency lines.¶
-│ ├7║triangles_adjacency║The output primitive type of the geometry shader are adjacency triangles.¶
-│ ├7║line_strip║The output primitive type of the geometry shader are line strips.¶
-│ ├7║triangle_strip║The output primitive type of the geometry shader are triangles strips.¶
-│ ├7║max_vertices║The number must be a compile-time constant, and it
-│                ║defines the maximum number of vertices that will
-│                ║be written by a single invocation of the GS.¶
-├┬shader|frag|{|}|
-│├7║centroid¶
-│├8║discard¶
-│├6║fwidth║return the sum of the absolute
-││        ║value of derivatives in x and y
-││        ║  genType fwidth(genType p)¶
-│├6║fwidthCoarse║return the sum of the absolute
-││              ║value of derivatives in x and y
-││              ║  genType fwidthCoarse(genType p)¶
-│├6║fwidthFine║return the sum of the absolute
-││            ║value of derivatives in x and y
-││            ║  genType fwidthFine(genType p)¶
-│├9║gl_FragCoord║contains the window-relative coordinates
-││              ║of the current fragment¶
-│├9║gl_FragDepth║establishes a depth value for the current fragment¶
-│├9║gl_FrontFacing║indicates whether a primitive is front or back facing¶
-│├9║gl_HelperInvocation║indicates whether a fragment shader invocation is a helper invocation¶
-│├9║gl_NumSamples║is the number of samples in the current Framebuffer¶
-│├9║gl_PointCoord║contains the coordinate of a fragment within a point¶
-│├9║gl_PointSize║contains size of rasterized points, in pixels¶
-│├9║gl_PrimitiveID║If no geomery shader is present then gl_PrimitiveID in the
-││                ║fragment language behaves identically as it would in the
-││                ║tessellation control and evaluation languages. If a geometry
-││                ║shader is present but does not write to gl_PrimitiveID, the
-││                ║value of gl_PrimitiveID in the fragment shader is undefined.¶
-│├9║gl_SampleID║contains the index of the sample currently being processed¶
-│├9║gl_SampleMask║specifies the sample coverage mask for the current fragment¶
-│├9║gl_SampleMaskIn║contains the computed sample coverage mask for the current fragment¶
-│├9║gl_SamplePosition║contains the location of the current sample within the current fragment¶
-│├9║gl_ViewportIndex║contains the index of the viewport the
-││                  ║fragment was assigned to¶
-│├┬layout||(|)|out
-│ ├7║index║Used in combination with the location qualifier for dual source blending.¶
-│ ├7║depth_any║Disables the depth test.¶
-│ ├7║depth_greater║To pass the depth test the new depth value must be greater.¶
-│ ├7║depth_less║To pass the depth test the new depth value must be less.¶
-│ ├7║depth_unchanged║To pass the depth test the new depth value must be equal.¶
-│ ├7║early_fragment_tests║Perform depth test before executing the shader.¶
-│ ├7║origin_upper_left║Specifies that gl_FragCoord​ will have the origin
-│ │                   ║(0, 0) in the upper-left of the screen.¶
-│ ├7║pixel_center_integer║Specifies that the X and Y of gl_FragCoord​ will
-│                        ║be shifted by a half-pixel, so that the center
-│                        ║of each pixel is an integer value.
-│                        ║fragment was assigned to¶
-├┬shader||{|}|
+├┬shader||{|}||keep
+ ├┬shader||[|]
+ │├2║comp║Compute shader annotation.
+ ││      ║  in  uvec3 gl_NumWorkGroups
+ ││      ║  in  uvec3 gl_WorkGroupSize
+ ││      ║  in  uvec3 gl_WorkGroupID
+ ││      ║  in  uvec3 gl_LocalInvocationID
+ ││      ║  in  uvec3 gl_GlobalInvocationID
+ ││      ║  in  uint  gl_LocalInvocationIndex¶
+ │├2║vert║Vertex shader annotation.
+ ││      ║  in  int   gl_VertexID
+ ││      ║  in  int   gl_InstanceID
+ ││      ║  out vec4  gl_Position
+ ││      ║  out float gl_PointSize
+ ││      ║  out float gl_ClipDistance[]¶
+ │├2║tess║Tesselation control annotation.
+ ││      ║  in  int   gl_PatchVerticesIn
+ ││      ║  in  int   gl_PrimitiveID
+ ││      ║  in  int   gl_InvocationID
+ ││      ║  in  vec4  gl_in[].gl_Position
+ ││      ║  in  float gl_in[].gl_PointSize
+ ││      ║  in  float gl_in[].gl_ClipDistance[]
+ ││      ║  out float gl_TessLevelOuter[3]
+ ││      ║  out float gl_TessLevelInner[3]
+ ││      ║  out vec4  gl_out[].gl_Position
+ ││      ║  out float gl_out[].gl_PointSize
+ ││      ║  out float gl_out[].gl_ClipDistance[]¶
+ │├2║eval║Tesselation evaluation shader annotation.
+ ││      ║  in  vec3  gl_TessCoord
+ ││      ║  in  int   gl_PatchVerticesIn
+ ││      ║  in  int   gl_PrimitiveID
+ ││      ║  in  float gl_TessLevelOuter[3]
+ ││      ║  in  float gl_TessLevelInner[1]
+ ││      ║  in  vec4  gl_in[].gl_Position
+ ││      ║  in  float gl_in[].gl_PointSize
+ ││      ║  in  float gl_in[].gl_ClipDistance[]
+ ││      ║  out vec4  gl_Position
+ ││      ║  out float gl_PointSize
+ ││      ║  out float gl_ClipDistance[]¶
+ │├2║geom║Geometry shader annotation.
+ ││      ║   in  int   gl_PrimitiveIDIn
+ ││      ║   in  int   gl_InvocationID
+ ││      ║   in  vec4  gl_in[].gl_Position
+ ││      ║   in  float gl_in[].gl_PointSize
+ ││      ║   in  float gl_in[].gl_ClipDistance[]
+ ││      ║   out int   gl_PrimitiveID
+ ││      ║   out int   gl_Layer
+ ││      ║   out int   gl_ViewportIndex
+ ││      ║   out vec4  gl_Position
+ ││      ║   out float gl_PointSize
+ ││      ║   out float gl_ClipDistance[]¶
+ │├2║frag║Fragment shader annotation.
+ │       ║  in  vec4  gl_FragCoord
+ │       ║  in  bool  gl_FrontFacing
+ │       ║  in  vec2  gl_PointCoord
+ │       ║  in  int   gl_SampleID
+ │       ║  in  vec2  gl_SamplePosition
+ │       ║  in  int   gl_SampleMaskIn[]
+ │       ║  in  float gl_ClipDistance[]
+ │       ║  in  int   gl_PrimitiveID
+ │       ║  in  int   gl_Layer
+ │       ║  in  int   gl_ViewportIndex
+ │       ║  out float gl_FragDepth
+ │       ║  out int   gl_SampleMask[]¶
+ ├┬shader|comp|{|}
+ │├┬layout||(|)|in
+ │ ├7║local_size_x¶
+ │ ├7║local_size_y¶
+ │ ├7║local_size_z¶
+ ├┬shader|vert|{|}
+ │├9║gl_InstanceID║contains the index of the current primitive in an instanced draw command¶
+ │├9║gl_VertexID║contains the index of the current vertex¶
+ ├┬shader|tess|{|}
+ │├9║gl_InvocationID║contains the index of the output patch
+ ││                 ║vertex assigned to the shader invocation¶
+ │├9║gl_MaxPatchVertices║the maximum number of patch vertices supported¶
+ │├9║gl_PatchVerticesIn║contains the number of vertices in the current patch¶
+ │├9║gl_PrimitiveID║holds the number of primitives processed by the
+ ││                ║shader since the current set of rendering
+ ││                ║primitives was started¶
+ │├9║gl_TessLevelInner║is used to assign values to the corresponding inner tesellation
+ ││                   ║levels of the current patch. The values written into
+ ││                   ║gl_TessLevelInner by the tessellation control shader are used
+ ││                   ║by the tessellation primitive generator to control primitive
+ ││                   ║tessellation and may be read by the subsequent tessellation
+ ││                   ║evaluation shader.¶
+ │├9║gl_TessLevelOuter║is used to assign values to the corresponding outer tesellation
+ ││                   ║levels of the current patch. The values written into
+ ││                   ║gl_TessLevelOuter by the tessellation control shader are used
+ ││                   ║by the tessellation primitive generator to control primitive
+ ││                   ║tessellation and may be read by the subsequent tessellation
+ ││                   ║evaluation shader.¶
+ │├9║gl_in║vertex input varying structure of the patch¶
+ │├9║gl_out║vertex output varying structure of the patch¶
+ │├┬layout||(|)|out
+ │ ├7║vertices║Specify a particular vertex count for Tessellation Control Shaders output patches.¶
+ ├┬shader|eval|{|}
+ │├9║gl_MaxPatchVertices║the maximum number of patch vertices supported¶
+ │├9║gl_PatchVerticesIn║contains the number of vertices in the current patch¶
+ │├9║gl_PrimitiveID║is an output variable that is passed to the
+ ││                ║corresponding gl_PrimitiveID input variable
+ ││                ║in the fragment shader¶
+ │├9║gl_TessLevelInner║contains the values written by the tessellation control shader,
+ ││                   ║if present. If no tessellation control shader is present, it
+ ││                   ║contains the default tessellation level.¶
+ │├9║gl_TessLevelOuter║contains the values written by the tessellation control shader,
+ ││                   ║if present. If no tessellation control shader is present, it
+ ││                   ║contains the default tessellation level.¶
+ │├9║gl_in║vertex input varying structure of the patch¶
+ ├┬shader|geom|{|}
+ │├9║gl_InvocationID║identifies the invocation number assigned
+ ││                 ║to the geometry shader invocation¶
+ │├9║gl_Layer║contains the selected layer of a multi-layer framebuffer attachment¶
+ │├9║gl_PrimitiveID║is an output variable that is passed to the
+ ││                ║corresponding gl_PrimitiveID input variable
+ ││                ║in the fragment shader¶
+ │├9║gl_PrimitiveIDIn║holds the number of primitives processed by the shader since
+ ││                  ║the current set of rendering primitives was started¶
+ │├9║gl_ViewportIndex║contains the index of the viewport to be used
+ ││                  ║in viewport transformation and scissoring¶
+ │├9║gl_in║vertex input varying structure of the primitive¶
+ │├6║EmitStreamVertex║emit a vertex to a specified stream
+ ││                  ║  void EmitStreamVertex(int stream)¶
+ │├6║EmitVertex║emit a vertex to the first vertex stream
+ ││            ║  void EmitVertex(void)¶
+ │├6║EndPrimitive║complete the current output primitive
+ ││              ║on the first vertex stream
+ ││              ║  void EndPrimitive(void)¶
+ │├6║EndStreamPrimitive║complete the current output primitive on a specified stream
+ ││                    ║  void EndStreamPrimitive(int stream)¶
+ │├┬layout||(|)|in
+ ││├7║points║The input primitive type of the geometry shader are points.¶
+ ││├7║lines║The input primitive type of the geometry shader are lines.¶
+ ││├7║triangles║The input primitive type of the geometry shader are triangles.¶
+ │├┬layout||(|)|out
+ │ ├7║points║The output primitive type of the geometry shader are points.¶
+ │ ├7║lines║The output primitive type of the geometry shader are lines.¶
+ │ ├7║lines_adjacency║The output primitive type of the geometry shader are adjacency lines.¶
+ │ ├7║triangles_adjacency║The output primitive type of the geometry shader are adjacency triangles.¶
+ │ ├7║line_strip║The output primitive type of the geometry shader are line strips.¶
+ │ ├7║triangle_strip║The output primitive type of the geometry shader are triangles strips.¶
+ │ ├7║max_vertices║The number must be a compile-time constant, and it
+ │                ║defines the maximum number of vertices that will
+ │                ║be written by a single invocation of the GS.¶
+ ├┬shader|frag|{|}
+ │├7║centroid¶
+ │├8║discard¶
+ │├6║fwidth║return the sum of the absolute
+ ││        ║value of derivatives in x and y
+ ││        ║  genType fwidth(genType p)¶
+ │├6║fwidthCoarse║return the sum of the absolute
+ ││              ║value of derivatives in x and y
+ ││              ║  genType fwidthCoarse(genType p)¶
+ │├6║fwidthFine║return the sum of the absolute
+ ││            ║value of derivatives in x and y
+ ││            ║  genType fwidthFine(genType p)¶
+ │├9║gl_FragCoord║contains the window-relative coordinates
+ ││              ║of the current fragment¶
+ │├9║gl_FragDepth║establishes a depth value for the current fragment¶
+ │├9║gl_FrontFacing║indicates whether a primitive is front or back facing¶
+ │├9║gl_HelperInvocation║indicates whether a fragment shader invocation is a helper invocation¶
+ │├9║gl_NumSamples║is the number of samples in the current Framebuffer¶
+ │├9║gl_PointCoord║contains the coordinate of a fragment within a point¶
+ │├9║gl_PointSize║contains size of rasterized points, in pixels¶
+ │├9║gl_PrimitiveID║If no geomery shader is present then gl_PrimitiveID in the
+ ││                ║fragment language behaves identically as it would in the
+ ││                ║tessellation control and evaluation languages. If a geometry
+ ││                ║shader is present but does not write to gl_PrimitiveID, the
+ ││                ║value of gl_PrimitiveID in the fragment shader is undefined.¶
+ │├9║gl_SampleID║contains the index of the sample currently being processed¶
+ │├9║gl_SampleMask║specifies the sample coverage mask for the current fragment¶
+ │├9║gl_SampleMaskIn║contains the computed sample coverage mask for the current fragment¶
+ │├9║gl_SamplePosition║contains the location of the current sample within the current fragment¶
+ │├9║gl_ViewportIndex║contains the index of the viewport the
+ ││                  ║fragment was assigned to¶
+ │├┬layout||(|)|out
+ │ ├7║index║Used in combination with the location qualifier for dual source blending.¶
+ │ ├7║depth_any║Disables the depth test.¶
+ │ ├7║depth_greater║To pass the depth test the new depth value must be greater.¶
+ │ ├7║depth_less║To pass the depth test the new depth value must be less.¶
+ │ ├7║depth_unchanged║To pass the depth test the new depth value must be equal.¶
+ │ ├7║early_fragment_tests║Perform depth test before executing the shader.¶
+ │ ├7║origin_upper_left║Specifies that gl_FragCoord​ will have the origin
+ │ │                   ║(0, 0) in the upper-left of the screen.¶
+ │ ├7║pixel_center_integer║Specifies that the X and Y of gl_FragCoord​ will
+ │                        ║be shifted by a half-pixel, so that the center
+ │                        ║of each pixel is an integer value.
+ │                        ║fragment was assigned to¶
  ├7║in¶
  ├7║out¶
  ├7║layout¶
