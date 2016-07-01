@@ -1,4 +1,5 @@
-﻿using App.Lexer;
+﻿using App;
+using App.Lexer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Linq;
@@ -21,6 +22,14 @@ namespace UnitTests
         }
 
         [TestMethod]
+        public void TestMethodIndexOfWholeWords()
+        {
+            var POS = code.IndexOf("buffer buf_pos");
+            var pos = code.IndexOfWholeWords("buffer");
+            Assert.AreEqual(POS, pos);
+        }
+
+        [TestMethod]
         public void TestMethodFindBufferKeyword()
         {
             var word = "buffer";
@@ -38,11 +47,24 @@ namespace UnitTests
             var pos = code.IndexOf("usage staticDraw");
             var keywords = lexer.GetPotentialKeywords(code, pos, word);
             Assert.AreEqual(4, keywords.Count());
+
             word = "usa";
             pos += word.Length;
             keywords = lexer.GetPotentialKeywords(code, pos, word);
             Assert.AreEqual(1, keywords.Count());
             Assert.AreEqual("usage", keywords.First());
+
+            word = "";
+            pos = code.IndexOf("staticDraw", pos);
+            keywords = lexer.GetPotentialKeywords(code, pos, word);
+            Assert.AreEqual(9, keywords.Count());
+
+            word = "sta";
+            pos += word.Length;
+            keywords = lexer.GetPotentialKeywords(code, pos, word);
+            foreach (var keyword in keywords)
+                Assert.IsTrue(keyword.StartsWith(word));
+            Assert.AreEqual(3, keywords.Count());
         }
 
         [TestMethod]

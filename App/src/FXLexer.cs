@@ -93,7 +93,7 @@ namespace App.Lexer
 
             // LOAD KEYWORD HIERARCHY //
 
-            root = Node.LoadText(Properties.Resources.keywords2);
+            root = Node.LoadText(Properties.Resources.keywords);
 
             // PARSE STYLE COLORS AND IDS //
 
@@ -437,7 +437,7 @@ namespace App.Lexer
         /// <returns></returns>
         private IEnumerable<Node.KeywordDef> GetPotentialKeywordDefs(string text, int position, string word)
         {
-            foreach (var def in root.GetKeywordDefs(text, position, word))
+            foreach (var def in root.GetKeywordDefs(text, position, 0, text.Length, word))
                 yield return def;
         }
 
@@ -499,7 +499,12 @@ namespace App.Lexer
 
         private class Node
         {
-            private Regex regex;
+            private string pre;
+            private string post;
+            private string anno;
+            private char openBrace = ' ';
+            private char closeBrace = '\n';
+            //private Regex regex;
             private Dictionary<int, Trie<Keyword>> keywordTries;
             private Node[] children;
             const char SPLIT = '║';
@@ -535,7 +540,13 @@ namespace App.Lexer
                 var header = headerLine.Substring(headerTabs + 1).Trim().Split(SPLIT);
 
                 // compile regular expression
-                regex = new Regex(header[0], RegexOptions.Singleline);
+                //regex = new Regex(header[0], RegexOptions.Singleline);
+                var def = header[0].Split('|').Select(x => x.Trim()).ToArray();
+                pre = def[0].Length > 0 ? def[0] : null;
+                anno = def[1].Length > 0 ? def[1] : null;
+                openBrace = def[2].Length > 0 ? def[2][0] : openBrace;
+                closeBrace = def[3].Length > 0 ? def[3][0] : closeBrace;
+                post = def[4].Length > 0 ? def[4] : null;
 
                 // process all lines
                 for (cur++; cur < lines.Length; cur++)
@@ -574,7 +585,7 @@ namespace App.Lexer
                 while (line.LastIndexOf(END) < 0)
                 {
                     var text = lines[++cur];
-                    line += text.Substring(text.LastIndexOf(SPLIT) + 1);
+                    line += '\n' + text.Substring(text.LastIndexOf(SPLIT) + 1);
                 }
                 line = line.Substring(0, line.LastIndexOf(END));
                 
@@ -598,16 +609,65 @@ namespace App.Lexer
             /// <param name="text"></param>
             /// <param name="position"></param>
             /// <returns></returns>
-            private Match IsActiveNode(string text, int position)
+            //private Match IsActiveNode(string text, int position)
+            //{
+            //    foreach (Match match in regex.Matches(text))
+            //    {
+            //        if (match.Index <= position && position < match.Index + match.Length)
+            //            return match;
+            //    }
+            //    return null;
+            //}
+
+            private MATCH IsActiveNode2(string text, int position, int startIndex, int count)
             {
-                foreach (Match match in regex.Matches(text))
+                if (pre == null)
                 {
-                    if (match.Index <= position && position < match.Index + match.Length)
-                        return match;
+                    return new MATCH
+                    {
+                        Index = 0,
+                        Length = text.Length
+                    };
                 }
-                return null;
+
+                for (int i = text.IndexOfWholeWords(pre, startIndex, count), endIndex = startIndex + count;
+                    i >= 0 && i < endIndex;
+                    i = text.IndexOfWholeWords(pre, i + 1, endIndex - i - 1))
+                {
+                    if (position < i)
+                        break;
+
+                    int annoIndex = anno == null ? i : text.IndexOfWholeWords(anno, i, endIndex - i);
+                    if (annoIndex < 0 || position < annoIndex)
+                        break;
+
+                    int openIndex = text.IndexOf(openBrace, annoIndex, endIndex - annoIndex);
+                    if (openIndex < 0 || position < openIndex)
+                        break;
+
+                    int closeIndex = text.IndexOfBraceMatch(openBrace, closeBrace, openIndex, endIndex - openIndex);
+                    if (closeIndex < 0 || closeIndex < position)
+                        continue;
+
+                    int postIndex = post == null ? closeIndex : text.IndexOfWholeWords(post, closeIndex, endIndex - closeIndex);
+                    if (postIndex < 0 || postIndex < position)
+                        continue;
+                    
+                    return new MATCH
+                    {
+                        Index = openIndex,
+                        Length = closeIndex - openIndex
+                    };
+                }
+                return default(MATCH);
             }
-            
+
+            private struct MATCH
+            {
+                public int Index;
+                public int Length;
+            }
+
             /// <summary>
             /// 
             /// </summary>
@@ -615,22 +675,22 @@ namespace App.Lexer
             /// <param name="position"></param>
             /// <param name="word"></param>
             /// <returns></returns>
-            public IEnumerable<KeywordDef> GetKeywordDefs(string text, int position, string word)
+            public IEnumerable<KeywordDef> GetKeywordDefs(string text, int position, int startIndex, int count, string word)
             {
                 // if no word has been specified
                 if (word == null)
                     word = text.WordFromPosition(position);
 
                 // is the keyword within a block handled by this node?
-                var match = IsActiveNode(text, position);
-                if (match == null)
+                var match = IsActiveNode2(text, position, startIndex, count);
+                if (match.IsDefault())
                     // word not handled by this node
                     yield break;
 
                 // is the keyword within a block handled by a child node?
                 foreach (var child in children)
                 {
-                    var keywords = child.GetKeywordDefs(match.Value, position - match.Index, word);
+                    var keywords = child.GetKeywordDefs(text, position, match.Index, match.Length, word);
                     foreach (var keyword in keywords)
                         yield return keyword;
                     if (keywords.Count() > 0)
