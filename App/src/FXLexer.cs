@@ -86,10 +86,8 @@ namespace App.Lexer
         public FxLexer()
         {
             // predefined variables
-            var fields = BindingFlags.IgnoreCase
-                | BindingFlags.Public
-                | BindingFlags.GetField
-                | BindingFlags.Instance;
+            var fields = BindingFlags.IgnoreCase | BindingFlags.Public
+                | BindingFlags.GetField | BindingFlags.Instance;
 
             // LOAD KEYWORD HIERARCHY //
 
@@ -454,11 +452,10 @@ namespace App.Lexer
         {
             #region FIELDS
             private string pre;
-            private string anno;
-            private int skip;
-            private char openBrace = '{';
-            private char closeBrace = '}';
             private string post;
+            private string anno;
+            private char openBrace = ' ';
+            private char closeBrace = '\n';
             private const char splitChar = '║';
             private const char endChar = '¶';
             private bool keep;
@@ -499,11 +496,10 @@ namespace App.Lexer
                 var def = header[0].Split('|').Select(x => x.Trim()).ToArray();
                 pre = def.Length > 0 && def[0].Length > 0 ? def[0] : null;
                 anno = def.Length > 1 && def[1].Length > 0 ? def[1] : null;
-                skip = def.Length > 2 && def[2].Length > 0 ? int.Parse(def[2]) : 0;
-                openBrace = def.Length > 3 && def[3].Length > 0 ? def[3][0] : openBrace;
-                closeBrace = def.Length > 4 && def[4].Length > 0 ? def[4][0] : closeBrace;
-                post = def.Length > 5 && def[5].Length > 0 ? def[5] : null;
-                keep = def.Length > 6 && def[6].Length > 0 ? (def[6] == "keep") : false;
+                openBrace = def.Length > 2 && def[2].Length > 0 ? def[2][0] : openBrace;
+                closeBrace = def.Length > 3 && def[3].Length > 0 ? def[3][0] : closeBrace;
+                post = def.Length > 4 && def[4].Length > 0 ? def[4] : null;
+                keep = def.Length > 5 && def[5].Length > 0 ? (def[5] == "keep") : false;
 
                 // process all lines
                 for (cur++; cur < lines.Length; cur++)
@@ -589,7 +585,6 @@ namespace App.Lexer
                         if (annoIndex < 0)
                             continue;
 
-                        // skip one word
                         int nameIndex = SkipWord(text, annoIndex, endIndex - annoIndex);
                         if (nameIndex < 0)
                             continue;
