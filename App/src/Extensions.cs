@@ -14,6 +14,88 @@ namespace App
     /// </summary>
     public static class Extensions
     {
+        #region String Extensions
+        /// <summary>
+        /// Find first match of two matching braces.
+        /// </summary>
+        /// <param name="s">extend string class</param>
+        /// <param name="open">opening brace character</param>
+        /// <param name="close">closing brace character</param>
+        /// <returns>Returns the first brace match.</returns>
+        public static Match BraceMatch(this string s, char open, char close)
+        {
+            string oc = $"{open}{close}";
+            return Regex.Match(s, $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
+                $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
+        }
+        
+        /// <summary>
+        /// Get zero based line index from the zero based character position.
+        /// </summary>
+        /// <param name="s">extend string class</param>
+        /// <param name="position">zero based character position</param>
+        /// <returns>Returns the zero based line index.</returns>
+        public static int LineFromPosition(this string s, int position)
+        {
+            int lineCount = 0;
+
+            for (int i = 0; i < position; i++)
+            {
+                if (s[i] == '\n')
+                {
+                    lineCount++;
+                }
+                else if (s[i] == '\r')
+                {
+                    if (s[i + 1] == '\n')
+                        i++;
+                    lineCount++;
+                }
+            }
+
+            return lineCount;
+        }
+
+        /// <summary>
+        /// Find index of the specified character beginning at the startIndex.
+        /// If the character could not be found, the length of the string is
+        /// returned -- not -1.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="c"></param>
+        /// <param name="startIndex">The zero based index to start searching at.</param>
+        /// <returns>Returns the position of the first found character location
+        /// or the length of the string if the character could not be found.</returns>
+        public static int IndexOfOrLength(this string s, char c, int startIndex = 0)
+            =>(int)Math.Min((uint)s.Length, (uint)s.IndexOf(c, startIndex));
+
+        /// <summary>
+        /// The sub range of the string beginning at the zero based start index
+        /// and ending at the zero based end index.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="start">Zero based start index.</param>
+        /// <param name="end">Zero based end index.</param>
+        /// <returns></returns>
+        public static string Subrange(this string s, int start, int end)
+            => s.Substring(start, end - start);
+
+
+        public static string WordFromPosition(this string s, int position)
+        {
+            int end = position;
+            while (end < s.Length && char.IsLetterOrDigit(s[end]))
+                end++;
+
+            int start = position;
+            while (start - 1 > 0 && char.IsLetterOrDigit(s[start - 1]))
+                start--;
+
+            return end - start > 0 ? s.Subrange(start, end) : string.Empty;
+        }
+        #endregion
+
+        #region Extensions For All Types
         /// <summary>
         /// Check if the object value matches the default value.
         /// </summary>
@@ -30,226 +112,9 @@ namespace App
         /// <param name="types"></param>
         /// <returns></returns>
         public static bool TypeIs<T>(this T obj, Type[] types) => types.Any(x => x is T);
-    }
+        #endregion
 
-    public static class ConvertExtensions
-    {
-        /// <summary>
-        /// Convert array to byte array.
-        /// </summary>
-        /// <param name="src"></param>
-        /// <returns></returns>
-        public static byte[] ToBytes(this Array src)
-        {
-            // get source type size
-            var ellType = src.GetType().GetElementType();
-            var ellSize = ellType == typeof(char) ? 2 : Marshal.SizeOf(ellType);
-            // allocate byte array
-            byte[] dst = new byte[ellSize * src.Length];
-            // copy source data to output array
-            Buffer.BlockCopy(src, 0, dst, 0, dst.Length);
-            return dst;
-        }
-
-        /// <summary>
-        /// Convert string into the specified type.
-        /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="str"></param>
-        /// <param name="exeptionMessage"></param>
-        /// <returns></returns>
-        public static TResult To<TResult>(this string str, string exeptionMessage = null)
-        {
-            try
-            {
-                return (TResult)Convert.ChangeType(str, typeof(TResult), App.Culture);
-            }
-            catch
-            {
-                if (exeptionMessage == null)
-                    return default(TResult);
-                throw new CompileException(exeptionMessage);
-            }
-        }
-
-        /// <summary>
-        /// Convert byte array into an array of the specified type.
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public static Array To(this byte[] data, Type type)
-        {
-            // get the size of the output type
-            var ellSize = type == typeof(char) ? 2 : Marshal.SizeOf(type);
-            // allocate output array
-            var rs = Array.CreateInstance(type, (data.Length + ellSize - 1) / ellSize);
-            // copy data to output array
-            Buffer.BlockCopy(data, 0, rs, 0, data.Length);
-            return rs;
-        }
-
-        /// <summary>
-        /// Cast an array to another type, not by element, but by memory.
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="typeName"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public static Array To(this Array data, string typeName, out Type type)
-        {
-            // convert input type to bytes
-            var bytes = data.GetType().GetElementType() == typeof(byte) ? (byte[])data : data.ToBytes();
-            // convert bytes to output type
-            return bytes.To(type = str2type[typeName]);
-        }
-
-        /// <summary>
-        /// Process each element using the specified functions.
-        /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="data"></param>
-        /// <param name="func"></param>
-        /// <returns></returns>
-        public static IEnumerable<TResult> ForEach<TResult>(this Array data, Func<object, TResult> func)
-        {
-            // output all values
-            foreach (var x in ForEach(data, new int[data.Rank]))
-                yield return func(x);
-        }
-
-        /// <summary>
-        /// Enumerate the elements of a multidimensional array.
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="tmpIdx">Temporal array used to iterate through the array dimensions.</param>
-        /// <param name="startDim">The first dimension to be processed.</param>
-        /// <returns></returns>
-        private static IEnumerable<object> ForEach(Array data, int[] tmpIdx, int startDim = 0)
-        {
-            // get size of current dimension
-            int dimSize = data.GetLength(startDim);
-
-            // for each element in this dimension
-            for (int i = 0; i < dimSize; i++)
-            {
-                // set index of current dimension
-                tmpIdx[startDim] = i;
-                // if the array has another dimension
-                if (data.Rank > startDim + 1)
-                    // output all values of this dimension
-                    foreach (var x in ForEach(data, tmpIdx, startDim + 1))
-                        yield return x;
-                else
-                    // write value to output
-                    yield return data.GetValue(tmpIdx);
-            }
-        }
-
-        /// <summary>
-        /// Covert the elements of an array into strings.
-        /// </summary>
-        /// <param name="src"></param>
-        /// <param name="format">How to format the type into a string.</param>
-        /// <returns></returns>
-        public static Array ToStringArray(this Array src, string format)
-        {
-            // get array size for each dimension
-            var size = Enumerable.Range(0, src.Rank).Select(x => src.GetLength(x)).ToArray();
-            // allocate string array
-            var dst = Array.CreateInstance(typeof(string), size);
-            // convert each element to a string
-            ToStringArray(src, dst, format, new int[src.Rank]);
-            return dst;
-        }
-
-        /// <summary>
-        /// Covert the elements of an array of a specific type into and array of strings.
-        /// </summary>
-        /// <param name="src">Source array.</param>
-        /// <param name="dst">Destination array of strings.</param>
-        /// <param name="format">How to format the type into a string.</param>
-        /// <param name="tmpIdx">Temporal array used to iterate through the array dimensions.</param>
-        /// <param name="startDim">The first dimension to be processed.</param>
-        private static void ToStringArray(Array src, Array dst, string format, int[] tmpIdx, int startDim = 0)
-        {
-            // get size of current dimension
-            int dimSize = src.GetLength(startDim);
-
-            // for each element in this dimension
-            for (int i = 0; i < dimSize; i++)
-            {
-                // set index of current dimension
-                tmpIdx[startDim] = i;
-                // if the array has another dimension
-                if (src.Rank > startDim + 1)
-                    // output all values of this dimension
-                    ToStringArray(src, dst, format, tmpIdx, startDim + 1);
-                else
-                    // write value to output
-                    dst.SetValue(string.Format(App.Culture, format, src.GetValue(tmpIdx)), tmpIdx);
-            }
-        }
-
-        public static Dictionary<string, Type> str2type = new Dictionary<string, Type>
-        {
-            {"bool"    , typeof(bool)   },
-            {"byte"    , typeof(byte)   },
-            {"sbyte"   , typeof(sbyte)  },
-            {"char"    , typeof(char)   },
-            {"decimal" , typeof(decimal)},
-            {"double"  , typeof(double) },
-            {"float"   , typeof(float)  },
-            {"int"     , typeof(int)    },
-            {"uint"    , typeof(uint)   },
-            {"long"    , typeof(long)   },
-            {"ulong"   , typeof(ulong)  },
-            {"object"  , typeof(object) },
-            {"short"   , typeof(short)  },
-            {"ushort"  , typeof(ushort) },
-        };
-    }
-
-    public static class BinaryReaderExtensions
-    {
-        /// <summary>
-        /// Seek to the specified position in the binary stream.
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <param name="offset"></param>
-        /// <param name="origin"></param>
-        /// <returns></returns>
-        public static long Seek(this BinaryReader reader, int offset, SeekOrigin origin = SeekOrigin.Current)
-            => reader.BaseStream.Seek(offset, origin);
-
-        /// <summary>
-        /// Read a 2D array from a binary stream.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="reader"></param>
-        /// <param name="rows"></param>
-        /// <param name="cols"></param>
-        /// <param name="stride"></param>
-        /// <returns></returns>
-        public static Array ReadArray<T>(this BinaryReader reader, int rows, int cols, int stride)
-            where T : struct
-        {
-            // create array of type and find suitable read-method
-            Array array = new T[rows, cols];
-            var Read = reader.GetType().GetMethod("Read" + typeof(T).Name);
-            int skip = stride - cols * Marshal.SizeOf<T>();
-
-            // read types from mem and store them in the array
-            for (int y = 0; y < rows; y++, reader.Seek(skip))
-                for (int x = 0; x < cols; x++)
-                    array.SetValue(Read.Invoke(reader, null), y, x);
-
-            return array;
-        }
-    }
-
-    public static class IEnumerableExtensions
-    {
+        #region IEnumerable<T> Extensions
         /// <summary>
         /// Find first zero based index where the specified function returns true.
         /// </summary>
@@ -366,7 +231,7 @@ namespace App
         /// <param name="ie"></param>
         /// <param name="other"></param>
         /// <param name="func"></param>
-        public static void Zip<T1, T2>(this IEnumerable<T1> ie, IEnumerable<T2> other, Action<T1, T2> func)
+        public static void Zip<T1,T2>(this IEnumerable<T1> ie, IEnumerable<T2> other, Action<T1,T2> func)
         {
             var enumerator = other.GetEnumerator();
             enumerator.MoveNext();
@@ -388,184 +253,233 @@ namespace App
             foreach (var e in ie)
                 func(e);
         }
-    }
+        #endregion
 
-    public static class StringExtensions
-    {
+        #region Convert Types
         /// <summary>
-        /// Find first match of two matching braces.
+        /// Convert array to byte array.
         /// </summary>
-        /// <param name="s">extend string class</param>
-        /// <param name="open">opening brace character</param>
-        /// <param name="close">closing brace character</param>
-        /// <returns>Returns the first brace match.</returns>
-        public static Match BraceMatch(this string s, char open, char close)
+        /// <param name="src"></param>
+        /// <returns></returns>
+        public static byte[] ToBytes(this Array src)
         {
-            string oc = $"{open}{close}";
-            return Regex.Match(s, $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
-                $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
+            // get source type size
+            var ellType = src.GetType().GetElementType();
+            var ellSize = ellType == typeof(char) ? 2 : Marshal.SizeOf(ellType);
+            // allocate byte array
+            byte[] dst = new byte[ellSize * src.Length];
+            // copy source data to output array
+            Buffer.BlockCopy(src, 0, dst, 0, dst.Length);
+            return dst;
         }
 
         /// <summary>
-        /// 
+        /// Convert string into the specified type.
         /// </summary>
-        /// <param name="s"></param>
-        /// <param name="open"></param>
-        /// <param name="close"></param>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="str"></param>
+        /// <param name="exeptionMessage"></param>
         /// <returns></returns>
-        public static int IndexOfBraceMatch(this string s, char open, char close)
-            => IndexOfBraceMatch(s, open, close, 0, s.Length);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="open"></param>
-        /// <param name="close"></param>
-        /// <param name="startIndex"></param>
-        /// <returns></returns>
-        public static int IndexOfBraceMatch(this string s, char open, char close, int startIndex)
-            => IndexOfBraceMatch(s, open, close, startIndex, s.Length - startIndex);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="open"></param>
-        /// <param name="close"></param>
-        /// <param name="startPosition"></param>
-        /// <returns></returns>
-        public static int IndexOfBraceMatch(this string s, char open, char close, int startIndex, int count)
+        public static TResult To<TResult>(this string str, string exeptionMessage = null)
         {
-            int i = s.IndexOf(open, startIndex, count);
-            if (i >= 0)
+            try
             {
-                for (int n = 0, I = startIndex + count; i < I; i++)
-                {
-                    if (s[i] == open)
-                        n++;
-                    else if (s[i] == close)
-                        n--;
-                    if (n == 0)
-                        return i;
-                }
+                return (TResult)Convert.ChangeType(str, typeof(TResult), App.Culture);
             }
-
-            return -1;
-        }
-        public static int IndexOfWholeWords(this string s, string words)
-            => s.IndexOfWholeWords(words, 0, s.Length);
-
-        public static int IndexOfWholeWords(this string s, string words, int startIndex)
-            => s.IndexOfWholeWords(words, startIndex, s.Length - startIndex);
-
-        public static int IndexOfWholeWords(this string s, string words, int startIndex, int count)
-        {
-            for (int i = startIndex, endIndex = i + count - words.Length; i < endIndex; i++)
+            catch
             {
-                if (i > 0 ? char.IsLetter(s[i - 1]) : false)
-                    continue;
-                int j = 0;
-                while (j < words.Length && s[i + j] == words[j])
-                    j++;
-                if (j < words.Length)
-                    continue;
-                if (i + j >= endIndex || !char.IsLetterOrDigit(s[i + j]))
-                    return i;
+                if (exeptionMessage == null)
+                    return default(TResult);
+                throw new CompileException(exeptionMessage);
             }
-            return -1;
         }
 
-        public static bool IsWholeWords(this string s, int startIndex, int count)
-            => (startIndex == 0 || !char.IsLetter(s[startIndex - 1]))
-                && (startIndex + count >= s.Length || !char.IsLetterOrDigit(s[startIndex + count]));
+        /// <summary>
+        /// Convert byte array into an array of the specified type.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static Array To(this byte[] data, Type type)
+        {
+            // get the size of the output type
+            var ellSize = type == typeof(char) ? 2 : Marshal.SizeOf(type);
+            // allocate output array
+            var rs = Array.CreateInstance(type, (data.Length + ellSize - 1) / ellSize);
+            // copy data to output array
+            Buffer.BlockCopy(data, 0, rs, 0, data.Length);
+            return rs;
+        }
+        
+        /// <summary>
+        /// Cast an array to another type, not by element, but by memory.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="typeName"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static Array To(this Array data, string typeName, out Type type)
+        {
+            // convert input type to bytes
+            var bytes = data.GetType().GetElementType() == typeof(byte) ? (byte[])data : data.ToBytes();
+            // convert bytes to output type
+            return bytes.To(type = str2type[typeName]);
+        }
 
         /// <summary>
-        /// Get zero based line index from the zero based character position.
+        /// Process each element using the specified functions.
         /// </summary>
-        /// <param name="s">extend string class</param>
-        /// <param name="position">zero based character position</param>
-        /// <returns>Returns the zero based line index.</returns>
-        public static int LineFromPosition(this string s, int position)
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="data"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public static IEnumerable<TResult> ForEach<TResult>(this Array data, Func<object,TResult> func)
         {
-            int lineCount = 0;
+            // output all values
+            foreach (var x in ForEach(data, new int[data.Rank]))
+                yield return func(x);
+        }
 
-            for (int i = 0; i < position; i++)
+        /// <summary>
+        /// Enumerate the elements of a multidimensional array.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="tmpIdx">Temporal array used to iterate through the array dimensions.</param>
+        /// <param name="startDim">The first dimension to be processed.</param>
+        /// <returns></returns>
+        private static IEnumerable<object> ForEach(Array data, int[] tmpIdx, int startDim = 0)
+        {
+            // get size of current dimension
+            int dimSize = data.GetLength(startDim);
+
+            // for each element in this dimension
+            for (int i = 0; i < dimSize; i++)
             {
-                if (s[i] == '\n')
-                {
-                    lineCount++;
-                }
-                else if (s[i] == '\r')
-                {
-                    if (s[i + 1] == '\n')
-                        i++;
-                    lineCount++;
-                }
+                // set index of current dimension
+                tmpIdx[startDim] = i;
+                // if the array has another dimension
+                if (data.Rank > startDim + 1)
+                    // output all values of this dimension
+                    foreach (var x in ForEach(data, tmpIdx, startDim + 1))
+                        yield return x;
+                else
+                    // write value to output
+                    yield return data.GetValue(tmpIdx);
             }
-
-            return lineCount;
         }
 
         /// <summary>
-        /// Find index of the specified character beginning at the startIndex.
-        /// If the character could not be found, the length of the string is
-        /// returned -- not -1.
+        /// Covert the elements of an array into strings.
         /// </summary>
-        /// <param name="s"></param>
-        /// <param name="c"></param>
-        /// <param name="startIndex">The zero based index to start searching at.</param>
-        /// <returns>Returns the position of the first found character location
-        /// or the length of the string if the character could not be found.</returns>
-        public static int IndexOfOrLength(this string s, char c, int startIndex = 0)
-            => (int)Math.Min((uint)s.Length, (uint)s.IndexOf(c, startIndex));
-
-        /// <summary>
-        /// The sub range of the string beginning at the zero based start index
-        /// and ending at the zero based end index.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="start">Zero based start index.</param>
-        /// <param name="end">Zero based end index.</param>
+        /// <param name="src"></param>
+        /// <param name="format">How to format the type into a string.</param>
         /// <returns></returns>
-        public static string Subrange(this string s, int start, int end)
-            => s.Substring(start, end - start);
-
-        /// <summary>
-        /// Get the word surrounding the specified position.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="position"></param>
-        /// <returns></returns>
-        public static string WordFromPosition(this string s, int position)
+        public static Array ToStringArray(this Array src, string format)
         {
-            int end = position;
-            while (end < s.Length && char.IsLetterOrDigit(s[end]))
-                end++;
-
-            int start = position;
-            while (start - 1 > 0 && char.IsLetterOrDigit(s[start - 1]))
-                start--;
-
-            return end - start > 0 ? s.Subrange(start, end) : string.Empty;
+            // get array size for each dimension
+            var size = Enumerable.Range(0, src.Rank).Select(x => src.GetLength(x)).ToArray();
+            // allocate string array
+            var dst = Array.CreateInstance(typeof(string), size);
+            // convert each element to a string
+            ToStringArray(src, dst, format, new int[src.Rank]);
+            return dst;
         }
-    }
 
-    public static class MemoryExtensions
-    {
+        /// <summary>
+        /// Covert the elements of an array of a specific type into and array of strings.
+        /// </summary>
+        /// <param name="src">Source array.</param>
+        /// <param name="dst">Destination array of strings.</param>
+        /// <param name="format">How to format the type into a string.</param>
+        /// <param name="tmpIdx">Temporal array used to iterate through the array dimensions.</param>
+        /// <param name="startDim">The first dimension to be processed.</param>
+        private static void ToStringArray(Array src, Array dst, string format, int[] tmpIdx, int startDim = 0)
+        {
+            // get size of current dimension
+            int dimSize = src.GetLength(startDim);
+
+            // for each element in this dimension
+            for (int i = 0; i < dimSize; i++)
+            {
+                // set index of current dimension
+                tmpIdx[startDim] = i;
+                // if the array has another dimension
+                if (src.Rank > startDim + 1)
+                    // output all values of this dimension
+                    ToStringArray(src, dst, format, tmpIdx, startDim + 1);
+                else
+                    // write value to output
+                    dst.SetValue(string.Format(App.Culture, format, src.GetValue(tmpIdx)), tmpIdx);
+            }
+        }
+        #endregion
+
+        #region Copy Extensions
         /// <summary>
         /// Copy the data from one memory position to another.
         /// </summary>
         /// <param name="src"></param>
         /// <param name="dst"></param>
         /// <param name="size"></param>
-        public static void CopyTo(this IntPtr src, IntPtr dst, int size)
-            => NativeMethods.CopyMemory(dst, src, (uint)size);
+        public static void CopyTo(this IntPtr src, IntPtr dst, int size) => CopyMemory(dst, src, (uint)size);
 
-        internal static class NativeMethods
+        [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
+        private static extern void CopyMemory(IntPtr dst, IntPtr src, uint count);
+        #endregion
+
+        #region BinaryReader Extensions
+        /// <summary>
+        /// Seek to the specified position in the binary stream.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="offset"></param>
+        /// <param name="origin"></param>
+        /// <returns></returns>
+        public static long Seek(this BinaryReader reader, int offset, SeekOrigin origin = SeekOrigin.Current)
+            => reader.BaseStream.Seek(offset, origin);
+
+        /// <summary>
+        /// Read a 2D array from a binary stream.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="reader"></param>
+        /// <param name="rows"></param>
+        /// <param name="cols"></param>
+        /// <param name="stride"></param>
+        /// <returns></returns>
+        public static Array ReadArray<T>(this BinaryReader reader, int rows, int cols, int stride)
+            where T : struct
         {
-            [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
-            public static extern void CopyMemory(IntPtr dst, IntPtr src, uint count);
+            // create array of type and find suitable read-method
+            Array array = new T[rows, cols];
+            var Read = reader.GetType().GetMethod("Read" + typeof(T).Name);
+            int skip = stride - cols * Marshal.SizeOf<T>();
+
+            // read types from mem and store them in the array
+            for (int y = 0; y < rows; y++, reader.Seek(skip))
+                for (int x = 0; x < cols; x++)
+                    array.SetValue(Read.Invoke(reader, null), y, x);
+
+            return array;
         }
+        #endregion
+
+        public static Dictionary<string, Type> str2type = new Dictionary<string, Type>
+        {
+            {"bool"    , typeof(bool)   },
+            {"byte"    , typeof(byte)   },
+            {"sbyte"   , typeof(sbyte)  },
+            {"char"    , typeof(char)   },
+            {"decimal" , typeof(decimal)},
+            {"double"  , typeof(double) },
+            {"float"   , typeof(float)  },
+            {"int"     , typeof(int)    },
+            {"uint"    , typeof(uint)   },
+            {"long"    , typeof(long)   },
+            {"ulong"   , typeof(ulong)  },
+            {"object"  , typeof(object) },
+            {"short"   , typeof(short)  },
+            {"ushort"  , typeof(ushort) },
+        };
     }
 }

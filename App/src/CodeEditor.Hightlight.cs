@@ -6,7 +6,7 @@ namespace App
 {
     partial class CodeEditor
     {
-        private static Lexer.ILexer FxLexer = new Lexer.FxLexer();
+        private static Lexer.ILexer FxLexer = new Lexer.Fx2Lexer();
 
         /// <summary>
         /// Initialize code highlighting.
