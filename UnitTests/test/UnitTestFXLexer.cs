@@ -9,7 +9,7 @@ namespace UnitTests
     [TestClass]
     public class UnitTestFXLexer
     {
-        private static Fx2Lexer lexer;
+        private static FxLexer lexer;
         private static string code;
 
         public TestContext TestContext { get; set; }
@@ -17,7 +17,7 @@ namespace UnitTests
         [ClassInitialize]
         public static void ClassInitialize(TestContext a)
         {
-            lexer = new Fx2Lexer();
+            lexer = new FxLexer();
             code = File.ReadAllText("../../../App/demos/simple.tech");
         }
 

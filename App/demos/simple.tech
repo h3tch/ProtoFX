@@ -46,7 +46,7 @@ vertinput in_vert {
 
 // Simple GLSL vertex shader transforming
 // vertex positions from model to perspective space
-shader [vert] vs_simple {
+shader vert vs_simple {
 	#version 440
 	
 	// shader variable which will be set by "SimpleCamera.cs"
@@ -71,7 +71,7 @@ shader [vert] vs_simple {
 
 // Simple GLSL fragment shader writing
 // the color of the fragment to the framebuffer
-shader [frag] fs_simple {
+shader frag fs_simple {
 	#version 440
 	
 	// fragment shader input (see vs_col in vs_simple)
