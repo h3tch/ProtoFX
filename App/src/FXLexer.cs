@@ -6,7 +6,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-//using static App.Lexer.FxLexer.Styles;
 
 namespace App.Lexer
 {
@@ -688,4 +687,533 @@ namespace App.Lexer
         #endregion
         #endregion
     }
+
+    public interface ILex
+    {
+        bool InStyleRange(int style);
+        bool IsLexerFor(string type, string anno);
+        int Style(CodeEditor editor, int pos, int endPos);
+    }
+
+    public class Lexer : ILex
+    {
+        private ILex[] lexer = new [] { new TechLexer() };
+
+        public int Style(CodeEditor editor, int pos, int endPos)
+        {
+            while (pos > 0 && editor.GetStyleAt(pos) == 0)
+                pos--;
+            
+            while (pos < endPos)
+            {
+                var style = editor.GetStyleAt(pos);
+                var lex = lexer.Where(x => x.InStyleRange(style)).First();
+                pos = lex.Style(editor, pos, endPos);
+            }
+
+            return pos;
+        }
+
+        public bool InStyleRange(int style) => false;
+
+        public bool IsLexerFor(string type, string anno) => false;
+    }
+
+    public class TechLexer : ILex
+    {
+        public enum State : int
+        {
+            Default,
+            Comment,
+            LineComment,
+            BlockComment,
+            PotentialEndBlockComment,
+            EndBlockComment,
+            Type,
+            TypeSpace,
+            Name,
+            NameSpace,
+            Anno,
+            AnnoSpace,
+            OpenBrace,
+            CloseBrace,
+            BlockCode,
+            End
+        }
+
+        private ILex[] lexer = new [] { new BlockLexer() };
+        private int braceCount;
+
+        public int Style(CodeEditor editor, int pos, int endPos)
+        {
+            for (var state = (State)editor.GetStyleAt(pos); pos < endPos; pos++)
+            {
+                state = ProcessState(editor, state, (char)editor.GetCharAt(pos));
+                editor.SetStyling(1, (int)state);
+            }
+            return pos;
+        }
+
+        private State ProcessState(CodeEditor editor, State state, char c)
+        {
+            switch (state)
+            {
+                case State.Comment:
+                    return ProcessCommentState(editor, c);
+                case State.LineComment:
+                    return ProcessLineCommentState(editor, c);
+                case State.BlockComment:
+                    return ProcessBlockCommentState(editor, c);
+                case State.PotentialEndBlockComment:
+                    return ProcessPotentialEndBlockCommentState(editor, c);
+                case State.EndBlockComment:
+                    return ProcessEndBlockCommentState(editor, c);
+                case State.Type:
+                    return ProcessTypeState(editor, c);
+                case State.TypeSpace:
+                    return ProcessTypeSpaceState(editor, c);
+                case State.Name:
+                    return ProcessNameState(editor, c);
+                case State.NameSpace:
+                    return ProcessNameSpaceState(editor, c);
+                case State.Anno:
+                    return ProcessAnnoState(editor, c);
+                case State.AnnoSpace:
+                    return ProcessAnnoSpaceState(editor, c);
+                case State.OpenBrace:
+                    return ProcessOpenBraceState(editor, c);
+                case State.CloseBrace:
+                    return ProcessCloseBraceState(editor, c);
+                case State.BlockCode:
+                    return ProcessBlockCodeState(editor, c);
+                default:
+                    return ProcessDefaultState(editor, c);
+            }
+        }
+
+        private State ProcessDefaultState(CodeEditor editor, char c)
+        {
+            if (c == '/')
+                return State.Comment;
+            else if (char.IsLetter(c))
+                return State.Type;
+            else
+                return State.Default;
+        }
+
+        private State ProcessCommentState(CodeEditor editor, char c)
+        {
+            switch (c)
+            {
+                case '/':
+                    return State.LineComment;
+                case '*':
+                    return State.BlockComment;
+            }
+            return ProcessDefaultState(editor, c);
+        }
+
+        private State ProcessLineCommentState(CodeEditor editor, char c)
+        {
+            return c == '\n' ? State.Default : State.LineComment;
+        }
+
+        private State ProcessBlockCommentState(CodeEditor editor, char c)
+        {
+            return c == '*' ? State.PotentialEndBlockComment : State.BlockComment;
+        }
+
+        private State ProcessPotentialEndBlockCommentState(CodeEditor editor, char c)
+        {
+            switch (c)
+            {
+                case '/':
+                    return State.EndBlockComment;
+                case '*':
+                    return State.PotentialEndBlockComment;
+                default:
+                    return State.BlockComment;
+            }
+        }
+
+        private State ProcessEndBlockCommentState(CodeEditor editor, char c)
+        {
+            return ProcessDefaultState(editor, c);
+        }
+
+        private State ProcessTypeState(CodeEditor editor, char c)
+        {
+            if (char.IsWhiteSpace(c))
+                return State.TypeSpace;
+            else if (c == '{')
+                return State.OpenBrace;
+            else
+                return State.Type;
+        }
+
+        private State ProcessTypeSpaceState(CodeEditor editor, char c)
+        {
+            if (c == '{')
+                return State.OpenBrace;
+            else if (char.IsLetter(c))
+                return State.Name;
+            else
+                return State.TypeSpace;
+        }
+
+        private State ProcessNameState(CodeEditor editor, char c)
+        {
+            if (char.IsWhiteSpace(c))
+                return State.NameSpace;
+            else if (c == '{')
+                return State.OpenBrace;
+            else
+                return State.Name;
+        }
+
+        private State ProcessNameSpaceState(CodeEditor editor, char c)
+        {
+            if (c == '{')
+                return State.OpenBrace;
+            else if (char.IsLetter(c))
+                return State.Anno;
+            else
+                return State.NameSpace;
+        }
+
+        private State ProcessAnnoState(CodeEditor editor, char c)
+        {
+            if (char.IsWhiteSpace(c))
+                return State.AnnoSpace;
+            else if (c == '{')
+                return State.OpenBrace;
+            else
+                return State.Anno;
+        }
+
+        private State ProcessAnnoSpaceState(CodeEditor editor, char c)
+        {
+            if (c == '{')
+                return State.OpenBrace;
+            else
+                return State.AnnoSpace;
+        }
+
+        private State ProcessOpenBraceState(CodeEditor editor, char c)
+        {
+            if (c == '}')
+                return State.CloseBrace;
+            braceCount = 1;
+            return State.BlockCode;
+        }
+
+        private State ProcessCloseBraceState(CodeEditor editor, char c)
+        {
+            return ProcessDefaultState(editor, c);
+        }
+
+        private State ProcessBlockCodeState(CodeEditor editor, char c)
+        {
+            switch (c)
+            {
+                case '{':
+                    braceCount++;
+                    break;
+                case '}':
+                    if (--braceCount > 0)
+                        break;
+                    // RE-LEX ALL BLOCKCODE PARTS
+                    // get code region of the block
+                    var end = editor.GetEndStyled();
+                    var start = FindLastStyleOf(editor, (int)State.OpenBrace, end, end);
+                    // get header string from block position
+                    var header = FindLastHeaderFromPosition(editor, start);
+                    // find lexer that can lex this code block
+                    var lex = lexer?.Where(x => x.IsLexerFor(header[0], header[1])).FirstOrDefault();
+                    // re-lex code block
+                    lex?.Style(editor, start + 1, end - 1);
+                    return State.CloseBrace;
+            }
+            return State.BlockCode;
+        }
+
+        private string[] FindLastHeaderFromPosition(CodeEditor editor, int pos)
+        {
+            int bracePos = FindLastStyleOf(editor, (int)State.OpenBrace, pos, pos);
+            int typePos = FindLastStyleOf(editor, (int)State.Type, bracePos, bracePos);
+            int annoPos = FindLastStyleOf(editor, (int)State.Anno, bracePos, bracePos - typePos);
+
+            return new string[] {
+                typePos >= 0 ? editor.GetWordFromPosition(typePos) : null,
+                annoPos >= 0 ? editor.GetWordFromPosition(annoPos) : null,
+            };
+        }
+
+        private int FindLastStyleOf(CodeEditor editor, int style, int from, int length)
+        {
+            int to = Math.Max(from - Math.Max(length, 0), 0);
+            while (from > to && editor.GetStyleAt(from) != style)
+                from--;
+            return editor.GetStyleAt(from) == style ? from : -1;
+        }
+
+        public bool InStyleRange(int style) => (int)State.Default <= style && style < (int)State.End;
+
+        public bool IsLexerFor(string type, string anno) => false;
+    }
+
+    public class BlockLexer : ILex
+    {
+        public enum State : int
+        {
+            Default = TechLexer.State.End,
+            End
+        }
+
+        public int Style(CodeEditor editor, int pos, int endPos)
+        {
+            return pos;
+        }
+
+        public bool InStyleRange(int style) => (int)State.Default <= style && style < (int)State.End;
+
+        public bool IsLexerFor(string type, string anno) => false;
+    }
+    /*
+    public class TechLexer2 : ILex
+    {
+        private TextRange Block = default(TextRange);
+        private TextRange Anno = default(TextRange);
+        private TextRange Name = default(TextRange);
+        private TextRange Command = default(TextRange);
+        private int braceCount = 0;
+        private ILex parent;
+
+        private enum State : int
+        {
+            Default,
+            Indicator,
+            PotentialComment,
+            PotentialEndBlockComment,
+            LineComment,
+            BlockComment,
+            BlockCode,
+            Command,
+            Argument,
+            ShaderCode,
+        }
+
+        public void Style(CodeEditor editor, int pos, int endPos)
+        {
+            var state = (State)editor.GetStyleAt(pos - 1);
+            for (int i = pos; i < endPos; i++)
+                state = ProcessState(editor, state, (char)editor.GetCharAt(i));
+        }
+
+        private State ProcessState(CodeEditor editor, State state, char c)
+        {
+            switch (state)
+            {
+                case State.Indicator:
+                    return ProcessIndicatorState(editor, c);
+                case State.PotentialComment:
+                    return ProcessPotentialCommentState(editor, c);
+                case State.LineComment:
+                    return ProcessLineCommentState(editor, c);
+                case State.BlockComment:
+                    return ProcessBlockCommentState(editor, c);
+                case State.PotentialEndBlockComment:
+                    return ProcessPotentialEndBlockCommentState(editor, c);
+                case State.BlockCode:
+                    return ProcessBlockCodeState(editor, c);
+                default:
+                    return ProcessDefaultState(editor, c);
+            }
+        }
+
+        private State ProcessDefaultState(CodeEditor editor, char c)
+        {
+            switch (c)
+            {
+                case '/':
+                    return State.PotentialComment;
+                case '{':
+                    if (Block.IsDefault() || Name.IsDefault())
+                        break;
+                    var type = Block.GetText(editor.Text);
+                    var style = type == "shader" ? State.ShaderCode : State.BlockCode;
+                    editor.SetStyling(1, (int)style);
+                    return style;
+                default:
+                    if (char.IsLetterOrDigit(c))
+                        return ProcessIndicatorState(editor, c);
+                    break;
+            }
+            editor.SetStyling(1, (int)State.Default);
+            return State.Default;
+        }
+
+        private State ProcessIndicatorState(CodeEditor editor, char c)
+        {
+            if (char.IsLetterOrDigit(c))
+            {
+                editor.SetStyling(1, (int)State.Indicator);
+                return State.Indicator;
+            }
+            else if (char.IsWhiteSpace(c))
+            {
+                var range = GetStyleRangeAt(editor, editor.GetEndStyled());
+
+                if (Block.IsDefault())
+                {
+                    Block.Index = range.Index;
+                    Block.End = range.End;
+                }
+                else if (Name.IsDefault())
+                {
+                    Name.Index = range.Index;
+                    Name.End = range.End;
+                }
+                else if (Anno.IsDefault())
+                {
+                    Anno.Index = Name.Index;
+                    Anno.End = Name.End;
+                    Name.Index = range.Index;
+                    Name.End = range.End;
+                }
+            }
+            return ProcessDefaultState(editor, c);
+        }
+
+        private State ProcessPotentialCommentState(CodeEditor editor, char c)
+        {
+            switch (c)
+            {
+                case '/':
+                    editor.SetStyling(2, (int)State.LineComment);
+                    return State.LineComment;
+                case '*':
+                    editor.SetStyling(2, (int)State.BlockComment);
+                    return State.BlockComment;
+                default:
+                    editor.SetStyling(1, (int)State.Default);
+                    return ProcessDefaultState(editor, c);
+            }
+        }
+
+        private State ProcessLineCommentState(CodeEditor editor, char c)
+        {
+            switch (c)
+            {
+                case '\n':
+                    editor.SetStyling(1, (int)State.Default);
+                    return State.Default;
+                default:
+                    editor.SetStyling(1, (int)State.LineComment);
+                    return State.LineComment;
+            }
+        }
+
+        private State ProcessBlockCommentState(CodeEditor editor, char c)
+        {
+            switch (c)
+            {
+                case '*':
+                    return State.PotentialEndBlockComment;
+                default:
+                    editor.SetStyling(1, (int)State.BlockComment);
+                    return State.BlockComment;
+            }
+        }
+
+        private State ProcessPotentialEndBlockCommentState(CodeEditor editor, char c)
+        {
+            switch (c)
+            {
+                case '/':
+                    editor.SetStyling(2, (int)State.BlockComment);
+                    return State.Default;
+                case '*':
+                    editor.SetStyling(1, (int)State.BlockComment);
+                    return State.PotentialEndBlockComment;
+                default:
+                    editor.SetStyling(2, (int)State.BlockComment);
+                    return State.BlockComment;
+            }
+        }
+
+        private State ProcessBlockCodeState(CodeEditor editor, char c)
+        {
+            if (char.IsDigit(c))
+            {
+                if (Command.IsDefault())
+                {
+
+                }
+                else
+                {
+
+                }
+            }
+            editor.SetStyling(1, (int)State.BlockCode);
+            return State.BlockCode;
+        }
+
+        private State ProcessShaderCodeState(CodeEditor editor, char c)
+        {
+            editor.SetStyling(1, (int)State.BlockCode);
+            switch (c)
+            {
+                case '{':
+                    braceCount++;
+                    editor.SetStyling(1, (int)State.BlockCode);
+                    break;
+                case '}':
+                    if (--braceCount > 0)
+                        break;
+                    editor.SetStyling(1, (int)State.BlockCode);
+                    return State.Default;
+            }
+            return State.BlockCode;
+        }
+
+        private TextRange GetStyleRangeAt(CodeEditor editor, int pos)
+        {
+            int start = pos, end = pos;
+            int style = editor.GetStyleAt(pos);
+
+            while (start >= 0 && editor.GetStyleAt(start) == style)
+                start--;
+            
+            return new TextRange
+            {
+                Index = start + 1,
+                End = end + 1
+            };
+        }
+    }
+
+    public class BlockLexer2 : ILex
+    {
+        public void Style(CodeEditor editor, int pos, int endPos)
+        {
+
+        }
+    }
+
+    public class GlslLexer
+    {
+        public void Style(CodeEditor editor, int pos, int endPos)
+        {
+
+        }
+    }
+    
+    struct TextRange
+    {
+        public int Index;
+        public int End;
+        public int Length => End - Index;
+        public string GetText(string text) => text.Substring(Index, Length);
+    }*/
 }

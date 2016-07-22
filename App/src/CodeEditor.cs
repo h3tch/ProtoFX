@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace App
 {
-    partial class CodeEditor : Scintilla
+    public partial class CodeEditor : Scintilla
     {
         #region FIELDS
         public bool EnableCodeHints = true;

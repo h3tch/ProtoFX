@@ -9,7 +9,8 @@ namespace UnitTests
     [TestClass]
     public class UnitTestFXLexer
     {
-        private static FxLexer lexer;
+        private static CodeEditor editor;
+        private static Lexer lexer;
         private static string code;
 
         public TestContext TestContext { get; set; }
@@ -17,8 +18,9 @@ namespace UnitTests
         [ClassInitialize]
         public static void ClassInitialize(TestContext a)
         {
-            lexer = new FxLexer();
             code = File.ReadAllText("../../../App/demos/simple.tech");
+            lexer = new Lexer();
+            editor = new CodeEditor(code);
         }
 
         [TestMethod]
@@ -30,6 +32,12 @@ namespace UnitTests
         }
 
         [TestMethod]
+        public void TestLexer()
+        {
+            lexer.Style(editor, 0, editor.TextLength);
+        }
+
+        /*[TestMethod]
         public void TestMethodFindBufferKeyword()
         {
             var word = "buffer";
@@ -112,6 +120,6 @@ namespace UnitTests
             var pos = code.IndexOf("vert vs_simple");
             var keywords = lexer.GetPotentialKeywords(code, pos, word);
             Assert.AreEqual(6, keywords.Count());
-        }
+        }*/
     }
 }
