@@ -17,7 +17,7 @@ namespace App.Lexer
         /// <param name="editor"></param>
         /// <param name="pos"></param>
         /// <param name="endPos"></param>
-        void Style(CodeEditor editor, int pos, int endPos);
+        int Style(CodeEditor editor, int pos, int endPos);
         /// <summary>
         /// Add folding to the specified text position.
         /// </summary>
@@ -29,7 +29,7 @@ namespace App.Lexer
         /// Get a list of styles.
         /// </summary>
         /// <returns></returns>
-        int[] GetStyles();
+        IEnumerable<int> GetStyles();
         /// <summary>
         /// Get name of the specified style.
         /// </summary>
@@ -49,14 +49,6 @@ namespace App.Lexer
         /// <returns></returns>
         Color GetStyleBackColor(int id);
         /// <summary>
-        /// Get the style of the word at the specified position. If the word
-        /// could not be found the default style 0 will be returned.
-        /// </summary>
-        /// <param name="editor"></param>
-        /// <param name="position"></param>
-        /// <returns>Returns the style for the word at the specified position or 0.</returns>
-        int GetKeywordStyle(string text, int position, string word = null);
-        /// <summary>
         /// Get the hint of the word at the specified position. If the word
         /// could not be found <code>null</code> be returned.
         /// </summary>
@@ -64,17 +56,25 @@ namespace App.Lexer
         /// <param name="position"></param>
         /// <returns>Returns the style for the word at the specified
         /// position or <code>null</code>.</returns>
-        string GetKeywordHint(string text, int position, string word = null);
+        string GetKeywordHint(int id, string word = null);
         /// <summary>
         /// Find all potential keywords starting with the word at the specified position.
         /// </summary>
         /// <param name="editor"></param>
         /// <param name="position"></param>
         /// <returns>Returns a list of keywords.</returns>
-        IEnumerable<string> GetPotentialKeywords(string text, int position, string word = null);
+        IEnumerable<string> SelectKeywords(int id, string word = null);
+        IEnumerable<Keyword> SelectKeywordInfo(int id, string word);
+        bool InStyleRange(int style);
+        bool IsLexerFor(string type, string anno);
     }
 
-    public class FxLexer : ILexer
+    public struct Keyword
+    {
+        public string word;
+        public string hint;
+    }
+    /*public class FxLexer : ILexer
     {
         private Node root;
         private Dictionary<int, StyleDef> styleDef = new Dictionary<int, StyleDef>();
@@ -686,18 +686,11 @@ namespace App.Lexer
         }
         #endregion
         #endregion
-    }
+    }*/
 
-    public interface ILex
+    public class FxLexer : ILexer
     {
-        bool InStyleRange(int style);
-        bool IsLexerFor(string type, string anno);
-        int Style(CodeEditor editor, int pos, int endPos);
-    }
-
-    public class Lexer : ILex
-    {
-        private ILex[] lexer = new [] { new TechLexer() };
+        private ILexer[] lexer = new [] { new TechLexer() };
 
         public int Style(CodeEditor editor, int pos, int endPos)
         {
@@ -714,34 +707,131 @@ namespace App.Lexer
             return pos;
         }
 
+        public void Fold(CodeEditor editor, int pos, int endPos)
+        {
+            // setup state machine
+            var line = editor.LineFromPosition(pos);
+            var lastLine = -1;
+            var lastCharPos = line;
+            var foldLevel = editor.Lines[line].FoldLevel;
+            var textLength = editor.TextLength;
+
+            // for each character
+            for (var state = FoldState.Unknown;
+                state == FoldState.Unknown ? pos < endPos : pos < textLength;
+                pos++)
+            {
+                var c = (char)editor.GetCharAt(pos);
+
+                switch (c)
+                {
+                    // open folding
+                    case '{':
+                        state = FoldState.StartFolding;
+                        break;
+                    // close folding
+                    case '}':
+                        state = FoldState.EndFolding;
+                        break;
+                    // next line
+                    case '\n':
+                        line++;
+                        break;
+                    // remember last character to place
+                    // fold icon in the last character line
+                    default:
+                        if (char.IsLetterOrDigit(c))
+                            lastCharPos = pos;
+                        break;
+                }
+
+                switch (state)
+                {
+                    // STATE: open folding
+                    case FoldState.StartFolding:
+                        var lastCharLine = editor.LineFromPosition(lastCharPos);
+                        // start folding at last character containing line
+                        editor.Lines[lastCharLine].FoldLevelFlags = FoldLevelFlags.Header;
+                        editor.Lines[lastCharLine].FoldLevel = foldLevel++;
+                        // for all other lines up to the current position also add folding
+                        for (int i = lastCharLine + 1; i <= line; i++)
+                        {
+                            editor.Lines[i].FoldLevelFlags = FoldLevelFlags.White;
+                            editor.Lines[i].FoldLevel = foldLevel;
+                        }
+                        lastLine = line;
+                        // switch to folding state
+                        state = FoldState.Foldable;
+                        break;
+                    // STATE: close folding
+                    case FoldState.EndFolding:
+                        // end folding
+                        editor.Lines[line].FoldLevel = foldLevel;
+                        // decrease fold level
+                        foldLevel = Math.Max(--foldLevel, 1024);
+                        lastLine = line;
+                        // switch to folding state (which will
+                        // switch to unknown state if the most
+                        // outer fold level is reached)
+                        state = FoldState.Foldable;
+                        break;
+                    // STATE: folding
+                    case FoldState.Foldable:
+                        // still in folding state
+                        if (foldLevel > 1024)
+                        {
+                            if (line != lastLine)
+                            {
+                                // set fold level for line
+                                editor.Lines[line].FoldLevel = foldLevel;
+                                lastLine = line;
+                            }
+                        }
+                        // end folding state
+                        else
+                            state = FoldState.Unknown;
+                        break;
+                }
+            }
+        }
+        
+        public string GetKeywordHint(int id, string word)
+            => lexer.Select(x => x.GetKeywordHint(id, word)).FirstOrDefault(x => x != null);
+
+        public IEnumerable<string> SelectKeywords(int id, string word)
+            => lexer.SelectMany(x => x.SelectKeywords(id, word));
+
+        public IEnumerable<Keyword> SelectKeywordInfo(int id, string word)
+            => lexer.SelectMany(x => x.SelectKeywordInfo(id, word));
+
+        public IEnumerable<int> GetStyles()
+            => lexer.SelectMany(x => x.GetStyles());
+
+        public string GetStyleName(int id)
+            => lexer.Select(x => x.GetStyleName(id)).FirstOrDefault(x => x != null);
+
+        public Color GetStyleForeColor(int id)
+            => lexer.Select(x => x.GetStyleForeColor(id)).FirstOrDefault(x => x != null);
+
+        public Color GetStyleBackColor(int id)
+            => lexer.Select(x => x.GetStyleBackColor(id)).FirstOrDefault(x => x != null);
+
         public bool InStyleRange(int style) => false;
 
         public bool IsLexerFor(string type, string anno) => false;
+
+        private enum FoldState : int
+        {
+            Unknown,
+            StartFolding,
+            Foldable,
+            EndFolding,
+        }
     }
 
-    public class TechLexer : ILex
+    public class TechLexer : ILexer
     {
-        public enum State : int
-        {
-            Default,
-            Comment,
-            LineComment,
-            BlockComment,
-            PotentialEndBlockComment,
-            EndBlockComment,
-            Type,
-            TypeSpace,
-            Name,
-            NameSpace,
-            Anno,
-            AnnoSpace,
-            OpenBrace,
-            CloseBrace,
-            BlockCode,
-            End
-        }
-
-        private ILex[] lexer = new [] { new BlockLexer() };
+        private ILexer[] lexer = new [] { new BlockLexer() };
         private int braceCount;
 
         public int Style(CodeEditor editor, int pos, int endPos)
@@ -754,6 +844,50 @@ namespace App.Lexer
             return pos;
         }
 
+        public void Fold(CodeEditor editor, int pos, int endPos) { }
+
+        public string GetKeywordHint(int id, string word)
+            => SelectKeywordInfo(id, word).FirstOrDefault().hint;
+
+        public IEnumerable<string> SelectKeywords(int id, string word)
+            => SelectKeywordInfo(id, word).Select(x => x.word);
+
+        public IEnumerable<Keyword> SelectKeywordInfo(int id, string word)
+        {
+            if ((int)State.Default <= id && id < (int)State.End)
+                return keywords[id - (int)State.End][word];
+            return lexer.SelectMany(x => x.SelectKeywordInfo(id, word));
+        }
+
+        public IEnumerable<int> GetStyles()
+            => Enum.GetValues(typeof(State)).Cast<int>().Concat(lexer.SelectMany(x => x.GetStyles()));
+
+        public string GetStyleName(int id)
+        {
+            if ((int)State.Default <= id && id < (int)State.End)
+                return ((State)id).ToString();
+            return lexer.Select(x => x.GetStyleName(id)).FirstOrDefault(x => x != null);
+        }
+
+        public Color GetStyleForeColor(int id)
+        {
+            if ((int)State.Default <= id && id < (int)State.End)
+                return foreColor[id];
+            return lexer.Select(x => x.GetStyleForeColor(id)).FirstOrDefault(x => x != null);
+        }
+
+        public Color GetStyleBackColor(int id)
+        {
+            if ((int)State.Default <= id && id < (int)State.End)
+                return backColor[id];
+            return lexer.Select(x => x.GetStyleBackColor(id)).FirstOrDefault(x => x != null);
+        }
+
+        public bool InStyleRange(int style) => (int)State.Default <= style && style < (int)State.End;
+
+        public bool IsLexerFor(string type, string anno) => false;
+
+        #region PROCESS STATE
         private State ProcessState(CodeEditor editor, State state, char c)
         {
             switch (state)
@@ -936,7 +1070,9 @@ namespace App.Lexer
             }
             return State.BlockCode;
         }
+        #endregion
 
+        #region HELPER FUNCTION
         private string[] FindLastHeaderFromPosition(CodeEditor editor, int pos)
         {
             int bracePos = FindLastStyleOf(editor, (int)State.OpenBrace, pos, pos);
@@ -957,27 +1093,85 @@ namespace App.Lexer
             return editor.GetStyleAt(from) == style ? from : -1;
         }
 
-        public bool InStyleRange(int style) => (int)State.Default <= style && style < (int)State.End;
-
-        public bool IsLexerFor(string type, string anno) => false;
-    }
-
-    public class BlockLexer : ILex
-    {
         public enum State : int
         {
-            Default = TechLexer.State.End,
+            Default,
+            Comment,
+            LineComment,
+            BlockComment,
+            PotentialEndBlockComment,
+            EndBlockComment,
+            Type,
+            TypeSpace,
+            Name,
+            NameSpace,
+            Anno,
+            AnnoSpace,
+            OpenBrace,
+            CloseBrace,
+            BlockCode,
             End
         }
 
+        private Color[] foreColor = new Color[(int)State.End - (int)State.Default];
+        private Color[] backColor = new Color[(int)State.End - (int)State.Default];
+        private Trie<Keyword>[] keywords = new Trie<Keyword>[(int)State.End - (int)State.Default];
+        #endregion
+    }
+
+    public class BlockLexer : ILexer
+    {
         public int Style(CodeEditor editor, int pos, int endPos)
         {
             return pos;
         }
 
+        public void Fold(CodeEditor editor, int pos, int endPos) { }
+
+        public IEnumerable<int> GetStyles()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetStyleName(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Color GetStyleForeColor(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Color GetStyleBackColor(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetKeywordHint(int id, string word = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<string> SelectKeywords(int id, string word = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<Keyword> SelectKeywordInfo(int id, string word)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool InStyleRange(int style) => (int)State.Default <= style && style < (int)State.End;
 
         public bool IsLexerFor(string type, string anno) => false;
+
+        public enum State : int
+        {
+            Default = TechLexer.State.End,
+            End
+        }
     }
     /*
     public class TechLexer2 : ILex

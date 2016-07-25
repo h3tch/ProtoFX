@@ -10,7 +10,7 @@ namespace UnitTests
     public class UnitTestFXLexer
     {
         private static CodeEditor editor;
-        private static Lexer lexer;
+        private static FxLexer lexer;
         private static string code;
 
         public TestContext TestContext { get; set; }
@@ -19,7 +19,7 @@ namespace UnitTests
         public static void ClassInitialize(TestContext a)
         {
             code = File.ReadAllText("../../../App/demos/simple.tech");
-            lexer = new Lexer();
+            lexer = new FxLexer();
             editor = new CodeEditor(code);
         }
 

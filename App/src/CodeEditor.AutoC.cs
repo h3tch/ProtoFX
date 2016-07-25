@@ -36,7 +36,9 @@ namespace App
             //              select x.Substring(i))
             //    .Cat();
 
-            var keywords = FxLexer.GetPotentialKeywords(Text, position);
+            var id = GetStyleAt(position);
+            var word = Text.Subrange(Text.WordStartPosition(position), position);
+            var keywords = FxLexer.SelectKeywords(id, word);
 
             // show auto complete list
             if (keywords.Count() > 0)
@@ -83,7 +85,8 @@ namespace App
                     //    }
                     //}
 
-                    var hint = FxLexer.GetKeywordHint(Text, pos, word);
+                    var id = GetStyleAt(pos);
+                    var hint = FxLexer.GetKeywordHint(id, word);
                     if (hint != null)
                     {
                         CallTipShow(WordStartPosition(pos, true), hint);

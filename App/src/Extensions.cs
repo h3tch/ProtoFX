@@ -539,15 +539,36 @@ namespace App
         /// <returns></returns>
         public static string WordFromPosition(this string s, int position)
         {
-            int end = position;
-            while (end < s.Length && char.IsLetterOrDigit(s[end]))
-                end++;
+            int start = s.WordStartPosition(position);
+            int end = s.WordEndPosition(position);
+            int len = end - start;
+            return len > 0 ? s.Substring(start, len) : string.Empty;
+        }
 
-            int start = position;
-            while (start - 1 > 0 && char.IsLetterOrDigit(s[start - 1]))
-                start--;
+        /// <summary>
+        /// Get the word surrounding the specified position.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        public static int WordStartPosition(this string s, int position)
+        {
+            while (position > 1 && !char.IsWhiteSpace(s[position - 1]))
+                position--;
+            return position;
+        }
 
-            return end - start > 0 ? s.Subrange(start, end) : string.Empty;
+        /// <summary>
+        /// Get the word surrounding the specified position.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        public static int WordEndPosition(this string s, int position)
+        {
+            while (position < s.Length && !char.IsWhiteSpace(s[position]))
+                position++;
+            return position;
         }
     }
 
