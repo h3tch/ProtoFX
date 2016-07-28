@@ -67,8 +67,25 @@ namespace App.Lexer
         /// <param name="position"></param>
         /// <returns>Returns a list of keywords.</returns>
         IEnumerable<string> SelectKeywords(int id, string word = null);
+        /// <summary>
+        /// Find all keyword information starting with the word at the specified position.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="word"></param>
+        /// <returns></returns>
         IEnumerable<Keyword> SelectKeywordInfo(int id, string word);
-        bool InStyleRange(int style);
+        /// <summary>
+        /// Is the specified style handled by this lexer?
+        /// </summary>
+        /// <param name="style"></param>
+        /// <returns></returns>
+        bool IsLexerStyle(int style);
+        /// <summary>
+        /// Is lexer for the specified block type?
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="anno"></param>
+        /// <returns></returns>
         bool IsLexerFor(string type, string anno);
     }
 
@@ -79,7 +96,20 @@ namespace App.Lexer
         protected Color[] backColor;
         protected Trie<Keyword>[] keywords;
         protected int defaultStyle;
-        protected int endStyle;
+        protected int nextLexerStyle;
+        private enum FoldState : int
+        {
+            Unknown,
+            StartFolding,
+            Foldable,
+            EndFolding,
+        }
+
+        public void InitStyleRange(int defaultState, int endState, ref int firstFreeStyle)
+        {
+            defaultStyle = firstFreeStyle + defaultState;
+            nextLexerStyle = firstFreeStyle += endState;
+        }
 
         public abstract int Style(CodeEditor editor, int pos, int endPos);
         public void Fold(CodeEditor editor, int pos, int endPos)
@@ -169,28 +199,28 @@ namespace App.Lexer
                 }
             }
         }
-        public int ToId(int style) => style - GetStyles().First();
-        public string ToName(int style)
+        public int StyleToIdx(int style) => style - GetStyles().First();
+        public string StyleToName(int style)
             => StyleType == null ? "unknown" : Enum.GetName(StyleType, style);
         public string GetKeywordHint(int style, string word)
             => SelectKeywordInfo(style, word).FirstOrDefault().hint;
         public IEnumerable<string> SelectKeywords(int style, string word)
             => SelectKeywordInfo(style, word).Select(x => x.word);
         public IEnumerable<Keyword> SelectKeywordInfo(int style, string word)
-            => InStyleRange(style)
-                ? keywords[ToId(style)][word]
+            => IsLexerStyle(style)
+                ? keywords[StyleToIdx(style)][word]
                 : lexer.SelectMany(x => x.SelectKeywordInfo(style, word));
         public Color GetStyleForeColor(int style)
-            => InStyleRange(style)
-                ? foreColor[ToId(style)]
+            => IsLexerStyle(style)
+                ? foreColor[StyleToIdx(style)]
                 : lexer.Select(x => x.GetStyleForeColor(style)).FirstOrDefault(x => x != null);
         public Color GetStyleBackColor(int style)
-            => InStyleRange(style)
-                ? backColor[ToId(style)]
+            => IsLexerStyle(style)
+                ? backColor[StyleToIdx(style)]
                 : lexer.Select(x => x.GetStyleBackColor(style)).FirstOrDefault(x => x != null);
         public string GetStyleName(int id)
-            => InStyleRange(id)
-                ? ToName(id)
+            => IsLexerStyle(id)
+                ? StyleToName(id)
                 : lexer.Select(x => x.GetStyleName(id)).FirstOrDefault(x => x != null);
         public IEnumerable<int> GetStyles()
         {
@@ -198,34 +228,32 @@ namespace App.Lexer
             return StyleType == null ? styles : Enum.GetValues(StyleType).Cast<int>().Concat(styles);
         }
         public virtual Type StyleType => null;
-        public bool InStyleRange(int style) => defaultStyle <= style && style < endStyle;
+        public bool IsLexerStyle(int style) => defaultStyle <= style && style < nextLexerStyle;
         public virtual bool IsLexerFor(string type, string anno) => false;
-
-        private enum FoldState : int
-        {
-            Unknown,
-            StartFolding,
-            Foldable,
-            EndFolding,
-        }
     }
 
     public class FxLexer : BaseLexer
     {
         public FxLexer()
         {
-            lexer = new[] { new TechLexer() };
+            int firstFreeStyle = 0;
+            lexer = new[] { new TechLexer(ref firstFreeStyle) };
         }
 
-        override public int Style(CodeEditor editor, int pos, int endPos)
+        public override int Style(CodeEditor editor, int pos, int endPos)
         {
+            // go back to the first valid style
             while (pos > 0 && editor.GetStyleAt(pos) == 0)
                 pos--;
             
             while (pos < endPos)
             {
+                // get style at the current position
                 var style = editor.GetStyleAt(pos);
-                var lex = lexer.Where(x => x.InStyleRange(style)).First();
+                // select the lexer that can continue lexing from the current position
+                var lex = lexer.Where(x => x.IsLexerStyle(style)).First();
+                // start lexing until the lexer reaches an end state,
+                // then try to use another lexer
                 pos = lex.Style(editor, pos, endPos);
             }
 
@@ -237,15 +265,17 @@ namespace App.Lexer
     {
         private int braceCount;
 
-        public TechLexer()
+        public TechLexer(ref int firstFreeStyle)
         {
-            int StateCount = (int)State.End - (int)State.Default;
-            lexer = new ILexer[] { new BlockLexer(), new GlslLexer() };
-            foreColor = new Color[StateCount];
-            backColor = new Color[StateCount];
-            keywords = new Trie<Keyword>[StateCount];
-            defaultStyle = (int)State.Default;
-            defaultStyle = (int)State.End;
+            InitStyleRange((int)State.Default, (int)State.End, ref firstFreeStyle);
+            
+            lexer = new ILexer[] {
+                new BlockLexer("buffer", ref firstFreeStyle),
+                new GlslLexer(ref firstFreeStyle)
+            };
+            foreColor = new Color[(int)State.End];
+            backColor = new Color[(int)State.End];
+            keywords = new Trie<Keyword>[(int)State.End];
         }
 
         public override int Style(CodeEditor editor, int pos, int endPos)
@@ -253,7 +283,7 @@ namespace App.Lexer
             for (var state = (State)editor.GetStyleAt(pos); pos < endPos; pos++)
             {
                 state = ProcessState(editor, state, (char)editor.GetCharAt(pos));
-                editor.SetStyling(1, (int)state);
+                editor.SetStyling(1, defaultStyle + (int)state);
             }
             return pos;
         }
@@ -451,7 +481,7 @@ namespace App.Lexer
             return editor.GetStyleAt(from) == style ? from : -1;
         }
 
-        public enum State : int
+        private enum State : int
         {
             Default,
             Comment,
@@ -477,28 +507,30 @@ namespace App.Lexer
 
     class BlockLexer : BaseLexer
     {
-        public BlockLexer()
+        private string type;
+
+        public BlockLexer(string type, ref int firstFreeStyle)
         {
-            int StateCount = (int)State.End - (int)State.Default;
+            InitStyleRange((int)State.Default, (int)State.End, ref firstFreeStyle);
+            this.type = type;
+            
             lexer = null;
-            foreColor = new Color[StateCount];
-            backColor = new Color[StateCount];
-            keywords = new Trie<Keyword>[StateCount];
-            defaultStyle = (int)State.Default;
-            defaultStyle = (int)State.End;
+            foreColor = new Color[(int)State.End];
+            backColor = new Color[(int)State.End];
+            keywords = new Trie<Keyword>[(int)State.End];
         }
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
-            return pos;
+            return endPos;
         }
 
-        public override bool IsLexerFor(string type, string anno) => type != "shader";
+        public override bool IsLexerFor(string type, string anno) => this.type == type;
 
         #region HELPER FUNCTION
-        public enum State : int
+        private enum State : int
         {
-            Default = TechLexer.State.End,
+            Default,
             Command,
             Number,
             Argument,
@@ -511,28 +543,27 @@ namespace App.Lexer
 
     class GlslLexer : BaseLexer
     {
-        public GlslLexer()
+        public GlslLexer(ref int firstFreeStyle)
         {
-            int StateCount = (int)State.End - (int)State.Default;
+            InitStyleRange((int)State.Default, (int)State.End, ref firstFreeStyle);
+            
             lexer = null;
-            foreColor = new Color[StateCount];
-            backColor = new Color[StateCount];
-            keywords = new Trie<Keyword>[StateCount];
-            defaultStyle = (int)State.Default;
-            defaultStyle = (int)State.End;
+            foreColor = new Color[(int)State.End];
+            backColor = new Color[(int)State.End];
+            keywords = new Trie<Keyword>[(int)State.End];
         }
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
-            return pos;
+            return endPos;
         }
 
         public override bool IsLexerFor(string type, string anno) => type == "shader";
 
         #region HELPER FUNCTION
-        public enum State : int
+        private enum State : int
         {
-            Default = TechLexer.State.End,
+            Default,
             Command,
             Number,
             Argument,

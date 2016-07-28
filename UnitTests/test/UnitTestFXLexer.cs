@@ -37,12 +37,12 @@ namespace UnitTests
             lexer.Style(editor, 0, editor.TextLength);
         }
 
-        /*[TestMethod]
+        [TestMethod]
         public void TestMethodFindBufferKeyword()
         {
             var word = "buffer";
-            var pos = code.IndexOf("buffer buf_pos");
-            var keywords = lexer.GetPotentialKeywords(code, pos, word);
+            var style = editor.GetStyleAt(code.IndexOf("buffer buf_pos"));
+            var keywords = lexer.SelectKeywords(style, word);
             foreach (var keyword in keywords)
                 Assert.IsTrue(keyword.StartsWith(word));
             Assert.AreEqual(1, keywords.Count());
@@ -52,24 +52,22 @@ namespace UnitTests
         public void TestMethodFindBufferCommandsKeyword()
         {
             var word = "";
-            var pos = code.IndexOf("usage staticDraw");
-            var keywords = lexer.GetPotentialKeywords(code, pos, word);
+            var style = editor.GetStyleAt(code.IndexOf("usage staticDraw"));
+            var keywords = lexer.SelectKeywords(style, word);
             Assert.AreEqual(4, keywords.Count());
 
             word = "usa";
-            pos += word.Length;
-            keywords = lexer.GetPotentialKeywords(code, pos, word);
+            keywords = lexer.SelectKeywords(style, word);
             Assert.AreEqual(1, keywords.Count());
             Assert.AreEqual("usage", keywords.First());
 
             word = "";
-            pos = code.IndexOf("staticDraw", pos);
-            keywords = lexer.GetPotentialKeywords(code, pos, word);
+            style = editor.GetStyleAt(code.IndexOf("staticDraw"));
+            keywords = lexer.SelectKeywords(style, word);
             Assert.AreEqual(9, keywords.Count());
 
             word = "sta";
-            pos += word.Length;
-            keywords = lexer.GetPotentialKeywords(code, pos, word);
+            keywords = lexer.SelectKeywords(style, word);
             foreach (var keyword in keywords)
                 Assert.IsTrue(keyword.StartsWith(word));
             Assert.AreEqual(3, keywords.Count());
@@ -79,41 +77,42 @@ namespace UnitTests
         public void TestMethodFindKeywords()
         {
             var word = "";
-            var keywords = lexer.GetPotentialKeywords(code, 0, word);
+            var style = editor.GetStyleAt(0);
+            var keywords = lexer.SelectKeywords(style, word);
             Assert.AreEqual(13, keywords.Count());
             word = "s";
-            keywords = lexer.GetPotentialKeywords(code, 0, word);
+            keywords = lexer.SelectKeywords(style, word);
             Assert.AreEqual(2, keywords.Count());
             word = "t";
-            keywords = lexer.GetPotentialKeywords(code, 0, word);
+            keywords = lexer.SelectKeywords(style, word);
             Assert.AreEqual(3, keywords.Count());
             word = "tex";
-            keywords = lexer.GetPotentialKeywords(code, 0, word);
+            keywords = lexer.SelectKeywords(style, word);
             Assert.AreEqual(2, keywords.Count());
             word = "textu";
-            keywords = lexer.GetPotentialKeywords(code, 0, word);
+            keywords = lexer.SelectKeywords(style, word);
             Assert.AreEqual(1, keywords.Count());
-        }
-
-        [TestMethod]
-        public void TestMethodFindBufferStyle()
-        {
-            var word = "buffer";
-            var pos = code.IndexOf(word);
-            var style = lexer.GetKeywordStyle(code, pos, word);
-            Assert.AreEqual(1, style);
         }
 
         [TestMethod]
         public void TestMethodFindBufferHint()
         {
             var word = "buffer";
-            var pos = code.IndexOf(word);
-            var hint = lexer.GetKeywordHint(code, pos, word);
+            var style = editor.GetStyleAt(code.IndexOf(word));
+            var hint = lexer.GetKeywordHint(style, word);
             Assert.IsNotNull(hint);
         }
 
-        [TestMethod]
+        /*[TestMethod]
+        public void TestMethodFindBufferStyle()
+        {
+            var word = "buffer";
+            var pos = code.IndexOf(word);
+            var style = lexer.GetKeywordStyle(code, pos, word);
+            Assert.AreEqual(1, style);
+        }*/
+
+        /*[TestMethod]
         public void TestMethodFindShaderAnnotations()
         {
             var word = "";
