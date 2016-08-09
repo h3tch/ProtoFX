@@ -295,26 +295,27 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ┬
+        ///   Looks up a localized string similar to ┬.*
         ///├1║buffer║buffer &lt;name&gt;¶
-        ///├1║csharp║assembly &lt;path&gt; [path] [...]¶
-        ///├1║fragoutput║fragoutput &lt;name&gt;¶
-        ///├1║image║image &lt;name&gt;¶
-        ///├1║instance║instance &lt;name&gt;¶
-        ///├1║pass║pass &lt;name&gt;¶
-        ///├1║sampler║sampler &lt;name&gt;¶
-        ///├1║shader║shader &lt;shader_type&gt; &lt;name&gt;¶
-        ///├1║tech║tech &lt;name&gt;¶
-        ///├1║text║text &lt;name&gt;¶
-        ///├1║texture║texture &lt;name&gt;¶
-        ///├1║vertinput║vertinput &lt;name&gt;¶
-        ///├1║vertoutput║vertoutput &lt;name&gt;¶
-        ///├┬buffer||{|}
-        ///│├3║size║size &lt;bytes&gt;¶
+        ///├┬3║size║size &lt;bytes&gt;¶
         ///│├3║xml║xml &lt;path&gt; &lt;node&gt;¶
         ///│├3║txt║txt &lt;text_name&gt;¶
         ///│├3║usage║usage &lt;usage_hint&gt;¶
-        ///│├ [rest of string was truncated]&quot;;.
+        ///│├┬4║dynamicCopy¶
+        ///│ ├4║dynamicDraw¶
+        ///│ ├4║dynamicRead¶
+        ///│ ├4║staticCopy¶
+        ///│ ├4║staticDraw¶
+        ///│ ├4║staticRead¶
+        ///│ ├4║streamCopy¶
+        ///│ ├4║streamDraw¶
+        ///│ ├4║streamRead¶
+        ///├1║csharp║assembly &lt;path&gt; [path] [...]¶
+        ///├┬3║assembly║assembly &lt;path&gt; [path] [...]¶
+        ///│├3║file║file &lt;path&gt; [path] [...]¶
+        ///├1║fragoutput║fragoutput &lt;name&gt;¶
+        ///├┬3║color║color &lt;image_name&gt;¶
+        ///│├3║depth║depth &lt;imag [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string keywords {
             get {
@@ -323,11 +324,20 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to &lt;?xml version=&apos;1.0&apos;?&gt;
+        ///&lt;protofx&gt;
+        ///  &lt;TechLexer&gt;
+        ///    &lt;BlockLexer&gt;
+        ///      &lt;CommandLexer&gt;
+        ///        
+        ///      &lt;/CommandLexer&gt;
+        ///    &lt;/BlockLexer&gt;
+        ///  &lt;/TechLexer&gt;
+        ///&lt;/protofx&gt;.
         /// </summary>
-        internal static string keywordsGLSL {
+        internal static string keywordsXML {
             get {
-                return ResourceManager.GetString("keywordsGLSL", resourceCulture);
+                return ResourceManager.GetString("keywordsXML", resourceCulture);
             }
         }
         

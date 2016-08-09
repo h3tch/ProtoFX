@@ -1,0 +1,37 @@
+<?xml version='1.0'?>
+<FxLexer>
+  <Lexer type='tech' lexer='TechLexer'>
+    <Style id='0' name='default' fore='#FF0000' back='#FFFFFF'/>
+    <Style id='1' name='type' fore='#0000FF' back='#FFFFFF'/>
+    <Style id='2' name='anno' fore='#0000AA' back='#FFFFFF'/>
+    <Keyword style='1' name='buffer' hint='buffer [name]'/>
+    <Keyword style='1' name='csharp' hint='csharp [name]'/>
+    <Lexer type='buffer' lexer='BlockLexer'>
+      <Style id='0' name='default' fore='#FF0000' back='#FFFFFF'/>
+      <Style id='1' name='command' fore='#0000FF' back='#FFFFFF'/>
+      <Keyword style='1' name='size' hint='size [bytes]'/>
+      <Keyword style='1' name='txt' hint='txt [text_name]'/>
+      <Keyword style='1' name='usage' hint='usage [hint]'/>
+      <Keyword style='1' name='xml' hint='xml [path]'/>
+      <Lexer type='usage' lexer='CommandLexer'>
+        <Style id='0' name='default' fore='#FF0000' back='#FFFFFF'/>
+        <Style id='1' name='argument' fore='#0000FF' back='#FFFFFF'/>
+        <Keyword style='1' name='dynamicCopy'/>
+        <Keyword style='1' name='dynamicDraw'/>
+        <Keyword style='1' name='dynamicRead'/>
+        <Keyword style='1' name='staticCopy'/>
+        <Keyword style='1' name='staticDraw'/>
+        <Keyword style='1' name='staticRead'/>
+        <Keyword style='1' name='streamCopy'/>
+        <Keyword style='1' name='streamDraw'/>
+        <Keyword style='1' name='streamRead'/>
+      </Lexer>
+    </Lexer>
+    <Lexer type='csharp' lexer='BlockLexer'>
+      <Style id='0' name='default' fore='#FF0000' back='#FFFFFF'/>
+      <Style id='1' name='command' fore='#0000FF' back='#FFFFFF'/>
+      <Keyword style='1' name='assembly' hint='assembly [path] {path} {...}'/>
+      <Keyword style='1' name='file' hint='file [path] {path} {...}'/>
+    </Lexer>
+  </Lexer>
+</FxLexer>

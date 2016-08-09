@@ -1,24 +1,10 @@
 ﻿┬.*
 ├1║buffer║buffer <name>¶
-├1║csharp║assembly <path> [path] [...]¶
-├1║fragoutput║fragoutput <name>¶
-├1║image║image <name>¶
-├1║instance║instance <name>¶
-├1║pass║pass <name>¶
-├1║sampler║sampler <name>¶
-├1║shader║shader <shader_type> <name>¶
-├1║tech║tech <name>¶
-├1║text║text <name>¶
-├1║texture║texture <name>¶
-├1║vertinput║vertinput <name>¶
-├1║vertoutput║vertoutput <name>¶
-├┬(?<=buffer\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
-│├3║size║size <bytes>¶
+├┬3║size║size <bytes>¶
 │├3║xml║xml <path> <node>¶
 │├3║txt║txt <text_name>¶
 │├3║usage║usage <usage_hint>¶
-│├┬(?<=usage\s+)\w*\s*(?=\n)
-│ ├4║dynamicCopy¶
+│├┬4║dynamicCopy¶
 │ ├4║dynamicDraw¶
 │ ├4║dynamicRead¶
 │ ├4║staticCopy¶
@@ -27,20 +13,17 @@
 │ ├4║streamCopy¶
 │ ├4║streamDraw¶
 │ ├4║streamRead¶
-├┬(?<=csharp\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
-│├3║assembly║assembly <path> [path] [...]¶
+├1║csharp║assembly <path> [path] [...]¶
+├┬3║assembly║assembly <path> [path] [...]¶
 │├3║file║file <path> [path] [...]¶
-├┬(?<=fragoutput\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
-│├3║color║color <image_name>¶
+├1║fragoutput║fragoutput <name>¶
+├┬3║color║color <image_name>¶
 │├3║depth║depth <image_name>¶
 │├3║height║height <pixels>¶
 │├3║width║width <pixels>¶
-├┬(?<=image\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
-│├3║format║format <pixel_format>¶
-│├3║size║width <width> <height> <depth> <length>¶
-│├3║file║file <path> [path] [...]¶
-│├┬(?<=format\s+)\w*\s*(?=\n)
-││├4║depth¶
+├1║image║image <name>¶
+├┬3║format║format <pixel_format>¶
+│├┬4║depth¶
 ││├4║depth16¶
 ││├4║depth24¶
 ││├4║depth24stencil8¶
@@ -88,17 +71,19 @@
 ││├4║rgba32i¶
 ││├4║rgba32ui¶
 ││├4║rgba32f¶
-│├┬(?<=type\s+)\w*\s*(?=\n)
-│ ├4║texture1D║1D texture¶
+│├3║size║width <width> <height> <depth> <length>¶
+│├3║file║file <path> [path] [...]¶
+├┬3║type║type <texture_type>¶
+│├┬4║texture1D║1D texture¶
 │ ├4║texture2D║2D texture¶
 │ ├4║texture3D║3D texture/volume texture¶
 │ ├4║texture1DArray║1D texture array¶
 │ ├4║texture2DArray║2D texture array¶
-├┬(?<=instance\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
-│├3║class║class <csharp_name> <c#_class>¶
+├1║instance║instance <name>¶
+├┬3║class║class <csharp_name> <c#_class>¶
 │├3║name║name <new_name>¶
-├┬(?<=pass\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
-│├4║break¶
+├1║pass║pass <name>¶
+├┬3║break¶
 │├3║comp║comp <shader_name>¶
 │├3║compute║Dispatch compute shader call.
 ││         ║> compute <num_group_x> <num_group_y> [num_group_z]
@@ -120,8 +105,7 @@
 ││      ║    linesAdjacency, lineStripAdjacency, trianglesAdjacency, triangleStripAdjacency
 ││      ║index_type
 ││      ║    ubyte, ushort, uint¶
-│├┬(?<=draw\s+)(\w\d\s)*(?=\n)
-│|├4║lineLoop¶
+│├┬4║lineLoop¶
 │|├4║lines¶
 │|├4║linesAdjacency¶
 │|├4║lineStrip¶
@@ -142,8 +126,7 @@
 ││         ║The optional argument [write_mode] can be 'gl_SeparateAttribs' (write every
 ││         ║<output_varying_name> to a new buffer) or the default 'gl_InterleavedAttribs'
 ││         ║(output varyings for different buffers need to be separated by 'gl_NextBuffer')¶
-│├┬(?<=vertout\s+)\w*\s*(?=\n)
-│|├4║lines¶
+│├┬4║lines¶
 │|├4║points¶
 │|├4║triangles¶
 │├3║eval║eval <shader_name>¶
@@ -302,27 +285,24 @@
 │├10║glViewportIndexedf¶
 │├10║glViewportIndexedfv¶
 │├10║glWaitSync¶
-├┬(?<=sampler\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
-│├3║magfilter║magfilter <filter_type>¶
-│├3║minfilter║minfilter <filter_type>¶
-│├3║wrap║wrap <wrap_type>¶
-│├┬(?<=magfilter\s+)\w*\s*(?=\n)
-││├4║linear¶
+├1║sampler║sampler <name>¶
+├┬3║magfilter║magfilter <filter_type>¶
+│├┬4║linear¶
 ││├4║nearest¶
-│├┬(?<=minfilter\s+)\w*\s*(?=\n)
-││├4║linear¶
+│├3║minfilter║minfilter <filter_type>¶
+│├┬4║linear¶
 ││├4║nearest¶
 ││├4║linearMipmapLinear¶
 ││├4║linearMipmapNearest¶
 ││├4║nearestMipmapLinear¶
 ││├4║nearestMipmapNearest¶
-│├┬(?<=wrap\s+)\w*\s*(?=\n)
-│ ├4║clampToBorder¶
+│├3║wrap║wrap <wrap_type>¶
+│├┬4║clampToBorder¶
 │ ├4║clampToEdge¶
 │ ├4║mirroredRepeat¶
 │ ├4║repeat¶
-├┬(?<=tech\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
-│├3║pass║Execute this pass every frame.
+├1║tech║tech <name>¶
+├┬3║pass║Execute this pass every frame.
 ││      ║  pass <name>¶
 │├3║init║Execute this pass only once
 ││      ║before all 'normal' passes.
@@ -330,14 +310,14 @@
 │├3║uninit║Execute this pass only once
 │         ║before the technique is destroyed.
 │         ║  uninit <name>¶
-├┬(?<=texture\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
-│├3║buff║buff <name>¶
+├1║text║text <name>¶
+├1║texture║texture <name>¶
+├┬3║buff║buff <name>¶
 │├3║img║img <name>¶
 │├3║samp║samp <name>¶
-├┬(?<=vertinput\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
-│├3║attr║attr <buff_name> <type> <dim> [stride] [offset] [divisor]¶
-│├┬(?<=attr\s+)(\w\d\s)*(?=\n)
-│ ├4║byte¶
+├1║vertinput║vertinput <name>¶
+├┬3║attr║attr <buff_name> <type> <dim> [stride] [offset] [divisor]¶
+│├┬4║byte¶
 │ ├4║double¶
 │ ├4║float¶
 │ ├4║int¶
@@ -348,10 +328,15 @@
 │ ├4║unsignedInt¶
 │ ├4║unsignedShort¶
 │ ├4║ushort¶
-├┬(?<=vertoutput\s+\w+\s*\{)(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))(?=\})
-│├3║buff║buff <name>¶
+├1║vertoutput║vertoutput <name>¶
+├┬3║buff║buff <name>¶
 │├3║pause║pause <true_false>¶
 │├3║resume║resume <true_false>¶
+
+
+
+
+├1║shader║shader <shader_type> <name>¶
 ├┬(?:shader(\s+\w+){0,2}\s*)\{(?:[^{}]|(?<open>\{)|(?<-open>\}))+(?(open)(?!))\}
  ├┬(?<=shader)(\s+\w+){0,2}\s*(?=\{)
  │├2║comp║Compute shader annotation.
