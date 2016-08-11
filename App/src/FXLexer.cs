@@ -313,6 +313,16 @@ namespace App.Lexer
             var max = lexer.Length == 0 ? 0 : lexer.Select(x => x.MaxState()).Max();
             return Math.Max(lastState, max);
         }
+
+        #region HELPER FUNCTION
+        protected int FindLastStyleOf(CodeEditor editor, int style, int from, int length)
+        {
+            int to = Math.Max(from - Math.Max(length, 0), 0);
+            while (from > to && editor.GetStyleAt(from) != style)
+                from--;
+            return editor.GetStyleAt(from) == style ? from : -1;
+        }
+        #endregion
     }
 
     public class FxLexer : BaseLexer
@@ -324,7 +334,8 @@ namespace App.Lexer
             // go back to the first valid style
             while (pos > 0 && editor.GetStyleAt(pos) == 0)
                 pos--;
-            
+            editor.StartStyling(pos);
+
             while (pos < endPos)
             {
                 // get style at the current position
@@ -355,10 +366,11 @@ namespace App.Lexer
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
-            // We cannot continue withing code block.
-            // Go back to brace opening the code block.
+            // We cannot continue within a code block.
+            // Go back to brace opening of the code block.
             if ((State)editor.GetStyleAt(pos) == State.BlockCode)
                 pos = FindLastStyleOf(editor, (int)State.Brace, pos, pos);
+            editor.StartStyling(pos);
 
             // instantiate region class
             var c = new Region(editor);
@@ -366,8 +378,7 @@ namespace App.Lexer
             // continue processing from the last state
             for (var state = (State)editor.GetStyleAt(pos); pos < endPos; pos++)
             {
-                c.Set(pos);
-                state = ProcessState(editor, state, c);
+                state = ProcessState(editor, state, c.Set(pos));
                 editor.SetStyling(1, firstState + (int)state);
             }
 
@@ -442,7 +453,10 @@ namespace App.Lexer
         private State ProcessAnnoState(CodeEditor editor, Region c)
         {
             if (c.c == '{')
+            {
+                braceCount = 1;
                 return State.Brace;
+            }
             return State.Anno;
         }
         
@@ -465,14 +479,15 @@ namespace App.Lexer
                         break;
                     // RE-LEX ALL BLOCKCODE PARTS
                     // get code region of the block
-                    var end = editor.GetEndStyled();
-                    var start = FindLastStyleOf(editor, (int)State.Brace, end, end);
+                    var start = FindLastStyleOf(editor, firstState + (int)State.Brace, c.pos, c.pos);
                     // get header string from block position
                     var header = FindLastHeaderFromPosition(editor, start);
                     // find lexer that can lex this code block
                     var lex = lexer?.Where(x => x.IsLexerFor(header[0])).FirstOrDefault();
                     // re-lex code block
-                    lex?.Style(editor, start + 1, end - 1);
+                    lex?.Style(editor, start + 1, c.pos - 1);
+                    // continue styling from the last position
+                    editor.StartStyling(c.pos);
                     return State.Brace;
             }
             return State.BlockCode;
@@ -482,24 +497,16 @@ namespace App.Lexer
         #region HELPER FUNCTION
         private string[] FindLastHeaderFromPosition(CodeEditor editor, int pos)
         {
-            int bracePos = FindLastStyleOf(editor, (int)State.Brace, pos, pos);
-            int typePos = FindLastStyleOf(editor, (int)State.Type, bracePos, bracePos);
-            int annoPos = FindLastStyleOf(editor, (int)State.Anno, bracePos, bracePos - typePos);
+            int bracePos = FindLastStyleOf(editor, firstState + (int)State.Brace, pos, pos);
+            int typePos = FindLastStyleOf(editor, firstState + (int)State.Type, bracePos, bracePos);
+            int annoPos = FindLastStyleOf(editor, firstState + (int)State.Anno, bracePos, bracePos - typePos);
 
             return new string[] {
                 typePos >= 0 ? editor.GetWordFromPosition(typePos) : null,
                 annoPos >= 0 ? editor.GetWordFromPosition(annoPos) : null,
             };
         }
-
-        private int FindLastStyleOf(CodeEditor editor, int style, int from, int length)
-        {
-            int to = Math.Max(from - Math.Max(length, 0), 0);
-            while (from > to && editor.GetStyleAt(from) != style)
-                from--;
-            return editor.GetStyleAt(from) == style ? from : -1;
-        }
-
+        
         private enum State : int
         {
             Default,
@@ -514,39 +521,6 @@ namespace App.Lexer
             ENDSTATE,
         }
 
-        private class Region
-        {
-            private CodeEditor editor;
-            public char ll;
-            public char l;
-            public char c;
-            public char r;
-            //public int Pos
-            //{
-            //    get { return Pos; }
-            //    set
-            //    {
-            //        ll = (char)(value - 2 < 0 ? 0 : editor.GetCharAt(value - 2));
-            //        l = (char)(value - 1 < 0 ? 0 : editor.GetCharAt(value - 1));
-            //        c = (char)editor.GetCharAt(value);
-            //        r = (char)(value + 1 >= editor.TextLength ? 0 : editor.GetCharAt(value + 1));
-            //    }
-            //}
-
-            public Region(CodeEditor editor)
-            {
-                this.editor = editor;
-            }
-
-            public void Set(int value)
-            {
-                ll = (char)(value - 2 < 0 ? 0 : editor.GetCharAt(value - 2));
-                l = (char)(value - 1 < 0 ? 0 : editor.GetCharAt(value - 1));
-                c = (char)editor.GetCharAt(value);
-                r = (char)(value + 1 >= editor.TextLength ? 0 : editor.GetCharAt(value + 1));
-            }
-        }
-
         public override Type StateType => typeof(State);
         #endregion
     }
@@ -557,10 +531,93 @@ namespace App.Lexer
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
+            editor.StartStyling(pos);
+
+            // instantiate region class
+            var c = new Region(editor);
+
+            // continue processing from the last state
+            for (var state = State.Default; pos < endPos; pos++)
+            {
+                state = ProcessState(editor, state, c.Set(pos));
+                editor.SetStyling(1, firstState + (int)state);
+            }
             return endPos;
         }
 
+        #region PROCESS STATE
+        private State ProcessState(CodeEditor editor, State state, Region c)
+        {
+            switch (state)
+            {
+                case State.Command:
+                    return ProcessCommandState(editor, c);
+                case State.LineComment:
+                    return ProcessLineCommentState(editor, c);
+                case State.BlockComment:
+                    return ProcessBlockCommentState(editor, c);
+                case State.CommandCode:
+                    return ProcessCommandCodeState(editor, c);
+                default:
+                    return ProcessDefaultState(editor, c);
+            }
+        }
+
+        private State ProcessDefaultState(CodeEditor editor, Region c)
+        {
+            if (c.c == '/')
+            {
+                if (c.r == '/')
+                    return State.LineComment;
+                else if (c.r == '*')
+                    return State.BlockComment;
+            }
+            else if (char.IsLetter(c.c))
+                return State.Command;
+            return State.Default;
+        }
+
+        private State ProcessLineCommentState(CodeEditor editor, Region c)
+            => c.c == '\n' ? State.Default : State.LineComment;
+
+        private State ProcessBlockCommentState(CodeEditor editor, Region c)
+            => c.ll == '*' && c.l == '/' ? ProcessDefaultState(editor, c) : State.BlockComment;
+
+        private State ProcessCommandState(CodeEditor editor, Region c)
+        {
+            if (char.IsWhiteSpace(c.c))
+                return State.CommandCode;
+            return State.Command;
+        }
+
+        private State ProcessCommandCodeState(CodeEditor editor, Region c)
+        {
+            if (c.c == '\n')
+            {
+                // RE-LEX ALL COMMANDCODE PARTS
+                // get code region of the block
+                var start = FindLastStyleOf(editor, firstState + (int)State.Command, c.pos, c.pos);
+                // get header string from block position
+                var cmd = FindLastCommandFromPosition(editor, start);
+                // find lexer that can lex this code block
+                var lex = lexer?.Where(x => x.IsLexerFor(cmd)).FirstOrDefault();
+                // re-lex code block
+                lex?.Style(editor, start + 1, c.pos - 1);
+                // continue styling from the last position
+                editor.StartStyling(c.pos);
+                return State.Default;
+            }
+            return State.CommandCode;
+        }
+        #endregion
+
         #region HELPER FUNCTION
+        private string FindLastCommandFromPosition(CodeEditor editor, int pos)
+        {
+            int cmdPos = FindLastStyleOf(editor, firstState + (int)State.Command, pos, pos);
+            return cmdPos >= 0 ? editor.GetWordFromPosition(cmdPos) : null;
+        }
+
         private enum State : int
         {
             Default,
@@ -620,4 +677,30 @@ namespace App.Lexer
         public override Type StateType => typeof(State);
         #endregion
     }
+
+    public class Region
+    {
+        private CodeEditor editor;
+        public int pos;
+        public char ll;
+        public char l;
+        public char c;
+        public char r;
+
+        public Region(CodeEditor editor)
+        {
+            this.editor = editor;
+        }
+
+        public Region Set(int value)
+        {
+            pos = value;
+            ll = (char)(value - 2 < 0 ? 0 : editor.GetCharAt(value - 2));
+            l = (char)(value - 1 < 0 ? 0 : editor.GetCharAt(value - 1));
+            c = (char)editor.GetCharAt(value);
+            r = (char)(value + 1 >= editor.TextLength ? 0 : editor.GetCharAt(value + 1));
+            return this;
+        }
+    }
+
 }

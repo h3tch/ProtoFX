@@ -1,21 +1,29 @@
 <?xml version='1.0'?>
 <FxLexer>
   <Lexer type='tech' lexer='TechLexer'>
-    <Style name='default' fore='#FF0000' back='#FFFFFF'/>
+    <Style name='default' fore='#000000' back='#FFFFFF'/>
     <Style name='type' fore='#0000FF' back='#FFFFFF'/>
-    <Style name='anno' fore='#0000AA' back='#FFFFFF'/>
+    <Style name='name' fore='#000000' back='#FFFFFF'/>
+    <Style name='anno' fore='#4444AA' back='#FFFFFF'/>
+    <Style name='brace' fore='#0000FF' back='#FFFFFF'/>
+    <Style name='LineComment' fore='#00FF00' back='#FFFFFF'/>
+    <Style name='BlockComment' fore='#00FF00' back='#FFFFFF'/>
     <Keyword style_name='type' name='buffer' hint='buffer [name]'/>
     <Keyword style_name='type' name='csharp' hint='csharp [name]'/>
     <Lexer type='buffer' lexer='BlockLexer'>
-      <Style name='default' fore='#FF0000' back='#FFFFFF'/>
+      <Style name='default' fore='#000000' back='#FFFFFF'/>
       <Style name='command' fore='#0000FF' back='#FFFFFF'/>
+      <Style name='LineComment' fore='#00FF00' back='#FFFFFF'/>
+      <Style name='BlockComment' fore='#00FF00' back='#FFFFFF'/>
       <Keyword style_name='command' name='size' hint='size [bytes]'/>
       <Keyword style_name='command' name='txt' hint='txt [text_name]'/>
       <Keyword style_name='command' name='usage' hint='usage [hint]'/>
       <Keyword style_name='command' name='xml' hint='xml [path]'/>
       <Lexer type='usage' lexer='CommandLexer'>
-        <Style name='default' fore='#FF0000' back='#FFFFFF'/>
+        <Style name='default' fore='#000000' back='#FFFFFF'/>
         <Style name='argument' fore='#0000FF' back='#FFFFFF'/>
+        <Style name='number' fore='#00FF00' back='#FFFFFF'/>
+        <Style name='string' fore='#FF0000' back='#FFFFFF'/>
         <Keyword style_name='argument' name='dynamicCopy'/>
         <Keyword style_name='argument' name='dynamicDraw'/>
         <Keyword style_name='argument' name='dynamicRead'/>
@@ -28,8 +36,10 @@
       </Lexer>
     </Lexer>
     <Lexer type='csharp' lexer='BlockLexer'>
-      <Style name='default' fore='#FF0000' back='#FFFFFF'/>
+      <Style name='default' fore='#000000' back='#FFFFFF'/>
       <Style name='command' fore='#0000FF' back='#FFFFFF'/>
+      <Style name='LineComment' fore='#00FF00' back='#FFFFFF'/>
+      <Style name='BlockComment' fore='#00FF00' back='#FFFFFF'/>
       <Keyword style_name='command' name='assembly' hint='assembly [path] {path} {...}'/>
       <Keyword style_name='command' name='file' hint='file [path] {path} {...}'/>
     </Lexer>
