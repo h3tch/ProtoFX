@@ -71,7 +71,7 @@
 ││├4║rgba32i¶
 ││├4║rgba32ui¶
 ││├4║rgba32f¶
-│├3║size║width <width> <height> <depth> <length>¶
+│├3║size║size <width> <height> <depth> <length>¶
 │├3║file║file <path> [path] [...]¶
 ├┬3║type║type <texture_type>¶
 │├┬4║texture1D║1D texture¶

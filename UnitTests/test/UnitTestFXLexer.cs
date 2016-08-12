@@ -24,24 +24,33 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void TestMethodIndexOfWholeWords()
-        {
-            var POS = code.IndexOf("buffer buf_pos");
-            var pos = code.IndexOfWholeWords("buffer");
-            Assert.AreEqual(POS, pos);
-        }
-
-        [TestMethod]
         public void TestLexer()
         {
-            lexer.Style(editor, 0, editor.TextLength);
+            //var stylesA = new int[editor.TextLength];
+            //var stylesB = new int[editor.TextLength];
+
+            //lexer.Style(editor, 0, editor.TextLength);
+            //for (int i = 0; i < editor.TextLength; i++)
+            //    stylesA[i] = editor.GetStyleAt(i);
+
+            //lexer.Style(editor, 0, editor.TextLength);
+            //for (int i = 0; i < editor.TextLength; i++)
+            //    stylesB[i] = editor.GetStyleAt(i);
+
+            //Assert.IsTrue(Enumerable.SequenceEqual(stylesA, stylesB));
+
+            //lexer.Style(editor, 0, editor.TextLength);
+            //for (int i = editor.TextLength/2; i < editor.TextLength; i++)
+            //    stylesB[i] = editor.GetStyleAt(i);
+
+            //Assert.IsTrue(Enumerable.SequenceEqual(stylesA, stylesB));
         }
 
         [TestMethod]
         public void TestMethodFindBufferKeyword()
         {
             var word = "buffer";
-            var style = editor.GetStyleAt(code.IndexOf("buffer buf_pos"));
+            var style = editor.GetStyleAt(editor.Text.IndexOf("buffer buf_pos"));
             var keywords = lexer.SelectKeywords(style, word);
             foreach (var keyword in keywords)
                 Assert.IsTrue(keyword.StartsWith(word));
@@ -52,8 +61,9 @@ namespace UnitTests
         public void TestMethodFindBufferCommandsKeyword()
         {
             var word = "";
-            var style = editor.GetStyleAt(code.IndexOf("usage staticDraw"));
+            var style = editor.GetStyleAt(editor.Text.IndexOf("usage staticDraw"));
             var keywords = lexer.SelectKeywords(style, word);
+            Assert.AreEqual(10, style);
             Assert.AreEqual(4, keywords.Count());
 
             word = "usa";
@@ -62,7 +72,7 @@ namespace UnitTests
             Assert.AreEqual("usage", keywords.First());
 
             word = "";
-            style = editor.GetStyleAt(code.IndexOf("staticDraw"));
+            style = editor.GetStyleAt(editor.Text.IndexOf("staticDraw"));
             keywords = lexer.SelectKeywords(style, word);
             Assert.AreEqual(9, keywords.Count());
 
@@ -76,22 +86,28 @@ namespace UnitTests
         [TestMethod]
         public void TestMethodFindKeywords()
         {
-            var word = "";
-            var style = editor.GetStyleAt(0);
+            var style = editor.GetStyleAt(editor.Text.IndexOf("buffer buf_pos"));
+
+            var word = "s";
             var keywords = lexer.SelectKeywords(style, word);
-            Assert.AreEqual(13, keywords.Count());
-            word = "s";
-            keywords = lexer.SelectKeywords(style, word);
             Assert.AreEqual(2, keywords.Count());
+
             word = "t";
             keywords = lexer.SelectKeywords(style, word);
             Assert.AreEqual(3, keywords.Count());
+
             word = "tex";
             keywords = lexer.SelectKeywords(style, word);
             Assert.AreEqual(2, keywords.Count());
+
             word = "textu";
             keywords = lexer.SelectKeywords(style, word);
             Assert.AreEqual(1, keywords.Count());
+
+            style = 0;
+            word = "";
+            keywords = lexer.SelectKeywords(style, word);
+            Assert.AreEqual(0, keywords.Count());
         }
 
         [TestMethod]

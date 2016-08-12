@@ -45,13 +45,13 @@ namespace App.Lexer
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Color GetStyleForeColor(int id);
+        Color? GetStyleForeColor(int id);
         /// <summary>
         /// Get background color of the specified style.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Color GetStyleBackColor(int id);
+        Color? GetStyleBackColor(int id);
         /// <summary>
         /// Get the hint of the word at the specified position. If the word
         /// could not be found <code>null</code> be returned.
@@ -276,22 +276,25 @@ namespace App.Lexer
             return lexer.SelectMany(x => x.SelectKeywordInfo(style, word));
         }
 
-        public Color GetStyleForeColor(int style)
+        public Color? GetStyleForeColor(int style)
         {
-            return IsLexerStyle(style) ? foreColor[StyleToIdx(style)]
-                : lexer.Select(x => x.GetStyleForeColor(style)).FirstOrDefault(x => x != null);
+            return IsLexerStyle(style)
+                ? foreColor[StyleToIdx(style)]
+                : lexer.Select(x => x.GetStyleForeColor(style)).Where(x => x != null).FirstOr(null);
         }
 
-        public Color GetStyleBackColor(int style)
+        public Color? GetStyleBackColor(int style)
         {
-            return IsLexerStyle(style) ? backColor[StyleToIdx(style)]
-                : lexer.Select(x => x.GetStyleBackColor(style)).FirstOrDefault(x => x != null);
+            return IsLexerStyle(style)
+                ? backColor[StyleToIdx(style)]
+                : lexer.Select(x => x.GetStyleBackColor(style)).Where(x => x != null).FirstOr(null);
         }
         
         public IEnumerable<int> GetStyles()
         {
-            var styles = lexer.SelectMany(x => x.GetStyles());
-            return StateType == null ? styles : Enum.GetValues(StateType).Cast<int>().Concat(styles);
+            var substyles = lexer.SelectMany(x => x.GetStyles());
+            var ownstyles = Enumerable.Range(firstState, lastStyle - firstState + 1);
+            return ownstyles.Concat(substyles);
         }
 
         public virtual Type StateType => null;
@@ -542,7 +545,7 @@ namespace App.Lexer
                 state = ProcessState(editor, state, c.Set(pos));
                 editor.SetStyling(1, firstState + (int)state);
             }
-            return endPos;
+            return pos;
         }
 
         #region PROCESS STATE
@@ -639,8 +642,67 @@ namespace App.Lexer
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
-            return endPos;
+            editor.StartStyling(pos);
+
+            // instantiate region class
+            var c = new Region(editor);
+
+            // continue processing from the last state
+            for (var state = State.Default; pos < endPos; pos++)
+            {
+                state = ProcessState(editor, state, c.Set(pos));
+                editor.SetStyling(1, firstState + (int)state);
+            }
+            return pos;
         }
+
+        #region PROCESS STATE
+        private State ProcessState(CodeEditor editor, State state, Region c)
+        {
+            switch (state)
+            {
+                case State.Argument:
+                    return ProcessArgumentState(editor, c);
+                case State.Number:
+                    return ProcessNumberState(editor, c);
+                case State.String:
+                    return ProcessStringState(editor, c);
+                default:
+                    return ProcessDefaultState(editor, c);
+            }
+        }
+
+        private State ProcessDefaultState(CodeEditor editor, Region c)
+        {
+            if (c.c == '"')
+                return State.String;
+            else if(char.IsNumber(c.c) || (c.c == '.' && char.IsNumber(c.r)))
+                return State.Number;
+            else if (char.IsLetter(c.c))
+                return State.Argument;
+            return State.Default;
+        }
+
+        private State ProcessArgumentState(CodeEditor editor, Region c)
+        {
+            return char.IsWhiteSpace(c.c) ? State.Default : State.Argument;
+        }
+
+        private State ProcessNumberState(CodeEditor editor, Region c)
+        {
+            return char.IsNumber(c.c)
+                || c.c == '.' || c.c == 'x'
+                || ('a' <= c.c && c.c <= 'f')
+                || ('A' <= c.c && c.c <= 'F')
+                ? State.Number
+                : State.Default;
+        }
+
+        private State ProcessStringState(CodeEditor editor, Region c)
+        {
+            return c.l == '"' ? State.Default : State.String;
+        }
+        #endregion
 
         #region HELPER FUNCTION
         private enum State : int
