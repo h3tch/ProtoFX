@@ -32,6 +32,18 @@
       <Keyword style_name='command' name='txt' hint='txt [text_name]'/>
       <Keyword style_name='command' name='usage' hint='usage [hint]'/>
       <Keyword style_name='command' name='xml' hint='xml [path]'/>
+      <!-- buffer - SIZE -->
+      <Lexer type='size' lexer='CommandLexer'>
+        <Style name='default' fore='#000000' back='#FFFFFF'/>
+        <Style name='number' fore='#00FF00' back='#FFFFFF'/>
+        <Style name='string' fore='#FF0000' back='#FFFFFF'/>
+      </Lexer>
+      <!-- buffer - TXT -->
+      <Lexer type='txt' lexer='CommandLexer'>
+        <Style name='default' fore='#000000' back='#FFFFFF'/>
+        <Style name='number' fore='#00FF00' back='#FFFFFF'/>
+        <Style name='string' fore='#FF0000' back='#FFFFFF'/>
+      </Lexer>
       <!-- buffer - USAGE -->
       <Lexer type='usage' lexer='CommandLexer'>
         <Style name='default' fore='#000000' back='#FFFFFF'/>
@@ -51,7 +63,6 @@
       <!-- buffer - XML -->
       <Lexer type='xml' lexer='CommandLexer'>
         <Style name='default' fore='#000000' back='#FFFFFF'/>
-        <Style name='argument' fore='#0000FF' back='#FFFFFF'/>
         <Style name='number' fore='#00FF00' back='#FFFFFF'/>
         <Style name='string' fore='#FF0000' back='#FFFFFF'/>
       </Lexer>
@@ -64,6 +75,18 @@
       <Style name='BlockComment' fore='#00FF00' back='#FFFFFF'/>
       <Keyword style_name='command' name='assembly' hint='assembly [path] {path} {...}'/>
       <Keyword style_name='command' name='file' hint='file [path] {path} {...}'/>
+      <!-- buffer - ASSEMBLY -->
+      <Lexer type='assembly' lexer='CommandLexer'>
+        <Style name='default' fore='#000000' back='#FFFFFF'/>
+        <Style name='number' fore='#00FF00' back='#FFFFFF'/>
+        <Style name='string' fore='#FF0000' back='#FFFFFF'/>
+      </Lexer>
+      <!-- buffer - FILE -->
+      <Lexer type='file' lexer='CommandLexer'>
+        <Style name='default' fore='#000000' back='#FFFFFF'/>
+        <Style name='number' fore='#00FF00' back='#FFFFFF'/>
+        <Style name='string' fore='#FF0000' back='#FFFFFF'/>
+      </Lexer>
     </Lexer>
     <!-- FRAGOUTPUT -->
     <Lexer type='fragoutput' lexer='BlockLexer'>

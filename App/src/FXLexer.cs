@@ -488,7 +488,7 @@ namespace App.Lexer
                     // find lexer that can lex this code block
                     var lex = lexer?.Where(x => x.IsLexerFor(header[0])).FirstOrDefault();
                     // re-lex code block
-                    lex?.Style(editor, start + 1, c.pos - 1);
+                    lex?.Style(editor, start + 1, c.pos);
                     // continue styling from the last position
                     editor.StartStyling(c.pos);
                     return State.Brace;
@@ -595,7 +595,7 @@ namespace App.Lexer
 
         private State ProcessCommandCodeState(CodeEditor editor, Region c)
         {
-            if (c.c == '\n')
+            if (c.c == '\n' && c.l != '.' && c.ll != '.')
             {
                 // RE-LEX ALL COMMANDCODE PARTS
                 // get code region of the block
@@ -605,7 +605,7 @@ namespace App.Lexer
                 // find lexer that can lex this code block
                 var lex = lexer?.Where(x => x.IsLexerFor(cmd)).FirstOrDefault();
                 // re-lex code block
-                lex?.Style(editor, start + 1, c.pos - 1);
+                lex?.Style(editor, start + 1, c.pos);
                 // continue styling from the last position
                 editor.StartStyling(c.pos);
                 return State.Default;
@@ -638,6 +638,8 @@ namespace App.Lexer
 
     class CommandLexer : BaseLexer
     {
+        private int stringStartPos;
+
         public CommandLexer(int nextStyle, XmlNode xml) : base(nextStyle, xml) { }
 
         public override int Style(CodeEditor editor, int pos, int endPos)
@@ -675,7 +677,10 @@ namespace App.Lexer
         private State ProcessDefaultState(CodeEditor editor, Region c)
         {
             if (c.c == '"')
+            {
+                stringStartPos = c.pos;
                 return State.String;
+            }
             else if(char.IsNumber(c.c) || (c.c == '.' && char.IsNumber(c.r)))
                 return State.Number;
             else if (char.IsLetter(c.c))
@@ -700,7 +705,9 @@ namespace App.Lexer
 
         private State ProcessStringState(CodeEditor editor, Region c)
         {
-            return c.l == '"' ? State.Default : State.String;
+            return c.pos - 1 != stringStartPos && c.l == '"'
+                ? ProcessDefaultState(editor, c)
+                : State.String;
         }
         #endregion
 
@@ -732,6 +739,79 @@ namespace App.Lexer
         private enum State : int
         {
             Default,
+            ENDSTYLE,
+            ENDSTATE,
+        }
+
+        public override Type StateType => typeof(State);
+        #endregion
+    }
+
+    class DefaultLexer : BaseLexer
+    {
+        public DefaultLexer(int nextStyle, XmlNode xml) : base(nextStyle, xml) { }
+
+        public override int Style(CodeEditor editor, int pos, int endPos)
+        {
+            editor.StartStyling(pos);
+
+            // instantiate region class
+            var c = new Region(editor);
+
+            // continue processing from the last state
+            for (var state = State.Default; pos < endPos; pos++)
+            {
+                state = ProcessState(editor, state, c.Set(pos));
+                editor.SetStyling(1, firstState + (int)state);
+            }
+            return pos;
+        }
+
+        #region PROCESS STATE
+        private State ProcessState(CodeEditor editor, State state, Region c)
+        {
+            switch (state)
+            {
+                case State.Number:
+                    return ProcessNumberState(editor, c);
+                case State.String:
+                    return ProcessStringState(editor, c);
+                default:
+                    return ProcessDefaultState(editor, c);
+            }
+        }
+
+        private State ProcessDefaultState(CodeEditor editor, Region c)
+        {
+            if (c.c == '"')
+                return State.String;
+            else if (char.IsNumber(c.c) || (c.c == '.' && char.IsNumber(c.r)))
+                return State.Number;
+            return State.Default;
+        }
+
+        private State ProcessNumberState(CodeEditor editor, Region c)
+        {
+            return char.IsNumber(c.c)
+                || c.c == '.' || c.c == 'x'
+                || ('a' <= c.c && c.c <= 'f')
+                || ('A' <= c.c && c.c <= 'F')
+                ? State.Number
+                : State.Default;
+        }
+
+        private State ProcessStringState(CodeEditor editor, Region c)
+        {
+            return c.l == '"' ? State.Default : State.String;
+        }
+        #endregion
+
+        #region HELPER FUNCTION
+        private enum State : int
+        {
+            Default,
+            Number,
+            String,
             ENDSTYLE,
             ENDSTATE,
         }
