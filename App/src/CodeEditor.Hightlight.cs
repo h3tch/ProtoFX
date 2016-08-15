@@ -25,10 +25,8 @@ namespace App
             // set styles as defined in the keyword file
             foreach (var style in FxLexer.GetStyles())
             {
-                Color? fore = FxLexer.GetStyleForeColor(style);
-                Color? back = FxLexer.GetStyleBackColor(style);
-                Styles[style].ForeColor = fore != null ? (Color)fore : Color.Black;
-                Styles[style].BackColor = fore != null ? (Color)back : Color.White;
+                Styles[style.id].ForeColor = style.fore;
+                Styles[style.id].BackColor = style.back;
             }
 
             Lexer = ScintillaNET.Lexer.Container;

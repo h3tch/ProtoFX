@@ -1,6 +1,7 @@
 ﻿using App;
 using App.Lexer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -24,26 +25,32 @@ namespace UnitTests
         }
 
         [TestMethod]
+        public void TestMaxLexerStyles()
+        {
+            Assert.AreEqual(lexer.MaxStyle(), Math.Min(lexer.MaxStyle(), 128));
+        }
+
+        [TestMethod]
         public void TestLexer()
         {
-            //var stylesA = new int[editor.TextLength];
-            //var stylesB = new int[editor.TextLength];
+            var stylesA = new int[editor.TextLength];
+            var stylesB = new int[editor.TextLength];
 
-            //lexer.Style(editor, 0, editor.TextLength);
-            //for (int i = 0; i < editor.TextLength; i++)
-            //    stylesA[i] = editor.GetStyleAt(i);
+            lexer.Style(editor, 0, editor.TextLength);
+            for (int i = 0; i < editor.TextLength; i++)
+                stylesA[i] = editor.GetStyleAt(i);
 
-            //lexer.Style(editor, 0, editor.TextLength);
-            //for (int i = 0; i < editor.TextLength; i++)
-            //    stylesB[i] = editor.GetStyleAt(i);
+            lexer.Style(editor, 0, editor.TextLength);
+            for (int i = 0; i < editor.TextLength; i++)
+                stylesB[i] = editor.GetStyleAt(i);
 
-            //Assert.IsTrue(Enumerable.SequenceEqual(stylesA, stylesB));
+            Assert.IsTrue(Enumerable.SequenceEqual(stylesA, stylesB));
 
-            //lexer.Style(editor, 0, editor.TextLength);
-            //for (int i = editor.TextLength/2; i < editor.TextLength; i++)
-            //    stylesB[i] = editor.GetStyleAt(i);
+            lexer.Style(editor, 0, editor.TextLength);
+            for (int i = editor.TextLength / 2; i < editor.TextLength; i++)
+                stylesB[i] = editor.GetStyleAt(i);
 
-            //Assert.IsTrue(Enumerable.SequenceEqual(stylesA, stylesB));
+            Assert.IsTrue(Enumerable.SequenceEqual(stylesA, stylesB));
         }
 
         [TestMethod]
@@ -63,7 +70,6 @@ namespace UnitTests
             var word = "";
             var style = editor.GetStyleAt(editor.Text.IndexOf("usage staticDraw"));
             var keywords = lexer.SelectKeywords(style, word);
-            Assert.AreEqual(10, style);
             Assert.AreEqual(4, keywords.Count());
 
             word = "usa";

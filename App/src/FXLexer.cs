@@ -13,6 +13,12 @@ namespace App.Lexer
         public string hint;
     }
 
+    public struct Style
+    {
+        public int id;
+        public Color fore, back;
+    }
+
     public static class XmlNodeExtensions
     {
         public static string GetAttributeValue(this XmlNode node, string name)
@@ -39,19 +45,7 @@ namespace App.Lexer
         /// Get a list of styles.
         /// </summary>
         /// <returns></returns>
-        IEnumerable<int> GetStyles();
-        /// <summary>
-        /// Get foreground color of the specified style.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        Color? GetStyleForeColor(int id);
-        /// <summary>
-        /// Get background color of the specified style.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        Color? GetStyleBackColor(int id);
+        IEnumerable<Style> GetStyles();
         /// <summary>
         /// Get the hint of the word at the specified position. If the word
         /// could not be found <code>null</code> be returned.
@@ -80,7 +74,7 @@ namespace App.Lexer
         /// </summary>
         /// <param name="style"></param>
         /// <returns></returns>
-        bool IsLexerState(int style);
+        bool IsLexerStyle(int style);
         /// <summary>
         /// Is lexer for the specified block type?
         /// </summary>
@@ -88,19 +82,18 @@ namespace App.Lexer
         /// <returns></returns>
         bool IsLexerFor(string type);
         ILexer FindLexer(int state);
-        int MaxState();
+        int MaxStyle();
     }
 
     public abstract class BaseLexer : ILexer
     {
         protected string lexerType;
         protected ILexer[] lexer;
-        protected Color[] foreColor;
-        protected Color[] backColor;
+        protected Style[] styles;
         protected Trie<Keyword>[] keywords;
         protected int firstState = 0;
+        protected int firstStyle = 0;
         protected int lastStyle = -1;
-        protected int lastState = -1;
         private enum FoldState : int
         {
             Unknown,
@@ -109,20 +102,26 @@ namespace App.Lexer
             EndFolding,
         }
 
-        public BaseLexer(int firstFreeState, XmlNode lexerNode)
+        public BaseLexer(int firstFreeStyle, XmlNode lexerNode)
         {
+            firstStyle = firstFreeStyle;
+            lastStyle = firstStyle - 1;
+
             if (StateType != null)
             {
                 // get style and state ranges
-                int styleCount = (int)Enum.Parse(StateType, "ENDSTYLE");
-                int stateCount = (int)Enum.Parse(StateType, "ENDSTATE");
-                firstState = firstFreeState;
-                lastState = (firstFreeState += stateCount) - 1;
-                lastStyle = firstState + styleCount - 1;
+                int styleCount = Enum.GetNames(StateType).Length;
+                firstFreeStyle = firstStyle + styleCount;
+                lastStyle = firstFreeStyle - 1;
+                firstState = ((int[])Enum.GetValues(StateType)).Min();
 
                 // allocate arrays for styles
-                foreColor = new Color[styleCount];
-                backColor = new Color[styleCount];
+                styles = Enumerable.Range(firstStyle, styleCount)
+                    .Select(x => new Style {
+                        id = StateToStyle(x),
+                        fore = Color.Black,
+                        back = Color.White
+                    }).ToArray();
                 keywords = new Trie<Keyword>[styleCount];
 
                 // get lexer type
@@ -133,20 +132,23 @@ namespace App.Lexer
                 foreach (XmlNode style in styleList)
                 {
                     var id = (int)Enum.Parse(StateType, style.GetAttributeValue("name"), true);
-                    foreColor[id] = ColorTranslator.FromHtml(style.GetAttributeValue("fore"));
-                    backColor[id] = ColorTranslator.FromHtml(style.GetAttributeValue("back"));
+                    var idx = StateToIdx(id);
+                    styles[idx].id = StateToStyle(id);
+                    styles[idx].fore = ColorTranslator.FromHtml(style.GetAttributeValue("fore"));
+                    styles[idx].back = ColorTranslator.FromHtml(style.GetAttributeValue("back"));
                 }
 
                 // get keyword definitions
                 var keywordList = lexerNode.SelectNodes("Keyword");
                 foreach (XmlNode keyword in keywordList)
                 {
-                    var style = (int)Enum.Parse(StateType, keyword.GetAttributeValue("style_name"), true);
+                    var id = (int)Enum.Parse(StateType, keyword.GetAttributeValue("style_name"), true);
+                    var idx = StateToIdx(id);
                     var name = keyword.GetAttributeValue("name");
                     var hint = keyword.GetAttributeValue("hint");
-                    if (keywords[style] == null)
-                        keywords[style] = new Trie<Keyword>();
-                    keywords[style].Add(name, new Keyword { word = name, hint = hint });
+                    if (keywords[idx] == null)
+                        keywords[idx] = new Trie<Keyword>();
+                    keywords[idx].Add(name, new Keyword { word = name, hint = hint });
                 }
             }
 
@@ -156,13 +158,14 @@ namespace App.Lexer
             for (int i = 0; i < lexerList.Count; i++)
             {
                 var type = lexerList[i].GetAttributeValue("lexer");
-                var param = new object[] { firstFreeState, lexerList[i] };
+                var param = new object[] { firstFreeStyle, lexerList[i] };
                 var t = Type.GetType($"App.Lexer.{type}");
                 lexer[i] = (ILexer)Activator.CreateInstance(t, param);
-                firstFreeState = lexer[i].MaxState() + 1;
+                firstFreeStyle = lexer[i].MaxStyle() + 1;
             }
         }
 
+        #region METHODS
         public abstract int Style(CodeEditor editor, int pos, int endPos);
 
         public void Fold(CodeEditor editor, int pos, int endPos)
@@ -253,9 +256,18 @@ namespace App.Lexer
             }
         }
 
-        public int StyleToIdx(int style) => style - firstState;
+        public int StyleToIdx(int style) => style - firstStyle;
 
-        public string StyleToName(int style) => StateType == null ? "" : Enum.GetName(StateType, style);
+        public int StyleToState(int style) => style - firstStyle + firstState;
+
+        public int StateToIdx(int style) => style - firstState;
+
+        public int StateToStyle(int state) => state < (int)BaseState.String ? state + firstStyle : state;
+
+        public string StyleToName(int style)
+        {
+            return StateType == null ? "" : Enum.GetName(StateType, StyleToState(style));
+        }
 
         public string GetKeywordHint(int style, string word)
         {
@@ -275,47 +287,31 @@ namespace App.Lexer
                     : Enumerable.Empty<Keyword>();
             return lexer.SelectMany(x => x.SelectKeywordInfo(style, word));
         }
-
-        public Color? GetStyleForeColor(int style)
-        {
-            return IsLexerStyle(style)
-                ? foreColor[StyleToIdx(style)]
-                : lexer.Select(x => x.GetStyleForeColor(style)).Where(x => x != null).FirstOr(null);
-        }
-
-        public Color? GetStyleBackColor(int style)
-        {
-            return IsLexerStyle(style)
-                ? backColor[StyleToIdx(style)]
-                : lexer.Select(x => x.GetStyleBackColor(style)).Where(x => x != null).FirstOr(null);
-        }
         
-        public IEnumerable<int> GetStyles()
+        public IEnumerable<Style> GetStyles()
         {
             var substyles = lexer.SelectMany(x => x.GetStyles());
-            var ownstyles = Enumerable.Range(firstState, lastStyle - firstState + 1);
-            return ownstyles.Concat(substyles);
+            return styles.Concat(substyles);
         }
 
         public virtual Type StateType => null;
 
-        public ILexer FindLexer(int state)
+        public ILexer FindLexer(int style)
         {
-            return IsLexerState(state) ? this
-                : lexer.Select(x => x.FindLexer(state)).FirstOrDefault(x => x != null);
+            return IsLexerStyle(style) ? this
+                : lexer.Select(x => x.FindLexer(style)).FirstOrDefault(x => x != null);
         }
-
-        public bool IsLexerState(int state) => firstState <= state && state <= lastState;
-
-        public bool IsLexerStyle(int style) => firstState <= style && style <= lastStyle;
+        
+        public bool IsLexerStyle(int style) => firstStyle <= style && style <= lastStyle;
 
         public virtual bool IsLexerFor(string type) => lexerType != null ? lexerType == type : true;
 
-        public int MaxState()
+        public int MaxStyle()
         {
-            var max = lexer.Length == 0 ? 0 : lexer.Select(x => x.MaxState()).Max();
-            return Math.Max(lastState, max);
+            var max = lexer.Length == 0 ? 0 : lexer.Select(x => x.MaxStyle()).Max();
+            return Math.Max(lastStyle, max);
         }
+        #endregion
 
         #region HELPER FUNCTION
         protected int FindLastStyleOf(CodeEditor editor, int style, int from, int length)
@@ -326,16 +322,30 @@ namespace App.Lexer
             return editor.GetStyleAt(from) == style ? from : -1;
         }
         #endregion
+
+        #region STATE
+        protected enum BaseState
+        {
+            String = 16,
+            Number,
+            Operator,
+            Braces,
+            Punctuation,
+            LineComment,
+            BlockComment,
+            Name,
+        }
+        #endregion
     }
 
     public class FxLexer : BaseLexer
     {
-        public FxLexer() : base(0, LoadXml()) { }
+        public FxLexer() : base(ScintillaNET.Style.CallTip + 1, LoadXml()) { }
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
             // go back to the first valid style
-            while (pos > 0 && editor.GetStyleAt(pos) == 0)
+            while (pos > 0 && editor.GetStyleAt(pos) <= lastStyle)
                 pos--;
             editor.StartStyling(pos);
 
@@ -344,7 +354,7 @@ namespace App.Lexer
                 // get style at the current position
                 var style = editor.GetStyleAt(pos);
                 // select the lexer that can continue lexing from the current position
-                var lex = FindLexer(style);
+                var lex = style <= lastStyle ? lexer.FirstOrDefault() : FindLexer(style);
                 // start lexing until the lexer reaches an end state,
                 // then try to use another lexer
                 pos = lex.Style(editor, pos, endPos);
@@ -352,6 +362,8 @@ namespace App.Lexer
 
             return pos;
         }
+
+        public override Type StateType => typeof(BaseState);
 
         private static XmlNode LoadXml()
         {
@@ -371,106 +383,106 @@ namespace App.Lexer
         {
             // We cannot continue within a code block.
             // Go back to brace opening of the code block.
-            if ((State)editor.GetStyleAt(pos) == State.BlockCode)
-                pos = FindLastStyleOf(editor, (int)State.Brace, pos, pos);
+            if (editor.GetStyleAt(pos) == (int)State.BlockCode + firstStyle)
+                pos = FindLastStyleOf(editor, (int)BaseState.Braces, pos, pos);
             editor.StartStyling(pos);
 
             // instantiate region class
             var c = new Region(editor);
 
             // continue processing from the last state
-            for (var state = (State)editor.GetStyleAt(pos); pos < endPos; pos++)
+            for (var state = editor.GetStyleAt(pos); pos < endPos; pos++)
             {
                 state = ProcessState(editor, state, c.Set(pos));
-                editor.SetStyling(1, firstState + (int)state);
+                editor.SetStyling(1, StateToStyle(state));
             }
 
             return pos;
         }
 
         #region PROCESS STATE
-        private State ProcessState(CodeEditor editor, State state, Region c)
+        private int ProcessState(CodeEditor editor, int state, Region c)
         {
             switch (state)
             {
-                case State.LineComment:
+                case (int)BaseState.LineComment:
                     return ProcessLineCommentState(editor, c);
-                case State.BlockComment:
+                case (int)BaseState.BlockComment:
                     return ProcessBlockCommentState(editor, c);
-                case State.Type:
+                case (int)State.Type:
                     return ProcessTypeState(editor, c);
-                case State.Name:
+                case (int)BaseState.Name:
                     return ProcessNameState(editor, c);
-                case State.Anno:
+                case (int)State.Anno:
                     return ProcessAnnoState(editor, c);
-                case State.Brace:
+                case (int)BaseState.Braces:
                     return ProcessBraceState(editor, c);
-                case State.BlockCode:
+                case (int)State.BlockCode:
                     return ProcessBlockCodeState(editor, c);
                 default:
                     return ProcessDefaultState(editor, c);
             }
         }
 
-        private State ProcessDefaultState(CodeEditor editor, Region c)
+        private int ProcessDefaultState(CodeEditor editor, Region c)
         {
             if (c.c == '/')
             {
                 if (c.r == '/')
-                    return State.LineComment;
+                    return (int)BaseState.LineComment;
                 else if (c.r == '*')
-                    return State.BlockComment;
+                    return (int)BaseState.BlockComment;
             }
             else if (char.IsLetter(c.c))
-                return State.Type;
-            return State.Default;
+                return (int)State.Type;
+            return (int)State.Default;
         }
 
-        private State ProcessLineCommentState(CodeEditor editor, Region c)
-            => c.c == '\n' ? State.Default : State.LineComment;
+        private int ProcessLineCommentState(CodeEditor editor, Region c)
+            => c.c == '\n' ? (int)State.Default : (int)BaseState.LineComment;
 
-        private State ProcessBlockCommentState(CodeEditor editor, Region c)
-            => c.ll == '*' && c.l == '/' ? ProcessDefaultState(editor, c) : State.BlockComment;
+        private int ProcessBlockCommentState(CodeEditor editor, Region c)
+            => c.ll == '*' && c.l == '/' ? ProcessDefaultState(editor, c) : (int)BaseState.BlockComment;
 
-        private State ProcessTypeState(CodeEditor editor, Region c)
+        private int ProcessTypeState(CodeEditor editor, Region c)
         {
             if (char.IsWhiteSpace(c.l) && char.IsLetter(c.c))
-                return State.Name;
+                return (int)BaseState.Name;
             else if (c.c == '{')
-                return State.Brace;
-            return State.Type;
+                return (int)BaseState.Braces;
+            return (int)State.Type;
         }
         
-        private State ProcessNameState(CodeEditor editor, Region c)
+        private int ProcessNameState(CodeEditor editor, Region c)
         {
             if (char.IsWhiteSpace(c.l) && char.IsLetter(c.c))
-                return State.Anno;
+                return (int)State.Anno;
             else if (c.c == '{')
             {
                 braceCount = 1;
-                return State.Brace;
+                return (int)BaseState.Braces;
             }
-            return State.Name;
+            return (int)BaseState.Name;
         }
         
-        private State ProcessAnnoState(CodeEditor editor, Region c)
+        private int ProcessAnnoState(CodeEditor editor, Region c)
         {
             if (c.c == '{')
             {
                 braceCount = 1;
-                return State.Brace;
+                return (int)BaseState.Braces;
             }
-            return State.Anno;
+            return (int)State.Anno;
         }
         
-        private State ProcessBraceState(CodeEditor editor, Region c)
+        private int ProcessBraceState(CodeEditor editor, Region c)
         {
             if (braceCount == 0 && c.l == '}')
                 return ProcessDefaultState(editor, c);
             return ProcessBlockCodeState(editor, c);
         }
 
-        private State ProcessBlockCodeState(CodeEditor editor, Region c)
+        private int ProcessBlockCodeState(CodeEditor editor, Region c)
         {
             switch (c.c)
             {
@@ -482,7 +494,7 @@ namespace App.Lexer
                         break;
                     // RE-LEX ALL BLOCKCODE PARTS
                     // get code region of the block
-                    var start = FindLastStyleOf(editor, firstState + (int)State.Brace, c.pos, c.pos);
+                    var start = FindLastStyleOf(editor, (int)BaseState.Braces, c.pos, c.pos);
                     // get header string from block position
                     var header = FindLastHeaderFromPosition(editor, start);
                     // find lexer that can lex this code block
@@ -491,38 +503,28 @@ namespace App.Lexer
                     lex?.Style(editor, start + 1, c.pos);
                     // continue styling from the last position
                     editor.StartStyling(c.pos);
-                    return State.Brace;
+                    return (int)BaseState.Braces;
             }
-            return State.BlockCode;
+            return (int)State.BlockCode;
         }
         #endregion
 
         #region HELPER FUNCTION
         private string[] FindLastHeaderFromPosition(CodeEditor editor, int pos)
         {
-            int bracePos = FindLastStyleOf(editor, firstState + (int)State.Brace, pos, pos);
-            int typePos = FindLastStyleOf(editor, firstState + (int)State.Type, bracePos, bracePos);
-            int annoPos = FindLastStyleOf(editor, firstState + (int)State.Anno, bracePos, bracePos - typePos);
+            int bracePos = FindLastStyleOf(editor, (int)BaseState.Braces, pos, pos);
+            int typePos = FindLastStyleOf(editor, (int)State.Type + firstStyle, bracePos, bracePos);
+            int annoPos = FindLastStyleOf(editor, (int)State.Anno + firstStyle, bracePos, bracePos - typePos);
 
             return new string[] {
                 typePos >= 0 ? editor.GetWordFromPosition(typePos) : null,
                 annoPos >= 0 ? editor.GetWordFromPosition(annoPos) : null,
             };
         }
-        
-        private enum State : int
-        {
-            Default,
-            Type,
-            Name,
-            Anno,
-            Brace,
-            LineComment,
-            BlockComment,
-            ENDSTYLE,
-            BlockCode,
-            ENDSTATE,
-        }
+        #endregion
+
+        #region STATE
+        private enum State : int { Default, Type, Anno, BlockCode }
 
         public override Type StateType => typeof(State);
         #endregion
@@ -540,66 +542,66 @@ namespace App.Lexer
             var c = new Region(editor);
 
             // continue processing from the last state
-            for (var state = State.Default; pos < endPos; pos++)
+            for (var state = (int)State.Default; pos < endPos; pos++)
             {
                 state = ProcessState(editor, state, c.Set(pos));
-                editor.SetStyling(1, firstState + (int)state);
+                editor.SetStyling(1, StateToStyle(state));
             }
             return pos;
         }
 
         #region PROCESS STATE
-        private State ProcessState(CodeEditor editor, State state, Region c)
+        private int ProcessState(CodeEditor editor, int state, Region c)
         {
             switch (state)
             {
-                case State.Command:
+                case (int)State.Command:
                     return ProcessCommandState(editor, c);
-                case State.LineComment:
+                case (int)BaseState.LineComment:
                     return ProcessLineCommentState(editor, c);
-                case State.BlockComment:
+                case (int)BaseState.BlockComment:
                     return ProcessBlockCommentState(editor, c);
-                case State.CommandCode:
+                case (int)State.CommandCode:
                     return ProcessCommandCodeState(editor, c);
                 default:
                     return ProcessDefaultState(editor, c);
             }
         }
 
-        private State ProcessDefaultState(CodeEditor editor, Region c)
+        private int ProcessDefaultState(CodeEditor editor, Region c)
         {
             if (c.c == '/')
             {
                 if (c.r == '/')
-                    return State.LineComment;
+                    return (int)BaseState.LineComment;
                 else if (c.r == '*')
-                    return State.BlockComment;
+                    return (int)BaseState.BlockComment;
             }
             else if (char.IsLetter(c.c))
-                return State.Command;
-            return State.Default;
+                return (int)State.Command;
+            return (int)State.Default;
         }
 
-        private State ProcessLineCommentState(CodeEditor editor, Region c)
-            => c.c == '\n' ? State.Default : State.LineComment;
+        private int ProcessLineCommentState(CodeEditor editor, Region c)
+            => c.c == '\n' ? (int)State.Default : (int)BaseState.LineComment;
 
-        private State ProcessBlockCommentState(CodeEditor editor, Region c)
-            => c.ll == '*' && c.l == '/' ? ProcessDefaultState(editor, c) : State.BlockComment;
+        private int ProcessBlockCommentState(CodeEditor editor, Region c)
+            => c.ll == '*' && c.l == '/' ? ProcessDefaultState(editor, c) : (int)BaseState.BlockComment;
 
-        private State ProcessCommandState(CodeEditor editor, Region c)
+        private int ProcessCommandState(CodeEditor editor, Region c)
         {
             if (char.IsWhiteSpace(c.c))
-                return State.CommandCode;
-            return State.Command;
+                return (int)State.CommandCode;
+            return (int)State.Command;
         }
 
-        private State ProcessCommandCodeState(CodeEditor editor, Region c)
+        private int ProcessCommandCodeState(CodeEditor editor, Region c)
         {
             if (c.c == '\n' && c.l != '.' && c.ll != '.')
             {
                 // RE-LEX ALL COMMANDCODE PARTS
                 // get code region of the block
-                var start = FindLastStyleOf(editor, firstState + (int)State.Command, c.pos, c.pos);
+                var start = FindLastStyleOf(editor, firstStyle + (int)State.Command, c.pos, c.pos);
                 // get header string from block position
                 var cmd = FindLastCommandFromPosition(editor, start);
                 // find lexer that can lex this code block
@@ -608,29 +610,22 @@ namespace App.Lexer
                 lex?.Style(editor, start + 1, c.pos);
                 // continue styling from the last position
                 editor.StartStyling(c.pos);
-                return State.Default;
+                return (int)State.Default;
             }
-            return State.CommandCode;
+            return (int)State.CommandCode;
         }
         #endregion
 
         #region HELPER FUNCTION
         private string FindLastCommandFromPosition(CodeEditor editor, int pos)
         {
-            int cmdPos = FindLastStyleOf(editor, firstState + (int)State.Command, pos, pos);
+            int cmdPos = FindLastStyleOf(editor, (int)State.Command + firstStyle, pos, pos);
             return cmdPos >= 0 ? editor.GetWordFromPosition(cmdPos) : null;
         }
+        #endregion
 
-        private enum State : int
-        {
-            Default,
-            Command,
-            LineComment,
-            BlockComment,
-            ENDSTYLE,
-            CommandCode,
-            ENDSTATE,
-        }
+        #region STATE
+        private enum State : int { Default, Command, CommandCode }
 
         public override Type StateType => typeof(State);
         #endregion
@@ -650,77 +645,82 @@ namespace App.Lexer
             var c = new Region(editor);
 
             // continue processing from the last state
-            for (var state = State.Default; pos < endPos; pos++)
+            for (var state = (int)State.Default; pos < endPos; pos++)
             {
                 state = ProcessState(editor, state, c.Set(pos));
-                editor.SetStyling(1, firstState + (int)state);
+                editor.SetStyling(1, StateToStyle(state));
             }
             return pos;
         }
 
         #region PROCESS STATE
-        private State ProcessState(CodeEditor editor, State state, Region c)
+        private int ProcessState(CodeEditor editor, int state, Region c)
         {
             switch (state)
             {
-                case State.Argument:
+                case (int)State.Argument:
                     return ProcessArgumentState(editor, c);
-                case State.Number:
+                case (int)BaseState.Number:
                     return ProcessNumberState(editor, c);
-                case State.String:
+                case (int)BaseState.String:
                     return ProcessStringState(editor, c);
                 default:
                     return ProcessDefaultState(editor, c);
             }
         }
 
-        private State ProcessDefaultState(CodeEditor editor, Region c)
+        private int ProcessDefaultState(CodeEditor editor, Region c)
         {
             if (c.c == '"')
             {
                 stringStartPos = c.pos;
-                return State.String;
+                return (int)BaseState.String;
             }
             else if(char.IsNumber(c.c) || (c.c == '.' && char.IsNumber(c.r)))
-                return State.Number;
+                return (int)BaseState.Number;
             else if (char.IsLetter(c.c))
-                return State.Argument;
-            return State.Default;
+                return (int)State.Argument;
+            return (int)State.Default;
         }
 
-        private State ProcessArgumentState(CodeEditor editor, Region c)
+        private int ProcessArgumentState(CodeEditor editor, Region c)
         {
-            return char.IsWhiteSpace(c.c) ? State.Default : State.Argument;
+            if (char.IsWhiteSpace(c.c))
+            {
+                int start = editor.WordStartPosition(c.pos - 1, true);
+                var word = editor.Text.Subrange(start, c.pos);
+                if (!keywords[(int)State.Argument]?.HasAny(word) ?? false)
+                {
+                    var p = editor.GetEndStyled();
+                    editor.StartStyling(start);
+                    editor.SetStyling(c.pos - start, (int)State.Default);
+                    editor.StartStyling(p);
+                }
+                return (int)State.Default;
+            }
+            return (int)State.Argument;
         }
 
-        private State ProcessNumberState(CodeEditor editor, Region c)
+        private int ProcessNumberState(CodeEditor editor, Region c)
         {
             return char.IsNumber(c.c)
                 || c.c == '.' || c.c == 'x'
                 || ('a' <= c.c && c.c <= 'f')
                 || ('A' <= c.c && c.c <= 'F')
-                ? State.Number
-                : State.Default;
+                ? (int)BaseState.Number
+                : (int)State.Default;
         }
 
-        private State ProcessStringState(CodeEditor editor, Region c)
+        private int ProcessStringState(CodeEditor editor, Region c)
         {
             return c.pos - 1 != stringStartPos && c.l == '"'
                 ? ProcessDefaultState(editor, c)
-                : State.String;
+                : (int)BaseState.String;
         }
         #endregion
 
-        #region HELPER FUNCTION
-        private enum State : int
-        {
-            Default,
-            Argument,
-            Number,
-            String,
-            ENDSTYLE,
-            ENDSTATE,
-        }
+        #region STATE
+        private enum State : int { Default, Argument }
 
         public override Type StateType => typeof(State);
         #endregion
@@ -746,80 +746,7 @@ namespace App.Lexer
         public override Type StateType => typeof(State);
         #endregion
     }
-
-    class DefaultLexer : BaseLexer
-    {
-        public DefaultLexer(int nextStyle, XmlNode xml) : base(nextStyle, xml) { }
-
-        public override int Style(CodeEditor editor, int pos, int endPos)
-        {
-            editor.StartStyling(pos);
-
-            // instantiate region class
-            var c = new Region(editor);
-
-            // continue processing from the last state
-            for (var state = State.Default; pos < endPos; pos++)
-            {
-                state = ProcessState(editor, state, c.Set(pos));
-                editor.SetStyling(1, firstState + (int)state);
-            }
-            return pos;
-        }
-
-        #region PROCESS STATE
-        private State ProcessState(CodeEditor editor, State state, Region c)
-        {
-            switch (state)
-            {
-                case State.Number:
-                    return ProcessNumberState(editor, c);
-                case State.String:
-                    return ProcessStringState(editor, c);
-                default:
-                    return ProcessDefaultState(editor, c);
-            }
-        }
-
-        private State ProcessDefaultState(CodeEditor editor, Region c)
-        {
-            if (c.c == '"')
-                return State.String;
-            else if (char.IsNumber(c.c) || (c.c == '.' && char.IsNumber(c.r)))
-                return State.Number;
-            return State.Default;
-        }
-
-        private State ProcessNumberState(CodeEditor editor, Region c)
-        {
-            return char.IsNumber(c.c)
-                || c.c == '.' || c.c == 'x'
-                || ('a' <= c.c && c.c <= 'f')
-                || ('A' <= c.c && c.c <= 'F')
-                ? State.Number
-                : State.Default;
-        }
-
-        private State ProcessStringState(CodeEditor editor, Region c)
-        {
-            return c.l == '"' ? State.Default : State.String;
-        }
-        #endregion
-
-        #region HELPER FUNCTION
-        private enum State : int
-        {
-            Default,
-            Number,
-            String,
-            ENDSTYLE,
-            ENDSTATE,
-        }
-
-        public override Type StateType => typeof(State);
-        #endregion
-    }
-
+    
     public class Region
     {
         private CodeEditor editor;
