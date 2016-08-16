@@ -27,7 +27,7 @@ namespace UnitTests
         [TestMethod]
         public void TestMaxLexerStyles()
         {
-            Assert.AreEqual(lexer.MaxStyle(), Math.Min(lexer.MaxStyle(), 128));
+            Assert.AreEqual(Math.Min(lexer.MaxStyle, 128), lexer.MaxStyle);
         }
 
         [TestMethod]
@@ -124,23 +124,5 @@ namespace UnitTests
             var hint = lexer.GetKeywordHint(style, word);
             Assert.IsNotNull(hint);
         }
-
-        /*[TestMethod]
-        public void TestMethodFindBufferStyle()
-        {
-            var word = "buffer";
-            var pos = code.IndexOf(word);
-            var style = lexer.GetKeywordStyle(code, pos, word);
-            Assert.AreEqual(1, style);
-        }*/
-
-        /*[TestMethod]
-        public void TestMethodFindShaderAnnotations()
-        {
-            var word = "";
-            var pos = code.IndexOf("vert vs_simple");
-            var keywords = lexer.GetPotentialKeywords(code, pos, word);
-            Assert.AreEqual(6, keywords.Count());
-        }*/
     }
 }

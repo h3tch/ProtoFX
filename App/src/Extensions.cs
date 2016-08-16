@@ -388,6 +388,9 @@ namespace App
             foreach (var e in ie)
                 func(e);
         }
+
+        public static T MaxOr<T>(this IEnumerable<T> ie, T defaultValue)
+            => ie.Count() > 0 ? ie.Max() : defaultValue;
     }
 
     public static class StringExtensions
