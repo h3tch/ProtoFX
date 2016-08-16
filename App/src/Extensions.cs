@@ -297,8 +297,7 @@ namespace App
         /// <returns></returns>
         public static T FirstOr<T>(this IEnumerable<T> ie, T defaultValue)
         {
-            T rs = ie.FirstOrDefault();
-            return rs.IsDefault() ? defaultValue : rs;
+            return ie.Count() > 0 ? ie.First() : defaultValue;
         }
 
         /// <summary>

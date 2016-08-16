@@ -80,21 +80,28 @@ namespace App.Lexer
         protected Trie<Keyword>[] keywords;
         protected int firstStyle;
         protected int lastStyle;
+        protected BaseLexer defaultLexer;
 
-        public BaseLexer(int firstFreeStyle, XmlNode lexerNode)
+        public BaseLexer(int firstFreeStyle, XmlNode lexerNode, BaseLexer defaultLexer)
         {
+            if (defaultLexer == null)
+            {
+                var node = lexerNode.SelectSingleNode("DefaultLexer");
+                if (node != null)
+                    defaultLexer = new DefaultLexer(firstFreeStyle, node, null);
+            }
+            this.defaultLexer = defaultLexer;
+
             // get style and state ranges
-            int firstState = ((int[])Enum.GetValues(StateType)).Min();
-            int styleCount = Enum.GetNames(StateType).Length;
+            var stateValues = Enum.GetValues(StateType);
+            int styleCount = stateValues.Length;
+            int firstState = styleCount > 0 ? ((int[])stateValues).Min() : 0;
 
             // adjust style ranges if they fall into the Scintilla styles
             firstStyle = firstFreeStyle;
             if (SciStyle.Default <= firstStyle + styleCount && firstStyle <= SciStyle.CallTip)
                 firstStyle = SciStyle.CallTip + 1;
             lastStyle = firstStyle + styleCount - 1;
-
-            // update first free style variable
-            firstFreeStyle = lastStyle + 1;
 
             // allocate arrays for styles
             styles = Enumerable.Range(firstStyle, styleCount)
@@ -137,7 +144,7 @@ namespace App.Lexer
             for (int i = 0; i < lexerList.Count; i++)
             {
                 var type = lexerList[i].GetAttributeValue("lexer");
-                var param = new object[] { firstFreeStyle, lexerList[i] };
+                var param = new object[] { lastStyle + 1, lexerList[i], this.defaultLexer };
                 var t = Type.GetType($"App.Lexer.{type}");
                 lexer[i] = (BaseLexer)Activator.CreateInstance(t, param);
                 firstFreeStyle = lexer[i].MaxStyle + 1;
@@ -239,10 +246,10 @@ namespace App.Lexer
 
         public int StateToStyle(int state)
         {
-            if (state < (int)BaseState.String)
+            if (state < (int)BaseState.Default)
                 return state + firstStyle;
             else
-                return state - (int)BaseState.String;
+                return state - (int)BaseState.Default;
         }
         
         public string GetKeywordHint(int style, string word)
@@ -297,7 +304,8 @@ namespace App.Lexer
         #region STATE
         protected enum BaseState
         {
-            String = 16,
+            Default = 16,
+            String,
             Number,
             Operator,
             Braces,
@@ -308,7 +316,7 @@ namespace App.Lexer
         }
         protected enum BaseStyle
         {
-            Braces = BaseState.Braces - BaseState.String,
+            Braces = BaseState.Braces - BaseState.Default,
         }
         private enum FoldState : int
         {
@@ -322,7 +330,7 @@ namespace App.Lexer
 
     public class FxLexer : BaseLexer
     {
-        public FxLexer() : base(0, LoadFxLexerFromXml()) { }
+        public FxLexer() : base(0, LoadFxLexerFromXml(), null) { }
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
@@ -359,7 +367,8 @@ namespace App.Lexer
     {
         private int braceCount;
 
-        public TechLexer(int nextStyle, XmlNode xml) : base(nextStyle, xml) { }
+        public TechLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
+            : base(nextStyle, xml, defaultLexer) { }
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
@@ -514,7 +523,8 @@ namespace App.Lexer
 
     class BlockLexer : BaseLexer
     {
-        public BlockLexer(int nextStyle, XmlNode xml) : base(nextStyle, xml) { }
+        public BlockLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
+            : base(nextStyle, xml, defaultLexer) { }
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
@@ -587,9 +597,9 @@ namespace App.Lexer
                 // get header string from block position
                 var cmd = FindLastCommandFromPosition(editor, start);
                 // find lexer that can lex this code block
-                var lex = lexer?.Where(x => x.IsLexerFor(cmd)).FirstOrDefault();
+                var lex = lexer.Where(x => x.IsLexerFor(cmd)).FirstOr(defaultLexer);
                 // re-lex code block
-                lex?.Style(editor, start + 1, c.pos);
+                lex.Style(editor, start + 1, c.pos);
                 // continue styling from the last position
                 editor.StartStyling(c.pos);
                 return (int)State.Default;
@@ -617,7 +627,8 @@ namespace App.Lexer
     {
         private int stringStartPos;
 
-        public CommandLexer(int nextStyle, XmlNode xml) : base(nextStyle, xml) { }
+        public CommandLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
+            : base(nextStyle, xml, defaultLexer) { }
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
@@ -712,7 +723,8 @@ namespace App.Lexer
     {
         private int stringStartPos;
 
-        public DefaultLexer(int nextStyle, XmlNode xml) : base(nextStyle, xml) { }
+        public DefaultLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
+            : base(nextStyle, xml, defaultLexer) { }
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
@@ -722,7 +734,7 @@ namespace App.Lexer
             var c = new Region(editor);
 
             // continue processing from the last state
-            for (var state = (int)State.Default; pos < endPos; pos++)
+            for (var state = (int)BaseState.Default; pos < endPos; pos++)
             {
                 state = ProcessState(editor, state, c.Set(pos));
                 editor.SetStyling(1, StateToStyle(state));
@@ -753,7 +765,7 @@ namespace App.Lexer
             }
             else if (char.IsNumber(c.c) || (c.c == '.' && char.IsNumber(c.r)))
                 return (int)BaseState.Number;
-            return (int)State.Default;
+            return (int)BaseState.Default;
         }
         
         private int ProcessNumberState(CodeEditor editor, Region c)
@@ -763,7 +775,7 @@ namespace App.Lexer
                 || ('a' <= c.c && c.c <= 'f')
                 || ('A' <= c.c && c.c <= 'F')
                 ? (int)BaseState.Number
-                : (int)State.Default;
+                : (int)BaseState.Default;
         }
 
         private int ProcessStringState(CodeEditor editor, Region c)
@@ -775,7 +787,7 @@ namespace App.Lexer
         #endregion
 
         #region STATE
-        private enum State : int { Default }
+        private enum State : int { }
 
         public override Type StateType => typeof(State);
         #endregion
@@ -783,7 +795,8 @@ namespace App.Lexer
 
     class GlslLexer : BaseLexer
     {
-        public GlslLexer(int nextStyle, XmlNode xml) : base(nextStyle, xml) { }
+        public GlslLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
+            : base(nextStyle, xml, defaultLexer) { }
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {

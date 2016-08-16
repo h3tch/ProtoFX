@@ -204,15 +204,13 @@ namespace App
                 // first word is the block type
                 if (matches.Count > 0)
                     Type = matches[0].Value;
+                // second word is the block name
+                if (matches.Count > 1)
+                    Name = matches[1].Value;
                 // if there are more than 2 words
                 // an annotation was provided
                 if (matches.Count > 2)
-                {
-                    Anno = matches[1].Value;
-                    Name = matches[2].Value;
-                }
-                else if (matches.Count > 1)
-                    Name = matches[1].Value;
+                    Anno = matches[2].Value;
 
                 // process command body of the block
                 Cmds = ProcessCommands().ToArray();
