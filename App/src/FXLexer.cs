@@ -800,15 +800,102 @@ namespace App.Lexer
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
-            return endPos;
+            editor.StartStyling(pos);
+
+            // instantiate region class
+            var c = new Region(editor);
+
+            // continue processing from the last state
+            for (var state = (int)State.Default; pos < endPos; pos++)
+            {
+                state = ProcessState(editor, state, c.Set(pos));
+                editor.SetStyling(1, StateToStyle(state));
+            }
+            return pos;
         }
 
-        #region HELPER FUNCTION
+        #region METHODS
+        private int ProcessState(CodeEditor editor, int state, Region c)
+        {
+            switch (state)
+            {
+                case (int)BaseState.LineComment:
+                    return ProcessLineCommentState(editor, c);
+                case (int)BaseState.BlockComment:
+                    return ProcessBlockCommentState(editor, c);
+
+                case (int)State.Preprocessor:
+                    return ProcessPreprocessorState(editor, c);
+                case (int)State.PreprocessorCode:
+                    return ProcessPreprocessorCodeState(editor, c);
+
+                default:
+                    return ProcessDefaultState(editor, c);
+            }
+        }
+
+        private int ProcessDefaultState(CodeEditor editor, Region c)
+        {
+            if (c.c == '#')
+                return (int)State.Preprocessor;
+
+            else if (c.c == '/')
+            {
+                if (c.r == '/')
+                    return (int)BaseState.LineComment;
+                else if (c.r == '*')
+                    return (int)BaseState.BlockComment;
+            }
+
+            //else if (char.IsLetter(c.c))
+            //    return (int)State.Keyword;
+
+            return (int)State.Default;
+        }
+
+        private int ProcessLineCommentState(CodeEditor editor, Region c)
+            => c.c == '\n' ? (int)State.Default : (int)BaseState.LineComment;
+
+        private int ProcessBlockCommentState(CodeEditor editor, Region c)
+            => c.ll == '*' && c.l == '/' ? ProcessDefaultState(editor, c) : (int)BaseState.BlockComment;
+
+        private int ProcessPreprocessorState(CodeEditor editor, Region c)
+        {
+            if (c.c == '\n')
+                return (int)State.Default;
+            else if (char.IsWhiteSpace(c.c))
+                return (int)State.PreprocessorCode;
+            return (int)State.Preprocessor;
+        }
+
+        private int ProcessPreprocessorCodeState(CodeEditor editor, Region c)
+        {
+            if (c.c == '\n')
+            {
+                // RE-LEX ALL PREPROCESSORCODE PARTS
+                // get code region of the block
+                var start = FindLastStyleOf(editor, firstStyle + (int)State.Preprocessor, c.pos, c.pos);
+                // re-lex code block
+                defaultLexer.Style(editor, start + 1, c.pos);
+                // continue styling from the last position
+                editor.StartStyling(c.pos);
+                return (int)State.Default;
+            }
+            return (int)State.PreprocessorCode;
+        }
+        #endregion
+
+        #region STATE
         private enum State : int
         {
             Default,
-            ENDSTYLE,
-            ENDSTATE,
+            Keyword,
+            DataType,
+            Preprocessor,
+            PreprocessorCode,
+            BlockCode,
+            FunctionCode,
+            LayoutCode,
         }
 
         public override Type StateType => typeof(State);

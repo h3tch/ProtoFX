@@ -2,16 +2,16 @@
 <FxLexer>
   <Style name='string' fore='#D77763' back='#FFFFFF'/>
   <Style name='operator' fore='#4C6A7E' back='#FFFFFF'/>
-  <Style name='braces' fore='#808080' back='#FFFFFF'/>
+  <Style name='braces' fore='#AAAAAA' back='#FFFFFF'/>
   <Style name='punctuation' fore='#808080' back='#FFFFFF'/>
-  <Style name='number' fore='#27C70C' back='#FFFFFF'/>
-  <Style name='LineComment' fore='#57A64A' back='#FFFFFF'/>
-  <Style name='BlockComment' fore='#57A64A' back='#FFFFFF'/>
+  <Style name='number' fore='#328645' back='#FFFFFF'/>
+  <Style name='LineComment' fore='#82A847' back='#FFFFFF'/>
+  <Style name='BlockComment' fore='#82A847' back='#FFFFFF'/>
   <Style name='name' fore='#000000' back='#FFFFFF'/>
   <!-- TECH -->
   <Lexer type='tech' lexer='TechLexer'>
-    <Style name='type' fore='#3777BB' back='#FFFFFF'/>
-    <Style name='anno' fore='#8BC5F0' back='#FFFFFF'/>
+    <Style name='type' fore='#3E71FF' back='#FFFFFF'/>
+    <Style name='anno' fore='#2FABA7' back='#FFFFFF'/>
     <Keyword style_name='type' name='buffer' hint='buffer [name]'/>
     <Keyword style_name='type' name='csharp' hint='csharp [name]'/>
     <Keyword style_name='type' name='fragoutput' hint='fragoutput [name]'/>
@@ -27,14 +27,14 @@
     <Keyword style_name='type' name='vertoutput' hint='vertoutput [name]'/>
     <!-- BUFFER -->
     <Lexer type='buffer' lexer='BlockLexer'>
-      <Style name='command' fore='#8676CC' back='#FFFFFF'/>
+      <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='size' hint='size [bytes]'/>
       <Keyword style_name='command' name='txt' hint='txt [text_name]'/>
       <Keyword style_name='command' name='usage' hint='usage [hint]'/>
       <Keyword style_name='command' name='xml' hint='xml [path]'/>
       <!-- buffer - USAGE -->
       <Lexer type='usage' lexer='CommandLexer'>
-        <Style name='argument' fore='#8BC5F0' back='#FFFFFF'/>
+        <Style name='argument' fore='#8676CC' back='#FFFFFF'/>
         <Keyword style_name='argument' name='dynamicCopy'/>
         <Keyword style_name='argument' name='dynamicDraw'/>
         <Keyword style_name='argument' name='dynamicRead'/>
@@ -48,13 +48,13 @@
     </Lexer>
     <!-- CSHARP -->
     <Lexer type='csharp' lexer='BlockLexer'>
-      <Style name='command' fore='#8676CC' back='#FFFFFF'/>
+      <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='assembly' hint='assembly [path] {path} {...}'/>
       <Keyword style_name='command' name='file' hint='file [path] {path} {...}'/>
     </Lexer>
     <!-- FRAGOUTPUT -->
     <Lexer type='fragoutput' lexer='BlockLexer'>
-      <Style name='command' fore='#8676CC' back='#FFFFFF'/>
+      <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='color' hint='color [image_name]'/>
       <Keyword style_name='command' name='depth' hint='depth [image_name]'/>
       <Keyword style_name='command' name='height' hint='height [pixels]'/>
@@ -62,14 +62,14 @@
     </Lexer>
     <!-- IMAGE -->
     <Lexer type='image' lexer='BlockLexer'>
-      <Style name='command' fore='#8676CC' back='#FFFFFF'/>
+      <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='format' hint='format [pixel_format]'/>
       <Keyword style_name='command' name='size' hint='size [width] [height] [depth] [length]'/>
       <Keyword style_name='command' name='file' hint='file [path] {path} {...}'/>
       <Keyword style_name='command' name='type' hint='type [texture_type]'/>
       <!-- image - FORMAT -->
       <Lexer type='format' lexer='CommandLexer'>
-        <Style name='argument' fore='#8BC5F0' back='#FFFFFF'/>
+        <Style name='argument' fore='#8676CC' back='#FFFFFF'/>
         <Keyword style_name='argument' name='depth'/>
         <Keyword style_name='argument' name='depth16'/>
         <Keyword style_name='argument' name='depth24'/>
@@ -121,7 +121,7 @@
       </Lexer>
       <!-- image - TYPE -->
       <Lexer type='type' lexer='CommandLexer'>
-        <Style name='argument' fore='#8BC5F0' back='#FFFFFF'/>
+        <Style name='argument' fore='#8676CC' back='#FFFFFF'/>
         <Keyword style_name='argument' name='texture1D' hint='1D texture'/>
         <Keyword style_name='argument' name='texture2D' hint='2D texture'/>
         <Keyword style_name='argument' name='texture3D' hint='3D texture/volume texture'/>
@@ -131,13 +131,13 @@
     </Lexer>
     <!-- INSTANCE -->
     <Lexer type='instance' lexer='BlockLexer'>
-      <Style name='command' fore='#8676CC' back='#FFFFFF'/>
+      <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='class' hint='class [csharp_name] [c#_class]'/>
       <Keyword style_name='command' name='name' hint='name [new_name]'/>
     </Lexer>
     <!-- PASS -->
     <Lexer type='pass' lexer='BlockLexer'>
-      <Style name='command' fore='#8676CC' back='#FFFFFF'/>
+      <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='break'/>
       <Keyword style_name='command' name='comp' hint='comp [shader_name]'/>
       <Keyword style_name='command' name='vert' hint='vert [shader_name]'/>
@@ -177,7 +177,7 @@ The optional argument [write_mode] can be "gl_SeparateAttribs" (write every
 &gt; img [unit]                                                  -- unbind unit'/>
       <!-- pass - DRAW -->
       <Lexer type='draw' lexer='CommandLexer'>
-        <Style name='argument' fore='#8BC5F0' back='#FFFFFF'/>
+        <Style name='argument' fore='#8676CC' back='#FFFFFF'/>
         <Keyword style_name='argument' name='lineLoop'/>
         <Keyword style_name='argument' name='lineLoop'/>
         <Keyword style_name='argument' name='lines'/>
@@ -197,7 +197,7 @@ The optional argument [write_mode] can be "gl_SeparateAttribs" (write every
       </Lexer>
       <!-- pass - VERTOUT -->
       <Lexer type='vertout' lexer='CommandLexer'>
-        <Style name='argument' fore='#8BC5F0' back='#FFFFFF'/>
+        <Style name='argument' fore='#8676CC' back='#FFFFFF'/>
         <Keyword style_name='argument' name='lines'/>
         <Keyword style_name='argument' name='points'/>
         <Keyword style_name='argument' name='triangles'/>
@@ -205,19 +205,19 @@ The optional argument [write_mode] can be "gl_SeparateAttribs" (write every
     </Lexer>
     <!-- SAMPLER -->
     <Lexer type='sampler' lexer='BlockLexer'>
-      <Style name='command' fore='#8676CC' back='#FFFFFF'/>
+      <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='magfilter' hint='magfilter [filter_type]'/>
       <Keyword style_name='command' name='minfilter' hint='minfilter [filter_type]'/>
       <Keyword style_name='command' name='wrap' hint='wrap [wrap_type]'/>
       <!-- sampler - MAGFILTER -->
       <Lexer type='magfilter' lexer='CommandLexer'>
-        <Style name='argument' fore='#8BC5F0' back='#FFFFFF'/>
+        <Style name='argument' fore='#8676CC' back='#FFFFFF'/>
         <Keyword style_name='argument' name='linear'/>
         <Keyword style_name='argument' name='nearest'/>
       </Lexer>
       <!-- sampler - MINFILTER -->
       <Lexer type='minfilter' lexer='CommandLexer'>
-        <Style name='argument' fore='#8BC5F0' back='#FFFFFF'/>
+        <Style name='argument' fore='#8676CC' back='#FFFFFF'/>
         <Keyword style_name='argument' name='linear'/>
         <Keyword style_name='argument' name='nearest'/>
         <Keyword style_name='argument' name='linearMipmapLinear'/>
@@ -227,7 +227,7 @@ The optional argument [write_mode] can be "gl_SeparateAttribs" (write every
       </Lexer>
       <!-- sampler - WRAP -->
       <Lexer type='wrap' lexer='CommandLexer'>
-        <Style name='argument' fore='#8BC5F0' back='#FFFFFF'/>
+        <Style name='argument' fore='#8676CC' back='#FFFFFF'/>
         <Keyword style_name='argument' name='clampToBorder'/>
         <Keyword style_name='argument' name='clampToEdge'/>
         <Keyword style_name='argument' name='mirroredRepeat'/>
@@ -236,7 +236,7 @@ The optional argument [write_mode] can be "gl_SeparateAttribs" (write every
     </Lexer>
     <!-- TECH -->
     <Lexer type='tech' lexer='BlockLexer'>
-      <Style name='command' fore='#8676CC' back='#FFFFFF'/>
+      <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='pass' hint='Execute this pass every frame.&#xA;  pass [name]'/>
       <Keyword style_name='command' name='init' hint='Execute this pass only once&#xA;before all "normal" passes.&#xA;  init [name]'/>
       <Keyword style_name='command' name='uninit' hint='Execute this pass only once&#xA;before the technique is destroyed.&#xA;  uninit [name]'/>
@@ -245,18 +245,18 @@ The optional argument [write_mode] can be "gl_SeparateAttribs" (write every
     <Lexer type='text' lexer='BlockLexer'/>
     <!-- TEXTURE -->
     <Lexer type='texture' lexer='BlockLexer'>
-      <Style name='command' fore='#8676CC' back='#FFFFFF'/>
+      <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='buff' hint='buff [name]'/>
       <Keyword style_name='command' name='img' hint='img [name]'/>
       <Keyword style_name='command' name='samp' hint='samp [name]'/>
     </Lexer>
     <!-- VERTINPUT -->
     <Lexer type='vertinput' lexer='BlockLexer'>
-      <Style name='command' fore='#8676CC' back='#FFFFFF'/>
+      <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='attr' hint='attr [buff_name] [type] [dim] {stride} {offset} {divisor}'/>
       <!-- vertinput - ATTR -->
       <Lexer type='attr' lexer='CommandLexer'>
-        <Style name='argument' fore='#8BC5F0' back='#FFFFFF'/>
+        <Style name='argument' fore='#8676CC' back='#FFFFFF'/>
         <Keyword style_name='argument' name='byte'/>
         <Keyword style_name='argument' name='double'/>
         <Keyword style_name='argument' name='float'/>
@@ -272,10 +272,16 @@ The optional argument [write_mode] can be "gl_SeparateAttribs" (write every
     </Lexer>
     <!-- VERTOUTPUT -->
     <Lexer type='vertoutput' lexer='BlockLexer'>
-      <Style name='command' fore='#8676CC' back='#FFFFFF'/>
+      <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='buff' hint='buff [name]'/>
       <Keyword style_name='command' name='pause' hint='pause [true|false]'/>
       <Keyword style_name='command' name='resume' hint='resume [true|false]'/>
+    </Lexer>
+    <!-- SHADER -->
+    <Lexer type='shader' lexer='GlslLexer'>
+      <Style name='keyword' fore='#3E71FF' back='#FFFFFF'/>
+      <Style name='datatype' fore='#8676CC' back='#FFFFFF'/>
+      <Style name='preprocessor' fore='#A0A0A0' back='#FFFFFF'/>
     </Lexer>
   </Lexer>
   <!-- DEFAULT COMMAND LEXER-->
