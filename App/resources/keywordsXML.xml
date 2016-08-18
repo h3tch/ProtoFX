@@ -242,7 +242,7 @@ The optional argument [write_mode] can be "gl_SeparateAttribs" (write every
       <Keyword style_name='command' name='uninit' hint='Execute this pass only once&#xA;before the technique is destroyed.&#xA;  uninit [name]'/>
     </Lexer>
     <!-- TEXT -->
-    <Lexer type='text' lexer='BlockLexer'/>
+    <Lexer type='text' lexer='DefaultLexer'/>
     <!-- TEXTURE -->
     <Lexer type='texture' lexer='BlockLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
@@ -282,6 +282,100 @@ The optional argument [write_mode] can be "gl_SeparateAttribs" (write every
       <Style name='keyword' fore='#3E71FF' back='#FFFFFF'/>
       <Style name='datatype' fore='#8676CC' back='#FFFFFF'/>
       <Style name='preprocessor' fore='#A0A0A0' back='#FFFFFF'/>
+      <Keyword style_name='keyword' name='in'/>
+      <Keyword style_name='keyword' name='out'/>
+      <Keyword style_name='keyword' name='const'/>
+      <Keyword style_name='keyword' name='layout'/>
+      <Keyword style_name='keyword' name='uniform'/>
+      <Keyword style_name='keyword' name='struct'/>
+      <Keyword style_name='keyword' name='image1D' hint='1D image binding unit'/>
+      <Keyword style_name='keyword' name='image1DArray' hint='1D image array binding unit'/>
+      <Keyword style_name='keyword' name='image2D' hint='2D image binding unit'/>
+      <Keyword style_name='keyword' name='image2DArray' hint='2D image array binding unit'/>
+      <Keyword style_name='keyword' name='image2DMS' hint='2D multi-sample image binding unit'/>
+      <Keyword style_name='keyword' name='image2DMSArray' hint='2D multi-sample image array binding unit'/>
+      <Keyword style_name='keyword' name='image2DRect' hint='2D rectangular image array binding unit'/>
+      <Keyword style_name='keyword' name='image3D' hint='3D image array binding unit'/>
+      <Keyword style_name='keyword' name='imageBuffer' hint='buffer image binding unit'/>
+      <Keyword style_name='keyword' name='imageCube' hint='cube map image binding unit'/>
+      <Keyword style_name='keyword' name='imageCubeArray' hint='cube map image array binding unit'/>
+      <Keyword style_name='keyword' name='isampler1D' hint='1D texture binding unit for integer textures'/>
+      <Keyword style_name='keyword' name='isampler1DArray' hint='1D texture array binding unit for integer textures'/>
+      <Keyword style_name='keyword' name='isampler2D' hint='2D texture binding unit for integer textures'/>
+      <Keyword style_name='keyword' name='isampler2DArray' hint='2D texture array binding unit for integer textures'/>
+      <Keyword style_name='keyword' name='isampler2DMS' hint='2D multi sample texture binding unit for integer textures'/>
+      <Keyword style_name='keyword' name='isampler2DMSArray' hint='2D multi sample texture array binding unit for integer textures'/>
+      <Keyword style_name='keyword' name='isampler2DRect' hint='2D rectangular texture binding unit for integer textures'/>
+      <Keyword style_name='keyword' name='isampler3D' hint='3D texture binding unit for integer textures'/>
+      <Keyword style_name='keyword' name='isamplerBuffer' hint='buffer texture binding unit for integer textures'/>
+      <Keyword style_name='keyword' name='isamplerCube' hint='cube map texture binding unit for integer textures'/>
+      <Keyword style_name='keyword' name='isamplerCubeArray' hint='cube map texture array binding unit for integer textures'/>
+      <Keyword style_name='keyword' name='sampler1D' hint='1D texture binding unit'/>
+      <Keyword style_name='keyword' name='sampler1DArray' hint='1D texture array binding unit'/>
+      <Keyword style_name='keyword' name='sampler1DArrayShadow' hint='1D shadow texture array binding unit'/>
+      <Keyword style_name='keyword' name='sampler1DShadow' hint='1D shadow texture binding unit'/>
+      <Keyword style_name='keyword' name='sampler2D' hint='2D texture binding unit'/>
+      <Keyword style_name='keyword' name='sampler2DArray' hint='2D texture array binding unit'/>
+      <Keyword style_name='keyword' name='sampler2DArrayShadow' hint='2D shadow texture array binding unit'/>
+      <Keyword style_name='keyword' name='sampler2DMS' hint='2D multi-sample texture binding unit'/>
+      <Keyword style_name='keyword' name='sampler2DMSArray' hint='2D multi-sample texture array binding unit'/>
+      <Keyword style_name='keyword' name='sampler2DRect' hint='2D rectangular texture array binding unit'/>
+      <Keyword style_name='keyword' name='sampler2DRectShadow' hint='2D rectangular shadow texture array binding unit'/>
+      <Keyword style_name='keyword' name='sampler2DShadow' hint='2D shadow texture binding unit'/>
+      <Keyword style_name='keyword' name='sampler3D' hint='3D texture array binding unit'/>
+      <Keyword style_name='keyword' name='samplerBuffer' hint='buffer texture binding unit'/>
+      <Keyword style_name='keyword' name='samplerCube' hint='cube map binding unit'/>
+      <Keyword style_name='keyword' name='samplerCubeArray' hint='cube map array binding unit'/>
+      <Keyword style_name='keyword' name='samplerCubeArrayShadow' hint='shadow cube map array binding unit'/>
+      <Keyword style_name='keyword' name='samplerCubeShadow' hint='shadow cube map binding unit'/>
+      <Keyword style_name='datatype' name='void'/>
+      <Keyword style_name='datatype' name='bool'/>
+      <Keyword style_name='datatype' name='int'/>
+      <Keyword style_name='datatype' name='uint'/>
+      <Keyword style_name='datatype' name='float'/>
+      <Keyword style_name='datatype' name='atomic_uint'/>
+      <Keyword style_name='datatype' name='bvec2'/>
+      <Keyword style_name='datatype' name='bvec3'/>
+      <Keyword style_name='datatype' name='bvec4'/>
+      <Keyword style_name='datatype' name='ivec2'/>
+      <Keyword style_name='datatype' name='ivec3'/>
+      <Keyword style_name='datatype' name='ivec4'/>
+      <Keyword style_name='datatype' name='uvec2'/>
+      <Keyword style_name='datatype' name='uvec3'/>
+      <Keyword style_name='datatype' name='uvec4'/>
+      <Keyword style_name='datatype' name='vec2'/>
+      <Keyword style_name='datatype' name='vec3'/>
+      <Keyword style_name='datatype' name='vec4'/>
+      <Keyword style_name='datatype' name='dvec2'/>
+      <Keyword style_name='datatype' name='dvec3'/>
+      <Keyword style_name='datatype' name='dvec4'/>
+      <Keyword style_name='datatype' name='mat2'/>
+      <Keyword style_name='datatype' name='mat2x2'/>
+      <Keyword style_name='datatype' name='mat2x3'/>
+      <Keyword style_name='datatype' name='mat2x4'/>
+      <Keyword style_name='datatype' name='mat3'/>
+      <Keyword style_name='datatype' name='mat3x2'/>
+      <Keyword style_name='datatype' name='mat3x3'/>
+      <Keyword style_name='datatype' name='mat3x4'/>
+      <Keyword style_name='datatype' name='mat4'/>
+      <Keyword style_name='datatype' name='mat4x2'/>
+      <Keyword style_name='datatype' name='mat4x3'/>
+      <Keyword style_name='datatype' name='mat4x4'/>
+      <Keyword style_name='datatype' name='dmat2'/>
+      <Keyword style_name='datatype' name='dmat2x2'/>
+      <Keyword style_name='datatype' name='dmat2x3'/>
+      <Keyword style_name='datatype' name='dmat2x4'/>
+      <Keyword style_name='datatype' name='dmat3'/>
+      <Keyword style_name='datatype' name='dmat3x2'/>
+      <Keyword style_name='datatype' name='dmat3x3'/>
+      <Keyword style_name='datatype' name='dmat3x4'/>
+      <Keyword style_name='datatype' name='dmat4'/>
+      <Keyword style_name='datatype' name='dmat4x2'/>
+      <Keyword style_name='datatype' name='dmat4x3'/>
+      <Keyword style_name='datatype' name='dmat4x4'/>
+      <Lexer type='layout' lexer='DefaultLexer'/>
+      <Lexer type='struct' lexer='DefaultLexer'/>
+      <Lexer type='function' lexer='DefaultLexer'/>
     </Lexer>
   </Lexer>
   <!-- DEFAULT COMMAND LEXER-->

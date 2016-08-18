@@ -141,10 +141,11 @@ namespace App.Lexer
             // instantiate sub-lexers
             var lexerList = lexerNode.SelectNodes("Lexer");
             lexer = new BaseLexer[lexerList.Count];
+            firstFreeStyle = lastStyle + 1;
             for (int i = 0; i < lexerList.Count; i++)
             {
                 var type = lexerList[i].GetAttributeValue("lexer");
-                var param = new object[] { lastStyle + 1, lexerList[i], this.defaultLexer };
+                var param = new object[] { firstFreeStyle, lexerList[i], this.defaultLexer };
                 var t = Type.GetType($"App.Lexer.{type}");
                 lexer[i] = (BaseLexer)Activator.CreateInstance(t, param);
                 firstFreeStyle = lexer[i].MaxStyle + 1;
@@ -489,7 +490,7 @@ namespace App.Lexer
                     // get header string from block position
                     var header = FindLastHeaderFromPosition(editor, start);
                     // find lexer that can lex this code block
-                    var lex = lexer?.Where(x => x.IsLexerFor(header[0])).FirstOrDefault();
+                    var lex = lexer.Where(x => x.IsLexerFor(header[0])).FirstOrDefault();
                     // re-lex code block
                     lex?.Style(editor, start + 1, c.pos);
                     // continue styling from the last position
@@ -681,12 +682,12 @@ namespace App.Lexer
             if (char.IsWhiteSpace(c.c))
             {
                 int start = editor.WordStartPosition(c.pos - 1, true);
-                var word = editor.Text.Subrange(start, c.pos);
-                if (!keywords[(int)State.Argument]?.HasAny(word) ?? false)
+                var word = editor.GetTextRange(start, c.pos - start);
+                if (!keywords[(int)State.Argument]?[word].Any(x => x.word == word) ?? false)
                 {
                     var p = editor.GetEndStyled();
                     editor.StartStyling(start);
-                    editor.SetStyling(c.pos - start, (int)State.Default);
+                    editor.SetStyling(c.pos - start, StateToStyle((int)State.Default));
                     editor.StartStyling(p);
                 }
                 return (int)State.Default;
@@ -795,12 +796,17 @@ namespace App.Lexer
 
     class GlslLexer : BaseLexer
     {
+        int startStylingPos;
+        int braceCount;
+        char openBrace;
+        char closingBrace;
+
         public GlslLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
             : base(nextStyle, xml, defaultLexer) { }
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
-            editor.StartStyling(pos);
+            editor.StartStyling(startStylingPos = pos);
 
             // instantiate region class
             var c = new Region(editor);
@@ -819,6 +825,8 @@ namespace App.Lexer
         {
             switch (state)
             {
+                case (int)BaseState.Braces:
+                    return ProcessBracesState(editor, c);
                 case (int)BaseState.LineComment:
                     return ProcessLineCommentState(editor, c);
                 case (int)BaseState.BlockComment:
@@ -826,8 +834,12 @@ namespace App.Lexer
 
                 case (int)State.Preprocessor:
                     return ProcessPreprocessorState(editor, c);
-                case (int)State.PreprocessorCode:
-                    return ProcessPreprocessorCodeState(editor, c);
+                case (int)State.PreprocessorBody:
+                    return ProcessPreprocessorBodyState(editor, c);
+                case (int)State.Keyword:
+                    return ProcessKeywordState(editor, c);
+                case (int)State.Body:
+                    return ProcessBodyState(editor, c);
 
                 default:
                     return ProcessDefaultState(editor, c);
@@ -847,8 +859,24 @@ namespace App.Lexer
                     return (int)BaseState.BlockComment;
             }
 
-            //else if (char.IsLetter(c.c))
-            //    return (int)State.Keyword;
+            else if (c.c == '(')
+            {
+                braceCount = 1;
+                openBrace = '(';
+                closingBrace = ')';
+                return (int)BaseState.Braces;
+            }
+
+            else if (c.c == '{')
+            {
+                braceCount = 1;
+                openBrace = '{';
+                closingBrace = '}';
+                return (int)BaseState.Braces;
+            }
+
+            else if (char.IsLetter(c.c))
+                return (int)State.Keyword;
 
             return (int)State.Default;
         }
@@ -864,11 +892,11 @@ namespace App.Lexer
             if (c.c == '\n')
                 return (int)State.Default;
             else if (char.IsWhiteSpace(c.c))
-                return (int)State.PreprocessorCode;
+                return (int)State.PreprocessorBody;
             return (int)State.Preprocessor;
         }
 
-        private int ProcessPreprocessorCodeState(CodeEditor editor, Region c)
+        private int ProcessPreprocessorBodyState(CodeEditor editor, Region c)
         {
             if (c.c == '\n')
             {
@@ -881,7 +909,91 @@ namespace App.Lexer
                 editor.StartStyling(c.pos);
                 return (int)State.Default;
             }
-            return (int)State.PreprocessorCode;
+            return (int)State.PreprocessorBody;
+        }
+
+        private int ProcessKeywordState(CodeEditor editor, Region c)
+        {
+            if (!char.IsLetterOrDigit(c.c) && c.c != '_')
+            {
+                var start = editor.WordStartPosition(c.pos, false);
+                var length = c.pos - start;
+                var word = editor.GetTextRange(start, length);
+
+                // is data type keyword
+                if (keywords[(int)State.DataType][word].Any(x => x.word == word))
+                {
+                    editor.StartStyling(start);
+                    editor.SetStyling(length, StateToStyle((int)State.DataType));
+                    editor.StartStyling(c.pos);
+                }
+
+                // is not a keyword
+                else if (!keywords[(int)State.Keyword][word].Any(x => x.word == word))
+                {
+                    editor.StartStyling(start);
+                    editor.SetStyling(length, StateToStyle((int)State.Default));
+                    editor.StartStyling(c.pos);
+                }
+
+                return ProcessDefaultState(editor, c);
+            }
+            return (int)State.Keyword;
+        }
+
+        private int ProcessBracesState(CodeEditor editor, Region c)
+        {
+            if (braceCount == 0 && c.l == closingBrace)
+                return ProcessDefaultState(editor, c);
+            return ProcessBodyState(editor, c);
+        }
+
+        private int ProcessBodyState(CodeEditor editor, Region c)
+        {
+            if (c.c == openBrace)
+                braceCount++;
+
+            else if (c.c == closingBrace && --braceCount == 0)
+            {
+                // RE-LEX ALL BLOCKCODE PARTS
+
+                // get code region of the block
+                var start = FindLastStyleOf(editor, (int)BaseStyle.Braces, c.pos, c.pos);
+
+                // get the lexer type of the body
+                string type = null;
+                if (openBrace == '(')
+                {
+                    // get preceding word from brace position
+                    var wordStart = editor.WordStartPosition(start, false);
+                    type = editor.GetWordFromPosition(wordStart);
+
+                    if (type != "layout")
+                        type = "struct";
+                }
+                else if (openBrace == '{')
+                {
+                    // get preceding non-whitespace position from brace position
+                    var bracePos = start - 1;
+                    while (bracePos >= startStylingPos
+                        && (char)editor.GetCharAt(bracePos) != ';'
+                        && char.IsWhiteSpace((char)editor.GetCharAt(bracePos)))
+                        bracePos--;
+
+                    // if the preceding char is a closing brace, we have to lex a function body
+                    type = (char)editor.GetCharAt(bracePos) == ')' ? "function" : "struct";
+                }
+
+                // find lexer that can lex this code block
+                var lex = lexer.Where(x => x.IsLexerFor(type)).FirstOrDefault();
+                // re-lex body of the uniform block, struct, layout or function
+                lex?.Style(editor, start + 1, c.pos);
+                // continue styling from the last position
+                editor.StartStyling(c.pos);
+                return (int)BaseState.Braces;
+            }
+
+            return (int)State.Body;
         }
         #endregion
 
@@ -892,10 +1004,8 @@ namespace App.Lexer
             Keyword,
             DataType,
             Preprocessor,
-            PreprocessorCode,
-            BlockCode,
-            FunctionCode,
-            LayoutCode,
+            PreprocessorBody,
+            Body,
         }
 
         public override Type StateType => typeof(State);
