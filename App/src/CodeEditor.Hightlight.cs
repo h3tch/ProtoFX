@@ -43,9 +43,9 @@ namespace App
             {
                 FxLexer.Style(this, GetEndStyled(), e.Position);
             }
-            catch
+            catch (Exception ex)
             {
-
+                System.Diagnostics.Debug.Print(ex.StackTrace);
             }
         }
         

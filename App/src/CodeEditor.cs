@@ -58,7 +58,7 @@ namespace App
             
             // insert text
             Text = text != null ? text : "";
-            FxLexer.Style(this, 0, Text.Length);
+            //FxLexer.Style(this, 0, Text.Length);
             UpdateLineNumbers();
             UpdateCodeFolding(0, Lines.Count);
         }

@@ -80,6 +80,8 @@ namespace App.Lexer
         protected Trie<Keyword>[] keywords;
         protected int firstStyle;
         protected int lastStyle;
+        protected static int firstBaseStyle;
+        protected static int lastBaseStyle;
         protected BaseLexer defaultLexer;
 
         public BaseLexer(int firstFreeStyle, XmlNode lexerNode, BaseLexer defaultLexer)
@@ -102,6 +104,12 @@ namespace App.Lexer
             if (SciStyle.Default <= firstStyle + styleCount && firstStyle <= SciStyle.CallTip)
                 firstStyle = SciStyle.CallTip + 1;
             lastStyle = firstStyle + styleCount - 1;
+
+            if (StateType.IsEquivalentTo(typeof(BaseState)))
+            {
+                firstBaseStyle = firstStyle;
+                lastBaseStyle = lastStyle;
+            }
 
             // allocate arrays for styles
             styles = Enumerable.Range(firstStyle, styleCount)
@@ -153,7 +161,37 @@ namespace App.Lexer
         }
 
         #region METHODS
-        public abstract int Style(CodeEditor editor, int pos, int endPos);
+        public virtual int Style(CodeEditor editor, int pos, int endPos)
+        {
+            // We cannot continue within a body, because we need to count the braces.
+            // Go back to brace opening of the code block.
+            int bodyState = Enum.IsDefined(StateType, "Body")
+                ? (int)Enum.Parse(StateType, "Body") : -1;
+            while (pos > 0 && GetStateAt(editor, pos) == bodyState)
+                pos--;
+            editor.StartStyling(pos);
+
+            var text = editor.GetTextRange(pos, endPos - pos);
+
+            // instantiate region class
+            var c = new Region(editor);
+
+            // continue processing from the last state
+            for (var state = pos > 0 ? GetStateAt(editor, pos - 1) : 0; pos < endPos; pos++)
+            {
+                state = ProcessState(editor, state, c.Set(pos));
+                editor.SetStyling(1, StateToStyle(state));
+            }
+
+            if (GetStateAt(editor, pos - 1) == bodyState)
+            {
+
+            }
+
+            return pos;
+        }
+
+        protected abstract int ProcessState(CodeEditor editor, int state, Region c);
 
         public void Fold(CodeEditor editor, int pos, int endPos)
         {
@@ -244,6 +282,15 @@ namespace App.Lexer
         }
 
         private int StyleToIdx(int style) => style - firstStyle;
+
+        protected int GetStateAt(CodeEditor editor, int pos) {
+            var style = editor.GetStyleAt(pos);
+            if (firstStyle <= style && style <= lastStyle)
+                return style - firstStyle;
+            if (firstBaseStyle <= style && style <= lastBaseStyle)
+                return style - firstBaseStyle + (int)BaseState.Default;
+            return 0;
+        }
 
         public int StateToStyle(int state)
         {
@@ -340,6 +387,8 @@ namespace App.Lexer
                 pos--;
             editor.StartStyling(pos);
 
+            var text = editor.GetTextRange(pos, endPos - pos);
+
             while (pos < endPos)
             {
                 // get style at the current position
@@ -353,6 +402,8 @@ namespace App.Lexer
 
             return pos;
         }
+
+        protected override int ProcessState(CodeEditor editor, int state, Region c) => 0;
 
         public override Type StateType => typeof(BaseState);
 
@@ -371,29 +422,8 @@ namespace App.Lexer
         public TechLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
             : base(nextStyle, xml, defaultLexer) { }
 
-        public override int Style(CodeEditor editor, int pos, int endPos)
-        {
-            // We cannot continue within a code block.
-            // Go back to brace opening of the code block.
-            if (editor.GetStyleAt(pos) == (int)State.BlockCode + firstStyle)
-                pos = FindLastStyleOf(editor, (int)BaseState.Braces, pos, pos);
-            editor.StartStyling(pos);
-
-            // instantiate region class
-            var c = new Region(editor);
-
-            // continue processing from the last state
-            for (var state = editor.GetStyleAt(pos); pos < endPos; pos++)
-            {
-                state = ProcessState(editor, state, c.Set(pos));
-                editor.SetStyling(1, StateToStyle(state));
-            }
-
-            return pos;
-        }
-
         #region PROCESS STATE
-        private int ProcessState(CodeEditor editor, int state, Region c)
+        protected override int ProcessState(CodeEditor editor, int state, Region c)
         {
             switch (state)
             {
@@ -409,8 +439,8 @@ namespace App.Lexer
                     return ProcessAnnoState(editor, c);
                 case (int)BaseState.Braces:
                     return ProcessBraceState(editor, c);
-                case (int)State.BlockCode:
-                    return ProcessBlockCodeState(editor, c);
+                case (int)State.Body:
+                    return ProcessBodyState(editor, c);
                 default:
                     return ProcessDefaultState(editor, c);
             }
@@ -471,10 +501,10 @@ namespace App.Lexer
         {
             if (braceCount == 0 && c.l == '}')
                 return ProcessDefaultState(editor, c);
-            return ProcessBlockCodeState(editor, c);
+            return ProcessBodyState(editor, c);
         }
 
-        private int ProcessBlockCodeState(CodeEditor editor, Region c)
+        private int ProcessBodyState(CodeEditor editor, Region c)
         {
             switch (c.c)
             {
@@ -497,7 +527,7 @@ namespace App.Lexer
                     editor.StartStyling(c.pos);
                     return (int)BaseState.Braces;
             }
-            return (int)State.BlockCode;
+            return (int)State.Body;
         }
         #endregion
 
@@ -516,7 +546,7 @@ namespace App.Lexer
         #endregion
 
         #region STATE
-        private enum State : int { Default, Type, Anno, BlockCode }
+        private enum State : int { Default, Type, Anno, Body }
 
         public override Type StateType => typeof(State);
         #endregion
@@ -527,35 +557,19 @@ namespace App.Lexer
         public BlockLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
             : base(nextStyle, xml, defaultLexer) { }
 
-        public override int Style(CodeEditor editor, int pos, int endPos)
-        {
-            editor.StartStyling(pos);
-
-            // instantiate region class
-            var c = new Region(editor);
-
-            // continue processing from the last state
-            for (var state = (int)State.Default; pos < endPos; pos++)
-            {
-                state = ProcessState(editor, state, c.Set(pos));
-                editor.SetStyling(1, StateToStyle(state));
-            }
-            return pos;
-        }
-
         #region PROCESS STATE
-        private int ProcessState(CodeEditor editor, int state, Region c)
+        protected override int ProcessState(CodeEditor editor, int state, Region c)
         {
             switch (state)
             {
-                case (int)State.Command:
-                    return ProcessCommandState(editor, c);
                 case (int)BaseState.LineComment:
                     return ProcessLineCommentState(editor, c);
                 case (int)BaseState.BlockComment:
                     return ProcessBlockCommentState(editor, c);
-                case (int)State.CommandCode:
-                    return ProcessCommandCodeState(editor, c);
+                case (int)State.Command:
+                    return ProcessCommandState(editor, c);
+                case (int)State.CommandBody:
+                    return ProcessCommandBodyState(editor, c);
                 default:
                     return ProcessDefaultState(editor, c);
             }
@@ -584,11 +598,11 @@ namespace App.Lexer
         private int ProcessCommandState(CodeEditor editor, Region c)
         {
             if (char.IsWhiteSpace(c.c))
-                return (int)State.CommandCode;
+                return (int)State.CommandBody;
             return (int)State.Command;
         }
 
-        private int ProcessCommandCodeState(CodeEditor editor, Region c)
+        private int ProcessCommandBodyState(CodeEditor editor, Region c)
         {
             if (c.c == '\n' && c.l != '.' && c.ll != '.')
             {
@@ -605,7 +619,7 @@ namespace App.Lexer
                 editor.StartStyling(c.pos);
                 return (int)State.Default;
             }
-            return (int)State.CommandCode;
+            return (int)State.CommandBody;
         }
         #endregion
 
@@ -618,7 +632,7 @@ namespace App.Lexer
         #endregion
 
         #region STATE
-        private enum State : int { Default, Command, CommandCode }
+        private enum State : int { Default, Command, CommandBody }
 
         public override Type StateType => typeof(State);
         #endregion
@@ -631,24 +645,8 @@ namespace App.Lexer
         public CommandLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
             : base(nextStyle, xml, defaultLexer) { }
 
-        public override int Style(CodeEditor editor, int pos, int endPos)
-        {
-            editor.StartStyling(pos);
-
-            // instantiate region class
-            var c = new Region(editor);
-
-            // continue processing from the last state
-            for (var state = (int)State.Default; pos < endPos; pos++)
-            {
-                state = ProcessState(editor, state, c.Set(pos));
-                editor.SetStyling(1, StateToStyle(state));
-            }
-            return pos;
-        }
-
         #region PROCESS STATE
-        private int ProcessState(CodeEditor editor, int state, Region c)
+        protected override int ProcessState(CodeEditor editor, int state, Region c)
         {
             switch (state)
             {
@@ -727,24 +725,8 @@ namespace App.Lexer
         public DefaultLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
             : base(nextStyle, xml, defaultLexer) { }
 
-        public override int Style(CodeEditor editor, int pos, int endPos)
-        {
-            editor.StartStyling(pos);
-
-            // instantiate region class
-            var c = new Region(editor);
-
-            // continue processing from the last state
-            for (var state = (int)BaseState.Default; pos < endPos; pos++)
-            {
-                state = ProcessState(editor, state, c.Set(pos));
-                editor.SetStyling(1, StateToStyle(state));
-            }
-            return pos;
-        }
-
         #region PROCESS STATE
-        private int ProcessState(CodeEditor editor, int state, Region c)
+        protected override int ProcessState(CodeEditor editor, int state, Region c)
         {
             switch (state)
             {
@@ -804,24 +786,8 @@ namespace App.Lexer
         public GlslLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
             : base(nextStyle, xml, defaultLexer) { }
 
-        public override int Style(CodeEditor editor, int pos, int endPos)
-        {
-            editor.StartStyling(startStylingPos = pos);
-
-            // instantiate region class
-            var c = new Region(editor);
-
-            // continue processing from the last state
-            for (var state = (int)State.Default; pos < endPos; pos++)
-            {
-                state = ProcessState(editor, state, c.Set(pos));
-                editor.SetStyling(1, StateToStyle(state));
-            }
-            return pos;
-        }
-
         #region METHODS
-        private int ProcessState(CodeEditor editor, int state, Region c)
+        protected override int ProcessState(CodeEditor editor, int state, Region c)
         {
             switch (state)
             {
@@ -962,26 +928,27 @@ namespace App.Lexer
 
                 // get the lexer type of the body
                 string type = null;
-                if (openBrace == '(')
+                switch (openBrace)
                 {
-                    // get preceding word from brace position
-                    var wordStart = editor.WordStartPosition(start, false);
-                    type = editor.GetWordFromPosition(wordStart);
+                    case '(':
+                        // get preceding word from brace position
+                        var wordStart = editor.WordStartPosition(start, false);
+                        type = editor.GetWordFromPosition(wordStart);
 
-                    if (type != "layout")
-                        type = "struct";
-                }
-                else if (openBrace == '{')
-                {
-                    // get preceding non-whitespace position from brace position
-                    var bracePos = start - 1;
-                    while (bracePos >= startStylingPos
-                        && (char)editor.GetCharAt(bracePos) != ';'
-                        && char.IsWhiteSpace((char)editor.GetCharAt(bracePos)))
-                        bracePos--;
+                        if (type != "layout")
+                            type = "struct";
+                        break;
+                    case '}':
+                        // get preceding non-whitespace position from brace position
+                        var bracePos = start - 1;
+                        while (bracePos >= startStylingPos
+                            && (char)editor.GetCharAt(bracePos) != ';'
+                            && char.IsWhiteSpace((char)editor.GetCharAt(bracePos)))
+                            bracePos--;
 
-                    // if the preceding char is a closing brace, we have to lex a function body
-                    type = (char)editor.GetCharAt(bracePos) == ')' ? "function" : "struct";
+                        // if the preceding char is a closing brace, we have to lex a function body
+                        type = (char)editor.GetCharAt(bracePos) == ')' ? "function" : "struct";
+                        break;
                 }
 
                 // find lexer that can lex this code block
@@ -1011,7 +978,64 @@ namespace App.Lexer
         public override Type StateType => typeof(State);
         #endregion
     }
-    
+
+    class GlslLayoutLexer : BaseLexer
+    {
+        public GlslLayoutLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
+            : base(nextStyle, xml, defaultLexer) { }
+
+        #region METHODS
+        protected override int ProcessState(CodeEditor editor, int state, Region c)
+        {
+            return (int)State.Default;
+        }
+        #endregion
+
+        #region STATE
+        private enum State : int { Default, Qualifier }
+
+        public override Type StateType => typeof(State);
+        #endregion
+    }
+
+    class GlslStructLexer : BaseLexer
+    {
+        public GlslStructLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
+            : base(nextStyle, xml, defaultLexer) { }
+
+        #region METHODS
+        protected override int ProcessState(CodeEditor editor, int state, Region c)
+        {
+            return (int)State.Default;
+        }
+        #endregion
+
+        #region STATE
+        private enum State : int { Default, DataType }
+
+        public override Type StateType => typeof(State);
+        #endregion
+    }
+
+    class GlslFunctionLexer : BaseLexer
+    {
+        public GlslFunctionLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
+            : base(nextStyle, xml, defaultLexer) { }
+
+        #region METHODS
+        protected override int ProcessState(CodeEditor editor, int state, Region c)
+        {
+            return (int)State.Default;
+        }
+        #endregion
+
+        #region STATE
+        private enum State : int { Default, Keyword, DataType, Function }
+
+        public override Type StateType => typeof(State);
+        #endregion
+    }
+
     public class Region
     {
         private CodeEditor editor;

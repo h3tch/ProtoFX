@@ -48,13 +48,6 @@ vertinput in_vert {
 // vertex positions from model to perspective space
 shader vs_simple vert {
 	#version 440
-
-	// layout (...) 
-
-	// uniform NAME { ... } NAME ;
-	// uniform sampler NAME ;
-	// in|out|const TYPE NAME ;
-	// TYPE NAME (...) { ... } ;
 	
 	// shader variable which will be set by "SimpleCamera.cs"
 	// (only uniform variables can be accessed outside the shader)
