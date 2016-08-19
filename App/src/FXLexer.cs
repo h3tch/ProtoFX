@@ -78,10 +78,10 @@ namespace App.Lexer
         protected BaseLexer[] lexer;
         protected Style[] styles;
         protected Trie<Keyword>[] keywords;
-        protected int firstStyle;
-        protected int lastStyle;
-        protected static int firstBaseStyle;
-        protected static int lastBaseStyle;
+        public int firstStyle { get; private set; }
+        public int lastStyle { get; private set; }
+        public static int firstBaseStyle { get; private set; }
+        public static int lastBaseStyle { get; private set; }
         protected BaseLexer defaultLexer;
 
         public BaseLexer(int firstFreeStyle, XmlNode lexerNode, BaseLexer defaultLexer)
@@ -163,35 +163,30 @@ namespace App.Lexer
         #region METHODS
         public virtual int Style(CodeEditor editor, int pos, int endPos)
         {
-            // We cannot continue within a body, because we need to count the braces.
-            // Go back to brace opening of the code block.
-            int bodyState = Enum.IsDefined(StateType, "Body")
-                ? (int)Enum.Parse(StateType, "Body") : -1;
-            while (pos > 0 && GetStateAt(editor, pos) == bodyState)
-                pos--;
             editor.StartStyling(pos);
-
-            var text = editor.GetTextRange(pos, endPos - pos);
+            //var text = editor.GetTextRange(pos, endPos - pos);
 
             // instantiate region class
             var c = new Region(editor);
 
             // continue processing from the last state
-            for (var state = pos > 0 ? GetStateAt(editor, pos - 1) : 0; pos < endPos; pos++)
+            for (var state = 0; pos < endPos; pos++)
             {
                 state = ProcessState(editor, state, c.Set(pos));
                 editor.SetStyling(1, StateToStyle(state));
             }
 
-            if (GetStateAt(editor, pos - 1) == bodyState)
-            {
-
-            }
+            // style partial bodies
+            if (Enum.IsDefined(StateType, "Body")
+                && GetStateAt(editor, Math.Max(0, pos - 1)) == (int)Enum.Parse(StateType, "Body"))
+                StyleBody(editor, pos);
 
             return pos;
         }
 
-        protected abstract int ProcessState(CodeEditor editor, int state, Region c);
+        protected virtual int ProcessState(CodeEditor editor, int state, Region c) => state;
+
+        protected virtual void StyleBody(CodeEditor editor, int pos) { }
 
         public void Fold(CodeEditor editor, int pos, int endPos)
         {
@@ -312,7 +307,7 @@ namespace App.Lexer
 
         public IEnumerable<Keyword> SelectKeywordInfo(int style, string word)
         {
-            if (IsLexerStyle(style))
+            if (firstStyle <= style && style <= lastStyle)
                 return keywords[StyleToIdx(style)] != null
                     ? keywords[StyleToIdx(style)][word]
                     : Enumerable.Empty<Keyword>();
@@ -328,13 +323,11 @@ namespace App.Lexer
 
         public ILexer FindLexer(int style)
         {
-            return IsLexerStyle(style) ? this
+            return firstStyle <= style && style <= lastStyle ? this
                 : lexer.Select(x => x.FindLexer(style)).FirstOrDefault(x => x != null);
         }
-        
-        public bool IsLexerStyle(int style) => firstStyle <= style && style <= lastStyle;
 
-        public virtual bool IsLexerFor(string type) => lexerType != null ? lexerType == type : true;
+        public virtual bool IsLexerType(string type) => lexerType != null ? lexerType == type : true;
 
         public int MaxStyle => Math.Max(lastStyle, lexer.Select(x => x.MaxStyle).MaxOr(0));
         #endregion
@@ -382,28 +375,20 @@ namespace App.Lexer
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
+            var lex = lexer.First();
+
             // go back to the first valid style
-            while (pos > 0 && editor.GetStyleAt(pos) <= lastStyle)
-                pos--;
-            editor.StartStyling(pos);
+            var start = pos;
+            for (var style = editor.GetStyleAt(start);
+                start > 0 && style != lex.firstStyle;
+                style = editor.GetStyleAt(start))
+                start--;
 
-            var text = editor.GetTextRange(pos, endPos - pos);
+            var t0 = editor.GetTextRange(pos, endPos - pos);
+            var t1 = editor.GetTextRange(start, endPos - start);
 
-            while (pos < endPos)
-            {
-                // get style at the current position
-                var style = editor.GetStyleAt(pos);
-                // select the lexer that can continue lexing from the current position
-                var lex = style <= lastStyle ? lexer.FirstOrDefault() : FindLexer(style);
-                // start lexing until the lexer reaches an end state,
-                // then try to use another lexer
-                pos = lex.Style(editor, pos, endPos);
-            }
-
-            return pos;
+            return lex.Style(editor, start, endPos);
         }
-
-        protected override int ProcessState(CodeEditor editor, int state, Region c) => 0;
 
         public override Type StateType => typeof(BaseState);
 
@@ -471,7 +456,10 @@ namespace App.Lexer
             if (char.IsWhiteSpace(c.l) && char.IsLetter(c.c))
                 return (int)BaseState.Name;
             else if (c.c == '{')
+            {
+                braceCount = 1;
                 return (int)BaseState.Braces;
+            }
             return (int)State.Type;
         }
         
@@ -499,7 +487,7 @@ namespace App.Lexer
         
         private int ProcessBraceState(CodeEditor editor, Region c)
         {
-            if (braceCount == 0 && c.l == '}')
+            if (c.l == '}')
                 return ProcessDefaultState(editor, c);
             return ProcessBodyState(editor, c);
         }
@@ -515,19 +503,32 @@ namespace App.Lexer
                     if (--braceCount > 0)
                         break;
                     // RE-LEX ALL BLOCKCODE PARTS
-                    // get code region of the block
-                    var start = FindLastStyleOf(editor, (int)BaseStyle.Braces, c.pos, c.pos);
-                    // get header string from block position
-                    var header = FindLastHeaderFromPosition(editor, start);
-                    // find lexer that can lex this code block
-                    var lex = lexer.Where(x => x.IsLexerFor(header[0])).FirstOrDefault();
-                    // re-lex code block
-                    lex?.Style(editor, start + 1, c.pos);
-                    // continue styling from the last position
-                    editor.StartStyling(c.pos);
+                    StyleBody(editor, c.pos);
                     return (int)BaseState.Braces;
             }
             return (int)State.Body;
+        }
+
+        protected override void StyleBody(CodeEditor editor, int pos)
+        {
+            // get code position before the body
+            var start = Math.Max(0, pos - 1);
+            for (var style = editor.GetStyleAt(start);
+                start > 0 && style != (int)BaseStyle.Braces;
+                style = editor.GetStyleAt(start))
+                start--;
+
+            // get header string from block position
+            var header = FindLastHeaderFromPosition(editor, start);
+
+            // find lexer that can lex this code block
+            var lex = lexer.Where(x => x.IsLexerType(header[0])).FirstOrDefault();
+
+            // re-lex code block
+            lex?.Style(editor, start + 1, pos);
+
+            // continue styling from the last position
+            editor.StartStyling(pos);
         }
         #endregion
 
@@ -612,7 +613,7 @@ namespace App.Lexer
                 // get header string from block position
                 var cmd = FindLastCommandFromPosition(editor, start);
                 // find lexer that can lex this code block
-                var lex = lexer.Where(x => x.IsLexerFor(cmd)).FirstOr(defaultLexer);
+                var lex = lexer.Where(x => x.IsLexerType(cmd)).FirstOr(defaultLexer);
                 // re-lex code block
                 lex.Style(editor, start + 1, c.pos);
                 // continue styling from the last position
@@ -778,7 +779,6 @@ namespace App.Lexer
 
     class GlslLexer : BaseLexer
     {
-        int startStylingPos;
         int braceCount;
         char openBrace;
         char closingBrace;
@@ -922,45 +922,55 @@ namespace App.Lexer
             else if (c.c == closingBrace && --braceCount == 0)
             {
                 // RE-LEX ALL BLOCKCODE PARTS
-
-                // get code region of the block
-                var start = FindLastStyleOf(editor, (int)BaseStyle.Braces, c.pos, c.pos);
-
-                // get the lexer type of the body
-                string type = null;
-                switch (openBrace)
-                {
-                    case '(':
-                        // get preceding word from brace position
-                        var wordStart = editor.WordStartPosition(start, false);
-                        type = editor.GetWordFromPosition(wordStart);
-
-                        if (type != "layout")
-                            type = "struct";
-                        break;
-                    case '}':
-                        // get preceding non-whitespace position from brace position
-                        var bracePos = start - 1;
-                        while (bracePos >= startStylingPos
-                            && (char)editor.GetCharAt(bracePos) != ';'
-                            && char.IsWhiteSpace((char)editor.GetCharAt(bracePos)))
-                            bracePos--;
-
-                        // if the preceding char is a closing brace, we have to lex a function body
-                        type = (char)editor.GetCharAt(bracePos) == ')' ? "function" : "struct";
-                        break;
-                }
-
-                // find lexer that can lex this code block
-                var lex = lexer.Where(x => x.IsLexerFor(type)).FirstOrDefault();
-                // re-lex body of the uniform block, struct, layout or function
-                lex?.Style(editor, start + 1, c.pos);
-                // continue styling from the last position
-                editor.StartStyling(c.pos);
+                StyleBody(editor, c.pos);
                 return (int)BaseState.Braces;
             }
 
             return (int)State.Body;
+        }
+
+        protected override void StyleBody(CodeEditor editor, int pos)
+        {
+            // get code position before the body
+            var start = Math.Max(0, pos - 1);
+            for (var style = editor.GetStyleAt(start);
+                start > 0 && style != (int)BaseStyle.Braces;
+                style = editor.GetStyleAt(start))
+                start--;
+
+            // get the lexer type of the body
+            string type = null;
+            switch (openBrace)
+            {
+                case '(':
+                    // get preceding word from brace position
+                    var wordStart = editor.WordStartPosition(start, false);
+                    type = editor.GetWordFromPosition(wordStart);
+
+                    if (type != "layout")
+                        type = "struct";
+                    break;
+                case '{':
+                    // get preceding non-whitespace position from brace position
+                    var bracePos = start - 1;
+                    while (bracePos >= 0
+                        && (char)editor.GetCharAt(bracePos) != ';'
+                        && char.IsWhiteSpace((char)editor.GetCharAt(bracePos)))
+                        bracePos--;
+
+                    // if the preceding char is a closing brace, we have to lex a function body
+                    type = (char)editor.GetCharAt(bracePos) == ')' ? "function" : "struct";
+                    break;
+            }
+
+            // find lexer that can lex this code block
+            var lex = lexer.Where(x => x.IsLexerType(type)).FirstOrDefault();
+
+            // re-lex body of the uniform block, struct, layout or function
+            lex?.Style(editor, start + 1, pos);
+
+            // continue styling from the last position
+            editor.StartStyling(pos);
         }
         #endregion
 
