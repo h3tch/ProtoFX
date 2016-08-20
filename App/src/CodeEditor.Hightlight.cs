@@ -23,7 +23,7 @@ namespace App
             Styles[Style.LineNumber].ForeColor = Color.Gray;
 
             // set styles as defined in the keyword file
-            foreach (var style in FxLexer.GetStyles())
+            foreach (var style in FxLexer.Styles)
             {
                 Styles[style.id].ForeColor = style.fore;
                 Styles[style.id].BackColor = style.back;
