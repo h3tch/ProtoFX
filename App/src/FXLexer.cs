@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml;
 using SciStyle = ScintillaNET.Style;
 
@@ -70,6 +71,7 @@ namespace App.Lexer
         public virtual Type StateType => null;
         public int MaxStyle => Math.Max(lastStyle, lexer.Select(x => x.MaxStyle).MaxOr(0));
         protected BaseLexer defaultLexer;
+        private static Regex regexHint = new Regex("\n[ ]*║");
         #endregion
 
         public BaseLexer(int firstFreeStyle, XmlNode lexerNode, BaseLexer defaultLexer)
@@ -129,6 +131,8 @@ namespace App.Lexer
                 var idx = id - firstState;
                 var name = keyword.GetAttributeValue("name");
                 var hint = keyword.GetAttributeValue("hint");
+                if (hint != null)
+                    hint = regexHint.Replace(hint, "\n");
                 if (keywords[idx] == null)
                     keywords[idx] = new Trie<Keyword>();
                 keywords[idx].Add(name, new Keyword { word = name, hint = hint });
@@ -392,6 +396,10 @@ namespace App.Lexer
                     return ProcessLineCommentState(editor, c);
                 case (int)BaseState.BlockComment:
                     return ProcessBlockCommentState(editor, c);
+                case (int)State.Preprocessor:
+                    return ProcessPreprocessorState(editor, c);
+                case (int)State.PreprocessorBody:
+                    return ProcessPreprocessorBodyState(editor, c);
                 case (int)State.Type:
                     return ProcessTypeState(editor, c);
                 case (int)BaseState.Name:
@@ -416,6 +424,8 @@ namespace App.Lexer
                 else if (c.r == '*')
                     return (int)BaseState.BlockComment;
             }
+            else if (c.c == '#')
+                return (int)State.Preprocessor;
             else if (char.IsLetter(c.c))
                 return (int)State.Type;
             return (int)State.Default;
@@ -464,6 +474,32 @@ namespace App.Lexer
         private int ProcessBraceState(CodeEditor editor, Region c)
         {
             return c.l == '}' ? ProcessDefaultState(editor, c) : ProcessBodyState(editor, c);
+        }
+
+        private int ProcessPreprocessorState(CodeEditor editor, Region c)
+        {
+            if (c.c == '\n')
+                return (int)State.Default;
+            else if (char.IsWhiteSpace(c.c))
+                return (int)State.PreprocessorBody;
+            return (int)State.Preprocessor;
+        }
+
+        private int ProcessPreprocessorBodyState(CodeEditor editor, Region c)
+        {
+            // still inside the preprocessor body
+            if (c.c != '\n')
+                return (int)State.PreprocessorBody;
+
+            // RE-LEX ALL PREPROCESSORCODE PARTS
+
+            // get code region of the block
+            var start = FindLastStyleOf(editor, firstStyle + (int)State.Preprocessor, c.Pos, c.Pos);
+            // re-lex code block
+            defaultLexer.Style(editor, start + 1, c.Pos);
+            // continue styling from the last position
+            editor.StartStyling(c.Pos);
+            return (int)State.Default;
         }
 
         private int ProcessBodyState(CodeEditor editor, Region c)
@@ -521,7 +557,7 @@ namespace App.Lexer
         #endregion
 
         #region STATE
-        private enum State : int { Default, Type, Anno, Body }
+        private enum State : int { Default, Preprocessor, PreprocessorBody, Type, Anno, Body }
 
         public override Type StateType => typeof(State);
         #endregion
@@ -545,6 +581,7 @@ namespace App.Lexer
                     return ProcessCommandState(editor, c);
                 case (int)State.CommandBody:
                     return ProcessCommandBodyState(editor, c);
+                case (int)BaseState.Punctuation:
                 default:
                     return ProcessDefaultState(editor, c);
             }
@@ -552,6 +589,10 @@ namespace App.Lexer
 
         private int ProcessDefaultState(CodeEditor editor, Region c)
         {
+            if (c.c == '.')
+                return (int)BaseState.Punctuation;
+            if (char.IsLetter(c.c))
+                return (int)State.Command;
             if (c.c == '/')
             {
                 if (c.r == '/')
@@ -559,8 +600,6 @@ namespace App.Lexer
                 else if (c.r == '*')
                     return (int)BaseState.BlockComment;
             }
-            else if (char.IsLetter(c.c))
-                return (int)State.Command;
             return (int)State.Default;
         }
 
@@ -571,12 +610,22 @@ namespace App.Lexer
             => c.ll == '*' && c.l == '/' ? ProcessDefaultState(editor, c) : (int)BaseState.BlockComment;
 
         private int ProcessCommandState(CodeEditor editor, Region c)
-            => (int)(char.IsWhiteSpace(c.c) ? State.CommandBody : State.Command);
+        {
+            if (!char.IsWhiteSpace(c.c))
+                return (int)State.Command;
+            ignoreNewLine = 1;
+            return (int)State.CommandBody;
+        }
 
+        private int ignoreNewLine = 0;
         private int ProcessCommandBodyState(CodeEditor editor, Region c)
         {
+            // "..." indicates the command continues in the next line
+            if (c.ll == '.' && c.l == '.' && c.c == '.')
+                ignoreNewLine++;
+
             // still inside the command body
-            if (c.c != '\n' || (c.l == '.' && c.ll == '.'))
+            if (c.c != '\n' || --ignoreNewLine > 0)
                 return (int)State.CommandBody;
 
             // RE-LEX ALL COMMANDCODE PARTS
@@ -626,9 +675,8 @@ namespace App.Lexer
                     return ProcessNumberState(editor, c);
                 case (int)BaseState.String:
                     return ProcessStringState(editor, c);
-                default:
-                    return ProcessDefaultState(editor, c);
             }
+            return ProcessDefaultState(editor, c);
         }
 
         private int ProcessDefaultState(CodeEditor editor, Region c)
@@ -638,10 +686,12 @@ namespace App.Lexer
                 stringStartPos = c.Pos;
                 return (int)BaseState.String;
             }
-            else if(char.IsNumber(c.c) || (c.c == '.' && char.IsNumber(c.r)))
+            if(char.IsNumber(c.c) || (c.c == '.' && char.IsNumber(c.r)))
                 return (int)BaseState.Number;
-            else if (char.IsLetter(c.c))
+            if (char.IsLetter(c.c))
                 return (int)State.Argument;
+            if (c.c == '.')
+                return (int)BaseState.Punctuation;
             return (int)State.Default;
         }
 
@@ -698,8 +748,12 @@ namespace App.Lexer
                 stringStartPos = c.Pos;
                 return (int)BaseState.String;
             }
-            else if (char.IsNumber(c.c) || (c.c == '.' && char.IsNumber(c.r)))
+            if (char.IsNumber(c.c) || (c.c == '.' && char.IsNumber(c.r)))
                 return (int)BaseState.Number;
+            if (c.c == '.')
+                return (int)BaseState.Punctuation;
+            if (char.IsSymbol(c.c) || c.c == '*' || c.c == '/' || c.c == '+' || c.c == '-')
+                return (int)BaseState.Operator;
             return (int)BaseState.Default;
         }
 
@@ -757,10 +811,8 @@ namespace App.Lexer
                     return ProcessKeywordState(editor, c);
                 case (int)State.Body:
                     return ProcessBodyState(editor, c);
-
-                default:
-                    return ProcessDefaultState(editor, c);
             }
+            return ProcessDefaultState(editor, c);
         }
 
         private int ProcessDefaultState(CodeEditor editor, Region c)
@@ -785,6 +837,8 @@ namespace App.Lexer
                     openBrace = '{';
                     closingBrace = '}';
                     return (int)BaseState.Braces;
+                case ';':
+                    return (int)BaseState.Punctuation;
             }
 
             if (char.IsLetter(c.c))
@@ -944,7 +998,62 @@ namespace App.Lexer
         #region METHODS
         protected override int ProcessState(CodeEditor editor, int state, Region c)
         {
+            switch (state)
+            {
+                case (int)State.Qualifier:
+                    return ProcessQualifierState(editor, c);
+                case (int)BaseState.Number:
+                    return ProcessNumberState(editor, c);
+                case (int)BaseState.Operator:
+                case (int)BaseState.Punctuation:
+                default:
+                    return ProcessDefaultState(editor, c);
+            }
+        }
+
+        private int ProcessDefaultState(CodeEditor editor, Region c)
+        {
+            if (c.c == '=')
+                return (int)BaseState.Operator;
+            if (c.c == ',')
+                return (int)BaseState.Punctuation;
+            if (char.IsDigit(c.c))
+                return (int)BaseState.Number;
+            if (char.IsLetter(c.c))
+                return (int)State.Qualifier;
             return (int)State.Default;
+        }
+
+        protected int ProcessNumberState(CodeEditor editor, Region c)
+        {
+            return char.IsNumber(c.c)
+                || c.c == '.' || c.c == 'x'
+                || ('a' <= c.c && c.c <= 'f')
+                || ('A' <= c.c && c.c <= 'F')
+                ? (int)BaseState.Number
+                : (int)State.Default;
+        }
+
+        private int ProcessQualifierState(CodeEditor editor, Region c)
+        {
+            // position still inside the word range
+            if (char.IsLetterOrDigit(c.c) || c.c == '_')
+                return (int)State.Qualifier;
+
+            // get previous word
+            var start = editor.WordStartPosition(c.Pos, false);
+            var length = c.Pos - start;
+            var word = editor.GetTextRange(start, length);
+            
+            // is not a keyword
+            if (!keywords[(int)State.Qualifier][word].Any(x => x.word == word))
+            {
+                editor.StartStyling(start);
+                editor.SetStyling(length, StateToStyle((int)State.Default));
+                editor.StartStyling(c.Pos);
+            }
+
+            return ProcessDefaultState(editor, c);
         }
         #endregion
 
@@ -963,7 +1072,62 @@ namespace App.Lexer
         #region METHODS
         protected override int ProcessState(CodeEditor editor, int state, Region c)
         {
+            switch (state)
+            {
+                case (int)State.DataType:
+                    return ProcessDataTypeState(editor, c);
+                case (int)BaseState.Number:
+                    return ProcessNumberState(editor, c);
+                case (int)BaseState.Braces:
+                case (int)BaseState.Punctuation:
+                default:
+                    return ProcessDefaultState(editor, c);
+            }
+        }
+
+        private int ProcessDefaultState(CodeEditor editor, Region c)
+        {
+            if (c.c == ',' || c.c == ';')
+                return (int)BaseState.Punctuation;
+            if (c.c == '[' || c.c == ']')
+                return (int)BaseState.Braces;
+            if (char.IsDigit(c.c))
+                return (int)BaseState.Number;
+            if (char.IsLetter(c.c))
+                return (int)State.DataType;
             return (int)State.Default;
+        }
+
+        protected int ProcessNumberState(CodeEditor editor, Region c)
+        {
+            return char.IsNumber(c.c)
+                || c.c == '.' || c.c == 'x'
+                || ('a' <= c.c && c.c <= 'f')
+                || ('A' <= c.c && c.c <= 'F')
+                ? (int)BaseState.Number
+                : (int)State.Default;
+        }
+
+        private int ProcessDataTypeState(CodeEditor editor, Region c)
+        {
+            // position still inside the word range
+            if (char.IsLetterOrDigit(c.c))
+                return (int)State.DataType;
+
+            // get previous word
+            var start = editor.WordStartPosition(c.Pos, false);
+            var length = c.Pos - start;
+            var word = editor.GetTextRange(start, length);
+
+            // is not a keyword
+            if (!keywords[(int)State.DataType][word].Any(x => x.word == word))
+            {
+                editor.StartStyling(start);
+                editor.SetStyling(length, StateToStyle((int)State.Default));
+                editor.StartStyling(c.Pos);
+            }
+
+            return ProcessDefaultState(editor, c);
         }
         #endregion
 

@@ -1,15 +1,16 @@
 <?xml version='1.0'?>
 <FxLexer>
   <Style name='string' fore='#D77763' back='#FFFFFF'/>
-  <Style name='operator' fore='#4C6A7E' back='#FFFFFF'/>
+  <Style name='operator' fore='#A0A0A0' back='#FFFFFF'/>
   <Style name='braces' fore='#AAAAAA' back='#FFFFFF'/>
-  <Style name='punctuation' fore='#808080' back='#FFFFFF'/>
+  <Style name='punctuation' fore='#A0A0A0' back='#FFFFFF'/>
   <Style name='number' fore='#328645' back='#FFFFFF'/>
   <Style name='LineComment' fore='#82A847' back='#FFFFFF'/>
   <Style name='BlockComment' fore='#82A847' back='#FFFFFF'/>
   <Style name='name' fore='#000000' back='#FFFFFF'/>
   <!-- TECH -->
   <Lexer type='tech' lexer='TechLexer'>
+    <Style name='preprocessor' fore='#A0A0A0' back='#FFFFFF'/>
     <Style name='type' fore='#3E71FF' back='#FFFFFF'/>
     <Style name='anno' fore='#2FABA7' back='#FFFFFF'/>
     <Keyword style_name='type' name='buffer' hint='buffer [name]'/>
@@ -145,36 +146,41 @@
       <Keyword style_name='command' name='eval' hint='eval [shader_name]'/>
       <Keyword style_name='command' name='geom' hint='geom [shader_name]'/>
       <Keyword style_name='command' name='frag' hint='frag [shader_name]'/>
-      <Keyword style_name='command' name='compute' hint='Dispatch compute shader call.
-&gt; compute [num_group_x] [num_group_y] {num_group_z}
-&gt; compute [callbuffer_name]'/>
-      <Keyword style_name='command' name='draw' hint='Draw vertex based (possibly indexed) geometry.
-&gt; draw [vertinput_name] [primitive_type] [base_vertex] {vertex_count}
-       {base_instance} {instance_count}
-&gt; draw [vertinput_name] [{indexbuffer_name] [index_type] [primitive_type]
-       [base_vertex] [base_index] [index_count] {base_instance} {instance_count}
-&gt; draw [vertinput_name] {callbuffer_name} {primitive_type}
-       {buffer_offset} {draw_count} {stride}
-&gt; draw [vertinput_name] [indexbuffer_name] [index_type] [callbuffer_name]
-       [primitive_type] {buffer_offset} {draw_count} {stride}
-&gt; draw [vertoutput_name] [primitive_type] {vertoutput_stream} {instance_count}
-
-primitive_type
-    points, lines, lineLoop, lineStrip, triangles, triangleStrip, triangleFan, patch,
-    linesAdjacency, lineStripAdjacency, trianglesAdjacency, triangleStripAdjacency
-index_type
-    ubyte, ushort, uint'/>
+      <Keyword style_name='command' name='compute'
+               hint='Dispatch compute shader call.
+                    ║&gt; compute [num_group_x] [num_group_y] {num_group_z}
+                    ║&gt; compute [callbuffer_name]'/>
+      <Keyword style_name='command' name='draw'
+               hint='Draw vertex based (possibly indexed) geometry.
+                    ║&gt; draw [vertinput_name] [primitive_type] [base_vertex] {vertex_count}
+                    ║       {base_instance} {instance_count}
+                    ║&gt; draw [vertinput_name] [{indexbuffer_name] [index_type] [primitive_type]
+                    ║       [base_vertex] [base_index] [index_count] {base_instance} {instance_count}
+                    ║&gt; draw [vertinput_name] {callbuffer_name} {primitive_type}
+                    ║       {buffer_offset} {draw_count} {stride}
+                    ║&gt; draw [vertinput_name] [indexbuffer_name] [index_type] [callbuffer_name]
+                    ║       [primitive_type] {buffer_offset} {draw_count} {stride}
+                    ║&gt; draw [vertoutput_name] [primitive_type] {vertoutput_stream} {instance_count}
+                    ║
+                    ║primitive_type
+                    ║    points, lines, lineLoop, lineStrip, triangles, triangleStrip, triangleFan, patch,
+                    ║    linesAdjacency, lineStripAdjacency, trianglesAdjacency, triangleStripAdjacency
+                    ║index_type
+                    ║    ubyte, ushort, uint'/>
       <Keyword style_name='command' name='fragout' hint='fragout [fragoutput_name]'/>
-      <Keyword style_name='command' name='vertout' hint='vertout [vertoutput_name] [output_primitive_type] {write_mode} [output_varying_name]
-The optional argument [write_mode] can be "gl_SeparateAttribs" (write every
-[output_varying_name] to a new buffer) or the default "gl_InterleavedAttribs"
-(output varyings for different buffers need to be separated by "gl_NextBuffer")'/>
-      <Keyword style_name='command' name='tex' hint='Bind or unbind a texture from a texture unit.
-&gt; tex [texture_name] [unit] -- bind to unit
-&gt; tex [unit]                -- unbind unit'/>
-      <Keyword style_name='command' name='img' hint='Bind or unbind a texture from an image unit.
-&gt; img [texture_name] [unit] [level] [layer] [access] [format] -- bind to unit
-&gt; img [unit]                                                  -- unbind unit'/>
+      <Keyword style_name='command' name='vertout'
+               hint='vertout [vertoutput_name] [output_primitive_type] {write_mode} [output_varying_name]
+                    ║The optional argument [write_mode] can be "gl_SeparateAttribs" (write every
+                    ║[output_varying_name] to a new buffer) or the default "gl_InterleavedAttribs"
+                    ║(output varyings for different buffers need to be separated by "gl_NextBuffer")'/>
+      <Keyword style_name='command' name='tex'
+               hint='Bind or unbind a texture from a texture unit.
+                    ║&gt; tex [texture_name] [unit] -- bind to unit
+                    ║&gt; tex [unit]                -- unbind unit'/>
+      <Keyword style_name='command' name='img'
+               hint='Bind or unbind a texture from an image unit.
+                    ║&gt; img [texture_name] [unit] [level] [layer] [access] [format] -- bind to unit
+                    ║&gt; img [unit]                                                  -- unbind unit'/>
       <!-- pass - DRAW -->
       <Lexer type='draw' lexer='CommandLexer'>
         <Style name='argument' fore='#8676CC' back='#FFFFFF'/>
@@ -373,8 +379,164 @@ The optional argument [write_mode] can be "gl_SeparateAttribs" (write every
       <Keyword style_name='datatype' name='dmat4x2'/>
       <Keyword style_name='datatype' name='dmat4x3'/>
       <Keyword style_name='datatype' name='dmat4x4'/>
-      <Lexer type='layout' lexer='DefaultLexer'/>
-      <Lexer type='struct' lexer='DefaultLexer'/>
+      <Lexer type='layout' lexer='GlslLayoutLexer'>
+        <Style name='qualifier' fore='#8676CC' back='#FFFFFF'/>
+        <Keyword style_name='qualifier' name='local_size_x'/>
+        <Keyword style_name='qualifier' name='local_size_y'/>
+        <Keyword style_name='qualifier' name='local_size_z'/>
+        <Keyword style_name='qualifier' name='vertices'
+                 hint='Specify a particular vertex count for
+                      ║Tessellation Control Shaders output patches.'/>
+        <Keyword style_name='qualifier' name='points'
+                 hint='The input/output primitive type of the geometry shader are points.'/>
+        <Keyword style_name='qualifier' name='lines'
+                 hint='The input/output primitive type of the geometry shader are lines.'/>
+        <Keyword style_name='qualifier' name='lines_adjacency'
+                 hint='The output primitive type of the geometry shader are adjacency lines.'/>
+        <Keyword style_name='qualifier' name='line_strip'
+                 hint='The output primitive type of the geometry shader are line strips.'/>
+        <Keyword style_name='qualifier' name='triangles'
+                 hint='The input primitive type of the geometry shader are triangles.'/>
+        <Keyword style_name='qualifier' name='triangles_adjacency'
+                 hint='The output primitive type of the geometry shader are adjacency triangles.'/>
+        <Keyword style_name='qualifier' name='triangle_strip'
+                 hint='The output primitive type of the geometry shader are triangles strips.'/>
+        <Keyword style_name='qualifier' name='max_vertices'
+                 hint='The number must be a compile-time constant, and it
+                      ║defines the maximum number of vertices that will
+                      ║be written by a single invocation of the GS.'/>
+        <Keyword style_name='qualifier' name='depth_any'
+                 hint='Disables the depth test.'/>
+        <Keyword style_name='qualifier' name='depth_greater'
+                 hint='To pass the depth test the new depth value must be greater.'/>
+        <Keyword style_name='qualifier' name='depth_less'
+                 hint='To pass the depth test the new depth value must be less.'/>
+        <Keyword style_name='qualifier' name='depth_unchanged'
+                 hint='To pass the depth test the new depth value must be equal.'/>
+        <Keyword style_name='qualifier' name='early_fragment_tests'
+                 hint='Perform depth test before executing the shader.'/>
+        <Keyword style_name='qualifier' name='origin_upper_left'
+                 hint='Specifies that gl_FragCoord​ will have the origin
+                      ║(0, 0) in the upper-left of the screen.'/>
+        <Keyword style_name='qualifier' name='pixel_center_integer'
+                 hint='Specifies that the X and Y of gl_FragCoord​ will
+                      ║be shifted by a half-pixel, so that the center
+                      ║of each pixel is an integer value.
+                      ║fragment was assigned to'/>
+        <Keyword style_name='qualifier' name='index'
+                 hint='Used in combination with the location
+                      ║qualifier for dual source blending.'/>
+        <Keyword style_name='qualifier' name='location'
+                 hint='Assigns the stream to the specified unit.'/>
+        <Keyword style_name='qualifier' name='component'
+                 hint='Used in combination with the location
+                      ║qualifier to address specific vec-
+                      ║components of the input/output stream.'/>
+        <Keyword style_name='qualifier' name='xfb_buffer'
+                 hint='Specifies the transform feedback output buffer.'/>
+        <Keyword style_name='qualifier' name='xfb_offset'
+                 hint='Specifies the first position of the transform
+                      ║feedback output buffer to be written to.'/>
+        <Keyword style_name='qualifier' name='xfb_stride'
+                 hint='Specifies the stride between transform
+                      ║feedback buffer outputs.'/>
+        <Keyword style_name='qualifier' name='r8'/>
+        <Keyword style_name='qualifier' name='r8i'/>
+        <Keyword style_name='qualifier' name='r8ui'/>
+        <Keyword style_name='qualifier' name='r16'/>
+        <Keyword style_name='qualifier' name='r16i'/>
+        <Keyword style_name='qualifier' name='r16ui'/>
+        <Keyword style_name='qualifier' name='r16f'/>
+        <Keyword style_name='qualifier' name='r32i'/>
+        <Keyword style_name='qualifier' name='r32ui'/>
+        <Keyword style_name='qualifier' name='r32f'/>
+        <Keyword style_name='qualifier' name='rg8'/>
+        <Keyword style_name='qualifier' name='rg8i'/>
+        <Keyword style_name='qualifier' name='rg8ui'/>
+        <Keyword style_name='qualifier' name='rg16'/>
+        <Keyword style_name='qualifier' name='rg16i'/>
+        <Keyword style_name='qualifier' name='rg16ui'/>
+        <Keyword style_name='qualifier' name='rg16f'/>
+        <Keyword style_name='qualifier' name='rg32i'/>
+        <Keyword style_name='qualifier' name='rg32ui'/>
+        <Keyword style_name='qualifier' name='rg32f'/>
+        <Keyword style_name='qualifier' name='rgb8'/>
+        <Keyword style_name='qualifier' name='rgb8i'/>
+        <Keyword style_name='qualifier' name='rgb8ui'/>
+        <Keyword style_name='qualifier' name='rgb16'/>
+        <Keyword style_name='qualifier' name='rgb16i'/>
+        <Keyword style_name='qualifier' name='rgb16ui'/>
+        <Keyword style_name='qualifier' name='rgb16f'/>
+        <Keyword style_name='qualifier' name='rgb32i'/>
+        <Keyword style_name='qualifier' name='rgb32ui'/>
+        <Keyword style_name='qualifier' name='rgb32f'/>
+        <Keyword style_name='qualifier' name='rgba8'/>
+        <Keyword style_name='qualifier' name='rgba8i'/>
+        <Keyword style_name='qualifier' name='rgba8ui'/>
+        <Keyword style_name='qualifier' name='rgba16'/>
+        <Keyword style_name='qualifier' name='rgba16i'/>
+        <Keyword style_name='qualifier' name='rgba16ui'/>
+        <Keyword style_name='qualifier' name='rgba16f'/>
+        <Keyword style_name='qualifier' name='rgba32i'/>
+        <Keyword style_name='qualifier' name='rgba32ui'/>
+        <Keyword style_name='qualifier' name='rgba32f'/>
+        <Keyword style_name='qualifier' name='std140'
+                 hint='Force variables to be vec4 aligned.'/>
+        <Keyword style_name='qualifier' name='binding'
+                 hint='The binding unit of the shader resource.'/>
+        <Keyword style_name='qualifier' name='offset'
+                 hint='Atomic counters also have an optional offset parameter.
+                      ║The offset is the byte offset from the beginning of the
+                      ║range bound to the target to the location where this
+                      ║variable gets its 32-bits of storage.'/>
+      </Lexer>
+      <Lexer type='struct' lexer='GlslStructLexer'>
+        <Style name='datatype' fore='#8676CC' back='#FFFFFF'/>
+        <Keyword style_name='datatype' name='bool'/>
+        <Keyword style_name='datatype' name='int'/>
+        <Keyword style_name='datatype' name='uint'/>
+        <Keyword style_name='datatype' name='float'/>
+        <Keyword style_name='datatype' name='atomic_uint'/>
+        <Keyword style_name='datatype' name='bvec2'/>
+        <Keyword style_name='datatype' name='bvec3'/>
+        <Keyword style_name='datatype' name='bvec4'/>
+        <Keyword style_name='datatype' name='ivec2'/>
+        <Keyword style_name='datatype' name='ivec3'/>
+        <Keyword style_name='datatype' name='ivec4'/>
+        <Keyword style_name='datatype' name='uvec2'/>
+        <Keyword style_name='datatype' name='uvec3'/>
+        <Keyword style_name='datatype' name='uvec4'/>
+        <Keyword style_name='datatype' name='vec2'/>
+        <Keyword style_name='datatype' name='vec3'/>
+        <Keyword style_name='datatype' name='vec4'/>
+        <Keyword style_name='datatype' name='dvec2'/>
+        <Keyword style_name='datatype' name='dvec3'/>
+        <Keyword style_name='datatype' name='dvec4'/>
+        <Keyword style_name='datatype' name='mat2'/>
+        <Keyword style_name='datatype' name='mat2x2'/>
+        <Keyword style_name='datatype' name='mat2x3'/>
+        <Keyword style_name='datatype' name='mat2x4'/>
+        <Keyword style_name='datatype' name='mat3'/>
+        <Keyword style_name='datatype' name='mat3x2'/>
+        <Keyword style_name='datatype' name='mat3x3'/>
+        <Keyword style_name='datatype' name='mat3x4'/>
+        <Keyword style_name='datatype' name='mat4'/>
+        <Keyword style_name='datatype' name='mat4x2'/>
+        <Keyword style_name='datatype' name='mat4x3'/>
+        <Keyword style_name='datatype' name='mat4x4'/>
+        <Keyword style_name='datatype' name='dmat2'/>
+        <Keyword style_name='datatype' name='dmat2x2'/>
+        <Keyword style_name='datatype' name='dmat2x3'/>
+        <Keyword style_name='datatype' name='dmat2x4'/>
+        <Keyword style_name='datatype' name='dmat3'/>
+        <Keyword style_name='datatype' name='dmat3x2'/>
+        <Keyword style_name='datatype' name='dmat3x3'/>
+        <Keyword style_name='datatype' name='dmat3x4'/>
+        <Keyword style_name='datatype' name='dmat4'/>
+        <Keyword style_name='datatype' name='dmat4x2'/>
+        <Keyword style_name='datatype' name='dmat4x3'/>
+        <Keyword style_name='datatype' name='dmat4x4'/>
+      </Lexer>
       <Lexer type='function' lexer='DefaultLexer'/>
     </Lexer>
   </Lexer>
