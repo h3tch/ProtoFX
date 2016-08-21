@@ -679,7 +679,7 @@ namespace App.Lexer
             return ProcessDefaultState(editor, c);
         }
 
-        private int ProcessDefaultState(CodeEditor editor, Region c)
+        private new int ProcessDefaultState(CodeEditor editor, Region c)
         {
             if (c.c == '"')
             {
@@ -723,6 +723,7 @@ namespace App.Lexer
 
     class DefaultLexer : BaseLexer
     {
+        protected char stringStartChar;
         protected int stringStartPos;
 
         public DefaultLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
@@ -737,23 +738,37 @@ namespace App.Lexer
                     return ProcessNumberState(editor, c);
                 case (int)BaseState.String:
                     return ProcessStringState(editor, c);
+                case (int)BaseState.LineComment:
+                    return ProcessLineCommentState(editor, c);
+                case (int)BaseState.BlockComment:
+                    return ProcessBlockCommentState(editor, c);
             }
             return ProcessDefaultState(editor, c);
         }
 
-        private int ProcessDefaultState(CodeEditor editor, Region c)
+        protected int ProcessDefaultState(CodeEditor editor, Region c)
         {
-            if (c.c == '"')
+            if (c.c == '"' || c.c == '\'')
             {
+                stringStartChar = c.c;
                 stringStartPos = c.Pos;
                 return (int)BaseState.String;
             }
+            if (c.c == '/')
+            {
+                if (c.r == '/')
+                    return (int)BaseState.LineComment;
+                else if (c.r == '*')
+                    return (int)BaseState.BlockComment;
+            }
             if (char.IsNumber(c.c) || (c.c == '.' && char.IsNumber(c.r)))
                 return (int)BaseState.Number;
-            if (c.c == '.')
+            if (c.c == '.' || c.c == ',' || c.c == ';')
                 return (int)BaseState.Punctuation;
             if (char.IsSymbol(c.c) || c.c == '*' || c.c == '/' || c.c == '+' || c.c == '-')
                 return (int)BaseState.Operator;
+            if (c.c == '(' || c.c == '(' || c.c == '[' || c.c == ']' || c.c == '{' || c.c == '}')
+                return (int)BaseState.Braces;
             return (int)BaseState.Default;
         }
 
@@ -769,10 +784,16 @@ namespace App.Lexer
 
         protected int ProcessStringState(CodeEditor editor, Region c)
         {
-            return c.Pos - 1 != stringStartPos && c.l == '"'
+            return c.Pos - 1 != stringStartPos && (c.l == stringStartChar && c.ll != '\\')
                 ? ProcessDefaultState(editor, c)
                 : (int)BaseState.String;
         }
+
+        protected int ProcessLineCommentState(CodeEditor editor, Region c)
+            => c.c == '\n' ? (int)BaseState.Default : (int)BaseState.LineComment;
+
+        protected int ProcessBlockCommentState(CodeEditor editor, Region c)
+            => c.ll == '*' && c.l == '/' ? ProcessDefaultState(editor, c) : (int)BaseState.BlockComment;
         #endregion
 
         #region STATE
@@ -1138,7 +1159,7 @@ namespace App.Lexer
         #endregion
     }
 
-    class GlslFunctionLexer : BaseLexer
+    class GlslFunctionLexer : DefaultLexer
     {
         public GlslFunctionLexer(int nextStyle, XmlNode xml, BaseLexer defaultLexer)
             : base(nextStyle, xml, defaultLexer) { }
@@ -1146,7 +1167,63 @@ namespace App.Lexer
         #region METHODS
         protected override int ProcessState(CodeEditor editor, int state, Region c)
         {
-            return (int)State.Default;
+            switch (state)
+            {
+                case (int)BaseState.Number:
+                    return ProcessNumberState(editor, c);
+                case (int)BaseState.String:
+                    return ProcessStringState(editor, c);
+                case (int)BaseState.LineComment:
+                    return ProcessLineCommentState(editor, c);
+                case (int)BaseState.BlockComment:
+                    return ProcessBlockCommentState(editor, c);
+                case (int)State.Keyword:
+                    return ProcessKeywordState(editor, c);
+            }
+            return ProcessNewDefaultState(editor, c);
+        }
+
+        private int ProcessNewDefaultState(CodeEditor editor, Region c)
+        {
+            if (char.IsLetter(c.c))
+                return (int)State.Keyword;
+            return ProcessDefaultState(editor, c);
+        }
+        
+        private int ProcessKeywordState(CodeEditor editor, Region c)
+        {
+            // position still inside the word range
+            if (char.IsLetterOrDigit(c.c) || c.c == '_')
+                return (int)State.Keyword;
+
+            // get previous word
+            var start = editor.WordStartPosition(c.Pos, false);
+            var length = c.Pos - start;
+            var word = editor.GetTextRange(start, length);
+
+            // is data type keyword
+            if (keywords[(int)State.DataType][word].Any(x => x.word == word))
+            {
+                editor.StartStyling(start);
+                editor.SetStyling(length, StateToStyle((int)State.DataType));
+                editor.StartStyling(c.Pos);
+            }
+            // is a function
+            else if (keywords[(int)State.Function][word].Any(x => x.word == word))
+            {
+                editor.StartStyling(start);
+                editor.SetStyling(length, StateToStyle((int)State.Function));
+                editor.StartStyling(c.Pos);
+            }
+            // is not a keyword
+            else if (!keywords[(int)State.Keyword][word].Any(x => x.word == word))
+            {
+                editor.StartStyling(start);
+                editor.SetStyling(length, StateToStyle((int)State.Default));
+                editor.StartStyling(c.Pos);
+            }
+
+            return ProcessNewDefaultState(editor, c);
         }
         #endregion
 
