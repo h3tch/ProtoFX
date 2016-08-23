@@ -283,7 +283,7 @@
       <Keyword style_name='command' name='pause' hint='pause [true|false]'/>
       <Keyword style_name='command' name='resume' hint='resume [true|false]'/>
     </Lexer>
-    <!-- SHADER -->
+    <!-- SHADER - - >
     <Lexer type='shader' lexer='GlslLexer'>
       <Style name='keyword' fore='#3E71FF' back='#FFFFFF'/>
       <Style name='datatype' fore='#8676CC' back='#FFFFFF'/>
@@ -1579,7 +1579,7 @@
         <Keyword style_name='datatype' name='dmat4x3'/>
         <Keyword style_name='datatype' name='dmat4x4'/>
       </Lexer>
-    </Lexer>
+    </Lexer>-->
   </Lexer>
   <!-- DEFAULT COMMAND LEXER-->
   <DefaultLexer type='default' lexer='DefaultLexer'/>
