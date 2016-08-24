@@ -283,7 +283,7 @@
       <Keyword style_name='command' name='pause' hint='pause [true|false]'/>
       <Keyword style_name='command' name='resume' hint='resume [true|false]'/>
     </Lexer>
-    <!-- SHADER - - >
+    <!-- SHADER -->
     <Lexer type='shader' lexer='GlslLexer'>
       <Style name='keyword' fore='#3E71FF' back='#FFFFFF'/>
       <Style name='datatype' fore='#8676CC' back='#FFFFFF'/>
@@ -1534,6 +1534,53 @@
         <Keyword style_name='keyword' name='return'/>
         <Keyword style_name='keyword' name='discard'/>
         <Keyword style_name='datatype' name='void'/>
+        <Keyword style_name='datatype' name='bool'/>
+        <Keyword style_name='datatype' name='int'/>
+        <Keyword style_name='datatype' name='uint'/>
+        <Keyword style_name='datatype' name='float'/>
+        <Keyword style_name='datatype' name='atomic_uint'/>
+        <Keyword style_name='datatype' name='bvec2'/>
+        <Keyword style_name='datatype' name='bvec3'/>
+        <Keyword style_name='datatype' name='bvec4'/>
+        <Keyword style_name='datatype' name='ivec2'/>
+        <Keyword style_name='datatype' name='ivec3'/>
+        <Keyword style_name='datatype' name='ivec4'/>
+        <Keyword style_name='datatype' name='uvec2'/>
+        <Keyword style_name='datatype' name='uvec3'/>
+        <Keyword style_name='datatype' name='uvec4'/>
+        <Keyword style_name='datatype' name='vec2'/>
+        <Keyword style_name='datatype' name='vec3'/>
+        <Keyword style_name='datatype' name='vec4'/>
+        <Keyword style_name='datatype' name='dvec2'/>
+        <Keyword style_name='datatype' name='dvec3'/>
+        <Keyword style_name='datatype' name='dvec4'/>
+        <Keyword style_name='datatype' name='mat2'/>
+        <Keyword style_name='datatype' name='mat2x2'/>
+        <Keyword style_name='datatype' name='mat2x3'/>
+        <Keyword style_name='datatype' name='mat2x4'/>
+        <Keyword style_name='datatype' name='mat3'/>
+        <Keyword style_name='datatype' name='mat3x2'/>
+        <Keyword style_name='datatype' name='mat3x3'/>
+        <Keyword style_name='datatype' name='mat3x4'/>
+        <Keyword style_name='datatype' name='mat4'/>
+        <Keyword style_name='datatype' name='mat4x2'/>
+        <Keyword style_name='datatype' name='mat4x3'/>
+        <Keyword style_name='datatype' name='mat4x4'/>
+        <Keyword style_name='datatype' name='dmat2'/>
+        <Keyword style_name='datatype' name='dmat2x2'/>
+        <Keyword style_name='datatype' name='dmat2x3'/>
+        <Keyword style_name='datatype' name='dmat2x4'/>
+        <Keyword style_name='datatype' name='dmat3'/>
+        <Keyword style_name='datatype' name='dmat3x2'/>
+        <Keyword style_name='datatype' name='dmat3x3'/>
+        <Keyword style_name='datatype' name='dmat3x4'/>
+        <Keyword style_name='datatype' name='dmat4'/>
+        <Keyword style_name='datatype' name='dmat4x2'/>
+        <Keyword style_name='datatype' name='dmat4x3'/>
+        <Keyword style_name='datatype' name='dmat4x4'/>
+      </Lexer>
+      <Lexer type='functionheader' lexer='GlslFunctionHeaderLexer'>
+        <Style name='datatype' fore='#8676CC' back='#FFFFFF'/>
         <Keyword style_name='datatype' name='bool'/>
         <Keyword style_name='datatype' name='int'/>
         <Keyword style_name='datatype' name='uint'/>
