@@ -1626,7 +1626,7 @@
         <Keyword style_name='datatype' name='dmat4x3'/>
         <Keyword style_name='datatype' name='dmat4x4'/>
       </Lexer>
-    </Lexer>-->
+    </Lexer>
   </Lexer>
   <!-- DEFAULT COMMAND LEXER-->
   <DefaultLexer type='default' lexer='DefaultLexer'/>
