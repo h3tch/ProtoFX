@@ -72,7 +72,7 @@ namespace App.Lexer
         public int MaxStyle => Math.Max(lastStyle, lexer.Select(x => x.MaxStyle).MaxOr(0));
         protected BaseLexer parentLexer;
         protected BaseLexer defaultLexer;
-        private static Regex regexHint = new Regex("\n[ ]*║");
+        private static Regex regexHint = new Regex(@"\n.*\\");
         #endregion
 
         public BaseLexer(int firstFreeStyle, XmlNode lexerNode, BaseLexer parent)
@@ -137,7 +137,7 @@ namespace App.Lexer
                 var idx = id - firstState;
                 var name = keyword.GetAttributeValue("name");
                 var hint = keyword.GetAttributeValue("hint");
-                if (hint != null)
+                if (hint != null && hint.IndexOf('\\') >= 0)
                     hint = regexHint.Replace(hint, "\n");
                 if (keywords[idx] == null)
                     keywords[idx] = new Trie<Keyword>();
