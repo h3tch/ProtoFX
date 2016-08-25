@@ -41,7 +41,7 @@ namespace App
         {
             try
             {
-                FxLexer.Style(this, GetEndStyled(), e.Position);
+                FxLexer.Style(this, GetEndStyled(), TextLength);
             }
             catch (Exception ex)
             {

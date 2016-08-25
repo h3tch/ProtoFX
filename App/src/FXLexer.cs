@@ -161,23 +161,29 @@ namespace App.Lexer
         public virtual int Style(CodeEditor editor, int pos, int endPos)
         {
             editor.StartStyling(pos);
+            var textLen = editor.TextLength;
 
             // instantiate region class
             var c = new Region(editor, pos);
 
             // continue processing from the last state
-            for (var state = GetPrevState(c); c.Pos < endPos; c.Pos++)
+            for (var state = GetPrevState(c); c.Pos < textLen; c.Pos++)
             {
-                state = ProcessState(editor, state, c, endPos);
+                var curStyle = c.GetStyleAt(0);
+                state = ProcessState(editor, state, c, textLen);
+                var newStyle = StateToStyle(state);
+
                 // reached end position
-                if (c.Pos >= endPos)
+                if (c.Pos >= endPos && (c.Pos >= textLen || (newStyle != 0 && curStyle == newStyle)))
                     break;
+
                 // the lexer can no longer handle the code
                 // go to the parent lexer and lex the code there
                 if (state < 0)
                     return parentLexer?.Style(editor, c.Pos, endPos) ?? endPos;
+
                 // style the current character
-                editor.SetStyling(1, StateToStyle(state));
+                editor.SetStyling(1, newStyle);
             }
 
             return c.Pos;
@@ -320,7 +326,7 @@ namespace App.Lexer
 
         private int GetPrevState(Region c)
         {
-            var state = 0;
+            int state = 0;
             if (c.Pos > 0)
             {
                 // if necessary convert style to state
@@ -350,28 +356,15 @@ namespace App.Lexer
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
-            // while there is still some code to be lexed
-            while (pos < endPos)
-            {
-                var start = pos;
-                ILexer lex = null;
+            // Find a lexer that can continue lexing.
+            // Use the previous state to select the right lexer.
+            // As long as no lexer can be found, move the start position backward.
+            ILexer lex = null;
+            while (pos >= 0 && lex == null)
+                lex = FindLexerForStyle(editor.GetStyleAt(pos--));
 
-                // Find a lexer that can continue lexing.
-                // Use the previous state to select the right lexer.
-                // As long as no lexer can be found, move the start position backward.
-                while (start >= 0 && lex == null)
-                    lex = FindLexerForStyle(editor.GetStyleAt(start--));
-
-                // start lexing from the newly determined start position
-                pos = (lex ?? lexer.First()).Style(editor, start + 1, endPos);
-
-                // SAFEGUARD: Make sure we move forward
-                // so we do not get stuck in an endless loop.
-                if (pos <= start)
-                    pos = start + 1;
-            }
-            
-            return pos;
+            // start lexing from the newly determined start position
+            return (lex ?? lexer.First()).Style(editor, pos + 1, endPos);
         }
         
         private new ILexer FindLexerForStyle(int style)
@@ -916,13 +909,7 @@ namespace App.Lexer
         #endregion
 
         #region STATE
-        private enum State : int
-        {
-            Default,
-            Keyword,
-            DataType,
-            Preprocessor,
-        }
+        private enum State : int { Default, Keyword, DataType, Preprocessor }
 
         public override Type StateType => typeof(State);
         #endregion
@@ -1173,27 +1160,36 @@ namespace App.Lexer
 
         private int ProcessBraceState(CodeEditor editor, Region c)
         {
+            // is a closing brace
             if (c[-1] == '}')
             {
                 int i, count, style;
+
+                // find matching brace position
                 for (i = c.Pos - 1, count = 0; i >= 0; i--)
                 {
-                    if (editor.GetCharAt(i) == '{')
-                        count--;
-                    if (editor.GetCharAt(i) == '}')
-                        count++;
-                    if (count == 0)
-                        break;
+                    switch (editor.GetCharAt(i))
+                    {
+                        case '{': count--; break;
+                        case '}': count++; break;
+                    }
+                    if (count == 0) break;
                 }
+
+                // if no matching brace found, exit
                 if (count != 0 || i < 0)
                     return -1;
+
+                // go to first non base state before the matching brace position
                 for (style = editor.GetStyleAt(i);
                     i >= 0 && firstBaseStyle <= style && style <= lastBaseStyle;
-                    style = editor.GetStyleAt(i))
-                    i--;
+                    style = editor.GetStyleAt(--i));
+
+                // if no function lexer state found, exit
                 if (i < 0 || style < firstStyle || lastStyle < style)
                     return -1;
             }
+
             return ProcessDefaultState(editor, c);
         }
 
