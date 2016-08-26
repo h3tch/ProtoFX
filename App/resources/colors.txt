@@ -1,0 +1,20 @@
+ 0 default             #C0C0C0
+ 1 block               #0000FF
+ 2 annotation          #0099CC
+ 3 command             #6666FF
+ 4 argument            #6633CC
+ 5 GLSLtype            #0000FF
+ 6 GLSLfunction        #993333
+ 7 GLSLlayoutqualifier #0099CC
+ 8 GLSLflowcontrol     #0000FF
+ 9 GLSLbuiltin         #0000FF
+10 opengl              #993333
+11 identifier          #000000
+12 number              #108030
+13 string              #800000
+14 char                #A03030
+15 linecomment         #7F9F00
+16 blockcomment        #7F9F00
+17 preprocessor        #E47426
+18 operator            #6080D0
+19 punctuation         #C0C0C0

@@ -57,7 +57,7 @@ texture tex_shadowmap {
 // SHADERS //
 /////////////
 
-shader vert vs_shadowmap {
+shader vs_shadowmap vert {
 	#version 440
 	
 	layout(binding = 0) uniform SpotLight {
@@ -74,7 +74,7 @@ shader vert vs_shadowmap {
 	}
 }
 
-shader vert vs_render {
+shader vs_render vert {
 	#version 440
 	
 	layout(binding = 0) uniform SpotLight {
@@ -106,7 +106,7 @@ shader vert vs_render {
 	}
 }
 
-shader frag fs_render {
+shader fs_render frag {
 	#version 440
 	#define PI 3.1415926535897932384626433832795
 	

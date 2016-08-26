@@ -61,6 +61,31 @@ namespace App.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to  0 default             #C0C0C0
+        /// 1 block               #0000FF
+        /// 2 annotation          #0099CC
+        /// 3 command             #6666FF
+        /// 4 argument            #6633CC
+        /// 5 GLSLtype            #0000FF
+        /// 6 GLSLfunction        #993333
+        /// 7 GLSLlayoutqualifier #0099CC
+        /// 8 GLSLflowcontrol     #0000FF
+        /// 9 GLSLbuiltin         #0000FF
+        ///10 opengl              #993333
+        ///11 identifier          #000000
+        ///12 number              #108030
+        ///13 string              #800000
+        ///14 char                #A03030
+        ///15 linecomment         #7F9F00
+        /// [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string colors {
+            get {
+                return ResourceManager.GetString("colors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to #define _DBG_BOOL 1
         ///#define _DBG_INT 2
         ///#define _DBG_UINT 3
@@ -270,32 +295,21 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to // 0 default #C0C0C0
-        ///// 0 identifier #000000
-        ///// 0 number #108030
-        ///// 0 string #800000
-        ///// 0 char #A03030
-        ///// 0 linecomment #7F9F00
-        ///// 0 blockcomment #7F9F00
-        ///// 0 preprocessor #E47426
-        ///// 0 operator #6080D0
-        ///// 0 punctuation #C0C0C0
-        ///// 0 block #0000FF
-        ///// 1 annotation #0099CC
-        ///// 2 command #6666FF
-        ///// 3 argument #6633CC
-        ///// 4 function #993333
-        ///// 5 type #0000FF
-        ///// 6 specifications #0000FF
-        ///// 7 qualifier #0099CC
-        ///// 8 variable #0000FF
-        ///// 9 branching #0000FF
-        ///// 10 opengl #993333
-        ///[0]buffer|buffer &lt;nam [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to &lt;?xml version=&apos;1.0&apos;?&gt;
+        ///&lt;FxLexer&gt;
+        ///  &lt;Style name=&apos;string&apos; fore=&apos;#D77763&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;operator&apos; fore=&apos;#A0A0A0&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;braces&apos; fore=&apos;#AAAAAA&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;punctuation&apos; fore=&apos;#A0A0A0&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;number&apos; fore=&apos;#328645&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;LineComment&apos; fore=&apos;#82A847&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;BlockComment&apos; fore=&apos;#82A847&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;name&apos; fore=&apos;#000000&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;!-- TECH -- [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string keywords {
+        internal static string keywordsXML {
             get {
-                return ResourceManager.GetString("keywords", resourceCulture);
+                return ResourceManager.GetString("keywordsXML", resourceCulture);
             }
         }
         
