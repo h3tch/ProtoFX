@@ -139,6 +139,7 @@
     <!-- INSTANCE -->
     <Lexer type='instance' lexer='BlockLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
+      <Style name='indicator' fore='#2FABA7' back='#FFFFFF'/>
       <Keyword style_name='command' name='class' hint='class [csharp_name] [c#_class]'/>
       <Keyword style_name='command' name='name' hint='name [new_name]'/>
     </Lexer>
@@ -146,6 +147,7 @@
     <Lexer type='pass' lexer='BlockLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='break'/>
+      <Keyword style_name='command' name='exec' hint='exec [instance_name]'/>
       <Keyword style_name='command' name='comp' hint='comp [shader_name]'/>
       <Keyword style_name='command' name='vert' hint='vert [shader_name]'/>
       <Keyword style_name='command' name='tess' hint='tess [shader_name]'/>
@@ -187,6 +189,150 @@
                hint='Bind or unbind a texture from an image unit.
                     \&gt; img [texture_name] [unit] [level] [layer] [access] [format] -- bind to unit
                     \&gt; img [unit]                                                  -- unbind unit'/>
+      <Keyword style_name='command' name='glBeginConditionalRender'/>
+      <Keyword style_name='command' name='glBeginQuery'/>
+      <Keyword style_name='command' name='glBeginQueryIndexed'/>
+      <Keyword style_name='command' name='glBlendColor'/>
+      <Keyword style_name='command' name='glBlendEquation'/>
+      <Keyword style_name='command' name='glBlendEquationi'/>
+      <Keyword style_name='command' name='glBlendEquationSeparate'/>
+      <Keyword style_name='command' name='glBlendEquationSeparatei'/>
+      <Keyword style_name='command' name='glBlendFunc'/>
+      <Keyword style_name='command' name='glBlendFunci'/>
+      <Keyword style_name='command' name='glBlendFuncSeparate'/>
+      <Keyword style_name='command' name='glBlendFuncSeparatei'/>
+      <Keyword style_name='command' name='glClampColor'/>
+      <Keyword style_name='command' name='glClear'/>
+      <Keyword style_name='command' name='glClearBuffer'/>
+      <Keyword style_name='command' name='glClearBufferData'/>
+      <Keyword style_name='command' name='glClearBufferfi'/>
+      <Keyword style_name='command' name='glClearBufferfv'/>
+      <Keyword style_name='command' name='glClearBufferiv'/>
+      <Keyword style_name='command' name='glClearBufferSubData'/>
+      <Keyword style_name='command' name='glClearBufferuiv'/>
+      <Keyword style_name='command' name='glClearColor'/>
+      <Keyword style_name='command' name='glClearDepth'/>
+      <Keyword style_name='command' name='glClearDepthf'/>
+      <Keyword style_name='command' name='glClearNamedBufferData'/>
+      <Keyword style_name='command' name='glClearNamedBufferSubData'/>
+      <Keyword style_name='command' name='glClearNamedFramebufferfi'/>
+      <Keyword style_name='command' name='glClearNamedFramebufferfv'/>
+      <Keyword style_name='command' name='glClearNamedFramebufferiv'/>
+      <Keyword style_name='command' name='glClearNamedFramebufferuiv'/>
+      <Keyword style_name='command' name='glClearStencil'/>
+      <Keyword style_name='command' name='glClearTexImage'/>
+      <Keyword style_name='command' name='glClearTexSubImage'/>
+      <Keyword style_name='command' name='glClientWaitSync'/>
+      <Keyword style_name='command' name='glClipControl'/>
+      <Keyword style_name='command' name='glColorMask'/>
+      <Keyword style_name='command' name='glColorMaski'/>
+      <Keyword style_name='command' name='glCullFace'/>
+      <Keyword style_name='command' name='glDepthFunc'/>
+      <Keyword style_name='command' name='glDepthMask'/>
+      <Keyword style_name='command' name='glDepthRange'/>
+      <Keyword style_name='command' name='glDepthRangeArray'/>
+      <Keyword style_name='command' name='glDepthRangeArrayv'/>
+      <Keyword style_name='command' name='glDepthRangef'/>
+      <Keyword style_name='command' name='glDepthRangeIndexed'/>
+      <Keyword style_name='command' name='glDetachShader'/>
+      <Keyword style_name='command' name='glDisable'/>
+      <Keyword style_name='command' name='glDisablei'/>
+      <Keyword style_name='command' name='glEnable'/>
+      <Keyword style_name='command' name='glEnablei'/>
+      <Keyword style_name='command' name='glEndConditionalRender'/>
+      <Keyword style_name='command' name='glEndQuery'/>
+      <Keyword style_name='command' name='glEndQueryIndexed'/>
+      <Keyword style_name='command' name='glEndTransformFeedback'/>
+      <Keyword style_name='command' name='glFlush'/>
+      <Keyword style_name='command' name='glFrontFace'/>
+      <Keyword style_name='command' name='glLineWidth'/>
+      <Keyword style_name='command' name='glLogicOp'/>
+      <Keyword style_name='command' name='glMemoryBarrier'/>
+      <Keyword style_name='command' name='glMemoryBarrierByRegion'/>
+      <Keyword style_name='command' name='glMinSampleShading'/>
+      <Keyword style_name='command' name='glPatchParameter'/>
+      <Keyword style_name='command' name='glPatchParameterfv'/>
+      <Keyword style_name='command' name='glPatchParameteri'/>
+      <Keyword style_name='command' name='glPauseTransformFeedback'/>
+      <Keyword style_name='command' name='glPointParameter'/>
+      <Keyword style_name='command' name='glPointParameterf'/>
+      <Keyword style_name='command' name='glPointParameterfv'/>
+      <Keyword style_name='command' name='glPointParameteri'/>
+      <Keyword style_name='command' name='glPointParameteriv'/>
+      <Keyword style_name='command' name='glPointSize'/>
+      <Keyword style_name='command' name='glPolygonMode'/>
+      <Keyword style_name='command' name='glPolygonOffset'/>
+      <Keyword style_name='command' name='glPopDebugGroup'/>
+      <Keyword style_name='command' name='glPrimitiveRestartIndex'/>
+      <Keyword style_name='command' name='glProvokingVertex'/>
+      <Keyword style_name='command' name='glPushDebugGroup'/>
+      <Keyword style_name='command' name='glQueryCounter'/>
+      <Keyword style_name='command' name='glResumeTransformFeedback'/>
+      <Keyword style_name='command' name='glSampleCoverage'/>
+      <Keyword style_name='command' name='glSampleMaski'/>
+      <Keyword style_name='command' name='glSamplerParameter'/>
+      <Keyword style_name='command' name='glSamplerParameterf'/>
+      <Keyword style_name='command' name='glSamplerParameterfv'/>
+      <Keyword style_name='command' name='glSamplerParameteri'/>
+      <Keyword style_name='command' name='glSamplerParameterIiv'/>
+      <Keyword style_name='command' name='glSamplerParameterIuiv'/>
+      <Keyword style_name='command' name='glSamplerParameteriv'/>
+      <Keyword style_name='command' name='glScissor'/>
+      <Keyword style_name='command' name='glScissorArray'/>
+      <Keyword style_name='command' name='glScissorArrayv'/>
+      <Keyword style_name='command' name='glScissorIndexed'/>
+      <Keyword style_name='command' name='glScissorIndexedv'/>
+      <Keyword style_name='command' name='glShaderStorageBlockBinding'/>
+      <Keyword style_name='command' name='glStencilFunc'/>
+      <Keyword style_name='command' name='glStencilFuncSeparate'/>
+      <Keyword style_name='command' name='glStencilMask'/>
+      <Keyword style_name='command' name='glStencilMaskSeparate'/>
+      <Keyword style_name='command' name='glStencilOp'/>
+      <Keyword style_name='command' name='glStencilOpSeparate'/>
+      <Keyword style_name='command' name='glTextureBarrier'/>
+      <Keyword style_name='command' name='glUniform1f'/>
+      <Keyword style_name='command' name='glUniform1fv'/>
+      <Keyword style_name='command' name='glUniform1i'/>
+      <Keyword style_name='command' name='glUniform1iv'/>
+      <Keyword style_name='command' name='glUniform1ui'/>
+      <Keyword style_name='command' name='glUniform1uiv'/>
+      <Keyword style_name='command' name='glUniform2f'/>
+      <Keyword style_name='command' name='glUniform2fv'/>
+      <Keyword style_name='command' name='glUniform2i'/>
+      <Keyword style_name='command' name='glUniform2iv'/>
+      <Keyword style_name='command' name='glUniform2ui'/>
+      <Keyword style_name='command' name='glUniform2uiv'/>
+      <Keyword style_name='command' name='glUniform3f'/>
+      <Keyword style_name='command' name='glUniform3fv'/>
+      <Keyword style_name='command' name='glUniform3i'/>
+      <Keyword style_name='command' name='glUniform3iv'/>
+      <Keyword style_name='command' name='glUniform3ui'/>
+      <Keyword style_name='command' name='glUniform3uiv'/>
+      <Keyword style_name='command' name='glUniform4f'/>
+      <Keyword style_name='command' name='glUniform4fv'/>
+      <Keyword style_name='command' name='glUniform4i'/>
+      <Keyword style_name='command' name='glUniform4iv'/>
+      <Keyword style_name='command' name='glUniform4ui'/>
+      <Keyword style_name='command' name='glUniform4uiv'/>
+      <Keyword style_name='command' name='glUniformBlockBinding'/>
+      <Keyword style_name='command' name='glUniformMatrix2fv'/>
+      <Keyword style_name='command' name='glUniformMatrix2x3fv'/>
+      <Keyword style_name='command' name='glUniformMatrix2x4fv'/>
+      <Keyword style_name='command' name='glUniformMatrix3fv'/>
+      <Keyword style_name='command' name='glUniformMatrix3x2fv'/>
+      <Keyword style_name='command' name='glUniformMatrix3x4fv'/>
+      <Keyword style_name='command' name='glUniformMatrix4fv'/>
+      <Keyword style_name='command' name='glUniformMatrix4x2fv'/>
+      <Keyword style_name='command' name='glUniformMatrix4x3fv'/>
+      <Keyword style_name='command' name='glUniformSubroutines'/>
+      <Keyword style_name='command' name='glUniformSubroutinesuiv'/>
+      <Keyword style_name='command' name='glViewport'/>
+      <Keyword style_name='command' name='glViewportArray'/>
+      <Keyword style_name='command' name='glViewportArrayv'/>
+      <Keyword style_name='command' name='glViewportIndexed'/>
+      <Keyword style_name='command' name='glViewportIndexedf'/>
+      <Keyword style_name='command' name='glViewportIndexedfv'/>
+      <Keyword style_name='command' name='glWaitSync'/>
       <!-- pass - DRAW -->
       <Lexer type='draw' lexer='CommandLexer'>
         <Style name='argument' fore='#8676CC' back='#FFFFFF'/>
