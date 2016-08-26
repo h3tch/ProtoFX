@@ -317,6 +317,15 @@ namespace App.Lexer
         public int StateToStyle(int state)
             => state + ((state < firstBaseState) ? firstStyle : -firstBaseState);
 
+        public int StyleToState(int style)
+        {
+            if (firstStyle <= style && style <= lastStyle)
+                return style - firstStyle;
+            if (firstBaseStyle <= style && style <= lastBaseStyle)
+                return style - firstBaseStyle + firstBaseState;
+            return -1;
+        }
+
         public virtual bool IsLexerForType(string type) => lexerType == type;
         #endregion
 
@@ -406,12 +415,8 @@ namespace App.Lexer
                     return ProcessPreprocessorState(editor, c);
                 case (int)State.PreprocessorBody:
                     return ProcessPreprocessorBodyState(editor, c);
-                case (int)State.Type:
-                    return ProcessTypeState(editor, c);
-                case (int)BaseState.Name:
-                    return ProcessNameState(editor, c);
-                case (int)State.Anno:
-                    return ProcessAnnoState(editor, c);
+                case (int)State.Indicator:
+                    return ProcessIndicatorState(editor, c);
                 case (int)BaseState.Braces:
                     return ProcessBraceState(editor, c, endPos);
             }
@@ -428,33 +433,42 @@ namespace App.Lexer
                     break;
                 case '#':
                     return (int)State.Preprocessor;
+                case '{':
+                    return (int)BaseState.Braces;
             }
-            return (int)(char.IsLetter(c.c) ? State.Type : State.Default);
+
+            if (char.IsLetter(c.c))
+                return (int)State.Indicator;
+
+            return (int)State.Default;
+        }
+        
+        private int ProcessIndicatorState(CodeEditor editor, Region c)
+        {
+            if (!char.IsLetter(c.c) && c.c != '_')
+                ProcessPreviousWord(editor, c);
+            if (char.IsWhiteSpace(c.c))
+                return (int)State.Default;
+            if (c.c == '{')
+                return (int)BaseState.Braces;
+            return (int)State.Indicator;
         }
 
-        private int ProcessTypeState(CodeEditor editor, Region c)
+        private void ProcessPreviousWord(CodeEditor editor, Region c)
         {
-            if (char.IsWhiteSpace(c[-1]) && char.IsLetter(c.c))
-                return (int)BaseState.Name;
-            if (c.c == '{')
-                return (int)BaseState.Braces;
-            return (int)State.Type;
-        }
-        
-        private int ProcessNameState(CodeEditor editor, Region c)
-        {
-            if (char.IsWhiteSpace(c[-1]) && char.IsLetter(c.c))
-                return (int)State.Anno;
-            if (c.c == '{')
-                return (int)BaseState.Braces;
-            return (int)BaseState.Name;
-        }
-        
-        private int ProcessAnnoState(CodeEditor editor, Region c)
-        {
-            if (c.c == '{')
-                return (int)BaseState.Braces;
-            return (int)State.Anno;
+            var start = editor.WordStartPosition(c.Pos - 1, false);
+            var word = editor.GetWordFromPosition(start);
+            var state = -1;
+
+            if (keywords[(int)State.Type][word].Any(x => x.word == word))
+                state = (int)State.Type;
+            if (keywords[(int)State.Anno][word].Any(x => x.word == word))
+                state = (int)State.Anno;
+            if (state >= 0)
+            {
+                editor.StartStyling(start);
+                editor.SetStyling(c.Pos - start, StateToStyle(state));
+            }
         }
         
         private int ProcessBraceState(CodeEditor editor, Region c, int endPos)
@@ -517,7 +531,7 @@ namespace App.Lexer
         #endregion
 
         #region STATE
-        private enum State : int { Default, Preprocessor, PreprocessorBody, Type, Anno }
+        private enum State : int { Default, Preprocessor, PreprocessorBody, Type, Anno, Indicator }
 
         public override Type StateType => typeof(State);
         #endregion
@@ -1172,7 +1186,8 @@ namespace App.Lexer
                     i >= 0 && firstBaseStyle <= style && style <= lastBaseStyle;
                     style = editor.GetStyleAt(--i))
                 {
-                    if (editor.GetCharAt(i) == '{' || editor.GetCharAt(i) == '}')
+                    var C = editor.GetCharAt(i);
+                    if (C == '{' || C == '}')
                         break;
                 }
 

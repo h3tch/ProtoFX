@@ -26,6 +26,12 @@
     <Keyword style_name='type' name='texture' hint='texture [name]'/>
     <Keyword style_name='type' name='vertinput' hint='vertinput [name]'/>
     <Keyword style_name='type' name='vertoutput' hint='vertoutput [name]'/>
+    <Keyword style_name='anno' name='vert'/>
+    <Keyword style_name='anno' name='tess'/>
+    <Keyword style_name='anno' name='eval'/>
+    <Keyword style_name='anno' name='geom'/>
+    <Keyword style_name='anno' name='frag'/>
+    <Keyword style_name='anno' name='comp'/>
     <!-- BUFFER -->
     <Lexer type='buffer' lexer='BlockLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
