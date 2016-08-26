@@ -293,12 +293,18 @@ namespace App.Lexer
 
         public IEnumerable<Keyword> SelectKeywordInfo(int style, string word)
         {
-            if (firstStyle <= style && style <= lastStyle)
-            {
-                int idx = style - firstStyle;
-                return keywords[idx] != null ? keywords[idx][word] : Enumerable.Empty<Keyword>();
-            }
-            return lexer.SelectMany(x => x.SelectKeywordInfo(style, word));
+            // style not handled by this lexer
+            if (style < firstStyle || lastStyle < style)
+                return lexer.SelectMany(x => x.SelectKeywordInfo(style, word));
+            
+            // style is default style which has no keywords
+            if (style == firstStyle && keywords[0] == null)
+                // get a list of all words for all styles
+                return keywords.Where(x => x != null).SelectMany(x => x[word]);
+
+            // get keywords for the specified style
+            int idx = style - firstStyle;
+            return keywords[idx] != null ? keywords[idx][word] : Enumerable.Empty<Keyword>();
         }
         #endregion
 
@@ -329,6 +335,7 @@ namespace App.Lexer
             // relex last word
             RelexPreviousWord(editor, c.Pos);
 
+            // continue from default state
             return ProcessDefaultState(editor, c);
         }
 
