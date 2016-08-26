@@ -345,6 +345,8 @@ namespace App.Lexer
 
         #region STATE
         protected const int firstBaseState = (int)BaseState.Default;
+        protected const int StringStyle = BaseState.String - BaseState.Default;
+        protected const int BraceStyle = BaseState.Braces - BaseState.Default;
         private enum FoldState : int
         {
             Unknown,
@@ -1166,12 +1168,16 @@ namespace App.Lexer
                     return -1;
 
                 // go to first non base state before the matching brace position
-                for (style = editor.GetStyleAt(i);
+                for (style = editor.GetStyleAt(--i);
                     i >= 0 && firstBaseStyle <= style && style <= lastBaseStyle;
-                    style = editor.GetStyleAt(--i));
+                    style = editor.GetStyleAt(--i))
+                {
+                    if (editor.GetCharAt(i) == '{' || editor.GetCharAt(i) == '}')
+                        break;
+                }
 
                 // if no function lexer state found, exit
-                if (i < 0 || style < firstStyle || lastStyle < style)
+                if ((i < 0 || style < firstStyle || lastStyle < style) && style != BraceStyle)
                     return -1;
             }
 
@@ -1237,12 +1243,6 @@ namespace App.Lexer
         Name,
     }
 
-    enum BaseStyle
-    {
-        String = BaseState.String - BaseState.Default,
-        Braces = BaseState.Braces - BaseState.Default,
-    }
-
     public struct Keyword
     {
         public string word;
@@ -1259,7 +1259,7 @@ namespace App.Lexer
     public static class StateHelper
     {
         public static int ProcessStringState<T>(T caller, CodeEditor editor, Region c) where T : BaseLexer
-            => (c.c == '\n' || (c[-1] == '"' && c[-2] != '\\' && c.GetStyleAt(-2) == (int)BaseStyle.String))
+            => (c.c == '\n' || (c[-1] == '"' && c[-2] != '\\' && c.GetStyleAt(-2) == StringStyle))
                 ? caller.ProcessDefaultState(editor, c)
                 : (int)BaseState.String;
 
@@ -1286,6 +1286,8 @@ namespace App.Lexer
                 C = (char)editor.GetCharAt(--i);
             return editor.GetCharAt(i) != '.' ? -1 : (int)BaseState.Default;
         }
+
+        const int StringStyle = BaseState.String - BaseState.Default;
     }
 
     public class Region
