@@ -295,45 +295,17 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ┬.*
-        ///├1║buffer║buffer &lt;name&gt;¶
-        ///├┬3║size║size &lt;bytes&gt;¶
-        ///│├3║xml║xml &lt;path&gt; &lt;node&gt;¶
-        ///│├3║txt║txt &lt;text_name&gt;¶
-        ///│├3║usage║usage &lt;usage_hint&gt;¶
-        ///│├┬4║dynamicCopy¶
-        ///│ ├4║dynamicDraw¶
-        ///│ ├4║dynamicRead¶
-        ///│ ├4║staticCopy¶
-        ///│ ├4║staticDraw¶
-        ///│ ├4║staticRead¶
-        ///│ ├4║streamCopy¶
-        ///│ ├4║streamDraw¶
-        ///│ ├4║streamRead¶
-        ///├1║csharp║assembly &lt;path&gt; [path] [...]¶
-        ///├┬3║assembly║assembly &lt;path&gt; [path] [...]¶
-        ///│├3║file║file &lt;path&gt; [path] [...]¶
-        ///├1║fragoutput║fragoutput &lt;name&gt;¶
-        ///├┬3║color║color &lt;image_name&gt;¶
-        ///│├3║depth║depth &lt;imag [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string keywords {
-            get {
-                return ResourceManager.GetString("keywords", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&apos;1.0&apos;?&gt;
-        ///&lt;protofx&gt;
-        ///  &lt;TechLexer&gt;
-        ///    &lt;BlockLexer&gt;
-        ///      &lt;CommandLexer&gt;
-        ///        
-        ///      &lt;/CommandLexer&gt;
-        ///    &lt;/BlockLexer&gt;
-        ///  &lt;/TechLexer&gt;
-        ///&lt;/protofx&gt;.
+        ///&lt;FxLexer&gt;
+        ///  &lt;Style name=&apos;string&apos; fore=&apos;#D77763&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;operator&apos; fore=&apos;#A0A0A0&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;braces&apos; fore=&apos;#AAAAAA&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;punctuation&apos; fore=&apos;#A0A0A0&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;number&apos; fore=&apos;#328645&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;LineComment&apos; fore=&apos;#82A847&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;BlockComment&apos; fore=&apos;#82A847&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;name&apos; fore=&apos;#000000&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;!-- TECH -- [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string keywordsXML {
             get {
