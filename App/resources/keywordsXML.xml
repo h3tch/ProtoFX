@@ -26,12 +26,68 @@
     <Keyword style_name='type' name='texture' hint='texture [name]'/>
     <Keyword style_name='type' name='vertinput' hint='vertinput [name]'/>
     <Keyword style_name='type' name='vertoutput' hint='vertoutput [name]'/>
-    <Keyword style_name='anno' name='vert'/>
-    <Keyword style_name='anno' name='tess'/>
-    <Keyword style_name='anno' name='eval'/>
-    <Keyword style_name='anno' name='geom'/>
-    <Keyword style_name='anno' name='frag'/>
-    <Keyword style_name='anno' name='comp'/>
+    <Keyword style_name='anno' name='vert' hint='Vertex shader annotation.
+                                                \  in  int   gl_VertexID
+                                                \  in  int   gl_InstanceID
+                                                \  out vec4  gl_Position
+                                                \  out float gl_PointSize
+                                                \  out float gl_ClipDistance[]'/>
+    <Keyword style_name='anno' name='tess' hint='Tesselation control annotation.
+                                                \  in  int   gl_PatchVerticesIn
+                                                \  in  int   gl_PrimitiveID
+                                                \  in  int   gl_InvocationID
+                                                \  in  vec4  gl_in[].gl_Position
+                                                \  in  float gl_in[].gl_PointSize
+                                                \  in  float gl_in[].gl_ClipDistance[]
+                                                \  out float gl_TessLevelOuter[3]
+                                                \  out float gl_TessLevelInner[3]
+                                                \  out vec4  gl_out[].gl_Position
+                                                \  out float gl_out[].gl_PointSize
+                                                \  out float gl_out[].gl_ClipDistance[]'/>
+    <Keyword style_name='anno' name='eval' hint='Tesselation evaluation shader annotation.
+                                                \  in  vec3  gl_TessCoord
+                                                \  in  int   gl_PatchVerticesIn
+                                                \  in  int   gl_PrimitiveID
+                                                \  in  float gl_TessLevelOuter[3]
+                                                \  in  float gl_TessLevelInner[1]
+                                                \  in  vec4  gl_in[].gl_Position
+                                                \  in  float gl_in[].gl_PointSize
+                                                \  in  float gl_in[].gl_ClipDistance[]
+                                                \  out vec4  gl_Position
+                                                \  out float gl_PointSize
+                                                \  out float gl_ClipDistance[]'/>
+    <Keyword style_name='anno' name='geom' hint='Geometry shader annotation.
+                                                \  in  int   gl_PrimitiveIDIn
+                                                \  in  int   gl_InvocationID
+                                                \  in  vec4  gl_in[].gl_Position
+                                                \  in  float gl_in[].gl_PointSize
+                                                \  in  float gl_in[].gl_ClipDistance[]
+                                                \  out int   gl_PrimitiveID
+                                                \  out int   gl_Layer
+                                                \  out int   gl_ViewportIndex
+                                                \  out vec4  gl_Position
+                                                \  out float gl_PointSize
+                                                \  out float gl_ClipDistance[]'/>
+    <Keyword style_name='anno' name='frag' hint='Fragment shader annotation.
+                                                \  in  vec4  gl_FragCoord
+                                                \  in  bool  gl_FrontFacing
+                                                \  in  vec2  gl_PointCoord
+                                                \  in  int   gl_SampleID
+                                                \  in  vec2  gl_SamplePosition
+                                                \  in  int   gl_SampleMaskIn[]
+                                                \  in  float gl_ClipDistance[]
+                                                \  in  int   gl_PrimitiveID
+                                                \  in  int   gl_Layer
+                                                \  in  int   gl_ViewportIndex
+                                                \  out float gl_FragDepth
+                                                \  out int   gl_SampleMask[]'/>
+    <Keyword style_name='anno' name='comp' hint='Compute shader annotation.
+                                                \  in  uvec3 gl_NumWorkGroups
+                                                \  in  uvec3 gl_WorkGroupSize
+                                                \  in  uvec3 gl_WorkGroupID
+                                                \  in  uvec3 gl_LocalInvocationID
+                                                \  in  uvec3 gl_GlobalInvocationID
+                                                \  in  uint  gl_LocalInvocationIndex'/>
     <!-- BUFFER -->
     <Lexer type='buffer' lexer='BlockLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
@@ -161,20 +217,20 @@
       <Keyword style_name='command' name='draw'
                hint='Draw vertex based (possibly indexed) geometry.
                     \&gt; draw [vertinput_name] [primitive_type] [base_vertex] {vertex_count}
-                    \       {base_instance} {instance_count}
+                    \>       {base_instance} {instance_count}
                     \&gt; draw [vertinput_name] [{indexbuffer_name] [index_type] [primitive_type]
-                    \       [base_vertex] [base_index] [index_count] {base_instance} {instance_count}
+                    \>       [base_vertex] [base_index] [index_count] {base_instance} {instance_count}
                     \&gt; draw [vertinput_name] {callbuffer_name} {primitive_type}
-                    \       {buffer_offset} {draw_count} {stride}
+                    \>       {buffer_offset} {draw_count} {stride}
                     \&gt; draw [vertinput_name] [indexbuffer_name] [index_type] [callbuffer_name]
-                    \       [primitive_type] {buffer_offset} {draw_count} {stride}
+                    \>       [primitive_type] {buffer_offset} {draw_count} {stride}
                     \&gt; draw [vertoutput_name] [primitive_type] {vertoutput_stream} {instance_count}
                     \
                     \primitive_type
-                    \    points, lines, lineLoop, lineStrip, triangles, triangleStrip, triangleFan, patch,
-                    \    linesAdjacency, lineStripAdjacency, trianglesAdjacency, triangleStripAdjacency
+                    \>    points, lines, lineLoop, lineStrip, triangles, triangleStrip, triangleFan, patch,
+                    \>    linesAdjacency, lineStripAdjacency, trianglesAdjacency, triangleStripAdjacency
                     \index_type
-                    \    ubyte, ushort, uint'/>
+                    \>    ubyte, ushort, uint'/>
       <Keyword style_name='command' name='fragout' hint='fragout [fragoutput_name]'/>
       <Keyword style_name='command' name='vertout'
                hint='vertout [vertoutput_name] [output_primitive_type] {write_mode} [output_varying_name]
@@ -440,12 +496,17 @@
       <Style name='keyword' fore='#3E71FF' back='#FFFFFF'/>
       <Style name='datatype' fore='#8676CC' back='#FFFFFF'/>
       <Style name='preprocessor' fore='#A0A0A0' back='#FFFFFF'/>
-      <Keyword style_name='keyword' name='in'/>
-      <Keyword style_name='keyword' name='out'/>
-      <Keyword style_name='keyword' name='const'/>
-      <Keyword style_name='keyword' name='layout'/>
-      <Keyword style_name='keyword' name='uniform'/>
-      <Keyword style_name='keyword' name='struct'/>
+      <Keyword style_name='keyword' name='in' hint='Specify a shader input stream from a vertex
+                                                   \buffer object or the previous shader stage.'/>
+      <Keyword style_name='keyword' name='out' hint='Specify a sshader output stream for the next
+                                                    \shader stage or a transform feedback buffer.'/>
+      <Keyword style_name='keyword' name='const' hint='Specify a constant variable indicating
+                                                      \that the variable will not change.'/>
+      <Keyword style_name='keyword' name='layout' hint='Layout qualifiers affect where the storage
+                                                       \for a variable comes from, as well as other
+                                                       \user-facing properties of a particular definition.'/>
+      <Keyword style_name='keyword' name='uniform' hint='define uniform variable, buffer or sampler object'/>
+      <Keyword style_name='keyword' name='struct' hint='define a data structure'/>
       <Keyword style_name='keyword' name='image1D' hint='1D image binding unit'/>
       <Keyword style_name='keyword' name='image1DArray' hint='1D image array binding unit'/>
       <Keyword style_name='keyword' name='image2D' hint='2D image binding unit'/>
@@ -492,45 +553,45 @@
       <Keyword style_name='datatype' name='uint'/>
       <Keyword style_name='datatype' name='float'/>
       <Keyword style_name='datatype' name='atomic_uint'/>
-      <Keyword style_name='datatype' name='bvec2'/>
-      <Keyword style_name='datatype' name='bvec3'/>
-      <Keyword style_name='datatype' name='bvec4'/>
-      <Keyword style_name='datatype' name='ivec2'/>
-      <Keyword style_name='datatype' name='ivec3'/>
-      <Keyword style_name='datatype' name='ivec4'/>
-      <Keyword style_name='datatype' name='uvec2'/>
-      <Keyword style_name='datatype' name='uvec3'/>
-      <Keyword style_name='datatype' name='uvec4'/>
-      <Keyword style_name='datatype' name='vec2'/>
-      <Keyword style_name='datatype' name='vec3'/>
-      <Keyword style_name='datatype' name='vec4'/>
-      <Keyword style_name='datatype' name='dvec2'/>
-      <Keyword style_name='datatype' name='dvec3'/>
-      <Keyword style_name='datatype' name='dvec4'/>
-      <Keyword style_name='datatype' name='mat2'/>
-      <Keyword style_name='datatype' name='mat2x2'/>
-      <Keyword style_name='datatype' name='mat2x3'/>
-      <Keyword style_name='datatype' name='mat2x4'/>
-      <Keyword style_name='datatype' name='mat3'/>
-      <Keyword style_name='datatype' name='mat3x2'/>
-      <Keyword style_name='datatype' name='mat3x3'/>
-      <Keyword style_name='datatype' name='mat3x4'/>
-      <Keyword style_name='datatype' name='mat4'/>
-      <Keyword style_name='datatype' name='mat4x2'/>
-      <Keyword style_name='datatype' name='mat4x3'/>
-      <Keyword style_name='datatype' name='mat4x4'/>
-      <Keyword style_name='datatype' name='dmat2'/>
-      <Keyword style_name='datatype' name='dmat2x2'/>
-      <Keyword style_name='datatype' name='dmat2x3'/>
-      <Keyword style_name='datatype' name='dmat2x4'/>
-      <Keyword style_name='datatype' name='dmat3'/>
-      <Keyword style_name='datatype' name='dmat3x2'/>
-      <Keyword style_name='datatype' name='dmat3x3'/>
-      <Keyword style_name='datatype' name='dmat3x4'/>
-      <Keyword style_name='datatype' name='dmat4'/>
-      <Keyword style_name='datatype' name='dmat4x2'/>
-      <Keyword style_name='datatype' name='dmat4x3'/>
-      <Keyword style_name='datatype' name='dmat4x4'/>
+      <Keyword style_name='datatype' name='bvec2' hint='bool vector with 2 components'/>
+      <Keyword style_name='datatype' name='bvec3' hint='bool vector with 3 components'/>
+      <Keyword style_name='datatype' name='bvec4' hint='bool vector with 4 components'/>
+      <Keyword style_name='datatype' name='ivec2' hint='int vector with 2 components'/>
+      <Keyword style_name='datatype' name='ivec3' hint='int vector with 3 components'/>
+      <Keyword style_name='datatype' name='ivec4' hint='int vector with 4 components'/>
+      <Keyword style_name='datatype' name='uvec2' hint='unsigned int vector with 2 components'/>
+      <Keyword style_name='datatype' name='uvec3' hint='unsigned int vector with 3 components'/>
+      <Keyword style_name='datatype' name='uvec4' hint='unsigned int vector with 4 components'/>
+      <Keyword style_name='datatype' name='vec2' hint='float vector with 2 components'/>
+      <Keyword style_name='datatype' name='vec3' hint='float vector with 3 components'/>
+      <Keyword style_name='datatype' name='vec4' hint='float vector with 4 components'/>
+      <Keyword style_name='datatype' name='dvec2' hint='double vector with 2 components'/>
+      <Keyword style_name='datatype' name='dvec3' hint='double vector with 3 components'/>
+      <Keyword style_name='datatype' name='dvec4' hint='double vector with 4 components'/>
+      <Keyword style_name='datatype' name='mat2' hint='float matrix with 2 columns and 2 rows'/>
+      <Keyword style_name='datatype' name='mat2x2' hint='float matrix with 2 columns and 2 rows'/>
+      <Keyword style_name='datatype' name='mat2x3' hint='float matrix with 2 columns and 3 rows'/>
+      <Keyword style_name='datatype' name='mat2x4' hint='float matrix with 2 columns and 4 rows'/>
+      <Keyword style_name='datatype' name='mat3' hint='float matrix with 3 columns and 3 rows'/>
+      <Keyword style_name='datatype' name='mat3x2' hint='float matrix with 3 columns and 2 rows'/>
+      <Keyword style_name='datatype' name='mat3x3' hint='float matrix with 3 columns and 3 rows'/>
+      <Keyword style_name='datatype' name='mat3x4' hint='float matrix with 3 columns and 4 rows'/>
+      <Keyword style_name='datatype' name='mat4' hint='float matrix with 4 columns and 4 rows'/>
+      <Keyword style_name='datatype' name='mat4x2' hint='float matrix with 4 columns and 2 rows'/>
+      <Keyword style_name='datatype' name='mat4x3' hint='float matrix with 4 columns and 3 rows'/>
+      <Keyword style_name='datatype' name='mat4x4' hint='float matrix with 4 columns and 4 rows'/>
+      <Keyword style_name='datatype' name='dmat2' hint='double matrix with 2 columns and 2 rows'/>
+      <Keyword style_name='datatype' name='dmat2x2' hint='double matrix with 2 columns and 2 rows'/>
+      <Keyword style_name='datatype' name='dmat2x3' hint='double matrix with 2 columns and 3 rows'/>
+      <Keyword style_name='datatype' name='dmat2x4' hint='double matrix with 2 columns and 4 rows'/>
+      <Keyword style_name='datatype' name='dmat3' hint='double matrix with 3 columns and 3 rows'/>
+      <Keyword style_name='datatype' name='dmat3x2' hint='double matrix with 3 columns and 2 rows'/>
+      <Keyword style_name='datatype' name='dmat3x3' hint='double matrix with 3 columns and 3 rows'/>
+      <Keyword style_name='datatype' name='dmat3x4' hint='double matrix with 3 columns and 4 rows'/>
+      <Keyword style_name='datatype' name='dmat4' hint='double matrix with 4 columns and 4 rows'/>
+      <Keyword style_name='datatype' name='dmat4x2' hint='double matrix with 4 columns and 2 rows'/>
+      <Keyword style_name='datatype' name='dmat4x3' hint='double matrix with 4 columns and 3 rows'/>
+      <Keyword style_name='datatype' name='dmat4x4' hint='double matrix with 4 columns and 4 rows'/>
       <Lexer type='layout' lexer='GlslLayoutLexer'>
         <Style name='qualifier' fore='#8676CC' back='#FFFFFF'/>
         <Keyword style_name='qualifier' name='local_size_x'/>
@@ -644,50 +705,51 @@
       </Lexer>
       <Lexer type='struct' lexer='GlslStructLexer'>
         <Style name='datatype' fore='#8676CC' back='#FFFFFF'/>
+        <Keyword style_name='datatype' name='void'/>
         <Keyword style_name='datatype' name='bool'/>
         <Keyword style_name='datatype' name='int'/>
         <Keyword style_name='datatype' name='uint'/>
         <Keyword style_name='datatype' name='float'/>
         <Keyword style_name='datatype' name='atomic_uint'/>
-        <Keyword style_name='datatype' name='bvec2'/>
-        <Keyword style_name='datatype' name='bvec3'/>
-        <Keyword style_name='datatype' name='bvec4'/>
-        <Keyword style_name='datatype' name='ivec2'/>
-        <Keyword style_name='datatype' name='ivec3'/>
-        <Keyword style_name='datatype' name='ivec4'/>
-        <Keyword style_name='datatype' name='uvec2'/>
-        <Keyword style_name='datatype' name='uvec3'/>
-        <Keyword style_name='datatype' name='uvec4'/>
-        <Keyword style_name='datatype' name='vec2'/>
-        <Keyword style_name='datatype' name='vec3'/>
-        <Keyword style_name='datatype' name='vec4'/>
-        <Keyword style_name='datatype' name='dvec2'/>
-        <Keyword style_name='datatype' name='dvec3'/>
-        <Keyword style_name='datatype' name='dvec4'/>
-        <Keyword style_name='datatype' name='mat2'/>
-        <Keyword style_name='datatype' name='mat2x2'/>
-        <Keyword style_name='datatype' name='mat2x3'/>
-        <Keyword style_name='datatype' name='mat2x4'/>
-        <Keyword style_name='datatype' name='mat3'/>
-        <Keyword style_name='datatype' name='mat3x2'/>
-        <Keyword style_name='datatype' name='mat3x3'/>
-        <Keyword style_name='datatype' name='mat3x4'/>
-        <Keyword style_name='datatype' name='mat4'/>
-        <Keyword style_name='datatype' name='mat4x2'/>
-        <Keyword style_name='datatype' name='mat4x3'/>
-        <Keyword style_name='datatype' name='mat4x4'/>
-        <Keyword style_name='datatype' name='dmat2'/>
-        <Keyword style_name='datatype' name='dmat2x2'/>
-        <Keyword style_name='datatype' name='dmat2x3'/>
-        <Keyword style_name='datatype' name='dmat2x4'/>
-        <Keyword style_name='datatype' name='dmat3'/>
-        <Keyword style_name='datatype' name='dmat3x2'/>
-        <Keyword style_name='datatype' name='dmat3x3'/>
-        <Keyword style_name='datatype' name='dmat3x4'/>
-        <Keyword style_name='datatype' name='dmat4'/>
-        <Keyword style_name='datatype' name='dmat4x2'/>
-        <Keyword style_name='datatype' name='dmat4x3'/>
-        <Keyword style_name='datatype' name='dmat4x4'/>
+        <Keyword style_name='datatype' name='bvec2' hint='bool vector with 2 components'/>
+        <Keyword style_name='datatype' name='bvec3' hint='bool vector with 3 components'/>
+        <Keyword style_name='datatype' name='bvec4' hint='bool vector with 4 components'/>
+        <Keyword style_name='datatype' name='ivec2' hint='int vector with 2 components'/>
+        <Keyword style_name='datatype' name='ivec3' hint='int vector with 3 components'/>
+        <Keyword style_name='datatype' name='ivec4' hint='int vector with 4 components'/>
+        <Keyword style_name='datatype' name='uvec2' hint='unsigned int vector with 2 components'/>
+        <Keyword style_name='datatype' name='uvec3' hint='unsigned int vector with 3 components'/>
+        <Keyword style_name='datatype' name='uvec4' hint='unsigned int vector with 4 components'/>
+        <Keyword style_name='datatype' name='vec2' hint='float vector with 2 components'/>
+        <Keyword style_name='datatype' name='vec3' hint='float vector with 3 components'/>
+        <Keyword style_name='datatype' name='vec4' hint='float vector with 4 components'/>
+        <Keyword style_name='datatype' name='dvec2' hint='double vector with 2 components'/>
+        <Keyword style_name='datatype' name='dvec3' hint='double vector with 3 components'/>
+        <Keyword style_name='datatype' name='dvec4' hint='double vector with 4 components'/>
+        <Keyword style_name='datatype' name='mat2' hint='float matrix with 2 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='mat2x2' hint='float matrix with 2 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='mat2x3' hint='float matrix with 2 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='mat2x4' hint='float matrix with 2 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='mat3' hint='float matrix with 3 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='mat3x2' hint='float matrix with 3 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='mat3x3' hint='float matrix with 3 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='mat3x4' hint='float matrix with 3 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='mat4' hint='float matrix with 4 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='mat4x2' hint='float matrix with 4 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='mat4x3' hint='float matrix with 4 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='mat4x4' hint='float matrix with 4 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='dmat2' hint='double matrix with 2 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='dmat2x2' hint='double matrix with 2 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='dmat2x3' hint='double matrix with 2 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='dmat2x4' hint='double matrix with 2 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='dmat3' hint='double matrix with 3 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='dmat3x2' hint='double matrix with 3 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='dmat3x3' hint='double matrix with 3 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='dmat3x4' hint='double matrix with 3 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='dmat4' hint='double matrix with 4 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='dmat4x2' hint='double matrix with 4 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='dmat4x3' hint='double matrix with 4 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='dmat4x4' hint='double matrix with 4 columns and 4 rows'/>
       </Lexer>
       <Lexer type='function' lexer='GlslFunctionLexer'>
         <Style name='keyword' fore='#3E71FF' back='#FFFFFF'/>
@@ -695,985 +757,986 @@
         <Style name='function' fore='#2FABA7' back='#FFFFFF'/>
         <Keyword style_name='function' name='abs'
                  hint='return the absolute value of the parameter
-                      \  genType  abs(genType  x)
-                      \  genIType abs(genIType x)
-                      \  genDType abs(genDType x)'/>
+                      \>  genType  abs(genType  x)
+                      \>  genIType abs(genIType x)
+                      \>  genDType abs(genDType x)'/>
         <Keyword style_name='function' name='acos'
                  hint='return the arccosine of the parameter
-                      \  genType acos(genType x)'/>
+                      \>  genType acos(genType x)'/>
         <Keyword style_name='function' name='acosh'
                  hint='return the arc hyperbolic cosine of the parameter
-                      \  genType acosh(genType x)'/>
+                      \>  genType acosh(genType x)'/>
         <Keyword style_name='function' name='all'
                  hint='check whether all elements of a boolean vector are true
-                      \  bool all(bvec x)'/>
+                      \>  bool all(bvec x)'/>
         <Keyword style_name='function' name='any'
                  hint='check whether any element of a boolean vector is true
-                      \  bool any(bvec x)'/>
+                      \>  bool any(bvec x)'/>
         <Keyword style_name='function' name='asin'
                  hint='return the arcsine of the parameter
-                      \  genType asin(genType x)'/>
+                      \>  genType asin(genType x)'/>
         <Keyword style_name='function' name='asinh'
                  hint='return the arc hyperbolic sine of the parameter
-                      \  genType asinh(genType x)'/>
+                      \>  genType asinh(genType x)'/>
         <Keyword style_name='function' name='atan' 
                  hint='return the arc-tangent of the parameters
-                      \  genType atan(genType x)'/>
+                      \>  genType atan(genType x)'/>
         <Keyword style_name='function' name='atanh'
                  hint='return the arc hyperbolic tangent of the parameter
-                      \  genType atanh(genType x)'/>
+                      \>  genType atanh(genType x)'/>
         <Keyword style_name='function' name='atomicAdd'
                  hint='perform an atomic addition to a variable
-                      \  int  atomicAdd(inout int  mem, int  data)
-                      \  uint atomicAdd(inout uint mem, uint data)'/>
+                      \>  int  atomicAdd(inout int  mem, int  data)
+                      \>  uint atomicAdd(inout uint mem, uint data)'/>
         <Keyword style_name='function' name='atomicAnd'
                  hint='perform an atomic logical AND operation to a variable
-                      \  int  atomicAdd(inout int  mem, int  data)
-                      \  uint atomicAdd(inout uint mem, uint data)'/>
+                      \>  int  atomicAdd(inout int  mem, int  data)
+                      \>  uint atomicAdd(inout uint mem, uint data)'/>
         <Keyword style_name='function' name='atomicCompSwap' 
                  hint='perform an atomic compare-exchange operation to a variable
-                      \  int  atomicCompSwap(inout int  mem, uint compare, uint data)
-                      \  uint atomicCompSwap(inout uint mem, uint compare, uint data)'/>
+                      \>  int  atomicCompSwap(inout int  mem, uint compare, uint data)
+                      \>  uint atomicCompSwap(inout uint mem, uint compare, uint data)'/>
         <Keyword style_name='function' name='atomicCounter'
                  hint='return the current value of an atomic counter
-                      \  uint atomicCounter(atomic_uint c)'/>
+                      \>  uint atomicCounter(atomic_uint c)'/>
         <Keyword style_name='function' name='atomicCounterDecrement'
                  hint='atomically decrement a counter and return the prior value
-                      \  uint atomicCounterDecrement(atomic_uint c)'/>
+                      \>  uint atomicCounterDecrement(atomic_uint c)'/>
         <Keyword style_name='function' name='atomicCounterIncrement'
                  hint='atomically increment a counter and return the prior value
-                      \  uint atomicCounterIncrement(atomic_uint c)'/>
+                      \>  uint atomicCounterIncrement(atomic_uint c)'/>
         <Keyword style_name='function' name='atomicExchange'
                  hint='perform an atomic exchange operation to a variable
-                      \  int  atomicExchange(inout int  mem, int  data)
-                      \  uint atomicExchange(inout uint mem, uint data)'/>
+                      \>  int  atomicExchange(inout int  mem, int  data)
+                      \>  uint atomicExchange(inout uint mem, uint data)'/>
         <Keyword style_name='function' name='atomicMax'
                  hint='perform an atomic max operation to a variable
-                      \  int  atomicMax(inout int  mem, int  data)
-                      \  uint atomicMax(inout uint mem, uint data)'/>
+                      \>  int  atomicMax(inout int  mem, int  data)
+                      \>  uint atomicMax(inout uint mem, uint data)'/>
         <Keyword style_name='function' name='atomicMin' 
                  hint='perform an atomic min operation to a variable
-                      \  int  atomicMin(inout int  mem, int  data)
-                      \  uint atomicMin(inout uint mem, uint data)'/>
+                      \>  int  atomicMin(inout int  mem, int  data)
+                      \>  uint atomicMin(inout uint mem, uint data)'/>
         <Keyword style_name='function' name='atomicOr'
                  hint='perform an atomic logical OR operation to a variable
-                      \  int  atomicOr(inout int  mem, int  data)
-                      \  uint atomicOr(inout uint mem, uint data)'/>
+                      \>  int  atomicOr(inout int  mem, int  data)
+                      \>  uint atomicOr(inout uint mem, uint data)'/>
         <Keyword style_name='function' name='atomicXor' 
                  hint='perform an atomic logical exclusive OR operation to a variable
-                      \  int  atomicXor(inout int  mem, int  data)
-                      \  uint atomicXor(inout uint mem, uint data)'/>
+                      \>  int  atomicXor(inout int  mem, int  data)
+                      \>  uint atomicXor(inout uint mem, uint data)'/>
         <Keyword style_name='function' name='barrier' 
                  hint='synchronize execution of multiple shader invocations
-                      \  void barrier(void)'/>
+                      \>  void barrier(void)'/>
         <Keyword style_name='function' name='bitCount' 
                  hint='counts the number of 1 bits in an integer
-                      \  genIType bitCount(genIType value)
-                      \  genIType bitCount(genUType value)'/>
+                      \>  genIType bitCount(genIType value)
+                      \>  genIType bitCount(genUType value)'/>
         <Keyword style_name='function' name='bitfieldExtract' 
                  hint='extract a range of bits from an integer
-                      \  genIType bitfieldExtract(genIType value, int offset, int bits)
-                      \  genUType bitfieldExtract(genUType value, int offset, int bits)'/>
+                      \>  genIType bitfieldExtract(genIType value, int offset, int bits)
+                      \>  genUType bitfieldExtract(genUType value, int offset, int bits)'/>
         <Keyword style_name='function' name='bitfieldInsert' 
                  hint='insert a range of bits into an integer
-                      \  genIType bitfieldInsert(genIType base, genIType insert, int offset, int bits)
-                      \  genUType bitfieldInsert(genUType base, genUType insert, int offset, int bits)'/>
+                      \>  genIType bitfieldInsert(genIType base, genIType insert, int offset, int bits)
+                      \>  genUType bitfieldInsert(genUType base, genUType insert, int offset, int bits)'/>
         <Keyword style_name='function' name='bitfieldReverse' 
                  hint='reverse the order of bits in an integer
-                      \  genIType bitfieldReverse(genIType value)
-                      \  genUType bitfieldReverse(genUType value)'/>
+                      \>  genIType bitfieldReverse(genIType value)
+                      \>  genUType bitfieldReverse(genUType value)'/>
         <Keyword style_name='function' name='ceil' 
                  hint='find the nearest integer that is greater
                       \than or equal to the parameter
-                      \  genType  ceil(genType  x)
-                      \  genDType ceil(genDType x)'/>
+                      \>  genType  ceil(genType  x)
+                      \>  genDType ceil(genDType x)'/>
         <Keyword style_name='function' name='clamp' 
                  hint='constrain a value to lie between two further values
-                      \  genType  clamp(genType  x, genType minVal, genType maxVal)
-                      \  genType  clamp(genType  x, float minVal, float maxVal)
-                      \  genDType clamp(genDType x, genDType minVal, genDType maxVal)
-                      \  genDType clamp(genDType x, double minVal, double maxVal)
-                      \  genIType clamp(genIType x, genIType minVal, genIType maxVal)
-                      \  genIType clamp(genIType x, int minVal, int maxVal)
-                      \  genUType clamp(genUType x, genUType minVal, genUType maxVal)
-                      \  genUType clamp(genUType x, uint minVal, uint maxVal)'/>
+                      \>  genType  clamp(genType  x, genType minVal, genType maxVal)
+                      \>  genType  clamp(genType  x, float minVal, float maxVal)
+                      \>  genDType clamp(genDType x, genDType minVal, genDType maxVal)
+                      \>  genDType clamp(genDType x, double minVal, double maxVal)
+                      \>  genIType clamp(genIType x, genIType minVal, genIType maxVal)
+                      \>  genIType clamp(genIType x, int minVal, int maxVal)
+                      \>  genUType clamp(genUType x, genUType minVal, genUType maxVal)
+                      \>  genUType clamp(genUType x, uint minVal, uint maxVal)'/>
         <Keyword style_name='function' name='cos' 
                  hint='return the cosine of the parameter
-                      \  genType cos(genType angle)'/>
+                      \>  genType cos(genType angle)'/>
         <Keyword style_name='function' name='cosh'
                  hint='return the hyperbolic cosine of the parameter
-                      \  genType cosh(genType x)'/>
+                      \>  genType cosh(genType x)'/>
         <Keyword style_name='function' name='cross' 
                  hint='calculate the cross product of two vectors
-                      \  vec3  cross(vec3  x, vec3  y)
-                      \  dvec3 cross(dvec3 x, dvec3 y)'/>
+                      \>  vec3  cross(vec3  x, vec3  y)
+                      \>  dvec3 cross(dvec3 x, dvec3 y)'/>
         <Keyword style_name='function' name='degrees' 
                  hint='convert a quantity in radians to degrees
-                      \  genType degrees(genType radians)'/>
+                      \>  genType degrees(genType radians)'/>
         <Keyword style_name='function' name='determinant' 
                  hint='calculate the determinant of a matrix
-                      \  float determinant(mat2 m)
-                      \  float determinant(mat3 m)
-                      \  float determinant(mat4 m)
-                      \  double determinant(dmat2 m)
-                      \  double determinant(dmat3 m)
-                      \  double determinant(dmat4 m)'/>
+                      \>  float determinant(mat2 m)
+                      \>  float determinant(mat3 m)
+                      \>  float determinant(mat4 m)
+                      \>  double determinant(dmat2 m)
+                      \>  double determinant(dmat3 m)
+                      \>  double determinant(dmat4 m)'/>
         <Keyword style_name='function' name='distance' 
                  hint='calculate the distance between two points
-                      \  float distance(genType p0, genType p1)
-                      \  double distance(genDType p0, genDType p1)'/>
+                      \>  float distance(genType p0, genType p1)
+                      \>  double distance(genDType p0, genDType p1)'/>
         <Keyword style_name='function' name='dot'
                  hint='calculate the dot product of two vectors
-                      \  float dot(genType x, genType y)
-                      \  double dot(genDType x, genDType y)'/>
+                      \>  float dot(genType x, genType y)
+                      \>  double dot(genDType x, genDType y)'/>
         <Keyword style_name='function' name='equal'
                  hint='perform a component-wise equal-to
                       \comparison of two vectors
-                      \  bvec equal(vec x, vec y)
-                      \  bvec equal(ivec x, ivec y)
-                      \  bvec equal(uvec x, uvec y)'/>
+                      \>  bvec equal(vec x, vec y)
+                      \>  bvec equal(ivec x, ivec y)
+                      \>  bvec equal(uvec x, uvec y)'/>
         <Keyword style_name='function' name='exp' 
                  hint='return the natural exponentiation of the parameter
-                      \  genType exp(genType x)'/>
+                      \>  genType exp(genType x)'/>
         <Keyword style_name='function' name='exp2'
                  hint='return 2 raised to the power of the parameter
-                      \  genType exp2(genType x)'/>
+                      \>  genType exp2(genType x)'/>
         <Keyword style_name='function' name='faceforward'
                  hint='return a vector pointing in the same direction as another
-                      \  genType  faceforward(genType  N, genType  I, genType  Nref)
-                      \  genDType faceforward(genDType N, genDType I, genDType Nref)'/>
+                      \>  genType  faceforward(genType  N, genType  I, genType  Nref)
+                      \>  genDType faceforward(genDType N, genDType I, genDType Nref)'/>
         <Keyword style_name='function' name='findLSB' 
                  hint='find the index of the least significant
                       \bit set to 1 in an integer
-                      \  genIType findLSB(genIType value)
-                      \  genIType findLSB(genUType value)'/>
+                      \>  genIType findLSB(genIType value)
+                      \>  genIType findLSB(genUType value)'/>
         <Keyword style_name='function' name='findMSB'
                  hint='find the index of the most significant
                       \bit set to 1 in an integer
-                      \  genIType findMSB(genIType value)
-                      \  genIType findMSB(genUType value)'/>
+                      \>  genIType findMSB(genIType value)
+                      \>  genIType findMSB(genUType value)'/>
         <Keyword style_name='function' name='floor'
                  hint='find the nearest integer less than
                       \or equal to the parameter
-                      \  genType  floor(genType  x)
-                      \  genDType floor(genDType x)'/>
+                      \>  genType  floor(genType  x)
+                      \>  genDType floor(genDType x)'/>
         <Keyword style_name='function' name='fma'
                  hint='perform a fused multiply-add operation (a * b + c)
-                      \  genType  fma(genType  a, genType  b, genType  c)
-                      \  genDType fma(genDType a, genDType b, genDType c)'/>
+                      \>  genType  fma(genType  a, genType  b, genType  c)
+                      \>  genDType fma(genDType a, genDType b, genDType c)'/>
         <Keyword style_name='function' name='fract'
                  hint='compute the fractional part of the argument
-                      \  genType  fract(genType  x)
-                      \  genDType fract(genDType x)'/>
+                      \>  genType  fract(genType  x)
+                      \>  genDType fract(genDType x)'/>
         <Keyword style_name='function' name='frexp'
                  hint='split a floating point number
-                      \  genType  frexp(genType  x, out genIType exp)
-                      \  genDType frexp(genDType x, out genIType exp)'/>
+                      \>  genType  frexp(genType  x, out genIType exp)
+                      \>  genDType frexp(genDType x, out genIType exp)'/>
         <Keyword style_name='function' name='greaterThan'
                  hint='perform a component-wise greater-than
                       \comparison of two vectors
-                      \  bvec greaterThan(vec x, vec y)
-                      \  bvec greaterThan(ivec x, ivec y)
-                      \  bvec greaterThan(uvec x, uvec y)'/>
+                      \>  bvec greaterThan(vec x, vec y)
+                      \>  bvec greaterThan(ivec x, ivec y)
+                      \>  bvec greaterThan(uvec x, uvec y)'/>
         <Keyword style_name='function' name='greaterThanEqual'
                  hint='perform a component-wise greater-than-or-equal
                       \comparison of two vectors
-                      \  bvec greaterThanEqual(vec x, vec y)
-                      \  bvec greaterThanEqual(ivec x, ivec y)
-                      \  bvec greaterThanEqual(uvec x, uvec y)'/>
+                      \>  bvec greaterThanEqual(vec x, vec y)
+                      \>  bvec greaterThanEqual(ivec x, ivec y)
+                      \>  bvec greaterThanEqual(uvec x, uvec y)'/>
         <Keyword style_name='function' name='groupMemoryBarrier'
                  hint='controls the ordering of memory transaction issued
                       \shader invocation relative to a work group
-                      \  void groupMemoryBarrier(void)'/>
+                      \>  void groupMemoryBarrier(void)'/>
         <Keyword style_name='function' name='imageAtomicAdd'
                  hint='atomically add a value to an existing value in memory
                       \and return the original value
-                      \  uint imageAtomicAdd(gimage1D image, int   P, uint data)
-                      \  uint imageAtomicAdd(gimage2D image, ivec2 P, uint data)
-                      \  uint imageAtomicAdd(gimage3D image, ivec3 P, uint data)
-                      \  uint imageAtomicAdd(gimage2DRect image, ivec2 P, uint data)
-                      \  uint imageAtomicAdd(gimageCube   image, ivec3 P, uint data)
-                      \  uint imageAtomicAdd(gbufferImage image, int   P, uint data)
-                      \  uint imageAtomicAdd(gimage1DArray   image, ivec2 P, uint data)
-                      \  uint imageAtomicAdd(gimage2DArray   image, ivec3 P, uint data)
-                      \  uint imageAtomicAdd(gimageCubeArray image, ivec3 P, uint data)
-                      \  uint imageAtomicAdd(gimage2DMS image, ivec2 P, int sample, uint data)
-                      \  uint imageAtomicAdd(gimage2DMSArray image, ivec3 P, int sample, uint data)
-                      \  int  imageAtomicAdd(gimage1D image, int   P, int data)
-                      \  int  imageAtomicAdd(gimage2D image, ivec2 P, int data)
-                      \  int  imageAtomicAdd(gimage3D image, ivec3 P, int data)
-                      \  int  imageAtomicAdd(gimage2DRect image, ivec2 P, int data)
-                      \  int  imageAtomicAdd(gimageCube   image, ivec3 P, int data)
-                      \  int  imageAtomicAdd(gbufferImage image, int   P, int data)
-                      \  int  imageAtomicAdd(gimage1DArray   image, ivec2 P, int data)
-                      \  int  imageAtomicAdd(gimage2DArray   image, ivec3 P, int data)
-                      \  int  imageAtomicAdd(gimageCubeArray image, ivec3 P, int data)
-                      \  int  imageAtomicAdd(gimage2DMS image, ivec2 P, int sample, int data)
-                      \  int  imageAtomicAdd(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
+                      \>  uint imageAtomicAdd(gimage1D image, int   P, uint data)
+                      \>  uint imageAtomicAdd(gimage2D image, ivec2 P, uint data)
+                      \>  uint imageAtomicAdd(gimage3D image, ivec3 P, uint data)
+                      \>  uint imageAtomicAdd(gimage2DRect image, ivec2 P, uint data)
+                      \>  uint imageAtomicAdd(gimageCube   image, ivec3 P, uint data)
+                      \>  uint imageAtomicAdd(gbufferImage image, int   P, uint data)
+                      \>  uint imageAtomicAdd(gimage1DArray   image, ivec2 P, uint data)
+                      \>  uint imageAtomicAdd(gimage2DArray   image, ivec3 P, uint data)
+                      \>  uint imageAtomicAdd(gimageCubeArray image, ivec3 P, uint data)
+                      \>  uint imageAtomicAdd(gimage2DMS image, ivec2 P, int sample, uint data)
+                      \>  uint imageAtomicAdd(gimage2DMSArray image, ivec3 P, int sample, uint data)
+                      \>  int  imageAtomicAdd(gimage1D image, int   P, int data)
+                      \>  int  imageAtomicAdd(gimage2D image, ivec2 P, int data)
+                      \>  int  imageAtomicAdd(gimage3D image, ivec3 P, int data)
+                      \>  int  imageAtomicAdd(gimage2DRect image, ivec2 P, int data)
+                      \>  int  imageAtomicAdd(gimageCube   image, ivec3 P, int data)
+                      \>  int  imageAtomicAdd(gbufferImage image, int   P, int data)
+                      \>  int  imageAtomicAdd(gimage1DArray   image, ivec2 P, int data)
+                      \>  int  imageAtomicAdd(gimage2DArray   image, ivec3 P, int data)
+                      \>  int  imageAtomicAdd(gimageCubeArray image, ivec3 P, int data)
+                      \>  int  imageAtomicAdd(gimage2DMS image, ivec2 P, int sample, int data)
+                      \>  int  imageAtomicAdd(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
         <Keyword style_name='function' name='imageAtomicAnd' 
                  hint='atomically compute the logical AND of a value with an existing
                       \value in memory, store that value and return the original value
-                      \  uint imageAtomicAnd(gimage1D image, int   P, uint data)
-                      \  uint imageAtomicAnd(gimage2D image, ivec2 P, uint data)
-                      \  uint imageAtomicAnd(gimage3D image, ivec3 P, uint data)
-                      \  uint imageAtomicAnd(gimage2DRect image, ivec2 P, uint data)
-                      \  uint imageAtomicAnd(gimageCube   image, ivec3 P, uint data)
-                      \  uint imageAtomicAnd(gbufferImage image, int   P, uint data)
-                      \  uint imageAtomicAnd(gimage1DArray   image, ivec2 P, uint data)
-                      \  uint imageAtomicAnd(gimage2DArray   image, ivec3 P, uint data)
-                      \  uint imageAtomicAnd(gimageCubeArray image, ivec3 P, uint data)
-                      \  uint imageAtomicAnd(gimage2DMS image, ivec2 P, int sample, uint data)
-                      \  uint imageAtomicAnd(gimage2DMSArray image, ivec3 P, int sample, uint data)
-                      \  int  imageAtomicAnd(gimage1D image, int   P, int data)
-                      \  int  imageAtomicAnd(gimage2D image, ivec2 P, int data)
-                      \  int  imageAtomicAnd(gimage3D image, ivec3 P, int data)
-                      \  int  imageAtomicAnd(gimage2DRect image, ivec2 P, int data)
-                      \  int  imageAtomicAnd(gimageCube   image, ivec3 P, int data)
-                      \  int  imageAtomicAnd(gbufferImage image, int   P, int data)
-                      \  int  imageAtomicAnd(gimage1DArray   image, ivec2 P, int data)
-                      \  int  imageAtomicAnd(gimage2DArray   image, ivec3 P, int data)
-                      \  int  imageAtomicAnd(gimageCubeArray image, ivec3 P, int data)
-                      \  int  imageAtomicAnd(gimage2DMS image, ivec2 P, int sample, int data)
-                      \  int  imageAtomicAnd(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
+                      \>  uint imageAtomicAnd(gimage1D image, int   P, uint data)
+                      \>  uint imageAtomicAnd(gimage2D image, ivec2 P, uint data)
+                      \>  uint imageAtomicAnd(gimage3D image, ivec3 P, uint data)
+                      \>  uint imageAtomicAnd(gimage2DRect image, ivec2 P, uint data)
+                      \>  uint imageAtomicAnd(gimageCube   image, ivec3 P, uint data)
+                      \>  uint imageAtomicAnd(gbufferImage image, int   P, uint data)
+                      \>  uint imageAtomicAnd(gimage1DArray   image, ivec2 P, uint data)
+                      \>  uint imageAtomicAnd(gimage2DArray   image, ivec3 P, uint data)
+                      \>  uint imageAtomicAnd(gimageCubeArray image, ivec3 P, uint data)
+                      \>  uint imageAtomicAnd(gimage2DMS image, ivec2 P, int sample, uint data)
+                      \>  uint imageAtomicAnd(gimage2DMSArray image, ivec3 P, int sample, uint data)
+                      \>  int  imageAtomicAnd(gimage1D image, int   P, int data)
+                      \>  int  imageAtomicAnd(gimage2D image, ivec2 P, int data)
+                      \>  int  imageAtomicAnd(gimage3D image, ivec3 P, int data)
+                      \>  int  imageAtomicAnd(gimage2DRect image, ivec2 P, int data)
+                      \>  int  imageAtomicAnd(gimageCube   image, ivec3 P, int data)
+                      \>  int  imageAtomicAnd(gbufferImage image, int   P, int data)
+                      \>  int  imageAtomicAnd(gimage1DArray   image, ivec2 P, int data)
+                      \>  int  imageAtomicAnd(gimage2DArray   image, ivec3 P, int data)
+                      \>  int  imageAtomicAnd(gimageCubeArray image, ivec3 P, int data)
+                      \>  int  imageAtomicAnd(gimage2DMS image, ivec2 P, int sample, int data)
+                      \>  int  imageAtomicAnd(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
         <Keyword style_name='function' name='imageAtomicCompSwap'
                  hint='atomically compares supplied data with that in memory and
                       \conditionally stores it to memory
-                      \  uint imageAtomicCompSwap(gimage1D image, int   P, uint compare, uint data)
-                      \  uint imageAtomicCompSwap(gimage2D image, ivec2 P, uint compare, uint data)
-                      \  uint imageAtomicCompSwap(gimage3D image, ivec3 P, uint compare, uint data)
-                      \  uint imageAtomicCompSwap(gimage2DRect image, ivec2 P, uint compare, uint data)
-                      \  uint imageAtomicCompSwap(gimageCube   image, ivec3 P, uint compare, uint data)
-                      \  uint imageAtomicCompSwap(gbufferImage image, int   P, uint compare, uint data)
-                      \  uint imageAtomicCompSwap(gimage1DArray   image, ivec2 P, uint compare, uint data)
-                      \  uint imageAtomicCompSwap(gimage2DArray   image, ivec3 P, uint compare, uint data)
-                      \  uint imageAtomicCompSwap(gimageCubeArray image, ivec3 P, uint compare, uint data)
-                      \  uint imageAtomicCompSwap(gimage2DMS image, ivec2 P, int sample, uint compare, uint data)
-                      \  uint imageAtomicCompSwap(gimage2DMSArray image, ivec3 P, int sample, uint compare, uint data)
-                      \  int  imageAtomicCompSwap(gimage1D image, int   P, int compare, int data)
-                      \  int  imageAtomicCompSwap(gimage2D image, ivec2 P, int compare, int data)
-                      \  int  imageAtomicCompSwap(gimage3D image, ivec3 P, int compare, int data)
-                      \  int  imageAtomicCompSwap(gimage2DRect image, ivec2 P, int compare, int data)
-                      \  int  imageAtomicCompSwap(gimageCube   image, ivec3 P, int compare, int data)
-                      \  int  imageAtomicCompSwap(gbufferImage image, int   P, int compare, int data)
-                      \  int  imageAtomicCompSwap(gimage1DArray   image, ivec2 P, int compare, int data)
-                      \  int  imageAtomicCompSwap(gimage2DArray   image, ivec3 P, int compare, int data)
-                      \  int  imageAtomicCompSwap(gimageCubeArray image, ivec3 P, int compare, int data)
-                      \  int  imageAtomicCompSwap(gimage2DMS image, ivec2 P, int sample, int compare, int data)
-                      \  int  imageAtomicCompSwap(gimage2DMSArray image, ivec3 P, int sample, int compare, int data)'/>
+                      \>  uint imageAtomicCompSwap(gimage1D image, int   P, uint compare, uint data)
+                      \>  uint imageAtomicCompSwap(gimage2D image, ivec2 P, uint compare, uint data)
+                      \>  uint imageAtomicCompSwap(gimage3D image, ivec3 P, uint compare, uint data)
+                      \>  uint imageAtomicCompSwap(gimage2DRect image, ivec2 P, uint compare, uint data)
+                      \>  uint imageAtomicCompSwap(gimageCube   image, ivec3 P, uint compare, uint data)
+                      \>  uint imageAtomicCompSwap(gbufferImage image, int   P, uint compare, uint data)
+                      \>  uint imageAtomicCompSwap(gimage1DArray   image, ivec2 P, uint compare, uint data)
+                      \>  uint imageAtomicCompSwap(gimage2DArray   image, ivec3 P, uint compare, uint data)
+                      \>  uint imageAtomicCompSwap(gimageCubeArray image, ivec3 P, uint compare, uint data)
+                      \>  uint imageAtomicCompSwap(gimage2DMS image, ivec2 P, int sample, uint compare, uint data)
+                      \>  uint imageAtomicCompSwap(gimage2DMSArray image, ivec3 P, int sample, uint compare, uint data)
+                      \>  int  imageAtomicCompSwap(gimage1D image, int   P, int compare, int data)
+                      \>  int  imageAtomicCompSwap(gimage2D image, ivec2 P, int compare, int data)
+                      \>  int  imageAtomicCompSwap(gimage3D image, ivec3 P, int compare, int data)
+                      \>  int  imageAtomicCompSwap(gimage2DRect image, ivec2 P, int compare, int data)
+                      \>  int  imageAtomicCompSwap(gimageCube   image, ivec3 P, int compare, int data)
+                      \>  int  imageAtomicCompSwap(gbufferImage image, int   P, int compare, int data)
+                      \>  int  imageAtomicCompSwap(gimage1DArray   image, ivec2 P, int compare, int data)
+                      \>  int  imageAtomicCompSwap(gimage2DArray   image, ivec3 P, int compare, int data)
+                      \>  int  imageAtomicCompSwap(gimageCubeArray image, ivec3 P, int compare, int data)
+                      \>  int  imageAtomicCompSwap(gimage2DMS image, ivec2 P, int sample, int compare, int data)
+                      \>  int  imageAtomicCompSwap(gimage2DMSArray image, ivec3 P, int sample, int compare, int data)'/>
         <Keyword style_name='function' name='imageAtomicExchange'
                  hint='atomically store supplied data into memory and
                       \return the original value from memory
-                      \  uint imageAtomicExchange(gimage1D image, int P, uint data)
-                      \  uint imageAtomicExchange(gimage2D image, ivec2 P, uint data)
-                      \  uint imageAtomicExchange(gimage3D image, ivec3 P, uint data)
-                      \  uint imageAtomicExchange(gimage2DRect image, ivec2 P, uint data)
-                      \  uint imageAtomicExchange(gimageCube image, ivec3 P, uint data)
-                      \  uint imageAtomicExchange(gbufferImage image, int P, uint data)
-                      \  uint imageAtomicExchange(gimage1DArray image, ivec2 P, uint data)
-                      \  uint imageAtomicExchange(gimage2DArray image, ivec3 P, uint data)
-                      \  uint imageAtomicExchange(gimageCubeArray image, ivec3 P, uint data)
-                      \  uint imageAtomicExchange(gimage2DMS image, ivec2 P, int sample, uint data)
-                      \  uint imageAtomicExchange(gimage2DMSArray image, ivec3 P, int sample, uint data)
-                      \  int  imageAtomicExchange(gimage1D image, int P, int data)
-                      \  int  imageAtomicExchange(gimage2D image, ivec2 P, int data)
-                      \  int  imageAtomicExchange(gimage3D image, ivec3 P, int data)
-                      \  int  imageAtomicExchange(gimage2DRect image, ivec2 P, int data)
-                      \  int  imageAtomicExchange(gimageCube image, ivec3 P, int data)
-                      \  int  imageAtomicExchange(gbufferImage image, int P, int data)
-                      \  int  imageAtomicExchange(gimage1DArray image, ivec2 P, int data)
-                      \  int  imageAtomicExchange(gimage2DArray image, ivec3 P, int data)
-                      \  int  imageAtomicExchange(gimageCubeArray image, ivec3 P, int data)
-                      \  int  imageAtomicExchange(gimage2DMS image, ivec2 P, int sample, int data)
-                      \  int  imageAtomicExchange(gimage2DMSArray image, ivec3 P, int sample, int data)
-                      \  int  imageAtomicExchange(gimage1D image, int P, float data)
-                      \  int  imageAtomicExchange(gimage2D image, ivec2 P, float data)
-                      \  int  imageAtomicExchange(gimage3D image, ivec3 P, float data)
-                      \  int  imageAtomicExchange(gimage2DRect image, ivec2 P, float data)
-                      \  int  imageAtomicExchange(gimageCube image, ivec3 P, float data)
-                      \  int  imageAtomicExchange(gbufferImage image, int P, float data)
-                      \  int  imageAtomicExchange(gimage1DArray image, ivec2 P, float data)
-                      \  int  imageAtomicExchange(gimage2DArray image, ivec3 P, float data)
-                      \  int  imageAtomicExchange(gimageCubeArray image, ivec3 P, float data)
-                      \  int  imageAtomicExchange(gimage2DMS image, ivec2 P, int sample, float data)
-                      \  int  imageAtomicExchange(gimage2DMSArray image, ivec3 P, int sample, float data)'/>
+                      \>  uint imageAtomicExchange(gimage1D image, int P, uint data)
+                      \>  uint imageAtomicExchange(gimage2D image, ivec2 P, uint data)
+                      \>  uint imageAtomicExchange(gimage3D image, ivec3 P, uint data)
+                      \>  uint imageAtomicExchange(gimage2DRect image, ivec2 P, uint data)
+                      \>  uint imageAtomicExchange(gimageCube image, ivec3 P, uint data)
+                      \>  uint imageAtomicExchange(gbufferImage image, int P, uint data)
+                      \>  uint imageAtomicExchange(gimage1DArray image, ivec2 P, uint data)
+                      \>  uint imageAtomicExchange(gimage2DArray image, ivec3 P, uint data)
+                      \>  uint imageAtomicExchange(gimageCubeArray image, ivec3 P, uint data)
+                      \>  uint imageAtomicExchange(gimage2DMS image, ivec2 P, int sample, uint data)
+                      \>  uint imageAtomicExchange(gimage2DMSArray image, ivec3 P, int sample, uint data)
+                      \>  int  imageAtomicExchange(gimage1D image, int P, int data)
+                      \>  int  imageAtomicExchange(gimage2D image, ivec2 P, int data)
+                      \>  int  imageAtomicExchange(gimage3D image, ivec3 P, int data)
+                      \>  int  imageAtomicExchange(gimage2DRect image, ivec2 P, int data)
+                      \>  int  imageAtomicExchange(gimageCube image, ivec3 P, int data)
+                      \>  int  imageAtomicExchange(gbufferImage image, int P, int data)
+                      \>  int  imageAtomicExchange(gimage1DArray image, ivec2 P, int data)
+                      \>  int  imageAtomicExchange(gimage2DArray image, ivec3 P, int data)
+                      \>  int  imageAtomicExchange(gimageCubeArray image, ivec3 P, int data)
+                      \>  int  imageAtomicExchange(gimage2DMS image, ivec2 P, int sample, int data)
+                      \>  int  imageAtomicExchange(gimage2DMSArray image, ivec3 P, int sample, int data)
+                      \>  int  imageAtomicExchange(gimage1D image, int P, float data)
+                      \>  int  imageAtomicExchange(gimage2D image, ivec2 P, float data)
+                      \>  int  imageAtomicExchange(gimage3D image, ivec3 P, float data)
+                      \>  int  imageAtomicExchange(gimage2DRect image, ivec2 P, float data)
+                      \>  int  imageAtomicExchange(gimageCube image, ivec3 P, float data)
+                      \>  int  imageAtomicExchange(gbufferImage image, int P, float data)
+                      \>  int  imageAtomicExchange(gimage1DArray image, ivec2 P, float data)
+                      \>  int  imageAtomicExchange(gimage2DArray image, ivec3 P, float data)
+                      \>  int  imageAtomicExchange(gimageCubeArray image, ivec3 P, float data)
+                      \>  int  imageAtomicExchange(gimage2DMS image, ivec2 P, int sample, float data)
+                      \>  int  imageAtomicExchange(gimage2DMSArray image, ivec3 P, int sample, float data)'/>
         <Keyword style_name='function' name='imageAtomicMax' 
                  hint='atomically compute the minimum of a value with an existing
                       \value in memory, store that value and return the original value
-                      \  uint imageAtomicMax(gimage1D image, int   P, uint data)
-                      \  uint imageAtomicMax(gimage2D image, ivec2 P, uint data)
-                      \  uint imageAtomicMax(gimage3D image, ivec3 P, uint data)
-                      \  uint imageAtomicMax(gimage2DRect image, ivec2 P, uint data)
-                      \  uint imageAtomicMax(gimageCube   image, ivec3 P, uint data)
-                      \  uint imageAtomicMax(gbufferImage image, int   P, uint data)
-                      \  uint imageAtomicMax(gimage1DArray   image, ivec2 P, uint data)
-                      \  uint imageAtomicMax(gimage2DArray   image, ivec3 P, uint data)
-                      \  uint imageAtomicMax(gimageCubeArray image, ivec3 P, uint data)
-                      \  uint imageAtomicMax(gimage2DMS image, ivec2 P, int sample, uint data)
-                      \  uint imageAtomicMax(gimage2DMSArray image, ivec3 P, int sample, uint data)
-                      \  int  imageAtomicMax(gimage1D image, int   P, int data)
-                      \  int  imageAtomicMax(gimage2D image, ivec2 P, int data)
-                      \  int  imageAtomicMax(gimage3D image, ivec3 P, int data)
-                      \  int  imageAtomicMax(gimage2DRect image, ivec2 P, int data)
-                      \  int  imageAtomicMax(gimageCube   image, ivec3 P, int data)
-                      \  int  imageAtomicMax(gbufferImage image, int   P, int data)
-                      \  int  imageAtomicMax(gimage1DArray   image, ivec2 P, int data)
-                      \  int  imageAtomicMax(gimage2DArray   image, ivec3 P, int data)
-                      \  int  imageAtomicMax(gimageCubeArray image, ivec3 P, int data)
-                      \  int  imageAtomicMax(gimage2DMS image, ivec2 P, int sample, int data)
-                      \  int  imageAtomicMax(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
+                      \>  uint imageAtomicMax(gimage1D image, int   P, uint data)
+                      \>  uint imageAtomicMax(gimage2D image, ivec2 P, uint data)
+                      \>  uint imageAtomicMax(gimage3D image, ivec3 P, uint data)
+                      \>  uint imageAtomicMax(gimage2DRect image, ivec2 P, uint data)
+                      \>  uint imageAtomicMax(gimageCube   image, ivec3 P, uint data)
+                      \>  uint imageAtomicMax(gbufferImage image, int   P, uint data)
+                      \>  uint imageAtomicMax(gimage1DArray   image, ivec2 P, uint data)
+                      \>  uint imageAtomicMax(gimage2DArray   image, ivec3 P, uint data)
+                      \>  uint imageAtomicMax(gimageCubeArray image, ivec3 P, uint data)
+                      \>  uint imageAtomicMax(gimage2DMS image, ivec2 P, int sample, uint data)
+                      \>  uint imageAtomicMax(gimage2DMSArray image, ivec3 P, int sample, uint data)
+                      \>  int  imageAtomicMax(gimage1D image, int   P, int data)
+                      \>  int  imageAtomicMax(gimage2D image, ivec2 P, int data)
+                      \>  int  imageAtomicMax(gimage3D image, ivec3 P, int data)
+                      \>  int  imageAtomicMax(gimage2DRect image, ivec2 P, int data)
+                      \>  int  imageAtomicMax(gimageCube   image, ivec3 P, int data)
+                      \>  int  imageAtomicMax(gbufferImage image, int   P, int data)
+                      \>  int  imageAtomicMax(gimage1DArray   image, ivec2 P, int data)
+                      \>  int  imageAtomicMax(gimage2DArray   image, ivec3 P, int data)
+                      \>  int  imageAtomicMax(gimageCubeArray image, ivec3 P, int data)
+                      \>  int  imageAtomicMax(gimage2DMS image, ivec2 P, int sample, int data)
+                      \>  int  imageAtomicMax(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
         <Keyword style_name='function' name='imageAtomicMin' 
                  hint='atomically compute the minimum of a value with an existing
                       \value in memory, store that value and return the original value
-                      \  uint imageAtomicMin(gimage1D image, int   P, uint data)
-                      \  uint imageAtomicMin(gimage2D image, ivec2 P, uint data)
-                      \  uint imageAtomicMin(gimage3D image, ivec3 P, uint data)
-                      \  uint imageAtomicMin(gimage2DRect image, ivec2 P, uint data)
-                      \  uint imageAtomicMin(gimageCube   image, ivec3 P, uint data)
-                      \  uint imageAtomicMin(gbufferImage image, int   P, uint data)
-                      \  uint imageAtomicMin(gimage1DArray   image, ivec2 P, uint data)
-                      \  uint imageAtomicMin(gimage2DArray   image, ivec3 P, uint data)
-                      \  uint imageAtomicMin(gimageCubeArray image, ivec3 P, uint data)
-                      \  uint imageAtomicMin(gimage2DMS image, ivec2 P, int sample, uint data)
-                      \  uint imageAtomicMin(gimage2DMSArray image, ivec3 P, int sample, uint data)
-                      \  int  imageAtomicMin(gimage1D image, int   P, int data)
-                      \  int  imageAtomicMin(gimage2D image, ivec2 P, int data)
-                      \  int  imageAtomicMin(gimage3D image, ivec3 P, int data)
-                      \  int  imageAtomicMin(gimage2DRect image, ivec2 P, int data)
-                      \  int  imageAtomicMin(gimageCube   image, ivec3 P, int data)
-                      \  int  imageAtomicMin(gbufferImage image, int   P, int data)
-                      \  int  imageAtomicMin(gimage1DArray   image, ivec2 P, int data)
-                      \  int  imageAtomicMin(gimage2DArray   image, ivec3 P, int data)
-                      \  int  imageAtomicMin(gimageCubeArray image, ivec3 P, int data)
-                      \  int  imageAtomicMin(gimage2DMS image, ivec2 P, int sample, int data)
-                      \  int  imageAtomicMin(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
+                      \>  uint imageAtomicMin(gimage1D image, int   P, uint data)
+                      \>  uint imageAtomicMin(gimage2D image, ivec2 P, uint data)
+                      \>  uint imageAtomicMin(gimage3D image, ivec3 P, uint data)
+                      \>  uint imageAtomicMin(gimage2DRect image, ivec2 P, uint data)
+                      \>  uint imageAtomicMin(gimageCube   image, ivec3 P, uint data)
+                      \>  uint imageAtomicMin(gbufferImage image, int   P, uint data)
+                      \>  uint imageAtomicMin(gimage1DArray   image, ivec2 P, uint data)
+                      \>  uint imageAtomicMin(gimage2DArray   image, ivec3 P, uint data)
+                      \>  uint imageAtomicMin(gimageCubeArray image, ivec3 P, uint data)
+                      \>  uint imageAtomicMin(gimage2DMS image, ivec2 P, int sample, uint data)
+                      \>  uint imageAtomicMin(gimage2DMSArray image, ivec3 P, int sample, uint data)
+                      \>  int  imageAtomicMin(gimage1D image, int   P, int data)
+                      \>  int  imageAtomicMin(gimage2D image, ivec2 P, int data)
+                      \>  int  imageAtomicMin(gimage3D image, ivec3 P, int data)
+                      \>  int  imageAtomicMin(gimage2DRect image, ivec2 P, int data)
+                      \>  int  imageAtomicMin(gimageCube   image, ivec3 P, int data)
+                      \>  int  imageAtomicMin(gbufferImage image, int   P, int data)
+                      \>  int  imageAtomicMin(gimage1DArray   image, ivec2 P, int data)
+                      \>  int  imageAtomicMin(gimage2DArray   image, ivec3 P, int data)
+                      \>  int  imageAtomicMin(gimageCubeArray image, ivec3 P, int data)
+                      \>  int  imageAtomicMin(gimage2DMS image, ivec2 P, int sample, int data)
+                      \>  int  imageAtomicMin(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
         <Keyword style_name='function' name='imageAtomicOr' 
                  hint='atomically compute the logical OR of a value with an existing
                       \value in memory, store that value and return the original value
-                      \  uint imageAtomicOr(gimage1D image, int   P, uint data)
-                      \  uint imageAtomicOr(gimage2D image, ivec2 P, uint data)
-                      \  uint imageAtomicOr(gimage3D image, ivec3 P, uint data)
-                      \  uint imageAtomicOr(gimage2DRect image, ivec2 P, uint data)
-                      \  uint imageAtomicOr(gimageCube   image, ivec3 P, uint data)
-                      \  uint imageAtomicOr(gbufferImage image, int   P, uint data)
-                      \  uint imageAtomicOr(gimage1DArray   image, ivec2 P, uint data)
-                      \  uint imageAtomicOr(gimage2DArray   image, ivec3 P, uint data)
-                      \  uint imageAtomicOr(gimageCubeArray image, ivec3 P, uint data)
-                      \  uint imageAtomicOr(gimage2DMS image, ivec2 P, int sample, uint data)
-                      \  uint imageAtomicOr(gimage2DMSArray image, ivec3 P, int sample, uint data)
-                      \  int  imageAtomicOr(gimage1D image, int   P, int data)
-                      \  int  imageAtomicOr(gimage2D image, ivec2 P, int data)
-                      \  int  imageAtomicOr(gimage3D image, ivec3 P, int data)
-                      \  int  imageAtomicOr(gimage2DRect image, ivec2 P, int data)
-                      \  int  imageAtomicOr(gimageCube   image, ivec3 P, int data)
-                      \  int  imageAtomicOr(gbufferImage image, int   P, int data)
-                      \  int  imageAtomicOr(gimage1DArray   image, ivec2 P, int data)
-                      \  int  imageAtomicOr(gimage2DArray   image, ivec3 P, int data)
-                      \  int  imageAtomicOr(gimageCubeArray image, ivec3 P, int data)
-                      \  int  imageAtomicOr(gimage2DMS image, ivec2 P, int sample, int data)
-                      \  int  imageAtomicOr(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
+                      \>  uint imageAtomicOr(gimage1D image, int   P, uint data)
+                      \>  uint imageAtomicOr(gimage2D image, ivec2 P, uint data)
+                      \>  uint imageAtomicOr(gimage3D image, ivec3 P, uint data)
+                      \>  uint imageAtomicOr(gimage2DRect image, ivec2 P, uint data)
+                      \>  uint imageAtomicOr(gimageCube   image, ivec3 P, uint data)
+                      \>  uint imageAtomicOr(gbufferImage image, int   P, uint data)
+                      \>  uint imageAtomicOr(gimage1DArray   image, ivec2 P, uint data)
+                      \>  uint imageAtomicOr(gimage2DArray   image, ivec3 P, uint data)
+                      \>  uint imageAtomicOr(gimageCubeArray image, ivec3 P, uint data)
+                      \>  uint imageAtomicOr(gimage2DMS image, ivec2 P, int sample, uint data)
+                      \>  uint imageAtomicOr(gimage2DMSArray image, ivec3 P, int sample, uint data)
+                      \>  int  imageAtomicOr(gimage1D image, int   P, int data)
+                      \>  int  imageAtomicOr(gimage2D image, ivec2 P, int data)
+                      \>  int  imageAtomicOr(gimage3D image, ivec3 P, int data)
+                      \>  int  imageAtomicOr(gimage2DRect image, ivec2 P, int data)
+                      \>  int  imageAtomicOr(gimageCube   image, ivec3 P, int data)
+                      \>  int  imageAtomicOr(gbufferImage image, int   P, int data)
+                      \>  int  imageAtomicOr(gimage1DArray   image, ivec2 P, int data)
+                      \>  int  imageAtomicOr(gimage2DArray   image, ivec3 P, int data)
+                      \>  int  imageAtomicOr(gimageCubeArray image, ivec3 P, int data)
+                      \>  int  imageAtomicOr(gimage2DMS image, ivec2 P, int sample, int data)
+                      \>  int  imageAtomicOr(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
         <Keyword style_name='function' name='imageAtomicXor'
                  hint='atomically compute the logical exclusive OR of a value
                       \with an existing value in memory, store that value and
                       \return the original value
-                      \  uint imageAtomicXor(gimage1D image, int   P, uint data)
-                      \  uint imageAtomicXor(gimage2D image, ivec2 P, uint data)
-                      \  uint imageAtomicXor(gimage3D image, ivec3 P, uint data)
-                      \  uint imageAtomicXor(gimage2DRect image, ivec2 P, uint data)
-                      \  uint imageAtomicXor(gimageCube   image, ivec3 P, uint data)
-                      \  uint imageAtomicXor(gbufferImage image, int   P, uint data)
-                      \  uint imageAtomicXor(gimage1DArray   image, ivec2 P, uint data)
-                      \  uint imageAtomicXor(gimage2DArray   image, ivec3 P, uint data)
-                      \  uint imageAtomicXor(gimageCubeArray image, ivec3 P, uint data)
-                      \  uint imageAtomicXor(gimage2DMS image, ivec2 P, int sample, uint data)
-                      \  uint imageAtomicXor(gimage2DMSArray image, ivec3 P, int sample, uint data)
-                      \  int  imageAtomicXor(gimage1D image, int   P, int data)
-                      \  int  imageAtomicXor(gimage2D image, ivec2 P, int data)
-                      \  int  imageAtomicXor(gimage3D image, ivec3 P, int data)
-                      \  int  imageAtomicXor(gimage2DRect image, ivec2 P, int data)
-                      \  int  imageAtomicXor(gimageCube   image, ivec3 P, int data)
-                      \  int  imageAtomicXor(gbufferImage image, int   P, int data)
-                      \  int  imageAtomicXor(gimage1DArray   image, ivec2 P, int data)
-                      \  int  imageAtomicXor(gimage2DArray   image, ivec3 P, int data)
-                      \  int  imageAtomicXor(gimageCubeArray image, ivec3 P, int data)
-                      \  int  imageAtomicXor(gimage2DMS image, ivec2 P, int sample, int data)
-                      \  int  imageAtomicXor(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
+                      \>  uint imageAtomicXor(gimage1D image, int   P, uint data)
+                      \>  uint imageAtomicXor(gimage2D image, ivec2 P, uint data)
+                      \>  uint imageAtomicXor(gimage3D image, ivec3 P, uint data)
+                      \>  uint imageAtomicXor(gimage2DRect image, ivec2 P, uint data)
+                      \>  uint imageAtomicXor(gimageCube   image, ivec3 P, uint data)
+                      \>  uint imageAtomicXor(gbufferImage image, int   P, uint data)
+                      \>  uint imageAtomicXor(gimage1DArray   image, ivec2 P, uint data)
+                      \>  uint imageAtomicXor(gimage2DArray   image, ivec3 P, uint data)
+                      \>  uint imageAtomicXor(gimageCubeArray image, ivec3 P, uint data)
+                      \>  uint imageAtomicXor(gimage2DMS image, ivec2 P, int sample, uint data)
+                      \>  uint imageAtomicXor(gimage2DMSArray image, ivec3 P, int sample, uint data)
+                      \>  int  imageAtomicXor(gimage1D image, int   P, int data)
+                      \>  int  imageAtomicXor(gimage2D image, ivec2 P, int data)
+                      \>  int  imageAtomicXor(gimage3D image, ivec3 P, int data)
+                      \>  int  imageAtomicXor(gimage2DRect image, ivec2 P, int data)
+                      \>  int  imageAtomicXor(gimageCube   image, ivec3 P, int data)
+                      \>  int  imageAtomicXor(gbufferImage image, int   P, int data)
+                      \>  int  imageAtomicXor(gimage1DArray   image, ivec2 P, int data)
+                      \>  int  imageAtomicXor(gimage2DArray   image, ivec3 P, int data)
+                      \>  int  imageAtomicXor(gimageCubeArray image, ivec3 P, int data)
+                      \>  int  imageAtomicXor(gimage2DMS image, ivec2 P, int sample, int data)
+                      \>  int  imageAtomicXor(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
         <Keyword style_name='function' name='imageLoad' 
                  hint='load a single texel from an image
-                      \  gvec4 imageLoad(gimage1D image, int   P)
-                      \  gvec4 imageLoad(gimage2D image, ivec2 P)
-                      \  gvec4 imageLoad(gimage3D image, ivec3 P)
-                      \  gvec4 imageLoad(gimage2DRect image, ivec2 P)
-                      \  gvec4 imageLoad(gimageCube   image, ivec3 P)
-                      \  gvec4 imageLoad(gbufferImage image, int   P)
-                      \  gvec4 imageLoad(gimage1DArray   image, ivec2 P)
-                      \  gvec4 imageLoad(gimage2DArray   image, ivec3 P)
-                      \  gvec4 imageLoad(gimageCubeArray image, ivec3 P)
-                      \  gvec4 imageLoad(gimage2DMS image, ivec2 P, int sample)
-                      \  gvec4 imageLoad(gimage2DMSArray image, ivec3 P, int sample)'/>
+                      \>  gvec4 imageLoad(gimage1D image, int   P)
+                      \>  gvec4 imageLoad(gimage2D image, ivec2 P)
+                      \>  gvec4 imageLoad(gimage3D image, ivec3 P)
+                      \>  gvec4 imageLoad(gimage2DRect image, ivec2 P)
+                      \>  gvec4 imageLoad(gimageCube   image, ivec3 P)
+                      \>  gvec4 imageLoad(gbufferImage image, int   P)
+                      \>  gvec4 imageLoad(gimage1DArray   image, ivec2 P)
+                      \>  gvec4 imageLoad(gimage2DArray   image, ivec3 P)
+                      \>  gvec4 imageLoad(gimageCubeArray image, ivec3 P)
+                      \>  gvec4 imageLoad(gimage2DMS image, ivec2 P, int sample)
+                      \>  gvec4 imageLoad(gimage2DMSArray image, ivec3 P, int sample)'/>
         <Keyword style_name='function' name='imageSamples'
                  hint='return the number of samples of an image
-                      \  int imageSamples(gimage2DMS image)
-                      \  int imageSamples(gimage2DMSArray image)'/>
+                      \>  int imageSamples(gimage2DMS image)
+                      \>  int imageSamples(gimage2DMSArray image)'/>
         <Keyword style_name='function' name='imageSize'
                  hint='retrieve the dimensions of an image
-                      \  int   imageSize(gimage1D image)
-                      \  ivec2 imageSize(gimage2D image)
-                      \  ivec3 imageSize(gimage3D image)
-                      \  ivec2 imageSize(gimageCube image)
-                      \  ivec3 imageSize(gimageCubeArray image)
-                      \  ivec2 imageSize(gimageRect image)
-                      \  ivec2 imageSize(gimage1DArray image)
-                      \  ivec3 imageSize(gimage2DArray image)
-                      \  int   imageSize(gimageBuffer image)
-                      \  ivec2 imageSize(gimage2DMS image)
-                      \  ivec3 imageSize(gimage2DMSArray image)'/>
+                      \>  int   imageSize(gimage1D image)
+                      \>  ivec2 imageSize(gimage2D image)
+                      \>  ivec3 imageSize(gimage3D image)
+                      \>  ivec2 imageSize(gimageCube image)
+                      \>  ivec3 imageSize(gimageCubeArray image)
+                      \>  ivec2 imageSize(gimageRect image)
+                      \>  ivec2 imageSize(gimage1DArray image)
+                      \>  ivec3 imageSize(gimage2DArray image)
+                      \>  int   imageSize(gimageBuffer image)
+                      \>  ivec2 imageSize(gimage2DMS image)
+                      \>  ivec3 imageSize(gimage2DMSArray image)'/>
         <Keyword style_name='function' name='imageStore'
                  hint='write a single texel into an image
-                      \  void imageStore(gimage1D image, int   P, gvec4 data)
-                      \  void imageStore(gimage2D image, ivec2 P, gvec4 data)
-                      \  void imageStore(gimage3D image, ivec3 P, gvec4 data)
-                      \  void imageStore(gimage2DRect image, ivec2 P, gvec4 data)
-                      \  void imageStore(gimageCube   image, ivec3 P, gvec4 data)
-                      \  void imageStore(gbufferImage image, int   P, gvec4 data)
-                      \  void imageStore(gimage1DArray   image, ivec2 P, gvec4 data)
-                      \  void imageStore(gimage2DArray   image, ivec3 P, gvec4 data)
-                      \  void imageStore(gimageCubeArray image, ivec3 P, gvec4 data)
-                      \  void imageStore(gimage2DMS image, ivec2 P, int sample, gvec4 data)
-                      \  void imageStore(gimage2DMSArray image, ivec3 P, int sample, gvec4 data)'/>
+                      \>  void imageStore(gimage1D image, int   P, gvec4 data)
+                      \>  void imageStore(gimage2D image, ivec2 P, gvec4 data)
+                      \>  void imageStore(gimage3D image, ivec3 P, gvec4 data)
+                      \>  void imageStore(gimage2DRect image, ivec2 P, gvec4 data)
+                      \>  void imageStore(gimageCube   image, ivec3 P, gvec4 data)
+                      \>  void imageStore(gbufferImage image, int   P, gvec4 data)
+                      \>  void imageStore(gimage1DArray   image, ivec2 P, gvec4 data)
+                      \>  void imageStore(gimage2DArray   image, ivec3 P, gvec4 data)
+                      \>  void imageStore(gimageCubeArray image, ivec3 P, gvec4 data)
+                      \>  void imageStore(gimage2DMS image, ivec2 P, int sample, gvec4 data)
+                      \>  void imageStore(gimage2DMSArray image, ivec3 P, int sample, gvec4 data)'/>
         <Keyword style_name='function' name='imulExtended'
                  hint='perform a 32- by 32-bit multiply to produce a 64-bit result
-                      \  void imulExtended(genIType x, genIType y, out genIType msb, out genIType lsb)'/>
+                      \>  void imulExtended(genIType x, genIType y, out genIType msb, out genIType lsb)'/>
         <Keyword style_name='function' name='intBitsToFloat'
                  hint='produce a floating point using an
                       \encoding supplied as an integer
-                      \  genType intBitsToFloat(genIType x)'/>
+                      \>  genType intBitsToFloat(genIType x)'/>
         <Keyword style_name='function' name='interpolateAtCentroid'
                  hint='sample a varying at the centroid of a pixel
-                      \  float interpolateAtCentroid(float interpolant)
-                      \  vec2  interpolateAtCentroid(vec2  interpolant)
-                      \  vec3  interpolateAtCentroid(vec3  interpolant)
-                      \  vec4  interpolateAtCentroid(vec4  interpolant)'/>
+                      \>  float interpolateAtCentroid(float interpolant)
+                      \>  vec2  interpolateAtCentroid(vec2  interpolant)
+                      \>  vec3  interpolateAtCentroid(vec3  interpolant)
+                      \>  vec4  interpolateAtCentroid(vec4  interpolant)'/>
         <Keyword style_name='function' name='interpolateAtOffset'
                  hint='sample a varying at specified offset from the center of a pixel
-                      \  float interpolateAtOffset(float interpolant, vec2 offset)
-                      \  vec2  interpolateAtOffset(vec2  interpolant, vec2 offset)
-                      \  vec3  interpolateAtOffset(vec3  interpolant, vec2 offset)
-                      \  vec4  interpolateAtOffset(vec4  interpolant, vec2 offset)'/>
+                      \>  float interpolateAtOffset(float interpolant, vec2 offset)
+                      \>  vec2  interpolateAtOffset(vec2  interpolant, vec2 offset)
+                      \>  vec3  interpolateAtOffset(vec3  interpolant, vec2 offset)
+                      \>  vec4  interpolateAtOffset(vec4  interpolant, vec2 offset)'/>
         <Keyword style_name='function' name='interpolateAtSample'
                  hint='sample a varying at the location of a specified sample
-                      \  float interpolateAtSample(float interpolant, int sample)
-                      \  vec2  interpolateAtSample(vec2  interpolant, int sample)
-                      \  vec3  interpolateAtSample(vec3  interpolant, int sample)
-                      \  vec4  interpolateAtSample(vec4  interpolant, int sample)'/>
+                      \>  float interpolateAtSample(float interpolant, int sample)
+                      \>  vec2  interpolateAtSample(vec2  interpolant, int sample)
+                      \>  vec3  interpolateAtSample(vec3  interpolant, int sample)
+                      \>  vec4  interpolateAtSample(vec4  interpolant, int sample)'/>
         <Keyword style_name='function' name='inverse'
                  hint='calculate the inverse of a matrix
-                      \  mat2  inverse(mat2  m)
-                      \  mat3  inverse(mat3  m)
-                      \  mat4  inverse(mat4  m)
-                      \  dmat2 inverse(dmat2 m)
-                      \  dmat3 inverse(dmat3 m)
-                      \  dmat4 inverse(dmat4 m)'/>
+                      \>  mat2  inverse(mat2  m)
+                      \>  mat3  inverse(mat3  m)
+                      \>  mat4  inverse(mat4  m)
+                      \>  dmat2 inverse(dmat2 m)
+                      \>  dmat3 inverse(dmat3 m)
+                      \>  dmat4 inverse(dmat4 m)'/>
         <Keyword style_name='function' name='inversesqrt'
                  hint='return the inverse of the square root of the parameter
-                      \  genType  inversesqrt(genType  x)
-                      \  genDType inversesqrt(genDType x)'/>
+                      \>  genType  inversesqrt(genType  x)
+                      \>  genDType inversesqrt(genDType x)'/>
         <Keyword style_name='function' name='isinf' 
                  hint='determine whether the parameter is positive or negative infinity
-                      \  genBType isinf(genType x)
-                      \  genBType isinf(genDType x)'/>
+                      \>  genBType isinf(genType x)
+                      \>  genBType isinf(genDType x)'/>
         <Keyword style_name='function' name='isnan'
                  hint='determine whether the parameter is a number
-                      \  genBType isnan(genType x)
-                      \  genBType isnan(genDType x)'/>
+                      \>  genBType isnan(genType x)
+                      \>  genBType isnan(genDType x)'/>
         <Keyword style_name='function' name='ldexp'
                  hint='assemble a floating point number from a value and exponent
-                      \  genType  ldexp(genType  x, genIType exp)
-                      \  genDType ldexp(genDType x, genIType exp)'/>
+                      \>  genType  ldexp(genType  x, genIType exp)
+                      \>  genDType ldexp(genDType x, genIType exp)'/>
         <Keyword style_name='function' name='length'
                  hint='calculate the length of a vector
-                      \  float  length(genType  x)
-                      \  double length(genDType x)'/>
+                      \>  float  length(genType  x)
+                      \>  double length(genDType x)'/>
         <Keyword style_name='function' name='lessThan'
                  hint='perform a component-wise less-than comparison of two vectors
-                      \  bvec lessThan(vec  x, vec  y)
-                      \  bvec lessThan(ivec x, ivec y)
-                      \  bvec lessThan(uvec x, uvec y)'/>
+                      \>  bvec lessThan(vec  x, vec  y)
+                      \>  bvec lessThan(ivec x, ivec y)
+                      \>  bvec lessThan(uvec x, uvec y)'/>
         <Keyword style_name='function' name='lessThanEqual'
                  hint='perform a component-wise less-than-or-equal comparison of two vectors
-                      \  bvec lessThanEqual(vec  x, vec  y)
-                      \  bvec lessThanEqual(ivec x, ivec y)
-                      \  bvec lessThanEqual(uvec x, uvec y)'/>
+                      \>  bvec lessThanEqual(vec  x, vec  y)
+                      \>  bvec lessThanEqual(ivec x, ivec y)
+                      \>  bvec lessThanEqual(uvec x, uvec y)'/>
         <Keyword style_name='function' name='log' 
                  hint='return the natural logarithm of the parameter
-                      \  genType log(genType x)'/>
+                      \>  genType log(genType x)'/>
         <Keyword style_name='function' name='log2' 
                  hint='return the base 2 logarithm of the parameter
-               \  genType log2(genType x)'/>
+                      \>  genType log2(genType x)'/>
         <Keyword style_name='function' name='matrixCompMult' 
                  hint='perform a component-wise multiplication of two matrices
-                      \  mat  matrixCompMult(mat  x, mat  y)
-                      \  dmat matrixCompMult(dmat x, dmat y)'/>
+                      \>  mat  matrixCompMult(mat  x, mat  y)
+                      \>  dmat matrixCompMult(dmat x, dmat y)'/>
         <Keyword style_name='function' name='max'
                  hint='return the greater of two values
-                      \  genType  max(genType  x, genType  y)
-                      \  genType  max(genType  x, float    y)
-                      \  genDType max(genDType x, genDType y)
-                      \  genDType max(genDType x, double   y)
-                      \  genIType max(genIType x, genIType y)
-                      \  genIType max(genIType x, int      y)
-                      \  genUType max(genUType x, genUType y)
-                      \  genUType max(genUType x, uint     y)'/>
+                      \>  genType  max(genType  x, genType  y)
+                      \>  genType  max(genType  x, float    y)
+                      \>  genDType max(genDType x, genDType y)
+                      \>  genDType max(genDType x, double   y)
+                      \>  genIType max(genIType x, genIType y)
+                      \>  genIType max(genIType x, int      y)
+                      \>  genUType max(genUType x, genUType y)
+                      \>  genUType max(genUType x, uint     y)'/>
         <Keyword style_name='function' name='memoryBarrier' 
                  hint='controls the ordering of memory transactions
                       \issued by a single shader invocation
-                      \  uint memoryBarrier(void)'/>
+                      \>  uint memoryBarrier(void)'/>
         <Keyword style_name='function' name='memoryBarrierAtomicCounter' 
                  hint='controls the ordering of operations on atomic
                       \counters issued by a single shader invocation
-                      \  void memoryBarrierAtomicCounter(void)'/>
+                      \>  void memoryBarrierAtomicCounter(void)'/>
         <Keyword style_name='function' name='memoryBarrierBuffer' 
                  hint='controls the ordering of operations on buffer
                       \variables issued by a single shader invocation
-                      \  void memoryBarrierBuffer(void)'/>
+                      \>  void memoryBarrierBuffer(void)'/>
         <Keyword style_name='function' name='memoryBarrierImage' 
                  hint='controls the ordering of operations on image
                       \variables issued by a single shader invocation
-                      \  void memoryBarrierImage(void)'/>
+                      \>  void memoryBarrierImage(void)'/>
         <Keyword style_name='function' name='memoryBarrierShared' 
                  hint='controls the ordering of operations on shared
                       \variables issued by a single shader invocation
-                      \  void memoryBarrierShared(void)'/>
+                      \>  void memoryBarrierShared(void)'/>
         <Keyword style_name='function' name='min' 
                  hint='return the lesser of two values
-                      \  genType  min(genType  x, genType  y)
-                      \  genType  min(genType  x, float    y)
-                      \  genDType min(genDType x, genDType y)
-                      \  genDType min(genDType x, double   y)
-                      \  genIType min(genIType x, genIType y)
-                      \  genIType min(genIType x, int      y)
-                      \  genUType min(genUType x, genUType y)
-                      \  genUType min(genUType x, uint     y)'/>
+                      \>  genType  min(genType  x, genType  y)
+                      \>  genType  min(genType  x, float    y)
+                      \>  genDType min(genDType x, genDType y)
+                      \>  genDType min(genDType x, double   y)
+                      \>  genIType min(genIType x, genIType y)
+                      \>  genIType min(genIType x, int      y)
+                      \>  genUType min(genUType x, genUType y)
+                      \>  genUType min(genUType x, uint     y)'/>
         <Keyword style_name='function' name='mix' 
                  hint='linearly interpolate between two values
-                      \  genType  mix(genType  x, genType  y, genType  a)
-                      \  genType  mix(genType  x, genType  y, float    a)
-                      \  genDType mix(genDType x, genDType y, genDType a)
-                      \  genDType mix(genDType x, genDType y, double   a)
-                      \  genType  mix(genType  x, genType  y, genBType a)
-                      \  genDType mix(genDType x, genDType y, genBType a)
-                      \  genIType mix(genIType x, genIType y, genBType a)
-                      \  genUType mix(genUType x, genUType y, genBType a)
-                      \  genBType mix(genBType x, genBType y, genBType a)'/>
+                      \>  genType  mix(genType  x, genType  y, genType  a)
+                      \>  genType  mix(genType  x, genType  y, float    a)
+                      \>  genDType mix(genDType x, genDType y, genDType a)
+                      \>  genDType mix(genDType x, genDType y, double   a)
+                      \>  genType  mix(genType  x, genType  y, genBType a)
+                      \>  genDType mix(genDType x, genDType y, genBType a)
+                      \>  genIType mix(genIType x, genIType y, genBType a)
+                      \>  genUType mix(genUType x, genUType y, genBType a)
+                      \>  genBType mix(genBType x, genBType y, genBType a)'/>
         <Keyword style_name='function' name='mod'
                  hint='compute value of one parameter modulo another
-                      \  genType  mod(genType  x, float    y)
-                      \  genType  mod(genType  x, genType  y)
-                      \  genDType mod(genDType x, double   y)
-                      \  genDType mod(genDType x, genDType y)'/>
+                      \>  genType  mod(genType  x, float    y)
+                      \>  genType  mod(genType  x, genType  y)
+                      \>  genDType mod(genDType x, double   y)
+                      \>  genDType mod(genDType x, genDType y)'/>
         <Keyword style_name='function' name='modf'
                  hint='separate a value into its integer and fractional components
-                      \  genType  modf(genType  x, out genType  i)
-                      \  genDType modf(genDType x, out genDType i)'/>
+                      \>  genType  modf(genType  x, out genType  i)
+                      \>  genDType modf(genDType x, out genDType i)'/>
         <Keyword style_name='function' name='noise1' 
                  hint='generate values with a pseudo-random noise function
-                      \  float noise1(genType x)'/>
+                      \>  float noise1(genType x)'/>
         <Keyword style_name='function' name='noise2'
                  hint='generate values with a pseudo-random noise function
-                      \  vec2 noise2(genType x)'/>
+                      \>  vec2 noise2(genType x)'/>
         <Keyword style_name='function' name='noise3'
                  hint='generate values with a pseudo-random noise function
-                      \  vec3 noise3(genType x)'/>
+                      \>  vec3 noise3(genType x)'/>
         <Keyword style_name='function' name='noise4'
                  hint='generate values with a pseudo-random noise function
-                      \  vec4 noise4(genType x)'/>
+                      \>  vec4 noise4(genType x)'/>
         <Keyword style_name='function' name='normalize' 
                  hint='calculate the normalize product of two vectors
-                      \  genType  normalize(genType  v)
-                      \  genDType normalize(genDType v)'/>
+                      \>  genType  normalize(genType  v)
+                      \>  genDType normalize(genDType v)'/>
         <Keyword style_name='function' name='not' 
                  hint='logically invert a boolean vector
-                      \  bvec not(bvec x)'/>
+                      \>  bvec not(bvec x)'/>
         <Keyword style_name='function' name='notEqual' 
                  hint='perform a component-wise not-equal-to comparison of two vectors
-                      \   bvec notEqual(vec x, vec y)
-                      \   bvec notEqual(ivec x, ivec y)
-                      \   bvec notEqual(uvec x, uvec y)'/>
+                      \>   bvec notEqual(vec x, vec y)
+                      \>   bvec notEqual(ivec x, ivec y)
+                      \>   bvec notEqual(uvec x, uvec y)'/>
         <Keyword style_name='function' name='outerProduct' 
                  hint='calculate the outer product of a pair of vectors
-                      \  mat2    outerProduct(vec2  c, vec2  r)
-                      \  mat3    outerProduct(vec3  c, vec3  r)
-                      \  mat4    outerProduct(vec4  c, vec4  r)
-                      \  mat2x3  outerProduct(vec3  c, vec2  r)
-                      \  mat3x2  outerProduct(vec2  c, vec3  r)
-                      \  mat2x4  outerProduct(vec4  c, vec2  r)
-                      \  mat4x2  outerProduct(vec2  c, vec4  r)
-                      \  mat3x4  outerProduct(vec4  c, vec3  r)
-                      \  mat4x3  outerProduct(vec3  c, vec4  r)
-                      \  dmat2   outerProduct(dvec2 c, dvec2 r)
-                      \  dmat3   outerProduct(dvec3 c, dvec3 r)
-                      \  dmat4   outerProduct(dvec4 c, dvec4 r)
-                      \  dmat2x3 outerProduct(dvec3 c, dvec2 r)
-                      \  dmat3x2 outerProduct(dvec2 c, dvec3 r)
-                      \  dmat2x4 outerProduct(dvec4 c, dvec2 r)
-                      \  dmat4x2 outerProduct(dvec2 c, dvec4 r)
-                      \  dmat3x4 outerProduct(dvec4 c, dvec3 r)
-                      \  dmat4x3 outerProduct(dvec3 c, dvec4 r)'/>
+                      \>  mat2    outerProduct(vec2  c, vec2  r)
+                      \>  mat3    outerProduct(vec3  c, vec3  r)
+                      \>  mat4    outerProduct(vec4  c, vec4  r)
+                      \>  mat2x3  outerProduct(vec3  c, vec2  r)
+                      \>  mat3x2  outerProduct(vec2  c, vec3  r)
+                      \>  mat2x4  outerProduct(vec4  c, vec2  r)
+                      \>  mat4x2  outerProduct(vec2  c, vec4  r)
+                      \>  mat3x4  outerProduct(vec4  c, vec3  r)
+                      \>  mat4x3  outerProduct(vec3  c, vec4  r)
+                      \>  dmat2   outerProduct(dvec2 c, dvec2 r)
+                      \>  dmat3   outerProduct(dvec3 c, dvec3 r)
+                      \>  dmat4   outerProduct(dvec4 c, dvec4 r)
+                      \>  dmat2x3 outerProduct(dvec3 c, dvec2 r)
+                      \>  dmat3x2 outerProduct(dvec2 c, dvec3 r)
+                      \>  dmat2x4 outerProduct(dvec4 c, dvec2 r)
+                      \>  dmat4x2 outerProduct(dvec2 c, dvec4 r)
+                      \>  dmat3x4 outerProduct(dvec4 c, dvec3 r)
+                      \>  dmat4x3 outerProduct(dvec3 c, dvec4 r)'/>
         <Keyword style_name='function' name='packDouble2x32'
                  hint='create a double-precision value
                       \from a pair of unsigned integers
-                      \  double packDouble2x32(uvec2 v)'/>
+                      \>  double packDouble2x32(uvec2 v)'/>
         <Keyword style_name='function' name='packHalf2x16' 
                  hint='convert two 32-bit floating-point
                       \quantities to16-bit quantities and
                       \pack them into a single 32-bit integer
-                      \  uint packHalf2x16(vec2 v)'/>
+                      \>  uint packHalf2x16(vec2 v)'/>
         <Keyword style_name='function' name='packSnorm2x16'
                  hint='pack floating-point values into an unsigned integer
-                      \  uint packSnorm2x16(vec2 v)'/>
+                      \>  uint packSnorm2x16(vec2 v)'/>
         <Keyword style_name='function' name='packSnorm4x8'
                  hint='pack floating-point values into an unsigned integer
-                      \  uint packSnorm4x8(vec4 v)'/>
+                      \>  uint packSnorm4x8(vec4 v)'/>
         <Keyword style_name='function' name='packUnorm2x16'
                  hint='pack floating-point values into an unsigned integer
-                      \  uint packUnorm2x16(vec2 v)'/>
+                      \>  uint packUnorm2x16(vec2 v)'/>
         <Keyword style_name='function' name='packUnorm4x8'
                  hint='pack floating-point values into an unsigned integer
-                      \  uint packUnorm4x8(vec4 v)'/>
+                      \>  uint packUnorm4x8(vec4 v)'/>
         <Keyword style_name='function' name='pow' 
                  hint='return the value of the first parameter raised to the power of the second
-                      \  genType pow(genType x, genType y)'/>
+                      \>  genType pow(genType x, genType y)'/>
         <Keyword style_name='function' name='radians'
                  hint='convert a quantity in degrees to radians
-                      \  genType radians(genType degrees)'/>
+                      \>  genType radians(genType degrees)'/>
         <Keyword style_name='function' name='reflect' 
                  hint='calculate the reflection direction for an incident vector
-                      \  genType  reflect(genType  I, genType  N)
-                      \  genDType reflect(genDType I, genDType N)'/>
+                      \>  genType  reflect(genType  I, genType  N)
+                      \>  genDType reflect(genDType I, genDType N)'/>
         <Keyword style_name='function' name='refract'
                  hint='calculate the refraction direction for an incident vector
-                      \  genType  refract(genType  I, genType  N, float eta)
-                      \  genDType refract(genDType I, genDType N, float eta)'/>
+                      \>  genType  refract(genType  I, genType  N, float eta)
+                      \>  genDType refract(genDType I, genDType N, float eta)'/>
         <Keyword style_name='function' name='round'
                  hint='find the nearest integer less than or equal to the parameter
-                      \  genType  round(genType  x)
-                      \  genDType round(genDType x)'/>
+                      \>  genType  round(genType  x)
+                      \>  genDType round(genDType x)'/>
         <Keyword style_name='function' name='roundEven'
                  hint='find the nearest even integer to the parameter
-                      \  genType  roundEven(genType  x)
-                      \  genDType roundEven(genDType x)'/>
+                      \>  genType  roundEven(genType  x)
+                      \>  genDType roundEven(genDType x)'/>
         <Keyword style_name='function' name='sign'
                  hint='extract the sign of the parameter
-                      \  genType  sign(genType  x)
-                      \  genIType sign(genIType x)
-                      \  genDType sign(genDType x)'/>
+                      \>  genType  sign(genType  x)
+                      \>  genIType sign(genIType x)
+                      \>  genDType sign(genDType x)'/>
         <Keyword style_name='function' name='sin'
                  hint='return the sine of the parameter
-                      \  genType  sin(genType  x)
-                      \  genDType sin(genDType x)'/>
+                      \>  genType  sin(genType  x)
+                      \>  genDType sin(genDType x)'/>
         <Keyword style_name='function' name='sinh'
                  hint='return the hyperbolic sine of the parameter
-                      \  genType  sinh(genType  x)
-                      \  genDType sinh(genDType x)'/>
+                      \>  genType  sinh(genType  x)
+                      \>  genDType sinh(genDType x)'/>
         <Keyword style_name='function' name='sqrt'
                  hint='return the square root of the parameter
-                      \  genType  sqrt(genType  x)
-                      \  genDType sqrt(genDType x)'/>
+                      \>  genType  sqrt(genType  x)
+                      \>  genDType sqrt(genDType x)'/>
         <Keyword style_name='function' name='step'
                  hint='generate a step function by comparing two values
-                      \  genType step(genType edge, genType x)
-                      \  genType step(float edge, genType x)
-                      \  genDType step(genDType edge, genDType x)
-                      \  genDType step(double edge, genDType x)'/>
+                      \>  genType step(genType edge, genType x)
+                      \>  genType step(float edge, genType x)
+                      \>  genDType step(genDType edge, genDType x)
+                      \>  genDType step(double edge, genDType x)'/>
         <Keyword style_name='function' name='tan'
                  hint='return the tangent of the parameter
-                      \  genType tan(genType x)'/>
+                      \>  genType tan(genType x)'/>
         <Keyword style_name='function' name='tanh'
                  hint='return the hyperbolic tangent of the parameter
-                      \  genType tanh(genType x)'/>
+                      \>  genType tanh(genType x)'/>
         <Keyword style_name='function' name='texelFetch'
                  hint='perform a lookup of a single texel within a texture
-                      \  gvec4 texelFetch(gsampler1D sampler, int P, int lod)
-                      \  gvec4 texelFetch(gsampler2D sampler, ivec2 P, int lod)
-                      \  gvec4 texelFetch(gsampler3D sampler, ivec3 P, int lod)
-                      \  gvec4 texelFetch(gsampler2DRect sampler, ivec2 P)
-                      \  gvec4 texelFetch(gsampler1DArray sampler, ivec2 P, int lod)
-                      \  gvec4 texelFetch(gsampler2DArray sampler, ivec3 P, int lod)
-                      \  gvec4 texelFetch(gsamplerBuffer sampler, int P)
-                      \  gvec4 texelFetch(gsampler2DMS sampler, ivec2 P, sample sample)
-                      \  gvec4 texelFetch(gsampler2DMSArray sampler, ivec3 P, sample sample)'/>
+                      \>  gvec4 texelFetch(gsampler1D sampler, int P, int lod)
+                      \>  gvec4 texelFetch(gsampler2D sampler, ivec2 P, int lod)
+                      \>  gvec4 texelFetch(gsampler3D sampler, ivec3 P, int lod)
+                      \>  gvec4 texelFetch(gsampler2DRect sampler, ivec2 P)
+                      \>  gvec4 texelFetch(gsampler1DArray sampler, ivec2 P, int lod)
+                      \>  gvec4 texelFetch(gsampler2DArray sampler, ivec3 P, int lod)
+                      \>  gvec4 texelFetch(gsamplerBuffer sampler, int P)
+                      \>  gvec4 texelFetch(gsampler2DMS sampler, ivec2 P, sample sample)
+                      \>  gvec4 texelFetch(gsampler2DMSArray sampler, ivec3 P, sample sample)'/>
         <Keyword style_name='function' name='texelFetchOffset'
                  hint='perform a lookup of a single texel within a texture with an offset
-                      \  gvec4 texelFetchOffset(gsampler1D sampler, int P, int lod, int offset)
-                      \  gvec4 texelFetchOffset(gsampler2D sampler, ivec2 P, int lod, int offset)
-                      \  gvec4 texelFetchOffset(gsampler3D sampler, ivec3 P, int lod, int offset)
-                      \  gvec4 texelFetchOffset(gsampler2DRect  sampler, ivec2 P, int offset)
-                      \  gvec4 texelFetchOffset(gsampler1DArray sampler, ivec2 P, int lod, int offset)
-                      \  gvec4 texelFetchOffset(gsampler2DArray sampler, ivec3 P, int lod, int offset)'/>
+                      \>  gvec4 texelFetchOffset(gsampler1D sampler, int P, int lod, int offset)
+                      \>  gvec4 texelFetchOffset(gsampler2D sampler, ivec2 P, int lod, int offset)
+                      \>  gvec4 texelFetchOffset(gsampler3D sampler, ivec3 P, int lod, int offset)
+                      \>  gvec4 texelFetchOffset(gsampler2DRect  sampler, ivec2 P, int offset)
+                      \>  gvec4 texelFetchOffset(gsampler1DArray sampler, ivec2 P, int lod, int offset)
+                      \>  gvec4 texelFetchOffset(gsampler2DArray sampler, ivec3 P, int lod, int offset)'/>
         <Keyword style_name='function' name='texture'
                  hint='retrieves texels from a texture
-                      \  gvec4 texture(gsampler1D sampler, float P, [float bias])
-                      \  gvec4 texture(gsampler2D sampler, vec2 P, [float bias])
-                      \  gvec4 texture(gsampler3D sampler, vec3 P, [float bias])
-                      \  gvec4 texture(gsamplerCube sampler, vec3  P, [float bias])
-                      \  float texture(sampler1DShadow sampler, vec3 P, [float bias])
-                      \  float texture(sampler2DShadow sampler, vec3 P, [float bias])
-                      \  float texture(samplerCubeShadow sampler, vec3 P, [float bias])
-                      \  gvec4 texture(gsampler1DArray sampler, vec2 P, [float bias])
-                      \  gvec4 texture(gsampler2DArray sampler, vec3 P, [float bias])
-                      \  gvec4 texture(gsamplerCubeArray sampler, vec4 P, [float bias])
-                      \  float texture(sampler1DArrayShadow sampler, vec3 P, [float bias])
-                      \  float texture(gsampler2DArrayShadow sampler, vec4 P, [float bias])
-                      \  gvec4 texture(gsampler2DRect sampler, vec2 P)
-                      \  float texture(sampler2DRectShadow sampler, vec3 P)
-                      \  float texture(gsamplerCubeArrayShadow sampler, vec4 P, float compare)'/>
+                      \>  gvec4 texture(gsampler1D sampler, float P, [float bias])
+                      \>  gvec4 texture(gsampler2D sampler, vec2 P, [float bias])
+                      \>  gvec4 texture(gsampler3D sampler, vec3 P, [float bias])
+                      \>  gvec4 texture(gsamplerCube sampler, vec3  P, [float bias])
+                      \>  float texture(sampler1DShadow sampler, vec3 P, [float bias])
+                      \>  float texture(sampler2DShadow sampler, vec3 P, [float bias])
+                      \>  float texture(samplerCubeShadow sampler, vec3 P, [float bias])
+                      \>  gvec4 texture(gsampler1DArray sampler, vec2 P, [float bias])
+                      \>  gvec4 texture(gsampler2DArray sampler, vec3 P, [float bias])
+                      \>  gvec4 texture(gsamplerCubeArray sampler, vec4 P, [float bias])
+                      \>  float texture(sampler1DArrayShadow sampler, vec3 P, [float bias])
+                      \>  float texture(gsampler2DArrayShadow sampler, vec4 P, [float bias])
+                      \>  gvec4 texture(gsampler2DRect sampler, vec2 P)
+                      \>  float texture(sampler2DRectShadow sampler, vec3 P)
+                      \>  float texture(gsamplerCubeArrayShadow sampler, vec4 P, float compare)'/>
         <Keyword style_name='function' name='textureGather'
                  hint='gathers four texels from a texture
-                      \  gvec4 textureGather(gsampler2D sampler, vec2 P, [int comp])
-                      \  gvec4 textureGather(gsampler2DArray sampler, vec3 P, [int comp])
-                      \  gvec4 textureGather(gsamplerCube sampler, vec3 P, [int comp])
-                      \  gvec4 textureGather(gsamplerCubeArray sampler, vec4 P, [int comp])
-                      \  gvec4 textureGather(gsampler2DRect sampler, vec3 P, [int comp])
-                      \  vec4  textureGather(gsampler2DShadow  sampler, vec2 P, float refZ)
-                      \  vec4  textureGather(gsampler2DArrayShadow sampler, vec3 P, float refZ)
-                      \  vec4  textureGather(gsamplerCubeShadow sampler, vec3 P, float refZ)
-                      \  vec4  textureGather(gsamplerCubeArrayShadow sampler, vec4 P, float refZ)
-                      \  vec4  textureGather(gsampler2DRectShadow sampler, vec3 P, float refZ)'/>
+                      \>  gvec4 textureGather(gsampler2D sampler, vec2 P, [int comp])
+                      \>  gvec4 textureGather(gsampler2DArray sampler, vec3 P, [int comp])
+                      \>  gvec4 textureGather(gsamplerCube sampler, vec3 P, [int comp])
+                      \>  gvec4 textureGather(gsamplerCubeArray sampler, vec4 P, [int comp])
+                      \>  gvec4 textureGather(gsampler2DRect sampler, vec3 P, [int comp])
+                      \>  vec4  textureGather(gsampler2DShadow  sampler, vec2 P, float refZ)
+                      \>  vec4  textureGather(gsampler2DArrayShadow sampler, vec3 P, float refZ)
+                      \>  vec4  textureGather(gsamplerCubeShadow sampler, vec3 P, float refZ)
+                      \>  vec4  textureGather(gsamplerCubeArrayShadow sampler, vec4 P, float refZ)
+                      \>  vec4  textureGather(gsampler2DRectShadow sampler, vec3 P, float refZ)'/>
         <Keyword style_name='function' name='textureGatherOffset'
                  hint='gathers four texels from a texture with offset
-                      \  gvec4 textureGatherOffset(gsampler2D sampler, vec2 P, ivec2 offset, [int comp])
-                      \  gvec4 textureGatherOffset(gsampler2DArray sampler, vec3 P, ivec2 offset, [int comp])
-                      \  gvec4 textureGatherOffset(gsampler2DRect sampler, vec3 P, ivec2 offset, [int comp])
-                      \  vec4  textureGatherOffset(gsampler2DShadow sampler, vec2 P, float refZ, ivec2 offset)
-                      \  vec4  textureGatherOffset(gsampler2DArrayShadow sampler, vec3 P, float refZ, ivec2 offset)
-                      \  vec4  textureGatherOffset(gsampler2DRectShadow  sampler, vec3 P, float refZ, ivec2 offset)'/>
+                      \>  gvec4 textureGatherOffset(gsampler2D sampler, vec2 P, ivec2 offset, [int comp])
+                      \>  gvec4 textureGatherOffset(gsampler2DArray sampler, vec3 P, ivec2 offset, [int comp])
+                      \>  gvec4 textureGatherOffset(gsampler2DRect sampler, vec3 P, ivec2 offset, [int comp])
+                      \>  vec4  textureGatherOffset(gsampler2DShadow sampler, vec2 P, float refZ, ivec2 offset)
+                      \>  vec4  textureGatherOffset(gsampler2DArrayShadow sampler, vec3 P, float refZ, ivec2 offset)
+                      \>  vec4  textureGatherOffset(gsampler2DRectShadow  sampler, vec3 P, float refZ, ivec2 offset)'/>
         <Keyword style_name='function' name='textureGatherOffsets'
                  hint='gathers four texels from a texture with an array of offsets
-                      \  gvec4 textureGatherOffsets(gsampler2D sampler, vec2 P, ivec2 offsets[3], [int comp])
-                      \  gvec4 textureGatherOffsets(gsampler2DArray sampler, vec3 P, ivec2 offsets[3], [int comp])
-                      \  gvec4 textureGatherOffsets(gsampler2DRect sampler, vec3 P, ivec2 offsets[3], [int comp])
-                      \  vec4  textureGatherOffsets(gsampler2DShadow sampler, vec2 P, float refZ, ivec2 offsets[3])
-                      \  vec4  textureGatherOffsets(gsampler2DArrayShadow sampler, vec3 P, float refZ, ivec2 offsets[3])
-                      \  vec4  textureGatherOffsets(gsampler2DRectShadow  sampler, vec3 P, float refZ, ivec2 offsets[3])'/>
+                      \>  gvec4 textureGatherOffsets(gsampler2D sampler, vec2 P, ivec2 offsets[3], [int comp])
+                      \>  gvec4 textureGatherOffsets(gsampler2DArray sampler, vec3 P, ivec2 offsets[3], [int comp])
+                      \>  gvec4 textureGatherOffsets(gsampler2DRect sampler, vec3 P, ivec2 offsets[3], [int comp])
+                      \>  vec4  textureGatherOffsets(gsampler2DShadow sampler, vec2 P, float refZ, ivec2 offsets[3])
+                      \>  vec4  textureGatherOffsets(gsampler2DArrayShadow sampler, vec3 P, float refZ, ivec2 offsets[3])
+                      \>  vec4  textureGatherOffsets(gsampler2DRectShadow  sampler, vec3 P, float refZ, ivec2 offsets[3])'/>
         <Keyword style_name='function' name='textureGrad'
                  hint='perform a texture lookup with explicit gradients
-                      \  gvec4 textureGrad(gsampler1D sampler, float P, float dPdx, float dPdy)
-                      \  gvec4 textureGrad(gsampler2D sampler, vec2 P, vec2 dPdx, vec2 dPdy)
-                      \  gvec4 textureGrad(gsampler3D sampler, vec3 P, vec3 dPdx, vec3 dPdy)
-                      \  gvec4 textureGrad(gsamplerCube sampler, vec3 P, vec3 dPdx, vec3 dPdy)
-                      \  gvec4 textureGrad(gsampler2DRect sampler, vec2 P, vec2 dPdx, vec2 dPdy)
-                      \  float textureGrad(gsampler2DRectShadow sampler, vec2 P, vec2  dPdx, vec2 dPdy)
-                      \  float textureGrad(sampler1DShadow sampler, vec3 P, float dPdx, float dPdy)
-                      \  float textureGrad(sampler2DShadow sampler, vec3 P, vec2 dPdx, vec2 dPdy)
-                      \  gvec4 textureGrad(gsampler1DArray sampler, vec2 P, float dPdx, float dPdy)
-                      \  gvec4 textureGrad(gsampler2DArray sampler, vec3 P, vec2 dPdx, vec2 dPdy)
-                      \  float textureGrad(sampler1DArrayShadow sampler, vec3 P, float dPdx, float dPdy)
-                      \  gvec4 textureGrad(gsamplerCubeArray sampler, vec4  P, vec3 dPdx, vec3 dPdy)'/>
+                      \>  gvec4 textureGrad(gsampler1D sampler, float P, float dPdx, float dPdy)
+                      \>  gvec4 textureGrad(gsampler2D sampler, vec2 P, vec2 dPdx, vec2 dPdy)
+                      \>  gvec4 textureGrad(gsampler3D sampler, vec3 P, vec3 dPdx, vec3 dPdy)
+                      \>  gvec4 textureGrad(gsamplerCube sampler, vec3 P, vec3 dPdx, vec3 dPdy)
+                      \>  gvec4 textureGrad(gsampler2DRect sampler, vec2 P, vec2 dPdx, vec2 dPdy)
+                      \>  float textureGrad(gsampler2DRectShadow sampler, vec2 P, vec2  dPdx, vec2 dPdy)
+                      \>  float textureGrad(sampler1DShadow sampler, vec3 P, float dPdx, float dPdy)
+                      \>  float textureGrad(sampler2DShadow sampler, vec3 P, vec2 dPdx, vec2 dPdy)
+                      \>  gvec4 textureGrad(gsampler1DArray sampler, vec2 P, float dPdx, float dPdy)
+                      \>  gvec4 textureGrad(gsampler2DArray sampler, vec3 P, vec2 dPdx, vec2 dPdy)
+                      \>  float textureGrad(sampler1DArrayShadow sampler, vec3 P, float dPdx, float dPdy)
+                      \>  gvec4 textureGrad(gsamplerCubeArray sampler, vec4  P, vec3 dPdx, vec3 dPdy)'/>
         <Keyword style_name='function' name='textureLod'
                  hint='perform a texture lookup with explicit level-of-detail
-                      \  gvec4 textureLod(gsampler1D sampler, float P, float lod)
-                      \  gvec4 textureLod(gsampler2D sampler, vec2 P, float lod)
-                      \  gvec4 textureLod(gsampler3D sampler, vec3 P, float lod)
-                      \  gvec4 textureLod(gsamplerCube sampler, vec3 P, float lod)
-                      \  float textureLod(sampler1DShadow sampler, vec3 P, float lod)
-                      \  float textureLod(sampler2DShadow sampler, vec4 P, float lod)
-                      \  gvec4 textureLod(gsampler1DArray sampler, vec2 P, float lod)
-                      \  gvec4 textureLod(gsampler2DArray sampler, vec3 P, float lod)
-                      \  float textureLod(sampler1DArrayShadow sampler, vec3 P, float lod)
-                      \  gvec4 textureLod(gsamplerCubeArray sampler, vec4 P, float lod)'/>
+                      \>  gvec4 textureLod(gsampler1D sampler, float P, float lod)
+                      \>  gvec4 textureLod(gsampler2D sampler, vec2 P, float lod)
+                      \>  gvec4 textureLod(gsampler3D sampler, vec3 P, float lod)
+                      \>  gvec4 textureLod(gsamplerCube sampler, vec3 P, float lod)
+                      \>  float textureLod(sampler1DShadow sampler, vec3 P, float lod)
+                      \>  float textureLod(sampler2DShadow sampler, vec4 P, float lod)
+                      \>  gvec4 textureLod(gsampler1DArray sampler, vec2 P, float lod)
+                      \>  gvec4 textureLod(gsampler2DArray sampler, vec3 P, float lod)
+                      \>  float textureLod(sampler1DArrayShadow sampler, vec3 P, float lod)
+                      \>  gvec4 textureLod(gsamplerCubeArray sampler, vec4 P, float lod)'/>
         <Keyword style_name='function' name='textureOffset'
                  hint='perform a texture lookup with offset
-                      \  gvec4 textureOffset(gsampler1D sampler, float P, int offset, [float bias])
-                      \  gvec4 textureOffset(gsampler2D sampler, vec2 P, ivec2 offset, [float bias])
-                      \  gvec4 textureOffset(gsampler3D sampler, vec3 P, ivec3 offset, [float bias])
-                      \  gvec4 textureOffset(gsampler2DRect sampler, vec2 P, ivec2 offset)
-                      \  float textureOffset(sampler2DRectShadow  sampler, vec3  P, ivec2 offset)
-                      \  float textureOffset(sampler1DShadow sampler, vec3 P, int offset, [float bias])
-                      \  float textureOffset(sampler2DShadow sampler, vec4 P, ivec2 offset, [float bias])
-                      \  gvec4 textureOffset(gsampler1DArray sampler, vec2 P, int offset, [float bias])
-                      \  gvec4 textureOffset(gsampler2DArray sampler, vec3 P, ivec2 offset, [float bias])
-                      \  float textureOffset(sampler1DArrayShadow sampler, vec3 P, int offset)
-                      \  float textureOffset(sampler2DArrayShadow sampler, vec4 P, vec2 offset)'/>
+                      \>  gvec4 textureOffset(gsampler1D sampler, float P, int offset, [float bias])
+                      \>  gvec4 textureOffset(gsampler2D sampler, vec2 P, ivec2 offset, [float bias])
+                      \>  gvec4 textureOffset(gsampler3D sampler, vec3 P, ivec3 offset, [float bias])
+                      \>  gvec4 textureOffset(gsampler2DRect sampler, vec2 P, ivec2 offset)
+                      \>  float textureOffset(sampler2DRectShadow  sampler, vec3  P, ivec2 offset)
+                      \>  float textureOffset(sampler1DShadow sampler, vec3 P, int offset, [float bias])
+                      \>  float textureOffset(sampler2DShadow sampler, vec4 P, ivec2 offset, [float bias])
+                      \>  gvec4 textureOffset(gsampler1DArray sampler, vec2 P, int offset, [float bias])
+                      \>  gvec4 textureOffset(gsampler2DArray sampler, vec3 P, ivec2 offset, [float bias])
+                      \>  float textureOffset(sampler1DArrayShadow sampler, vec3 P, int offset)
+                      \>  float textureOffset(sampler2DArrayShadow sampler, vec4 P, vec2 offset)'/>
         <Keyword style_name='function' name='textureProj'
                  hint='perform a texture lookup with projection
-                      \  vec4  textureProj(gsampler1D sampler, vec2 P, [float bias])
-                      \  gvec4 textureProj(gsampler1D sampler, vec4 P, [float bias])
-                      \  gvec4 textureProj(gsampler2D sampler, vec3 P, [float bias])
-                      \  gvec4 textureProj(gsampler2D sampler, vec4 P, [float bias])
-                      \  gvec4 textureProj(gsampler3D sampler, vec4 P, [float bias])
-                      \  float textureProj(sampler1DShadow sampler, vec4 P, [float bias])
-                      \  float textureProj(sampler2DShadow sampler, vec4 P, [float bias])
-                      \  gvec4 textureProj(gsampler2DRect sampler, vec3 P)
-                      \  gvec4 textureProj(gsampler2DRect sampler, vec4 P)
-                      \  float textureProj(gsampler2DRectShadow sampler, vec4 P)'/>
+                      \>  vec4  textureProj(gsampler1D sampler, vec2 P, [float bias])
+                      \>  gvec4 textureProj(gsampler1D sampler, vec4 P, [float bias])
+                      \>  gvec4 textureProj(gsampler2D sampler, vec3 P, [float bias])
+                      \>  gvec4 textureProj(gsampler2D sampler, vec4 P, [float bias])
+                      \>  gvec4 textureProj(gsampler3D sampler, vec4 P, [float bias])
+                      \>  float textureProj(sampler1DShadow sampler, vec4 P, [float bias])
+                      \>  float textureProj(sampler2DShadow sampler, vec4 P, [float bias])
+                      \>  gvec4 textureProj(gsampler2DRect sampler, vec3 P)
+                      \>  gvec4 textureProj(gsampler2DRect sampler, vec4 P)
+                      \>  float textureProj(gsampler2DRectShadow sampler, vec4 P)'/>
         <Keyword style_name='function' name='textureProjGrad'
                  hint='perform a texture lookup with projection and explicit gradients
-                      \  gvec4 textureProjGrad(gsampler1D sampler, vec2 P, float pDx, float pDy)
-                      \  gvec4 textureProjGrad(gsampler1D sampler, vec4 P, float pDx, float pDy)
-                      \  gvec4 textureProjGrad(gsampler2D sampler, vec3 P, vec2 pDx, vec2 pDy)
-                      \  gvec4 textureProjGrad(gsampler2D sampler, vec4 P, vec2 pDx, vec2 pDy)
-                      \  gvec4 textureProjGrad(gsampler3D sampler, vec4 P, vec3 pDx, vec3 pDy)
-                      \  float textureProjGrad(sampler1DShadow sampler, vec4 P, float pDx, float pDy)
-                      \  float textureProjGrad(sampler2DShadow sampler, vec4 P, vec2 pDx, vec2 pDy)
-                      \  gvec4 textureProjGrad(gsampler2DRect sampler, vec3 P, vec2 pDx, vec2 pDy)
-                      \  gvec4 textureProjGrad(gsampler2DRect sampler, vec4 P, vec2 pDx, vec2 pDy)
-                      \  float textureProjGrad(gsampler2DRectShadow sampler, vec4 P, vec2 pDx, vec2 pDy)'/>
+                      \>  gvec4 textureProjGrad(gsampler1D sampler, vec2 P, float pDx, float pDy)
+                      \>  gvec4 textureProjGrad(gsampler1D sampler, vec4 P, float pDx, float pDy)
+                      \>  gvec4 textureProjGrad(gsampler2D sampler, vec3 P, vec2 pDx, vec2 pDy)
+                      \>  gvec4 textureProjGrad(gsampler2D sampler, vec4 P, vec2 pDx, vec2 pDy)
+                      \>  gvec4 textureProjGrad(gsampler3D sampler, vec4 P, vec3 pDx, vec3 pDy)
+                      \>  float textureProjGrad(sampler1DShadow sampler, vec4 P, float pDx, float pDy)
+                      \>  float textureProjGrad(sampler2DShadow sampler, vec4 P, vec2 pDx, vec2 pDy)
+                      \>  gvec4 textureProjGrad(gsampler2DRect sampler, vec3 P, vec2 pDx, vec2 pDy)
+                      \>  gvec4 textureProjGrad(gsampler2DRect sampler, vec4 P, vec2 pDx, vec2 pDy)
+                      \>  float textureProjGrad(gsampler2DRectShadow sampler, vec4 P, vec2 pDx, vec2 pDy)'/>
         <Keyword style_name='function' name='textureProjGradOffset'
                  hint='perform a texture lookup with projection, explicit gradients and offset
-                      \  gvec4 textureProjGradOffset(gsampler1D sampler, vec2 P, float dPdx, float dPdy, int offset)
-                      \  gvec4 textureProjGradOffset(gsampler1D sampler, vec4 P, float dPdx, float dPdy, int offset)
-                      \  gvec4 textureProjGradOffset(gsampler2D sampler, vec3 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
-                      \  gvec4 textureProjGradOffset(gsampler2D sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
-                      \  gvec4 textureProjGradOffset(gsampler3D sampler, vec4 P, vec3 dPdx, vec3 dPdy, ivec3 offset)
-                      \  float textureProjGradOffset(sampler1DShadow sampler, vec4 P, float dPdx, float dPdy, int offset)
-                      \  float textureProjGradOffset(sampler2DShadow sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
-                      \  gvec4 textureProjGradOffset(gsampler2DRect sampler, vec3 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
-                      \  gvec4 textureProjGradOffset(gsampler2DRect sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
-                      \  float textureProjGradOffset(gsampler2DRectShadow sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)'/>
+                      \>  gvec4 textureProjGradOffset(gsampler1D sampler, vec2 P, float dPdx, float dPdy, int offset)
+                      \>  gvec4 textureProjGradOffset(gsampler1D sampler, vec4 P, float dPdx, float dPdy, int offset)
+                      \>  gvec4 textureProjGradOffset(gsampler2D sampler, vec3 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
+                      \>  gvec4 textureProjGradOffset(gsampler2D sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
+                      \>  gvec4 textureProjGradOffset(gsampler3D sampler, vec4 P, vec3 dPdx, vec3 dPdy, ivec3 offset)
+                      \>  float textureProjGradOffset(sampler1DShadow sampler, vec4 P, float dPdx, float dPdy, int offset)
+                      \>  float textureProjGradOffset(sampler2DShadow sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
+                      \>  gvec4 textureProjGradOffset(gsampler2DRect sampler, vec3 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
+                      \>  gvec4 textureProjGradOffset(gsampler2DRect sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
+                      \>  float textureProjGradOffset(gsampler2DRectShadow sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)'/>
         <Keyword style_name='function' name='textureProjLod'
                  hint='perform a texture lookup with projection and explicit level-of-detail
-                      \  vec4  textureProjLod(gsampler1D sampler, vec2 P, float lod)
-                      \  gvec4 textureProjLod(gsampler1D sampler, vec4 P, float lod)
-                      \  gvec4 textureProjLod(gsampler2D sampler, vec3 P, float lod)
-                      \  gvec4 textureProjLod(gsampler2D sampler, vec4 P, float lod)
-                      \  gvec4 textureProjLod(gsampler3D sampler, vec4 P, float lod)
-                      \  float textureProjLod(sampler1DShadow sampler, vec4 P, float lod)
-                      \  float textureProjLod(sampler2DShadow sampler, vec4 P, float lod)'/>
+                      \>  vec4  textureProjLod(gsampler1D sampler, vec2 P, float lod)
+                      \>  gvec4 textureProjLod(gsampler1D sampler, vec4 P, float lod)
+                      \>  gvec4 textureProjLod(gsampler2D sampler, vec3 P, float lod)
+                      \>  gvec4 textureProjLod(gsampler2D sampler, vec4 P, float lod)
+                      \>  gvec4 textureProjLod(gsampler3D sampler, vec4 P, float lod)
+                      \>  float textureProjLod(sampler1DShadow sampler, vec4 P, float lod)
+                      \>  float textureProjLod(sampler2DShadow sampler, vec4 P, float lod)'/>
         <Keyword style_name='function' name='textureProjLodOffset'
                  hint='perform a texture lookup with projection and explicit level-of-detail and offset
-                      \  gvec4 textureProjLodOffset(gsampler1D sampler, vec2 P, float lod, int offset)
-                      \  gvec4 textureProjLodOffset(gsampler1D sampler, vec4 P, float lod, int offset)
-                      \  gvec4 textureProjLodOffset(gsampler2D sampler, vec3 P, float lod, ivec2 offset)
-                      \  gvec4 textureProjLodOffset(gsampler2D sampler, vec4 P, float lod, ivec2 offset)
-                      \  gvec4 textureProjLodOffset(gsampler3D sampler, vec4 P, float lod, ivec3 offset)
-                      \  float textureProjLodOffset(sampler1DShadow sampler, vec4 P, float lod, int   offset)
-                      \  float textureProjLodOffset(sampler2DShadow sampler, vec4 P, float lod, ivec2 offset)'/>
+                      \>  gvec4 textureProjLodOffset(gsampler1D sampler, vec2 P, float lod, int offset)
+                      \>  gvec4 textureProjLodOffset(gsampler1D sampler, vec4 P, float lod, int offset)
+                      \>  gvec4 textureProjLodOffset(gsampler2D sampler, vec3 P, float lod, ivec2 offset)
+                      \>  gvec4 textureProjLodOffset(gsampler2D sampler, vec4 P, float lod, ivec2 offset)
+                      \>  gvec4 textureProjLodOffset(gsampler3D sampler, vec4 P, float lod, ivec3 offset)
+                      \>  float textureProjLodOffset(sampler1DShadow sampler, vec4 P, float lod, int   offset)
+                      \>  float textureProjLodOffset(sampler2DShadow sampler, vec4 P, float lod, ivec2 offset)'/>
         <Keyword style_name='function' name='textureProjOffset'
                  hint='perform a texture lookup with projection and offset
-                      \  gvec4 textureProjOffset(gsampler1D sampler, vec2 P, int offset, [float bias])
-                      \  gvec4 textureProjOffset(gsampler1D sampler, vec4 P, int offset, [float bias])
-                      \  gvec4 textureProjOffset(gsampler2D sampler, vec3 P, ivec2 offset, [float bias])
-                      \  gvec4 textureProjOffset(gsampler2D sampler, vec4 P, ivec2 offset, [float bias])
-                      \  gvec4 textureProjOffset(gsampler3D sampler, vec4 P, ivec3 offset, [float bias])
-                      \  float textureProjOffset(sampler1DShadow sampler, vec4 P, int   offset, [float bias])
-                      \  float textureProjOffset(sampler2DShadow sampler, vec4 P, ivec2 offset, [float bias])
-                      \  gvec4 textureProjOffset(gsampler2DRect sampler, vec3 P, ivec2 offset)
-                      \  gvec4 textureProjOffset(gsampler2DRect sampler, vec4 P, ivec2 offset)
-                      \  float textureProjOffset(gsampler2DRectShadow sampler, vec4 P, ivec2 offset)'/>
+                      \>  gvec4 textureProjOffset(gsampler1D sampler, vec2 P, int offset, [float bias])
+                      \>  gvec4 textureProjOffset(gsampler1D sampler, vec4 P, int offset, [float bias])
+                      \>  gvec4 textureProjOffset(gsampler2D sampler, vec3 P, ivec2 offset, [float bias])
+                      \>  gvec4 textureProjOffset(gsampler2D sampler, vec4 P, ivec2 offset, [float bias])
+                      \>  gvec4 textureProjOffset(gsampler3D sampler, vec4 P, ivec3 offset, [float bias])
+                      \>  float textureProjOffset(sampler1DShadow sampler, vec4 P, int   offset, [float bias])
+                      \>  float textureProjOffset(sampler2DShadow sampler, vec4 P, ivec2 offset, [float bias])
+                      \>  gvec4 textureProjOffset(gsampler2DRect sampler, vec3 P, ivec2 offset)
+                      \>  gvec4 textureProjOffset(gsampler2DRect sampler, vec4 P, ivec2 offset)
+                      \>  float textureProjOffset(gsampler2DRectShadow sampler, vec4 P, ivec2 offset)'/>
         <Keyword style_name='function' name='textureQueryLevels'
                  hint='compute the number of accessible mipmap levels of a texture
-                      \  int textureQueryLevels(gsampler1D sampler)
-                      \  int textureQueryLevels(gsampler2D sampler)
-                      \  int textureQueryLevels(gsampler3D sampler)
-                      \  int textureQueryLevels(gsamplerCube sampler)
-                      \  int textureQueryLevels(gsampler1DArray sampler)
-                      \  int textureQueryLevels(gsampler2DDArray sampler)
-                      \  int textureQueryLevels(gsamplerCubeArray sampler)
-                      \  int textureQueryLevels(gsampler1DShadow sampler)
-                      \  int textureQueryLevels(gsampler2DShadow sampler)
-                      \  int textureQueryLevels(gsamplerCubeShadow sampler)
-                      \  int textureQueryLevels(gsampler1DArrayShadow sampler)
-                      \  int textureQueryLevels(gsampler2DArrayShadow sampler)
-                      \  int textureQueryLevels(gsamplerCubeArrayShadow sampler)'/>
+                      \>  int textureQueryLevels(gsampler1D sampler)
+                      \>  int textureQueryLevels(gsampler2D sampler)
+                      \>  int textureQueryLevels(gsampler3D sampler)
+                      \>  int textureQueryLevels(gsamplerCube sampler)
+                      \>  int textureQueryLevels(gsampler1DArray sampler)
+                      \>  int textureQueryLevels(gsampler2DDArray sampler)
+                      \>  int textureQueryLevels(gsamplerCubeArray sampler)
+                      \>  int textureQueryLevels(gsampler1DShadow sampler)
+                      \>  int textureQueryLevels(gsampler2DShadow sampler)
+                      \>  int textureQueryLevels(gsamplerCubeShadow sampler)
+                      \>  int textureQueryLevels(gsampler1DArrayShadow sampler)
+                      \>  int textureQueryLevels(gsampler2DArrayShadow sampler)
+                      \>  int textureQueryLevels(gsamplerCubeArrayShadow sampler)'/>
         <Keyword style_name='function' name='textureQueryLod'
                  hint='compute the level-of-detail that would be used to sample from a texture
-                      \  vec2 textureQueryLod(gsampler1D sampler, float P)
-                      \  vec2 textureQueryLod(gsampler2D sampler, vec2  P)
-                      \  vec2 textureQueryLod(gsampler3D sampler, vec3  P)
-                      \  vec2 textureQueryLod(gsamplerCube sampler, vec3  P)
-                      \  vec2 textureQueryLod(gsampler1DArray sampler, float P)
-                      \  vec2 textureQueryLod(gsampler2DDArray sampler, vec2  P)
-                      \  vec2 textureQueryLod(gsamplerCubeArray sampler, vec3  P)
-                      \  vec2 textureQueryLod(gsampler1DShadow sampler, float P)
-                      \  vec2 textureQueryLod(gsampler2DShadow sampler, vec2  P)
-                      \  vec2 textureQueryLod(gsamplerCubeShadow sampler, vec3  P)
-                      \  vec2 textureQueryLod(gsampler1DArrayShadow sampler, float P)
-                      \  vec2 textureQueryLod(gsampler2DArrayShadow sampler, vec2  P)
-                      \  vec2 textureQueryLod(gsamplerCubeArrayShadow sampler, vec3  P)'/>
+                      \>  vec2 textureQueryLod(gsampler1D sampler, float P)
+                      \>  vec2 textureQueryLod(gsampler2D sampler, vec2  P)
+                      \>  vec2 textureQueryLod(gsampler3D sampler, vec3  P)
+                      \>  vec2 textureQueryLod(gsamplerCube sampler, vec3  P)
+                      \>  vec2 textureQueryLod(gsampler1DArray sampler, float P)
+                      \>  vec2 textureQueryLod(gsampler2DDArray sampler, vec2  P)
+                      \>  vec2 textureQueryLod(gsamplerCubeArray sampler, vec3  P)
+                      \>  vec2 textureQueryLod(gsampler1DShadow sampler, float P)
+                      \>  vec2 textureQueryLod(gsampler2DShadow sampler, vec2  P)
+                      \>  vec2 textureQueryLod(gsamplerCubeShadow sampler, vec3  P)
+                      \>  vec2 textureQueryLod(gsampler1DArrayShadow sampler, float P)
+                      \>  vec2 textureQueryLod(gsampler2DArrayShadow sampler, vec2  P)
+                      \>  vec2 textureQueryLod(gsamplerCubeArrayShadow sampler, vec3  P)'/>
         <Keyword style_name='function' name='textureSamples'
                  hint='return the number of samples of a texture
-                      \  int textureSamples(gsampler2DMS sampler)
-                      \  int textureSamples(gsampler2DMSArray sampler)'/>
+                      \>  int textureSamples(gsampler2DMS sampler)
+                      \>  int textureSamples(gsampler2DMSArray sampler)'/>
         <Keyword style_name='function' name='textureSize'
                  hint='retrieve the dimensions of a level of a texture
-                      \  int   textureSize(gsampler1D sampler, int lod)
-                      \  ivec2 textureSize(gsampler2D sampler, int lod)
-                      \  ivec3 textureSize(gsampler3D sampler, int lod)
-                      \  ivec2 textureSize(gsamplerCube sampler, int lod)
-                      \  int   textureSize(sampler1DShadow sampler, int lod)
-                      \  ivec2 textureSize(sampler2DShadow sampler, int lod)
-                      \  ivec2 textureSize(samplerCubeShadow sampler, int lod)
-                      \  ivec3 textureSize(samplerCubeArray sampler, int lod)
-                      \  ivec3 textureSize(samplerCubeArrayShadow sampler, int lod)
-                      \  ivec2 textureSize(gsamplerRect sampler)
-                      \  ivec2 textureSize(gsamplerRectShadow sampler)
-                      \  ivec2 textureSize(gsampler1DArray sampler, int lod)
-                      \  ivec3 textureSize(gsampler2DArray sampler, int lod)
-                      \  ivec2 textureSize(sampler1DArrayShadow sampler, int lod)
-                      \  ivec3 textureSize(sampler2DArrayShadow sampler, int lod)
-                      \  int   textureSize(gsamplerBuffer sampler)
-                      \  ivec2 textureSize(gsampler2DMS sampler)
-                      \  ivec3 textureSize(gsampler2DMSArray sampler)'/>
+                      \>  int   textureSize(gsampler1D sampler, int lod)
+                      \>  ivec2 textureSize(gsampler2D sampler, int lod)
+                      \>  ivec3 textureSize(gsampler3D sampler, int lod)
+                      \>  ivec2 textureSize(gsamplerCube sampler, int lod)
+                      \>  int   textureSize(sampler1DShadow sampler, int lod)
+                      \>  ivec2 textureSize(sampler2DShadow sampler, int lod)
+                      \>  ivec2 textureSize(samplerCubeShadow sampler, int lod)
+                      \>  ivec3 textureSize(samplerCubeArray sampler, int lod)
+                      \>  ivec3 textureSize(samplerCubeArrayShadow sampler, int lod)
+                      \>  ivec2 textureSize(gsamplerRect sampler)
+                      \>  ivec2 textureSize(gsamplerRectShadow sampler)
+                      \>  ivec2 textureSize(gsampler1DArray sampler, int lod)
+                      \>  ivec3 textureSize(gsampler2DArray sampler, int lod)
+                      \>  ivec2 textureSize(sampler1DArrayShadow sampler, int lod)
+                      \>  ivec3 textureSize(sampler2DArrayShadow sampler, int lod)
+                      \>  int   textureSize(gsamplerBuffer sampler)
+                      \>  ivec2 textureSize(gsampler2DMS sampler)
+                      \>  ivec3 textureSize(gsampler2DMSArray sampler)'/>
         <Keyword style_name='function' name='transpose'
                  hint='calculate the transpose of a matrix
-                      \  mat2    transpose(mat2    m)
-                      \  mat3    transpose(mat3    m)
-                      \  mat4    transpose(mat4    m)
-                      \  mat2x3  transpose(mat3x2  m)
-                      \  mat2x4  transpose(mat4x2  m)
-                      \  mat3x2  transpose(mat2x3  m)
-                      \  mat3x4  transpose(mat4x3  m)
-                      \  mat4x2  transpose(mat2x4  m)
-                      \  mat4x3  transpose(mat3x4  m)
-                      \  dmat2   transpose(dmat2   m)
-                      \  dmat3   transpose(dmat3   m)
-                      \  dmat4   transpose(dmat4   m)
-                      \  dmat2x3 transpose(dmat3x2 m)
-                      \  dmat2x4 transpose(dmat4x2 m)
-                      \  dmat3x2 transpose(dmat2x3 m)
-                      \  dmat3x4 transpose(dmat4x3 m)
-                      \  dmat4x2 transpose(dmat2x4 m)
-                      \  dmat4x3 transpose(dmat3x4 m)'/>
+                      \>  mat2    transpose(mat2    m)
+                      \>  mat3    transpose(mat3    m)
+                      \>  mat4    transpose(mat4    m)
+                      \>  mat2x3  transpose(mat3x2  m)
+                      \>  mat2x4  transpose(mat4x2  m)
+                      \>  mat3x2  transpose(mat2x3  m)
+                      \>  mat3x4  transpose(mat4x3  m)
+                      \>  mat4x2  transpose(mat2x4  m)
+                      \>  mat4x3  transpose(mat3x4  m)
+                      \>  dmat2   transpose(dmat2   m)
+                      \>  dmat3   transpose(dmat3   m)
+                      \>  dmat4   transpose(dmat4   m)
+                      \>  dmat2x3 transpose(dmat3x2 m)
+                      \>  dmat2x4 transpose(dmat4x2 m)
+                      \>  dmat3x2 transpose(dmat2x3 m)
+                      \>  dmat3x4 transpose(dmat4x3 m)
+                      \>  dmat4x2 transpose(dmat2x4 m)
+                      \>  dmat4x3 transpose(dmat3x4 m)'/>
         <Keyword style_name='function' name='trunc'
                  hint='find the nearest integer less
                       \than or equal to the parameter
-                      \  genType  trunc(genType  x)
-                      \  genDType trunc(genDType x)'/>
+                      \>  genType  trunc(genType  x)
+                      \>  genDType trunc(genDType x)'/>
         <Keyword style_name='function' name='uaddCarry'
                  hint='Add unsigned integers and generate carry. The
                       \carry result is the sum of x and y modulo 2^32.
-                      \  genUType uaddCarry(genUType x, genUType y, out genUType carry)'/>
+                      \>  genUType uaddCarry(genUType x, genUType y, out genUType carry)'/>
         <Keyword style_name='function' name='uintBitsToFloat'
                  hint='produce a floating point using an
                       \encoding supplied as an integer
-                      \  genType uintBitsToFloat(genUType x)'/>
+                      \>  genType uintBitsToFloat(genUType x)'/>
         <Keyword style_name='function' name='umulExtended'
                  hint='perform a 32- by 32-bit multiply to produce a 64-bit result
-                      \  void umulExtended(genIType x, genIType y, out genIType msb, out genIType lsb)'/>
+                      \>  void umulExtended(genIType x, genIType y, out genIType msb, out genIType lsb)'/>
         <Keyword style_name='function' name='unpackDouble2x32'
                  hint='produce two unsigned integers containing the bit
                       \encoding of a double precision floating point value
-                      \  uvec2 unpackDouble2x32(double d)'/>
+                      \>  uvec2 unpackDouble2x32(double d)'/>
         <Keyword style_name='function' name='unpackHalf2x16'
                  hint='convert two 16-bit floating-point values
                       \packed into a single 32-bit integer into a
                       \vector of two 32-bit floating-point quantities
-                      \  vec2 unpackHalf2x16(uint v)'/>
+                      \>  vec2 unpackHalf2x16(uint v)'/>
         <Keyword style_name='function' name='unpackSnorm2x16'
                  hint='unpack floating-point values from an unsigned integer
-                      \  vec2 unpackUnorm2x16(uint p)'/>
+                      \>  vec2 unpackUnorm2x16(uint p)'/>
         <Keyword style_name='function' name='unpackSnorm4x8'
                  hint='unpack floating-point values from an unsigned integer
-                      \  vec2 unpackSnorm4x8(uint p)'/>
+                      \>  vec2 unpackSnorm4x8(uint p)'/>
         <Keyword style_name='function' name='unpackUnorm2x16'
                  hint='unpack floating-point values from an unsigned integer
-                      \  vec2 unpackUnorm2x16(uint p)'/>
+                      \>  vec2 unpackUnorm2x16(uint p)'/>
         <Keyword style_name='function' name='unpackUnorm4x8'
                  hint='unpack floating-point values from an unsigned integer
-                      \  vec2 unpackUnorm4x8(uint p)'/>
+                      \>  vec2 unpackUnorm4x8(uint p)'/>
         <Keyword style_name='function' name='usubBorrow'
                  hint='subtract unsigned integers and generate borrow
-                      \  genUType usubBorrow(genUType x, genUType y, out genUType borrow)'/>
-        <Keyword style_name='keyword' name='const'/>
+                      \>  genUType usubBorrow(genUType x, genUType y, out genUType borrow)'/>
+        <Keyword style_name='keyword' name='const' hint='Specify a constant variable indicating
+                                                        \that the variable will not change.'/>
         <Keyword style_name='keyword' name='if'/>
         <Keyword style_name='keyword' name='else'/>
         <Keyword style_name='keyword' name='switch'/>
@@ -1684,99 +1747,100 @@
         <Keyword style_name='keyword' name='break'/>
         <Keyword style_name='keyword' name='continue'/>
         <Keyword style_name='keyword' name='return'/>
-        <Keyword style_name='keyword' name='discard'/>
+        <Keyword style_name='keyword' name='discard' hint='FS ONLY: Do not pass the fragment on to the framebuffer.'/>
         <Keyword style_name='datatype' name='void'/>
         <Keyword style_name='datatype' name='bool'/>
         <Keyword style_name='datatype' name='int'/>
         <Keyword style_name='datatype' name='uint'/>
         <Keyword style_name='datatype' name='float'/>
         <Keyword style_name='datatype' name='atomic_uint'/>
-        <Keyword style_name='datatype' name='bvec2'/>
-        <Keyword style_name='datatype' name='bvec3'/>
-        <Keyword style_name='datatype' name='bvec4'/>
-        <Keyword style_name='datatype' name='ivec2'/>
-        <Keyword style_name='datatype' name='ivec3'/>
-        <Keyword style_name='datatype' name='ivec4'/>
-        <Keyword style_name='datatype' name='uvec2'/>
-        <Keyword style_name='datatype' name='uvec3'/>
-        <Keyword style_name='datatype' name='uvec4'/>
-        <Keyword style_name='datatype' name='vec2'/>
-        <Keyword style_name='datatype' name='vec3'/>
-        <Keyword style_name='datatype' name='vec4'/>
-        <Keyword style_name='datatype' name='dvec2'/>
-        <Keyword style_name='datatype' name='dvec3'/>
-        <Keyword style_name='datatype' name='dvec4'/>
-        <Keyword style_name='datatype' name='mat2'/>
-        <Keyword style_name='datatype' name='mat2x2'/>
-        <Keyword style_name='datatype' name='mat2x3'/>
-        <Keyword style_name='datatype' name='mat2x4'/>
-        <Keyword style_name='datatype' name='mat3'/>
-        <Keyword style_name='datatype' name='mat3x2'/>
-        <Keyword style_name='datatype' name='mat3x3'/>
-        <Keyword style_name='datatype' name='mat3x4'/>
-        <Keyword style_name='datatype' name='mat4'/>
-        <Keyword style_name='datatype' name='mat4x2'/>
-        <Keyword style_name='datatype' name='mat4x3'/>
-        <Keyword style_name='datatype' name='mat4x4'/>
-        <Keyword style_name='datatype' name='dmat2'/>
-        <Keyword style_name='datatype' name='dmat2x2'/>
-        <Keyword style_name='datatype' name='dmat2x3'/>
-        <Keyword style_name='datatype' name='dmat2x4'/>
-        <Keyword style_name='datatype' name='dmat3'/>
-        <Keyword style_name='datatype' name='dmat3x2'/>
-        <Keyword style_name='datatype' name='dmat3x3'/>
-        <Keyword style_name='datatype' name='dmat3x4'/>
-        <Keyword style_name='datatype' name='dmat4'/>
-        <Keyword style_name='datatype' name='dmat4x2'/>
-        <Keyword style_name='datatype' name='dmat4x3'/>
-        <Keyword style_name='datatype' name='dmat4x4'/>
+        <Keyword style_name='datatype' name='bvec2' hint='bool vector with 2 components'/>
+        <Keyword style_name='datatype' name='bvec3' hint='bool vector with 3 components'/>
+        <Keyword style_name='datatype' name='bvec4' hint='bool vector with 4 components'/>
+        <Keyword style_name='datatype' name='ivec2' hint='int vector with 2 components'/>
+        <Keyword style_name='datatype' name='ivec3' hint='int vector with 3 components'/>
+        <Keyword style_name='datatype' name='ivec4' hint='int vector with 4 components'/>
+        <Keyword style_name='datatype' name='uvec2' hint='unsigned int vector with 2 components'/>
+        <Keyword style_name='datatype' name='uvec3' hint='unsigned int vector with 3 components'/>
+        <Keyword style_name='datatype' name='uvec4' hint='unsigned int vector with 4 components'/>
+        <Keyword style_name='datatype' name='vec2' hint='float vector with 2 components'/>
+        <Keyword style_name='datatype' name='vec3' hint='float vector with 3 components'/>
+        <Keyword style_name='datatype' name='vec4' hint='float vector with 4 components'/>
+        <Keyword style_name='datatype' name='dvec2' hint='double vector with 2 components'/>
+        <Keyword style_name='datatype' name='dvec3' hint='double vector with 3 components'/>
+        <Keyword style_name='datatype' name='dvec4' hint='double vector with 4 components'/>
+        <Keyword style_name='datatype' name='mat2' hint='float matrix with 2 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='mat2x2' hint='float matrix with 2 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='mat2x3' hint='float matrix with 2 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='mat2x4' hint='float matrix with 2 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='mat3' hint='float matrix with 3 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='mat3x2' hint='float matrix with 3 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='mat3x3' hint='float matrix with 3 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='mat3x4' hint='float matrix with 3 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='mat4' hint='float matrix with 4 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='mat4x2' hint='float matrix with 4 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='mat4x3' hint='float matrix with 4 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='mat4x4' hint='float matrix with 4 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='dmat2' hint='double matrix with 2 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='dmat2x2' hint='double matrix with 2 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='dmat2x3' hint='double matrix with 2 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='dmat2x4' hint='double matrix with 2 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='dmat3' hint='double matrix with 3 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='dmat3x2' hint='double matrix with 3 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='dmat3x3' hint='double matrix with 3 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='dmat3x4' hint='double matrix with 3 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='dmat4' hint='double matrix with 4 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='dmat4x2' hint='double matrix with 4 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='dmat4x3' hint='double matrix with 4 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='dmat4x4' hint='double matrix with 4 columns and 4 rows'/>
       </Lexer>
       <Lexer type='functionheader' lexer='GlslFunctionHeaderLexer'>
         <Style name='datatype' fore='#8676CC' back='#FFFFFF'/>
+        <Keyword style_name='datatype' name='void'/>
         <Keyword style_name='datatype' name='bool'/>
         <Keyword style_name='datatype' name='int'/>
         <Keyword style_name='datatype' name='uint'/>
         <Keyword style_name='datatype' name='float'/>
         <Keyword style_name='datatype' name='atomic_uint'/>
-        <Keyword style_name='datatype' name='bvec2'/>
-        <Keyword style_name='datatype' name='bvec3'/>
-        <Keyword style_name='datatype' name='bvec4'/>
-        <Keyword style_name='datatype' name='ivec2'/>
-        <Keyword style_name='datatype' name='ivec3'/>
-        <Keyword style_name='datatype' name='ivec4'/>
-        <Keyword style_name='datatype' name='uvec2'/>
-        <Keyword style_name='datatype' name='uvec3'/>
-        <Keyword style_name='datatype' name='uvec4'/>
-        <Keyword style_name='datatype' name='vec2'/>
-        <Keyword style_name='datatype' name='vec3'/>
-        <Keyword style_name='datatype' name='vec4'/>
-        <Keyword style_name='datatype' name='dvec2'/>
-        <Keyword style_name='datatype' name='dvec3'/>
-        <Keyword style_name='datatype' name='dvec4'/>
-        <Keyword style_name='datatype' name='mat2'/>
-        <Keyword style_name='datatype' name='mat2x2'/>
-        <Keyword style_name='datatype' name='mat2x3'/>
-        <Keyword style_name='datatype' name='mat2x4'/>
-        <Keyword style_name='datatype' name='mat3'/>
-        <Keyword style_name='datatype' name='mat3x2'/>
-        <Keyword style_name='datatype' name='mat3x3'/>
-        <Keyword style_name='datatype' name='mat3x4'/>
-        <Keyword style_name='datatype' name='mat4'/>
-        <Keyword style_name='datatype' name='mat4x2'/>
-        <Keyword style_name='datatype' name='mat4x3'/>
-        <Keyword style_name='datatype' name='mat4x4'/>
-        <Keyword style_name='datatype' name='dmat2'/>
-        <Keyword style_name='datatype' name='dmat2x2'/>
-        <Keyword style_name='datatype' name='dmat2x3'/>
-        <Keyword style_name='datatype' name='dmat2x4'/>
-        <Keyword style_name='datatype' name='dmat3'/>
-        <Keyword style_name='datatype' name='dmat3x2'/>
-        <Keyword style_name='datatype' name='dmat3x3'/>
-        <Keyword style_name='datatype' name='dmat3x4'/>
-        <Keyword style_name='datatype' name='dmat4'/>
-        <Keyword style_name='datatype' name='dmat4x2'/>
-        <Keyword style_name='datatype' name='dmat4x3'/>
-        <Keyword style_name='datatype' name='dmat4x4'/>
+        <Keyword style_name='datatype' name='bvec2' hint='bool vector with 2 components'/>
+        <Keyword style_name='datatype' name='bvec3' hint='bool vector with 3 components'/>
+        <Keyword style_name='datatype' name='bvec4' hint='bool vector with 4 components'/>
+        <Keyword style_name='datatype' name='ivec2' hint='int vector with 2 components'/>
+        <Keyword style_name='datatype' name='ivec3' hint='int vector with 3 components'/>
+        <Keyword style_name='datatype' name='ivec4' hint='int vector with 4 components'/>
+        <Keyword style_name='datatype' name='uvec2' hint='unsigned int vector with 2 components'/>
+        <Keyword style_name='datatype' name='uvec3' hint='unsigned int vector with 3 components'/>
+        <Keyword style_name='datatype' name='uvec4' hint='unsigned int vector with 4 components'/>
+        <Keyword style_name='datatype' name='vec2' hint='float vector with 2 components'/>
+        <Keyword style_name='datatype' name='vec3' hint='float vector with 3 components'/>
+        <Keyword style_name='datatype' name='vec4' hint='float vector with 4 components'/>
+        <Keyword style_name='datatype' name='dvec2' hint='double vector with 2 components'/>
+        <Keyword style_name='datatype' name='dvec3' hint='double vector with 3 components'/>
+        <Keyword style_name='datatype' name='dvec4' hint='double vector with 4 components'/>
+        <Keyword style_name='datatype' name='mat2' hint='float matrix with 2 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='mat2x2' hint='float matrix with 2 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='mat2x3' hint='float matrix with 2 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='mat2x4' hint='float matrix with 2 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='mat3' hint='float matrix with 3 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='mat3x2' hint='float matrix with 3 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='mat3x3' hint='float matrix with 3 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='mat3x4' hint='float matrix with 3 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='mat4' hint='float matrix with 4 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='mat4x2' hint='float matrix with 4 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='mat4x3' hint='float matrix with 4 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='mat4x4' hint='float matrix with 4 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='dmat2' hint='double matrix with 2 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='dmat2x2' hint='double matrix with 2 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='dmat2x3' hint='double matrix with 2 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='dmat2x4' hint='double matrix with 2 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='dmat3' hint='double matrix with 3 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='dmat3x2' hint='double matrix with 3 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='dmat3x3' hint='double matrix with 3 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='dmat3x4' hint='double matrix with 3 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='dmat4' hint='double matrix with 4 columns and 4 rows'/>
+        <Keyword style_name='datatype' name='dmat4x2' hint='double matrix with 4 columns and 2 rows'/>
+        <Keyword style_name='datatype' name='dmat4x3' hint='double matrix with 4 columns and 3 rows'/>
+        <Keyword style_name='datatype' name='dmat4x4' hint='double matrix with 4 columns and 4 rows'/>
       </Lexer>
     </Lexer>
   </Lexer>
