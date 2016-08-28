@@ -22,6 +22,11 @@ namespace App
     public class Trie<TValue> : TrieNode<TValue>
     {
         /// <summary>
+        /// Default constructor.
+        /// </summary>
+        public Trie() { }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="keys"></param>

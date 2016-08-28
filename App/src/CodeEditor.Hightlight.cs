@@ -6,7 +6,7 @@ namespace App
 {
     partial class CodeEditor
     {
-        private static FxLexer FxLexer;
+        private static Lexer.ILexer FxLexer = new Lexer.FxLexer();
 
         /// <summary>
         /// Initialize code highlighting.
@@ -14,7 +14,7 @@ namespace App
         private void InitializeHighlighting()
         {
             StyleNeeded += new EventHandler<StyleNeededEventArgs>(HandleStyleNeeded);
-
+            
             StyleResetDefault();
             Styles[Style.Default].Font = "Consolas";
             Styles[Style.Default].Size = 10;
@@ -23,15 +23,13 @@ namespace App
             Styles[Style.LineNumber].ForeColor = Color.Gray;
 
             // set styles as defined in the keyword file
-            foreach (var def in FxLexer.Defs)
+            foreach (var style in FxLexer.Styles)
             {
-                if (def.Value == null)
-                    continue;
-                Styles[def.Value.Id].ForeColor = def.Value.ForeColor;
-                Styles[def.Value.Id].BackColor = def.Value.BackColor;
+                Styles[style.id].ForeColor = style.fore;
+                Styles[style.id].BackColor = style.back;
             }
 
-            Lexer = Lexer.Container;
+            Lexer = ScintillaNET.Lexer.Container;
         }
 
         /// <summary>
@@ -43,11 +41,11 @@ namespace App
         {
             try
             {
-                FxLexer.Style(this, GetEndStyled(), e.Position);
+                FxLexer.Style(this, GetEndStyled(), TextLength);
             }
-            catch
+            catch (Exception ex)
             {
-
+                System.Diagnostics.Debug.Print(ex.StackTrace);
             }
         }
         
@@ -61,7 +59,7 @@ namespace App
             // get start and end position of the region that needs to be folded
             while (startLine > 0 && Lines[startLine].FoldLevel != 1024)
                 startLine--;
-            FxLexer.Folding(this, Lines[startLine].Position, Lines[endLine].EndPosition);
+            FxLexer.Fold(this, Lines[startLine].Position, Lines[endLine].EndPosition);
         }
     }
 }

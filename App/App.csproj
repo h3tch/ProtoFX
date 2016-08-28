@@ -84,6 +84,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="src\App.Debug.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -145,14 +150,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="demos\atlas\quest.tech" />
     <None Include="demos\shadow_mapping.tech" />
     <None Include="demos\shadow_mapping_pcf.tech" />
@@ -184,10 +184,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="resources\keywordsXML.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <None Include="resources\colors.txt" />
     <Content Include="resources\dbgBody.txt" />
     <None Include="resources\ImgUncomment.png" />
     <None Include="resources\ImgComment.png" />
-    <None Include="resources\keywords.txt" />
     <None Include="resources\ImgPick.png" />
     <None Include="resources\ImgDbg.png" />
     <None Include="resources\dbg.txt" />

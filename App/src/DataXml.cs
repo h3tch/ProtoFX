@@ -49,7 +49,7 @@ namespace App
                                 + $" to be specified(e.g. <{itemname} type='float'>).");
                         
                         // convert type name to Type
-                        type = Extensions.str2type[attr["type"].Value];
+                        type = ConvertExtensions.str2type[attr["type"].Value];
                         if (type == null)
                             throw new XmlException($"{errstr}Type '{attr["type"].Value}' not supported.");
 
@@ -69,9 +69,9 @@ namespace App
                 // join the data of all nodes
                 return data.Cat().ToArray();
             }
-            catch (XmlException ex)
+            catch (XmlException)
             {
-                throw ex;
+                throw;
             }
             catch
             {

@@ -17,13 +17,12 @@ namespace App
             
             var xmlDocument = new System.Xml.XmlDocument();
             var serializer = new System.Xml.Serialization.XmlSerializer(obj.GetType());
-            using (MemoryStream stream = new MemoryStream())
+            using (var stream = new MemoryStream())
             {
                 serializer.Serialize(stream, obj);
                 stream.Position = 0;
                 xmlDocument.Load(stream);
                 xmlDocument.Save(fileName);
-                stream.Close();
             }
         }
 
@@ -44,21 +43,13 @@ namespace App
             // load xml file
             var xmlDocument = new System.Xml.XmlDocument();
             xmlDocument.Load(fileName);
-            string xmlString = xmlDocument.OuterXml;
+            var xmlString = xmlDocument.OuterXml;
 
             // deserialize string to object
-            using (var read = new StringReader(xmlString))
+            var serializer = new System.Xml.Serialization.XmlSerializer(typeof(T));
+            using (var reader = new System.Xml.XmlTextReader(new StringReader(xmlString)))
             {
-                var outType = typeof(T);
-
-                var serializer = new System.Xml.Serialization.XmlSerializer(outType);
-                using (var reader = new System.Xml.XmlTextReader(read))
-                {
-                    objectOut = (T)serializer.Deserialize(reader);
-                    reader.Close();
-                }
-
-                read.Close();
+                objectOut = (T)serializer.Deserialize(reader);
             }
 
             return objectOut;
