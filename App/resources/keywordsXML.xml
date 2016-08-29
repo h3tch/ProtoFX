@@ -128,6 +128,7 @@
       <Keyword style_name='command' name='txt' hint='txt [text_name]'/>
       <Keyword style_name='command' name='usage' hint='usage [hint]'/>
       <Keyword style_name='command' name='xml' hint='xml [path]'/>
+      <Keyword style_name='command' name='class' hint='class [csharp_name] [class_name] [method_name]'/>
       <!-- buffer - USAGE -->
       <Lexer type='usage' lexer='CommandLexer'>
         <Style name='argument' fore='#8676CC' back='#FFFFFF'/>
@@ -505,6 +506,59 @@
       <Keyword style_name='command' name='buff' hint='buff [name]'/>
       <Keyword style_name='command' name='img' hint='img [name]'/>
       <Keyword style_name='command' name='samp' hint='samp [name]'/>
+      <Keyword style_name='command' name='format' hint='format [pixel_format]'/>
+      <!-- image - FORMAT -->
+      <Lexer type='format' lexer='CommandLexer'>
+        <Style name='argument' fore='#8676CC' back='#FFFFFF'/>
+        <Keyword style_name='argument' name='depth'/>
+        <Keyword style_name='argument' name='depth16'/>
+        <Keyword style_name='argument' name='depth24'/>
+        <Keyword style_name='argument' name='depth24stencil8'/>
+        <Keyword style_name='argument' name='depth32'/>
+        <Keyword style_name='argument' name='depth32f'/>
+        <Keyword style_name='argument' name='depth32fstencil8'/>
+        <Keyword style_name='argument' name='depthstencil'/>
+        <Keyword style_name='argument' name='r8'/>
+        <Keyword style_name='argument' name='r8i'/>
+        <Keyword style_name='argument' name='r8ui'/>
+        <Keyword style_name='argument' name='r16'/>
+        <Keyword style_name='argument' name='r16i'/>
+        <Keyword style_name='argument' name='r16ui'/>
+        <Keyword style_name='argument' name='r16f'/>
+        <Keyword style_name='argument' name='r32i'/>
+        <Keyword style_name='argument' name='r32ui'/>
+        <Keyword style_name='argument' name='r32f'/>
+        <Keyword style_name='argument' name='rg8'/>
+        <Keyword style_name='argument' name='rg8i'/>
+        <Keyword style_name='argument' name='rg8ui'/>
+        <Keyword style_name='argument' name='rg16'/>
+        <Keyword style_name='argument' name='rg16i'/>
+        <Keyword style_name='argument' name='rg16ui'/>
+        <Keyword style_name='argument' name='rg16f'/>
+        <Keyword style_name='argument' name='rg32i'/>
+        <Keyword style_name='argument' name='rg32ui'/>
+        <Keyword style_name='argument' name='rg32f'/>
+        <Keyword style_name='argument' name='rgb8'/>
+        <Keyword style_name='argument' name='rgb8i'/>
+        <Keyword style_name='argument' name='rgb8ui'/>
+        <Keyword style_name='argument' name='rgb16'/>
+        <Keyword style_name='argument' name='rgb16i'/>
+        <Keyword style_name='argument' name='rgb16ui'/>
+        <Keyword style_name='argument' name='rgb16f'/>
+        <Keyword style_name='argument' name='rgb32i'/>
+        <Keyword style_name='argument' name='rgb32ui'/>
+        <Keyword style_name='argument' name='rgb32f'/>
+        <Keyword style_name='argument' name='rgba8'/>
+        <Keyword style_name='argument' name='rgba8i'/>
+        <Keyword style_name='argument' name='rgba8ui'/>
+        <Keyword style_name='argument' name='rgba16'/>
+        <Keyword style_name='argument' name='rgba16i'/>
+        <Keyword style_name='argument' name='rgba16ui'/>
+        <Keyword style_name='argument' name='rgba16f'/>
+        <Keyword style_name='argument' name='rgba32i'/>
+        <Keyword style_name='argument' name='rgba32ui'/>
+        <Keyword style_name='argument' name='rgba32f'/>
+      </Lexer>
     </Lexer>
     <!-- VERTINPUT -->
     <Lexer type='vertinput' lexer='BlockLexer'>

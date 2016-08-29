@@ -491,15 +491,15 @@ namespace App
         private static void ThrowOnGLError(string message)
         {
 #if DEBUG
-            ErrorCode errcode;
-            if ((errcode = GL.GetError()) != ErrorCode.NoError)
-                throw new Exception($"{errcode}: " + message);
+            ErrorCode errcode = GL.GetError();
+            if (errcode != ErrorCode.NoError)
+                throw new Exception($"{errcode}: {message}");
 #endif
         }
         #endregion
 
         #region HELP STRUCT
-        public enum DrawFunc
+        private enum DrawFunc
         {
             ArraysIndirect = 0 | 2 | 0 | 0,
             ArraysInstanced = 0 | 0 | 0 | 0,
@@ -584,7 +584,7 @@ namespace App
             }
         }
 
-        public struct DrawCall
+        private struct DrawCall
         {
             public PrimType mode;
             public ElementType indextype;

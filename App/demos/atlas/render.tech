@@ -104,17 +104,17 @@ vertinput vertex_input {
 
 texture camera_transform_texture {
 	buff camera_transform
-	format RGBA32f
+	format rgba32f
 }
 
 texture camera_viewport_texture {
 	buff camera_viewport
-	format RGBA32f
+	format rgba32f
 }
 
 texture camera_position_texture {
 	buff camera_position
-	format RGBA32f
+	format rgba32f
 }
 
 texture depth_texture {
@@ -142,7 +142,7 @@ instance cs_camera {
 
 // Simple GLSL vertex shader transforming
 // vertex positions from model to perspective space
-shader vert vs_shadowmap {
+shader vs_shadowmap vert {
 	#version 450
 	
 	layout(binding = 0) uniform samplerBuffer camTransform;
@@ -157,8 +157,7 @@ shader vert vs_shadowmap {
 	layout(location = 6) in ivec4 camera;
 
 	// vertex shader output
-	layout(location = 0) out Block
-	{
+	layout(location = 0) out Block {
 		vec4 position[MAX_CAMS];
 		vec4 viewport[MAX_CAMS];
 	} OUT;
@@ -195,12 +194,11 @@ shader vert vs_shadowmap {
 	}
 }
 
-shader geom gs_shadowmap {
+shader gs_shadowmap geom {
 	#version 450
 	
 	layout(triangles) in;
-	layout(location = 0) in Block
-	{
+	layout(location = 0) in Block {
 		vec4 position[MAX_CAMS];
 		vec4 viewport[MAX_CAMS];
 	} IN[];
@@ -240,7 +238,7 @@ shader geom gs_shadowmap {
 	}
 }
 
-shader vert vs_render {
+shader vs_render vert {
 	#version 450
 	
 	layout(binding = 0) uniform SimpleCamera {
@@ -262,8 +260,7 @@ shader vert vs_render {
 	layout(location = 6) in ivec4 camera;
 
 	// vertex shader output
-	layout(location = 0) out Block
-	{
+	layout(location = 0) out Block {
 		vec4 normal;
 		vec4 color;
 		vec4 viewer;
@@ -318,15 +315,14 @@ shader vert vs_render {
 	}
 }
 
-shader frag fs_render {
+shader fs_render frag {
 	#version 450
 	
 	layout(binding = 3) uniform sampler2D shadowAtlas;
 	
 	// fragment shader input (see col in vs_simple)
 	layout(early_fragment_tests) in;
-	layout(location = 0) in Block
-	{
+	layout(location = 0) in Block {
 		vec4 normal;
 		vec4 color;
 		vec4 viewer;
