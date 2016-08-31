@@ -65,7 +65,7 @@ texture tex_shadowmap {
 // SHADERS //
 /////////////
 
-shader vert vs_shadowmap {
+shader vs_shadowmap vert {
 	#version 440
 	
 	layout(binding = 0) uniform StaticCamera {
@@ -82,7 +82,7 @@ shader vert vs_shadowmap {
 	}
 }
 
-shader vert vs_simple {
+shader vs_simple vert {
 	#version 440
 	
 	layout(binding = 0) uniform StaticCamera {
@@ -112,7 +112,7 @@ shader vert vs_simple {
 	}
 }
 
-shader frag fs_simple {
+shader fs_simple frag {
 	#version 440
 	
 	layout(binding = 0) uniform sampler2D shadowmap;

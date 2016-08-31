@@ -39,7 +39,7 @@ texture tex_lena {
 // SHADERS //
 /////////////
 
-shader vert vs_simple {
+shader vs_simple vert {
 	#version 440
 
 	layout(binding = 0) uniform SimpleCamera {
@@ -61,7 +61,7 @@ shader vert vs_simple {
 	}
 }
 
-shader frag fs_simple {
+shader fs_simple frag {
 	#version 440
 	
 	layout(binding = 0) uniform sampler2D tex;

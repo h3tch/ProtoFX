@@ -50,7 +50,7 @@ vertinput in_projvert {
 // SHADERS //
 /////////////
 
-shader vert vs_transform {
+shader vs_transform vert {
 	#version 440
 	
 	uniform SimpleCamera {
@@ -68,7 +68,7 @@ shader vert vs_transform {
 	}
 }
 
-shader vert vs_render {
+shader vs_render vert {
 	#version 440
 	
 	layout(location = 0) in vec4 in_pos;
@@ -83,7 +83,7 @@ shader vert vs_render {
 	}
 }
 
-shader frag fs_render {
+shader fs_render frag {
 	#version 440
 	
 	layout(location = 0) in vec4 gs_col;

@@ -40,7 +40,7 @@ texture tex_compute {
 // SHADERS //
 /////////////
 
-shader comp cs_simple {
+shader cs_simple comp {
 	#version 440
 	
 	layout(binding = 0, rgba8) uniform writeonly image2D tex;
@@ -57,7 +57,7 @@ shader comp cs_simple {
 	}
 }
 
-shader vert vs_simple {
+shader vs_simple vert {
 	#version 440
 
 	layout(binding = 0) uniform SimpleCamera {
@@ -79,7 +79,7 @@ shader vert vs_simple {
 	}
 }
 
-shader frag fs_simple {
+shader fs_simple frag {
 	#version 440
 	
 	layout(binding = 0) uniform sampler2D tex;

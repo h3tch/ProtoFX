@@ -82,7 +82,7 @@ texture tex_color {
 // SHADERS //
 /////////////
 
-shader vert vs_simple {
+shader vs_simple vert {
 	#version 440
 	
 	layout(location = 0) uniform SimpleCamera {
@@ -103,7 +103,7 @@ shader vert vs_simple {
 	}
 }
 
-shader frag fs_simple {
+shader fs_simple frag {
 	#version 440
 	
 	layout(location = 0) in vec4 gs_col;
@@ -115,7 +115,7 @@ shader frag fs_simple {
 	}
 }
 
-shader vert vs_present {
+shader vs_present vert {
 	#version 440
 	
 	layout(location = 0) in vec4 in_pos;
@@ -128,7 +128,7 @@ shader vert vs_present {
 	}
 }
 
-shader frag fs_present {
+shader fs_present frag {
 	#version 440
 
 	layout(binding = 0) uniform sampler2D tex;

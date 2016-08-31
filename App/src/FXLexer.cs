@@ -464,7 +464,7 @@ namespace App.Lexer
             if (c[-1] == '{')
             {
                 // get header string from block position
-                int typePos = FindLastStyleOf(editor, StateToStyle((int)State.Type), c.Pos);
+                var typePos = FindLastStyleOf(editor, StateToStyle((int)State.Type), c.Pos);
                 var typeName = typePos >= 0 ? editor.GetWordFromPosition(typePos) : null;
 
                 // find lexer that can lex this code block
