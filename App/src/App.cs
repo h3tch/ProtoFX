@@ -1,6 +1,5 @@
 ﻿using ScintillaNET;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
