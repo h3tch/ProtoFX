@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Windows.Forms;
 using System;
 
@@ -23,7 +22,6 @@ namespace App
         public void AutoCShow(int position)
         {
             var word = GetWordFromPosition(position);
-            //var word = Text.Subrange(WordStartPosition(position, false), position);
             var keywords = FxLexer.SelectKeywords(GetStyleAt(position), word);
 
             // show auto complete list

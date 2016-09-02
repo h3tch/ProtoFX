@@ -1,4 +1,5 @@
-﻿using ScintillaNET;
+﻿using OpenTK.Graphics.OpenGL4;
+using ScintillaNET;
 using System;
 using System.Data;
 using System.Drawing;
@@ -52,8 +53,16 @@ namespace App
 
             // CLEAR OPENGL CONTROL
 
+            // clear the first buffer of double buffered framebuffer
+            GL.ClearColor(glControl.ForeColor);
+            GL.Clear(ClearBufferMask.ColorDepthStencilBit);
+
+            // initialize OpenGL control
             glControl.AddEvents();
             glControl.Render();
+
+            // clear the second buffer of double buffered framebuffer
+            GL.Clear(ClearBufferMask.ColorDepthStencilBit);
         }
 
         /// <summary>
@@ -477,8 +486,8 @@ namespace App
         private int AddTab(string path)
         {
             // load file
-            string filename = path != null ? Path.GetFileName(path) : "unnamed.tech";
-            string text = path != null ? System.IO.File.ReadAllText(path) : "// Unnamed file";
+            var filename = path != null ? Path.GetFileName(path) : "unnamed.tech";
+            var text = path != null ? System.IO.File.ReadAllText(path) : "// Unnamed file";
 
             // create new tab objects
             var tabSourcePage = new TabPageEx(path);
@@ -507,9 +516,9 @@ namespace App
         private void ProcessArgs(string[] args)
         {
             // process potential tech files
-            tabSource.SelectedIndex = args.Skip(1)
-                .Where(x => !x.StartsWith("-") && System.IO.File.Exists(x))
-                .Select(x => AddTab(x)).LastOrDefault();
+            tabSource.SelectedIndex = (from x in args.Skip(1)
+                                       where !x.StartsWith("-") && System.IO.File.Exists(x)
+                                       select AddTab(x)).LastOrDefault();
 
             // process potential settings
             foreach (var arg in args.Skip(1).Where(x => x.StartsWith("-")))
@@ -550,7 +559,7 @@ namespace App
         /// <returns></returns>
         private CodeEditor GetSelectedEditor()
         {
-            var sourceTab = (TabPage)tabSource.SelectedTab;
+            var sourceTab = tabSource.SelectedTab;
             if (sourceTab == null)
                 return null;
             return (CodeEditor)sourceTab.Controls[0];

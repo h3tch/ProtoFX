@@ -1,10 +1,7 @@
 ﻿using App;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
-using static System.Reflection.BindingFlags;
 
 namespace OpenTK
 {
@@ -21,7 +18,7 @@ namespace OpenTK
         // a collection of all objects making up the scene
         private Dict scene = new Dict();
         // returns scene as a dictionary
-        public Dictionary<string, GLObject> Scene { get { return scene; } }
+        public Dict Scene { get { return scene; } }
         // get the current render frame
         public int Frame { get; private set; } = 0;
         #endregion
@@ -29,9 +26,7 @@ namespace OpenTK
         /// <summary>
         /// Instantiate and initialize graphics control based on OpenTK.
         /// </summary>
-        public GraphicControl() : base()
-        {
-        }
+        public GraphicControl() : base() { }
 
         /// <summary>
         /// Setup all internal events of the class.
@@ -69,9 +64,8 @@ namespace OpenTK
             {
                 // render the scene
                 MakeCurrent();
-                scene.Where(x => x.Value is GLTech)
-                     .Select(x => (GLTech)x.Value)
-                     .ForEach(x => x.Exec(ClientSize.Width, ClientSize.Height, Frame));
+                foreach (var x in from o in scene where o.Value is GLTech select o.Value as GLTech)
+                    x.Exec(ClientSize.Width, ClientSize.Height, Frame);
                 SwapBuffers();
             }
             catch (Exception ex)
@@ -116,7 +110,6 @@ namespace OpenTK
         public void ClearScene()
         {
             Events.Dispose();
-            //InitHandlers();
             // call delete method of OpenGL resources
             scene.ForEach(x => x.Value.Delete());
             // clear list of classes
