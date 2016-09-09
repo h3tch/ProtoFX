@@ -185,9 +185,14 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="resources\logo.ico" />
+    <None Include="resources\logo.png" />
+    <None Include="resources\Minimize.png" />
+    <None Include="resources\Close.png" />
     <Content Include="resources\keywordsXML.xml">
       <SubType>Designer</SubType>
     </Content>
+    <None Include="resources\Maximize.png" />
     <None Include="resources\colors.txt" />
     <Content Include="resources\dbgBody.txt" />
     <None Include="resources\ImgUncomment.png" />
@@ -203,7 +208,6 @@
     <None Include="resources\ImgSaveAs.png" />
     <None Include="demos\simple_include.tech" />
     <None Include="resources\ImgClose.png" />
-    <None Include="resources\AppIcon.ico" />
     <Content Include="demos\geom\cube.xml" />
     <Content Include="demos\geom\plane.xml" />
     <Content Include="demos\geom\quad.xml" />

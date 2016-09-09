@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using static System.Windows.Forms.FormWindowState;
 
 namespace App
 {
@@ -645,5 +646,78 @@ namespace App
             }
         }
         #endregion
+
+        private void btnWindowClose_Click(object sender, EventArgs e) => Close();
+
+        private void btnWindowMinimize_Click(object sender, EventArgs e) => WindowState = Minimized;
+
+        private void btnWindowMaximize_Click(object sender, EventArgs e)
+            => WindowState = WindowState == Maximized ? Normal : Maximized;
+        
+        private int moveWindowX, moveWindowY;
+
+        private void TitleBar_MouseDown(object sender, MouseEventArgs e)
+        {
+            moveWindowX = e.X;
+            moveWindowY = e.Y;
+        }
+
+        private void TitleBar_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                int dx = e.X - moveWindowX;
+                int dy = e.Y - moveWindowY;
+                if (dx != 0 || dy != 0)
+                    Location = new Point(Location.X + dx, Location.Y + dy);
+            }
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            const uint WM_NCHITTEST = 0x0084;
+            const uint WM_MOUSEMOVE = 0x0200;
+            const uint HTLEFT = 10;
+            const uint HTRIGHT = 11;
+            const uint HTBOTTOMRIGHT = 17;
+            const uint HTBOTTOM = 15;
+            const uint HTBOTTOMLEFT = 16;
+            const uint HTTOP = 12;
+            const uint HTTOPLEFT = 13;
+            const uint HTTOPRIGHT = 14;
+
+            const int RESIZE_HANDLE_SIZE = 10;
+            bool handled = false;
+            if ((m.Msg == WM_NCHITTEST || m.Msg == WM_MOUSEMOVE) && WindowState !=  Maximized)
+            {
+                var formSize = Size;
+                var screenPoint = new Point(m.LParam.ToInt32());
+                var clientPoint = PointToClient(screenPoint);
+
+                var boxes = new Dictionary<uint, Rectangle>() {
+                    {HTBOTTOMLEFT, new Rectangle(0, formSize.Height - RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE)},
+                    {HTBOTTOM, new Rectangle(RESIZE_HANDLE_SIZE, formSize.Height - RESIZE_HANDLE_SIZE, formSize.Width - 2*RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE)},
+                    {HTBOTTOMRIGHT, new Rectangle(formSize.Width - RESIZE_HANDLE_SIZE, formSize.Height - RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE)},
+                    {HTRIGHT, new Rectangle(formSize.Width - RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE, formSize.Height - 2*RESIZE_HANDLE_SIZE)},
+                    {HTTOPRIGHT, new Rectangle(formSize.Width - RESIZE_HANDLE_SIZE, 0, RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE) },
+                    {HTTOP, new Rectangle(RESIZE_HANDLE_SIZE, 0, formSize.Width - 2*RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE) },
+                    {HTTOPLEFT, new Rectangle(0, 0, RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE) },
+                    {HTLEFT, new Rectangle(0, RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE, formSize.Height - 2*RESIZE_HANDLE_SIZE) }
+                };
+
+                foreach (var hitBox in boxes)
+                {
+                    if (hitBox.Value.Contains(clientPoint))
+                    {
+                        m.Result = (IntPtr)hitBox.Key;
+                        handled = true;
+                        break;
+                    }
+                }
+            }
+
+            if (handled == false)
+                base.WndProc(ref m);
+        }
     }
 }
