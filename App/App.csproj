@@ -186,6 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="resources\logo.ico" />
+    <Content Include="resources\Normalize.png" />
     <None Include="resources\logo.png" />
     <None Include="resources\Minimize.png" />
     <None Include="resources\Close.png" />

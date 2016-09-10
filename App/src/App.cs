@@ -1,6 +1,5 @@
 ﻿using ScintillaNET;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
@@ -16,13 +15,12 @@ namespace App
     {
         public static CultureInfo Culture = new CultureInfo("en");
         public CodeEditor CompiledEditor = null;
-        private Regex RegexLineComment = new Regex(@"\s*//");
 
         public App()
         {
             InitializeComponent();
         }
-        
+
         #region Form Control
         /// <summary>
         /// On loading the app, load form settings and instantiate GLSL debugger.
@@ -30,33 +28,33 @@ namespace App
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void App_Load(object sender, EventArgs e)
-        {
-            // LOAD PREVIOUS WINDOW STATE
+            {
+                // LOAD PREVIOUS WINDOW STATE
             
-            // load settings
-            var settings = System.IO.File.Exists(Properties.Resources.WINDOW_SETTINGS_FILE)
-                ? XmlSerializer.Load<FormSettings>(Properties.Resources.WINDOW_SETTINGS_FILE)
-                : new FormSettings(this);
-            // place form completely inside a screen
-            settings.PlaceOnScreen(this);
-            // place splitters
-            settings.AdjustGUI(this);
+                // load settings
+                var settings = System.IO.File.Exists(Properties.Resources.WINDOW_SETTINGS_FILE)
+                    ? XmlSerializer.Load<FormSettings>(Properties.Resources.WINDOW_SETTINGS_FILE)
+                    : new FormSettings(this);
+                // place form completely inside a screen
+                settings.PlaceOnScreen(this);
+                // place splitters
+                settings.AdjustGUI(this);
             
-            // LINK PROPERTY VIEWER TO DEBUG SETTINGS
+                // LINK PROPERTY VIEWER TO DEBUG SETTINGS
 
-            FxDebugger.Instantiate();
-            debugProperty.SelectedObject = FxDebugger.Settings;
-            debugProperty.CollapseAllGridItems();
+                FxDebugger.Instantiate();
+                debugProperty.SelectedObject = FxDebugger.Settings;
+                debugProperty.CollapseAllGridItems();
 
-            // PROCESS COMMAND LINE ARGUMENTS
+                // PROCESS COMMAND LINE ARGUMENTS
 
-            ProcessArgs(Environment.GetCommandLineArgs());
+                ProcessArgs(Environment.GetCommandLineArgs());
 
-            // CLEAR OPENGL CONTROL
+                // CLEAR OPENGL CONTROL
 
-            glControl.AddEvents();
-            glControl.Render();
-        }
+                glControl.AddEvents();
+                glControl.Render();
+            }
 
         /// <summary>
         /// On form closing, save all source files, delete
@@ -159,6 +157,129 @@ namespace App
                     break;
             }
         }
+
+        /// <summary>
+        /// After clicking the window close button, close the form.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnWindowClose_Click(object sender, EventArgs e) => Close();
+
+        /// <summary>
+        /// After clicking the window minimize button, minimize the form.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnWindowMinimize_Click(object sender, EventArgs e) => WindowState = Minimized;
+
+        /// <summary>
+        /// Maximize or normalize the window based on its current state.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnWindowMaximize_Click(object sender, EventArgs e)
+        {
+            WindowState = WindowState == Maximized ? Normal : Maximized;
+            UpdateBtnWindowMaximizeButtonImage();
+        }
+
+        /// <summary>
+        /// By holding down the left mouse button, the user can move the window.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TitleBar_MouseDown(object sender, MouseEventArgs e)
+        {
+            TitleBarClickX = e.X;
+            TitleBarClickY = e.Y;
+        }
+
+        /// <summary>
+        /// Move the window by moving the mouse.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TitleBar_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left && (e.X != TitleBarClickX || e.Y != TitleBarClickY))
+                Location = new Point(Location.X + e.X - TitleBarClickX, Location.Y + e.Y - TitleBarClickY);
+        }
+
+        /// <summary>
+        /// Override WndProc of the form to handle resizing of the borderless form.
+        /// </summary>
+        /// <param name="m"></param>
+        protected override void WndProc(ref Message m)
+        {
+            const int d = -(int)HTLEFT;
+            const uint WM_NCHITTEST = 0x0084;
+            const uint WM_MOUSEMOVE = 0x0200;
+            
+            if ((m.Msg == WM_NCHITTEST || m.Msg == WM_MOUSEMOVE) && WindowState != Maximized)
+            {
+                // update resize boxes of the form
+                ResizeBoxes[d + HTLEFT]       .Height = Size.Height - HANDLE_SIZE * 2;
+                ResizeBoxes[d + HTRIGHT]      .X      = Size.Width  - HANDLE_SIZE;
+                ResizeBoxes[d + HTRIGHT]      .Height = Size.Height - HANDLE_SIZE * 2;
+                ResizeBoxes[d + HTTOP]        .Width  = Size.Width  - HANDLE_SIZE * 2;
+                ResizeBoxes[d + HTTOPRIGHT]   .X      = Size.Width  - HANDLE_SIZE;
+                ResizeBoxes[d + HTBOTTOM]     .Y      = Size.Height - HANDLE_SIZE;
+                ResizeBoxes[d + HTBOTTOM]     .Width  = Size.Width  - HANDLE_SIZE * 2;
+                ResizeBoxes[d + HTBOTTOMLEFT] .Y      = Size.Height - HANDLE_SIZE;
+                ResizeBoxes[d + HTBOTTOMRIGHT].X      = Size.Width  - HANDLE_SIZE;
+                ResizeBoxes[d + HTBOTTOMRIGHT].Y      = Size.Height - HANDLE_SIZE;
+
+                // get cursor position
+                var screenPoint = new Point(m.LParam.ToInt32());
+                var clientPoint = PointToClient(screenPoint);
+
+                // is cursor over a resize area of the form
+                for (int i = 0; i < ResizeBoxes.Length; i++)
+                {
+                    if (ResizeBoxes[i].Contains(clientPoint))
+                    {
+                        m.Result = (IntPtr)HTLEFT + i;
+                        return;
+                    }
+                }
+            }
+
+            // process using default wndproc
+            base.WndProc(ref m);
+        }
+
+        /// <summary>
+        /// Update the maximize button image based on the current window state.
+        /// </summary>
+        private void UpdateBtnWindowMaximizeButtonImage()
+        {
+            btnWindowMaximize.Image = WindowState == Maximized
+                ? Properties.Resources.Normalize
+                : Properties.Resources.Maximize;
+        }
+
+        #region CONSTANT FIELDS
+        const int HANDLE_SIZE = 10;
+        const uint HTLEFT = 10u;
+        const uint HTRIGHT = 11u;
+        const uint HTTOP = 12u;
+        const uint HTTOPLEFT = 13u;
+        const uint HTTOPRIGHT = 14u;
+        const uint HTBOTTOM = 15u;
+        const uint HTBOTTOMLEFT = 16u;
+        const uint HTBOTTOMRIGHT = 17u;
+        private int TitleBarClickX, TitleBarClickY;
+        private Rectangle[] ResizeBoxes = new[] {
+            /* HTLEFT       */new Rectangle(0, HANDLE_SIZE, HANDLE_SIZE, 0),
+            /* HTRIGHT      */new Rectangle(0, HANDLE_SIZE, HANDLE_SIZE, 0),
+            /* HTTOP        */new Rectangle(HANDLE_SIZE, 0, 0, HANDLE_SIZE),
+            /* HTTOPLEFT    */new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
+            /* HTTOPRIGHT   */new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
+            /* HTBOTTOM     */new Rectangle(HANDLE_SIZE, 0, 0, HANDLE_SIZE),
+            /* HTBOTTOMLEFT */new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
+            /* HTBOTTOMRIGHT*/new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
+        };
+        #endregion
         #endregion
 
         #region glControl Events
@@ -440,6 +561,10 @@ namespace App
             editor.SelectionStart = editor.Lines[startLine].Position;
             editor.SelectionEnd = editor.Lines[endLine].EndPosition - 1;
         }
+
+        #region TOOL BUTTON FIELDS
+        private Regex RegexLineComment = new Regex(@"\s*//");
+        #endregion
         #endregion
 
         #region UTIL
@@ -587,8 +712,8 @@ namespace App
             /// <summary>
             /// Place the form rectangle completely inside the nearest screen.
             /// </summary>
-            /// <param name="form"></param>
-            public void PlaceOnScreen(Form form)
+            /// <param name="app"></param>
+            public void PlaceOnScreen(App app)
             {
                 int L1 = int.MaxValue;
                 int X = Left, Y = Top, W = Width, H = Height;
@@ -621,11 +746,12 @@ namespace App
                 Height = H;
                 
                 // update window
-                form.Left = Math.Max(0, Left);
-                form.Top = Math.Max(0, Top);
-                form.Width = Width;
-                form.Height = Height;
-                form.WindowState = WindowState;
+                app.Left = Math.Max(0, Left);
+                app.Top = Math.Max(0, Top);
+                app.Width = Width;
+                app.Height = Height;
+                app.WindowState = WindowState;
+                app.UpdateBtnWindowMaximizeButtonImage();
             }
 
             /// <summary>
@@ -646,78 +772,5 @@ namespace App
             }
         }
         #endregion
-
-        private void btnWindowClose_Click(object sender, EventArgs e) => Close();
-
-        private void btnWindowMinimize_Click(object sender, EventArgs e) => WindowState = Minimized;
-
-        private void btnWindowMaximize_Click(object sender, EventArgs e)
-            => WindowState = WindowState == Maximized ? Normal : Maximized;
-        
-        private int moveWindowX, moveWindowY;
-
-        private void TitleBar_MouseDown(object sender, MouseEventArgs e)
-        {
-            moveWindowX = e.X;
-            moveWindowY = e.Y;
-        }
-
-        private void TitleBar_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                int dx = e.X - moveWindowX;
-                int dy = e.Y - moveWindowY;
-                if (dx != 0 || dy != 0)
-                    Location = new Point(Location.X + dx, Location.Y + dy);
-            }
-        }
-
-        protected override void WndProc(ref Message m)
-        {
-            const uint WM_NCHITTEST = 0x0084;
-            const uint WM_MOUSEMOVE = 0x0200;
-            const uint HTLEFT = 10;
-            const uint HTRIGHT = 11;
-            const uint HTBOTTOMRIGHT = 17;
-            const uint HTBOTTOM = 15;
-            const uint HTBOTTOMLEFT = 16;
-            const uint HTTOP = 12;
-            const uint HTTOPLEFT = 13;
-            const uint HTTOPRIGHT = 14;
-
-            const int RESIZE_HANDLE_SIZE = 10;
-            bool handled = false;
-            if ((m.Msg == WM_NCHITTEST || m.Msg == WM_MOUSEMOVE) && WindowState !=  Maximized)
-            {
-                var formSize = Size;
-                var screenPoint = new Point(m.LParam.ToInt32());
-                var clientPoint = PointToClient(screenPoint);
-
-                var boxes = new Dictionary<uint, Rectangle>() {
-                    {HTBOTTOMLEFT, new Rectangle(0, formSize.Height - RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE)},
-                    {HTBOTTOM, new Rectangle(RESIZE_HANDLE_SIZE, formSize.Height - RESIZE_HANDLE_SIZE, formSize.Width - 2*RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE)},
-                    {HTBOTTOMRIGHT, new Rectangle(formSize.Width - RESIZE_HANDLE_SIZE, formSize.Height - RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE)},
-                    {HTRIGHT, new Rectangle(formSize.Width - RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE, formSize.Height - 2*RESIZE_HANDLE_SIZE)},
-                    {HTTOPRIGHT, new Rectangle(formSize.Width - RESIZE_HANDLE_SIZE, 0, RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE) },
-                    {HTTOP, new Rectangle(RESIZE_HANDLE_SIZE, 0, formSize.Width - 2*RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE) },
-                    {HTTOPLEFT, new Rectangle(0, 0, RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE) },
-                    {HTLEFT, new Rectangle(0, RESIZE_HANDLE_SIZE, RESIZE_HANDLE_SIZE, formSize.Height - 2*RESIZE_HANDLE_SIZE) }
-                };
-
-                foreach (var hitBox in boxes)
-                {
-                    if (hitBox.Value.Contains(clientPoint))
-                    {
-                        m.Result = (IntPtr)hitBox.Key;
-                        handled = true;
-                        break;
-                    }
-                }
-            }
-
-            if (handled == false)
-                base.WndProc(ref m);
-        }
     }
 }
