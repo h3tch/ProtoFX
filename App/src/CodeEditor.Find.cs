@@ -38,9 +38,8 @@ namespace App
         /// <returns></returns>
         private IEnumerable<int[]> FindWordRanges(Dictionary<string, bool> words)
         {
-            foreach (var word in words)
-                foreach (var tupel in FindWordRanges(word.Key, word.Value))
-                    yield return tupel;
+            foreach (var tupel in words.SelectMany(word => FindWordRanges(word.Key, word.Value)))
+                yield return tupel;
         }
 
         /// <summary>

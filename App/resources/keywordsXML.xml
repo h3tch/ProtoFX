@@ -498,8 +498,6 @@
       <Keyword style_name='command' name='init' hint='Execute this pass only once&#xA;before all "normal" passes.&#xA;  init [name]'/>
       <Keyword style_name='command' name='uninit' hint='Execute this pass only once&#xA;before the technique is destroyed.&#xA;  uninit [name]'/>
     </Lexer>
-    <!-- TEXT -->
-    <Lexer type='text' lexer='DefaultLexer'/>
     <!-- TEXTURE -->
     <Lexer type='texture' lexer='BlockLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>

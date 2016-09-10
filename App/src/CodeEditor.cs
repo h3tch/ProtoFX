@@ -1,9 +1,6 @@
-﻿using App.Lexer;
-using ScintillaNET;
+﻿using ScintillaNET;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace App
@@ -57,8 +54,7 @@ namespace App
             InitializeLayout();
             
             // insert text
-            Text = text != null ? text : "";
-            //FxLexer.Style(this, 0, Text.Length);
+            Text = text ?? string.Empty;
             UpdateLineNumbers();
             UpdateCodeFolding(0, Lines.Count);
         }

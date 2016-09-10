@@ -225,7 +225,6 @@ namespace App
 
             for (int i = 0; i < vars.Count; i++)
             {
-
                 // is the debug variable in the same line
                 if (vars[i].Index <= position && position <= vars[i].Index + vars[i].Length)
                     return new DbgVar
