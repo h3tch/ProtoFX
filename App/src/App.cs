@@ -604,8 +604,8 @@ namespace App
         private int AddTab(string path)
         {
             // load file
-            string filename = path != null ? Path.GetFileName(path) : "unnamed.tech";
-            string text = path != null ? System.IO.File.ReadAllText(path) : "// Unnamed file";
+            var filename = path != null ? Path.GetFileName(path) : "unnamed.tech";
+            var text = path != null ? System.IO.File.ReadAllText(path) : "// Unnamed file";
 
             // create new tab objects
             var tabSourcePage = new TabPageEx(path);
