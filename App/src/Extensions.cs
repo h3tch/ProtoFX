@@ -297,8 +297,21 @@ namespace App
         /// <returns></returns>
         public static T FirstOr<T>(this IEnumerable<T> ie, T defaultValue)
         {
-            T rs = ie.FirstOrDefault();
-            return rs.IsDefault() ? defaultValue : rs;
+            return ie.Any() ? ie.First() : defaultValue;
+        }
+
+        /// <summary>
+        /// Return the first element matching the specified predicate or a default value.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ie"></param>
+        /// <param name="predicate"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static T FirstOr<T>(this IEnumerable<T> ie, Func<T,bool> predicate, T defaultValue)
+        {
+            var iter = ie.Where(predicate);
+            return iter.Any() ? iter.First() : defaultValue;
         }
 
         /// <summary>
@@ -388,6 +401,9 @@ namespace App
             foreach (var e in ie)
                 func(e);
         }
+
+        public static T MaxOr<T>(this IEnumerable<T> ie, T defaultValue)
+            => ie.Count() > 0 ? ie.Max() : defaultValue;
     }
 
     public static class StringExtensions

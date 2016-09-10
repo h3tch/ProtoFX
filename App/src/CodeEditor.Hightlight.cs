@@ -14,7 +14,7 @@ namespace App
         private void InitializeHighlighting()
         {
             StyleNeeded += new EventHandler<StyleNeededEventArgs>(HandleStyleNeeded);
-
+            
             StyleResetDefault();
             Styles[Style.Default].Font = "Consolas";
             Styles[Style.Default].Size = 10;
@@ -23,10 +23,10 @@ namespace App
             Styles[Style.LineNumber].ForeColor = Color.Gray;
 
             // set styles as defined in the keyword file
-            foreach (var style in FxLexer.GetStyles())
+            foreach (var style in FxLexer.Styles)
             {
-                Styles[style].ForeColor = FxLexer.GetStyleForeColor(style);
-                Styles[style].BackColor = FxLexer.GetStyleBackColor(style);
+                Styles[style.id].ForeColor = style.fore;
+                Styles[style.id].BackColor = style.back;
             }
 
             Lexer = ScintillaNET.Lexer.Container;
@@ -41,11 +41,11 @@ namespace App
         {
             try
             {
-                FxLexer.Style(this, GetEndStyled(), e.Position);
+                FxLexer.Style(this, GetEndStyled(), TextLength);
             }
-            catch
+            catch (Exception ex)
             {
-
+                System.Diagnostics.Debug.Print(ex.StackTrace);
             }
         }
         

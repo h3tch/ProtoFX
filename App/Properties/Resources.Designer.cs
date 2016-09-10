@@ -61,6 +61,16 @@ namespace App.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Close {
+            get {
+                object obj = ResourceManager.GetObject("Close", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to  0 default             #C0C0C0
         /// 1 block               #0000FF
         /// 2 annotation          #0099CC
@@ -295,39 +305,61 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ┬
-        ///├1║buffer║buffer &lt;name&gt;¶
-        ///├1║csharp║assembly &lt;path&gt; [path] [...]¶
-        ///├1║fragoutput║fragoutput &lt;name&gt;¶
-        ///├1║image║image &lt;name&gt;¶
-        ///├1║instance║instance &lt;name&gt;¶
-        ///├1║pass║pass &lt;name&gt;¶
-        ///├1║sampler║sampler &lt;name&gt;¶
-        ///├1║shader║shader &lt;shader_type&gt; &lt;name&gt;¶
-        ///├1║tech║tech &lt;name&gt;¶
-        ///├1║text║text &lt;name&gt;¶
-        ///├1║texture║texture &lt;name&gt;¶
-        ///├1║vertinput║vertinput &lt;name&gt;¶
-        ///├1║vertoutput║vertoutput &lt;name&gt;¶
-        ///├┬buffer||{|}
-        ///│├3║size║size &lt;bytes&gt;¶
-        ///│├3║xml║xml &lt;path&gt; &lt;node&gt;¶
-        ///│├3║txt║txt &lt;text_name&gt;¶
-        ///│├3║usage║usage &lt;usage_hint&gt;¶
-        ///│├ [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to &lt;?xml version=&apos;1.0&apos;?&gt;
+        ///&lt;FxLexer&gt;
+        ///  &lt;Style name=&apos;string&apos; fore=&apos;#D77763&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;operator&apos; fore=&apos;#A0A0A0&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;braces&apos; fore=&apos;#AAAAAA&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;punctuation&apos; fore=&apos;#A0A0A0&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;number&apos; fore=&apos;#328645&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;LineComment&apos; fore=&apos;#82A847&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;BlockComment&apos; fore=&apos;#82A847&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;Style name=&apos;name&apos; fore=&apos;#000000&apos; back=&apos;#FFFFFF&apos;/&gt;
+        ///  &lt;!-- TECH -- [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string keywords {
+        internal static string keywordsXML {
             get {
-                return ResourceManager.GetString("keywords", resourceCulture);
+                return ResourceManager.GetString("keywordsXML", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static string keywordsGLSL {
+        internal static System.Drawing.Bitmap logo {
             get {
-                return ResourceManager.GetString("keywordsGLSL", resourceCulture);
+                object obj = ResourceManager.GetObject("logo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Maximize {
+            get {
+                object obj = ResourceManager.GetObject("Maximize", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Minimize {
+            get {
+                object obj = ResourceManager.GetObject("Minimize", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Normalize {
+            get {
+                object obj = ResourceManager.GetObject("Normalize", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

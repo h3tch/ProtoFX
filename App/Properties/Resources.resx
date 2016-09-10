@@ -151,9 +151,6 @@
   <data name="ImgPick" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\ImgPick.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="keywords" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\keywords.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
   <data name="WINDOW_SETTINGS_FILE" xml:space="preserve">
     <value>settings.xml</value>
   </data>
@@ -188,7 +185,22 @@ uvec3 _dbgComp</value>
   <data name="colors" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\colors.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
-  <data name="keywordsGLSL" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\keywordsGLSL.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  <data name="keywordsXML" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\keywordsXML.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="Close" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Close.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Maximize" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Maximize.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Minimize" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Minimize.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\logo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Normalize" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\Normalize.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>
