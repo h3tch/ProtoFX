@@ -40,7 +40,7 @@ namespace App
         #endregion
         
         /// <summary>
-        /// Instantiate and initialize ScintillaNET based code editor for ProtoGL.
+        /// Instantiate and initialize ScintillaNET based code editor for ProtoFX.
         /// </summary>
         /// <param name="text">[OPTIONAL] Initialize code editor with text.</param>
         public CodeEditor(string text = null)

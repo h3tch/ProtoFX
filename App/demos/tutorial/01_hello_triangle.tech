@@ -4,7 +4,7 @@
 // ========================
 //
 // NOTE: This tutorial assumes you have basic knowledge on
-// how OpenGL works. ProtoGL is a tool for fast prototyping
+// how OpenGL works. ProtoFX is a tool for fast prototyping
 // of OpenGL based rendering techniques.
 //
 // In this tutorial you will learn how to write a simple
@@ -51,7 +51,7 @@ buffer buf_idx {
 /////////////////////////
 
 // Next, we need to define how to access the mesh data from
-// shaders. In ProtoGL such object are called vertex input
+// shaders. In ProtoFX such object are called vertex input
 // objects (vertinput).
 
 // Define how to access vertex data from shaders.
@@ -141,10 +141,10 @@ pass pass_render {
 	draw buf_idx in_vert ushort triangles 0 0 3
 }
 
-// Every ProtoGL thechnique should habe a pass which resets the
+// Every ProtoFX thechnique should habe a pass which resets the
 // OpenGL state to the default state. This is necessary because
-// ProtoGL uses only one OpenGL context, which is not reset by
-// switching, recompiling or restarting a ProtoGL technique.
+// ProtoFX uses only one OpenGL context, which is not reset by
+// switching, recompiling or restarting a ProtoFX technique.
 pass pass_reset {
 	// The OpenGL state is not changed,
 	// therefore this pass is empty.

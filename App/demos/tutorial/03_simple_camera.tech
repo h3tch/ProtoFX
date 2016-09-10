@@ -4,7 +4,7 @@
 // ==========================
 //
 // In this tutorial we will add a camera control class to the
-// ProtoGL program to navigate the scene and set shader uniforms.
+// ProtoFX program to navigate the scene and set shader uniforms.
 
 /////////////////////
 // DEFINE GEOMETRY //
