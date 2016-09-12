@@ -221,7 +221,7 @@ namespace App
             // get debug variable information from position
             var dbgVar = FxDebugger.GetDebugVariableFromPosition(editor, pos);
             // no debug variable found
-            if (!dbgVar.IsDefault())
+            if (dbgVar != null)
             {
                 // get debug variable value
                 var dbgVal = FxDebugger.GetDebugVariableValue(dbgVar.ID, glControl.Frame - 1);

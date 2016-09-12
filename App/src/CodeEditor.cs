@@ -13,6 +13,7 @@ namespace App
         public static int DebugIndicatorIndex { get; } = 9;
         private List<int[]>[] IndicatorRanges;
         private static string HiddenLines = $"{(char)177}";
+        private App app;
         
         public new int FirstVisibleLine
         {
@@ -43,20 +44,23 @@ namespace App
         /// Instantiate and initialize ScintillaNET based code editor for ProtoFX.
         /// </summary>
         /// <param name="text">[OPTIONAL] Initialize code editor with text.</param>
-        public CodeEditor(string text = null)
+        public CodeEditor(App app, string text = null)
         {
             InitializeFindAndReplace();
             InitializeHighlighting();
             InitializeSelection();
-            InitializeEvents();
             InitializeAutoC();
             InitializeCodeFolding();
             InitializeLayout();
+            InitializeEvents();
             
             // insert text
             Text = text ?? string.Empty;
             UpdateLineNumbers();
             UpdateCodeFolding(0, Lines.Count);
+
+            // get app pointer
+            this.app = app;
         }
 
         /// <summary>

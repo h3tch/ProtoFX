@@ -154,9 +154,8 @@ namespace App
                 titles = new[] { "Depth {0}\n" };
 
             // is the element type a floating point type
-            var isFloat = new[] { typeof(float), typeof(double) }
-                .Select(x => x == array.GetType().GetElementType())
-                .Any(x => x);
+            var arrayType = array.GetType().GetElementType();
+            var isFloat = arrayType == typeof(float) || arrayType == typeof(double);
 
             // convert array to string array
             var strArray = array.ToStringArray(isFloat ? floatFomat : "{0}");
@@ -225,16 +224,12 @@ namespace App
 
             for (int i = 0; i < vars.Count; i++)
             {
+                var varLine = editor.LineFromPosition(vars[i].Index);
                 // is the debug variable in the same line
                 if (vars[i].Index <= position && position <= vars[i].Index + vars[i].Length)
-                    return new DbgVar
-                    {
-                        ID = i,
-                        Name = vars[i].Value.Substring(OPEN_INDIC_LEN,
-                        vars[i].Value.Length - OPEN_INDIC_LEN - CLOSE_INDIC_LEN)
-                    };
+                    return new DbgVar(i, vars[i].Index, varLine, vars[i].Value);
             }
-            return default(DbgVar);
+            return null;
         }
 
         /// <summary>
@@ -244,21 +239,19 @@ namespace App
         /// <param name="line">Zero-based line number in the code.</param>
         /// <returns>Returns all debug variables in the specified line or
         /// <code>null</code> if no debug variable could be found.</returns>
-        public static IEnumerable<DbgVar> GetDebugVariablesFromLine(CodeEditor editor, int line)
+        public static IEnumerable<DbgVar> GetDebugVariablesFromLine(CodeEditor editor, int line, int length = 1)
         {
             // find all debug variables
             var vars = RegexDbgVar.Matches(editor.Text);
+            var from = line;
+            var to = line + length;
 
             for (int i = 0; i < vars.Count; i++)
             {
+                var varLine = editor.LineFromPosition(vars[i].Index);
                 // is the debug variable in the same line
-                if (editor.LineFromPosition(vars[i].Index) == line)
-                    yield return new DbgVar
-                    {
-                        ID = i,
-                        Name = vars[i].Value.Substring(OPEN_INDIC_LEN,
-                            vars[i].Value.Length - OPEN_INDIC_LEN - CLOSE_INDIC_LEN)
-                    };
+                if (from <= varLine && varLine < to)
+                    yield return new DbgVar(i, vars[i].Index, varLine, vars[i].Value);
             }
         }
 
@@ -574,10 +567,20 @@ namespace App
         #endregion
 
         #region UTIL STRUCTURE
-        public struct DbgVar
+        public class DbgVar
         {
             public int ID;
+            public int Position;
+            public int Line;
             public string Name;
+
+            public DbgVar(int id, int position, int line, string match)
+            {
+                ID = id;
+                Position = position + OPEN_INDIC_LEN;
+                Line = line;
+                Name = match.Substring(OPEN_INDIC_LEN, match.Length - OPEN_INDIC_LEN - CLOSE_INDIC_LEN);
+            }
         }
 
         private struct TexUnit

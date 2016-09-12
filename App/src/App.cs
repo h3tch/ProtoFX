@@ -15,6 +15,7 @@ namespace App
     {
         public static CultureInfo Culture = new CultureInfo("en");
         public CodeEditor CompiledEditor = null;
+        public int Frame => glControl.Frame;
 
         public App()
         {
@@ -609,7 +610,7 @@ namespace App
 
             // create new tab objects
             var tabSourcePage = new TabPageEx(path);
-            var editor = new CodeEditor(text);
+            var editor = new CodeEditor(this, text);
             editor.UpdateUI += new EventHandler<UpdateUIEventArgs>(editor_UpdateUI);
             editor.MouseMove += new MouseEventHandler(editor_MouseMove);
 

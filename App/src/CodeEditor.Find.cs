@@ -12,8 +12,6 @@ namespace App
     {
         private TextBox FindText;
 
-        public int GetLinePosition(int position) => Lines[LineFromPosition(position)].Position;
-
         /// <summary>
         /// Initialize find and replace.
         /// </summary>
@@ -37,10 +35,7 @@ namespace App
         /// whether these strings represent whole words (true or false value).</param>
         /// <returns></returns>
         private IEnumerable<int[]> FindWordRanges(Dictionary<string, bool> words)
-        {
-            foreach (var tupel in words.SelectMany(word => FindWordRanges(word.Key, word.Value)))
-                yield return tupel;
-        }
+            => words.SelectMany(word => FindWordRanges(word.Key, word.Value));
 
         /// <summary>
         /// Find all ranges of the specified string.

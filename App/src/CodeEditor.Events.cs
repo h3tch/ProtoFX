@@ -9,6 +9,9 @@ namespace App
     public partial class CodeEditor
     {
         private bool DisableEditing = false;
+        private Pen grayPen;
+        private Pen dashedPen;
+        private Size lineSize;
 
         /// <summary>
         /// Initialize class events.
@@ -31,6 +34,14 @@ namespace App
             
             MouseWheel += new MouseEventHandler(HandleMouseWheel);
             Painted += new EventHandler<EventArgs>(HandlePainted);
+
+            // create default pens
+            grayPen = new Pen(Brushes.Gray);
+            dashedPen = new Pen(Brushes.LightGray);
+            dashedPen.DashPattern = new[] { 6f, 6f };
+
+            // measure default line size
+            lineSize = TextRenderer.MeasureText(new string('/', 80), Font);
         }
 
         /// <summary>
@@ -279,11 +290,10 @@ namespace App
             var g = CreateGraphics();
 
             // draw indicator lines where code has been folded
-            var pen = new Pen(Brushes.Gray);
-            var h = TextRenderer.MeasureText("0", Font).Height - 1;
+            g.DrawLine(dashedPen, new Point(lineSize.Width, 0), new Point(lineSize.Width, Height));
 
             // for all visible lines
-            for (int i = FirstVisibleLine, I = LastVisibleLine; i < I; i++)
+            for (int from = FirstVisibleLine, to = LastVisibleLine, i = from; i < to; i++)
             {
                 // if lines are not folded, continue
                 if (Lines[i].Expanded || !Lines[i].Visible)
@@ -296,8 +306,8 @@ namespace App
                 // draw indicator line below the current line
                 var x1 = PointXFromPosition(Lines[i].Position + Math.Max(0, wsStart));
                 var x2 = PointXFromPosition(Lines[i].EndPosition - wsEnd);
-                var y = PointYFromPosition(Lines[i].Position) + h;
-                g.DrawLine(pen, x1, y, x2, y);
+                var y = PointYFromPosition(Lines[i].Position) + lineSize.Height - 1;
+                g.DrawLine(grayPen, x1, y, x2, y);
             }
         }
 
