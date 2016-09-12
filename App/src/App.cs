@@ -20,6 +20,7 @@ namespace App
         public App()
         {
             InitializeComponent();
+            MakeDPIAware();
         }
 
         #region Form Control
@@ -29,33 +30,33 @@ namespace App
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void App_Load(object sender, EventArgs e)
-            {
-                // LOAD PREVIOUS WINDOW STATE
+        {
+            // LOAD PREVIOUS WINDOW STATE
             
-                // load settings
-                var settings = System.IO.File.Exists(Properties.Resources.WINDOW_SETTINGS_FILE)
-                    ? XmlSerializer.Load<FormSettings>(Properties.Resources.WINDOW_SETTINGS_FILE)
-                    : new FormSettings(this);
-                // place form completely inside a screen
-                settings.PlaceOnScreen(this);
-                // place splitters
-                settings.AdjustGUI(this);
+            // load settings
+            var settings = System.IO.File.Exists(Properties.Resources.WINDOW_SETTINGS_FILE)
+                ? XmlSerializer.Load<FormSettings>(Properties.Resources.WINDOW_SETTINGS_FILE)
+                : new FormSettings(this);
+            // place form completely inside a screen
+            settings.PlaceOnScreen(this);
+            // place splitters
+            settings.AdjustGUI(this);
             
-                // LINK PROPERTY VIEWER TO DEBUG SETTINGS
+            // LINK PROPERTY VIEWER TO DEBUG SETTINGS
 
-                FxDebugger.Instantiate();
-                debugProperty.SelectedObject = FxDebugger.Settings;
-                debugProperty.CollapseAllGridItems();
+            FxDebugger.Instantiate();
+            debugProperty.SelectedObject = FxDebugger.Settings;
+            debugProperty.CollapseAllGridItems();
 
-                // PROCESS COMMAND LINE ARGUMENTS
+            // PROCESS COMMAND LINE ARGUMENTS
 
-                ProcessArgs(Environment.GetCommandLineArgs());
+            ProcessArgs(Environment.GetCommandLineArgs());
 
-                // CLEAR OPENGL CONTROL
+            // CLEAR OPENGL CONTROL
 
-                glControl.AddEvents();
-                glControl.Render();
-            }
+            glControl.AddEvents();
+            glControl.Render();
+        }
 
         /// <summary>
         /// On form closing, save all source files, delete
