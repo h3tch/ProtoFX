@@ -610,7 +610,7 @@ namespace App
 
             // create new tab objects
             var tabSourcePage = new TabPageEx(path);
-            var editor = new CodeEditor(this, text);
+            var editor = new CodeEditor(text);
             editor.UpdateUI += new EventHandler<UpdateUIEventArgs>(editor_UpdateUI);
             editor.MouseMove += new MouseEventHandler(editor_MouseMove);
 
