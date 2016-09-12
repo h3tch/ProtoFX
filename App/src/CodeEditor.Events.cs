@@ -38,7 +38,7 @@ namespace App
             // create default pens
             grayPen = new Pen(Brushes.Gray);
             dashedPen = new Pen(Brushes.LightGray);
-            dashedPen.DashPattern = new[] { 6f, 6f };
+            dashedPen.DashPattern = new[] { 3f, 6f };
 
             // measure default line size
             lineSize = TextRenderer.MeasureText(new string('/', 80), Font);

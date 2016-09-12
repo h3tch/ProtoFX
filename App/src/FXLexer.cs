@@ -188,6 +188,7 @@ namespace App.Lexer
             var lastCharPos = line;
             var foldLevel = editor.Lines[line].FoldLevel;
             var textLength = editor.TextLength;
+            const int DEFAULT_FOLD_LEVEL = 1024;
 
             // for each character
             for (var state = FoldState.Unknown;
@@ -241,7 +242,7 @@ namespace App.Lexer
                         // end folding
                         editor.Lines[line].FoldLevel = foldLevel;
                         // decrease fold level
-                        foldLevel = Math.Max(--foldLevel, 1024);
+                        foldLevel = Math.Max(--foldLevel, DEFAULT_FOLD_LEVEL);
                         lastLine = line;
                         // switch to folding state (which will
                         // switch to unknown state if the most
@@ -251,7 +252,7 @@ namespace App.Lexer
                     // STATE: folding
                     case FoldState.Foldable:
                         // still in folding state
-                        if (foldLevel > 1024)
+                        if (foldLevel > DEFAULT_FOLD_LEVEL)
                         {
                             if (line != lastLine)
                             {
