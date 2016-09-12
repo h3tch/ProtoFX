@@ -878,7 +878,7 @@ namespace App.Lexer
 
             // the beginning of a qualifier keyword
             if (char.IsLetter(c.c))
-                return (int)State.Qualifier;
+                return (int)State.Indicator;
 
             return (int)State.Default;
         }
@@ -919,7 +919,7 @@ namespace App.Lexer
             switch (state)
             {
                 case (int)BaseState.Braces:
-                    return ProcessBraceState(editor, c);
+                    return ProcessBraceState(editor, c, endPos);
                 case (int)State.Indicator:
                     return ProcessIndicatorState(editor, c, (int)State.Indicator);
                 case (int)BaseState.Number:
@@ -955,13 +955,38 @@ namespace App.Lexer
 
             return (int)State.Default;
         }
-        
-        protected int ProcessBraceState(CodeEditor editor, Region c)
-            => c[-1] == closingBrace ? -1 : ProcessDefaultState(editor, c);
+
+        protected int ProcessBraceState(CodeEditor editor, Region c, int endPos)
+        {
+            if (c[-1] == closingBrace)
+                return -1;
+
+            // get the lexer type of the body
+            if (c[-1] == '(')
+            {
+                // get preceding word from brace position
+                var wordStart = editor.WordStartPosition(c.Pos - 1, false);
+                var type = editor.GetWordFromPosition(wordStart);
+
+                if (type == "layout")
+                {
+                    // find lexer that can lex this code block
+                    var lex = lexer.Where(x => x.IsLexerForType(type)).FirstOr(null);
+
+                    // re-lex body of the uniform block, struct, layout or function
+                    c.Pos = lex?.Style(editor, c.Pos, endPos) ?? c.Pos;
+
+                    // continue styling from the last position
+                    editor.StartStyling(c.Pos);
+                }
+            }
+
+            return ProcessDefaultState(editor, c);
+        }
         #endregion
 
         #region STATE
-        private enum State : int { Default, Indicator, DataType }
+        private enum State : int { Default, Indicator, Keyword, DataType }
 
         protected override Type StateType => typeof(State);
         #endregion
@@ -1079,7 +1104,7 @@ namespace App.Lexer
         #endregion
 
         #region STATE
-        private enum State : int { Default, Indicator, Keyword, DataType, Function }
+        private enum State : int { Default, Indicator, Keyword, DataType, BuiltIn, Function }
 
         protected override Type StateType => typeof(State);
         #endregion

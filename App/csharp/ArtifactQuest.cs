@@ -29,40 +29,35 @@ namespace csharp
         private string name;
         private bool matlabConsol = false;
         private float randomAngle = 0;
-        private int filterRadius = 16;
         protected Dictionary<int, UniformBlock<Names>> uniform =
             new Dictionary<int, UniformBlock<Names>>();
         protected Dictionary<int, UniformBlock<Disc>> uniformDisc =
             new Dictionary<int, UniformBlock<Disc>>();
         #endregion
 
-        #region MATLAB
-        private MLApp.MLApp matlab = new MLApp.MLApp();
-        private double[][] intensities = new[] {
-            new[] { 0.0, 1.0 },
-            new[] { 0.0, 0.5 },
-            new[] { 0.0, 0.25 },
-            new[] { 0.5, 1.0 }
-        };
-        private int[] artifactSize = new[] { 5, 10, 20 };
+        #region QUESTS
+        private const int startFactor = 10;
+        private double[,] intensities = new[,] { { 0.0, 1.0 }, { 0.0, 0.5 }, { 0.5, 1.0 } };
+        private int[] artifactSize = new[] { 10, 20, 30 };
         private double[] lineAngles = new[] { deg2rad * 1, deg2rad * 45 };
-        private float[] poissonRadii = new[] { 0.2f, 0.1f, 0.05f };
+        private float[] poissonRadii = new[] { 0.0f, 0.1f, 0.2f };
         private PoissonDisc[] poissonDisc;
         private Quest[] quests = new[] {
             // intensity quests
-            new Quest { intensityId = 0, artifactId = 1, lineId = 0, poissonId = -1},
-            new Quest { intensityId = 1, artifactId = 1, lineId = 0, poissonId = -1},
+            new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
+            new Quest { intensityId = 1, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
+            new Quest { intensityId = 2, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
             // artifact quests
-            new Quest { intensityId = 0, artifactId = 0, lineId = 0, poissonId = -1},
-            new Quest { intensityId = 0, artifactId = 1, lineId = 0, poissonId = -1},
-            new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = -1},
+            new Quest { intensityId = 0, artifactId = 0, lineId = 0, poissonId = 0, radius = 10*startFactor},
+            new Quest { intensityId = 0, artifactId = 1, lineId = 0, poissonId = 0, radius = 20*startFactor},
+            new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
             // line angle quests
-            new Quest { intensityId = 0, artifactId = 1, lineId = 0, poissonId = -1},
-            new Quest { intensityId = 0, artifactId = 1, lineId = 1, poissonId = -1},
+            new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
+            new Quest { intensityId = 0, artifactId = 2, lineId = 1, poissonId = 0, radius = 30*startFactor},
             // poisson quests
-            new Quest { intensityId = 0, artifactId = 1, lineId = 0, poissonId = 0},
-            new Quest { intensityId = 0, artifactId = 1, lineId = 0, poissonId = 1},
-            new Quest { intensityId = 0, artifactId = 1, lineId = 0, poissonId = 2},
+            new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
+            new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 1, radius = 30*startFactor},
+            new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 2, radius = 30*startFactor},
         };
         private int[] nQuests;
         private int activeQuest;
@@ -82,6 +77,8 @@ namespace csharp
             poissonDisc = new PoissonDisc[poissonRadii.Length];
             for (int i = 0; i < poissonRadii.Length; i++)
             {
+                if (poissonRadii[i] <= 0f)
+                    continue;
                 if (cmds.ContainsKey("minRadius"))
                     cmds.Remove("minRadius");
                 cmds.Add("minRadius", new[] { poissonRadii[i].ToString(EN) });
@@ -93,42 +90,17 @@ namespace csharp
             nQuests = new int[quests.Length];
             factor = artifactSize.Max();
 
-            // clear matlab workspace
-            matlab.Visible = matlabConsol ? 1 : 0;
-            matlab.Execute("clear all;");
-
-            // default parameters
-            var beta = 3.5;
-            var delta = 0.01;
-            var gamma = 0.5;
-
-            for (int questId = 0; questId < quests.Length; questId++)
-            {
-                int intensityId = quests[questId].intensityId;
-                int artifactId = quests[questId].artifactId;
-                var contrast = Math.Abs(intensities[intensityId][0] - intensities[intensityId][1]);
-                var tGuess = 10 * artifactSize[artifactId] * contrast / factor;
-                var tGuessSd = 4.0 * artifactSize[artifactId] * contrast / factor;
-                var pThreshold = 0.82;
-                // create quest
-                matlab.Execute(string.Format(EN, "Q{0} = QuestCreate({1},{2},{3},{4},{5},{6});",
-                    questId, tGuess, tGuessSd, pThreshold, beta, delta, gamma));
-            }
-
             activeQuest = NextRandomQuest();
             randomAngle = NextRandomAngle();
         }
 
         public void Update(int program, int widthScreen, int heightScreen, int widthTex, int heightTex)
         {
-            matlab.Execute("quantile" + activeQuest + " = QuestQuantile(Q" + activeQuest + ");");
-            var quantile = MatlabVar<double>("quantile" + activeQuest);
-
             var sub = quests[activeQuest];
-            var I = intensities[sub.intensityId];
             var size = artifactSize[sub.artifactId];
             var angle = lineAngles[sub.lineId];
-            var samples = sub.poissonId < 0 ? 0 : poissonDisc[sub.poissonId].points.GetLength(0);
+            var samples = poissonDisc[sub.poissonId] != null
+                ? poissonDisc[sub.poissonId].points.GetLength(0) : 0;
 
             var line = new[] { (float)Math.Sin(angle), (float)Math.Cos(angle), 0 };
             line[2] = line[0] * widthTex / 2 + line[1] * heightTex / 2;
@@ -146,11 +118,11 @@ namespace csharp
                 widthTex, heightTex, widthScreen, heightScreen,
             });
             unif.Set(Names.lineAngle, new[] {
-                (float)angle, randomAngle, size, (float)Math.Round(quantile * factor)
+                (float)angle, randomAngle, size, sub.radius
             });
 
             unifDisc.Set(Disc.nPoints, new[] { samples });
-            if (sub.poissonId >= 0)
+            if (samples > 0)
                 unifDisc.Set(Disc.points, poissonDisc[sub.poissonId].points);
             
             // UPDATE UNIFORM BUFFER
@@ -163,43 +135,24 @@ namespace csharp
         public void KeyUp(object sender, KeyEventArgs args)
         {
             var sub = quests[activeQuest];
-            int response = -1;
 
             switch (args.KeyData)
             {
                 case Keys.Space:
-                    response = 1;
-                    break;
-                case Keys.Escape:
-                    response = 0;
-                    break;
+                    activeQuest = NextRandomQuest();
+                    randomAngle = NextRandomAngle();
+                    return;
                 case Keys.Left:
-                    lineAngles[sub.lineId] += deg2rad * 0.5;
+                    sub.radius -= 5;
+                    if (sub.radius < 1)
+                        sub.radius = 1;
                     return;
                 case Keys.Right:
-                    lineAngles[sub.lineId] -= deg2rad * 0.5;
+                    sub.radius += 5;
                     return;
             }
-
-            if (response != -1)
-            {
-                var quest = "Q" + activeQuest;
-                var quantile = "QuestQuantile(" + quest + ")";
-                var cmd = quest + "=QuestUpdate(" + quest + "," + quantile + "," + response + ");";
-                matlab.Execute(cmd);
-            }
-
-            activeQuest = NextRandomQuest();
-            randomAngle = NextRandomAngle();
         }
         
-        private T MatlabVar<T>(string var)
-        {
-            object val;
-            matlab.GetWorkspaceData(var, "base", out val);
-            return (T)val;
-        }
-
         private int NextRandomQuest()
         {
             var min = nQuests.Min();
@@ -214,12 +167,13 @@ namespace csharp
             return (float)(360 * deg2rad * rnd.NextDouble());
         }
 
-        struct Quest
+        private class Quest
         {
             public int intensityId;
             public int artifactId;
             public int lineId;
             public int poissonId;
+            public int radius;
         }
 
     }

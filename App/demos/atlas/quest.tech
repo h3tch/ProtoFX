@@ -3,8 +3,7 @@
 #global MAX_POISSON_POINTS 256
 
 csharp cs_quest {
-	assembly "Interop.MLApp.dll"
-	file "<csharp>/ArtifactQuest.cs" ......
+	file "<csharp>/ArtifactQuest.cs" ...
 	     "<csharp>/PoissonDisc.cs" ...
 	     "<csharp>/UniformBlock.cs" ...
 	     "<csharp>/CsObject.cs" ...
@@ -118,7 +117,8 @@ shader fs_artifact frag {
 
 	// indefinite integral of circle segment
 	float circleSegIntegral(float x, float h, float r) {
-		return 0.5 * (sqrt(max(0,1 - x * x / (r * r))) * x * r + r * r * asin(clamp(x / r, -1, 1)) - 2 * h * x);
+		return 0.5 * (sqrt(max(0,1 - x * x / (r * r))) * x * r
+			+ r * r * asin(clamp(x / r, -1, 1)) - 2 * h * x);
 	}
 	
 	float areaHorizontal(vec2 x, float h, float r) {
@@ -137,11 +137,14 @@ shader fs_artifact frag {
 	float areaRectCircle(vec2 x, vec2 y, float r) {
 		if(y.x < 0) {
 			if(y.y < 0)
-				// the box is completely under, just flip it above and try again
+				// the box is completely under,
+				// just flip it above and try again
 				y = -y.yx;
 			else
-				// the box is both above and below, divide it to two boxes and go again
-				return areaVertical(x, vec2(0, -y.x), r) + areaVertical(x, vec2(0, y.y), r);
+				// the box is both above and below,
+				// divide it to two boxes and go again
+				return areaVertical(x, vec2(0, -y.x), r)
+					+ areaVertical(x, vec2(0, y.y), r);
 		} 
 		// area of the lower box minus area of the higher box
 		return areaVertical(x, y, r);
