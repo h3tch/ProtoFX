@@ -281,13 +281,17 @@
                     \[output_varying_name] to a new buffer) or the default "gl_InterleavedAttribs"
                     \(output varyings for different buffers need to be separated by "gl_NextBuffer")'/>
       <Keyword style_name='command' name='tex'
-               hint='Bind or unbind a texture from a texture unit.
+               hint='Bind/unbind a texture to/from a texture unit.
                     \>  tex [texture_name] [unit] -- bind to unit
                     \>  tex [unit]                -- unbind unit'/>
       <Keyword style_name='command' name='img'
-               hint='Bind or unbind a texture from an image unit.
+               hint='Bind/unbind a texture to/from an image unit.
                     \>  img [texture_name] [unit] [level] [layer] [access] [format] -- bind to unit
                     \>  img [unit]                                                  -- unbind unit'/>
+      <Keyword style_name='command' name='samp'
+               hint = 'Bind/unbind a texture sampler to/from a texture unit.
+                    \>  samp [samp_name] [unit] -- bind to unit
+                    \>  samp [unit]             -- unbind unit'/>
       <Keyword style_name='command' name='glBeginConditionalRender'/>
       <Keyword style_name='command' name='glBeginQuery'/>
       <Keyword style_name='command' name='glBeginQueryIndexed'/>
@@ -726,10 +730,9 @@
                  hint='Specifies that gl_FragCoord​ will have the origin
                       \(0, 0) in the upper-left of the screen.'/>
         <Keyword style_name='qualifier' name='pixel_center_integer'
-                 hint='Specifies that the X and Y of gl_FragCoord​ will
-                      \be shifted by a half-pixel, so that the center
-                      \of each pixel is an integer value.
-                      \fragment was assigned to'/>
+                 hint='Specifies that the X and Y of gl_FragCoord
+                      \will be shifted by a half-pixel, so that the
+                      \center of each pixel is an integer value.'/>
         <Keyword style_name='qualifier' name='index'
                  hint='Used in combination with the location
                       \qualifier for dual source blending.'/>
@@ -798,7 +801,9 @@
                       \variable gets its 32-bits of storage.'/>
       </Lexer>
       <Lexer type='struct' lexer='GlslStructLexer'>
+        <Style name='keyword' fore='#3E71FF' back='#FFFFFF'/>
         <Style name='datatype' fore='#8676CC' back='#FFFFFF'/>
+        <Keyword style_name='keyword' name='layout' hint='Specify additional qualifications for the member variable.'/>
         <Keyword style_name='datatype' name='void'/>
         <Keyword style_name='datatype' name='bool'/>
         <Keyword style_name='datatype' name='int'/>
@@ -844,11 +849,17 @@
         <Keyword style_name='datatype' name='dmat4x2' hint='double matrix with 4 columns and 2 rows'/>
         <Keyword style_name='datatype' name='dmat4x3' hint='double matrix with 4 columns and 3 rows'/>
         <Keyword style_name='datatype' name='dmat4x4' hint='double matrix with 4 columns and 4 rows'/>
+        <Lexer type='layout' lexer='GlslLayoutLexer'>
+          <Style name='qualifier' fore='#8676CC' back='#FFFFFF'/>
+          <Keyword style_name='qualifier' name='offset'
+                   hint='The byte offset of the member variable.'/>
+        </Lexer>
       </Lexer>
       <Lexer type='function' lexer='GlslFunctionBodyLexer'>
         <Style name='keyword' fore='#3E71FF' back='#FFFFFF'/>
         <Style name='datatype' fore='#8676CC' back='#FFFFFF'/>
-        <Style name='function' fore='#2FABA7' back='#FFFFFF'/>
+        <Style name='builtin' fore='#99B387' back='#FFFFFF'/>
+        <Style name='function' fore='#61ABA9' back='#FFFFFF'/>
         <Keyword style_name='function' name='abs'
                  hint='return the absolute value of the parameter
                       \>  genType  abs(genType  x)
@@ -1887,6 +1898,101 @@
         <Keyword style_name='datatype' name='dmat4x2' hint='double matrix with 4 columns and 2 rows'/>
         <Keyword style_name='datatype' name='dmat4x3' hint='double matrix with 4 columns and 3 rows'/>
         <Keyword style_name='datatype' name='dmat4x4' hint='double matrix with 4 columns and 4 rows'/>
+        <Keyword style_name='builtin' name='gl_VertexID'/>
+        <Keyword style_name='builtin' name='gl_InstanceID'/>
+        <Keyword style_name='builtin' name='gl_Position'/>
+        <Keyword style_name='builtin' name='gl_PointSize'/>
+        <Keyword style_name='builtin' name='gl_ClipDistance'/>
+        <Keyword style_name='builtin' name='gl_TessLevelOuter'/>
+        <Keyword style_name='builtin' name='gl_TessLevelInner'/>
+        <Keyword style_name='builtin' name='gl_TessCoord'/>
+        <Keyword style_name='builtin' name='gl_PatchVerticesIn'/>
+        <Keyword style_name='builtin' name='gl_PrimitiveID'/>
+        <Keyword style_name='builtin' name='gl_PrimitiveIDIn'/>
+        <Keyword style_name='builtin' name='gl_InvocationID'/>
+        <Keyword style_name='builtin' name='gl_Layer'/>
+        <Keyword style_name='builtin' name='gl_ViewportIndex'/>
+        <Keyword style_name='builtin' name='gl_FragCoord'/>
+        <Keyword style_name='builtin' name='gl_FrontFacing'/>
+        <Keyword style_name='builtin' name='gl_PointCoord'/>
+        <Keyword style_name='builtin' name='gl_SampleID'/>
+        <Keyword style_name='builtin' name='gl_SamplePosition'/>
+        <Keyword style_name='builtin' name='gl_SampleMaskIn'/>
+        <Keyword style_name='builtin' name='gl_FragDepth'/>
+        <Keyword style_name='builtin' name='gl_NumWorkGroups'/>
+        <Keyword style_name='builtin' name='gl_WorkGroupID'/>
+        <Keyword style_name='builtin' name='gl_LocalInvocationID'/>
+        <Keyword style_name='builtin' name='gl_GlobalInvocationID'/>
+        <Keyword style_name='builtin' name='gl_LocalInvocationIndex'/>
+        <Keyword style_name='builtin' name='gl_WorkGroupSize'/>
+        <Keyword style_name='builtin' name='gl_DepthRangeParameters'/>
+        <Keyword style_name='builtin' name='gl_MaxVertexAttribs​'/>
+        <Keyword style_name='builtin' name='gl_MaxVertexOutputComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxVertexUniformComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxVertexTextureImageUnits'/>
+        <Keyword style_name='builtin' name='gl_MaxGeometryInputComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxGeometryOutputComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxGeometryUniformComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxGeometryTextureImageUnits​'/>
+        <Keyword style_name='builtin' name='gl_MaxGeometryOutputVertices​'/>
+        <Keyword style_name='builtin' name='gl_MaxGeometryTotalOutputComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxGeometryVaryingComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxFragmentInputComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxDrawBuffers'/>
+        <Keyword style_name='builtin' name='gl_MaxFragmentUniformComponents​'/>
+        <Keyword style_name='builtin' name='gl_MaxTextureImageUnits​'/>
+        <Keyword style_name='builtin' name='gl_MaxClipDistances'/>
+        <Keyword style_name='builtin' name='gl_MaxCombinedTextureImageUnits​'/>
+        <Keyword style_name='builtin' name='gl_MaxTessControlInputComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxTessControlOutputComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxTessControlUniformComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxTessControlTextureImageUnits'/>
+        <Keyword style_name='builtin' name='gl_MaxTessControlTotalOutputComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxTessEvaluationInputComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxTessEvaluationOutputComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxTessEvaluationUniformComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxTessEvaluationTextureImageUnits'/>
+        <Keyword style_name='builtin' name='gl_MaxTessPatchComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxPatchVertices'/>
+        <Keyword style_name='builtin' name='gl_MaxTessGenLevel'/>
+        <Keyword style_name='builtin' name='gl_MaxViewports'/>
+        <Keyword style_name='builtin' name='gl_MaxVertexUniformVectors'/>
+        <Keyword style_name='builtin' name='gl_MaxFragmentUniformVectors'/>
+        <Keyword style_name='builtin' name='gl_MaxVaryingVectors'/>
+        <Keyword style_name='builtin' name='gl_MaxVertexImageUniforms'/>
+        <Keyword style_name='builtin' name='gl_MaxVertexAtomicCounters'/>
+        <Keyword style_name='builtin' name='gl_MaxVertexAtomicCounterBuffers'/>
+        <Keyword style_name='builtin' name='gl_MaxTessControlImageUniforms'/>
+        <Keyword style_name='builtin' name='gl_MaxTessControlAtomicCounters'/>
+        <Keyword style_name='builtin' name='gl_MaxTessControlAtomicCounterBuffers'/>
+        <Keyword style_name='builtin' name='gl_MaxTessEvaluationImageUniforms'/>
+        <Keyword style_name='builtin' name='gl_MaxTessEvaluationAtomicCounters'/>
+        <Keyword style_name='builtin' name='gl_MaxTessEvaluationAtomicCounterBuffers'/>
+        <Keyword style_name='builtin' name='gl_MaxGeometryImageUniforms'/>
+        <Keyword style_name='builtin' name='gl_MaxGeometryAtomicCounters'/>
+        <Keyword style_name='builtin' name='gl_MaxGeometryAtomicCounterBuffers'/>
+        <Keyword style_name='builtin' name='gl_MaxFragmentImageUniforms'/>
+        <Keyword style_name='builtin' name='gl_MaxFragmentAtomicCounters'/>
+        <Keyword style_name='builtin' name='gl_MaxFragmentAtomicCounterBuffers'/>
+        <Keyword style_name='builtin' name='gl_MaxCombinedImageUniforms'/>
+        <Keyword style_name='builtin' name='gl_MaxCombinedAtomicCounters'/>
+        <Keyword style_name='builtin' name='gl_MaxCombinedAtomicCounterBuffers'/>
+        <Keyword style_name='builtin' name='gl_MaxImageUnits'/>
+        <Keyword style_name='builtin' name='gl_MaxCombinedImageUnitsAndFragmentOutputs'/>
+        <Keyword style_name='builtin' name='gl_MaxImageSamples'/>
+        <Keyword style_name='builtin' name='gl_MaxAtomicCounterBindings'/>
+        <Keyword style_name='builtin' name='gl_MaxAtomicCounterBufferSize'/>
+        <Keyword style_name='builtin' name='gl_MinProgramTexelOffset'/>
+        <Keyword style_name='builtin' name='gl_MaxProgramTexelOffset'/>
+        <Keyword style_name='builtin' name='gl_MaxComputeWorkGroupCount'/>
+        <Keyword style_name='builtin' name='gl_MaxComputeWorkGroupSize'/>
+        <Keyword style_name='builtin' name='gl_MaxComputeUniformComponents'/>
+        <Keyword style_name='builtin' name='gl_MaxComputeTextureImageUnits'/>
+        <Keyword style_name='builtin' name='gl_MaxComputeImageUniforms'/>
+        <Keyword style_name='builtin' name='gl_MaxComputeAtomicCounters​'/>
+        <Keyword style_name='builtin' name='gl_MaxComputeAtomicCounterBuffers​'/>
+        <Keyword style_name='builtin' name='gl_MaxTransformFeedbackBuffers​'/>
+        <Keyword style_name='builtin' name='gl_MaxTransformFeedbackInterleavedComponents​'/>
       </Lexer>
       <Lexer type='functionheader' lexer='GlslFunctionArgLexer'>
         <Style name='datatype' fore='#8676CC' back='#FFFFFF'/>
