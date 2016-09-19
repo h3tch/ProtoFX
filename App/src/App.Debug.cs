@@ -305,7 +305,7 @@ namespace App
 
             // only use debugging if the selected editor
             // was used to generate the debug information
-            if (CompiledEditor == GetSelectedEditor() && CompiledEditor != null)
+            if (CompiledEditor == SelectedEditor && CompiledEditor != null)
                 UpdateDebugListView(CompiledEditor);
         }
     }

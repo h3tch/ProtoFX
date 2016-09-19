@@ -44,7 +44,8 @@ namespace App.Lexer
     }
 
     /// <summary>
-    /// Base lexer encapsulating commonly used method for sub-lexers.
+    /// Base lexer encapsulating commonly
+    /// used method for sub-lexers.
     /// </summary>
     public abstract class BaseLexer : ILexer
     {
@@ -415,6 +416,9 @@ namespace App.Lexer
     }
 
     #region PROTOFX LEXERS
+    /// <summary>
+    /// Lexer for the tech-objects in the code.
+    /// </summary>
     class TechLexer : BaseLexer
     {
         public TechLexer(int nextStyle, XmlNode xml, BaseLexer parentLexer)
@@ -526,9 +530,12 @@ namespace App.Lexer
         #endregion
     }
 
-    class BlockLexer : BaseLexer
+    /// <summary>
+    /// Lexer for default tech-object bodies.
+    /// </summary>
+    class TechBodyLexer : BaseLexer
     {
-        public BlockLexer(int nextStyle, XmlNode xml, BaseLexer parentLexer)
+        public TechBodyLexer(int nextStyle, XmlNode xml, BaseLexer parentLexer)
             : base(nextStyle, xml, parentLexer) { }
 
         #region PROCESS STATE
@@ -598,6 +605,9 @@ namespace App.Lexer
         #endregion
     }
 
+    /// <summary>
+    /// Lexer for the tech-object-body command line.
+    /// </summary>
     class CommandLexer : BaseLexer
     {
         public CommandLexer(int nextStyle, XmlNode xml, BaseLexer parentLexer)
@@ -647,6 +657,10 @@ namespace App.Lexer
         #endregion
     }
 
+    /// <summary>
+    /// Default lexer used to lex parts of the code
+    /// that can be strings, numbers and comments.
+    /// </summary>
     class DefaultLexer : BaseLexer
     {
         public DefaultLexer(int nextStyle, XmlNode xml, BaseLexer parentLexer)
@@ -730,6 +744,9 @@ namespace App.Lexer
     #endregion
 
     #region GLSL LEXERS
+    /// <summary>
+    /// Lexer for GLSL-tech-object-body.
+    /// </summary>
     class GlslLexer : BaseLexer
     {
         public GlslLexer(int nextStyle, XmlNode xml, BaseLexer parentLexer)
@@ -843,6 +860,9 @@ namespace App.Lexer
         #endregion
     }
 
+    /// <summary>
+    /// Lexer for GLSL-layout-body (layout qualifiers).
+    /// </summary>
     class GlslLayoutLexer : BaseLexer
     {
         public GlslLayoutLexer(int nextStyle, XmlNode xml, BaseLexer parentLexer)
@@ -891,23 +911,33 @@ namespace App.Lexer
         #endregion
     }
 
-    class GlslStructLexer : GlslStructFuncHeaderLexer
+    /// <summary>
+    /// Lexer for GLSL uniform blocks and structures.
+    /// </summary>
+    class GlslStructLexer : GlslStructFuncArgLexer
     {
         public GlslStructLexer(int nextStyle, XmlNode xml, BaseLexer parentLexer)
             : base(nextStyle, xml, parentLexer, '}') { }
     }
 
-    class GlslFunctionHeaderLexer : GlslStructFuncHeaderLexer
+    /// <summary>
+    /// Lexer for GLSL function arguments.
+    /// </summary>
+    class GlslFunctionArgLexer : GlslStructFuncArgLexer
     {
-        public GlslFunctionHeaderLexer(int nextStyle, XmlNode xml, BaseLexer parentLexer)
+        public GlslFunctionArgLexer(int nextStyle, XmlNode xml, BaseLexer parentLexer)
             : base(nextStyle, xml, parentLexer, ')') { }
     }
 
-    class GlslStructFuncHeaderLexer : BaseLexer
+    /// <summary>
+    /// Lexer for GLSL uniform blocks,
+    /// structures and function arguments.
+    /// </summary>
+    class GlslStructFuncArgLexer : BaseLexer
     {
         private char closingBrace;
 
-        public GlslStructFuncHeaderLexer(int nextStyle, XmlNode xml, BaseLexer parentLexer, char closingBrace)
+        public GlslStructFuncArgLexer(int nextStyle, XmlNode xml, BaseLexer parentLexer, char closingBrace)
             : base(nextStyle, xml, parentLexer)
         {
             this.closingBrace = closingBrace;
@@ -967,9 +997,12 @@ namespace App.Lexer
         #endregion
     }
 
-    class GlslFunctionLexer : BaseLexer
+    /// <summary>
+    /// Lexer for GLSL-function-bodies.
+    /// </summary>
+    class GlslFunctionBodyLexer : BaseLexer
     {
-        public GlslFunctionLexer(int nextStyle, XmlNode xml, BaseLexer parentLexer)
+        public GlslFunctionBodyLexer(int nextStyle, XmlNode xml, BaseLexer parentLexer)
             : base(nextStyle, xml, parentLexer) { }
 
         #region METHODS

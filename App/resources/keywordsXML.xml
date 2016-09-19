@@ -122,7 +122,7 @@
                                                 \  in  uvec3 gl_GlobalInvocationID
                                                 \  in  uint  gl_LocalInvocationIndex'/>
     <!-- BUFFER -->
-    <Lexer type='buffer' lexer='BlockLexer'>
+    <Lexer type='buffer' lexer='TechBodyLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='size' hint='size [bytes]'/>
       <Keyword style_name='command' name='txt' hint='txt [text_name]'/>
@@ -144,13 +144,13 @@
       </Lexer>
     </Lexer>
     <!-- CSHARP -->
-    <Lexer type='csharp' lexer='BlockLexer'>
+    <Lexer type='csharp' lexer='TechBodyLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='assembly' hint='assembly [path] {path} {...}'/>
       <Keyword style_name='command' name='file' hint='file [path] {path} {...}'/>
     </Lexer>
     <!-- FRAGOUTPUT -->
-    <Lexer type='fragoutput' lexer='BlockLexer'>
+    <Lexer type='fragoutput' lexer='TechBodyLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='color' hint='color [image_name]'/>
       <Keyword style_name='command' name='depth' hint='depth [image_name]'/>
@@ -158,7 +158,7 @@
       <Keyword style_name='command' name='width' hint='width [pixels]'/>
     </Lexer>
     <!-- IMAGE -->
-    <Lexer type='image' lexer='BlockLexer'>
+    <Lexer type='image' lexer='TechBodyLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='format' hint='format [pixel_format]'/>
       <Keyword style_name='command' name='size' hint='size [width] [height] [depth] [length]'/>
@@ -227,14 +227,14 @@
       </Lexer>
     </Lexer>
     <!-- INSTANCE -->
-    <Lexer type='instance' lexer='BlockLexer'>
+    <Lexer type='instance' lexer='TechBodyLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Style name='indicator' fore='#2FABA7' back='#FFFFFF'/>
       <Keyword style_name='command' name='class' hint='class [csharp_name] [c#_class]'/>
       <Keyword style_name='command' name='name' hint='name [new_name]'/>
     </Lexer>
     <!-- PASS -->
-    <Lexer type='pass' lexer='BlockLexer'>
+    <Lexer type='pass' lexer='TechBodyLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='exec' hint='Execute C# class instance.
                                                      \>  exec [instance_name]'/>
@@ -461,7 +461,7 @@
       </Lexer>
     </Lexer>
     <!-- SAMPLER -->
-    <Lexer type='sampler' lexer='BlockLexer'>
+    <Lexer type='sampler' lexer='TechBodyLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='magfilter' hint='magfilter [filter_type]'/>
       <Keyword style_name='command' name='minfilter' hint='minfilter [filter_type]'/>
@@ -492,14 +492,14 @@
       </Lexer>
     </Lexer>
     <!-- TECH -->
-    <Lexer type='tech' lexer='BlockLexer'>
+    <Lexer type='tech' lexer='TechBodyLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='pass' hint='Execute this pass every frame.&#xA;  pass [name]'/>
       <Keyword style_name='command' name='init' hint='Execute this pass only once&#xA;before all "normal" passes.&#xA;  init [name]'/>
       <Keyword style_name='command' name='uninit' hint='Execute this pass only once&#xA;before the technique is destroyed.&#xA;  uninit [name]'/>
     </Lexer>
     <!-- TEXTURE -->
-    <Lexer type='texture' lexer='BlockLexer'>
+    <Lexer type='texture' lexer='TechBodyLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='buff' hint='buff [name]'/>
       <Keyword style_name='command' name='img' hint='img [name]'/>
@@ -559,7 +559,7 @@
       </Lexer>
     </Lexer>
     <!-- VERTINPUT -->
-    <Lexer type='vertinput' lexer='BlockLexer'>
+    <Lexer type='vertinput' lexer='TechBodyLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='attr' hint='attr [buff_name] [type] [dim] {stride} {offset} {divisor}'/>
       <!-- vertinput - ATTR -->
@@ -579,7 +579,7 @@
       </Lexer>
     </Lexer>
     <!-- VERTOUTPUT -->
-    <Lexer type='vertoutput' lexer='BlockLexer'>
+    <Lexer type='vertoutput' lexer='TechBodyLexer'>
       <Style name='command' fore='#58AFEA' back='#FFFFFF'/>
       <Keyword style_name='command' name='buff' hint='buff [name]'/>
       <Keyword style_name='command' name='pause' hint='pause [true|false]'/>
@@ -845,7 +845,7 @@
         <Keyword style_name='datatype' name='dmat4x3' hint='double matrix with 4 columns and 3 rows'/>
         <Keyword style_name='datatype' name='dmat4x4' hint='double matrix with 4 columns and 4 rows'/>
       </Lexer>
-      <Lexer type='function' lexer='GlslFunctionLexer'>
+      <Lexer type='function' lexer='GlslFunctionBodyLexer'>
         <Style name='keyword' fore='#3E71FF' back='#FFFFFF'/>
         <Style name='datatype' fore='#8676CC' back='#FFFFFF'/>
         <Style name='function' fore='#2FABA7' back='#FFFFFF'/>
@@ -1888,7 +1888,7 @@
         <Keyword style_name='datatype' name='dmat4x3' hint='double matrix with 4 columns and 3 rows'/>
         <Keyword style_name='datatype' name='dmat4x4' hint='double matrix with 4 columns and 4 rows'/>
       </Lexer>
-      <Lexer type='functionheader' lexer='GlslFunctionHeaderLexer'>
+      <Lexer type='functionheader' lexer='GlslFunctionArgLexer'>
         <Style name='datatype' fore='#8676CC' back='#FFFFFF'/>
         <Keyword style_name='datatype' name='void'/>
         <Keyword style_name='datatype' name='bool'/>

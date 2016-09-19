@@ -15,7 +15,6 @@ namespace App
     {
         public static CultureInfo Culture = new CultureInfo("en");
         public CodeEditor CompiledEditor = null;
-        public int Frame => glControl.Frame;
 
         public App()
         {
@@ -123,14 +122,15 @@ namespace App
         {
             switch (e.KeyCode)
             {
+                // Compile and run
                 case Keys.F5:
-                    // Compile and run
                     toolBtnRunDebug_Click(sender, null);
                     break;
+                // Compile and run
                 case Keys.F6:
-                    // Compile and run
                     toolBtnRunDebug_Click(toolBtnDbg, null);
                     break;
+                // Save
                 case Keys.S:
                     if (e.Control && e.Shift)
                         // Save all tabs
@@ -142,20 +142,21 @@ namespace App
                         // Save active tab as
                         toolBtnSaveAs_Click(sender, null);
                     break;
+                // Open
                 case Keys.O:
                     if (e.Control)
                         // Open tech files
                         toolBtnOpen_Click(sender, null);
                     break;
+                // Fold all code
                 case Keys.Left:
                     if (e.Alt)
-                        // Fold all code
-                        GetSelectedEditor()?.FoldAll(FoldAction.Contract);
+                        SelectedEditor?.FoldAll(FoldAction.Contract);
                     break;
+                // Expand all code
                 case Keys.Right:
                     if (e.Alt)
-                        // Expand all code
-                        GetSelectedEditor()?.FoldAll(FoldAction.Expand);
+                        SelectedEditor?.FoldAll(FoldAction.Expand);
                     break;
             }
         }
@@ -677,13 +678,7 @@ namespace App
         /// Get code editor of the currently active tab.
         /// </summary>
         /// <returns></returns>
-        private CodeEditor GetSelectedEditor()
-        {
-            var sourceTab = (TabPage)tabSource.SelectedTab;
-            if (sourceTab == null)
-                return null;
-            return (CodeEditor)sourceTab.Controls[0];
-        }
+        private CodeEditor SelectedEditor => (CodeEditor)tabSource.SelectedTab?.Controls[0];
         #endregion
 
         #region Inner Classes

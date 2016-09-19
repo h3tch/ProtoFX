@@ -159,7 +159,7 @@ namespace App
 
             // convert array to string array
             var strArray = array.ToStringArray(isFloat ? floatFomat : "{0}");
-            var max = strArray.ForEach(x => x).Select(x => ((string)x).Length).Max();
+            var max = strArray.ToEnumerable().Select(x => ((string)x).Length).Max();
 
             // recursively convert each dimension of the array into a string
             var str = new StringBuilder((max + 5) * array.Length);

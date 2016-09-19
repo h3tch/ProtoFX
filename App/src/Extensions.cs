@@ -105,18 +105,13 @@ namespace App
         }
 
         /// <summary>
-        /// Process each element using the specified functions.
+        /// Convert array to IEnumerable.
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
-        /// <param name="data"></param>
+        /// <param name="a"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        public static IEnumerable<TResult> ForEach<TResult>(this Array data, Func<object, TResult> func)
-        {
-            // output all values
-            foreach (var x in ForEach(data, new int[data.Rank]))
-                yield return func(x);
-        }
+        public static IEnumerable<object> ToEnumerable(this Array a) => ForEach(a, new int[a.Rank]);
 
         /// <summary>
         /// Enumerate the elements of a multidimensional array.
