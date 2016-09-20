@@ -26,9 +26,9 @@ namespace App
         /// <summary>
         /// On loading the app, load form settings and instantiate GLSL debugger.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void App_Load(object sender, EventArgs e)
+        private void App_Load(object s, EventArgs e)
         {
             // LOAD PREVIOUS WINDOW STATE
             
@@ -71,7 +71,7 @@ namespace App
                 if (!tab.Text.EndsWith("*"))
                     continue;
                 // ask user whether he/she wants to save those files
-                DialogResult answer = MessageBox.Show(
+                var answer = MessageBox.Show(
                     "Do you want to save files with changes before closing them?",
                     "Save file changes", MessageBoxButtons.YesNoCancel);
                 // if so, save all files with changes
@@ -87,8 +87,8 @@ namespace App
             // save current window state
             
             // do not save window in a minimized state
-            if (WindowState == FormWindowState.Minimized)
-                WindowState = FormWindowState.Normal;
+            if (WindowState == Minimized)
+                WindowState = Normal;
 
             // get current window state
             var settings = new FormSettings
@@ -100,9 +100,9 @@ namespace App
             };
 
             // if the state is not normal, make it normal
-            if (WindowState != FormWindowState.Normal)
+            if (WindowState != Normal)
             {
-                WindowState = FormWindowState.Normal;
+                WindowState = Normal;
                 settings.Left = Left;
                 settings.Top = Top;
                 settings.Width = Width;
@@ -116,15 +116,15 @@ namespace App
         /// <summary>
         /// Handle key events of the form.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void App_KeyUp(object sender, KeyEventArgs e)
+        private void App_KeyUp(object s, KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
                 // Compile and run
                 case Keys.F5:
-                    toolBtnRunDebug_Click(sender, null);
+                    toolBtnRunDebug_Click(s, null);
                     break;
                 // Compile and run
                 case Keys.F6:
@@ -134,19 +134,19 @@ namespace App
                 case Keys.S:
                     if (e.Control && e.Shift)
                         // Save all tabs
-                        toolBtnSaveAll_Click(sender, null);
+                        toolBtnSaveAll_Click(s, null);
                     else if (e.Control)
                         // Save active tab
-                        toolBtnSave_Click(sender, null);
+                        toolBtnSave_Click(s, null);
                     else if (e.Alt)
                         // Save active tab as
-                        toolBtnSaveAs_Click(sender, null);
+                        toolBtnSaveAs_Click(s, null);
                     break;
                 // Open
                 case Keys.O:
                     if (e.Control)
                         // Open tech files
-                        toolBtnOpen_Click(sender, null);
+                        toolBtnOpen_Click(s, null);
                     break;
                 // Fold all code
                 case Keys.Left:
@@ -164,23 +164,23 @@ namespace App
         /// <summary>
         /// After clicking the window close button, close the form.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void btnWindowClose_Click(object sender, EventArgs e) => Close();
+        private void btnWindowClose_Click(object s, EventArgs e) => Close();
 
         /// <summary>
         /// After clicking the window minimize button, minimize the form.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void btnWindowMinimize_Click(object sender, EventArgs e) => WindowState = Minimized;
+        private void btnWindowMinimize_Click(object s, EventArgs e) => WindowState = Minimized;
 
         /// <summary>
         /// Maximize or normalize the window based on its current state.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void btnWindowMaximize_Click(object sender, EventArgs e)
+        private void btnWindowMaximize_Click(object s, EventArgs e)
         {
             WindowState = WindowState == Maximized ? Normal : Maximized;
             UpdateBtnWindowMaximizeButtonImage();
@@ -189,9 +189,9 @@ namespace App
         /// <summary>
         /// By holding down the left mouse button, the user can move the window.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void TitleBar_MouseDown(object sender, MouseEventArgs e)
+        private void TitleBar_MouseDown(object s, MouseEventArgs e)
         {
             TitleBarClickX = e.X;
             TitleBarClickY = e.Y;
@@ -200,9 +200,9 @@ namespace App
         /// <summary>
         /// Move the window by moving the mouse.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void TitleBar_MouseMove(object sender, MouseEventArgs e)
+        private void TitleBar_MouseMove(object s, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left && (e.X != TitleBarClickX || e.Y != TitleBarClickY))
                 Location = new Point(Location.X + e.X - TitleBarClickX, Location.Y + e.Y - TitleBarClickY);
@@ -289,9 +289,9 @@ namespace App
         /// <summary>
         /// Handle mouse up events of the glCotrol.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void glControl_MouseUp(object sender, MouseEventArgs e)
+        private void glControl_MouseUp(object s, MouseEventArgs e)
         {
             // if pick tool button is checked, set
             // the fragment debug position to that pixel
@@ -314,17 +314,17 @@ namespace App
         /// <summary>
         /// Open new tab.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnNew_Click(object sender, EventArgs e)
+        private void toolBtnNew_Click(object s, EventArgs e)
             => tabSource.SelectedIndex = AddTab(null);
 
         /// <summary>
         /// Open file.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnOpen_Click(object sender, EventArgs e)
+        private void toolBtnOpen_Click(object s, EventArgs e)
         {
             // create file dialog
             var openDlg = new OpenFileDialog();
@@ -346,9 +346,9 @@ namespace App
         /// <summary>
         /// Run or debug the currently active tab.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="ev"></param>
-        private void toolBtnRunDebug_Click(object sender, EventArgs ev)
+        private void toolBtnRunDebug_Click(object s, EventArgs ev)
         {
             // if no tab page is selected nothing needs to be compiled
             var sourceTab = (TabPageEx)tabSource.SelectedTab;
@@ -357,7 +357,7 @@ namespace App
             CompiledEditor = (CodeEditor)sourceTab.Controls[0];
             
             // save code
-            toolBtnSave_Click(sender, null);
+            toolBtnSave_Click(s, null);
 
             // clear scene and output
             output.Rows.Clear();
@@ -371,7 +371,7 @@ namespace App
 
             // get code text form tab page
             // generate debug information?
-            var debugging = sender == toolBtnDbg;
+            var debugging = s == toolBtnDbg;
 
             // COMPILE THE CURRENTLY SELECTED FILE
             var root = Compiler.Compile(sourceTab.filepath);
@@ -424,9 +424,9 @@ namespace App
         /// <summary>
         /// Save the currently active tab.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnSave_Click(object sender, EventArgs e)
+        private void toolBtnSave_Click(object s, EventArgs e)
         {
             if (tabSource.SelectedTab == null)
                 return;
@@ -440,9 +440,9 @@ namespace App
         /// <summary>
         /// Save all the tabs.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnSaveAll_Click(object sender, EventArgs e)
+        private void toolBtnSaveAll_Click(object s, EventArgs e)
         {
             foreach (TabPageEx tab in tabSource.TabPages)
             {
@@ -456,17 +456,17 @@ namespace App
         /// <summary>
         /// Save currently active tab as a new file.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnSaveAs_Click(object sender, EventArgs e)
+        private void toolBtnSaveAs_Click(object s, EventArgs e)
             => SaveTabPage((TabPageEx)tabSource.SelectedTab, true);
 
         /// <summary>
         /// Close the currently active tab, but open the save dialog if there have been changes.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnClose_Click(object sender, EventArgs e)
+        private void toolBtnClose_Click(object s, EventArgs e)
         {
             if (tabSource.SelectedIndex < 0 || tabSource.SelectedIndex >= tabSource.TabPages.Count)
                 return;
@@ -485,19 +485,19 @@ namespace App
         /// <summary>
         /// Pick a debug pixel in the glControl.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnPick_CheckedChanged(object sender, EventArgs e)
+        private void toolBtnPick_CheckedChanged(object s, EventArgs e)
             => glControl.Cursor = toolBtnPick.Checked ? Cursors.Cross : Cursors.Default;
 
         /// <summary>
         /// Insert comment in all selected lines.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnComment_Click(object sender, EventArgs e)
+        private void toolBtnComment_Click(object s, EventArgs e)
         {
-            var editor = (CodeEditor)((TabPageEx)tabSource.SelectedTab)?.Controls[0];
+            var editor = SelectedEditor;
             if (editor == null)
                 return;
 
@@ -539,11 +539,11 @@ namespace App
         /// <summary>
         /// Remove the leading line comment of the selected lines.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnUncomment_Click(object sender, EventArgs e)
+        private void toolBtnUncomment_Click(object s, EventArgs e)
         {
-            var editor = (CodeEditor)((TabPageEx)tabSource.SelectedTab)?.Controls[0];
+            var editor = SelectedEditor;
             if (editor == null)
                 return;
 

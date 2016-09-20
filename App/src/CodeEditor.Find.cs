@@ -86,12 +86,12 @@ namespace App
         /// <summary>
         /// Update highlights and go to closest word matching the search string.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleFindTextChanged(object sender, EventArgs e)
+        private void HandleFindTextChanged(object s, EventArgs e)
         {
-            var textbox = (TextBox)sender;
-            var editor = (CodeEditor)textbox.Parent;
+            var textbox = s as TextBox;
+            var editor = textbox.Parent as CodeEditor;
 
             editor.ClearIndicators(HighlightIndicatorIndex);
             if (textbox.Text.Length == 0)
@@ -119,13 +119,12 @@ namespace App
         /// <summary>
         /// Switch to find-mode if the search box receives focus.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleFindGotFocus(object sender, EventArgs e)
+        private void HandleFindGotFocus(object s, EventArgs e)
         {
             // on focus color the caret red
-            var textbox = (TextBox)sender;
-            var editor = (CodeEditor)textbox.Parent;
+            var editor = (s as TextBox).Parent as CodeEditor;
             editor.CaretWidth = 2;
             editor.CaretForeColor = Color.Red;
         }
@@ -133,13 +132,12 @@ namespace App
         /// <summary>
         /// Find-mode needs to be exited when any event occurs that changes the focus.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleFindLostFocus(object sender, EventArgs e)
+        private void HandleFindLostFocus(object s, EventArgs e)
         {
             // on lost focus color the caret black
-            var textbox = (TextBox)sender;
-            var editor = (CodeEditor)textbox.Parent;
+            var editor = (s as TextBox).Parent as CodeEditor;
             editor.CaretWidth = 1;
             editor.CaretForeColor = Color.Black;
         }
@@ -149,10 +147,9 @@ namespace App
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void HandleFindKeyUp(object sender, KeyEventArgs e)
+        private void HandleFindKeyUp(object s, KeyEventArgs e)
         {
-            var textbox = (TextBox)sender;
-            var editor = (CodeEditor)textbox.Parent;
+            var editor = (s as TextBox).Parent as CodeEditor;
 
             switch (e.KeyCode)
             {

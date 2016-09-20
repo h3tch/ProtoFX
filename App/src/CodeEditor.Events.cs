@@ -47,14 +47,14 @@ namespace App
         /// <summary>
         /// On insert text event, auto format the text.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleInsertCheck(object sender, InsertCheckEventArgs e)
+        private void HandleInsertCheck(object s, InsertCheckEventArgs e)
         {
             // do not insert text when
             // the Ctrl key is pressed
             if (DisableEditing)
-                e.Text = "";
+                e.Text = string.Empty;
 
             // auto indent
             if (e.Text.EndsWith("\n"))
@@ -72,9 +72,9 @@ namespace App
         /// <summary>
         /// Wait for char add event to handle auto intent and auto complete.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleCharAdded(object sender, CharAddedEventArgs e)
+        private void HandleCharAdded(object s, CharAddedEventArgs e)
         {
             // auto indent
             if (e.Char == '}')
@@ -94,15 +94,15 @@ namespace App
         /// <summary>
         /// Handle text change event to mark tabs that need to be saved.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleTextChanged(object sender, EventArgs e)
+        private void HandleTextChanged(object s, EventArgs e)
         {
             // get class references
-            var tab = (TabPage)Parent;
+            var tab = Parent as TabPage;
 
             // add file changed indicator '*'
-            if (tab != null && !tab.Text.EndsWith("*"))
+            if (!tab?.Text.EndsWith("*") ?? false)
                 tab.Text = tab.Text + '*';
 
             // update line number margins
@@ -115,9 +115,9 @@ namespace App
         /// <summary>
         /// Handle selection change events (when the caret changes the position).
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleUpdateUI(object sender, UpdateUIEventArgs e)
+        private void HandleUpdateUI(object s, UpdateUIEventArgs e)
         {
             // handle selection changed events
             switch (e.Change)
@@ -145,17 +145,17 @@ namespace App
         /// <summary>
         /// Handle mouse wheel events.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleMouseWheel(object sender, MouseEventArgs e)
+        private void HandleMouseWheel(object s, MouseEventArgs e)
             => UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
 
         /// <summary>
         /// Handle drag and drop of text parts in the editor.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleDragOver(object sender, DragEventArgs e)
+        private void HandleDragOver(object s, DragEventArgs e)
         {
             // convert cursor position to text position
             var point = PointToClient(new Point(e.X, e.Y));
@@ -186,9 +186,9 @@ namespace App
         /// <summary>
         /// Handle drag and drop of text parts in the editor.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleDragDrop(object sender, DragEventArgs e)
+        private void HandleDragDrop(object s, DragEventArgs e)
         {
             // convert cursor position to text position
             var point = PointToClient(new Point(e.X, e.Y));
@@ -216,9 +216,9 @@ namespace App
         /// <summary>
         /// Handle key down events of the code editor component.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleKeyDown(object sender, KeyEventArgs e)
+        private void HandleKeyDown(object s, KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
@@ -243,9 +243,9 @@ namespace App
         /// <summary>
         /// Handle key up events of the code editor component.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleKeyUp(object sender, KeyEventArgs e)
+        private void HandleKeyUp(object s, KeyEventArgs e)
         {
             // only disable editing if Ctrl is pressed
             DisableEditing = false;
@@ -283,9 +283,9 @@ namespace App
         /// <summary>
         /// Do additional painting after the control has been drawn.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandlePainted(object sender, EventArgs e)
+        private void HandlePainted(object s, EventArgs e)
         {
             var g = CreateGraphics();
 

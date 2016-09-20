@@ -71,8 +71,7 @@ namespace OpenTK
             catch (Exception ex)
             {
                 // add exception to output
-                ex = ex.InnerException != null ? ex.InnerException : ex;
-                output.Rows.Add(new[] { "render", "", ex.Message });
+                output.Rows.Add(new[] { "render", string.Empty, (ex.InnerException ?? ex).Message });
                 renderExceptions++;
             }
 

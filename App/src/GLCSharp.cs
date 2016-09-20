@@ -136,11 +136,6 @@ namespace App
         }
 
         /// <summary>
-        /// Standard object destructor for ProtoFX.
-        /// </summary>
-        public override void Delete() { }
-
-        /// <summary>
         /// Create a new external method-call by processing the specified compiler command.
         /// </summary>
         /// <param name="cmd"></param>
@@ -180,8 +175,8 @@ namespace App
             var cmds = block["class"].ToList();
             if (cmds.Count == 0)
             {
-                err.Add("Instance must specify a 'class' command (e.g., class csharp_name " +
-                    "class_name).", block);
+                err.Add("Instance must specify a 'class' command " +
+                    "(e.g., class csharp_name class_name).", block);
                 return null;
             }
             var cmd = cmds.First();

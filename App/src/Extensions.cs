@@ -8,30 +8,6 @@ using System.Text.RegularExpressions;
 
 namespace App
 {
-    /// <summary>
-    /// This class extends several other classes with useful methods
-    /// that are not (yet) provided by the .Net framework.
-    /// </summary>
-    public static class Extensions
-    {
-        /// <summary>
-        /// Check if the object value matches the default value.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="obj"></param>
-        /// <returns>Returns true if the object value equals the default value.</returns>
-        public static bool IsDefault<T>(this T obj) => obj.Equals(default(T));
-
-        /// <summary>
-        /// Check if the class is of any of the specified types.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="obj"></param>
-        /// <param name="types"></param>
-        /// <returns></returns>
-        public static bool TypeIs<T>(this T obj, Type[] types) => types.Any(x => x is T);
-    }
-
     public static class ConvertExtensions
     {
         /// <summary>
@@ -231,7 +207,7 @@ namespace App
         {
             // create array of type and find suitable read-method
             Array array = new T[rows, cols];
-            var Read = reader.GetType().GetMethod("Read" + typeof(T).Name);
+            var Read = reader.GetType().GetMethod("Read" + nameof(T));
             int skip = stride - cols * Marshal.SizeOf<T>();
 
             // read types from mem and store them in the array
@@ -291,9 +267,7 @@ namespace App
         /// <param name="defaultValue"></param>
         /// <returns></returns>
         public static T FirstOr<T>(this IEnumerable<T> ie, T defaultValue)
-        {
-            return ie.Any() ? ie.First() : defaultValue;
-        }
+            => ie.Any() ? ie.First() : defaultValue;
 
         /// <summary>
         /// Return the first element matching the specified predicate or a default value.
@@ -416,81 +390,7 @@ namespace App
             return Regex.Match(s, $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
                 $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="open"></param>
-        /// <param name="close"></param>
-        /// <returns></returns>
-        public static int IndexOfBraceMatch(this string s, char open, char close)
-            => IndexOfBraceMatch(s, open, close, 0, s.Length);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="open"></param>
-        /// <param name="close"></param>
-        /// <param name="startIndex"></param>
-        /// <returns></returns>
-        public static int IndexOfBraceMatch(this string s, char open, char close, int startIndex)
-            => IndexOfBraceMatch(s, open, close, startIndex, s.Length - startIndex);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="open"></param>
-        /// <param name="close"></param>
-        /// <param name="startPosition"></param>
-        /// <returns></returns>
-        public static int IndexOfBraceMatch(this string s, char open, char close, int startIndex, int count)
-        {
-            int i = s.IndexOf(open, startIndex, count);
-            if (i >= 0)
-            {
-                for (int n = 0, I = startIndex + count; i < I; i++)
-                {
-                    if (s[i] == open)
-                        n++;
-                    else if (s[i] == close)
-                        n--;
-                    if (n == 0)
-                        return i;
-                }
-            }
-
-            return -1;
-        }
-        public static int IndexOfWholeWords(this string s, string words)
-            => s.IndexOfWholeWords(words, 0, s.Length);
-
-        public static int IndexOfWholeWords(this string s, string words, int startIndex)
-            => s.IndexOfWholeWords(words, startIndex, s.Length - startIndex);
-
-        public static int IndexOfWholeWords(this string s, string words, int startIndex, int count)
-        {
-            for (int i = startIndex, endIndex = i + count - words.Length; i < endIndex; i++)
-            {
-                if (i > 0 ? char.IsLetter(s[i - 1]) : false)
-                    continue;
-                int j = 0;
-                while (j < words.Length && s[i + j] == words[j])
-                    j++;
-                if (j < words.Length)
-                    continue;
-                if (i + j >= endIndex || !char.IsLetterOrDigit(s[i + j]))
-                    return i;
-            }
-            return -1;
-        }
-
-        public static bool IsWholeWords(this string s, int startIndex, int count)
-            => (startIndex == 0 || !char.IsLetter(s[startIndex - 1]))
-                && (startIndex + count >= s.Length || !char.IsLetterOrDigit(s[startIndex + count]));
-
+        
         /// <summary>
         /// Get zero based line index from the zero based character position.
         /// </summary>
@@ -517,20 +417,7 @@ namespace App
 
             return lineCount;
         }
-
-        /// <summary>
-        /// Find index of the specified character beginning at the startIndex.
-        /// If the character could not be found, the length of the string is
-        /// returned -- not -1.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="c"></param>
-        /// <param name="startIndex">The zero based index to start searching at.</param>
-        /// <returns>Returns the position of the first found character location
-        /// or the length of the string if the character could not be found.</returns>
-        public static int IndexOfOrLength(this string s, char c, int startIndex = 0)
-            => (int)Math.Min((uint)s.Length, (uint)s.IndexOf(c, startIndex));
-
+        
         /// <summary>
         /// The sub range of the string beginning at the zero based start index
         /// and ending at the zero based end index.
@@ -541,46 +428,6 @@ namespace App
         /// <returns></returns>
         public static string Subrange(this string s, int start, int end)
             => s.Substring(start, end - start);
-
-        /// <summary>
-        /// Get the word surrounding the specified position.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="position"></param>
-        /// <returns></returns>
-        public static string WordFromPosition(this string s, int position)
-        {
-            int start = s.WordStartPosition(position);
-            int end = s.WordEndPosition(position);
-            int len = end - start;
-            return len > 0 ? s.Substring(start, len) : string.Empty;
-        }
-
-        /// <summary>
-        /// Get the word surrounding the specified position.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="position"></param>
-        /// <returns></returns>
-        public static int WordStartPosition(this string s, int position)
-        {
-            while (position > 1 && !char.IsWhiteSpace(s[position - 1]))
-                position--;
-            return position;
-        }
-
-        /// <summary>
-        /// Get the word surrounding the specified position.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="position"></param>
-        /// <returns></returns>
-        public static int WordEndPosition(this string s, int position)
-        {
-            while (position < s.Length && !char.IsWhiteSpace(s[position]))
-                position++;
-            return position;
-        }
     }
 
     public static class MemoryExtensions

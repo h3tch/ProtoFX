@@ -51,7 +51,7 @@ namespace App
         /// <summary>
         /// Delete and release resources. Called on recompilation or when the app closes.
         /// </summary>
-        public abstract void Delete();
+        public virtual void Delete() { }
 
         /// <summary>
         /// Readable identifier of the class.

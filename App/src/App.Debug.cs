@@ -115,15 +115,13 @@ namespace App
         /// <summary>
         /// Raised when another ProtoFX "instance-object" is selected for inspection.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void comboProp_SelectedIndexChanged(object sender, EventArgs e)
+        private void comboProp_SelectedIndexChanged(object s, EventArgs e)
         {
-            if (comboProp.SelectedItem == null || !(comboProp.SelectedItem is GLInstance))
-                return;
-
             // gather needed info
-            propertyGrid.SelectedObject = ((GLInstance)comboProp.SelectedItem).Instance;
+            if (comboProp.SelectedItem is GLInstance)
+                propertyGrid.SelectedObject = (comboProp.SelectedItem as GLInstance).Instance;
         }
 
         /// <summary>
@@ -131,7 +129,7 @@ namespace App
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void propertyGrid_Click(object sender, EventArgs e)
+        private void propertyGrid_Click(object s, EventArgs e)
             => propertyGrid.SelectedObject = propertyGrid.SelectedObject;
 
         /// <summary>
@@ -147,12 +145,12 @@ namespace App
         /// <summary>
         /// On double clicking on a compiler error, jump to the line where the error happened.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void output_DoubleClick(object sender, EventArgs e)
+        private void output_DoubleClick(object s, EventArgs e)
         {
             // if no item is selected and no code compiled, return
-            var view = (DataGridView)sender;
+            var view = s as DataGridView;
             if (view.SelectedRows.Count == 0 || CompiledEditor == null)
                 return;
 
@@ -179,7 +177,7 @@ namespace App
             var refUri = new Uri(refDir);
             var fileUri = new Uri(filePath);
             var relPath = refUri.MakeRelativeUri(fileUri).ToString();
-            output.Rows.Add(new[] { relPath, line > 0 ? line.ToString(Culture) : "", msg });
+            output.Rows.Add(new[] { relPath, line > 0 ? line.ToString(Culture) : string.Empty, msg });
         }
         #endregion
 
@@ -187,12 +185,12 @@ namespace App
         /// <summary>
         /// When the selection (caret) changed update the debug tab.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void editor_UpdateUI(object sender, UpdateUIEventArgs e)
+        private void editor_UpdateUI(object s, UpdateUIEventArgs e)
         {
             // get class references
-            var editor = (CodeEditor)sender;
+            var editor = s as CodeEditor;
 
             // handle selection changed event, but only
             // update debug information for the compiled editor
@@ -204,12 +202,12 @@ namespace App
         /// On mouse move check whether the mouse hovers over a debug variable.
         /// If so, show a popup with the variables value (if possible).
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void editor_MouseMove(object sender, MouseEventArgs e)
+        private void editor_MouseMove(object s, MouseEventArgs e)
         {
             // get class references
-            var editor = (CodeEditor)sender;
+            var editor = s as CodeEditor;
 
             // only update debug information for the compiled editor
             if (CompiledEditor != editor)
@@ -255,7 +253,7 @@ namespace App
             // if the code has been edited no debug information can
             // be shown, because debug variables might have been
             // added or removed, which leads to invalid debug output
-            if (((TabPage)editor.Parent).Text.EndsWith("*"))
+            if ((editor.Parent as TabPage).Text.EndsWith("*"))
                 return;
 
             // get debug variables of the line where the caret is placed
