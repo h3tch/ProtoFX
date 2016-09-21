@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace App
 {
-    [SerializableAttribute]
+    [Serializable]
     class CompileException : Exception, IEnumerable<CompileException.Error>, IDisposable
     {
         private List<string> callstack;

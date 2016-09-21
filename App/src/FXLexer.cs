@@ -294,15 +294,41 @@ namespace App.Lexer
         #endregion
 
         #region METHODS
-        public virtual int ProcessState(CodeEditor editor, int state, Region c, int endPos) => state;
+        /// <summary>
+        /// Default process state method.
+        /// </summary>
+        /// <param name="e">unused</param>
+        /// <param name="state"></param>
+        /// <param name="c">unused</param>
+        /// <param name="p">unused</param>
+        /// <returns>The new state after processing the current state.</returns>
+        public virtual int ProcessState(CodeEditor e, int state, Region c, int p) => state;
 
-        public virtual int ProcessDefaultState(CodeEditor editor, Region c) => 0;
+        /// <summary>
+        /// Default process default state method.
+        /// </summary>
+        /// <param name="e">unused</param>
+        /// <param name="c">unused</param>
+        /// <returns>The new state after processing the current state.</returns>
+        public virtual int ProcessDefaultState(CodeEditor e, Region c) => 0;
 
+        /// <summary>
+        /// Default process string state method.
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="c"></param>
+        /// <returns>The new state after processing the current state.</returns>
         protected int ProcessStringState(CodeEditor editor, Region c)
             => (c.c == '\n' || (c[-1] == '"' && c[-2] != '\\' && c.GetStyleAt(-2) == StringStyle))
                 ? ProcessDefaultState(editor, c)
                 : (int)BaseState.String;
 
+        /// <summary>
+        /// Default process number state method.
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="c"></param>
+        /// <returns>The new state after processing the current state.</returns>
         protected int ProcessNumberState(CodeEditor editor, Region c)
             => char.IsNumber(c.c)
                 || c.c == '.' || c.c == 'x'
@@ -311,12 +337,31 @@ namespace App.Lexer
                 ? (int)BaseState.Number
                 : ProcessDefaultState(editor, c);
 
+        /// <summary>
+        /// Default process line comment state.
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="c"></param>
+        /// <returns>The new state after processing the current state.</returns>
         protected int ProcessLineCommentState(CodeEditor editor, Region c)
             => c.c == '\n' ? ProcessDefaultState(editor, c) : (int)BaseState.LineComment;
 
+        /// <summary>
+        /// Default process block comment state.
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="c"></param>
+        /// <returns>The new state after processing the current state.</returns>
         protected int ProcessBlockCommentState(CodeEditor editor, Region c)
             => c[-2] == '*' && c[-1] == '/' ? ProcessDefaultState(editor, c) : (int)BaseState.BlockComment;
 
+        /// <summary>
+        /// Default process indicator state.
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="c"></param>
+        /// <param name="IndicatorState"></param>
+        /// <returns>The new state after processing the current state.</returns>
         protected int ProcessIndicatorState(CodeEditor editor, Region c, int IndicatorState)
         {
             // position still inside the word range
@@ -330,33 +375,51 @@ namespace App.Lexer
             return ProcessDefaultState(editor, c);
         }
 
+        /// <summary>
+        /// Default process new line state.
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="c"></param>
+        /// <returns>The new state after processing the current state.</returns>
         protected int DefaultProcessNewLine(CodeEditor editor, Region c)
         {
-            // exit lexer if line does not end with "."
+            // exit lexer if line does not end with "..."
             int i = c.Pos - 1;
             var C = (char)editor.GetCharAt(i);
             while (i > 0 && C != '\n' && char.IsWhiteSpace(C))
                 C = (char)editor.GetCharAt(--i);
-            return editor.GetCharAt(i) != '.' ? -1 : (int)BaseState.Default;
+            return editor.GetTextRange(i - 2, 3) != "..." ? -1 : (int)BaseState.Default;
         }
 
+        /// <summary>
+        /// Relex the first word directly before the current position.
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="pos"></param>
         protected void RelexPreviousWord(CodeEditor editor, int pos)
         {
+            // get previous word and start position
             var start = editor.WordStartPosition(pos, false);
             var word = editor.GetWordFromPosition(start);
-            var state = -1;
 
+            // find out if the previous word is a keyword
             for (int i = 0; i < keywords.Length; i++)
-                if (keywords[i]?[word].Any(x => x.word == word) ?? false)
-                    state = i;
-
-            if (state >= 0)
             {
-                editor.StartStyling(start);
-                editor.SetStyling(pos - start, StateToStyle(state));
+                // reset the style of the word if it is a keyword
+                if (keywords[i]?[word].Any(x => x.word == word) ?? false)
+                {
+                    editor.StartStyling(start);
+                    editor.SetStyling(pos - start, StateToStyle(i));
+                }
             }
         }
 
+        /// <summary>
+        /// Check if this lexer or a sub-lexer can handle
+        /// the specified style (which indicates a state).
+        /// </summary>
+        /// <param name="style"></param>
+        /// <returns>A lexer that can handle the style or <code>null</code></returns>
         public ILexer FindLexerForStyle(int style)
         {
             return firstStyle <= style && style <= lastStyle
@@ -364,22 +427,30 @@ namespace App.Lexer
                 : lexer.Select(x => x.FindLexerForStyle(style)).FirstOrDefault(x => x != null);
         }
 
+        /// <summary>
+        /// Convert lexer state to Scintilla style.
+        /// </summary>
+        /// <param name="state"></param>
+        /// <returns></returns>
         protected int StateToStyle(int state)
             => state + ((state < firstBaseState) ? firstStyle : -firstBaseState);
 
-        protected int StyleToState(int style)
-        {
-            if (firstStyle <= style && style <= lastStyle)
-                return style - firstStyle;
-            if (firstBaseStyle <= style && style <= lastBaseStyle)
-                return style - firstBaseStyle + firstBaseState;
-            return -1;
-        }
-
+        /// <summary>
+        /// Is this lexer designated for the specified type (of a tech object).
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public virtual bool IsLexerForType(string type) => lexerType == type;
         #endregion
 
         #region HELPER METHODS
+        /// <summary>
+        /// Find last position in the text that has the specified style.
+        /// </summary>
+        /// <param name="editor"></param>
+        /// <param name="style"></param>
+        /// <param name="from"></param>
+        /// <returns></returns>
         protected int FindLastStyleOf(CodeEditor editor, int style, int from)
         {
             while (from > 0 && editor.GetStyleAt(from) != style)
@@ -387,6 +458,11 @@ namespace App.Lexer
             return editor.GetStyleAt(from) == style ? from : -1;
         }
 
+        /// <summary>
+        /// Get the state directly before the specified position.
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
         private int GetPrevState(Region c)
         {
             int state = 0;

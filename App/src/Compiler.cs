@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace App
@@ -51,7 +50,6 @@ namespace App
             public File Owner { get; private set; }
             public string Path { get; private set; }
             public int Line { get; private set; }
-            public int LineInFile => Line;
             public string Text { get; private set; }
             public File[] Include { get; private set; }
             public Block[] Block { get; private set; }
