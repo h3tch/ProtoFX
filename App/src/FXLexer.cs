@@ -1255,14 +1255,8 @@ namespace App.Lexer
         public char c { get; private set; }
         public int Pos
         {
-            get
-            {
-                return pos;
-            }
-            set
-            {
-                c = (char)editor.GetCharAt(pos = value);
-            }
+            get { return pos; }
+            set { c = (char)editor.GetCharAt(pos = value); }
         }
 
         public Region(CodeEditor editor, int pos)

@@ -27,9 +27,9 @@ namespace App
             var err = new CompileException($"texture '{name}'");
 
             // set name
-            this.Format = format;
-            this.glBuff = glbuff;
-            this.glImg = glimg;
+            Format = format;
+            glBuff = glbuff;
+            glImg = glimg;
 
             // INCASE THIS IS A TEXTURE OBJECT
             Link("", -1, err);
@@ -53,17 +53,17 @@ namespace App
             Cmds2Fields(block, err);
 
             // set name
-            this.glBuff = glbuff;
-            this.glImg = glimg;
+            glBuff = glbuff;
+            glImg = glimg;
 
             // GET REFERENCES
             if (Buff != null)
-                scene.TryGetValue(Buff, out this.glBuff, block, err);
+                scene.TryGetValue(Buff, out glBuff, block, err);
             if (Img != null)
-                scene.TryGetValue(Img, out this.glImg, block, err);
-            if (this.glBuff != null && this.glImg != null)
+                scene.TryGetValue(Img, out glImg, block, err);
+            if (glBuff != null && glImg != null)
                 err.Add("Only an image or a buffer can be bound to a texture object.", block);
-            if (this.glBuff == null && this.glImg == null)
+            if (glBuff == null && glImg == null)
                 err.Add("Ether an image or a buffer has to be bound to a texture object.", block);
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION
@@ -128,7 +128,7 @@ namespace App
         /// <param name="err"></param>
         private void Link(string file, int line, CompileException err)
         {
-            // INCASE THIS IS A TEXTURE OBJECT
+            // IN CASE THIS IS A TEXTURE OBJECT
             if (glImg != null)
             {
                 glname = glImg.glname;
@@ -137,7 +137,7 @@ namespace App
                 GL.GetTextureLevelParameter(glname, 0, GetTextureParameter.TextureInternalFormat, out f);
                 Format = (GpuFormat)f;
             }
-            // INCASE THIS IS A BUGGER OBJECT
+            // IN CASE THIS IS A BUFFER OBJECT
             else if (glBuff != null)
             {
                 if (Format == 0)

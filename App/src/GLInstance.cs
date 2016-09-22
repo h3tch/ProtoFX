@@ -38,8 +38,8 @@ namespace App
 
             // get all public methods and check whether
             // they can be used as event handlers for glControl
-            GLReference reference = scene.GetValueOrDefault<GLReference>(GraphicControl.nullname);
-            GraphicControl glControl = (GraphicControl)reference.reference;
+            var reference = scene.GetValueOrDefault<GLReference>(GraphicControl.nullname);
+            var glControl = (GraphicControl)reference.reference;
             var methods = Instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
             foreach (var method in methods)
             {

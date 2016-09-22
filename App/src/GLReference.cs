@@ -14,10 +14,5 @@
         {
             this.reference = reference;
         }
-
-        /// <summary>
-        /// Standard object destructor for ProtoFX.
-        /// </summary>
-        public override void Delete() { }
     }
 }

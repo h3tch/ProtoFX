@@ -21,7 +21,7 @@ namespace App
             var ellType = src.GetType().GetElementType();
             var ellSize = ellType == typeof(char) ? 2 : Marshal.SizeOf(ellType);
             // allocate byte array
-            byte[] dst = new byte[ellSize * src.Length];
+            var dst = new byte[ellSize * src.Length];
             // copy source data to output array
             Buffer.BlockCopy(src, 0, dst, 0, dst.Length);
             return dst;

@@ -86,7 +86,7 @@ namespace App
                              .Select(a => a.Location).ToArray());
 
                 // select compiler version
-                CSharpCodeProvider provider = Version != null ?
+                var provider = Version != null ?
                     new CSharpCodeProvider(new Dictionary<string, string> { { "CompilerVersion", Version } }) :
                     new CSharpCodeProvider();
                 CompilerResults = provider.CompileAssemblyFromFile(compilerParams, filepath.ToArray());
@@ -105,7 +105,7 @@ namespace App
             {
                 string msg = "";
                 foreach (var message in CompilerResults.Errors)
-                    msg += "\n" + message;
+                    msg += $"\n{message}";
                 throw err.Add(msg, block);
             }
         }
@@ -121,7 +121,7 @@ namespace App
             // replace placeholders with actual path
             var path = (IEnumerable<string>)paths;
             var curDir = Directory.GetCurrentDirectory() + "/";
-            var placeholders = new[] { new[] { "<csharp>", curDir + "../csharp" } };
+            var placeholders = new[] { new[] { "<csharp>", $"{curDir}../csharp" } };
             foreach (var placeholder in placeholders)
                 path = path.Select(x => x.Replace(placeholder[0], placeholder[1]));
 

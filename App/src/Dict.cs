@@ -36,9 +36,7 @@ namespace App
         public T GetValueOrDefault<T>(string key) where T : GLObject
         {
             var obj = default(GLObject);
-            if (key != null && TryGetValue(key, out obj) && obj is T)
-                return (T)obj;
-            return default(T);
+            return key != null && TryGetValue(key, out obj) && obj is T ? (T)obj : default(T);
         }
 
         /// <summary>

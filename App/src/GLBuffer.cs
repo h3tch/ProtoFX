@@ -6,6 +6,8 @@ using System.Xml;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using UsageHint = OpenTK.Graphics.OpenGL4.BufferUsageHint;
+using ParameterName = OpenTK.Graphics.OpenGL4.BufferParameterName;
 
 namespace App
 {
@@ -13,7 +15,7 @@ namespace App
     {
         #region FIELDS
         [FxField] public int Size { get; private set; } = 0;
-        [FxField] public BufferUsageHint Usage { get; private set; } = BufferUsageHint.StaticDraw;
+        [FxField] public UsageHint Usage { get; private set; } = UsageHint.StaticDraw;
         #endregion
 
         /// <summary>
@@ -24,13 +26,13 @@ namespace App
         /// <param name="usage">How the buffer should be used by the program.</param>
         /// <param name="size">The memory size to be allocated in bytes.</param>
         /// <param name="data">Optionally initialize the buffer object with the specified data.</param>
-        public GLBuffer(string name, string anno, BufferUsageHint usage, int size, byte[] data = null)
+        public GLBuffer(string name, string anno, UsageHint usage, int size, byte[] data = null)
             : base(name, anno)
         {
             var err = new CompileException($"buffer '{name}'");
 
-            this.Size = size;
-            this.Usage = usage;
+            Size = size;
+            Usage = usage;
 
             // CREATE OPENGL OBJECT
             CreateBuffer(data);
@@ -49,10 +51,10 @@ namespace App
         {
             int s, u;
             this.glname = glname;
-            GL.GetNamedBufferParameter(glname, BufferParameterName.BufferSize, out s);
-            GL.GetNamedBufferParameter(glname, BufferParameterName.BufferUsage, out u);
+            GL.GetNamedBufferParameter(glname, ParameterName.BufferSize, out s);
+            GL.GetNamedBufferParameter(glname, ParameterName.BufferUsage, out u);
             Size = s;
-            Usage = (BufferUsageHint)u;
+            Usage = (UsageHint)u;
         }
 
         /// <summary>
@@ -126,7 +128,7 @@ namespace App
 
             // check read flag of the buffer
             int flags;
-            GL.GetNamedBufferParameter(glname, BufferParameterName.BufferStorageFlags, out flags);
+            GL.GetNamedBufferParameter(glname, ParameterName.BufferStorageFlags, out flags);
             if ((flags & (int)BufferStorageFlags.MapReadBit) == 0)
             {
                 var rs = "Buffer cannot be read".ToCharArray().ToBytes();
@@ -139,7 +141,7 @@ namespace App
                 data = new byte[Size];
 
             // map buffer and copy data to CPU memory
-            IntPtr dataPtr = GL.MapNamedBuffer(glname, BufferAccess.ReadOnly);
+            var dataPtr = GL.MapNamedBuffer(glname, BufferAccess.ReadOnly);
             Marshal.Copy(dataPtr, data, offset, Math.Min(Size, data.Length));
             GL.UnmapNamedBuffer(glname);
         }
@@ -228,7 +230,7 @@ namespace App
                 document.LoadXml(str);
 
                 // Load data from XML
-                byte[][] filedata = new byte[cmd.ArgCount - 1][];
+                var filedata = new byte[cmd.ArgCount - 1][];
                 for (int i = 1; i < cmd.ArgCount; i++)
                 {
                     try
@@ -263,7 +265,7 @@ namespace App
         private static byte[] LoadText(Compiler.Command cmd, Dict scene, CompileException err)
         {
             // Get text from file or text object
-            string str = GetText(scene, cmd);
+            var str = GetText(scene, cmd);
             if (str == null)
             {
                 err.Add("Could not process command. Second argument must "
