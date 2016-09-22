@@ -140,9 +140,13 @@
     <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\FXLexer.cs" />
+    <Compile Include="src\TabControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="src\TabPage.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="src\Theme.cs" />
     <Compile Include="src\Trie.cs" />
     <Compile Include="src\XmlSerializer.cs" />
     <EmbeddedResource Include="src\App.resx">

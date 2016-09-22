@@ -71,7 +71,9 @@ namespace App
             Margins[2].Mask = Marker.MaskFolders;
             Margins[2].Sensitive = true;
             Margins[2].Width = 20;
-
+            
+            SetFoldMarginColor(true, Theme.Workspace);
+            SetFoldMarginHighlightColor(true, Theme.Workspace);
             Markers[Marker.FolderEnd].Symbol = MarkerSymbol.BoxPlusConnected;
             Markers[Marker.FolderOpenMid].Symbol = MarkerSymbol.BoxMinusConnected;
             Markers[Marker.FolderMidTail].Symbol = MarkerSymbol.TCorner;
@@ -82,8 +84,8 @@ namespace App
 
             for (int i = Marker.FolderEnd; i <= Marker.FolderOpen; i++)
             {
-                Markers[i].SetForeColor(SystemColors.ControlLightLight);
-                Markers[i].SetBackColor(SystemColors.ControlDark);
+                Markers[i].SetForeColor(Theme.Workspace);
+                Markers[i].SetBackColor(Theme.ForeColor);
             }
 
             AutomaticFold = AutomaticFold.Show | AutomaticFold.Click | AutomaticFold.Change;

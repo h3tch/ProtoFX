@@ -94,8 +94,8 @@ namespace App.Lexer
             styles = Enumerable.Range(firstStyle, styleCount)
                 .Select(x => new Style {
                     id = x,
-                    fore = Color.Black,
-                    back = Color.White
+                    fore = CodeEditor.TextForeColor,
+                    back = CodeEditor.TextBackColor
                 }).ToArray();
             keywords = new Trie<Keyword>[styleCount];
 
@@ -116,8 +116,10 @@ namespace App.Lexer
             {
                 var id = (int)Enum.Parse(StateType, style.GetAttributeValue("name"), true);
                 var idx = id - firstState;
-                styles[idx].fore = ColorTranslator.FromHtml(style.GetAttributeValue("fore"));
-                styles[idx].back = ColorTranslator.FromHtml(style.GetAttributeValue("back"));
+                if (style.HasAttributeValue("fore"))
+                    styles[idx].fore = ColorTranslator.FromHtml(style.GetAttributeValue("fore"));
+                if (style.HasAttributeValue("back"))
+                    styles[idx].back = ColorTranslator.FromHtml(style.GetAttributeValue("back"));
             }
 
             // get keyword definitions
@@ -1275,6 +1277,8 @@ namespace App.Lexer
     {
         public static string GetAttributeValue(this XmlNode node, string name)
             => node.Attributes.GetNamedItem(name)?.Value;
+        public static bool HasAttributeValue(this XmlNode node, string name)
+            => node.Attributes.GetNamedItem(name) != null;
     }
     #endregion
 }
