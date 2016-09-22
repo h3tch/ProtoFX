@@ -1,15 +1,14 @@
 ﻿using System.Drawing;
-using System.Windows.Forms;
 
-namespace Controls
+namespace System.Windows.Forms
 {
-    public class TabControl : System.Windows.Forms.TabControl
+    public class TabControlEx : TabControl
     {
         private new Color ForeColor = Color.LightGray;
         private Color SelectedColor = ColorTranslator.FromHtml("#FF555555");
         private new Color BackColor = ColorTranslator.FromHtml("#FF333333");
 
-        public TabControl()
+        public TabControlEx()
         {
             this.SetStyle(ControlStyles.UserPaint, true);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
@@ -30,27 +29,29 @@ namespace Controls
             if (!Visible)
                 return;
 
-            Rectangle TabControlArea = this.ClientRectangle;
+            Rectangle ControlArea = this.ClientRectangle;
             Rectangle TabArea = this.DisplayRectangle;
 
             //----------------------------
             // fill client area
             Brush br = new SolidBrush(BackColor);
-            g.FillRectangle(br, TabControlArea);
+            g.FillRectangle(br, ControlArea);
             br.Dispose();
             //----------------------------
             
             //----------------------------
             // clip region for drawing tabs
             var rsaved = g.Clip;
-            var rreg = new Rectangle(TabArea.Left, TabControlArea.Top,
-                            TabArea.Width, TabControlArea.Height);
-
+            var rreg = new Rectangle(TabArea.Left, ControlArea.Top, TabArea.Width, ControlArea.Height);
             g.SetClip(rreg);
 
             // draw tabs
             for (int i = 0; i < this.TabCount; i++)
                 DrawTab(g, this.TabPages[i], i);
+
+            br = new SolidBrush(SelectedColor);
+            rreg = new Rectangle(0, 22, ControlArea.Width, 2);
+            g.FillRectangle(br, rreg);
 
             g.Clip = rsaved;
             //----------------------------
@@ -58,31 +59,31 @@ namespace Controls
 
         internal void DrawTab(Graphics g, TabPage tabPage, int nIndex)
         {
-            Rectangle recBounds = this.GetTabRect(nIndex);
-            RectangleF tabTextArea = (RectangleF)this.GetTabRect(nIndex);
+            Rectangle recBounds = GetTabRect(nIndex);
+            RectangleF tabTextArea = GetTabRect(nIndex);
 
-            bool bSelected = (this.SelectedIndex == nIndex);
+            bool bSelected = (SelectedIndex == nIndex);
 
-            Point[] pt = new Point[7];
-            if (this.Alignment == TabAlignment.Top)
+            PointF[] pt = new PointF[7];
+            if (Alignment == TabAlignment.Top)
             {
-                pt[0] = new Point(recBounds.Left, recBounds.Bottom);
-                pt[1] = new Point(recBounds.Left, recBounds.Top + 3);
-                pt[2] = new Point(recBounds.Left + 3, recBounds.Top);
-                pt[3] = new Point(recBounds.Right - 3, recBounds.Top);
-                pt[4] = new Point(recBounds.Right, recBounds.Top + 3);
-                pt[5] = new Point(recBounds.Right, recBounds.Bottom);
-                pt[6] = new Point(recBounds.Left, recBounds.Bottom);
+                pt[0] = new PointF(recBounds.Left, recBounds.Bottom);
+                pt[1] = new PointF(recBounds.Left, recBounds.Top + 3);
+                pt[2] = new PointF(recBounds.Left + 3, recBounds.Top);
+                pt[3] = new PointF(recBounds.Right - 3, recBounds.Top);
+                pt[4] = new PointF(recBounds.Right, recBounds.Top + 3);
+                pt[5] = new PointF(recBounds.Right, recBounds.Bottom);
+                pt[6] = new PointF(recBounds.Left, recBounds.Bottom);
             }
             else
             {
-                pt[0] = new Point(recBounds.Left, recBounds.Top);
-                pt[1] = new Point(recBounds.Right, recBounds.Top);
-                pt[2] = new Point(recBounds.Right, recBounds.Bottom - 3);
-                pt[3] = new Point(recBounds.Right - 3, recBounds.Bottom);
-                pt[4] = new Point(recBounds.Left + 3, recBounds.Bottom);
-                pt[5] = new Point(recBounds.Left, recBounds.Bottom - 3);
-                pt[6] = new Point(recBounds.Left, recBounds.Top);
+                pt[0] = new PointF(recBounds.Left, recBounds.Top);
+                pt[1] = new PointF(recBounds.Right, recBounds.Top);
+                pt[2] = new PointF(recBounds.Right, recBounds.Bottom - 3);
+                pt[3] = new PointF(recBounds.Right - 3, recBounds.Bottom);
+                pt[4] = new PointF(recBounds.Left + 3, recBounds.Bottom);
+                pt[5] = new PointF(recBounds.Left, recBounds.Bottom - 3);
+                pt[6] = new PointF(recBounds.Left, recBounds.Top);
             }
 
             //----------------------------
@@ -95,18 +96,17 @@ namespace Controls
             //----------------------------
             // draw tab's icon
             if ((tabPage.ImageIndex >= 0) && (ImageList != null) &&
-                       (ImageList.Images[tabPage.ImageIndex] != null))
+                (ImageList.Images[tabPage.ImageIndex] != null))
             {
                 int nLeftMargin = 8;
                 int nRightMargin = 2;
 
-                Image img = ImageList.Images[tabPage.ImageIndex];
+                var img = ImageList.Images[tabPage.ImageIndex];
 
-                Rectangle rimage = new Rectangle(recBounds.X + nLeftMargin,
-                                    recBounds.Y + 1, img.Width, img.Height);
+                var rimage = new Rectangle(recBounds.X + nLeftMargin, recBounds.Y + 1, img.Width, img.Height);
 
                 // adjust rectangles
-                float nAdj = (float)(nLeftMargin + img.Width + nRightMargin);
+                var nAdj = (float)(nLeftMargin + img.Width + nRightMargin);
 
                 rimage.Y += (recBounds.Height - img.Height) / 2;
                 tabTextArea.X += nAdj;

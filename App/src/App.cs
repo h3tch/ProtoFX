@@ -40,7 +40,10 @@ namespace App
             settings.PlaceOnScreen(this);
             // place splitters
             settings.AdjustGUI(this);
-            
+
+            ConvertExtensions.str2type.Keys.ForEach(x => comboBufType.Items.Add(x));
+            comboBufType.SelectedIndex = ConvertExtensions.str2type.Keys.IndexOf(x => x == "float");
+
             // LINK PROPERTY VIEWER TO DEBUG SETTINGS
 
             FxDebugger.Instantiate();
