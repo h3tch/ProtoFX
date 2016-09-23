@@ -194,6 +194,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="logo.ico" />
     <Content Include="resources\logo.ico" />
     <Content Include="resources\Normalize.png" />
     <None Include="resources\logo.png" />

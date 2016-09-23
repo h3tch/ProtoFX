@@ -87,30 +87,17 @@ namespace App
             // delete OpenGL objects
             glControl.ClearScene();
 
-            // save current window state
-            
-            // do not save window in a minimized state
-            if (WindowState == Minimized)
-                WindowState = Normal;
+            // SAVE CURRENT WINDOW STATE
 
             // get current window state
             var settings = new FormSettings
             {
-                Left = Left, Top = Top, Width = Width, Height = Height, WindowState = WindowState,
+                Left = Left, Top = Top, Width = Width, Height = Height, BorderStyle = FormBorderStyle,
+                Location = FormLocation, Size = FormSize,
                 SplitRenderCoding = (float)splitRenderCoding.SplitterDistance / splitRenderCoding.Width,
                 SplitRenderOutput = (float)splitRenderOutput.SplitterDistance / splitRenderOutput.Height,
                 SplitDebug = (float)splitDebug.SplitterDistance / splitDebug.Width,
             };
-
-            // if the state is not normal, make it normal
-            if (WindowState != Normal)
-            {
-                WindowState = Normal;
-                settings.Left = Left;
-                settings.Top = Top;
-                settings.Width = Width;
-                settings.Height = Height;
-            }
 
             // save to file
             XmlSerializer.Save(settings, Properties.Resources.WINDOW_SETTINGS_FILE);
@@ -185,9 +172,13 @@ namespace App
         /// <param name="e"></param>
         private void btnWindowMaximize_Click(object s, EventArgs e)
         {
-            WindowState = WindowState == Maximized ? Normal : Maximized;
+            FormBorderStyle = FormBorderStyle == FormBorderStyle.None
+                ? FormBorderStyle.FixedSingle : FormBorderStyle.None;
+            UpdateWindowState();
             UpdateBtnWindowMaximizeButtonImage();
         }
+        private Point FormLocation;
+        private Size FormSize;
 
         /// <summary>
         /// By holding down the left mouse button, the user can move the window.
@@ -221,7 +212,7 @@ namespace App
             const uint WM_NCHITTEST = 0x0084;
             const uint WM_MOUSEMOVE = 0x0200;
             
-            if ((m.Msg == WM_NCHITTEST || m.Msg == WM_MOUSEMOVE) && WindowState != Maximized)
+            if ((m.Msg == WM_NCHITTEST || m.Msg == WM_MOUSEMOVE) && FormBorderStyle == FormBorderStyle.FixedSingle)
             {
                 // update resize boxes of the form
                 ResizeBoxes[d + HTLEFT]       .Height = Size.Height - HANDLE_SIZE * 2;
@@ -254,14 +245,32 @@ namespace App
             base.WndProc(ref m);
         }
 
+        private void UpdateWindowState()
+        {
+            if (FormBorderStyle == FormBorderStyle.None)
+            {
+                FormLocation = Location;
+                FormSize = Size;
+                Location = Screen.PrimaryScreen.WorkingArea.Location;
+                Size = Screen.PrimaryScreen.WorkingArea.Size;
+                Padding = new Padding(0);
+            }
+            else
+            {
+                Padding = new Padding(3);
+                Location = FormLocation;
+                Size = FormSize;
+            }
+        }
+
         /// <summary>
         /// Update the maximize button image based on the current window state.
         /// </summary>
         private void UpdateBtnWindowMaximizeButtonImage()
         {
-            btnWindowMaximize.Image = WindowState == Maximized
-                ? Properties.Resources.Normalize
-                : Properties.Resources.Maximize;
+            btnWindowMaximize.Image = FormBorderStyle == FormBorderStyle.FixedSingle
+                ? Properties.Resources.Maximize
+                : Properties.Resources.Normalize;
         }
 
         #region CONSTANT FIELDS
@@ -688,7 +697,9 @@ namespace App
         public struct FormSettings
         {
             public int Left, Top, Width, Height;
-            public FormWindowState WindowState;
+            public FormBorderStyle BorderStyle;
+            public Point Location;
+            public Size Size;
             public float SplitRenderCoding;
             public float SplitRenderOutput;
             public float SplitDebug;
@@ -696,14 +707,21 @@ namespace App
             /// <summary>
             /// Default constructor.
             /// </summary>
-            /// <param name="form"></param>
-            public FormSettings(Form form)
+            /// <param name="app"></param>
+            public FormSettings(App app)
             {
-                Left = form.Left;
-                Top = form.Top;
-                Width = form.Width;
-                Height = form.Height;
-                WindowState = form.WindowState;
+                Left = app.Left;
+                Top = app.Top;
+                Width = app.Width;
+                Height = app.Height;
+                Location = app.FormLocation;
+                Size = app.FormSize;
+                if (Size.Width == 0 || Size.Height == 0)
+                {
+                    Size.Width = Width;
+                    Size.Height = Height;
+                }
+                BorderStyle = app.FormBorderStyle;
                 SplitRenderCoding = 0.4f;
                 SplitRenderOutput = 0.7f;
                 SplitDebug = 0.55f;
@@ -744,13 +762,16 @@ namespace App
                 Top = Y;
                 Width = W;
                 Height = H;
-                
+
                 // update window
                 app.Left = Math.Max(0, Left);
                 app.Top = Math.Max(0, Top);
                 app.Width = Width;
                 app.Height = Height;
-                app.WindowState = WindowState;
+                app.FormLocation = Location;
+                app.FormSize = Size;
+                app.FormBorderStyle = BorderStyle;
+                app.UpdateWindowState();
                 app.UpdateBtnWindowMaximizeButtonImage();
             }
 

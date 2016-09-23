@@ -62,45 +62,24 @@ namespace System.Windows.Forms
         internal PointF[] pt = Enumerable.Repeat(new PointF(), 7).ToArray();
         internal void DrawTab(Graphics g, TabPage tabPage, int nIndex)
         {
-            Rectangle recBounds = GetTabRect(nIndex);
-            RectangleF tabTextArea = recBounds;
-            var cursor = PointToClient(Cursor.Position);
+            Rectangle tabRect = GetTabRect(nIndex);
+            RectangleF tabTextRect = tabRect;
 
-            if (SelectedIndex == nIndex || recBounds.Contains(cursor.X, cursor.Y))
+            if (SelectedIndex == nIndex)
             {
                 if (Alignment == TabAlignment.Top)
                 {
-                    pt[0].X = recBounds.Left;
-                    pt[0].Y = recBounds.Bottom;
-                    pt[1].X = recBounds.Left;
-                    pt[1].Y = recBounds.Top + 3;
-                    pt[2].X = recBounds.Left + 3;
-                    pt[2].Y = recBounds.Top;
-                    pt[3].X = recBounds.Right - 3;
-                    pt[3].Y = recBounds.Top;
-                    pt[4].X = recBounds.Right;
-                    pt[4].Y = recBounds.Top + 3;
-                    pt[5].X = recBounds.Right;
-                    pt[5].Y = recBounds.Bottom;
-                    pt[6].X = recBounds.Left;
-                    pt[6].Y = recBounds.Bottom;
+                    pt[2].X = 3 + (pt[0].X = pt[1].X = pt[6].X = tabRect.Left);
+                    pt[3].X =-3 + (pt[4].X = pt[5].X = tabRect.Right);
+                    pt[1].Y = pt[4].Y = 3 + (pt[2].Y = pt[3].Y = tabRect.Top);
+                    pt[0].Y = pt[5].Y = pt[6].Y = tabRect.Bottom;
                 }
                 else
                 {
-                    pt[0].X = recBounds.Left;
-                    pt[0].Y = recBounds.Top;
-                    pt[1].X = recBounds.Right;
-                    pt[1].Y = recBounds.Top;
-                    pt[2].X = recBounds.Right;
-                    pt[2].Y = recBounds.Bottom - 3;
-                    pt[3].X = recBounds.Right - 3;
-                    pt[3].Y = recBounds.Bottom;
-                    pt[4].X = recBounds.Left + 3;
-                    pt[4].Y = recBounds.Bottom;
-                    pt[5].X = recBounds.Left;
-                    pt[5].Y = recBounds.Bottom - 3;
-                    pt[6].X = recBounds.Left;
-                    pt[6].Y = recBounds.Top;
+                    pt[4].X = 3 + (pt[0].X = pt[5].X = pt[6].X = tabRect.Left);
+                    pt[3].X =-3 + (pt[1].X = pt[2].X = tabRect.Right);
+                    pt[0].Y = pt[1].Y = pt[6].Y = tabRect.Top;
+                    pt[2].Y = pt[5].Y =- 3 + (pt[3].Y = pt[4].Y = tabRect.Bottom);
                 }
 
                 // fill this tab with background color
@@ -108,29 +87,27 @@ namespace System.Windows.Forms
             }
             
             // draw tab icon
-            if ((tabPage.ImageIndex >= 0) && (ImageList != null) &&
-                (ImageList.Images[tabPage.ImageIndex] != null))
+            if (tabPage.ImageIndex >= 0 && ImageList != null &&
+                ImageList.Images[tabPage.ImageIndex] != null)
             {
-                int nLeftMargin = 8;
-                int nRightMargin = 2;
+                int marginL = 8, marginR = 2;
 
                 var img = ImageList.Images[tabPage.ImageIndex];
-
-                var rimage = new Rectangle(recBounds.X + nLeftMargin, recBounds.Y + 1, img.Width, img.Height);
+                var imgRect = new Rectangle(tabRect.X + marginL, tabRect.Y + 1, img.Width, img.Height);
 
                 // adjust rectangles
-                var nAdj = (float)(nLeftMargin + img.Width + nRightMargin);
+                var nAdj = (float)(marginL + img.Width + marginR);
 
-                rimage.Y += (recBounds.Height - img.Height) / 2;
-                tabTextArea.X += nAdj;
-                tabTextArea.Width -= nAdj;
+                imgRect.Y += (tabRect.Height - img.Height) / 2;
+                tabTextRect.X += nAdj;
+                tabTextRect.Width -= nAdj;
 
                 // draw icon
-                g.DrawImage(img, rimage);
+                g.DrawImage(img, imgRect);
             }
             
             // draw string
-            g.DrawString(tabPage.Text, Font, ForeBrush, tabTextArea, textFormat);
+            g.DrawString(tabPage.Text, Font, ForeBrush, tabTextRect, textFormat);
         }
     }
 }
