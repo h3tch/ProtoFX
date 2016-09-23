@@ -7,8 +7,8 @@
         public TabPageEx(string filepath) : base()
         {
             this.filepath = filepath;
-            BackColor = App.Theme.BackColor;
-            ForeColor = App.Theme.ForeColor;
+            BackColor = Theme.BackColor;
+            ForeColor = Theme.ForeColor;
         }
     }
     

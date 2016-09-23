@@ -1,13 +1,12 @@
 ﻿using ScintillaNET;
 using System;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace App
 {
     partial class CodeEditor
     {
-        public static Color TextForeColor = Color.LightGray;
-        public static Color TextBackColor = ColorTranslator.FromHtml("#FF1e1e1e");
         private static Lexer.ILexer FxLexer = new Lexer.FxLexer();
 
         /// <summary>
@@ -22,10 +21,10 @@ namespace App
             Styles[Style.Default].Size = 10;
             StyleClearAll();
 
-            Styles[Style.Default].ForeColor = TextForeColor;
-            Styles[Style.Default].BackColor = TextBackColor;
-            Styles[Style.LineNumber].ForeColor = Color.Gray;
-            Styles[Style.LineNumber].BackColor = Color.FromArgb(255, 51, 51, 51);
+            Styles[Style.Default].ForeColor = Theme.ForeColor;
+            Styles[Style.Default].BackColor = Theme.Workspace;
+            Styles[Style.LineNumber].ForeColor = Theme.HighlightBackColor;
+            Styles[Style.LineNumber].BackColor = Theme.BackColor;
 
             // set styles as defined in the keyword file
             foreach (var style in FxLexer.Styles)

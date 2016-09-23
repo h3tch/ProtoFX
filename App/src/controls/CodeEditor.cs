@@ -71,6 +71,8 @@ namespace App
             Margins[2].Mask = Marker.MaskFolders;
             Margins[2].Sensitive = true;
             Margins[2].Width = 20;
+
+            CallTipSetForeHlt(Theme.ForeColor);
             
             SetFoldMarginColor(true, Theme.Workspace);
             SetFoldMarginHighlightColor(true, Theme.Workspace);

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 using System.Xml;
 using SciStyle = ScintillaNET.Style;
 
@@ -93,9 +94,7 @@ namespace App.Lexer
             // allocate arrays for styles
             styles = Enumerable.Range(firstStyle, styleCount)
                 .Select(x => new Style {
-                    id = x,
-                    fore = CodeEditor.TextForeColor,
-                    back = CodeEditor.TextBackColor
+                    id = x, fore = Theme.ForeColor, back = Theme.Workspace
                 }).ToArray();
             keywords = new Trie<Keyword>[styleCount];
 

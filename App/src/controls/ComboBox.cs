@@ -11,9 +11,11 @@ namespace System.Windows.Forms
     public class ComboBoxEx : ListControl
     {
         #region Variables
+        #pragma warning disable 0414
         private bool hovered = false;
         private bool pressed = false;
         private bool resize = false;
+        #pragma warning restore 0414
 
         private Color _forecolor = Color.DarkGray;
         private Color _backcolor = Color.FromArgb(255, 51, 51, 51);
@@ -303,14 +305,14 @@ namespace System.Windows.Forms
         #region Overrides
         protected override void OnDataSourceChanged(EventArgs e)
         {
-            this.SelectedIndex = 0;
+            SelectedIndex = 0;
             base.OnDataSourceChanged(e);
         }
 
         protected override void OnDisplayMemberChanged(EventArgs e)
         {
-            _listBox.DisplayMember = this.DisplayMember;
-            this.SelectedIndex = this.SelectedIndex;
+            _listBox.DisplayMember = DisplayMember;
+            SelectedIndex = SelectedIndex;
             base.OnDisplayMemberChanged(e);
         }
 
@@ -322,34 +324,31 @@ namespace System.Windows.Forms
 
         protected override void OnForeColorChanged(EventArgs e)
         {
-            _textBox.ForeColor = this.ForeColor;
+            _textBox.ForeColor = ForeColor;
             base.OnForeColorChanged(e);
         }
 
         protected override void OnFormatInfoChanged(EventArgs e)
         {
-            _listBox.FormatInfo = this.FormatInfo;
+            _listBox.FormatInfo = FormatInfo;
             base.OnFormatInfoChanged(e);
         }
 
         protected override void OnFormatStringChanged(EventArgs e)
         {
-            _listBox.FormatString = this.FormatString;
+            _listBox.FormatString = FormatString;
             base.OnFormatStringChanged(e);
         }
 
         protected override void OnFormattingEnabledChanged(EventArgs e)
         {
-            _listBox.FormattingEnabled = this.FormattingEnabled;
+            _listBox.FormattingEnabled = FormattingEnabled;
             base.OnFormattingEnabledChanged(e);
         }
 
         public override Font Font
         {
-            get
-            {
-                return base.Font;
-            }
+            get { return base.Font; }
             set
             {
                 resize = true;
@@ -372,13 +371,13 @@ namespace System.Windows.Forms
         protected override void OnMouseEnter(EventArgs e)
         {
             hovered = true;
-            this.Invalidate(true);
+            Invalidate(true);
             base.OnMouseEnter(e);
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
-            if (!this.RectangleToScreen(this.ClientRectangle).Contains(MousePosition))
+            if (!RectangleToScreen(ClientRectangle).Contains(MousePosition))
             {
                 hovered = false;
                 Invalidate(true);
@@ -390,39 +389,30 @@ namespace System.Windows.Forms
         protected override void OnMouseDown(MouseEventArgs e)
         {
             _textBox.Focus();
-            if ((this.RectangleToScreen(rectBtn).Contains(MousePosition) || (DropDownStyle == ComboBoxStyle.DropDownList)))
+            if ((RectangleToScreen(rectBtn).Contains(MousePosition) ||
+                (DropDownStyle == ComboBoxStyle.DropDownList)))
             {
                 pressed = true;
-                this.Invalidate(true);
-                if (this.IsDroppedDown) 
-                {
-                    this.IsDroppedDown = false;
-                }
-                this.IsDroppedDown = true;
+                Invalidate(true);
+                if (IsDroppedDown) 
+                    IsDroppedDown = false;
+                IsDroppedDown = true;
             }
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
             pressed = false;
-
-            if (! this.RectangleToScreen(this.ClientRectangle).Contains(MousePosition) )
-                hovered = false;
-            else
-                hovered = true;
-
+            hovered = RectangleToScreen(ClientRectangle).Contains(MousePosition);
             Invalidate();
         }
 
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             if (e.Delta < 0)
-                this.SelectedIndex = this.SelectedIndex + 1;
-            else if (e.Delta > 0)
-            {
-                if (this.SelectedIndex > 0)
-                    this.SelectedIndex = this.SelectedIndex - 1;
-            }
+                SelectedIndex = SelectedIndex + 1;
+            else if (e.Delta > 0 && SelectedIndex > 0)
+                SelectedIndex = SelectedIndex - 1;
 
             base.OnMouseWheel(e);
         }
@@ -435,26 +425,22 @@ namespace System.Windows.Forms
 
         protected override void OnLostFocus(EventArgs e)
         {
-            if (!this.ContainsFocus)
-            {
+            if (!ContainsFocus)
                 Invalidate();
-            }
 
             base.OnLostFocus(e);
         }
 
         protected override void OnSelectedIndexChanged(EventArgs e)
         {
-            if(SelectedIndexChanged!=null)
-                SelectedIndexChanged(this, e);
-
+            SelectedIndexChanged?.Invoke(this, e);
             base.OnSelectedIndexChanged(e);
         }
 
         protected override void OnValueMemberChanged(EventArgs e)
         {
-            _listBox.ValueMember = this.ValueMember;
-            this.SelectedIndex = this.SelectedIndex;
+            _listBox.ValueMember = ValueMember;
+            SelectedIndex = SelectedIndex;
             base.OnValueMemberChanged(e);
         }
 
@@ -462,25 +448,18 @@ namespace System.Windows.Forms
         {
             if (resize)
             {
-
                 resize = false;
                 AdjustControls();
-
-                Invalidate(true);
             }
-            else
-                Invalidate(true);
+            Invalidate(true);
 
             if (DesignMode)
-                _dropDownWidth = this.Width;
+                _dropDownWidth = Width;
         }
 
         public override string Text
         {
-            get
-            {
-                return _textBox.Text;
-            }
+            get { return _textBox.Text; }
             set
             {
                 _textBox.Text = value;
@@ -541,14 +520,11 @@ namespace System.Windows.Forms
             //draw
             e.Graphics.FillPath(brBackground, pathContentBorder);
             if (DropDownStyle != ComboBoxStyle.DropDownList)
-            {
                 e.Graphics.FillPath(brButton, pathBtnBorder);
-            }
             e.Graphics.DrawPath(penOuterBorder, pathOuterBorder);
 
             e.Graphics.DrawLine(penLeftButton, rectBtn.Left + 1, rectInner.Top+1, rectBtn.Left + 1, rectInner.Bottom-1);
             
-
             //Glimph
             Rectangle rectGlimph = rectButton;
             rectButton.Width -= 4;
@@ -568,8 +544,7 @@ namespace System.Windows.Forms
             e.Graphics.ResetTransform();
             br.Dispose();
             path.Dispose();
-
-
+            
             //text
             if (DropDownStyle == ComboBoxStyle.DropDownList)
             {
@@ -581,16 +556,12 @@ namespace System.Windows.Forms
 
                 SolidBrush foreBrush = new SolidBrush(ForeColor);
                 if (Enabled)
-                {
                     e.Graphics.DrawString(_textBox.Text, this.Font, foreBrush, rectText.Location);
-                }
                 else
-                {
                     ControlPaint.DrawStringDisabled(e.Graphics, _textBox.Text, Font, BackColor, rectText, sf);
-                }
             }
-
-
+            
+            // dispose brushes and pens
             pathContentBorder.Dispose();
             pathOuterBorder.Dispose();
             pathInnerBorder.Dispose();
@@ -604,7 +575,6 @@ namespace System.Windows.Forms
             brButtonLeft.Dispose();
             brButton.Dispose();
         }
-
         #endregion
         
         #region ListControlOverrides
@@ -675,33 +645,16 @@ namespace System.Windows.Forms
         #endregion
         
         #region NestedControlsEvents
+        void Control_LostFocus(object sender, EventArgs e) => OnLostFocus(e);
 
-        void Control_LostFocus(object sender, EventArgs e)
-        {
-            OnLostFocus(e);
-        }
+        void Control_GotFocus(object sender, EventArgs e) => OnGotFocus(e);
 
-        void Control_GotFocus(object sender, EventArgs e)
-        {
-            OnGotFocus(e);
-        }
+        void Control_MouseLeave(object sender, EventArgs e) => OnMouseLeave(e);
 
-        void Control_MouseLeave(object sender, EventArgs e)
-        {
-            OnMouseLeave(e);
-        }
+        void Control_MouseEnter(object sender, EventArgs e) => OnMouseEnter(e);
 
-        void Control_MouseEnter(object sender, EventArgs e)
-        {
-            OnMouseEnter(e);
-        }
-
-        void Control_MouseDown(object sender, MouseEventArgs e)
-        {
-            OnMouseDown(e);
-        }
-
-
+        void Control_MouseDown(object sender, MouseEventArgs e) => OnMouseDown(e);
+        
         void _listBox_MouseMove(object sender, MouseEventArgs e)
         {
             int i;
@@ -717,22 +670,13 @@ namespace System.Windows.Forms
 
         void _listBox_MouseClick(object sender, MouseEventArgs e)
         {
-            if (_listBox.Items.Count == 0)
-            {
+            if (_listBox.Items.Count == 0 || _listBox.SelectedItems.Count != 1)
                 return;
-            }
 
-            if (_listBox.SelectedItems.Count != 1)
-            {
-                return;
-            }
-
-            this.SelectedIndex = _listBox.SelectedIndex;
+            SelectedIndex = _listBox.SelectedIndex;
 
             if (DropDownStyle == ComboBoxStyle.DropDownList)
-            {
-                this.Invalidate(true);
-            }
+                Invalidate(true);
 
             IsDroppedDown = false;
         }
@@ -740,20 +684,12 @@ namespace System.Windows.Forms
         void _listBox_DrawItem(object sender, DrawItemEventArgs e)
         {
             if (e.Index >= 0)
-            {
-                if (DrawItem != null)
-                {
-                    DrawItem(this, e);
-                }
-            }
+                DrawItem?.Invoke(this, e);
         }
 
         void _listBox_MeasureItem(object sender, MeasureItemEventArgs e)
         {
-            if (MeasureItem != null)
-            {
-                MeasureItem(this, e);
-            }
+            MeasureItem?.Invoke(this, e);
         }
 
 
@@ -761,27 +697,16 @@ namespace System.Windows.Forms
         {
             _isDroppedDown = false;
             pressed = false;
-            if (!this.RectangleToScreen(this.ClientRectangle).Contains(MousePosition))
-            {
+            if (!RectangleToScreen(ClientRectangle).Contains(MousePosition))
                 hovered = false;
-            }
             Invalidate(true);
         }
-
-
-
-        void _textBox_Resize(object sender, EventArgs e)
-        {
-            this.AdjustControls();
-        }
-
-        void _textBox_TextChanged(object sender, EventArgs e)
-        {
-            OnTextChanged(e);
-        }
-
-        #endregion
         
+        void _textBox_Resize(object sender, EventArgs e) => AdjustControls();
+
+        void _textBox_TextChanged(object sender, EventArgs e) => OnTextChanged(e);
+        #endregion
+
         #region PrivateMethods
 
         private void AdjustControls()
