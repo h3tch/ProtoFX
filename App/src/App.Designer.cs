@@ -145,22 +145,23 @@
             this.layoutMain.Controls.Add(this.tableLayoutTitleBar, 0, 0);
             this.layoutMain.Controls.Add(this.splitRenderCoding, 0, 1);
             this.layoutMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.layoutMain.Location = new System.Drawing.Point(3, 3);
+            this.layoutMain.Location = new System.Drawing.Point(4, 5);
+            this.layoutMain.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.layoutMain.Name = "layoutMain";
             this.layoutMain.RowCount = 2;
-            this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
+            this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34F));
             this.layoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.layoutMain.Size = new System.Drawing.Size(977, 514);
+            this.layoutMain.Size = new System.Drawing.Size(1466, 790);
             this.layoutMain.TabIndex = 1;
             // 
             // tableLayoutTitleBar
             // 
             this.tableLayoutTitleBar.ColumnCount = 5;
-            this.tableLayoutTitleBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 34F));
+            this.tableLayoutTitleBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 51F));
             this.tableLayoutTitleBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutTitleBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 34F));
-            this.tableLayoutTitleBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 34F));
-            this.tableLayoutTitleBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 34F));
+            this.tableLayoutTitleBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 51F));
+            this.tableLayoutTitleBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 51F));
+            this.tableLayoutTitleBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 51F));
             this.tableLayoutTitleBar.Controls.Add(this.btnWindowClose, 4, 0);
             this.tableLayoutTitleBar.Controls.Add(this.labelTitle, 1, 0);
             this.tableLayoutTitleBar.Controls.Add(this.btnWindowMinimize, 2, 0);
@@ -172,7 +173,7 @@
             this.tableLayoutTitleBar.Name = "tableLayoutTitleBar";
             this.tableLayoutTitleBar.RowCount = 1;
             this.tableLayoutTitleBar.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutTitleBar.Size = new System.Drawing.Size(977, 22);
+            this.tableLayoutTitleBar.Size = new System.Drawing.Size(1466, 34);
             this.tableLayoutTitleBar.TabIndex = 1;
             this.tableLayoutTitleBar.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TitleBar_MouseDown);
             this.tableLayoutTitleBar.MouseMove += new System.Windows.Forms.MouseEventHandler(this.TitleBar_MouseMove);
@@ -184,10 +185,10 @@
             this.btnWindowClose.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
             this.btnWindowClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnWindowClose.Image = global::App.Properties.Resources.Close;
-            this.btnWindowClose.Location = new System.Drawing.Point(946, 0);
+            this.btnWindowClose.Location = new System.Drawing.Point(1420, 0);
             this.btnWindowClose.Margin = new System.Windows.Forms.Padding(0);
             this.btnWindowClose.Name = "btnWindowClose";
-            this.btnWindowClose.Size = new System.Drawing.Size(31, 36);
+            this.btnWindowClose.Size = new System.Drawing.Size(46, 55);
             this.btnWindowClose.TabIndex = 2;
             this.btnWindowClose.UseVisualStyleBackColor = true;
             this.btnWindowClose.Click += new System.EventHandler(this.btnWindowClose_Click);
@@ -197,7 +198,7 @@
             this.labelTitle.AutoSize = true;
             this.labelTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 26F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
             this.labelTitle.ForeColor = System.Drawing.Color.Gray;
-            this.labelTitle.Location = new System.Drawing.Point(34, 0);
+            this.labelTitle.Location = new System.Drawing.Point(51, 0);
             this.labelTitle.Margin = new System.Windows.Forms.Padding(0);
             this.labelTitle.Name = "labelTitle";
             this.labelTitle.Size = new System.Drawing.Size(107, 36);
@@ -212,10 +213,10 @@
             this.btnWindowMinimize.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.btnWindowMinimize.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnWindowMinimize.Image = global::App.Properties.Resources.Minimize;
-            this.btnWindowMinimize.Location = new System.Drawing.Point(878, 0);
+            this.btnWindowMinimize.Location = new System.Drawing.Point(1318, 0);
             this.btnWindowMinimize.Margin = new System.Windows.Forms.Padding(0);
             this.btnWindowMinimize.Name = "btnWindowMinimize";
-            this.btnWindowMinimize.Size = new System.Drawing.Size(31, 36);
+            this.btnWindowMinimize.Size = new System.Drawing.Size(46, 55);
             this.btnWindowMinimize.TabIndex = 0;
             this.btnWindowMinimize.UseVisualStyleBackColor = true;
             this.btnWindowMinimize.Click += new System.EventHandler(this.btnWindowMinimize_Click);
@@ -227,10 +228,10 @@
             this.btnWindowMaximize.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.btnWindowMaximize.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnWindowMaximize.Image = global::App.Properties.Resources.Maximize;
-            this.btnWindowMaximize.Location = new System.Drawing.Point(912, 0);
+            this.btnWindowMaximize.Location = new System.Drawing.Point(1369, 0);
             this.btnWindowMaximize.Margin = new System.Windows.Forms.Padding(0);
             this.btnWindowMaximize.Name = "btnWindowMaximize";
-            this.btnWindowMaximize.Size = new System.Drawing.Size(31, 36);
+            this.btnWindowMaximize.Size = new System.Drawing.Size(46, 55);
             this.btnWindowMaximize.TabIndex = 1;
             this.btnWindowMaximize.UseVisualStyleBackColor = true;
             this.btnWindowMaximize.Click += new System.EventHandler(this.btnWindowMaximize_Click);
@@ -241,14 +242,14 @@
             this.imgAppIcon.Location = new System.Drawing.Point(0, 0);
             this.imgAppIcon.Margin = new System.Windows.Forms.Padding(0);
             this.imgAppIcon.Name = "imgAppIcon";
-            this.imgAppIcon.Size = new System.Drawing.Size(31, 31);
+            this.imgAppIcon.Size = new System.Drawing.Size(46, 48);
             this.imgAppIcon.TabIndex = 3;
             this.imgAppIcon.TabStop = false;
             // 
             // splitRenderCoding
             // 
             this.splitRenderCoding.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitRenderCoding.Location = new System.Drawing.Point(0, 22);
+            this.splitRenderCoding.Location = new System.Drawing.Point(0, 34);
             this.splitRenderCoding.Margin = new System.Windows.Forms.Padding(0);
             this.splitRenderCoding.Name = "splitRenderCoding";
             // 
@@ -259,8 +260,9 @@
             // splitRenderCoding.Panel2
             // 
             this.splitRenderCoding.Panel2.Controls.Add(this.tabControl);
-            this.splitRenderCoding.Size = new System.Drawing.Size(977, 492);
-            this.splitRenderCoding.SplitterDistance = 500;
+            this.splitRenderCoding.Size = new System.Drawing.Size(1466, 756);
+            this.splitRenderCoding.SplitterDistance = 750;
+            this.splitRenderCoding.SplitterWidth = 6;
             this.splitRenderCoding.TabIndex = 0;
             // 
             // splitRenderOutput
@@ -278,9 +280,9 @@
             // splitRenderOutput.Panel2
             // 
             this.splitRenderOutput.Panel2.Controls.Add(this.tabOutput);
-            this.splitRenderOutput.Size = new System.Drawing.Size(500, 492);
-            this.splitRenderOutput.SplitterDistance = 324;
-            this.splitRenderOutput.SplitterWidth = 3;
+            this.splitRenderOutput.Size = new System.Drawing.Size(750, 756);
+            this.splitRenderOutput.SplitterDistance = 497;
+            this.splitRenderOutput.SplitterWidth = 5;
             this.splitRenderOutput.TabIndex = 1;
             // 
             // glControl
@@ -288,9 +290,9 @@
             this.glControl.BackColor = System.Drawing.Color.Black;
             this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.glControl.Location = new System.Drawing.Point(0, 0);
-            this.glControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.glControl.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
             this.glControl.Name = "glControl";
-            this.glControl.Size = new System.Drawing.Size(500, 324);
+            this.glControl.Size = new System.Drawing.Size(750, 497);
             this.glControl.TabIndex = 0;
             this.glControl.VSync = false;
             this.glControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseUp);
@@ -301,12 +303,14 @@
             this.tabOutput.Controls.Add(this.tabCompile);
             this.tabOutput.Controls.Add(this.tabDebugger);
             this.tabOutput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabOutput.HighlightForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
             this.tabOutput.Location = new System.Drawing.Point(0, 0);
             this.tabOutput.Margin = new System.Windows.Forms.Padding(0);
             this.tabOutput.Name = "tabOutput";
             this.tabOutput.SelectedIndex = 0;
-            this.tabOutput.Size = new System.Drawing.Size(500, 165);
+            this.tabOutput.Size = new System.Drawing.Size(750, 254);
             this.tabOutput.TabIndex = 1;
+            this.tabOutput.WorkspaceColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             // 
             // tabCompile
             // 
@@ -316,8 +320,8 @@
             this.tabCompile.Location = new System.Drawing.Point(4, 4);
             this.tabCompile.Margin = new System.Windows.Forms.Padding(0);
             this.tabCompile.Name = "tabCompile";
-            this.tabCompile.Padding = new System.Windows.Forms.Padding(2);
-            this.tabCompile.Size = new System.Drawing.Size(492, 136);
+            this.tabCompile.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabCompile.Size = new System.Drawing.Size(742, 221);
             this.tabCompile.TabIndex = 0;
             this.tabCompile.Text = "Compiler Output";
             // 
@@ -355,7 +359,7 @@
             this.output.Dock = System.Windows.Forms.DockStyle.Fill;
             this.output.EnableHeadersVisualStyles = false;
             this.output.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
-            this.output.Location = new System.Drawing.Point(2, 2);
+            this.output.Location = new System.Drawing.Point(3, 3);
             this.output.Margin = new System.Windows.Forms.Padding(0);
             this.output.Name = "output";
             this.output.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
@@ -369,7 +373,7 @@
             this.output.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.output.RowHeadersVisible = false;
             this.output.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.output.Size = new System.Drawing.Size(488, 132);
+            this.output.Size = new System.Drawing.Size(736, 215);
             this.output.TabIndex = 1;
             this.output.DoubleClick += new System.EventHandler(this.output_DoubleClick);
             // 
@@ -404,15 +408,15 @@
             this.tabDebugger.Location = new System.Drawing.Point(4, 4);
             this.tabDebugger.Margin = new System.Windows.Forms.Padding(0);
             this.tabDebugger.Name = "tabDebugger";
-            this.tabDebugger.Padding = new System.Windows.Forms.Padding(2);
-            this.tabDebugger.Size = new System.Drawing.Size(492, 136);
+            this.tabDebugger.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabDebugger.Size = new System.Drawing.Size(742, 221);
             this.tabDebugger.TabIndex = 1;
             this.tabDebugger.Text = "Debug Variables";
             // 
             // splitDebug
             // 
             this.splitDebug.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitDebug.Location = new System.Drawing.Point(2, 2);
+            this.splitDebug.Location = new System.Drawing.Point(3, 3);
             this.splitDebug.Margin = new System.Windows.Forms.Padding(0);
             this.splitDebug.Name = "splitDebug";
             // 
@@ -423,8 +427,9 @@
             // splitDebug.Panel2
             // 
             this.splitDebug.Panel2.Controls.Add(this.debugProperty);
-            this.splitDebug.Size = new System.Drawing.Size(488, 132);
-            this.splitDebug.SplitterDistance = 266;
+            this.splitDebug.Size = new System.Drawing.Size(736, 215);
+            this.splitDebug.SplitterDistance = 401;
+            this.splitDebug.SplitterWidth = 6;
             this.splitDebug.TabIndex = 0;
             // 
             // debugListView
@@ -435,7 +440,7 @@
             this.debugListView.Location = new System.Drawing.Point(0, 0);
             this.debugListView.Margin = new System.Windows.Forms.Padding(0);
             this.debugListView.Name = "debugListView";
-            this.debugListView.Size = new System.Drawing.Size(266, 132);
+            this.debugListView.Size = new System.Drawing.Size(401, 215);
             this.debugListView.TabIndex = 0;
             this.debugListView.UseCompatibleStateImageBehavior = false;
             // 
@@ -455,7 +460,7 @@
             this.debugProperty.Name = "debugProperty";
             this.debugProperty.PropertySort = System.Windows.Forms.PropertySort.Categorized;
             this.debugProperty.SelectedItemWithFocusForeColor = System.Drawing.Color.LightGray;
-            this.debugProperty.Size = new System.Drawing.Size(218, 132);
+            this.debugProperty.Size = new System.Drawing.Size(329, 215);
             this.debugProperty.TabIndex = 1;
             this.debugProperty.ToolbarVisible = false;
             this.debugProperty.ViewBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
@@ -471,23 +476,25 @@
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
             this.tabControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabControl.HighlightForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
             this.tabControl.Location = new System.Drawing.Point(0, 0);
             this.tabControl.Margin = new System.Windows.Forms.Padding(0);
             this.tabControl.Name = "tabControl";
             this.tabControl.Padding = new System.Drawing.Point(0, 0);
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(473, 492);
+            this.tabControl.Size = new System.Drawing.Size(710, 756);
             this.tabControl.TabIndex = 1;
+            this.tabControl.WorkspaceColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             // 
             // tabCode
             // 
             this.tabCode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.tabCode.Controls.Add(this.tabCodeTableLayout);
             this.tabCode.ForeColor = System.Drawing.Color.DarkGray;
-            this.tabCode.Location = new System.Drawing.Point(4, 25);
+            this.tabCode.Location = new System.Drawing.Point(4, 29);
             this.tabCode.Margin = new System.Windows.Forms.Padding(0);
             this.tabCode.Name = "tabCode";
-            this.tabCode.Size = new System.Drawing.Size(465, 463);
+            this.tabCode.Size = new System.Drawing.Size(702, 723);
             this.tabCode.TabIndex = 0;
             this.tabCode.Text = "Code";
             // 
@@ -502,8 +509,8 @@
             this.tabCodeTableLayout.Name = "tabCodeTableLayout";
             this.tabCodeTableLayout.RowCount = 1;
             this.tabCodeTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tabCodeTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 463F));
-            this.tabCodeTableLayout.Size = new System.Drawing.Size(465, 463);
+            this.tabCodeTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 712F));
+            this.tabCodeTableLayout.Size = new System.Drawing.Size(702, 723);
             this.tabCodeTableLayout.TabIndex = 1;
             // 
             // toolStripContainer
@@ -514,7 +521,7 @@
             this.toolStripContainer.ContentPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.toolStripContainer.ContentPanel.Controls.Add(this.tabSource);
             this.toolStripContainer.ContentPanel.Margin = new System.Windows.Forms.Padding(0);
-            this.toolStripContainer.ContentPanel.Size = new System.Drawing.Size(428, 438);
+            this.toolStripContainer.ContentPanel.Size = new System.Drawing.Size(665, 685);
             this.toolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolStripContainer.Location = new System.Drawing.Point(0, 0);
             this.toolStripContainer.Margin = new System.Windows.Forms.Padding(0);
@@ -524,7 +531,7 @@
             // 
             this.toolStripContainer.RightToolStripPanel.BackColor = System.Drawing.Color.Transparent;
             this.toolStripContainer.RightToolStripPanel.Controls.Add(this.toolStrip);
-            this.toolStripContainer.Size = new System.Drawing.Size(465, 463);
+            this.toolStripContainer.Size = new System.Drawing.Size(702, 723);
             this.toolStripContainer.TabIndex = 1;
             this.toolStripContainer.Text = "toolStripContainer2";
             // 
@@ -535,13 +542,15 @@
             // tabSource
             // 
             this.tabSource.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabSource.HighlightForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
             this.tabSource.Location = new System.Drawing.Point(0, 0);
             this.tabSource.Margin = new System.Windows.Forms.Padding(0);
             this.tabSource.Name = "tabSource";
             this.tabSource.Padding = new System.Drawing.Point(0, 0);
             this.tabSource.SelectedIndex = 0;
-            this.tabSource.Size = new System.Drawing.Size(428, 438);
+            this.tabSource.Size = new System.Drawing.Size(665, 685);
             this.tabSource.TabIndex = 0;
+            this.tabSource.WorkspaceColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             // 
             // toolStrip
             // 
@@ -566,7 +575,7 @@
             this.toolBtnUncomment});
             this.toolStrip.Location = new System.Drawing.Point(0, 3);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(37, 435);
+            this.toolStrip.Size = new System.Drawing.Size(37, 464);
             this.toolStrip.TabIndex = 0;
             // 
             // toolBtnClose
@@ -698,7 +707,7 @@
             this.toolBtnUncomment.Image = global::App.Properties.Resources.ImgUncomment;
             this.toolBtnUncomment.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnUncomment.Name = "toolBtnUncomment";
-            this.toolBtnUncomment.Size = new System.Drawing.Size(36, 36);
+            this.toolBtnUncomment.Size = new System.Drawing.Size(35, 36);
             this.toolBtnUncomment.Text = "toolStripButton2";
             this.toolBtnUncomment.ToolTipText = "Uncomment selected text";
             this.toolBtnUncomment.Click += new System.EventHandler(this.toolBtnUncomment_Click);
@@ -708,11 +717,10 @@
             this.tabResources.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.tabResources.Controls.Add(this.tabData);
             this.tabResources.ForeColor = System.Drawing.Color.DarkGray;
-            this.tabResources.Location = new System.Drawing.Point(4, 25);
-            this.tabResources.Margin = new System.Windows.Forms.Padding(2);
+            this.tabResources.Location = new System.Drawing.Point(4, 29);
             this.tabResources.Name = "tabResources";
-            this.tabResources.Padding = new System.Windows.Forms.Padding(2);
-            this.tabResources.Size = new System.Drawing.Size(465, 463);
+            this.tabResources.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabResources.Size = new System.Drawing.Size(702, 723);
             this.tabResources.TabIndex = 1;
             this.tabResources.Text = "Resources";
             // 
@@ -721,22 +729,23 @@
             this.tabData.Controls.Add(this.tabDataImg);
             this.tabData.Controls.Add(this.tabDataBuf);
             this.tabData.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabData.Location = new System.Drawing.Point(2, 2);
+            this.tabData.HighlightForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.tabData.Location = new System.Drawing.Point(3, 3);
             this.tabData.Margin = new System.Windows.Forms.Padding(0);
             this.tabData.Name = "tabData";
             this.tabData.SelectedIndex = 0;
-            this.tabData.Size = new System.Drawing.Size(461, 459);
+            this.tabData.Size = new System.Drawing.Size(696, 717);
             this.tabData.TabIndex = 0;
+            this.tabData.WorkspaceColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             // 
             // tabDataImg
             // 
             this.tabDataImg.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.tabDataImg.Controls.Add(this.tableLayoutImages);
-            this.tabDataImg.Location = new System.Drawing.Point(4, 25);
-            this.tabDataImg.Margin = new System.Windows.Forms.Padding(2);
+            this.tabDataImg.Location = new System.Drawing.Point(4, 29);
             this.tabDataImg.Name = "tabDataImg";
-            this.tabDataImg.Padding = new System.Windows.Forms.Padding(2);
-            this.tabDataImg.Size = new System.Drawing.Size(453, 430);
+            this.tabDataImg.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabDataImg.Size = new System.Drawing.Size(688, 684);
             this.tabDataImg.TabIndex = 0;
             this.tabDataImg.Text = "Images";
             // 
@@ -751,13 +760,12 @@
             this.tableLayoutImages.Controls.Add(this.panelImg, 0, 1);
             this.tableLayoutImages.Controls.Add(this.numImgLevel, 2, 0);
             this.tableLayoutImages.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutImages.Location = new System.Drawing.Point(2, 2);
-            this.tableLayoutImages.Margin = new System.Windows.Forms.Padding(2);
+            this.tableLayoutImages.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutImages.Name = "tableLayoutImages";
             this.tableLayoutImages.RowCount = 2;
-            this.tableLayoutImages.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
+            this.tableLayoutImages.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutImages.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutImages.Size = new System.Drawing.Size(449, 426);
+            this.tableLayoutImages.Size = new System.Drawing.Size(682, 678);
             this.tableLayoutImages.TabIndex = 0;
             // 
             // numImgLayer
@@ -766,15 +774,14 @@
             this.numImgLayer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numImgLayer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.numImgLayer.ForeColor = System.Drawing.Color.DarkGray;
-            this.numImgLayer.Location = new System.Drawing.Point(271, 2);
-            this.numImgLayer.Margin = new System.Windows.Forms.Padding(2);
+            this.numImgLayer.Location = new System.Drawing.Point(412, 3);
             this.numImgLayer.Maximum = new decimal(new int[] {
             0,
             0,
             0,
             0});
             this.numImgLayer.Name = "numImgLayer";
-            this.numImgLayer.Size = new System.Drawing.Size(85, 21);
+            this.numImgLayer.Size = new System.Drawing.Size(130, 28);
             this.numImgLayer.TabIndex = 4;
             // 
             // comboImg
@@ -785,16 +792,15 @@
             this.comboImg.DrawMode = System.Windows.Forms.DrawMode.Normal;
             this.comboImg.DropDownHeight = 200;
             this.comboImg.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboImg.DropDownWidth = 265;
+            this.comboImg.DropDownWidth = 403;
             this.comboImg.FormattingEnabled = true;
             this.comboImg.IsDroppedDown = false;
-            this.comboImg.Location = new System.Drawing.Point(2, 2);
-            this.comboImg.Margin = new System.Windows.Forms.Padding(2);
+            this.comboImg.Location = new System.Drawing.Point(3, 3);
             this.comboImg.MaxDropDownItems = 8;
             this.comboImg.Name = "comboImg";
             this.comboImg.SelectedIndex = -1;
             this.comboImg.SelectedItem = null;
-            this.comboImg.Size = new System.Drawing.Size(265, 22);
+            this.comboImg.Size = new System.Drawing.Size(403, 29);
             this.comboImg.Soreted = false;
             this.comboImg.TabIndex = 1;
             this.comboImg.Transparent = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
@@ -807,16 +813,15 @@
             this.tableLayoutImages.SetColumnSpan(this.panelImg, 3);
             this.panelImg.Controls.Add(this.pictureImg);
             this.panelImg.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelImg.Location = new System.Drawing.Point(0, 26);
+            this.panelImg.Location = new System.Drawing.Point(0, 40);
             this.panelImg.Margin = new System.Windows.Forms.Padding(0);
             this.panelImg.Name = "panelImg";
-            this.panelImg.Size = new System.Drawing.Size(449, 423);
+            this.panelImg.Size = new System.Drawing.Size(682, 651);
             this.panelImg.TabIndex = 2;
             // 
             // pictureImg
             // 
             this.pictureImg.Location = new System.Drawing.Point(0, 0);
-            this.pictureImg.Margin = new System.Windows.Forms.Padding(2);
             this.pictureImg.Name = "pictureImg";
             this.pictureImg.Size = new System.Drawing.Size(10, 10);
             this.pictureImg.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -829,21 +834,19 @@
             this.numImgLevel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.numImgLevel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.numImgLevel.ForeColor = System.Drawing.Color.DarkGray;
-            this.numImgLevel.Location = new System.Drawing.Point(360, 2);
-            this.numImgLevel.Margin = new System.Windows.Forms.Padding(2);
+            this.numImgLevel.Location = new System.Drawing.Point(548, 3);
             this.numImgLevel.Name = "numImgLevel";
-            this.numImgLevel.Size = new System.Drawing.Size(87, 21);
+            this.numImgLevel.Size = new System.Drawing.Size(131, 28);
             this.numImgLevel.TabIndex = 5;
             // 
             // tabDataBuf
             // 
             this.tabDataBuf.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.tabDataBuf.Controls.Add(this.tableLayoutBufferDef);
-            this.tabDataBuf.Location = new System.Drawing.Point(4, 25);
-            this.tabDataBuf.Margin = new System.Windows.Forms.Padding(2);
+            this.tabDataBuf.Location = new System.Drawing.Point(4, 29);
             this.tabDataBuf.Name = "tabDataBuf";
-            this.tabDataBuf.Padding = new System.Windows.Forms.Padding(2);
-            this.tabDataBuf.Size = new System.Drawing.Size(455, 434);
+            this.tabDataBuf.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabDataBuf.Size = new System.Drawing.Size(684, 673);
             this.tabDataBuf.TabIndex = 1;
             this.tabDataBuf.Text = "Buffers";
             // 
@@ -854,13 +857,12 @@
             this.tableLayoutBufferDef.Controls.Add(this.tableBuf, 0, 1);
             this.tableLayoutBufferDef.Controls.Add(this.tableLayoutBuffers, 0, 0);
             this.tableLayoutBufferDef.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutBufferDef.Location = new System.Drawing.Point(2, 2);
-            this.tableLayoutBufferDef.Margin = new System.Windows.Forms.Padding(2);
+            this.tableLayoutBufferDef.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutBufferDef.Name = "tableLayoutBufferDef";
             this.tableLayoutBufferDef.RowCount = 2;
-            this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
+            this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutBufferDef.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutBufferDef.Size = new System.Drawing.Size(451, 430);
+            this.tableLayoutBufferDef.Size = new System.Drawing.Size(678, 667);
             this.tableLayoutBufferDef.TabIndex = 0;
             // 
             // tableBuf
@@ -871,12 +873,11 @@
             this.tableBuf.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tableBuf.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.tableBuf.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableBuf.Location = new System.Drawing.Point(2, 28);
-            this.tableBuf.Margin = new System.Windows.Forms.Padding(2);
+            this.tableBuf.Location = new System.Drawing.Point(3, 43);
             this.tableBuf.Name = "tableBuf";
             this.tableBuf.ReadOnly = true;
             this.tableBuf.RowTemplate.Height = 28;
-            this.tableBuf.Size = new System.Drawing.Size(447, 415);
+            this.tableBuf.Size = new System.Drawing.Size(672, 638);
             this.tableBuf.TabIndex = 1;
             // 
             // tableLayoutBuffers
@@ -894,7 +895,7 @@
             this.tableLayoutBuffers.Name = "tableLayoutBuffers";
             this.tableLayoutBuffers.RowCount = 1;
             this.tableLayoutBuffers.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutBuffers.Size = new System.Drawing.Size(451, 26);
+            this.tableLayoutBuffers.Size = new System.Drawing.Size(678, 40);
             this.tableLayoutBuffers.TabIndex = 2;
             // 
             // comboBuf
@@ -905,16 +906,15 @@
             this.comboBuf.DrawMode = System.Windows.Forms.DrawMode.Normal;
             this.comboBuf.DropDownHeight = 200;
             this.comboBuf.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBuf.DropDownWidth = 266;
+            this.comboBuf.DropDownWidth = 400;
             this.comboBuf.FormattingEnabled = true;
             this.comboBuf.IsDroppedDown = false;
-            this.comboBuf.Location = new System.Drawing.Point(2, 2);
-            this.comboBuf.Margin = new System.Windows.Forms.Padding(2);
+            this.comboBuf.Location = new System.Drawing.Point(3, 3);
             this.comboBuf.MaxDropDownItems = 8;
             this.comboBuf.Name = "comboBuf";
             this.comboBuf.SelectedIndex = -1;
             this.comboBuf.SelectedItem = null;
-            this.comboBuf.Size = new System.Drawing.Size(266, 22);
+            this.comboBuf.Size = new System.Drawing.Size(400, 29);
             this.comboBuf.Soreted = false;
             this.comboBuf.TabIndex = 0;
             this.comboBuf.Transparent = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
@@ -928,16 +928,15 @@
             this.comboBufType.DrawMode = System.Windows.Forms.DrawMode.Normal;
             this.comboBufType.DropDownHeight = 200;
             this.comboBufType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBufType.DropDownWidth = 86;
+            this.comboBufType.DropDownWidth = 129;
             this.comboBufType.FormattingEnabled = true;
             this.comboBufType.IsDroppedDown = false;
-            this.comboBufType.Location = new System.Drawing.Point(272, 2);
-            this.comboBufType.Margin = new System.Windows.Forms.Padding(2);
+            this.comboBufType.Location = new System.Drawing.Point(409, 3);
             this.comboBufType.MaxDropDownItems = 8;
             this.comboBufType.Name = "comboBufType";
             this.comboBufType.SelectedIndex = -1;
             this.comboBufType.SelectedItem = null;
-            this.comboBufType.Size = new System.Drawing.Size(86, 22);
+            this.comboBufType.Size = new System.Drawing.Size(129, 29);
             this.comboBufType.Soreted = false;
             this.comboBufType.TabIndex = 1;
             this.comboBufType.Transparent = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
@@ -949,8 +948,7 @@
             this.numBufDim.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numBufDim.Dock = System.Windows.Forms.DockStyle.Fill;
             this.numBufDim.ForeColor = System.Drawing.Color.DarkGray;
-            this.numBufDim.Location = new System.Drawing.Point(362, 2);
-            this.numBufDim.Margin = new System.Windows.Forms.Padding(2);
+            this.numBufDim.Location = new System.Drawing.Point(544, 3);
             this.numBufDim.Maximum = new decimal(new int[] {
             512,
             0,
@@ -962,7 +960,7 @@
             0,
             0});
             this.numBufDim.Name = "numBufDim";
-            this.numBufDim.Size = new System.Drawing.Size(87, 21);
+            this.numBufDim.Size = new System.Drawing.Size(131, 28);
             this.numBufDim.TabIndex = 2;
             this.numBufDim.Value = new decimal(new int[] {
             4,
@@ -976,11 +974,10 @@
             this.tabProperties.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.tabProperties.Controls.Add(this.tableLayoutPanel1);
             this.tabProperties.ForeColor = System.Drawing.Color.DarkGray;
-            this.tabProperties.Location = new System.Drawing.Point(4, 25);
-            this.tabProperties.Margin = new System.Windows.Forms.Padding(2);
+            this.tabProperties.Location = new System.Drawing.Point(4, 29);
             this.tabProperties.Name = "tabProperties";
-            this.tabProperties.Padding = new System.Windows.Forms.Padding(2);
-            this.tabProperties.Size = new System.Drawing.Size(465, 463);
+            this.tabProperties.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabProperties.Size = new System.Drawing.Size(702, 724);
             this.tabProperties.TabIndex = 2;
             this.tabProperties.Text = "Properties";
             // 
@@ -991,13 +988,12 @@
             this.tableLayoutPanel1.Controls.Add(this.propertyGrid, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.comboProp, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(2, 2);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 26F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(461, 459);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(696, 718);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // propertyGrid
@@ -1010,11 +1006,10 @@
             this.propertyGrid.HelpBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
             this.propertyGrid.HelpForeColor = System.Drawing.Color.DarkGray;
             this.propertyGrid.LineColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
-            this.propertyGrid.Location = new System.Drawing.Point(2, 28);
-            this.propertyGrid.Margin = new System.Windows.Forms.Padding(2);
+            this.propertyGrid.Location = new System.Drawing.Point(3, 43);
             this.propertyGrid.Name = "propertyGrid";
             this.propertyGrid.SelectedItemWithFocusForeColor = System.Drawing.Color.LightGray;
-            this.propertyGrid.Size = new System.Drawing.Size(457, 429);
+            this.propertyGrid.Size = new System.Drawing.Size(690, 672);
             this.propertyGrid.TabIndex = 0;
             this.propertyGrid.ToolbarVisible = false;
             this.propertyGrid.ViewBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
@@ -1031,16 +1026,15 @@
             this.comboProp.DrawMode = System.Windows.Forms.DrawMode.Normal;
             this.comboProp.DropDownHeight = 200;
             this.comboProp.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboProp.DropDownWidth = 457;
+            this.comboProp.DropDownWidth = 690;
             this.comboProp.FormattingEnabled = true;
             this.comboProp.IsDroppedDown = false;
-            this.comboProp.Location = new System.Drawing.Point(2, 2);
-            this.comboProp.Margin = new System.Windows.Forms.Padding(2);
+            this.comboProp.Location = new System.Drawing.Point(3, 3);
             this.comboProp.MaxDropDownItems = 8;
             this.comboProp.Name = "comboProp";
             this.comboProp.SelectedIndex = -1;
             this.comboProp.SelectedItem = null;
-            this.comboProp.Size = new System.Drawing.Size(457, 22);
+            this.comboProp.Size = new System.Drawing.Size(690, 29);
             this.comboProp.Soreted = false;
             this.comboProp.TabIndex = 0;
             this.comboProp.Transparent = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
@@ -1048,18 +1042,19 @@
             // 
             // App
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(51)))), ((int)(((byte)(51)))));
-            this.ClientSize = new System.Drawing.Size(983, 520);
+            this.ClientSize = new System.Drawing.Size(1474, 800);
             this.ControlBox = false;
             this.Controls.Add(this.layoutMain);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
+            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "App";
-            this.Padding = new System.Windows.Forms.Padding(3);
+            this.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.App_FormClosing);
             this.Load += new System.EventHandler(this.App_Load);

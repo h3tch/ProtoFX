@@ -17,18 +17,16 @@ namespace System.Windows.Forms
         private bool resize = false;
         #pragma warning restore 0414
 
-        private Color _forecolor = Color.DarkGray;
-        private Color _backcolor = Color.FromArgb(255, 51, 51, 51);
-        private Color _bordercolor = Color.FromArgb(255, 180, 180, 180);
+        private Color _forecolor = Theme.ForeColor;
+        private Color _backcolor = Theme.BackColor;
+        private Color _bordercolor = Theme.HighlightBackColor;
         private Color _transparent = Color.FromArgb(0, 0, 0, 0);
         private Radius _radius = new Radius();
 
         private int _dropDownHeight = 200;
         private int _dropDownWidth = 0;
         private int _maxDropDownItems = 8;
-        
         private int _selectedIndex = -1;
-
         private bool _isDroppedDown = false;
 
         private ComboBoxStyle _dropDownStyle = ComboBoxStyle.DropDownList;

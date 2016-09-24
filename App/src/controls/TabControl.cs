@@ -1,28 +1,41 @@
 ﻿using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 
 namespace System.Windows.Forms
 {
     public class TabControlEx : TabControl
     {
-        private new Color ForeColor;
-        private new Color BackColor;
-        private Color HighlightForeColor;
-        private Color WorkspaceColor;
-        private Brush ForeBrush;
-        private Brush BackBrush;
-        private Brush HighlightForeBrush;
-        private Brush WorkspaceBrush;
-        private StringFormat textFormat;
+        #region FIELDS
+        public new Color ForeColor { get; set; }
+        public new Color BackColor { get; set; }
+        public Color HighlightForeColor { get; set; }
+        public Color WorkspaceColor { get; set; }
+        internal Brush ForeBrush;
+        internal Brush BackBrush;
+        internal Brush HighlightForeBrush;
+        internal Brush WorkspaceBrush;
+        internal StringFormat textFormat;
+        internal PointF[] poly;
+        const int TabMarginL = 8;
+        const int TabMarginR = 2;
+        #endregion
 
         public TabControlEx()
         {
+            // set relevant control settings to enable custom tab controls
             SetStyle(ControlStyles.UserPaint, true);
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             SetStyle(ControlStyles.DoubleBuffer, true);
             SetStyle(ControlStyles.ResizeRedraw, true);
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             
+            // set the tabs text style
+            textFormat = new StringFormat();
+            textFormat.Alignment = StringAlignment.Center;
+            textFormat.LineAlignment = StringAlignment.Center;
+
+            // set style to current theme
             ForeColor = Theme.ForeColor;
             BackColor = Theme.BackColor;
             HighlightForeColor = Theme.HighlightForeColor;
@@ -31,9 +44,7 @@ namespace System.Windows.Forms
             BackBrush = new SolidBrush(BackColor);
             HighlightForeBrush = new SolidBrush(HighlightForeColor);
             WorkspaceBrush = new SolidBrush(WorkspaceColor);
-            textFormat = new StringFormat();
-            textFormat.Alignment = StringAlignment.Center;
-            textFormat.LineAlignment = StringAlignment.Center;
+            poly = Enumerable.Repeat(new PointF(), 6).ToArray();
         }
 
         protected override void OnPaint(PaintEventArgs e) => DrawControl(e.Graphics);
@@ -43,71 +54,87 @@ namespace System.Windows.Forms
             if (!Visible)
                 return;
 
-            var area = ClientRectangle;
-            var tabArea = DisplayRectangle;
-            var saved = g.Clip;
+            var client = ClientRectangle;
+            var tabs = DisplayRectangle;
+            var clip = g.Clip;
             
             // fill client area
-            g.FillRectangle(BackBrush, area);
+            g.FillRectangle(BackBrush, client);
 
             // DRAW TABS
-            g.SetClip(new Rectangle(tabArea.Left, area.Top, tabArea.Width, area.Height));
             for (int i = 0; i < TabCount; i++)
                 DrawTab(g, TabPages[i], i);
 
             // reset clip space
-            g.Clip = saved;
+            g.Clip = clip;
         }
 
-        internal PointF[] pt = Enumerable.Repeat(new PointF(), 7).ToArray();
-        internal void DrawTab(Graphics g, TabPage tabPage, int nIndex)
+        internal void DrawTab(Graphics g, TabPage tab, int nIndex)
         {
             Rectangle tabRect = GetTabRect(nIndex);
-            RectangleF tabTextRect = tabRect;
+            RectangleF textRect = tabRect;
+            LinearGradientBrush polyBrush, borderBrush;
 
+            // tab background polygon
+            if (Alignment == TabAlignment.Top)
+            {
+                poly[2].X = (poly[0].X = poly[1].X = tabRect.Left) + 3;
+                poly[3].X = (poly[4].X = poly[5].X = tabRect.Right) - 3;
+                poly[1].Y = poly[4].Y = (poly[2].Y = poly[3].Y = tabRect.Top + 1) + 3;
+                poly[0].Y = poly[5].Y = tabRect.Bottom - 1;
+                polyBrush = new LinearGradientBrush(tabRect, WorkspaceColor, BackColor, LinearGradientMode.Vertical);
+                borderBrush = new LinearGradientBrush(tabRect, ForeColor, BackColor, LinearGradientMode.Vertical);
+            }
+            else
+            {
+                poly[2].X = (poly[0].X = poly[1].X = tabRect.Left) + 3;
+                poly[0].Y = poly[5].Y = tabRect.Top + 1;
+                poly[1].Y = poly[4].Y = (poly[2].Y = poly[3].Y = tabRect.Bottom - 1) - 3;
+                poly[3].X = (poly[4].X = poly[5].X = tabRect.Right) - 3;
+                polyBrush = new LinearGradientBrush(tabRect, BackColor, WorkspaceColor, LinearGradientMode.Vertical);
+                borderBrush = new LinearGradientBrush(tabRect, BackColor, ForeColor, LinearGradientMode.Vertical);
+            }
+            var pen = new Pen(borderBrush, 1);
+
+            // draw tab background
             if (SelectedIndex == nIndex)
             {
-                if (Alignment == TabAlignment.Top)
-                {
-                    pt[2].X = 3 + (pt[0].X = pt[1].X = pt[6].X = tabRect.Left);
-                    pt[3].X =-3 + (pt[4].X = pt[5].X = tabRect.Right);
-                    pt[1].Y = pt[4].Y = 3 + (pt[2].Y = pt[3].Y = tabRect.Top);
-                    pt[0].Y = pt[5].Y = pt[6].Y = tabRect.Bottom;
-                }
-                else
-                {
-                    pt[4].X = 3 + (pt[0].X = pt[5].X = pt[6].X = tabRect.Left);
-                    pt[3].X =-3 + (pt[1].X = pt[2].X = tabRect.Right);
-                    pt[0].Y = pt[1].Y = pt[6].Y = tabRect.Top;
-                    pt[2].Y = pt[5].Y =- 3 + (pt[3].Y = pt[4].Y = tabRect.Bottom);
-                }
-
                 // fill this tab with background color
-                g.FillPolygon(WorkspaceBrush, pt);
+                g.FillPolygon(polyBrush, poly);
+                g.DrawLines(pen, poly);
             }
-            
-            // draw tab icon
-            if (tabPage.ImageIndex >= 0 && ImageList != null &&
-                ImageList.Images[tabPage.ImageIndex] != null)
+            else
             {
-                int marginL = 8, marginR = 2;
+                g.DrawLine(pen, poly[0].X, poly[0].Y, poly[1].X, poly[1].Y);
+                g.DrawLine(pen, poly[4].X, poly[4].Y, poly[5].X, poly[5].Y);
+            }
 
-                var img = ImageList.Images[tabPage.ImageIndex];
-                var imgRect = new Rectangle(tabRect.X + marginL, tabRect.Y + 1, img.Width, img.Height);
+            // draw tab icon
+            if (tab.ImageIndex >= 0 && ImageList?.Images[tab.ImageIndex] != null)
+            {
+                var img = ImageList.Images[tab.ImageIndex];
+                var imgRect = new Rectangle(
+                    tabRect.X + TabMarginL, tabRect.Y + 1,
+                    img.Width, img.Height);
 
                 // adjust rectangles
-                var nAdj = (float)(marginL + img.Width + marginR);
+                var nAdj = (float)(TabMarginL + img.Width + TabMarginR);
 
                 imgRect.Y += (tabRect.Height - img.Height) / 2;
-                tabTextRect.X += nAdj;
-                tabTextRect.Width -= nAdj;
+                textRect.X += nAdj;
+                textRect.Width -= nAdj;
 
                 // draw icon
                 g.DrawImage(img, imgRect);
             }
             
             // draw string
-            g.DrawString(tabPage.Text, Font, ForeBrush, tabTextRect, textFormat);
+            g.DrawString(tab.Text, Font, ForeBrush, textRect, textFormat);
+
+            // clean up
+            pen.Dispose();
+            polyBrush.Dispose();
+            borderBrush.Dispose();
         }
     }
 }

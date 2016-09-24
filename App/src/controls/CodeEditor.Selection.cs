@@ -17,8 +17,8 @@ namespace App
             Indicators[HighlightIndicatorIndex].Style = IndicatorStyle.StraightBox;
             Indicators[HighlightIndicatorIndex].Under = true;
             Indicators[HighlightIndicatorIndex].ForeColor = Theme.SelectForeColor;
-            Indicators[HighlightIndicatorIndex].OutlineAlpha = 60;
-            Indicators[HighlightIndicatorIndex].Alpha = 40;
+            Indicators[HighlightIndicatorIndex].OutlineAlpha = 80;
+            Indicators[HighlightIndicatorIndex].Alpha = 50;
             Indicators[DebugIndicatorIndex].ForeColor = Color.Red;
             Indicators[DebugIndicatorIndex].Style = IndicatorStyle.Squiggle;
 
@@ -31,9 +31,7 @@ namespace App
             VirtualSpaceOptions = VirtualSpace.RectangularSelection;
 
             // instantiate fields
-            IndicatorRanges = new List<int[]>[Indicators.Count];
-            for (int i = 0; i < Indicators.Count; i++)
-                IndicatorRanges[i] = new List<int[]>();
+            IndicatorRanges = Enumerable.Repeat(new List<int[]>(), Indicators.Count).ToArray();
         }
 
         /// <summary>
