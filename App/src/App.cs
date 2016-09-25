@@ -19,6 +19,7 @@ namespace App
         public App()
         {
             InitializeComponent();
+            ApplyTheme();
             MakeDPIAware();
         }
 
@@ -35,7 +36,7 @@ namespace App
             // load settings
             var settings = System.IO.File.Exists(Properties.Resources.WINDOW_SETTINGS_FILE)
                 ? XmlSerializer.Load<FormSettings>(Properties.Resources.WINDOW_SETTINGS_FILE)
-                : new FormSettings(this);
+                : FormSettings.CreateCentered();
             // place form completely inside a screen
             settings.PlaceOnScreen(this);
             // place splitters
@@ -92,8 +93,9 @@ namespace App
             // get current window state
             var settings = new FormSettings
             {
-                Left = Left, Top = Top, Width = Width, Height = Height, BorderStyle = FormBorderStyle,
-                Location = FormLocation, Size = FormSize,
+                BorderStyle = FormBorderStyle,
+                NormalLocation = IsMaximized ? NormalLocation : Location,
+                NormalSize = IsMaximized ? NormalSize : Size,
                 SplitRenderCoding = (float)splitRenderCoding.SplitterDistance / splitRenderCoding.Width,
                 SplitRenderOutput = (float)splitRenderOutput.SplitterDistance / splitRenderOutput.Height,
                 SplitDebug = (float)splitDebug.SplitterDistance / splitDebug.Width,
@@ -172,13 +174,13 @@ namespace App
         /// <param name="e"></param>
         private void btnWindowMaximize_Click(object s, EventArgs e)
         {
-            FormBorderStyle = FormBorderStyle == FormBorderStyle.None
-                ? FormBorderStyle.FixedSingle : FormBorderStyle.None;
-            UpdateWindowState();
-            UpdateBtnWindowMaximizeButtonImage();
+            if (IsMaximized)
+                NormalizeWindow();
+            else
+                MaximizeWindow();
         }
-        private Point FormLocation;
-        private Size FormSize;
+        private Point NormalLocation;
+        private Size NormalSize;
 
         /// <summary>
         /// By holding down the left mouse button, the user can move the window.
@@ -244,33 +246,25 @@ namespace App
             // process using default wndproc
             base.WndProc(ref m);
         }
-
-        private void UpdateWindowState()
+        
+        private void MaximizeWindow()
         {
-            if (FormBorderStyle == FormBorderStyle.None)
-            {
-                FormLocation = Location;
-                FormSize = Size;
-                Location = Screen.PrimaryScreen.WorkingArea.Location;
-                Size = Screen.PrimaryScreen.WorkingArea.Size;
-                Padding = new Padding(0);
-            }
-            else
-            {
-                Padding = new Padding(3);
-                Location = FormLocation;
-                Size = FormSize;
-            }
+            FormBorderStyle = FormBorderStyle.None;
+            NormalLocation = Location;
+            NormalSize = Size;
+            Location = Screen.PrimaryScreen.WorkingArea.Location;
+            Size = Screen.PrimaryScreen.WorkingArea.Size;
+            Padding = new Padding(0);
+            btnWindowMaximize.Image = Properties.Resources.Normalize;
         }
 
-        /// <summary>
-        /// Update the maximize button image based on the current window state.
-        /// </summary>
-        private void UpdateBtnWindowMaximizeButtonImage()
+        private void NormalizeWindow()
         {
-            btnWindowMaximize.Image = FormBorderStyle == FormBorderStyle.FixedSingle
-                ? Properties.Resources.Maximize
-                : Properties.Resources.Normalize;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            Padding = new Padding(3);
+            Location = NormalLocation;
+            Size = NormalSize;
+            btnWindowMaximize.Image = Properties.Resources.Maximize;
         }
 
         #region CONSTANT FIELDS
@@ -691,15 +685,16 @@ namespace App
         /// </summary>
         /// <returns></returns>
         private CodeEditor SelectedEditor => (CodeEditor)tabSource.SelectedTab?.Controls[0];
+
+        private bool IsMaximized => FormBorderStyle == FormBorderStyle.None;
         #endregion
 
         #region Inner Classes
         public struct FormSettings
         {
-            public int Left, Top, Width, Height;
             public FormBorderStyle BorderStyle;
-            public Point Location;
-            public Size Size;
+            public Point NormalLocation;
+            public Size NormalSize;
             public float SplitRenderCoding;
             public float SplitRenderOutput;
             public float SplitDebug;
@@ -707,24 +702,19 @@ namespace App
             /// <summary>
             /// Default constructor.
             /// </summary>
-            /// <param name="app"></param>
-            public FormSettings(App app)
+            public static FormSettings CreateCentered()
             {
-                Left = app.Left;
-                Top = app.Top;
-                Width = app.Width;
-                Height = app.Height;
-                Location = app.FormLocation;
-                Size = app.FormSize;
-                if (Size.Width == 0 || Size.Height == 0)
-                {
-                    Size.Width = Width;
-                    Size.Height = Height;
-                }
-                BorderStyle = app.FormBorderStyle;
-                SplitRenderCoding = 0.4f;
-                SplitRenderOutput = 0.7f;
-                SplitDebug = 0.55f;
+                int W = Screen.PrimaryScreen.WorkingArea.Width;
+                int H = Screen.PrimaryScreen.WorkingArea.Height;
+                var S = new Size(3 * W / 4, 3 * H / 4);
+                return new FormSettings {
+                    NormalSize = S,
+                    NormalLocation = new Point((W - S.Width) / 2, (H - S.Height) / 2),
+                    BorderStyle = FormBorderStyle.FixedSingle,
+                    SplitRenderCoding = 0.4f,
+                    SplitRenderOutput = 0.7f,
+                    SplitDebug = 0.55f,
+                };
             }
 
             /// <summary>
@@ -734,18 +724,19 @@ namespace App
             public void PlaceOnScreen(App app)
             {
                 int L1 = int.MaxValue;
-                int X = Left, Y = Top, W = Width, H = Height;
+                int X = NormalLocation.X, Y = NormalLocation.Y;
+                int W = NormalSize.Width, H = NormalSize.Height;
 
                 // place the rect completely inside each screen
                 // and store the result that changes the least
                 foreach (var screen in Screen.AllScreens)
                 {
                     var b = screen.Bounds;
-                    int w = Math.Min(Math.Max(Width, 0), b.Size.Width);
-                    int h = Math.Min(Math.Max(Height, 0), b.Size.Height);
-                    int x = Math.Min(Math.Max(Left, b.Left), b.Right - Width);
-                    int y = Math.Min(Math.Max(Top, b.Top), b.Bottom - Height);
-                    int l1 = Math.Abs(x - Left) + Math.Abs(y - Top);
+                    int w = Math.Min(Math.Max(NormalSize.Width, 0), b.Size.Width);
+                    int h = Math.Min(Math.Max(NormalSize.Height, 0), b.Size.Height);
+                    int x = Math.Min(Math.Max(NormalLocation.X, b.Left), b.Right - NormalSize.Width);
+                    int y = Math.Min(Math.Max(NormalLocation.Y, b.Top), b.Bottom - NormalSize.Height);
+                    int l1 = Math.Abs(x - NormalLocation.X) + Math.Abs(y - NormalLocation.Y);
                     if (l1 < L1)
                     {
                         X = x;
@@ -758,21 +749,19 @@ namespace App
 
                 // return rectangle with 
                 // minimally changed position
-                Left = X;
-                Top = Y;
-                Width = W;
-                Height = H;
+                NormalLocation.X = X;
+                NormalLocation.Y = Y;
+                NormalSize.Width = W;
+                NormalSize.Height = H;
 
                 // update window
-                app.Left = Math.Max(0, Left);
-                app.Top = Math.Max(0, Top);
-                app.Width = Width;
-                app.Height = Height;
-                app.FormLocation = Location;
-                app.FormSize = Size;
+                app.Location = app.NormalLocation = NormalLocation;
+                app.Size = app.NormalSize = NormalSize;
                 app.FormBorderStyle = BorderStyle;
-                app.UpdateWindowState();
-                app.UpdateBtnWindowMaximizeButtonImage();
+                if (app.IsMaximized)
+                    app.MaximizeWindow();
+                else
+                    app.NormalizeWindow();
             }
 
             /// <summary>

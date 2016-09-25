@@ -17,9 +17,9 @@ namespace System.Windows.Forms
         private bool resize = false;
         #pragma warning restore 0414
 
-        private Color _forecolor = Theme.ForeColor;
-        private Color _backcolor = Theme.BackColor;
-        private Color _bordercolor = Theme.HighlightBackColor;
+        private Color _forecolor = SystemColors.ControlText;
+        private Color _backcolor = SystemColors.Control;
+        private Color _bordercolor = SystemColors.ActiveBorder;
         private Color _transparent = Color.FromArgb(0, 0, 0, 0);
         private Radius _radius = new Radius();
 
@@ -292,8 +292,8 @@ namespace System.Windows.Forms
             _textBox.Resize += new EventHandler(_textBox_Resize);
             _textBox.TextChanged += new EventHandler(_textBox_TextChanged);
 
-            base.BackColor = BackColor = Color.FromArgb(255, 51, 51, 51);
-            ForeColor = Color.FromArgb(255, 180, 180, 180);
+            base.BackColor = BackColor = _backcolor;
+            ForeColor = _forecolor;
         }
 
         

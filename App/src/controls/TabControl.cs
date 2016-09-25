@@ -7,12 +7,31 @@ namespace System.Windows.Forms
     public class TabControlEx : TabControl
     {
         #region FIELDS
-        public new Color ForeColor { get; set; }
-        public new Color BackColor { get; set; }
-        public Color HighlightForeColor { get; set; }
-        public Color WorkspaceColor { get; set; }
-        internal Brush ForeBrush;
+        private Color forecolor;
+        private Color backcolor;
+        private Color highlightforecolor;
+        private Color workspacecolor;
+        public new Color BackColor
+        {
+            get { return backcolor; }
+            set { BackBrush = new SolidBrush(value); backcolor = value; }
+        }
+        public new Color ForeColor {
+            get { return forecolor; }
+            set { ForeBrush = new SolidBrush(value); forecolor = value; }
+        }
+        public Color HighlightForeColor
+        {
+            get { return highlightforecolor; }
+            set { HighlightForeBrush = new SolidBrush(value); highlightforecolor = value; }
+        }
+        public Color WorkspaceColor
+        {
+            get { return workspacecolor; }
+            set { WorkspaceBrush = new SolidBrush(value); workspacecolor = value; }
+        }
         internal Brush BackBrush;
+        internal Brush ForeBrush;
         internal Brush HighlightForeBrush;
         internal Brush WorkspaceBrush;
         internal StringFormat textFormat;
@@ -36,14 +55,10 @@ namespace System.Windows.Forms
             textFormat.LineAlignment = StringAlignment.Center;
 
             // set style to current theme
-            ForeColor = Theme.ForeColor;
-            BackColor = Theme.BackColor;
-            HighlightForeColor = Theme.HighlightForeColor;
-            WorkspaceColor = Theme.Workspace;
-            ForeBrush = new SolidBrush(ForeColor);
-            BackBrush = new SolidBrush(BackColor);
-            HighlightForeBrush = new SolidBrush(HighlightForeColor);
-            WorkspaceBrush = new SolidBrush(WorkspaceColor);
+            ForeColor = SystemColors.ControlText;
+            BackColor = SystemColors.Control;
+            HighlightForeColor = SystemColors.HighlightText;
+            WorkspaceColor = SystemColors.AppWorkspace;
             poly = Enumerable.Repeat(new PointF(), 6).ToArray();
         }
 
