@@ -1,43 +1,84 @@
 ﻿using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Xml;
 
 namespace System.Windows.Forms
 {
-    public static class Theme
+    public class Theme
     {
-        static public Color BackColor = Color.FromArgb(255, 51, 51, 51);
-        static public Color ForeColor = Color.FromArgb(255, 180, 180, 180);
-        static public Color HighlightBackColor = Color.FromArgb(255, 100, 100, 100);
-        static public Color HighlightForeColor = Color.FromArgb(255, 220, 220, 220);
-        static public Color SelectForeColor = Color.FromArgb(255, 130, 80, 180);
-        static public Color Workspace = Color.FromArgb(255, 30, 30, 30);
-        static public Color WorkspaceHighlight = Color.FromArgb(255, 60, 60, 60);
-        const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
+        public struct Palette
+        {
+            public string Name;
+            public XmlColor BackColor;
+            public XmlColor ForeColor;
+            public XmlColor HighlightBackColor;
+            public XmlColor HighlightForeColor;
+            public XmlColor SelectForeColor;
+            public XmlColor Workspace;
+            public XmlColor WorkspaceHighlight;
+        }
+        internal static Palette palette = new Palette();
+        public static string Name => palette.Name;
+        public static Color BackColor => palette.BackColor;
+        public static Color ForeColor => palette.ForeColor;
+        public static Color HighlightBackColor => palette.HighlightBackColor;
+        public static Color HighlightForeColor => palette.HighlightForeColor;
+        public static Color SelectForeColor => palette.SelectForeColor;
+        public static Color Workspace => palette.Workspace;
+        public static Color WorkspaceHighlight => palette.WorkspaceHighlight;
 
+        static Theme() {
+            palette.Name = "DarkTheme";
+            palette.BackColor = Color.FromArgb(255, 51, 51, 51);
+            palette.ForeColor = Color.FromArgb(255, 160, 160, 160);
+            palette.HighlightBackColor = Color.FromArgb(255, 100, 100, 100);
+            palette.HighlightForeColor = Color.FromArgb(255, 220, 220, 220);
+            palette.SelectForeColor = Color.FromArgb(255, 130, 80, 180);
+            palette.Workspace = Color.FromArgb(255, 30, 30, 30);
+            palette.WorkspaceHighlight = Color.FromArgb(255, 60, 60, 60);
+        }
+
+        public static bool Load(string path)
+        {
+            if (!File.Exists(path))
+                return false;
+            palette = XmlSerializer.Load<Palette>(path);
+            return true;
+        }
+
+        public static void Save(string path)
+        {
+            XmlSerializer.Save(palette, path);
+        }
+
+        /// <summary>
+        /// Apply theme to the specified control and its children.
+        /// </summary>
+        /// <param name="control"></param>
         public static void Apply(Control control)
         {
             var type = control.GetType();
             var method = GetMethod(type, true) ?? GetMethod(type, false);
-            bool applyToChildren = (bool)method?.Invoke(null, new object[] { control });
-
-            if (applyToChildren)
-                foreach (Control c in control.Controls)
-                    Apply(c);
+            if (!(bool)method?.Invoke(null, new object[] { control }))
+                return;
+            foreach (Control c in control.Controls)
+                Apply(c);
         }
 
         internal static MethodInfo GetMethod(Type type, bool exact)
         {
-            var methods = typeof(Theme).GetMethods(flags);
+            var methods = typeof(Theme).GetMethods(BindingFlags.Static | BindingFlags.NonPublic);
             foreach (var method in methods)
             {
-                if (method.Name == "ApplyTo")
-                {
-                    var @params = method.GetParameters();
-                    if (@params.Length == 1 &&
-                        exact ? type.IsEquivalentTo(@params[0].ParameterType)
-                              : type.IsSubclassOf(@params[0].ParameterType))
-                        return method;
-                }
+                if (method.Name != "ApplyTo")
+                    continue;
+                var @params = method.GetParameters();
+                if (@params.Length == 1 &&
+                    exact ? type.IsEquivalentTo(@params[0].ParameterType)
+                          : type.IsSubclassOf(@params[0].ParameterType))
+                    return method;
             }
             return null;
         }
@@ -62,6 +103,7 @@ namespace System.Windows.Forms
 
         private static bool ApplyTo(DataGridView c)
         {
+            var style = new DataGridViewCellStyle();
             c.BackColor = Workspace;
             c.ForeColor = ForeColor;
             c.BackgroundColor = Workspace;
@@ -69,9 +111,8 @@ namespace System.Windows.Forms
             c.ColumnHeadersDefaultCellStyle.ForeColor = ForeColor;
             c.ColumnHeadersDefaultCellStyle.SelectionBackColor = HighlightBackColor;
             c.ColumnHeadersDefaultCellStyle.SelectionForeColor = HighlightForeColor;
-            var style = new DataGridViewCellStyle();
             style.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            style.Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0)));
+            style.Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             style.WrapMode = DataGridViewTriState.False;
             style.BackColor = Workspace;
             style.ForeColor = ForeColor;
@@ -130,5 +171,53 @@ namespace System.Windows.Forms
             c.ForeColor = ForeColor;
             return true;
         }
+    }
+
+    public class XmlColor
+    {
+        private Color color = Color.Black;
+
+        public XmlColor() { }
+
+        public XmlColor(Color c) { color = c; }
+        
+        public Color ToColor() => color;
+        
+        public static implicit operator Color(XmlColor x) => x.ToColor();
+
+        public static implicit operator XmlColor(Color c) => new XmlColor(c);
+
+        [Xml.Serialization.XmlAttribute]
+        public string RgbString
+        {
+            get { return ColorTranslator.ToHtml(color); }
+            set
+            {
+                try
+                {
+                    if (Alpha == 0xFF)
+                        color = ColorTranslator.FromHtml(value);
+                    else
+                        color = Color.FromArgb(Alpha, ColorTranslator.FromHtml(value));
+                }
+                catch (Exception)
+                {
+                    color = Color.Black;
+                }
+            }
+        }
+
+        [Xml.Serialization.XmlAttribute]
+        public byte Alpha
+        {
+            get { return color.A; }
+            set
+            {
+                if (value != color.A)
+                    color = Color.FromArgb(value, color);
+            }
+        }
+
+        public bool ShouldSerializeAlpha() => Alpha < 0xFF;
     }
 }

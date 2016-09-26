@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Xml;
 using static System.Windows.Forms.FormWindowState;
 
 namespace App
@@ -15,11 +16,11 @@ namespace App
     {
         public static CultureInfo Culture = new CultureInfo("en");
         public CodeEditor CompiledEditor = null;
+        public Theme Theme;
 
         public App()
         {
             InitializeComponent();
-            Theme.Apply(this);
             MakeDPIAware();
         }
 
@@ -44,6 +45,12 @@ namespace App
 
             ConvertExtensions.str2type.Keys.ForEach(x => comboBufType.Items.Add(x));
             comboBufType.SelectedIndex = ConvertExtensions.str2type.Keys.IndexOf(x => x == "float");
+
+            // LOAD PREVIOUS THEME
+
+            if (!Theme.Load(settings.ThemeXml))
+                Theme.Save(settings.ThemeXml);
+            Theme.Apply(this);
 
             // LINK PROPERTY VIEWER TO DEBUG SETTINGS
 
@@ -99,6 +106,7 @@ namespace App
                 SplitRenderCoding = (float)splitRenderCoding.SplitterDistance / splitRenderCoding.Width,
                 SplitRenderOutput = (float)splitRenderOutput.SplitterDistance / splitRenderOutput.Height,
                 SplitDebug = (float)splitDebug.SplitterDistance / splitDebug.Width,
+                ThemeXml = Theme.Name + ".xml", 
             };
 
             // save to file
@@ -698,6 +706,7 @@ namespace App
             public float SplitRenderCoding;
             public float SplitRenderOutput;
             public float SplitDebug;
+            public string ThemeXml;
 
             /// <summary>
             /// Default constructor.
@@ -714,6 +723,7 @@ namespace App
                     SplitRenderCoding = 0.4f,
                     SplitRenderOutput = 0.7f,
                     SplitDebug = 0.55f,
+                    ThemeXml = Properties.Resources.THEME_FILE,
                 };
             }
 

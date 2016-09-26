@@ -22,6 +22,8 @@ namespace App
             FindText.MinimumSize = new Size(0, 0);
             FindText.MaximumSize = new Size(1, 1);
             FindText.SetBounds(0, 0, 1, 1);
+            FindText.BackColor = Theme.BackColor;
+            FindText.ForeColor = Theme.BackColor;
             FindText.TextChanged += new EventHandler(HandleFindTextChanged);
             FindText.KeyUp += new KeyEventHandler(HandleFindKeyUp);
             FindText.GotFocus += new EventHandler(HandleFindGotFocus);

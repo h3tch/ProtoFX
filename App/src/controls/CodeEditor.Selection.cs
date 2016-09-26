@@ -17,12 +17,12 @@ namespace App
             Indicators[HighlightIndicatorIndex].Style = IndicatorStyle.StraightBox;
             Indicators[HighlightIndicatorIndex].Under = true;
             Indicators[HighlightIndicatorIndex].ForeColor = Theme.SelectForeColor;
-            Indicators[HighlightIndicatorIndex].OutlineAlpha = 80;
+            Indicators[HighlightIndicatorIndex].OutlineAlpha = 100;
             Indicators[HighlightIndicatorIndex].Alpha = 50;
             Indicators[DebugIndicatorIndex].ForeColor = Color.Red;
             Indicators[DebugIndicatorIndex].Style = IndicatorStyle.Squiggle;
 
-            SetSelectionBackColor(true, Theme.WorkspaceHighlight);
+            SetSelectionBackColor(true, Theme.HighlightBackColor);
 
             // setup multi line selection
             MultipleSelection = true;

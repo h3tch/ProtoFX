@@ -307,15 +307,18 @@ namespace App.Properties {
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&apos;1.0&apos;?&gt;
         ///&lt;FxLexer&gt;
-        ///  &lt;Style name=&apos;string&apos; fore=&apos;#D77763&apos; back=&apos;#FFFFFF&apos;/&gt;
-        ///  &lt;Style name=&apos;operator&apos; fore=&apos;#A0A0A0&apos; back=&apos;#FFFFFF&apos;/&gt;
-        ///  &lt;Style name=&apos;braces&apos; fore=&apos;#AAAAAA&apos; back=&apos;#FFFFFF&apos;/&gt;
-        ///  &lt;Style name=&apos;punctuation&apos; fore=&apos;#A0A0A0&apos; back=&apos;#FFFFFF&apos;/&gt;
-        ///  &lt;Style name=&apos;number&apos; fore=&apos;#328645&apos; back=&apos;#FFFFFF&apos;/&gt;
-        ///  &lt;Style name=&apos;LineComment&apos; fore=&apos;#82A847&apos; back=&apos;#FFFFFF&apos;/&gt;
-        ///  &lt;Style name=&apos;BlockComment&apos; fore=&apos;#82A847&apos; back=&apos;#FFFFFF&apos;/&gt;
-        ///  &lt;Style name=&apos;name&apos; fore=&apos;#000000&apos; back=&apos;#FFFFFF&apos;/&gt;
-        ///  &lt;!-- TECH -- [rest of string was truncated]&quot;;.
+        ///  &lt;Style name=&apos;string&apos; fore=&apos;#D77763&apos;/&gt;
+        ///  &lt;Style name=&apos;operator&apos; fore=&apos;#A0A0A0&apos;/&gt;
+        ///  &lt;Style name=&apos;braces&apos; fore=&apos;#AAAAAA&apos;/&gt;
+        ///  &lt;Style name=&apos;punctuation&apos; fore=&apos;#A0A0A0&apos;/&gt;
+        ///  &lt;Style name=&apos;number&apos; fore=&apos;#328645&apos;/&gt;
+        ///  &lt;Style name=&apos;LineComment&apos; fore=&apos;#82A847&apos;/&gt;
+        ///  &lt;Style name=&apos;BlockComment&apos; fore=&apos;#82A847&apos;/&gt;
+        ///  &lt;Style name=&apos;name&apos; fore=&apos;#000000&apos;/&gt;
+        ///  &lt;!-- TECH --&gt;
+        ///  &lt;Lexer type=&apos;tech&apos; lexer=&apos;TechLexer&apos;&gt;
+        ///    &lt;Style name=&apos;preprocessor&apos; fore=&apos;#A0A0A0&apos;/&gt;
+        ///    &lt;Style name=&apos;type&apos; fore [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string keywordsXML {
             get {
@@ -360,6 +363,15 @@ namespace App.Properties {
             get {
                 object obj = ResourceManager.GetObject("Normalize", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DarkTheme.xml.
+        /// </summary>
+        internal static string THEME_FILE {
+            get {
+                return ResourceManager.GetString("THEME_FILE", resourceCulture);
             }
         }
         

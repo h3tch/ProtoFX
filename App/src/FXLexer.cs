@@ -715,13 +715,13 @@ namespace App.Lexer
                 case '\n': return DefaultProcessNewLine(editor, c);
             }
 
-            // start of a number
-            if(char.IsNumber(c.c))
-                return (int)BaseState.Number;
-
             // the beginning of a word or keyword
             if (char.IsLetter(c.c))
                 return (int)State.Indicator;
+
+            // start of a number
+            if(char.IsNumber(c.c))
+                return (int)BaseState.Number;
 
             return (int)State.Default;
         }
@@ -800,13 +800,13 @@ namespace App.Lexer
                     return DefaultProcessNewLine(editor, c);
             }
 
-            // the beginning of a number
-            if (char.IsNumber(c.c))
-                return (int)BaseState.Number;
-
             // the beginning of an operator
             if (char.IsSymbol(c.c))
                 return (int)BaseState.Operator;
+
+            // the beginning of a number
+            if (char.IsNumber(c.c) && !char.IsLetter(c[-1]) && c[-1] != '_')
+                return (int)BaseState.Number;
             
             return (int)BaseState.Default;
         }

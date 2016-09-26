@@ -14,6 +14,10 @@ namespace App
         private void InitializeHighlighting()
         {
             StyleNeeded += new EventHandler<StyleNeededEventArgs>(HandleStyleNeeded);
+
+            CaretLineBackColor = Theme.WorkspaceHighlight;
+            CaretLineVisible = true;
+            CaretForeColor = Theme.HighlightForeColor;
             
             StyleResetDefault();
             Styles[Style.Default].Font = "Consolas";

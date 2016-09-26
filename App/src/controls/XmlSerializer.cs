@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace App
+namespace System.Xml
 {
     class XmlSerializer
     {
@@ -15,8 +15,8 @@ namespace App
             if (obj == null)
                 return;
             
-            var xmlDocument = new System.Xml.XmlDocument();
-            var serializer = new System.Xml.Serialization.XmlSerializer(obj.GetType());
+            var xmlDocument = new XmlDocument();
+            var serializer = new Serialization.XmlSerializer(obj.GetType());
             using (var stream = new MemoryStream())
             {
                 serializer.Serialize(stream, obj);
@@ -41,13 +41,13 @@ namespace App
             var attributeXml = string.Empty;
 
             // load xml file
-            var xmlDocument = new System.Xml.XmlDocument();
+            var xmlDocument = new XmlDocument();
             xmlDocument.Load(fileName);
             var xmlString = xmlDocument.OuterXml;
 
             // deserialize string to object
-            var serializer = new System.Xml.Serialization.XmlSerializer(typeof(T));
-            using (var reader = new System.Xml.XmlTextReader(new StringReader(xmlString)))
+            var serializer = new Serialization.XmlSerializer(typeof(T));
+            using (var reader = new XmlTextReader(new StringReader(xmlString)))
             {
                 objectOut = (T)serializer.Deserialize(reader);
             }

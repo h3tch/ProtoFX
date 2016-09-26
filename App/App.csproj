@@ -142,7 +142,7 @@
     <Compile Include="src\GLTexture.cs" />
     <Compile Include="src\GLVertinput.cs" />
     <Compile Include="src\GLVertoutput.cs" />
-    <Compile Include="src\ImageViewer.cs">
+    <Compile Include="src\controls\ImageViewer.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\Lexing.cs" />
@@ -157,7 +157,7 @@
     </Compile>
     <Compile Include="src\controls\Theme.cs" />
     <Compile Include="src\Trie.cs" />
-    <Compile Include="src\XmlSerializer.cs" />
+    <Compile Include="src\controls\XmlSerializer.cs" />
     <EmbeddedResource Include="src\App.resx">
       <DependentUpon>App.cs</DependentUpon>
     </EmbeddedResource>
