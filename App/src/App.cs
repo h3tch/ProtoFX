@@ -19,7 +19,7 @@ namespace App
         public App()
         {
             InitializeComponent();
-            ApplyTheme();
+            Theme.Apply(this);
             MakeDPIAware();
         }
 
