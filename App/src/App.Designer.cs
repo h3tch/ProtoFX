@@ -83,8 +83,8 @@
             this.tableLayoutImages = new System.Windows.Forms.TableLayoutPanel();
             this.numImgLayer = new System.Windows.Forms.NumericUpDown();
             this.comboImg = new System.Windows.Forms.ComboBoxEx();
-            this.panelImg = new System.Windows.Forms.Panel();
-            this.pictureImg = new System.Windows.Forms.PictureBox();
+            this.panelImg = new System.Windows.Forms.ImageViewer();
+            //this.pictureImg = new System.Windows.Forms.PictureBox();
             this.numImgLevel = new System.Windows.Forms.NumericUpDown();
             this.tabDataBuf = new System.Windows.Forms.TabPage();
             this.tableLayoutBufferDef = new System.Windows.Forms.TableLayoutPanel();
@@ -129,7 +129,7 @@
             this.tableLayoutImages.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numImgLayer)).BeginInit();
             this.panelImg.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureImg)).BeginInit();
+            //((System.ComponentModel.ISupportInitialize)(this.pictureImg)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numImgLevel)).BeginInit();
             this.tabDataBuf.SuspendLayout();
             this.tableLayoutBufferDef.SuspendLayout();
@@ -757,23 +757,23 @@
             // 
             this.panelImg.AutoScroll = true;
             this.tableLayoutImages.SetColumnSpan(this.panelImg, 3);
-            this.panelImg.Controls.Add(this.pictureImg);
             this.panelImg.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelImg.Location = new System.Drawing.Point(0, 40);
             this.panelImg.Margin = new System.Windows.Forms.Padding(0);
             this.panelImg.Name = "panelImg";
             this.panelImg.Size = new System.Drawing.Size(682, 651);
             this.panelImg.TabIndex = 2;
+            this.panelImg.Image.Click += new System.EventHandler(this.pictureImg_Click);
             // 
             // pictureImg
             // 
-            this.pictureImg.Location = new System.Drawing.Point(0, 0);
-            this.pictureImg.Name = "pictureImg";
-            this.pictureImg.Size = new System.Drawing.Size(10, 10);
-            this.pictureImg.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureImg.TabIndex = 0;
-            this.pictureImg.TabStop = false;
-            this.pictureImg.Click += new System.EventHandler(this.pictureImg_Click);
+            //this.pictureImg.Location = new System.Drawing.Point(0, 0);
+            //this.pictureImg.Name = "pictureImg";
+            //this.pictureImg.Size = new System.Drawing.Size(10, 10);
+            //this.pictureImg.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            //this.pictureImg.TabIndex = 0;
+            //this.pictureImg.TabStop = false;
+            //this.pictureImg.Click += new System.EventHandler(this.pictureImg_Click);
             // 
             // numImgLevel
             // 
@@ -1029,7 +1029,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numImgLayer)).EndInit();
             this.panelImg.ResumeLayout(false);
             this.panelImg.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureImg)).EndInit();
+            //((System.ComponentModel.ISupportInitialize)(this.pictureImg)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numImgLevel)).EndInit();
             this.tabDataBuf.ResumeLayout(false);
             this.tableLayoutBufferDef.ResumeLayout(false);
@@ -1075,13 +1075,13 @@
         private System.Windows.Forms.TabPage tabDataImg;
         private System.Windows.Forms.TabPage tabDataBuf;
         private System.Windows.Forms.TableLayoutPanel tableLayoutImages;
-        private System.Windows.Forms.PictureBox pictureImg;
+        //private System.Windows.Forms.PictureBox pictureImg;
         private System.Windows.Forms.ComboBoxEx comboImg;
         private System.Windows.Forms.TableLayoutPanel tableLayoutBufferDef;
         private System.Windows.Forms.ComboBoxEx comboBuf;
         private System.Windows.Forms.DataGridView tableBuf;
         private System.Windows.Forms.TableLayoutPanel tabCodeTableLayout;
-        private System.Windows.Forms.Panel panelImg;
+        private System.Windows.Forms.ImageViewer panelImg;
         private System.Windows.Forms.TableLayoutPanel tableLayoutBuffers;
         private System.Windows.Forms.ComboBoxEx comboBufType;
         private System.Windows.Forms.ToolStripContainer toolStripContainer;

@@ -37,7 +37,7 @@ namespace App
             glControl.MakeCurrent();
             var bmp = img.Read((int)numImgLayer.Value, 0);
             bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
-            pictureImg.Image = bmp;
+            panelImg.Image.Image = bmp;
         }
 
         /// <summary>

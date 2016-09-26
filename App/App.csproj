@@ -142,6 +142,9 @@
     <Compile Include="src\GLTexture.cs" />
     <Compile Include="src\GLVertinput.cs" />
     <Compile Include="src\GLVertoutput.cs" />
+    <Compile Include="src\ImageViewer.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="src\Lexing.cs" />
     <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -44,20 +44,20 @@ namespace System.Windows.Forms
 
         private static bool ApplyTo(PropertyGrid c)
         {
-            c.BackColor = Workspace;
+            c.BackColor = BackColor;
             c.CategoryForeColor = ForeColor;
-            c.CategorySplitterColor = Workspace;
-            c.DisabledItemForeColor = WorkspaceHighlight;
-            c.HelpBackColor = BackColor;
-            c.HelpBorderColor = HighlightBackColor;
-            c.HelpForeColor = HighlightBackColor;
+            c.CategorySplitterColor = BackColor;
+            c.DisabledItemForeColor = HighlightBackColor;
+            c.HelpBackColor = Workspace;
+            c.HelpBorderColor = BackColor;
+            c.HelpForeColor = ForeColor;
             c.LineColor = BackColor;
             c.SelectedItemWithFocusBackColor = WorkspaceHighlight;
             c.SelectedItemWithFocusForeColor = ForeColor;
             c.ViewBackColor = Workspace;
             c.ViewBorderColor = WorkspaceHighlight;
             c.ViewForeColor = ForeColor;
-            return true;
+            return false;
         }
 
         private static bool ApplyTo(DataGridView c)
@@ -71,7 +71,7 @@ namespace System.Windows.Forms
             c.ColumnHeadersDefaultCellStyle.SelectionForeColor = HighlightForeColor;
             var style = new DataGridViewCellStyle();
             style.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            style.Font = new Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            style.Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0)));
             style.WrapMode = DataGridViewTriState.False;
             style.BackColor = Workspace;
             style.ForeColor = ForeColor;
@@ -90,7 +90,7 @@ namespace System.Windows.Forms
         {
             c.ForeColor = ForeColor;
             c.BackColor = Workspace;
-            c.BorderColor = HighlightBackColor;
+            c.BorderColor = ForeColor;
             return true;
         }
 
@@ -114,7 +114,13 @@ namespace System.Windows.Forms
         {
             c.BackColor = Workspace;
             c.ForeColor = ForeColor;
-            c.BorderStyle = BorderStyle.FixedSingle;
+            return false;
+        }
+
+        private static bool ApplyTo(ImageViewer c)
+        {
+            c.BackColor = Workspace;
+            c.ForeColor = ForeColor;
             return false;
         }
 

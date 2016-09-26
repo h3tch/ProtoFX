@@ -468,14 +468,14 @@ namespace System.Windows.Forms
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            //e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             //content border
             Rectangle rectCont = rectContent;
             rectCont.X += 1;
             rectCont.Y += 1;
-            rectCont.Width -= 3;
-            rectCont.Height -= 3;
+            rectCont.Width -= 2;
+            rectCont.Height -= 2;
             GraphicsPath pathContentBorder = CreateRoundRectangle(rectCont, Radius.TopLeft, Radius.TopRight, Radius.BottomRight,
                 Radius.BottomLeft);
 
@@ -483,8 +483,8 @@ namespace System.Windows.Forms
             Rectangle rectButton = rectBtn;
             rectButton.X += 1;
             rectButton.Y += 1;
-            rectButton.Width -= 3;
-            rectButton.Height -= 3;
+            rectButton.Width -= 2;
+            rectButton.Height -= 2;
             GraphicsPath pathBtnBorder = CreateRoundRectangle(rectButton, 0, Radius.TopRight, Radius.BottomRight, 0);
 
             //outer border
@@ -498,10 +498,10 @@ namespace System.Windows.Forms
             Rectangle rectInner = rectContent;
             rectInner.X += 1;
             rectInner.Y += 1;
-            rectInner.Width -= 3;
-            rectInner.Height -= 3;
-            GraphicsPath pathInnerBorder = CreateRoundRectangle(rectInner, Radius.TopLeft, Radius.TopRight, Radius.BottomRight,
-                Radius.BottomLeft);
+            rectInner.Width -= 2;
+            rectInner.Height -= 2;
+            //GraphicsPath pathInnerBorder = CreateRoundRectangle(rectInner, Radius.TopLeft, Radius.TopRight, Radius.BottomRight,
+            //    Radius.BottomLeft);
 
             //brushes and pens
             Brush brInnerBrush = new SolidBrush(ForeColor);
@@ -522,7 +522,7 @@ namespace System.Windows.Forms
             e.Graphics.DrawPath(penOuterBorder, pathOuterBorder);
 
             e.Graphics.DrawLine(penLeftButton, rectBtn.Left + 1, rectInner.Top+1, rectBtn.Left + 1, rectInner.Bottom-1);
-            
+
             //Glimph
             Rectangle rectGlimph = rectButton;
             rectButton.Width -= 4;
@@ -561,8 +561,8 @@ namespace System.Windows.Forms
             
             // dispose brushes and pens
             pathContentBorder.Dispose();
-            pathOuterBorder.Dispose();
-            pathInnerBorder.Dispose();
+            //pathOuterBorder.Dispose();
+            //pathInnerBorder.Dispose();
             pathBtnBorder.Dispose();
 
             penOuterBorder.Dispose();
@@ -607,17 +607,14 @@ namespace System.Windows.Forms
             set 
             { 
                 _listBox.SelectedItem = value;
-                this.SelectedIndex = _listBox.SelectedIndex;
+                SelectedIndex = _listBox.SelectedIndex;
             }
         }
 
         public new object SelectedValue
         {
             get { return base.SelectedValue; }
-            set
-            {
-                base.SelectedValue = value;
-            }
+            set { base.SelectedValue = value; }
         }
 
         protected override void RefreshItem(int index)
@@ -769,33 +766,33 @@ namespace System.Windows.Forms
         public static GraphicsPath CreateRoundRectangle(Rectangle rectangle, int topLeftRadius, int topRightRadius,
             int bottomRightRadius, int bottomLeftRadius)
         {
-            GraphicsPath path = new GraphicsPath();
+            var path = new GraphicsPath();
             int l = rectangle.Left;
             int t = rectangle.Top;
             int w = rectangle.Width;
             int h = rectangle.Height;
 
             if(topLeftRadius > 0)
-            {
                 path.AddArc(l, t, topLeftRadius * 2, topLeftRadius * 2, 180, 90);
-            }
+            
             path.AddLine(l + topLeftRadius, t, l + w - topRightRadius, t);
+
             if (topRightRadius > 0)
-            {
                 path.AddArc(l + w - topRightRadius * 2, t, topRightRadius * 2, topRightRadius * 2, 270, 90);
-            }
+            
             path.AddLine(l + w, t + topRightRadius, l + w, t + h - bottomRightRadius);
+
             if (bottomRightRadius > 0)
-            {
                 path.AddArc(l + w - bottomRightRadius * 2, t + h - bottomRightRadius * 2,
                     bottomRightRadius * 2, bottomRightRadius * 2, 0, 90);
-            }
+            
             path.AddLine(l + w - bottomRightRadius, t + h, l + bottomLeftRadius, t + h);
+
             if(bottomLeftRadius >0)
-            {
                 path.AddArc(l, t + h - bottomLeftRadius * 2, bottomLeftRadius * 2, bottomLeftRadius * 2, 90, 90);
-            }
+
             path.AddLine(l, t + h - bottomLeftRadius, l, t + topLeftRadius);
+
             path.CloseFigure();
             return path;
         }
