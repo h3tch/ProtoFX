@@ -26,7 +26,7 @@ namespace App
 
             Styles[Style.Default].ForeColor = Theme.ForeColor;
             Styles[Style.Default].BackColor = Theme.Workspace;
-            Styles[Style.LineNumber].ForeColor = Theme.HighlightBackColor;
+            Styles[Style.LineNumber].ForeColor = Theme.Workspace;
             Styles[Style.LineNumber].BackColor = Theme.BackColor;
 
             // set styles as defined in the keyword file

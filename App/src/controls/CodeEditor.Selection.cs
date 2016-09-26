@@ -22,7 +22,7 @@ namespace App
             Indicators[DebugIndicatorIndex].ForeColor = Color.Red;
             Indicators[DebugIndicatorIndex].Style = IndicatorStyle.Squiggle;
 
-            SetSelectionBackColor(true, Theme.HighlightBackColor);
+            SetSelectionBackColor(true, Theme.SelectBackColor);
 
             // setup multi line selection
             MultipleSelection = true;

@@ -7,6 +7,8 @@ namespace System.Windows.Forms
     public class TabControlEx : TabControl
     {
         #region FIELDS
+        private bool closeButton;
+        private int closeButtonSize;
         private Color forecolor;
         private Color backcolor;
         private Color highlightforecolor;
@@ -30,13 +32,34 @@ namespace System.Windows.Forms
             get { return workspacecolor; }
             set { WorkspaceBrush = new SolidBrush(value); workspacecolor = value; }
         }
+        public bool CloseButton
+        {
+            get { return closeButton; }
+            set {
+                if (closeButton = value)
+                {
+                    TextFormat.Alignment = StringAlignment.Near;
+                    TextFormat.LineAlignment = StringAlignment.Near;
+                    Padding = new Drawing.Point(closeButtonSize + 5, 3);
+                    Margin = new Forms.Padding(3, 3, closeButtonSize + 5, 3);
+                }
+                else
+                {
+                    TextFormat.Alignment = StringAlignment.Center;
+                    TextFormat.LineAlignment = StringAlignment.Center;
+                    Padding = new Drawing.Point(3, 3);
+                    Margin = new Forms.Padding(3);
+                }
+            }
+        }
+        public int CloseButtonSize { get { return closeButtonSize; } set { closeButtonSize = value; } }
         internal Brush BackBrush;
         internal Brush ForeBrush;
         internal Brush HighlightForeBrush;
         internal Brush WorkspaceBrush;
-        internal StringFormat textFormat;
+        internal StringFormat TextFormat;
         internal PointF[] poly;
-        const int TabMarginL = 8;
+        const int TabMarginL = 2;
         const int TabMarginR = 2;
         #endregion
 
@@ -50,9 +73,9 @@ namespace System.Windows.Forms
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             
             // set the tabs text style
-            textFormat = new StringFormat();
-            textFormat.Alignment = StringAlignment.Center;
-            textFormat.LineAlignment = StringAlignment.Center;
+            TextFormat = new StringFormat();
+            CloseButton = false;
+            CloseButtonSize = 8;
 
             // set style to current theme
             ForeColor = SystemColors.ControlText;
@@ -144,7 +167,18 @@ namespace System.Windows.Forms
             }
             
             // draw string
-            g.DrawString(tab.Text, Font, ForeBrush, textRect, textFormat);
+            g.DrawString(tab.Text, Font, ForeBrush, textRect, TextFormat);
+
+            if (closeButton)
+            {
+                var Y = tabRect.Top + (tabRect.Bottom - tabRect.Top - closeButtonSize) / 2;
+                var X = tabRect.Right - 5 - closeButtonSize;
+                //var rect = new Rectangle(X - 2, Y - 2, closeButtonSize + 5, closeButtonSize + 5);
+                //if (rect.Contains(Cursor.Position))
+                //    g.FillRectangle(ForeBrush, rect);
+                g.DrawLine(pen, X, Y, X + closeButtonSize, Y + closeButtonSize);
+                g.DrawLine(pen, X, Y + closeButtonSize, X + closeButtonSize, Y);
+            }
 
             // clean up
             pen.Dispose();

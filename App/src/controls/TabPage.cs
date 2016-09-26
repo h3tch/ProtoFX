@@ -7,8 +7,7 @@
         public TabPageEx(string filepath) : base()
         {
             this.filepath = filepath;
-            BackColor = Theme.BackColor;
-            ForeColor = Theme.ForeColor;
+            Margin = new Padding(10, 3, 3, 10);
         }
     }
     

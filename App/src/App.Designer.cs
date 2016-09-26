@@ -29,12 +29,11 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(App));
             this.layoutMain = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutTitleBar = new System.Windows.Forms.TableLayoutPanel();
@@ -84,7 +83,6 @@
             this.numImgLayer = new System.Windows.Forms.NumericUpDown();
             this.comboImg = new System.Windows.Forms.ComboBoxEx();
             this.panelImg = new System.Windows.Forms.ImageViewer();
-            //this.pictureImg = new System.Windows.Forms.PictureBox();
             this.numImgLevel = new System.Windows.Forms.NumericUpDown();
             this.tabDataBuf = new System.Windows.Forms.TabPage();
             this.tableLayoutBufferDef = new System.Windows.Forms.TableLayoutPanel();
@@ -128,8 +126,6 @@
             this.tabDataImg.SuspendLayout();
             this.tableLayoutImages.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numImgLayer)).BeginInit();
-            this.panelImg.SuspendLayout();
-            //((System.ComponentModel.ISupportInitialize)(this.pictureImg)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numImgLevel)).BeginInit();
             this.tabDataBuf.SuspendLayout();
             this.tableLayoutBufferDef.SuspendLayout();
@@ -288,6 +284,7 @@
             // 
             // glControl
             // 
+            this.glControl.BackColor = System.Drawing.Color.Black;
             this.glControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.glControl.Location = new System.Drawing.Point(0, 0);
             this.glControl.Margin = new System.Windows.Forms.Padding(6, 8, 6, 8);
@@ -303,12 +300,15 @@
             this.tabOutput.Controls.Add(this.tabCompile);
             this.tabOutput.Controls.Add(this.tabDebugger);
             this.tabOutput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabOutput.HighlightForeColor = System.Drawing.SystemColors.HighlightText;
             this.tabOutput.Location = new System.Drawing.Point(0, 0);
             this.tabOutput.Margin = new System.Windows.Forms.Padding(0);
             this.tabOutput.Name = "tabOutput";
+            this.tabOutput.Padding = new System.Drawing.Point(2, 2);
             this.tabOutput.SelectedIndex = 0;
             this.tabOutput.Size = new System.Drawing.Size(750, 254);
             this.tabOutput.TabIndex = 1;
+            this.tabOutput.WorkspaceColor = System.Drawing.SystemColors.AppWorkspace;
             // 
             // tabCompile
             // 
@@ -339,20 +339,24 @@
             this.File,
             this.Line,
             this.Description});
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.output.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.output.DefaultCellStyle = dataGridViewCellStyle2;
             this.output.Dock = System.Windows.Forms.DockStyle.Fill;
             this.output.EnableHeadersVisualStyles = false;
             this.output.Location = new System.Drawing.Point(3, 3);
             this.output.Margin = new System.Windows.Forms.Padding(0);
             this.output.Name = "output";
             this.output.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.output.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.output.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.output.RowHeadersVisible = false;
             this.output.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.output.Size = new System.Drawing.Size(736, 215);
@@ -361,7 +365,6 @@
             // 
             // File
             // 
-            this.File.DefaultCellStyle = dataGridViewCellStyle2;
             this.File.FillWeight = 12F;
             this.File.HeaderText = "File";
             this.File.Name = "File";
@@ -442,13 +445,15 @@
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
             this.tabControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabControl.HighlightForeColor = System.Drawing.SystemColors.HighlightText;
             this.tabControl.Location = new System.Drawing.Point(0, 0);
             this.tabControl.Margin = new System.Windows.Forms.Padding(0);
             this.tabControl.Name = "tabControl";
-            this.tabControl.Padding = new System.Drawing.Point(0, 0);
+            this.tabControl.Padding = new System.Drawing.Point(2, 2);
             this.tabControl.SelectedIndex = 0;
             this.tabControl.Size = new System.Drawing.Size(710, 756);
             this.tabControl.TabIndex = 1;
+            this.tabControl.WorkspaceColor = System.Drawing.SystemColors.AppWorkspace;
             // 
             // tabCode
             // 
@@ -503,13 +508,15 @@
             // tabSource
             // 
             this.tabSource.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabSource.HighlightForeColor = System.Drawing.SystemColors.HighlightText;
             this.tabSource.Location = new System.Drawing.Point(0, 0);
             this.tabSource.Margin = new System.Windows.Forms.Padding(0);
             this.tabSource.Name = "tabSource";
-            this.tabSource.Padding = new System.Drawing.Point(0, 0);
             this.tabSource.SelectedIndex = 0;
             this.tabSource.Size = new System.Drawing.Size(665, 698);
             this.tabSource.TabIndex = 0;
+            this.tabSource.WorkspaceColor = System.Drawing.SystemColors.AppWorkspace;
+            this.tabSource.CloseButton = true;
             // 
             // toolStrip
             // 
@@ -684,12 +691,15 @@
             this.tabData.Controls.Add(this.tabDataImg);
             this.tabData.Controls.Add(this.tabDataBuf);
             this.tabData.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabData.HighlightForeColor = System.Drawing.SystemColors.HighlightText;
             this.tabData.Location = new System.Drawing.Point(3, 3);
             this.tabData.Margin = new System.Windows.Forms.Padding(0);
             this.tabData.Name = "tabData";
+            this.tabData.Padding = new System.Drawing.Point(2, 2);
             this.tabData.SelectedIndex = 0;
             this.tabData.Size = new System.Drawing.Size(696, 717);
             this.tabData.TabIndex = 0;
+            this.tabData.WorkspaceColor = System.Drawing.SystemColors.AppWorkspace;
             // 
             // tabDataImg
             // 
@@ -736,6 +746,8 @@
             // 
             // comboImg
             // 
+            this.comboImg.BackColor = System.Drawing.SystemColors.Control;
+            this.comboImg.BorderColor = System.Drawing.SystemColors.ActiveBorder;
             this.comboImg.Dock = System.Windows.Forms.DockStyle.Fill;
             this.comboImg.DrawMode = System.Windows.Forms.DrawMode.Normal;
             this.comboImg.DropDownHeight = 200;
@@ -751,6 +763,7 @@
             this.comboImg.Size = new System.Drawing.Size(403, 29);
             this.comboImg.Soreted = false;
             this.comboImg.TabIndex = 1;
+            this.comboImg.Transparent = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.comboImg.SelectedIndexChanged += new System.EventHandler(this.comboImg_SelectedIndexChanged);
             // 
             // panelImg
@@ -763,17 +776,7 @@
             this.panelImg.Name = "panelImg";
             this.panelImg.Size = new System.Drawing.Size(682, 651);
             this.panelImg.TabIndex = 2;
-            this.panelImg.Image.Click += new System.EventHandler(this.pictureImg_Click);
-            // 
-            // pictureImg
-            // 
-            //this.pictureImg.Location = new System.Drawing.Point(0, 0);
-            //this.pictureImg.Name = "pictureImg";
-            //this.pictureImg.Size = new System.Drawing.Size(10, 10);
-            //this.pictureImg.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            //this.pictureImg.TabIndex = 0;
-            //this.pictureImg.TabStop = false;
-            //this.pictureImg.Click += new System.EventHandler(this.pictureImg_Click);
+            this.panelImg.Click += new System.EventHandler(this.pictureImg_Click);
             // 
             // numImgLevel
             // 
@@ -814,15 +817,19 @@
             this.tableBuf.AllowUserToDeleteRows = false;
             this.tableBuf.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tableBuf.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.tableBuf.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.tableBuf.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.tableBuf.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.tableBuf.DefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.tableBuf.DefaultCellStyle = dataGridViewCellStyle5;
             this.tableBuf.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableBuf.EnableHeadersVisualStyles = false;
             this.tableBuf.Location = new System.Drawing.Point(0, 40);
@@ -830,10 +837,10 @@
             this.tableBuf.Name = "tableBuf";
             this.tableBuf.ReadOnly = true;
             this.tableBuf.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.tableBuf.RowHeadersDefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.tableBuf.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
             this.tableBuf.RowTemplate.Height = 28;
             this.tableBuf.Size = new System.Drawing.Size(682, 638);
             this.tableBuf.TabIndex = 1;
@@ -858,6 +865,8 @@
             // 
             // comboBuf
             // 
+            this.comboBuf.BackColor = System.Drawing.SystemColors.Control;
+            this.comboBuf.BorderColor = System.Drawing.SystemColors.ActiveBorder;
             this.comboBuf.Dock = System.Windows.Forms.DockStyle.Fill;
             this.comboBuf.DrawMode = System.Windows.Forms.DrawMode.Normal;
             this.comboBuf.DropDownHeight = 200;
@@ -873,10 +882,13 @@
             this.comboBuf.Size = new System.Drawing.Size(403, 29);
             this.comboBuf.Soreted = false;
             this.comboBuf.TabIndex = 0;
+            this.comboBuf.Transparent = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.comboBuf.SelectedIndexChanged += new System.EventHandler(this.comboBuf_SelectedIndexChanged);
             // 
             // comboBufType
             // 
+            this.comboBufType.BackColor = System.Drawing.SystemColors.Control;
+            this.comboBufType.BorderColor = System.Drawing.SystemColors.ActiveBorder;
             this.comboBufType.Dock = System.Windows.Forms.DockStyle.Fill;
             this.comboBufType.DrawMode = System.Windows.Forms.DrawMode.Normal;
             this.comboBufType.DropDownHeight = 200;
@@ -892,6 +904,7 @@
             this.comboBufType.Size = new System.Drawing.Size(130, 29);
             this.comboBufType.Soreted = false;
             this.comboBufType.TabIndex = 1;
+            this.comboBufType.Transparent = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.comboBufType.SelectedIndexChanged += new System.EventHandler(this.comboBufType_SelectedIndexChanged);
             // 
             // numBufDim
@@ -957,6 +970,8 @@
             // 
             // comboProp
             // 
+            this.comboProp.BackColor = System.Drawing.SystemColors.Control;
+            this.comboProp.BorderColor = System.Drawing.SystemColors.ActiveBorder;
             this.comboProp.Dock = System.Windows.Forms.DockStyle.Top;
             this.comboProp.DrawMode = System.Windows.Forms.DrawMode.Normal;
             this.comboProp.DropDownHeight = 200;
@@ -972,6 +987,7 @@
             this.comboProp.Size = new System.Drawing.Size(690, 29);
             this.comboProp.Soreted = false;
             this.comboProp.TabIndex = 0;
+            this.comboProp.Transparent = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.comboProp.SelectedIndexChanged += new System.EventHandler(this.comboProp_SelectedIndexChanged);
             // 
             // App
@@ -1027,9 +1043,6 @@
             this.tabDataImg.ResumeLayout(false);
             this.tableLayoutImages.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.numImgLayer)).EndInit();
-            this.panelImg.ResumeLayout(false);
-            this.panelImg.PerformLayout();
-            //((System.ComponentModel.ISupportInitialize)(this.pictureImg)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numImgLevel)).EndInit();
             this.tabDataBuf.ResumeLayout(false);
             this.tableLayoutBufferDef.ResumeLayout(false);
@@ -1075,7 +1088,6 @@
         private System.Windows.Forms.TabPage tabDataImg;
         private System.Windows.Forms.TabPage tabDataBuf;
         private System.Windows.Forms.TableLayoutPanel tableLayoutImages;
-        //private System.Windows.Forms.PictureBox pictureImg;
         private System.Windows.Forms.ComboBoxEx comboImg;
         private System.Windows.Forms.TableLayoutPanel tableLayoutBufferDef;
         private System.Windows.Forms.ComboBoxEx comboBuf;

@@ -16,7 +16,6 @@ namespace App
     {
         public static CultureInfo Culture = new CultureInfo("en");
         public CodeEditor CompiledEditor = null;
-        public Theme Theme;
 
         public App()
         {
@@ -631,10 +630,9 @@ namespace App
             editor.MouseMove += new MouseEventHandler(editor_MouseMove);
 
             // tabSourcePage
+            Theme.Apply(tabSourcePage);
             tabSourcePage.Controls.Add(editor);
             tabSourcePage.Location = new Point(4, 31);
-            tabSourcePage.Margin = new Padding(0);
-            tabSourcePage.Padding = new Padding(3);
             tabSourcePage.TabIndex = 0;
             tabSourcePage.Text = filename;
             tabSourcePage.AllowDrop = true;
