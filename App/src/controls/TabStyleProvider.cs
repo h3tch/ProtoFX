@@ -1,20 +1,23 @@
-﻿/*
- * This code is provided under the Code Project Open Licence (CPOL)
- * See http://www.codeproject.com/info/cpol10.aspx for details
- */
-
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
 namespace System.Windows.Forms
 {
+    public enum TabStyle
+    {
+        None,
+        Default,
+        Rounded,
+        Dark,
+    }
+
     [System.ComponentModel.ToolboxItem(false)]
     public abstract class TabStyleProvider : Component
     {
         #region Constructor
         
-        protected TabStyleProvider(CustomTabControl tabControl){
+        protected TabStyleProvider(FXTabControl tabControl){
             _TabControl = tabControl;
             
             _BorderColor = Color.Empty;
@@ -34,7 +37,7 @@ namespace System.Windows.Forms
 
         #region Factory Methods
         
-        public static TabStyleProvider CreateProvider(CustomTabControl tabControl){
+        public static TabStyleProvider CreateProvider(FXTabControl tabControl){
             TabStyleProvider provider;
             
             //	Depending on the display style of the tabControl generate an appropriate provider.
@@ -42,39 +45,15 @@ namespace System.Windows.Forms
                 case TabStyle.None:
                     provider = new TabStyleNoneProvider(tabControl);
                     break;
-                    
                 case TabStyle.Default:
                     provider = new TabStyleDefaultProvider(tabControl);
                     break;
-                    
-                case TabStyle.Angled:
-                    provider = new TabStyleAngledProvider(tabControl);
-                    break;
-                    
                 case TabStyle.Rounded:
                     provider = new TabStyleRoundedProvider(tabControl);
                     break;
-                    
-                case TabStyle.VisualStudio:
-                    provider = new TabStyleVisualStudioProvider(tabControl);
-                    break;
-                    
-                case TabStyle.Chrome:
-                    provider = new TabStyleChromeProvider(tabControl);
-                    break;
-                    
-                case TabStyle.IE8:
-                    provider = new TabStyleIE8Provider(tabControl);
-                    break;
-
-                case TabStyle.VS2010:
-                    provider = new TabStyleVS2010Provider(tabControl);
-                    break;
-
                 case TabStyle.Dark:
-                    provider = new TabStyleDarkProvider(tabControl);
+                    provider = new FXTabStyleProvider(tabControl);
                     break;
-
                 default:
                     provider = new TabStyleDefaultProvider(tabControl);
                     break;
@@ -89,7 +68,7 @@ namespace System.Windows.Forms
         #region	Protected variables
         
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields")]
-        protected CustomTabControl _TabControl;
+        protected FXTabControl _TabControl;
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields")]
         protected Drawing.Point _Padding;
@@ -97,7 +76,6 @@ namespace System.Windows.Forms
         protected bool _HotTrack;
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields")]
         protected TabStyle _Style = TabStyle.Default;
-        
         
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields")]
         protected ContentAlignment _ImageAlign;
@@ -195,8 +173,7 @@ namespace System.Windows.Forms
 
             return tabBounds;
         }
-
-
+        
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "0#")]
         protected virtual void EnsureFirstTabIsInView(ref Rectangle tabBounds, int index)
         {
@@ -361,10 +338,7 @@ namespace System.Windows.Forms
         {
             get { return _Radius; }
             set {
-                if (value < 1)
-                    throw new ArgumentException("The radius must be greater than 1", "value");
-                _Radius = value;
-                //	Adjust padding
+                _Radius = Math.Max(1, value);
                 Padding = _Padding;
             }
         }
@@ -373,11 +347,7 @@ namespace System.Windows.Forms
         public int Overlap
         {
             get { return _Overlap; }
-            set {
-                if (value < 0)
-                    throw new ArgumentException("The tabs cannot have a negative overlap", "value");
-                _Overlap = value;
-            }
+            set { _Overlap = Math.Max(0, value); }
         }
         
         [Category("Appearance")]
@@ -406,7 +376,6 @@ namespace System.Windows.Forms
             get { return _ShowTabCloser; }
             set {
                 _ShowTabCloser = value;
-                //	Adjust padding
                 Padding = _Padding;
             }
         }
@@ -416,11 +385,7 @@ namespace System.Windows.Forms
         {
             get { return _Opacity; }
             set {
-                if (value < 0)
-                    throw new ArgumentException("The opacity must be between 0 and 1", "value");
-                if (value > 1)
-                    throw new ArgumentException("The opacity must be between 0 and 1", "value");
-                _Opacity = value;
+                _Opacity = Math.Min(1, Math.Max(0, value));
                 _TabControl.Invalidate();
             }
         }
@@ -429,10 +394,10 @@ namespace System.Windows.Forms
         public Color BorderColorSelected
         {
             get {
-                return _BorderColorSelected.IsEmpty ? ThemedColors.ToolBorder : _BorderColorSelected;
+                return _BorderColorSelected.IsEmpty ? SystemColors.ActiveBorder : _BorderColorSelected;
             }
             set {
-                _BorderColorSelected = value.Equals(ThemedColors.ToolBorder) ? Color.Empty : value;
+                _BorderColorSelected = value.Equals(SystemColors.ActiveBorder) ? Color.Empty : value;
                 _TabControl.Invalidate();
             }
         }

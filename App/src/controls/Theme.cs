@@ -94,7 +94,7 @@ namespace System.Windows.Forms
             return null;
         }
 
-        #region APPLY TO
+        #region APPLY THEME TO
         private static bool ApplyTo(PropertyGrid c)
         {
             c.BackColor = BackColor;
@@ -147,16 +147,7 @@ namespace System.Windows.Forms
             return true;
         }
 
-        private static bool ApplyTo(TabControlEx c)
-        {
-            c.BackColor = BackColor;
-            c.ForeColor = ForeColor;
-            c.HighlightForeColor = HighlightForeColor;
-            c.WorkspaceColor = Workspace;
-            return true;
-        }
-
-        private static bool ApplyTo(CustomTabControl c)
+        private static bool ApplyTo(FXTabControl c)
         {
             c.BackColor = BackColor;
             c.ForeColor = ForeColor;

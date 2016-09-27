@@ -8,7 +8,7 @@ namespace System.Windows.Forms
     [System.ComponentModel.ToolboxItem(false)]
     public class TabStyleNoneProvider : TabStyleProvider
     {
-        public TabStyleNoneProvider(CustomTabControl tabControl) : base(tabControl) { }
+        public TabStyleNoneProvider(FXTabControl tabControl) : base(tabControl) { }
 
         public override void AddTabBorder(Drawing.Drawing2D.GraphicsPath path, Drawing.Rectangle tabBounds) { }
     }

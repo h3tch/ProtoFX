@@ -10,7 +10,7 @@ namespace System.Windows.Forms
     [System.ComponentModel.ToolboxItem(false)]
     public class TabStyleDefaultProvider : TabStyleProvider
     {
-        public TabStyleDefaultProvider(CustomTabControl tabControl) : base(tabControl)
+        public TabStyleDefaultProvider(FXTabControl tabControl) : base(tabControl)
         {
             _FocusTrack = true;
             _Radius = 2;

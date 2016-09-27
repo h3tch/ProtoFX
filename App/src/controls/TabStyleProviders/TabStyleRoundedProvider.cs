@@ -11,7 +11,7 @@ namespace System.Windows.Forms
     [System.ComponentModel.ToolboxItem(false)]
     public class TabStyleRoundedProvider : TabStyleProvider
     {
-        public TabStyleRoundedProvider(CustomTabControl tabControl) : base(tabControl)
+        public TabStyleRoundedProvider(FXTabControl tabControl) : base(tabControl)
         {
             _Radius = 10;
             //	Must set after the _Radius as this is used in the calculations of the actual padding

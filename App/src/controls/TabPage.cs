@@ -7,7 +7,6 @@
         public TabPageEx(string filepath) : base()
         {
             this.filepath = filepath;
-            Margin = new Padding(10, 3, 3, 10);
         }
     }
     
