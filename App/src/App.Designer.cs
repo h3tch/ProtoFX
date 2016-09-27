@@ -45,7 +45,7 @@
             this.splitRenderCoding = new System.Windows.Forms.SplitContainer();
             this.splitRenderOutput = new System.Windows.Forms.SplitContainer();
             this.glControl = new OpenTK.GraphicControl();
-            this.tabOutput = new System.Windows.Forms.TabControlEx();
+            this.tabOutput = new System.Windows.Forms.CustomTabControl();
             this.tabCompile = new System.Windows.Forms.TabPage();
             this.output = new System.Windows.Forms.DataGridView();
             this.File = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -55,11 +55,11 @@
             this.splitDebug = new System.Windows.Forms.SplitContainer();
             this.debugListView = new System.Windows.Forms.ListView();
             this.debugProperty = new System.Windows.Forms.PropertyGrid();
-            this.tabControl = new System.Windows.Forms.TabControlEx();
+            this.tabControl = new System.Windows.Forms.CustomTabControl();
             this.tabCode = new System.Windows.Forms.TabPage();
             this.tabCodeTableLayout = new System.Windows.Forms.TableLayoutPanel();
             this.toolStripContainer = new System.Windows.Forms.ToolStripContainer();
-            this.tabSource = new System.Windows.Forms.TabControlEx();
+            this.tabSource = new System.Windows.Forms.CustomTabControl();
             this.toolStrip = new System.Windows.Forms.ToolStripEx();
             this.toolBtnClose = new System.Windows.Forms.ToolStripButton();
             this.toolBtnNew = new System.Windows.Forms.ToolStripButton();
@@ -77,7 +77,7 @@
             this.toolBtnComment = new System.Windows.Forms.ToolStripButton();
             this.toolBtnUncomment = new System.Windows.Forms.ToolStripButton();
             this.tabResources = new System.Windows.Forms.TabPage();
-            this.tabData = new System.Windows.Forms.TabControlEx();
+            this.tabData = new System.Windows.Forms.CustomTabControl();
             this.tabDataImg = new System.Windows.Forms.TabPage();
             this.tableLayoutImages = new System.Windows.Forms.TableLayoutPanel();
             this.numImgLayer = new System.Windows.Forms.NumericUpDown();
@@ -300,7 +300,6 @@
             this.tabOutput.Controls.Add(this.tabCompile);
             this.tabOutput.Controls.Add(this.tabDebugger);
             this.tabOutput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabOutput.HighlightForeColor = System.Drawing.SystemColors.HighlightText;
             this.tabOutput.Location = new System.Drawing.Point(0, 0);
             this.tabOutput.Margin = new System.Windows.Forms.Padding(0);
             this.tabOutput.Name = "tabOutput";
@@ -308,7 +307,6 @@
             this.tabOutput.SelectedIndex = 0;
             this.tabOutput.Size = new System.Drawing.Size(750, 254);
             this.tabOutput.TabIndex = 1;
-            this.tabOutput.WorkspaceColor = System.Drawing.SystemColors.AppWorkspace;
             // 
             // tabCompile
             // 
@@ -445,7 +443,6 @@
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
             this.tabControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tabControl.HighlightForeColor = System.Drawing.SystemColors.HighlightText;
             this.tabControl.Location = new System.Drawing.Point(0, 0);
             this.tabControl.Margin = new System.Windows.Forms.Padding(0);
             this.tabControl.Name = "tabControl";
@@ -453,7 +450,6 @@
             this.tabControl.SelectedIndex = 0;
             this.tabControl.Size = new System.Drawing.Size(710, 756);
             this.tabControl.TabIndex = 1;
-            this.tabControl.WorkspaceColor = System.Drawing.SystemColors.AppWorkspace;
             // 
             // tabCode
             // 
@@ -508,15 +504,12 @@
             // tabSource
             // 
             this.tabSource.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabSource.HighlightForeColor = System.Drawing.SystemColors.HighlightText;
             this.tabSource.Location = new System.Drawing.Point(0, 0);
             this.tabSource.Margin = new System.Windows.Forms.Padding(0);
             this.tabSource.Name = "tabSource";
             this.tabSource.SelectedIndex = 0;
             this.tabSource.Size = new System.Drawing.Size(665, 698);
             this.tabSource.TabIndex = 0;
-            this.tabSource.WorkspaceColor = System.Drawing.SystemColors.AppWorkspace;
-            this.tabSource.CloseButton = true;
             // 
             // toolStrip
             // 
@@ -691,7 +684,6 @@
             this.tabData.Controls.Add(this.tabDataImg);
             this.tabData.Controls.Add(this.tabDataBuf);
             this.tabData.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabData.HighlightForeColor = System.Drawing.SystemColors.HighlightText;
             this.tabData.Location = new System.Drawing.Point(3, 3);
             this.tabData.Margin = new System.Windows.Forms.Padding(0);
             this.tabData.Name = "tabData";
@@ -699,7 +691,6 @@
             this.tabData.SelectedIndex = 0;
             this.tabData.Size = new System.Drawing.Size(696, 717);
             this.tabData.TabIndex = 0;
-            this.tabData.WorkspaceColor = System.Drawing.SystemColors.AppWorkspace;
             // 
             // tabDataImg
             // 
@@ -1084,7 +1075,7 @@
         private OpenTK.GraphicControl glControl;
         private System.Windows.Forms.TabPage tabCode;
         private System.Windows.Forms.TabPage tabResources;
-        private System.Windows.Forms.TabControlEx tabData;
+        private System.Windows.Forms.CustomTabControl tabData;
         private System.Windows.Forms.TabPage tabDataImg;
         private System.Windows.Forms.TabPage tabDataBuf;
         private System.Windows.Forms.TableLayoutPanel tableLayoutImages;
@@ -1097,7 +1088,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutBuffers;
         private System.Windows.Forms.ComboBoxEx comboBufType;
         private System.Windows.Forms.ToolStripContainer toolStripContainer;
-        private System.Windows.Forms.TabControlEx tabSource;
+        private System.Windows.Forms.CustomTabControl tabSource;
         private System.Windows.Forms.ToolStripEx toolStrip;
         private System.Windows.Forms.ToolStripButton toolBtnOpen;
         private System.Windows.Forms.ToolStripButton toolBtnSave;
@@ -1113,7 +1104,7 @@
         private System.Windows.Forms.ComboBoxEx comboProp;
         private System.Windows.Forms.NumericUpDown numImgLayer;
         private System.Windows.Forms.NumericUpDown numImgLevel;
-        private System.Windows.Forms.TabControlEx tabOutput;
+        private System.Windows.Forms.CustomTabControl tabOutput;
         private System.Windows.Forms.TabPage tabCompile;
         private System.Windows.Forms.TabPage tabDebugger;
         private System.Windows.Forms.PropertyGrid debugProperty;
@@ -1136,7 +1127,7 @@
         private System.Windows.Forms.Button btnWindowMinimize;
         private System.Windows.Forms.TableLayoutPanel tableLayoutTitleBar;
         private System.Windows.Forms.PictureBox imgAppIcon;
-        private System.Windows.Forms.TabControlEx tabControl;
+        private System.Windows.Forms.CustomTabControl tabControl;
         private System.Windows.Forms.DataGridViewTextBoxColumn File;
         private System.Windows.Forms.DataGridViewTextBoxColumn Line;
         private System.Windows.Forms.DataGridViewTextBoxColumn Description;

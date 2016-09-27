@@ -156,6 +156,24 @@ namespace System.Windows.Forms
             return true;
         }
 
+        private static bool ApplyTo(CustomTabControl c)
+        {
+            c.DisplayStyle = TabStyle.Dark;
+            c.BackColor = BackColor;
+            c.ForeColor = ForeColor;
+            c.DisplayStyleProvider.BackColor = BackColor;
+            c.DisplayStyleProvider.BackColorHot = WorkspaceHighlight;
+            c.DisplayStyleProvider.BackColorSelected = Workspace;
+            c.DisplayStyleProvider.CloserColorActive = Workspace;
+            c.DisplayStyleProvider.CloserColor = ForeColor;
+            c.DisplayStyleProvider.TextColor = ForeColor;
+            c.DisplayStyleProvider.TextColorSelected = ForeColor;
+            c.DisplayStyleProvider.TextColorDisabled = HighlightBackColor;
+            c.DisplayStyleProvider.BorderColor = Color.Transparent;
+            c.DisplayStyleProvider.BorderColorHot = HighlightBackColor;
+            return true;
+        }
+
         private static bool ApplyTo(TabPageEx c)
         {
             c.BackColor = BackColor;
