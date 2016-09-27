@@ -10,7 +10,7 @@
   <Style name='name' fore='#000000'/>
   <!-- TECH -->
   <Lexer type='tech' lexer='TechLexer'>
-    <Style name='preprocessor' fore='#A0A0A0'/>
+    <Style name='preprocessor' fore='#A08560'/>
     <Style name='type' fore='#3E71FF'/>
     <Style name='anno' fore='#2FABA7'/>
     <Keyword style_name='type' name='buffer' hint='Allocate buffer on the GPU.
@@ -593,7 +593,7 @@
     <Lexer type='shader' lexer='GlslLexer'>
       <Style name='keyword' fore='#3E71FF'/>
       <Style name='datatype' fore='#8676CC'/>
-      <Style name='preprocessor' fore='#A0A0A0'/>
+      <Style name='preprocessor' fore='#A08560'/>
       <Keyword style_name='keyword' name='in' hint='Specify a shader input stream from a vertex
                                                    \buffer object or the previous shader stage.'/>
       <Keyword style_name='keyword' name='out' hint='Specify a sshader output stream for the next
