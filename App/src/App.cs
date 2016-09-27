@@ -479,20 +479,20 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnClose_Click(object s, EventArgs e)
+        private void tabSource_TabClose(object s, TabControlCancelEventArgs e)
         {
-            if (tabSource.SelectedIndex < 0 || tabSource.SelectedIndex >= tabSource.TabPages.Count)
-                return;
-            var tab = (TabPageEx)tabSource.SelectedTab;
+            var tab = (TabPageEx)e.TabPage;
             if (tab.Text.EndsWith("*"))
             {
                 DialogResult answer = MessageBox.Show(
                     "Do you want to save the file before closing it?",
-                    "File changed", MessageBoxButtons.YesNo);
+                    "File changed", MessageBoxButtons.YesNoCancel);
                 if (answer == DialogResult.Yes)
                     SaveTabPage(tab, false);
+                else if (answer == DialogResult.Cancel)
+                    e.Cancel = true;
             }
-            tabSource.TabPages.RemoveAt(tabSource.SelectedIndex);
+            //tabSource.TabPages.RemoveAt(tabSource.SelectedIndex);
         }
 
         /// <summary>

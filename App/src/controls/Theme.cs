@@ -158,7 +158,6 @@ namespace System.Windows.Forms
 
         private static bool ApplyTo(CustomTabControl c)
         {
-            c.DisplayStyle = TabStyle.Dark;
             c.BackColor = BackColor;
             c.ForeColor = ForeColor;
             c.DisplayStyleProvider.BackColor = BackColor;
@@ -171,6 +170,7 @@ namespace System.Windows.Forms
             c.DisplayStyleProvider.TextColorDisabled = HighlightBackColor;
             c.DisplayStyleProvider.BorderColor = Color.Transparent;
             c.DisplayStyleProvider.BorderColorHot = HighlightBackColor;
+            c.DisplayStyleProvider.BorderColorSelected = HighlightBackColor;
             return true;
         }
 

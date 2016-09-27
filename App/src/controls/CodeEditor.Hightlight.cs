@@ -28,6 +28,8 @@ namespace App
             Styles[Style.Default].BackColor = Theme.Workspace;
             Styles[Style.LineNumber].ForeColor = Theme.Workspace;
             Styles[Style.LineNumber].BackColor = Theme.BackColor;
+            Styles[Style.CallTip].ForeColor = Theme.ForeColor;
+            Styles[Style.CallTip].BackColor = Theme.HighlightBackColor;
 
             // set styles as defined in the keyword file
             foreach (var style in FxLexer.Styles)
