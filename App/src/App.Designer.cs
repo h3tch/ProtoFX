@@ -1198,12 +1198,17 @@
             btnWindowClose.Width = btnWindowClose.Image.Width + 9;
             btnWindowClose.Height = btnWindowClose.Image.Height + 1;
 
-            tableLayoutMenu.ColumnStyles[0].Width = System.Math.Max(toolStrip.Width, toolStrip.Height) + 20;
+            int w = 0;
+            foreach (System.Windows.Forms.ToolStripItem item in toolStrip.Items)
+                w += item.Width;
+
+            tableLayoutMenu.ColumnStyles[0].Width = w + 20;
             tableLayoutMenu.ColumnStyles[1].Width = btnWindowMinimize.Width + 2;
             tableLayoutMenu.ColumnStyles[2].Width = btnWindowMaximize.Width + 2;
             tableLayoutMenu.ColumnStyles[3].Width = btnWindowClose.Width + 2;
 
-            panelMenu.Location = new System.Drawing.Point(panelCoding.Width - tableLayoutMenu.Width, 0);
+            panelMenu.Width = w + 20 + (btnWindowMinimize.Width + 2) * 3;
+            panelMenu.Location = new System.Drawing.Point(panelCoding.Width - panelMenu.Width, 0);
             panelMenu.Height = Properties.Resources.logo.Height + 4;
         }
         #endregion
@@ -1225,7 +1230,6 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutBuffers;
         private System.Windows.Forms.ComboBoxEx comboBufType;
         private System.Windows.Forms.FXTabControl tabSource;
-        private System.Windows.Forms.ToolStripEx toolStrip;
         private System.Windows.Forms.NumericUpDown numBufDim;
         private System.Windows.Forms.TabPage tabProperties;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
@@ -1243,6 +1247,7 @@
         private System.Windows.Forms.SplitContainer splitRenderOutput;
         private System.Windows.Forms.ToolStripContainer toolStripContainerCoding;
         private System.Windows.Forms.ToolStripContainer toolStripContainerMenu;
+        private System.Windows.Forms.ToolStripEx toolStrip;
         private System.Windows.Forms.ToolStripButton toolBtnOpen;
         private System.Windows.Forms.ToolStripButton toolBtnSave;
         private System.Windows.Forms.ToolStripButton toolBtnSaveAll;
