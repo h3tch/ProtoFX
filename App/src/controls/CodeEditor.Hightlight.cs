@@ -44,9 +44,9 @@ namespace App
         /// <summary>
         /// Handle style needed event.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleStyleNeeded(object sender, StyleNeededEventArgs e)
+        private void HandleStyleNeeded(object s, StyleNeededEventArgs e)
         {
             try
             {

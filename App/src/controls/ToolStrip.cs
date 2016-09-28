@@ -11,23 +11,23 @@ namespace System.Windows.Forms
 
         class CustomColorTable : ProfessionalColorTable
         {
-            //public override Color ButtonCheckedGradientBegin => Theme.BackColor;
-            //public override Color ButtonCheckedGradientEnd => Theme.BackColor;
-            //public override Color ButtonCheckedGradientMiddle => Theme.BackColor;
-            //public override Color ButtonCheckedHighlight => Theme.BackColor;
-            //public override Color ButtonCheckedHighlightBorder => Theme.BackColor;
-            //public override Color ButtonPressedBorder => Theme.BackColor;
-            //public override Color ButtonPressedGradientBegin => Theme.BackColor;
-            //public override Color ButtonPressedGradientEnd => Theme.BackColor;
-            //public override Color ButtonPressedGradientMiddle => Theme.BackColor;
-            //public override Color ButtonPressedHighlight => Theme.BackColor;
-            //public override Color ButtonPressedHighlightBorder => Theme.BackColor;
-            //public override Color ButtonSelectedBorder => Theme.BackColor;
-            //public override Color ButtonSelectedGradientBegin => Theme.BackColor;
-            //public override Color ButtonSelectedGradientEnd => Theme.BackColor;
-            //public override Color ButtonSelectedGradientMiddle => Theme.BackColor;
-            //public override Color ButtonSelectedHighlight => Theme.BackColor;
-            //public override Color ButtonSelectedHighlightBorder => Theme.BackColor;
+            public override Color ButtonCheckedGradientBegin => Theme.HighlightBackColor;
+            public override Color ButtonCheckedGradientEnd => Theme.HighlightBackColor;
+            public override Color ButtonCheckedGradientMiddle => Theme.HighlightBackColor;
+            public override Color ButtonCheckedHighlight => Theme.Workspace;
+            public override Color ButtonCheckedHighlightBorder => Theme.WorkspaceHighlight;
+            public override Color ButtonPressedBorder => Theme.WorkspaceHighlight;
+            public override Color ButtonPressedGradientBegin => Theme.WorkspaceHighlight;
+            public override Color ButtonPressedGradientEnd => Theme.WorkspaceHighlight;
+            public override Color ButtonPressedGradientMiddle => Theme.WorkspaceHighlight;
+            public override Color ButtonPressedHighlight => Theme.WorkspaceHighlight;
+            public override Color ButtonPressedHighlightBorder => Theme.HighlightBackColor;
+            public override Color ButtonSelectedBorder => Theme.HighlightBackColor;
+            public override Color ButtonSelectedGradientBegin => Theme.Workspace;
+            public override Color ButtonSelectedGradientEnd => Theme.Workspace;
+            public override Color ButtonSelectedGradientMiddle => Theme.Workspace;
+            public override Color ButtonSelectedHighlight => Theme.Workspace;
+            public override Color ButtonSelectedHighlightBorder => Theme.WorkspaceHighlight;
             //public override Color CheckBackground => Theme.BackColor;
             //public override Color CheckPressedBackground => Theme.BackColor;
             //public override Color CheckSelectedBackground => Theme.BackColor;

@@ -27,7 +27,7 @@ namespace System.Windows.Forms
 
         protected override Brush GetTabBackgroundBrush(int index)
         {
-            LinearGradientBrush fillBrush = null;
+            LinearGradientBrush brush = null;
 
             //	Capture the colours dependant on selection state of the tab
             var start = Color.Transparent;
@@ -47,23 +47,23 @@ namespace System.Windows.Forms
             switch (_TabControl.Alignment)
             {
                 case TabAlignment.Top:
-                    fillBrush = new LinearGradientBrush(tabBounds, start, end, LinearGradientMode.Vertical);
+                    brush = new LinearGradientBrush(tabBounds, start, end, LinearGradientMode.Vertical);
                     break;
                 case TabAlignment.Bottom:
-                    fillBrush = new LinearGradientBrush(tabBounds, end, start, LinearGradientMode.Vertical);
+                    brush = new LinearGradientBrush(tabBounds, end, start, LinearGradientMode.Vertical);
                     break;
                 case TabAlignment.Left:
-                    fillBrush = new LinearGradientBrush(tabBounds, start, end, LinearGradientMode.Horizontal);
+                    brush = new LinearGradientBrush(tabBounds, start, end, LinearGradientMode.Horizontal);
                     break;
                 case TabAlignment.Right:
-                    fillBrush = new LinearGradientBrush(tabBounds, end, start, LinearGradientMode.Horizontal);
+                    brush = new LinearGradientBrush(tabBounds, end, start, LinearGradientMode.Horizontal);
                     break;
             }
 
             //	Add the blend
-            fillBrush.Blend = GetBackgroundBlend();
+            brush.Blend = GetBackgroundBlend();
 
-            return fillBrush;
+            return brush;
         }
 
         private static Blend GetBackgroundBlend()

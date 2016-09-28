@@ -174,7 +174,7 @@ namespace System.Windows.Forms
             return tabBounds;
         }
         
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "0#")]
+        [Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "0#")]
         protected virtual void EnsureFirstTabIsInView(ref Rectangle tabBounds, int index)
         {
             //	Adjust first tab in the row to align with tabpage
@@ -533,28 +533,29 @@ namespace System.Windows.Forms
         
         protected virtual void DrawTabCloser(int index, Graphics graphics)
         {
-            if (_ShowTabCloser)
+            if (!_ShowTabCloser)
+                return;
+
+            var closerRect = _TabControl.GetTabCloserRect(index);
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            using (var closerPath = GetCloserPath(closerRect))
             {
-                var closerRect = _TabControl.GetTabCloserRect(index);
-                graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                using (var closerPath = GetCloserPath(closerRect))
+                if (closerRect.Contains(_TabControl.MousePosition))
                 {
-                    if (closerRect.Contains(_TabControl.MousePosition))
+                    using (var closerPen = new Pen(_CloserColorActive))
                     {
-                        using (var closerPen = new Pen(_CloserColorActive))
-                        {
-                            graphics.DrawPath(closerPen, closerPath);
-                        }
+                        graphics.DrawPath(closerPen, closerPath);
                     }
-                    else
+                }
+                else
+                {
+                    using (var closerPen = new Pen(_CloserColor))
                     {
-                        using (var closerPen = new Pen(_CloserColor))
-                        {
-                            graphics.DrawPath(closerPen, closerPath);
-                        }
+                        graphics.DrawPath(closerPen, closerPath);
                     }
                 }
             }
+
         }
         
         protected static GraphicsPath GetCloserPath(Rectangle closerRect)
