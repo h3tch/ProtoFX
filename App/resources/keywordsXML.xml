@@ -5,7 +5,7 @@
   <Style name='braces' fore='#AAAAAA'/>
   <Style name='punctuation' fore='#A0A0A0'/>
   <Style name='number' fore='#328645'/>
-  <Style name='LineComment' fore='#82A847'/>
+  <Style name='LineComment' fore='#608B4E'/>
   <Style name='BlockComment' fore='#82A847'/>
   <Style name='name' fore='#000000'/>
   <!-- TECH -->

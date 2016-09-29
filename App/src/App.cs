@@ -212,6 +212,21 @@ namespace App
         }
 
         /// <summary>
+        /// Enable or disable certain buttons depending on the state of the app.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void tabControl_SelectedIndexChanged(object s, EventArgs e)
+        {
+            var enable = tabControl.SelectedIndex == 0;
+            toolBtnSave.Enabled = enable;
+            toolBtnSaveAll.Enabled = enable;
+            toolBtnSaveAs.Enabled = enable;
+            toolBtnComment.Enabled = enable;
+            toolBtnUncomment.Enabled = enable;
+        }
+
+        /// <summary>
         /// Override WndProc of the form to handle resizing of the borderless form.
         /// </summary>
         /// <param name="m"></param>
@@ -330,7 +345,10 @@ namespace App
         /// <param name="s"></param>
         /// <param name="e"></param>
         private void toolBtnNew_Click(object s, EventArgs e)
-            => tabSource.SelectedIndex = AddTab(null);
+        {
+            tabSource.SelectedIndex = AddTab(null);
+            tabControl.SelectedIndex = 0;
+        }
 
         /// <summary>
         /// Open file.
@@ -354,6 +372,8 @@ namespace App
                 .Select(path => tabSource.TabPages.IndexOf(path))
                 .Zip(openDlg.FileNames, (i,p) => i < 0 ? AddTab(p) : i)
                 .ForEach(i => tabSource.SelectedIndex = i);
+
+            tabControl.SelectedIndex = 0;
         }
 
         /// <summary>

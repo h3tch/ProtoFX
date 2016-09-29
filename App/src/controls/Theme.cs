@@ -26,14 +26,14 @@ namespace System.Windows.Forms
         static Theme()
         {
             palette.Name = "DarkTheme";
-            palette.BackColor = Color.FromArgb(255, 60, 60, 60);
-            palette.ForeColor = Color.FromArgb(255, 160, 160, 160);
-            palette.HighlightBackColor = Color.FromArgb(255, 70, 70, 70);
-            palette.HighlightForeColor = Color.FromArgb(255, 180, 180, 180);
+            palette.BackColor = Color.FromArgb(255, 45, 45, 50);
+            palette.ForeColor = Color.FromArgb(255, 200, 200, 200);
+            palette.HighlightBackColor = Color.FromArgb(255, 80, 80, 80);
+            palette.HighlightForeColor = Color.FromArgb(255, 240, 240, 240);
             palette.SelectBackColor = Color.FromArgb(255, 50, 80, 70);
-            palette.SelectForeColor = Color.FromArgb(255, 130, 80, 180);
-            palette.Workspace = Color.FromArgb(255, 35, 35, 35);
-            palette.WorkspaceHighlight = Color.FromArgb(255, 55, 55, 55);
+            palette.SelectForeColor = Color.FromArgb(255, 200, 170, 240);
+            palette.Workspace = Color.FromArgb(255, 30, 30, 30);
+            palette.WorkspaceHighlight = Color.FromArgb(255, 60, 60, 60);
         }
 
         /// <summary>

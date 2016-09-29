@@ -525,7 +525,16 @@ namespace System.Windows.Forms
 
         #region	Basic drawing methods
         
-        protected override void OnPaint(PaintEventArgs e) => CustomPaint(e.Graphics);
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            // We must always paint the entire area of the tab control
+            //if (e.ClipRectangle.Equals(ClientRectangle))
+                CustomPaint(e.Graphics);
+            //else
+            //    // it is less intensive to just reinvoke the paint with
+            //    // the whole surface available to draw on.
+            //    Invalidate();
+        }
         
         private void CustomPaint(Graphics g)
         {
