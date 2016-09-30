@@ -2,16 +2,16 @@
 <FxLexer>
   <Style name='string' fore='#D77763'/>
   <Style name='operator' fore='#A0A0A0'/>
-  <Style name='braces' fore='#AAAAAA'/>
+  <Style name='braces' fore='#606060'/>
   <Style name='punctuation' fore='#A0A0A0'/>
-  <Style name='number' fore='#328645'/>
+  <Style name='number' fore='#B5CEA8'/>
   <Style name='LineComment' fore='#608B4E'/>
   <Style name='BlockComment' fore='#82A847'/>
   <Style name='name' fore='#000000'/>
   <!-- TECH -->
   <Lexer type='tech' lexer='TechLexer'>
     <Style name='preprocessor' fore='#A08560'/>
-    <Style name='type' fore='#3E71FF'/>
+    <Style name='type' fore='#3C81C1'/>
     <Style name='anno' fore='#2FABA7'/>
     <Keyword style_name='type' name='buffer' hint='Allocate buffer on the GPU.
                                                   \>  buffer [name]'/>
@@ -123,7 +123,7 @@
                                                 \  in  uint  gl_LocalInvocationIndex'/>
     <!-- BUFFER -->
     <Lexer type='buffer' lexer='TechBodyLexer'>
-      <Style name='command' fore='#58AFEA'/>
+      <Style name='command' fore='#92CAF4'/>
       <Keyword style_name='command' name='size' hint='size [bytes]'/>
       <Keyword style_name='command' name='txt' hint='txt [text_name]'/>
       <Keyword style_name='command' name='usage' hint='usage [hint]'/>
@@ -145,13 +145,13 @@
     </Lexer>
     <!-- CSHARP -->
     <Lexer type='csharp' lexer='TechBodyLexer'>
-      <Style name='command' fore='#58AFEA'/>
+      <Style name='command' fore='#92CAF4'/>
       <Keyword style_name='command' name='assembly' hint='assembly [path] {path} {...}'/>
       <Keyword style_name='command' name='file' hint='file [path] {path} {...}'/>
     </Lexer>
     <!-- FRAGOUTPUT -->
     <Lexer type='fragoutput' lexer='TechBodyLexer'>
-      <Style name='command' fore='#58AFEA'/>
+      <Style name='command' fore='#92CAF4'/>
       <Keyword style_name='command' name='color' hint='color [image_name]'/>
       <Keyword style_name='command' name='depth' hint='depth [image_name]'/>
       <Keyword style_name='command' name='height' hint='height [pixels]'/>
@@ -159,7 +159,7 @@
     </Lexer>
     <!-- IMAGE -->
     <Lexer type='image' lexer='TechBodyLexer'>
-      <Style name='command' fore='#58AFEA'/>
+      <Style name='command' fore='#92CAF4'/>
       <Keyword style_name='command' name='format' hint='format [pixel_format]'/>
       <Keyword style_name='command' name='size' hint='size [width] [height] [depth] [length]'/>
       <Keyword style_name='command' name='file' hint='file [path] {path} {...}'/>
@@ -228,14 +228,14 @@
     </Lexer>
     <!-- INSTANCE -->
     <Lexer type='instance' lexer='TechBodyLexer'>
-      <Style name='command' fore='#58AFEA'/>
+      <Style name='command' fore='#92CAF4'/>
       <Style name='indicator' fore='#2FABA7'/>
       <Keyword style_name='command' name='class' hint='class [csharp_name] [c#_class]'/>
       <Keyword style_name='command' name='name' hint='name [new_name]'/>
     </Lexer>
     <!-- PASS -->
     <Lexer type='pass' lexer='TechBodyLexer'>
-      <Style name='command' fore='#58AFEA'/>
+      <Style name='command' fore='#92CAF4'/>
       <Keyword style_name='command' name='exec' hint='Execute C# class instance.
                                                      \>  exec [instance_name]'/>
       <Keyword style_name='command' name='comp' hint='Bind compute shader to the rendering pass.
@@ -466,7 +466,7 @@
     </Lexer>
     <!-- SAMPLER -->
     <Lexer type='sampler' lexer='TechBodyLexer'>
-      <Style name='command' fore='#58AFEA'/>
+      <Style name='command' fore='#92CAF4'/>
       <Keyword style_name='command' name='magfilter' hint='magfilter [filter_type]'/>
       <Keyword style_name='command' name='minfilter' hint='minfilter [filter_type]'/>
       <Keyword style_name='command' name='wrap' hint='wrap [wrap_type]'/>
@@ -497,14 +497,14 @@
     </Lexer>
     <!-- TECH -->
     <Lexer type='tech' lexer='TechBodyLexer'>
-      <Style name='command' fore='#58AFEA'/>
+      <Style name='command' fore='#92CAF4'/>
       <Keyword style_name='command' name='pass' hint='Execute this pass every frame.&#xA;  pass [name]'/>
       <Keyword style_name='command' name='init' hint='Execute this pass only once&#xA;before all "normal" passes.&#xA;  init [name]'/>
       <Keyword style_name='command' name='uninit' hint='Execute this pass only once&#xA;before the technique is destroyed.&#xA;  uninit [name]'/>
     </Lexer>
     <!-- TEXTURE -->
     <Lexer type='texture' lexer='TechBodyLexer'>
-      <Style name='command' fore='#58AFEA'/>
+      <Style name='command' fore='#92CAF4'/>
       <Keyword style_name='command' name='buff' hint='buff [name]'/>
       <Keyword style_name='command' name='img' hint='img [name]'/>
       <Keyword style_name='command' name='samp' hint='samp [name]'/>
@@ -564,7 +564,7 @@
     </Lexer>
     <!-- VERTINPUT -->
     <Lexer type='vertinput' lexer='TechBodyLexer'>
-      <Style name='command' fore='#58AFEA'/>
+      <Style name='command' fore='#92CAF4'/>
       <Keyword style_name='command' name='attr' hint='attr [buff_name] [type] [dim] {stride} {offset} {divisor}'/>
       <!-- vertinput - ATTR -->
       <Lexer type='attr' lexer='CommandLexer'>
@@ -584,15 +584,15 @@
     </Lexer>
     <!-- VERTOUTPUT -->
     <Lexer type='vertoutput' lexer='TechBodyLexer'>
-      <Style name='command' fore='#58AFEA'/>
+      <Style name='command' fore='#92CAF4'/>
       <Keyword style_name='command' name='buff' hint='buff [name]'/>
       <Keyword style_name='command' name='pause' hint='pause [true|false]'/>
       <Keyword style_name='command' name='resume' hint='resume [true|false]'/>
     </Lexer>
     <!-- SHADER -->
     <Lexer type='shader' lexer='GlslLexer'>
-      <Style name='keyword' fore='#3E71FF'/>
-      <Style name='datatype' fore='#8676CC'/>
+      <Style name='keyword' fore='#3C81C1'/>
+      <Style name='datatype' fore='#92CAF4'/>
       <Style name='preprocessor' fore='#A08560'/>
       <Keyword style_name='keyword' name='in' hint='Specify a shader input stream from a vertex
                                                    \buffer object or the previous shader stage.'/>
@@ -802,7 +802,7 @@
       </Lexer>
       <Lexer type='struct' lexer='GlslStructLexer'>
         <Style name='keyword' fore='#3E71FF'/>
-        <Style name='datatype' fore='#8676CC'/>
+        <Style name='datatype' fore='#92CAF4'/>
         <Keyword style_name='keyword' name='layout' hint='Specify additional qualifications for the member variable.'/>
         <Keyword style_name='datatype' name='void'/>
         <Keyword style_name='datatype' name='bool'/>
@@ -856,8 +856,8 @@
         </Lexer>
       </Lexer>
       <Lexer type='function' lexer='GlslFunctionBodyLexer'>
-        <Style name='keyword' fore='#3E71FF'/>
-        <Style name='datatype' fore='#8676CC'/>
+        <Style name='keyword' fore='#3C81C1'/>
+        <Style name='datatype' fore='#92CAF4'/>
         <Style name='builtin' fore='#99B387'/>
         <Style name='function' fore='#61ABA9'/>
         <Keyword style_name='function' name='abs'
@@ -1995,7 +1995,7 @@
         <Keyword style_name='builtin' name='gl_MaxTransformFeedbackInterleavedComponents​'/>
       </Lexer>
       <Lexer type='functionheader' lexer='GlslFunctionArgLexer'>
-        <Style name='datatype' fore='#8676CC'/>
+        <Style name='datatype' fore='#92CAF4'/>
         <Keyword style_name='datatype' name='void'/>
         <Keyword style_name='datatype' name='bool'/>
         <Keyword style_name='datatype' name='int'/>

@@ -18,6 +18,7 @@ namespace System.Windows.Forms
         public static Color SelectForeColor => palette.SelectForeColor;
         public static Color Workspace => palette.Workspace;
         public static Color WorkspaceHighlight => palette.WorkspaceHighlight;
+        public static Color TextColor => palette.TextColor;
         #endregion
 
         /// <summary>
@@ -34,6 +35,7 @@ namespace System.Windows.Forms
             palette.SelectForeColor = Color.FromArgb(255, 200, 170, 240);
             palette.Workspace = Color.FromArgb(255, 30, 30, 30);
             palette.WorkspaceHighlight = Color.FromArgb(255, 60, 60, 60);
+            palette.TextColor = Color.FromArgb(255, 220, 220, 220);
         }
 
         /// <summary>
@@ -112,6 +114,14 @@ namespace System.Windows.Forms
             c.ViewForeColor = ForeColor;
             return false;
         }
+
+        private static bool ApplyTo(ToolStripEx c)
+        {
+            c.BackColor = BackColor;
+            c.ForeColor = ForeColor;
+            return false;
+        }
+
 
         private static bool ApplyTo(DataGridView c)
         {
@@ -220,6 +230,7 @@ namespace System.Windows.Forms
             public XmlColor SelectForeColor;
             public XmlColor Workspace;
             public XmlColor WorkspaceHighlight;
+            public XmlColor TextColor;
         }
 
         public class XmlColor

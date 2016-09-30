@@ -24,10 +24,10 @@ namespace App
             Styles[Style.Default].Size = 10;
             StyleClearAll();
 
-            Styles[Style.Default].ForeColor = Theme.ForeColor;
+            Styles[Style.Default].ForeColor = Theme.TextColor;
             Styles[Style.Default].BackColor = Theme.Workspace;
-            Styles[Style.LineNumber].ForeColor = Theme.Workspace;
-            Styles[Style.LineNumber].BackColor = Theme.BackColor;
+            Styles[Style.LineNumber].ForeColor = Theme.HighlightBackColor;
+            Styles[Style.LineNumber].BackColor = Theme.Workspace;
             Styles[Style.CallTip].ForeColor = Theme.ForeColor;
             Styles[Style.CallTip].BackColor = Theme.HighlightBackColor;
 
