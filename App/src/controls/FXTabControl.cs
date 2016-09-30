@@ -284,6 +284,8 @@ namespace System.Windows.Forms
             base.OnMouseDown(e);
             if (AllowDrop)
                 _dragStartPosition = new Drawing.Point(e.X, e.Y);
+
+            Invalidate();
         }
         
         protected override void OnMouseUp(MouseEventArgs e)
@@ -291,6 +293,7 @@ namespace System.Windows.Forms
             base.OnMouseUp(e);
             if (AllowDrop)
                 _dragStartPosition = Drawing.Point.Empty;
+            Invalidate();
         }
         
         protected override void OnDragOver(DragEventArgs drgevent)
@@ -541,23 +544,24 @@ namespace System.Windows.Forms
             if (Width <= 0 && Height <= 0)
                 return;
 
-            var client = ClientRectangle;
-            g.FillRectangle(new SolidBrush(_StyleProvider.BackColor), client);
+            //var client = ClientRectangle;
+            //g.FillRectangle(new SolidBrush(_StyleProvider.BackColor), client);
+            g.Clear(_StyleProvider.BackColor);
 
             if (TabCount <= 0)
                 return;
 
-            var clip = g.Clip;
+            //var clip = g.Clip;
 
             // When top or bottom and scrollable we need
             // to clip the sides from painting the tabs.
             // Left and right are always multiline.
-            if (Alignment <= TabAlignment.Bottom && !Multiline)
-            {
-                client.X += 3;
-                client.Width -= 6;
-                g.Clip = new Region(client);
-            }
+            //if (Alignment <= TabAlignment.Bottom && !Multiline)
+            //{
+            //    client.X += 3;
+            //    client.Width -= 6;
+            //    g.Clip = new Region(ClientRectangle);
+            //}
 
             // Draw each tabpage from right to left. We do
             // it this way to handle the overlap correctly.
@@ -585,7 +589,7 @@ namespace System.Windows.Forms
             if (SelectedIndex >= 0)
                 DrawTabPage(SelectedIndex, g);
 
-            g.Clip = clip;
+            //g.Clip = clip;
         }
         
         private void DrawTabPage(int index, Graphics g)

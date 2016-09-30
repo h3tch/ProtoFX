@@ -165,6 +165,13 @@ namespace System.Windows.Forms
             return true;
         }
 
+        private static bool ApplyTo(TabPage c)
+        {
+            c.BackColor = BackColor;
+            c.ForeColor = ForeColor;
+            return true;
+        }
+
         private static bool ApplyTo(TabPageEx c)
         {
             c.BackColor = BackColor;
