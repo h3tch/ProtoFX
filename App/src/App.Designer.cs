@@ -1184,12 +1184,21 @@
         #region Make Form DPI-Aware
         protected void MakeDPIAware()
         {
-            imgAppIcon.Width = Properties.Resources.logo.Width + 1;
-            imgAppIcon.Height = Properties.Resources.logo.Height + 1;
+            var img = Properties.Resources.logo;
 
-            labelTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", imgAppIcon.Height - 4, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
+            tableLayoutRenderOutput.ColumnStyles[0].Width = img.Width + 2;
+            tableLayoutRenderOutput.RowStyles[0].Height = img.Height + 3;
 
-            tableLayoutRenderOutput.RowStyles[0].Height = imgAppIcon.Height + 2;
+            imgAppIcon.Width = img.Width + 1;
+            imgAppIcon.Height = img.Height + 1;
+
+            labelTitle.Font = new System.Drawing.Font(
+                "Microsoft Sans Serif",
+                imgAppIcon.Height - 4,
+                System.Drawing.FontStyle.Regular,
+                System.Drawing.GraphicsUnit.Pixel,
+                ((byte)(0)));
+
 
             btnWindowMinimize.Width = btnWindowMinimize.Image.Width + 9;
             btnWindowMinimize.Height = btnWindowMinimize.Image.Height + 1;
