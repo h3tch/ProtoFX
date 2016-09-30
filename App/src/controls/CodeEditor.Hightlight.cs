@@ -21,7 +21,7 @@ namespace App
             
             StyleResetDefault();
             Styles[Style.Default].Font = "Consolas";
-            Styles[Style.Default].Size = 10;
+            Styles[Style.Default].Size = 11;
             StyleClearAll();
 
             Styles[Style.Default].ForeColor = Theme.TextColor;

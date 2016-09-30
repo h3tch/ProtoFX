@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <FxLexer>
-  <Style name='string' fore='#D77763'/>
+  <Style name='string' fore='#D69D85'/>
   <Style name='operator' fore='#A0A0A0'/>
   <Style name='braces' fore='#606060'/>
   <Style name='punctuation' fore='#A0A0A0'/>
@@ -10,7 +10,7 @@
   <Style name='name' fore='#000000'/>
   <!-- TECH -->
   <Lexer type='tech' lexer='TechLexer'>
-    <Style name='preprocessor' fore='#A08560'/>
+    <Style name='preprocessor' fore='#9B9B9B'/>
     <Style name='type' fore='#3C81C1'/>
     <Style name='anno' fore='#2FABA7'/>
     <Keyword style_name='type' name='buffer' hint='Allocate buffer on the GPU.
@@ -131,7 +131,7 @@
       <Keyword style_name='command' name='class' hint='class [csharp_name] [class_name] [method_name]'/>
       <!-- buffer - USAGE -->
       <Lexer type='usage' lexer='CommandLexer'>
-        <Style name='argument' fore='#8676CC'/>
+        <Style name='argument' fore='#9589CC'/>
         <Keyword style_name='argument' name='dynamicCopy'/>
         <Keyword style_name='argument' name='dynamicDraw'/>
         <Keyword style_name='argument' name='dynamicRead'/>
@@ -166,7 +166,7 @@
       <Keyword style_name='command' name='type' hint='type [texture_type]'/>
       <!-- image - FORMAT -->
       <Lexer type='format' lexer='CommandLexer'>
-        <Style name='argument' fore='#8676CC'/>
+        <Style name='argument' fore='#9589CC'/>
         <Keyword style_name='argument' name='depth'/>
         <Keyword style_name='argument' name='depth16'/>
         <Keyword style_name='argument' name='depth24'/>
@@ -218,7 +218,7 @@
       </Lexer>
       <!-- image - TYPE -->
       <Lexer type='type' lexer='CommandLexer'>
-        <Style name='argument' fore='#8676CC'/>
+        <Style name='argument' fore='#9589CC'/>
         <Keyword style_name='argument' name='texture1D' hint='1D texture'/>
         <Keyword style_name='argument' name='texture2D' hint='2D texture'/>
         <Keyword style_name='argument' name='texture3D' hint='3D texture/volume texture'/>
@@ -438,7 +438,7 @@
       <Keyword style_name='command' name='glWaitSync'/>
       <!-- pass - DRAW -->
       <Lexer type='draw' lexer='CommandLexer'>
-        <Style name='argument' fore='#8676CC'/>
+        <Style name='argument' fore='#9589CC'/>
         <Keyword style_name='argument' name='lineLoop'/>
         <Keyword style_name='argument' name='lineLoop'/>
         <Keyword style_name='argument' name='lines'/>
@@ -458,7 +458,7 @@
       </Lexer>
       <!-- pass - VERTOUT -->
       <Lexer type='vertout' lexer='CommandLexer'>
-        <Style name='argument' fore='#8676CC'/>
+        <Style name='argument' fore='#9589CC'/>
         <Keyword style_name='argument' name='lines'/>
         <Keyword style_name='argument' name='points'/>
         <Keyword style_name='argument' name='triangles'/>
@@ -472,13 +472,13 @@
       <Keyword style_name='command' name='wrap' hint='wrap [wrap_type]'/>
       <!-- sampler - MAGFILTER -->
       <Lexer type='magfilter' lexer='CommandLexer'>
-        <Style name='argument' fore='#8676CC'/>
+        <Style name='argument' fore='#9589CC'/>
         <Keyword style_name='argument' name='linear'/>
         <Keyword style_name='argument' name='nearest'/>
       </Lexer>
       <!-- sampler - MINFILTER -->
       <Lexer type='minfilter' lexer='CommandLexer'>
-        <Style name='argument' fore='#8676CC'/>
+        <Style name='argument' fore='#9589CC'/>
         <Keyword style_name='argument' name='linear'/>
         <Keyword style_name='argument' name='nearest'/>
         <Keyword style_name='argument' name='linearMipmapLinear'/>
@@ -488,7 +488,7 @@
       </Lexer>
       <!-- sampler - WRAP -->
       <Lexer type='wrap' lexer='CommandLexer'>
-        <Style name='argument' fore='#8676CC'/>
+        <Style name='argument' fore='#9589CC'/>
         <Keyword style_name='argument' name='clampToBorder'/>
         <Keyword style_name='argument' name='clampToEdge'/>
         <Keyword style_name='argument' name='mirroredRepeat'/>
@@ -511,7 +511,7 @@
       <Keyword style_name='command' name='format' hint='format [pixel_format]'/>
       <!-- image - FORMAT -->
       <Lexer type='format' lexer='CommandLexer'>
-        <Style name='argument' fore='#8676CC'/>
+        <Style name='argument' fore='#9589CC'/>
         <Keyword style_name='argument' name='depth'/>
         <Keyword style_name='argument' name='depth16'/>
         <Keyword style_name='argument' name='depth24'/>
@@ -568,7 +568,7 @@
       <Keyword style_name='command' name='attr' hint='attr [buff_name] [type] [dim] {stride} {offset} {divisor}'/>
       <!-- vertinput - ATTR -->
       <Lexer type='attr' lexer='CommandLexer'>
-        <Style name='argument' fore='#8676CC'/>
+        <Style name='argument' fore='#9589CC'/>
         <Keyword style_name='argument' name='byte'/>
         <Keyword style_name='argument' name='double'/>
         <Keyword style_name='argument' name='float'/>
@@ -593,7 +593,7 @@
     <Lexer type='shader' lexer='GlslLexer'>
       <Style name='keyword' fore='#3C81C1'/>
       <Style name='datatype' fore='#92CAF4'/>
-      <Style name='preprocessor' fore='#A08560'/>
+      <Style name='preprocessor' fore='#9B9B9B'/>
       <Keyword style_name='keyword' name='in' hint='Specify a shader input stream from a vertex
                                                    \buffer object or the previous shader stage.'/>
       <Keyword style_name='keyword' name='out' hint='Specify a sshader output stream for the next
@@ -691,7 +691,7 @@
       <Keyword style_name='datatype' name='dmat4x3' hint='double matrix with 4 columns and 3 rows'/>
       <Keyword style_name='datatype' name='dmat4x4' hint='double matrix with 4 columns and 4 rows'/>
       <Lexer type='layout' lexer='GlslLayoutLexer'>
-        <Style name='qualifier' fore='#8676CC'/>
+        <Style name='qualifier' fore='#9589CC'/>
         <Keyword style_name='qualifier' name='local_size_x'/>
         <Keyword style_name='qualifier' name='local_size_y'/>
         <Keyword style_name='qualifier' name='local_size_z'/>
@@ -801,7 +801,7 @@
                       \variable gets its 32-bits of storage.'/>
       </Lexer>
       <Lexer type='struct' lexer='GlslStructLexer'>
-        <Style name='keyword' fore='#3E71FF'/>
+        <Style name='keyword' fore='#3C81C1'/>
         <Style name='datatype' fore='#92CAF4'/>
         <Keyword style_name='keyword' name='layout' hint='Specify additional qualifications for the member variable.'/>
         <Keyword style_name='datatype' name='void'/>
@@ -850,7 +850,7 @@
         <Keyword style_name='datatype' name='dmat4x3' hint='double matrix with 4 columns and 3 rows'/>
         <Keyword style_name='datatype' name='dmat4x4' hint='double matrix with 4 columns and 4 rows'/>
         <Lexer type='layout' lexer='GlslLayoutLexer'>
-          <Style name='qualifier' fore='#8676CC'/>
+          <Style name='qualifier' fore='#9589CC'/>
           <Keyword style_name='qualifier' name='offset'
                    hint='The byte offset of the member variable.'/>
         </Lexer>
