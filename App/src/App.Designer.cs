@@ -482,7 +482,7 @@
             this.toolStrip.Location = new System.Drawing.Point(3, 0);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Padding = new System.Windows.Forms.Padding(0);
-            this.toolStrip.Size = new System.Drawing.Size(434, 37);
+            this.toolStrip.Size = new System.Drawing.Size(389, 37);
             this.toolStrip.TabIndex = 0;
             // 
             // toolBtnNew
@@ -762,7 +762,7 @@
             this.tabSource.DisplayStyleProvider.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.tabSource.DisplayStyleProvider.Opacity = 1F;
             this.tabSource.DisplayStyleProvider.Overlap = 0;
-            this.tabSource.DisplayStyleProvider.Padding = new System.Drawing.Point(16, 3);
+            this.tabSource.DisplayStyleProvider.Padding = new System.Drawing.Point(8, 3);
             this.tabSource.DisplayStyleProvider.ShowTabCloser = true;
             this.tabSource.DisplayStyleProvider.TextColor = System.Drawing.Color.Gray;
             this.tabSource.DisplayStyleProvider.TextColorDisabled = System.Drawing.Color.Gray;
@@ -807,7 +807,7 @@
             this.tabData.DisplayStyleProvider.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.tabData.DisplayStyleProvider.Opacity = 1F;
             this.tabData.DisplayStyleProvider.Overlap = 0;
-            this.tabData.DisplayStyleProvider.Padding = new System.Drawing.Point(2, 2);
+            this.tabData.DisplayStyleProvider.Padding = new System.Drawing.Point(8, 3);
             this.tabData.DisplayStyleProvider.ShowTabCloser = false;
             this.tabData.DisplayStyleProvider.TextColor = System.Drawing.Color.Gray;
             this.tabData.DisplayStyleProvider.TextColorDisabled = System.Drawing.Color.Gray;

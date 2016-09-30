@@ -42,7 +42,7 @@ namespace System.Windows.Forms
                 end = start = _BackColorHot;
 
             //	Get the correctly aligned gradient
-            Rectangle tabBounds = GetTabRect(index);
+            var tabBounds = GetTabRect(index);
             tabBounds.Inflate(1, 1);
             switch (_TabControl.Alignment)
             {
@@ -79,20 +79,7 @@ namespace System.Windows.Forms
         }
 
         public override Brush GetPageBackgroundBrush(int index)
-        {
-            //	Capture the colours dependant on selection state of the tab
-            var light = Color.Transparent;
-
-            if (_TabControl.SelectedIndex == index)
-                light = _BackColor;
-            else if (!_TabControl.TabPages[index].Enabled)
-                light = Color.Transparent;
-            else if (_HotTrack && index == _TabControl.ActiveIndex)
-                //	Enable hot tracking
-                light = Color.Transparent;
-
-            return new SolidBrush(light);
-        }
+            => new SolidBrush(_TabControl.SelectedIndex == index ? _BackColor : Color.Transparent);
 
         protected override void DrawTabCloser(int index, Graphics g)
         {

@@ -28,7 +28,6 @@ namespace System.Windows.Forms
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             SetStyle(ControlStyles.ResizeRedraw, true);
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
-
             DisplayStyle = TabStyle.Default;
         }
 
@@ -45,7 +44,7 @@ namespace System.Windows.Forms
             {
                 CreateParams cp = base.CreateParams;
                 if (RightToLeftLayout)
-                    cp.ExStyle = cp.ExStyle | NativeMethods.WS_EX_LAYOUTRTL | NativeMethods.WS_EX_NOINHERITLAYOUT;
+                    cp.ExStyle |= NativeMethods.WS_EX_LAYOUTRTL | NativeMethods.WS_EX_NOINHERITLAYOUT;
                 return cp;
             }
         }
@@ -206,44 +205,43 @@ namespace System.Windows.Forms
         
         public void ShowTab(TabPage page)
         {
-            if (page != null)
+            if (page == null)
+                return;
+            
+            if (_TabPages != null)
             {
-                if (_TabPages != null)
+                if (!TabPages.Contains(page) && _TabPages.Contains(page))
                 {
-                    if (!TabPages.Contains(page) && _TabPages.Contains(page))
+                    // Get insert point from backup of pages
+                    int pageIndex = _TabPages.IndexOf(page);
+                    if (pageIndex > 0)
                     {
-                        
-                        // Get insert point from backup of pages
-                        int pageIndex = _TabPages.IndexOf(page);
-                        if (pageIndex > 0)
-                        {
-                            int start = pageIndex -1;
+                        int start = pageIndex -1;
                             
-                            // Check for presence of earlier pages in the visible tabs
-                            for (int index = start; index >= 0; index--)
+                        // Check for presence of earlier pages in the visible tabs
+                        for (int index = start; index >= 0; index--)
+                        {
+                            if (TabPages.Contains(_TabPages[index]))
                             {
-                                if (TabPages.Contains(_TabPages[index]))
-                                {
-                                    // Set insert point to the right of the last present tab
-                                    pageIndex = TabPages.IndexOf(_TabPages[index]) + 1;
-                                    break;
-                                }
+                                // Set insert point to the right of the last present tab
+                                pageIndex = TabPages.IndexOf(_TabPages[index]) + 1;
+                                break;
                             }
                         }
-                        
-                        // Insert the page, or add to the end
-                        if  (pageIndex >= 0 && pageIndex < TabPages.Count)
-                            TabPages.Insert(pageIndex, page);
-                        else
-                            TabPages.Add(page);
                     }
-                }
-                else
-                {
-                    // If the page is not found at all then just add it
-                    if (!TabPages.Contains(page))
+                        
+                    // Insert the page, or add to the end
+                    if (pageIndex >= 0 && pageIndex < TabPages.Count)
+                        TabPages.Insert(pageIndex, page);
+                    else
                         TabPages.Add(page);
                 }
+            }
+            else
+            {
+                // If the page is not found at all then just add it
+                if (!TabPages.Contains(page))
+                    TabPages.Add(page);
             }
         }
         
@@ -284,7 +282,6 @@ namespace System.Windows.Forms
             base.OnMouseDown(e);
             if (AllowDrop)
                 _dragStartPosition = new Drawing.Point(e.X, e.Y);
-
             Invalidate();
         }
         
@@ -310,7 +307,7 @@ namespace System.Windows.Forms
             {
                 drgevent.Effect = DragDropEffects.Move;
                 
-                TabPage dragTab = (TabPage)drgevent.Data.GetData(typeof(TabPage));
+                var dragTab = (TabPage)drgevent.Data.GetData(typeof(TabPage));
     
                 if (ActiveTab == dragTab)
                     return;
@@ -332,24 +329,24 @@ namespace System.Windows.Forms
                 SelectedTab = dragTab;
                 
                 // deal with hidden tab handling?
-              }
+            }
         }
         
         private void StartDragDrop()
         {
-            if (!_dragStartPosition.IsEmpty)
-            {
-                TabPage dragTab = SelectedTab;
-                if (dragTab != null){
-                    // Test for movement greater than the drag activation trigger area
-                    var dragTestRect = new Rectangle(_dragStartPosition, Drawing.Size.Empty);
-                    dragTestRect.Inflate(SystemInformation.DragSize);
-                    var pt = PointToClient(Control.MousePosition);
-                    if (!dragTestRect.Contains(pt))
-                    {
-                        DoDragDrop(dragTab, DragDropEffects.All);
-                        _dragStartPosition = Drawing.Point.Empty;
-                    }
+            if (_dragStartPosition.IsEmpty)
+                return;
+            
+            var dragTab = SelectedTab;
+            if (dragTab != null){
+                // Test for movement greater than the drag activation trigger area
+                var dragTestRect = new Rectangle(_dragStartPosition, Drawing.Size.Empty);
+                dragTestRect.Inflate(SystemInformation.DragSize);
+                var pt = PointToClient(Control.MousePosition);
+                if (!dragTestRect.Contains(pt))
+                {
+                    DoDragDrop(dragTab, DragDropEffects.All);
+                    _dragStartPosition = Drawing.Point.Empty;
                 }
             }
         }
@@ -447,7 +444,6 @@ namespace System.Windows.Forms
                 default:
                     base.WndProc(ref m);
                     break;
-                    
             }
         }
 
@@ -487,15 +483,9 @@ namespace System.Windows.Forms
                 base.OnMouseClick(e);
         }
 
-        protected virtual void OnTabImageClick(TabControlEventArgs e)
-        {
-            TabImageClick?.Invoke(this, e);
-        }
+        protected virtual void OnTabImageClick(TabControlEventArgs e) => TabImageClick?.Invoke(this, e);
 
-        protected virtual void OnTabClosing(TabControlCancelEventArgs e)
-        {
-            TabClosing?.Invoke(this, e);
-        }		
+        protected virtual void OnTabClosing(TabControlCancelEventArgs e) => TabClosing?.Invoke(this, e);
         
         protected virtual void OnHScroll(ScrollEventArgs e)
         {
@@ -528,41 +518,18 @@ namespace System.Windows.Forms
 
         #region	Basic drawing methods
         
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            // We must always paint the entire area of the tab control
-            //if (e.ClipRectangle.Equals(ClientRectangle))
-                CustomPaint(e.Graphics);
-            //else
-            //    // it is less intensive to just reinvoke the paint with
-            //    // the whole surface available to draw on.
-            //    Invalidate();
-        }
+        protected override void OnPaint(PaintEventArgs e) => CustomPaint(e.Graphics);
         
         private void CustomPaint(Graphics g)
         {
             if (Width <= 0 && Height <= 0)
                 return;
-
-            //var client = ClientRectangle;
-            //g.FillRectangle(new SolidBrush(_StyleProvider.BackColor), client);
+            
             g.Clear(_StyleProvider.BackColor);
 
             if (TabCount <= 0)
                 return;
-
-            //var clip = g.Clip;
-
-            // When top or bottom and scrollable we need
-            // to clip the sides from painting the tabs.
-            // Left and right are always multiline.
-            //if (Alignment <= TabAlignment.Bottom && !Multiline)
-            //{
-            //    client.X += 3;
-            //    client.Width -= 6;
-            //    g.Clip = new Region(ClientRectangle);
-            //}
-
+            
             // Draw each tabpage from right to left. We do
             // it this way to handle the overlap correctly.
             if (Multiline)
@@ -588,17 +555,15 @@ namespace System.Windows.Forms
             // The selected tab must be drawn last so it appears on top.
             if (SelectedIndex >= 0)
                 DrawTabPage(SelectedIndex, g);
-
-            //g.Clip = clip;
         }
         
         private void DrawTabPage(int index, Graphics g)
         {
             // Get TabPageBorder
-            using (GraphicsPath tabPageBorderPath = GetTabPageBorder(index))
+            using (var tabPageBorderPath = GetTabPageBorder(index))
             {
                 // Paint the background
-                using (Brush fillBrush = _StyleProvider.GetPageBackgroundBrush(index))
+                using (var fillBrush = _StyleProvider.GetPageBackgroundBrush(index))
                 {
                     g.FillPath(fillBrush, tabPageBorderPath);
                 }
@@ -765,7 +730,9 @@ namespace System.Windows.Forms
 
                 textRect = new Rectangle((int)tabBounds.X, (int)tabBounds.Y, (int)tabBounds.Width, (int)tabBounds.Height);
 
-                // Make it shorter or thinner to fit the height or width because of the padding added to the tab for painting
+                // Make it shorter or thinner to fit the
+                // height or width because of the padding
+                // added to the tab for painting.
                 switch (Alignment)
                 {
                     case TabAlignment.Top:
