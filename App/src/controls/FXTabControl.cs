@@ -11,11 +11,11 @@ namespace System.Windows.Forms
     {
         #region Private variables
         
-        private int _oldValue;
+        private int oldValue;
         private Drawing.Point _dragStartPosition = Drawing.Point.Empty;
-        private TabStyle _Style;
-        private TabStyleProvider _StyleProvider;
-        private List<TabPage> _TabPages;
+        private TabStyle style;
+        private TabStyleProvider styleProvider;
+        private List<TabPage> tabPages;
 
         #endregion
         
@@ -42,9 +42,10 @@ namespace System.Windows.Forms
             [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
             get
             {
-                CreateParams cp = base.CreateParams;
+                var cp = base.CreateParams;
                 if (RightToLeftLayout)
-                    cp.ExStyle |= NativeMethods.WS_EX_LAYOUTRTL | NativeMethods.WS_EX_NOINHERITLAYOUT;
+                    cp.ExStyle |= NativeMethods.WS_EX_LAYOUTRTL
+                               |  NativeMethods.WS_EX_NOINHERITLAYOUT;
                 return cp;
             }
         }
@@ -53,7 +54,7 @@ namespace System.Windows.Forms
         {
             base.Dispose(disposing);
             if (disposing)
-                _StyleProvider?.Dispose();
+                styleProvider?.Dispose();
         }
 
         #endregion
@@ -63,21 +64,21 @@ namespace System.Windows.Forms
         [Category("Appearance"),  DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public TabStyleProvider DisplayStyleProvider {
             get {
-                if (_StyleProvider == null)
+                if (styleProvider == null)
                     DisplayStyle = TabStyle.Default;
-                return _StyleProvider;
+                return styleProvider;
             }
-            set { _StyleProvider = value; }
+            set { styleProvider = value; }
         }
 
         [Category("Appearance"), DefaultValue(typeof(TabStyle), "Default"), RefreshProperties(RefreshProperties.All)]
         public TabStyle DisplayStyle {
-            get { return _Style; }
+            get { return style; }
             set {
-                if (_Style != value)
+                if (style != value)
                 {
-                    _Style = value;
-                    _StyleProvider = TabStyleProvider.CreateProvider(this);
+                    style = value;
+                    styleProvider = TabStyleProvider.CreateProvider(this);
                     Invalidate();
                 }
             }
@@ -126,7 +127,7 @@ namespace System.Windows.Forms
         // We don't want it as we are doing all the painting.
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "value")]
-        public new TabAppearance Appearance{
+        public new TabAppearance Appearance {
             get { return base.Appearance; }
             // Don't permit setting to other appearances as we are doing all the painting
             set { base.Appearance = TabAppearance.Normal; }
@@ -135,7 +136,7 @@ namespace System.Windows.Forms
         public override Rectangle DisplayRectangle {
             get {
                 // Special processing to hide tabs
-                if (_Style == TabStyle.None)
+                if (style == TabStyle.None)
                     return new Rectangle(0, 0, Width, Height);
                 
                 int itemHeight = Alignment <= TabAlignment.Bottom ? ItemSize.Height : ItemSize.Width;
@@ -171,7 +172,7 @@ namespace System.Windows.Forms
         }
         
         [Browsable(false)]
-        public TabPage ActiveTab{
+        public TabPage ActiveTab {
             get{
                 int activeIndex = ActiveIndex;
                 return activeIndex > -1 ? TabPages[activeIndex] : null;
@@ -194,7 +195,7 @@ namespace System.Windows.Forms
         public void HideTab(int index)
         {
             if (IsValidTabIndex(index))
-                HideTab(_TabPages[index]);
+                HideTab(tabPages[index]);
         }
 
         public void HideTab(string key)
@@ -208,12 +209,12 @@ namespace System.Windows.Forms
             if (page == null)
                 return;
             
-            if (_TabPages != null)
+            if (tabPages != null)
             {
-                if (!TabPages.Contains(page) && _TabPages.Contains(page))
+                if (!TabPages.Contains(page) && tabPages.Contains(page))
                 {
                     // Get insert point from backup of pages
-                    int pageIndex = _TabPages.IndexOf(page);
+                    int pageIndex = tabPages.IndexOf(page);
                     if (pageIndex > 0)
                     {
                         int start = pageIndex -1;
@@ -221,10 +222,10 @@ namespace System.Windows.Forms
                         // Check for presence of earlier pages in the visible tabs
                         for (int index = start; index >= 0; index--)
                         {
-                            if (TabPages.Contains(_TabPages[index]))
+                            if (TabPages.Contains(tabPages[index]))
                             {
                                 // Set insert point to the right of the last present tab
-                                pageIndex = TabPages.IndexOf(_TabPages[index]) + 1;
+                                pageIndex = TabPages.IndexOf(tabPages[index]) + 1;
                                 break;
                             }
                         }
@@ -248,28 +249,28 @@ namespace System.Windows.Forms
         public void ShowTab(int index)
         {
             if (IsValidTabIndex(index))
-                ShowTab(_TabPages[index]);
+                ShowTab(tabPages[index]);
         }
 
         public void ShowTab(string key)
         {
-            if (_TabPages != null)
-                ShowTab(_TabPages.Find(x => x.Name.Equals(key, StringComparison.OrdinalIgnoreCase)));
+            if (tabPages != null)
+                ShowTab(tabPages.Find(x => x.Name.Equals(key, StringComparison.OrdinalIgnoreCase)));
         }
 
         private bool IsValidTabIndex(int index)
         {
             BackupTabPages();
-            return index >= 0 && index < _TabPages.Count;
+            return index >= 0 && index < tabPages.Count;
         }
 
         private void BackupTabPages()
         {
-            if (_TabPages == null)
+            if (tabPages == null)
             {
-                _TabPages = new List<TabPage>();
+                tabPages = new List<TabPage>();
                 foreach (TabPage page in TabPages)
-                    _TabPages.Add(page);
+                    tabPages.Add(page);
             }
         }
         
@@ -439,7 +440,7 @@ namespace System.Windows.Forms
                     // Raise the scroll event when the scroller is scrolled
                     base.WndProc(ref m);
                     OnHScroll(new ScrollEventArgs(((ScrollEventType)NativeMethods.LoWord(m.WParam)),
-                        _oldValue, NativeMethods.HiWord(m.WParam), ScrollOrientation.HorizontalScroll));
+                        oldValue, NativeMethods.HiWord(m.WParam), ScrollOrientation.HorizontalScroll));
                     break;
                 default:
                     base.WndProc(ref m);
@@ -463,7 +464,7 @@ namespace System.Windows.Forms
                 base.OnMouseClick(e);
             }
             else if (!DesignMode && index > -1
-                && _StyleProvider.ShowTabCloser
+                && styleProvider.ShowTabCloser
                 && GetTabCloserRect(index).Contains(MousePosition))
             {
                 // If we are clicking on a closer then remove the tab instead of raising the standard mouse click event
@@ -496,16 +497,16 @@ namespace System.Windows.Forms
             HScroll?.Invoke(this, e);
 
             if (e.Type == ScrollEventType.EndScroll)
-                _oldValue = e.NewValue;
+                oldValue = e.NewValue;
         }
         
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
 
-            if (_StyleProvider.ShowTabCloser)
+            if (styleProvider.ShowTabCloser)
             {
-                if (_StyleProvider.GetTabRect(ActiveIndex).Contains(MousePosition))
+                if (styleProvider.GetTabRect(ActiveIndex).Contains(MousePosition))
                     Invalidate();
             }
             
@@ -525,7 +526,7 @@ namespace System.Windows.Forms
             if (Width <= 0 && Height <= 0)
                 return;
             
-            g.Clear(_StyleProvider.BackColor);
+            g.Clear(styleProvider.BackColor);
 
             if (TabCount <= 0)
                 return;
@@ -563,15 +564,12 @@ namespace System.Windows.Forms
             using (var tabPageBorderPath = GetTabPageBorder(index))
             {
                 // Paint the background
-                using (var fillBrush = _StyleProvider.GetPageBackgroundBrush(index))
-                {
-                    g.FillPath(fillBrush, tabPageBorderPath);
-                }
+                g.FillPath(styleProvider.GetPageBackgroundBrush(index), tabPageBorderPath);
 
-                if (_Style != TabStyle.None)
+                if (style != TabStyle.None)
                 {
                     // Paint the tab
-                    _StyleProvider.PaintTab(index, g);
+                    styleProvider.PaintTab(index, g);
                     // Draw any image
                     DrawTabImage(index, g);
                     // Draw the text
@@ -585,16 +583,12 @@ namespace System.Windows.Forms
 
         private void DrawTabBorder(GraphicsPath path, int index, Graphics g)
         {
-            var borderColor = index == SelectedIndex
-                ? _StyleProvider.BorderColorSelected
-                : _StyleProvider.HotTrack && index == ActiveIndex
-                    ? _StyleProvider.BorderColorHot
-                    : _StyleProvider.BorderColor;
-
-            using (Pen borderPen = new Pen(borderColor))
-            {
-                g.DrawPath(borderPen, path);
-            }
+            var borderPen = index == SelectedIndex
+                ? styleProvider.BorderColorSelectedPen
+                : styleProvider.HotTrack && index == ActiveIndex
+                    ? styleProvider.BorderColorHotPen
+                    : styleProvider.BorderColorPen;
+            g.DrawPath(borderPen, path);
         }
 
         private void DrawTabText(int index, Graphics g)
@@ -603,26 +597,17 @@ namespace System.Windows.Forms
             
             if (SelectedIndex == index)
             {
-                using (Brush textBrush = new SolidBrush(_StyleProvider.TextColorSelected))
-                {
-                    g.DrawString(TabPages[index].Text, Font, textBrush, tabBounds, GetStringFormat());
-                }
+                g.DrawString(TabPages[index].Text, Font, styleProvider.TextColorSelectedBrush, tabBounds, GetStringFormat());
             }
             else
             {
                 if (TabPages[index].Enabled)
                 {
-                    using (Brush textBrush = new SolidBrush(_StyleProvider.TextColor))
-                    {
-                        g.DrawString(TabPages[index].Text, Font, textBrush, tabBounds, GetStringFormat());
-                    }
+                    g.DrawString(TabPages[index].Text, Font, styleProvider.TextColorBrush, tabBounds, GetStringFormat());
                 }
                 else
                 {
-                    using (Brush textBrush = new SolidBrush(_StyleProvider.TextColorDisabled))
-                    {
-                        g.DrawString(TabPages[index].Text, Font, textBrush, tabBounds, GetStringFormat());
-                    }
+                    g.DrawString(TabPages[index].Text, Font, styleProvider.TextColorDisabledBrush, tabBounds, GetStringFormat());
                 }
             }
         }
@@ -699,8 +684,8 @@ namespace System.Windows.Forms
         {
             var path = new GraphicsPath();
             var pageBounds = GetPageBounds(index);
-            var tabBounds = _StyleProvider.GetTabRect(index);
-            _StyleProvider.AddTabBorder(path, tabBounds);
+            var tabBounds = styleProvider.GetTabRect(index);
+            styleProvider.AddTabBorder(path, tabBounds);
             AddPageBorder(path, pageBounds, tabBounds);
             
             path.CloseFigure();
@@ -724,7 +709,7 @@ namespace System.Windows.Forms
         private Rectangle GetTabTextRect(int index)
         {
             var textRect = new Rectangle();
-            using (var path = _StyleProvider.GetTabBorder(index))
+            using (var path = styleProvider.GetTabBorder(index))
             {
                 var tabBounds = path.GetBounds();
 
@@ -760,7 +745,7 @@ namespace System.Windows.Forms
                             && !TabPages[index].ImageKey.Equals("(none)", StringComparison.OrdinalIgnoreCase))))
                 {
                     var imageRect = GetTabImageRect(index);
-                    if ((_StyleProvider.ImageAlign & NativeMethods.AnyLeftAlign) != 0)
+                    if ((styleProvider.ImageAlign & NativeMethods.AnyLeftAlign) != 0)
                     {
                         if (Alignment <= TabAlignment.Bottom)
                         {
@@ -773,7 +758,7 @@ namespace System.Windows.Forms
                             textRect.Height -= (textRect.Bottom - (int)tabBounds.Bottom);
                         }
                         // If there is a closer allow for it
-                        if (_StyleProvider.ShowTabCloser)
+                        if (styleProvider.ShowTabCloser)
                         {
                             Rectangle closerRect = GetTabCloserRect(index);
                             if (Alignment <= TabAlignment.Bottom)
@@ -802,10 +787,10 @@ namespace System.Windows.Forms
                             }
                         }
                     }
-                    else if ((_StyleProvider.ImageAlign & NativeMethods.AnyCenterAlign) != 0)
+                    else if ((styleProvider.ImageAlign & NativeMethods.AnyCenterAlign) != 0)
                     {
                         // If there is a closer allow for it
-                        if (_StyleProvider.ShowTabCloser)
+                        if (styleProvider.ShowTabCloser)
                         {
                             var closerRect = GetTabCloserRect(index);
                             if (Alignment <= TabAlignment.Bottom)
@@ -838,7 +823,7 @@ namespace System.Windows.Forms
                             textRect.Height -= ((int)tabBounds.Bottom - imageRect.Y + 4);
 
                         // If there is a closer allow for it
-                        if (_StyleProvider.ShowTabCloser)
+                        if (styleProvider.ShowTabCloser)
                         {
                             var closerRect = GetTabCloserRect(index);
                             if (Alignment <= TabAlignment.Bottom)
@@ -867,7 +852,7 @@ namespace System.Windows.Forms
                 else
                 {
                     // If there is a closer allow for it
-                    if (_StyleProvider.ShowTabCloser)
+                    if (styleProvider.ShowTabCloser)
                     {
                         Rectangle closerRect = GetTabCloserRect(index);
                         if (Alignment <= TabAlignment.Bottom)
@@ -1045,7 +1030,7 @@ namespace System.Windows.Forms
 
         private Rectangle GetTabImageRect(int index)
         {
-            using (var tabBorderPath = _StyleProvider.GetTabBorder(index))
+            using (var tabBorderPath = styleProvider.GetTabBorder(index))
             {
                 return GetTabImageRect(tabBorderPath);
             }
@@ -1080,7 +1065,7 @@ namespace System.Windows.Forms
             // Ensure image is fully visible
             if (Alignment <= TabAlignment.Bottom)
             {
-                if ((_StyleProvider.ImageAlign & NativeMethods.AnyLeftAlign) != 0)
+                if ((styleProvider.ImageAlign & NativeMethods.AnyLeftAlign) != 0)
                 {
                     imageRect = new Rectangle((int)rect.X, (int)rect.Y + (int)Math.Floor((double)((int)rect.Height - 16)/2), 16, 16);
                     while (!tabBorderPath.IsVisible(imageRect.X, imageRect.Y))
@@ -1088,7 +1073,7 @@ namespace System.Windows.Forms
                     imageRect.X += 4;
 
                 }
-                else if ((_StyleProvider.ImageAlign & NativeMethods.AnyCenterAlign) != 0)
+                else if ((styleProvider.ImageAlign & NativeMethods.AnyCenterAlign) != 0)
                 {
                     imageRect = new Rectangle((int)rect.X + (int)Math.Floor((double)(((int)rect.Right - (int)rect.X - (int)rect.Height + 2)/2)), (int)rect.Y + (int)Math.Floor((double)((int)rect.Height - 16)/2), 16, 16);
                 }
@@ -1100,20 +1085,20 @@ namespace System.Windows.Forms
                     imageRect.X -= 4;
                     
                     // Move it in further to allow for the tab closer
-                    if (_StyleProvider.ShowTabCloser && !RightToLeftLayout)
+                    if (styleProvider.ShowTabCloser && !RightToLeftLayout)
                         imageRect.X -= 10;
                 }
             }
             else
             {
-                if ((_StyleProvider.ImageAlign & NativeMethods.AnyLeftAlign) != 0)
+                if ((styleProvider.ImageAlign & NativeMethods.AnyLeftAlign) != 0)
                 {
                     imageRect = new Rectangle((int)rect.X + (int)Math.Floor((double)((int)rect.Width - 16)/2), (int)rect.Y, 16, 16);
                     while (!tabBorderPath.IsVisible(imageRect.X, imageRect.Y))
                         imageRect.Y += 1;
                     imageRect.Y += 4;
                 }
-                else if ((_StyleProvider.ImageAlign & NativeMethods.AnyCenterAlign) != 0)
+                else if ((styleProvider.ImageAlign & NativeMethods.AnyCenterAlign) != 0)
                 {
                     imageRect = new Rectangle((int)rect.X + (int)Math.Floor((double)((int)rect.Width - 16)/2), (int)rect.Y + (int)Math.Floor((double)(((int)rect.Bottom - (int)rect.Y - (int)rect.Width + 2)/2)), 16, 16);
                 }
@@ -1125,7 +1110,7 @@ namespace System.Windows.Forms
                     imageRect.Y -= 4;	
                     
                     // Move it in further to allow for the tab closer
-                    if (_StyleProvider.ShowTabCloser && !RightToLeftLayout)
+                    if (styleProvider.ShowTabCloser && !RightToLeftLayout)
                         imageRect.Y -= 10;
                 }
             }
@@ -1134,7 +1119,7 @@ namespace System.Windows.Forms
 
         public Rectangle GetTabCloserRect(int index)
         {
-            var rect = _StyleProvider.GetTabBorder(index).GetBounds();
+            var rect = styleProvider.GetTabBorder(index).GetBounds();
             const float f = 2;
             
             if (Alignment <= TabAlignment.Bottom)

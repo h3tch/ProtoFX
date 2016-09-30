@@ -111,7 +111,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\controls\NativeMethods.cs" />
-    <Compile Include="src\controls\TabStyleProvider.cs">
+    <Compile Include="src\controls\TabStyleProviders\TabStyleProvider.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\controls\TabStyleProviders\FXTabStyleProvider.cs">

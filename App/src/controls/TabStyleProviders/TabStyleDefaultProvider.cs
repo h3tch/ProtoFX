@@ -1,9 +1,4 @@
-﻿/*
- * This code is provided under the Code Project Open Licence (CPOL)
- * See http://www.codeproject.com/info/cpol10.aspx for details
- */
-
-using System.Drawing;
+﻿using System.Drawing;
 
 namespace System.Windows.Forms
 {
@@ -12,13 +7,13 @@ namespace System.Windows.Forms
     {
         public TabStyleDefaultProvider(FXTabControl tabControl) : base(tabControl)
         {
-            _FocusTrack = true;
-            _Radius = 2;
+            focusTrack = true;
+            radius = 2;
         }
         
         public override void AddTabBorder(Drawing.Drawing2D.GraphicsPath path, Drawing.Rectangle tabBounds)
         {
-            switch (_TabControl.Alignment)
+            switch (tabControl.Alignment)
             {
                 case TabAlignment.Top:
                     path.AddLine(tabBounds.X, tabBounds.Bottom, tabBounds.X, tabBounds.Y);
@@ -49,12 +44,12 @@ namespace System.Windows.Forms
                 return new Rectangle();
 
             Rectangle tabBounds = base.GetTabRect(index);
-            bool firstTabinRow = _TabControl.IsFirstTabInRow(index);
+            bool firstTabinRow = tabControl.IsFirstTabInRow(index);
 
             //	Make non-SelectedTabs smaller and selected tab bigger
-            if (index != _TabControl.SelectedIndex)
+            if (index != tabControl.SelectedIndex)
             {
-                switch (_TabControl.Alignment)
+                switch (tabControl.Alignment)
                 {
                     case TabAlignment.Top:
                         tabBounds.Y += 1;
@@ -74,7 +69,7 @@ namespace System.Windows.Forms
             }
             else
             {
-                switch (_TabControl.Alignment)
+                switch (tabControl.Alignment)
                 {
                     case TabAlignment.Top:
                         if (tabBounds.Y > 0)
@@ -95,7 +90,7 @@ namespace System.Windows.Forms
                         break;
 
                     case TabAlignment.Bottom:
-                        if (tabBounds.Bottom < _TabControl.Bottom)
+                        if (tabBounds.Bottom < tabControl.Bottom)
                             tabBounds.Height += 1;
 
                         if (firstTabinRow)
@@ -128,7 +123,7 @@ namespace System.Windows.Forms
                         break;
 
                     case TabAlignment.Right:
-                        if (tabBounds.Right < _TabControl.Right)
+                        if (tabBounds.Right < tabControl.Right)
                             tabBounds.Width += 1;
 
                         if (firstTabinRow)

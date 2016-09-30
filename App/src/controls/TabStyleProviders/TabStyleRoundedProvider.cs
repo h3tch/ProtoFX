@@ -1,9 +1,4 @@
-﻿/*
- * This code is provided under the Code Project Open Licence (CPOL)
- * See http://www.codeproject.com/info/cpol10.aspx for details
- */
-
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Drawing2D;
 
 namespace System.Windows.Forms
@@ -13,7 +8,7 @@ namespace System.Windows.Forms
     {
         public TabStyleRoundedProvider(FXTabControl tabControl) : base(tabControl)
         {
-            _Radius = 10;
+            radius = 10;
             //	Must set after the _Radius as this is used in the calculations of the actual padding
             Padding = new Drawing.Point(6, 3);
         }
@@ -21,35 +16,35 @@ namespace System.Windows.Forms
         public override void AddTabBorder(GraphicsPath path, Rectangle tabBounds)
         {
 
-            switch (_TabControl.Alignment)
+            switch (tabControl.Alignment)
             {
                 case TabAlignment.Top:
-                    path.AddLine(tabBounds.X, tabBounds.Bottom, tabBounds.X, tabBounds.Y + this._Radius);
-                    path.AddArc(tabBounds.X, tabBounds.Y, this._Radius * 2, this._Radius * 2, 180, 90);
-                    path.AddLine(tabBounds.X + this._Radius, tabBounds.Y, tabBounds.Right - this._Radius, tabBounds.Y);
-                    path.AddArc(tabBounds.Right - this._Radius * 2, tabBounds.Y, this._Radius * 2, this._Radius * 2, 270, 90);
-                    path.AddLine(tabBounds.Right, tabBounds.Y + this._Radius, tabBounds.Right, tabBounds.Bottom);
+                    path.AddLine(tabBounds.X, tabBounds.Bottom, tabBounds.X, tabBounds.Y + this.radius);
+                    path.AddArc(tabBounds.X, tabBounds.Y, this.radius * 2, this.radius * 2, 180, 90);
+                    path.AddLine(tabBounds.X + this.radius, tabBounds.Y, tabBounds.Right - this.radius, tabBounds.Y);
+                    path.AddArc(tabBounds.Right - this.radius * 2, tabBounds.Y, this.radius * 2, this.radius * 2, 270, 90);
+                    path.AddLine(tabBounds.Right, tabBounds.Y + this.radius, tabBounds.Right, tabBounds.Bottom);
                     break;
                 case TabAlignment.Bottom:
-                    path.AddLine(tabBounds.Right, tabBounds.Y, tabBounds.Right, tabBounds.Bottom - this._Radius);
-                    path.AddArc(tabBounds.Right - this._Radius * 2, tabBounds.Bottom - this._Radius * 2, this._Radius * 2, this._Radius * 2, 0, 90);
-                    path.AddLine(tabBounds.Right - this._Radius, tabBounds.Bottom, tabBounds.X + this._Radius, tabBounds.Bottom);
-                    path.AddArc(tabBounds.X, tabBounds.Bottom - this._Radius * 2, this._Radius * 2, this._Radius * 2, 90, 90);
-                    path.AddLine(tabBounds.X, tabBounds.Bottom - this._Radius, tabBounds.X, tabBounds.Y);
+                    path.AddLine(tabBounds.Right, tabBounds.Y, tabBounds.Right, tabBounds.Bottom - this.radius);
+                    path.AddArc(tabBounds.Right - this.radius * 2, tabBounds.Bottom - this.radius * 2, this.radius * 2, this.radius * 2, 0, 90);
+                    path.AddLine(tabBounds.Right - this.radius, tabBounds.Bottom, tabBounds.X + this.radius, tabBounds.Bottom);
+                    path.AddArc(tabBounds.X, tabBounds.Bottom - this.radius * 2, this.radius * 2, this.radius * 2, 90, 90);
+                    path.AddLine(tabBounds.X, tabBounds.Bottom - this.radius, tabBounds.X, tabBounds.Y);
                     break;
                 case TabAlignment.Left:
-                    path.AddLine(tabBounds.Right, tabBounds.Bottom, tabBounds.X + this._Radius, tabBounds.Bottom);
-                    path.AddArc(tabBounds.X, tabBounds.Bottom - this._Radius * 2, this._Radius * 2, this._Radius * 2, 90, 90);
-                    path.AddLine(tabBounds.X, tabBounds.Bottom - this._Radius, tabBounds.X, tabBounds.Y + this._Radius);
-                    path.AddArc(tabBounds.X, tabBounds.Y, this._Radius * 2, this._Radius * 2, 180, 90);
-                    path.AddLine(tabBounds.X + this._Radius, tabBounds.Y, tabBounds.Right, tabBounds.Y);
+                    path.AddLine(tabBounds.Right, tabBounds.Bottom, tabBounds.X + this.radius, tabBounds.Bottom);
+                    path.AddArc(tabBounds.X, tabBounds.Bottom - this.radius * 2, this.radius * 2, this.radius * 2, 90, 90);
+                    path.AddLine(tabBounds.X, tabBounds.Bottom - this.radius, tabBounds.X, tabBounds.Y + this.radius);
+                    path.AddArc(tabBounds.X, tabBounds.Y, this.radius * 2, this.radius * 2, 180, 90);
+                    path.AddLine(tabBounds.X + this.radius, tabBounds.Y, tabBounds.Right, tabBounds.Y);
                     break;
                 case TabAlignment.Right:
-                    path.AddLine(tabBounds.X, tabBounds.Y, tabBounds.Right - this._Radius, tabBounds.Y);
-                    path.AddArc(tabBounds.Right - this._Radius * 2, tabBounds.Y, this._Radius * 2, this._Radius * 2, 270, 90);
-                    path.AddLine(tabBounds.Right, tabBounds.Y + this._Radius, tabBounds.Right, tabBounds.Bottom - this._Radius);
-                    path.AddArc(tabBounds.Right - this._Radius * 2, tabBounds.Bottom - this._Radius * 2, this._Radius * 2, this._Radius * 2, 0, 90);
-                    path.AddLine(tabBounds.Right - this._Radius, tabBounds.Bottom, tabBounds.X, tabBounds.Bottom);
+                    path.AddLine(tabBounds.X, tabBounds.Y, tabBounds.Right - this.radius, tabBounds.Y);
+                    path.AddArc(tabBounds.Right - this.radius * 2, tabBounds.Y, this.radius * 2, this.radius * 2, 270, 90);
+                    path.AddLine(tabBounds.Right, tabBounds.Y + this.radius, tabBounds.Right, tabBounds.Bottom - this.radius);
+                    path.AddArc(tabBounds.Right - this.radius * 2, tabBounds.Bottom - this.radius * 2, this.radius * 2, this.radius * 2, 0, 90);
+                    path.AddLine(tabBounds.Right - this.radius, tabBounds.Bottom, tabBounds.X, tabBounds.Bottom);
                     break;
             }
         }

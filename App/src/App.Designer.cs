@@ -228,7 +228,7 @@
             this.tabOutput.Alignment = System.Windows.Forms.TabAlignment.Bottom;
             this.tabOutput.Controls.Add(this.tabCompile);
             this.tabOutput.Controls.Add(this.tabDebugger);
-            this.tabOutput.DisplayStyle = System.Windows.Forms.TabStyle.Dark;
+            this.tabOutput.DisplayStyle = System.Windows.Forms.TabStyle.FX;
             // 
             // 
             // 
@@ -403,7 +403,7 @@
             this.panelCoding.Location = new System.Drawing.Point(0, 0);
             this.panelCoding.MinimumSize = new System.Drawing.Size(600, 0);
             this.panelCoding.Name = "panelCoding";
-            this.panelCoding.Padding = new System.Windows.Forms.Padding(0, 15, 0, 0);
+            this.panelCoding.Padding = new System.Windows.Forms.Padding(0, 20, 0, 0);
             this.panelCoding.Size = new System.Drawing.Size(860, 790);
             this.panelCoding.TabIndex = 1;
             this.panelCoding.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TitleBar_MouseDown);
@@ -616,7 +616,7 @@
             // 
             // btnWindowClose
             // 
-            this.btnWindowClose.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnWindowClose.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnWindowClose.FlatAppearance.BorderSize = 0;
             this.btnWindowClose.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.btnWindowClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -631,7 +631,7 @@
             // 
             // btnWindowMaximize
             // 
-            this.btnWindowMaximize.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnWindowMaximize.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnWindowMaximize.FlatAppearance.BorderSize = 0;
             this.btnWindowMaximize.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.btnWindowMaximize.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -646,7 +646,7 @@
             // 
             // btnWindowMinimize
             // 
-            this.btnWindowMinimize.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnWindowMinimize.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnWindowMinimize.FlatAppearance.BorderSize = 0;
             this.btnWindowMinimize.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
             this.btnWindowMinimize.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -664,7 +664,7 @@
             this.tabControl.Controls.Add(this.tabCode);
             this.tabControl.Controls.Add(this.tabResources);
             this.tabControl.Controls.Add(this.tabProperties);
-            this.tabControl.DisplayStyle = System.Windows.Forms.TabStyle.Dark;
+            this.tabControl.DisplayStyle = System.Windows.Forms.TabStyle.FX;
             // 
             // 
             // 
@@ -746,7 +746,7 @@
             // 
             // tabSource
             // 
-            this.tabSource.DisplayStyle = System.Windows.Forms.TabStyle.Dark;
+            this.tabSource.DisplayStyle = System.Windows.Forms.TabStyle.FX;
             // 
             // 
             // 
@@ -791,7 +791,7 @@
             // 
             this.tabData.Controls.Add(this.tabDataImg);
             this.tabData.Controls.Add(this.tabDataBuf);
-            this.tabData.DisplayStyle = System.Windows.Forms.TabStyle.Dark;
+            this.tabData.DisplayStyle = System.Windows.Forms.TabStyle.FX;
             // 
             // 
             // 
@@ -1182,8 +1182,11 @@
         #endregion
 
         #region Make Form DPI-Aware
+
         protected void MakeDPIAware()
         {
+            // ADJUST TITLE BAR
+
             var img = Properties.Resources.logo;
 
             tableLayoutRenderOutput.ColumnStyles[0].Width = img.Width + 2;
@@ -1191,14 +1194,17 @@
 
             imgAppIcon.Width = img.Width + 1;
             imgAppIcon.Height = img.Height + 1;
-
             labelTitle.Font = new System.Drawing.Font(
                 "Microsoft Sans Serif",
                 imgAppIcon.Height - 4,
                 System.Drawing.FontStyle.Regular,
-                System.Drawing.GraphicsUnit.Pixel,
-                ((byte)(0)));
+                System.Drawing.GraphicsUnit.Pixel, 0);
 
+            // ADJUST WINDOW BUTTONS
+            
+            tableLayoutMenu.ColumnStyles[1].Width = btnWindowMinimize.Image.Width + 9;
+            tableLayoutMenu.ColumnStyles[2].Width = btnWindowMaximize.Image.Width + 9;
+            tableLayoutMenu.ColumnStyles[3].Width = btnWindowClose.Image.Width + 9;
 
             btnWindowMinimize.Width = btnWindowMinimize.Image.Width + 9;
             btnWindowMinimize.Height = btnWindowMinimize.Image.Height + 1;
@@ -1207,19 +1213,21 @@
             btnWindowClose.Width = btnWindowClose.Image.Width + 9;
             btnWindowClose.Height = btnWindowClose.Image.Height + 1;
 
+            // ADJUST TOOL STRIP PANEL
+
             int w = 0;
             foreach (System.Windows.Forms.ToolStripItem item in toolStrip.Items)
                 w += item.Width;
 
-            tableLayoutMenu.ColumnStyles[0].Width = w + 20;
-            tableLayoutMenu.ColumnStyles[1].Width = btnWindowMinimize.Width + 2;
-            tableLayoutMenu.ColumnStyles[2].Width = btnWindowMaximize.Width + 2;
-            tableLayoutMenu.ColumnStyles[3].Width = btnWindowClose.Width + 2;
+            tableLayoutMenu.ColumnStyles[0].Width = w + 30;
 
-            panelMenu.Width = w + 20 + (btnWindowMinimize.Width + 2) * 3;
-            panelMenu.Location = new System.Drawing.Point(panelCoding.Width - panelMenu.Width, 0);
+            panelCoding.Padding = new System.Windows.Forms.Padding(0, img.Height + 8 - tabControl.GetTabRect(0).Height, 0, 0);
+            
+            panelMenu.Width = w + 30 + (btnWindowMinimize.Width + 2) * 3;
             panelMenu.Height = Properties.Resources.logo.Height + 4;
+            panelMenu.Location = new System.Drawing.Point(panelCoding.Width - panelMenu.Width, 0);
         }
+
         #endregion
 
         private OpenTK.GraphicControl glControl;
