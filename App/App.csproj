@@ -91,6 +91,9 @@
     <Compile Include="src\App.Debug.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="src\App.Theme.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="src\controls\ComboBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -107,6 +110,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\Compiler.cs" />
+    <Compile Include="src\controls\FXScrollBar.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="src\controls\FXTabControl.cs">
       <SubType>Component</SubType>
     </Compile>

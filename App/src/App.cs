@@ -19,8 +19,18 @@ namespace App
 
         public App()
         {
+            // INITIALIZE FORM CONTROLS
+
             InitializeComponent();
-            MakeDPIAware();
+
+            // LOAD PREVIOUS WINDOW STATE
+
+            // load settings
+            var settings = LoadSettings();
+            // apply settings to layout
+            ApplyLayout(settings);
+            // apply settings to theme
+            ApplyTheme(settings);
         }
 
         #region Form Control
@@ -31,25 +41,9 @@ namespace App
         /// <param name="e"></param>
         private void App_Load(object s, EventArgs e)
         {
-            // LOAD PREVIOUS WINDOW STATE
-            
-            // load settings
-            var settings = System.IO.File.Exists(Properties.Resources.WINDOW_SETTINGS_FILE)
-                ? XmlSerializer.Load<FormSettings>(Properties.Resources.WINDOW_SETTINGS_FILE)
-                : FormSettings.CreateCentered();
-            // place form completely inside a screen
-            settings.PlaceOnScreen(this);
-            // place splitters
-            settings.AdjustGUI(this);
-
+            // select default item
             ConvertExtensions.str2type.Keys.ForEach(x => comboBufType.Items.Add(x));
             comboBufType.SelectedIndex = ConvertExtensions.str2type.Keys.IndexOf(x => x == "float");
-
-            // LOAD PREVIOUS THEME
-
-            if (!Theme.Load(settings.ThemeXml))
-                Theme.Save(settings.ThemeXml);
-            Theme.Apply(this);
 
             // LINK PROPERTY VIEWER TO DEBUG SETTINGS
 
@@ -716,7 +710,7 @@ namespace App
         #endregion
 
         #region Inner Classes
-        public struct FormSettings
+        public class FormSettings
         {
             public FormBorderStyle BorderStyle;
             public Point NormalLocation;
