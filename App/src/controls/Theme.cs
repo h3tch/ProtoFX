@@ -238,6 +238,16 @@ namespace System.Windows.Forms
             c.ForeColor = ForeColor;
             return true;
         }
+
+        private static bool ApplyTo(CallTip c)
+        {
+            c.BackColor = BackColor;
+            c.ForeColor = ForeColor;
+            c.KeyColor = Color.FromArgb(255, 66, 147, 214);
+            c.ParamColor = Color.FromArgb(255, 147, 147, 147);
+            c.CodeColor = ForeColor;
+            return true;
+        }
         #endregion
 
         #region INTERNAL

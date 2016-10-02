@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using System.Runtime.InteropServices;
 
 namespace System.Windows.Forms
 {
@@ -10,17 +9,22 @@ namespace System.Windows.Forms
             get { return text.Text; }
             set {
                 text.Text = value;
+                Style("key", KeyFont, KeyColor);
+                Style("param", ParamFont, ParamColor);
+                Style("code", CodeFont, CodeColor);
             }
         }
-
         public new Font Font
         {
             get { return text.Font; }
             set { text.Font = value; }
         }
-
-        public Font FontCode { get; set; } = new Font("Consolas", 10);
-
+        public Font KeyFont { get; set; } = new Font("Consolas", 10);
+        public Color KeyColor { get; set; } = Color.Blue;
+        public Font ParamFont { get; set; } = new Font("Sans", 10);
+        public Color ParamColor { get; set; } = Color.DarkGray;
+        public Font CodeFont { get; set; } = new Font("Consolas", 10);
+        public Color CodeColor { get; set; } = SystemColors.ControlText;
         public new bool Visible
         {
             get { return base.Visible; }
@@ -28,31 +32,44 @@ namespace System.Windows.Forms
             {
                 if (value)
                 {
-                    var size = TextRenderer.MeasureText(Tip, text.Font, Size, TextFormatFlags.TextBoxControl);
-                    size.Width += Padding.Left + Padding.Right;
-                    size.Height += Padding.Top + Padding.Bottom;
+                    var size = TextSize;
                     if (size.Height > MaxTipHeight)
                     {
+                        size.Width += SystemInformation.VerticalScrollBarWidth + 5;
                         size.Height = MaxTipHeight;
-                        size.Width += SystemInformation.VerticalScrollBarWidth;
                     }
-                    Width = size.Width;
-                    Height = size.Height;
+                    Width = size.Width + Padding.Left + Padding.Right;
+                    Height = size.Height + Padding.Top + Padding.Bottom;
                 }
                 base.Visible = value;
             }
         }
-
         internal int MaxTipHeight
         {
             get
             {
                 const string nl = "\n\n\n\n\n\n\n\n\n";
-                var size = TextRenderer.MeasureText(nl, text.Font, Size, TextFormatFlags.TextBoxControl);
+                var size = TextRenderer.MeasureText(nl, text.Font);
                 return size.Height;
             }
         }
-
+        internal Drawing.Size TextSize
+        {
+            get
+            {
+                var s = new Drawing.Size();
+                for (int l = 0; l < text.Lines.Length; l++)
+                {
+                    var i = text.GetFirstCharIndexFromLine(l) + text.Lines[l].Length - 1;
+                    text.Select(i, 1);
+                    var p = text.GetPositionFromCharIndex(i);
+                    var r = TextRenderer.MeasureText(text.SelectedText, text.SelectionFont);
+                    s.Width = Math.Max(p.X + r.Width, s.Width);
+                    s.Height = Math.Max(p.Y + r.Height, s.Height);
+                }
+                return s;
+            }
+        }
 
         public CallTip()
         {
@@ -65,7 +82,29 @@ namespace System.Windows.Forms
             Focus();
         }
 
-        [DllImport("user32.dll", SetLastError = true)]
-        static extern uint GetWindowLong(IntPtr hWnd, int nIndex);
+        private void Style(string tag, Font font, Color color)
+        {
+            var tagS = $"<{tag}>";
+            var tagE = $"</{tag}>";
+            text.ReadOnly = false;
+            for (int start = 0, end; (start = text.Text.IndexOf(tagS)) >= 0; start = end)
+            {
+                text.Select(start, tagS.Length);
+                text.SelectedText = "";
+                if ((end = text.Text.IndexOf(tagE, start)) == -1)
+                {
+                    end = text.Text.Length;
+                }
+                else
+                {
+                    text.Select(end, tagE.Length);
+                    text.SelectedText = "";
+                }
+                text.Select(start, end - start);
+                text.SelectionColor = color;
+                text.SelectionFont = font;
+            }
+            text.ReadOnly = true;
+        }
     }
 }
