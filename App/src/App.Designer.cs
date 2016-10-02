@@ -96,6 +96,7 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.comboProp = new System.Windows.Forms.ComboBoxEx();
+            this.scrollbar = new System.Windows.Forms.FXScrollBar();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
             this.splitRenderCoding.Panel1.SuspendLayout();
             this.splitRenderCoding.Panel2.SuspendLayout();
@@ -201,6 +202,7 @@
             // 
             // splitRenderOutput.Panel1
             // 
+            this.splitRenderOutput.Panel1.Controls.Add(this.scrollbar);
             this.splitRenderOutput.Panel1.Controls.Add(this.glControl);
             // 
             // splitRenderOutput.Panel2
@@ -222,6 +224,13 @@
             this.glControl.TabIndex = 0;
             this.glControl.VSync = false;
             this.glControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseUp);
+            // 
+            // scrollbar
+            // 
+            this.scrollbar.BackColor = System.Drawing.SystemColors.Control;
+            this.scrollbar.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.scrollbar.Location = new System.Drawing.Point(50, 50);
+            this.scrollbar.Size = new System.Drawing.Size(20, 400);
             // 
             // tabOutput
             // 
@@ -1305,5 +1314,6 @@
         private System.Windows.Forms.Button btnWindowMaximize;
         private System.Windows.Forms.Button btnWindowMinimize;
         private System.Windows.Forms.TableLayoutPanel tableLayoutRenderOutput;
+        private System.Windows.Forms.FXScrollBar scrollbar;
     }
 }
