@@ -12,6 +12,7 @@ namespace App
         private Pen grayPen;
         private Pen dashedPen;
         private Size lineSize;
+        public static int NewLineHelper = 100;
 
         /// <summary>
         /// Initialize class events.
@@ -41,7 +42,7 @@ namespace App
             dashedPen.DashPattern = new[] { 3f, 6f };
 
             // measure default line size
-            lineSize = TextRenderer.MeasureText(new string('/', 80), Font);
+            lineSize = TextRenderer.MeasureText(new string('/', NewLineHelper), Font);
         }
 
         /// <summary>

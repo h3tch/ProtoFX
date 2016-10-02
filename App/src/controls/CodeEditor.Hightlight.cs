@@ -6,7 +6,7 @@ namespace App
 {
     partial class CodeEditor
     {
-        private static Lexer.ILexer FxLexer = new Lexer.FxLexer();
+        private static Lexer.ILexer FxLexer;
 
         /// <summary>
         /// Initialize code highlighting.
@@ -30,6 +30,9 @@ namespace App
             Styles[Style.LineNumber].BackColor = Theme.Workspace;
             Styles[Style.CallTip].ForeColor = Theme.ForeColor;
             Styles[Style.CallTip].BackColor = Theme.HighlightBackColor;
+
+            if (FxLexer == null)
+                FxLexer = new Lexer.FxLexer();
 
             // set styles as defined in the keyword file
             foreach (var style in FxLexer.Styles)

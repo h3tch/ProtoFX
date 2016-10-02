@@ -113,6 +113,8 @@ namespace App.Lexer
             var styleList = lexerNode.SelectNodes("Style");
             foreach (XmlNode style in styleList)
             {
+                if (style.HasAttributeValue("theme") && style.GetAttributeValue("theme").ToLower() != Theme.Name.ToLower())
+                    continue;
                 var id = (int)Enum.Parse(StateType, style.GetAttributeValue("name"), true);
                 var idx = id - firstState;
                 if (style.HasAttributeValue("fore"))

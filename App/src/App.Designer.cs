@@ -96,7 +96,6 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.comboProp = new System.Windows.Forms.ComboBoxEx();
-            this.scrollbar = new System.Windows.Forms.FXScrollBar();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
             this.splitRenderCoding.Panel1.SuspendLayout();
             this.splitRenderCoding.Panel2.SuspendLayout();
@@ -202,7 +201,6 @@
             // 
             // splitRenderOutput.Panel1
             // 
-            this.splitRenderOutput.Panel1.Controls.Add(this.scrollbar);
             this.splitRenderOutput.Panel1.Controls.Add(this.glControl);
             // 
             // splitRenderOutput.Panel2
@@ -224,13 +222,6 @@
             this.glControl.TabIndex = 0;
             this.glControl.VSync = false;
             this.glControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseUp);
-            // 
-            // scrollbar
-            // 
-            this.scrollbar.BackColor = System.Drawing.SystemColors.Control;
-            this.scrollbar.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.scrollbar.Location = new System.Drawing.Point(50, 50);
-            this.scrollbar.Size = new System.Drawing.Size(20, 400);
             // 
             // tabOutput
             // 
@@ -1224,11 +1215,11 @@
             tableLayoutMenu.ColumnStyles[3].Width = btnWindowClose.Image.Width + 9;
 
             btnWindowMinimize.Width = btnWindowMinimize.Image.Width + 9;
-            btnWindowMinimize.Height = btnWindowMinimize.Image.Height + 1;
+            btnWindowMinimize.Height = btnWindowMinimize.Image.Height + 3;
             btnWindowMaximize.Width = btnWindowMaximize.Image.Width + 9;
-            btnWindowMaximize.Height = btnWindowMaximize.Image.Height + 1;
+            btnWindowMaximize.Height = btnWindowMaximize.Image.Height + 3;
             btnWindowClose.Width = btnWindowClose.Image.Width + 9;
-            btnWindowClose.Height = btnWindowClose.Image.Height + 1;
+            btnWindowClose.Height = btnWindowClose.Image.Height + 3;
 
             // ADJUST TOOL STRIP PANEL
 
@@ -1314,6 +1305,5 @@
         private System.Windows.Forms.Button btnWindowMaximize;
         private System.Windows.Forms.Button btnWindowMinimize;
         private System.Windows.Forms.TableLayoutPanel tableLayoutRenderOutput;
-        private System.Windows.Forms.FXScrollBar scrollbar;
     }
 }

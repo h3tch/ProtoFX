@@ -13,7 +13,7 @@ namespace System.Windows.Forms
     }
 
     [ToolboxItem(false)]
-    public abstract class TabStyleProvider : Component
+    public class TabStyleProvider : Component
     {
         #region Constructor
         
@@ -46,7 +46,7 @@ namespace System.Windows.Forms
             // Depending on the display style of the tabControl generate an appropriate provider.
             switch (tabControl.DisplayStyle) {
                 case TabStyle.None:
-                    provider = new TabStyleNoneProvider(tabControl);
+                    provider = new TabStyleProvider(tabControl);
                     break;
                 case TabStyle.Default:
                     provider = new TabStyleDefaultProvider(tabControl);
@@ -123,7 +123,7 @@ namespace System.Windows.Forms
 
         #region Overridable Methods
 
-        public abstract void AddTabBorder(GraphicsPath path, Rectangle tabBounds);
+        public virtual void AddTabBorder(GraphicsPath path, Rectangle tabBounds) { }
 
         public virtual Rectangle GetTabRect(int index)
         {
@@ -489,11 +489,14 @@ namespace System.Windows.Forms
                 closerColor = value;
                 CloserColorPen?.Dispose();
                 CloserColorPen = new Pen(closerColor);
+                CloserColorBrush?.Dispose();
+                CloserColorBrush = new SolidBrush(closerColor);
                 tabControl.Invalidate();
             }
         }
 
         public Pen CloserColorPen { get; set; }
+        public Brush CloserColorBrush { get; set; }
 
         [Category("Appearance"), DefaultValue(typeof(Color), "")]
         public Color BackColor

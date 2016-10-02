@@ -110,9 +110,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\Compiler.cs" />
-    <Compile Include="src\controls\FXScrollBar.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="src\controls\FXTabControl.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -124,9 +121,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\controls\TabStyleProviders\TabStyleDefaultProvider.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="src\controls\TabStyleProviders\TabStyleNoneProvider.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\controls\TabStyleProviders\TabStyleRoundedProvider.cs">

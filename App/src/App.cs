@@ -90,20 +90,8 @@ namespace App
 
             // SAVE CURRENT WINDOW STATE
 
-            // get current window state
-            var settings = new FormSettings
-            {
-                BorderStyle = FormBorderStyle,
-                NormalLocation = IsMaximized ? NormalLocation : Location,
-                NormalSize = IsMaximized ? NormalSize : Size,
-                SplitRenderCoding = (float)splitRenderCoding.SplitterDistance / splitRenderCoding.Width,
-                SplitRenderOutput = (float)splitRenderOutput.SplitterDistance / splitRenderOutput.Height,
-                SplitDebug = (float)splitDebug.SplitterDistance / splitDebug.Width,
-                ThemeXml = Theme.Name + ".xml", 
-            };
-
             // save to file
-            XmlSerializer.Save(settings, Properties.Resources.WINDOW_SETTINGS_FILE);
+            XmlSerializer.Save(FormSettings.Create(this), Properties.Resources.WINDOW_SETTINGS_FILE);
         }
         
         /// <summary>
@@ -718,6 +706,7 @@ namespace App
             public float SplitRenderCoding;
             public float SplitRenderOutput;
             public float SplitDebug;
+            public int NewLineHelper;
             public string ThemeXml;
 
             /// <summary>
@@ -735,7 +724,22 @@ namespace App
                     SplitRenderCoding = 0.4f,
                     SplitRenderOutput = 0.7f,
                     SplitDebug = 0.55f,
+                    NewLineHelper = 100,
                     ThemeXml = Properties.Resources.THEME_FILE,
+                };
+            }
+            public static FormSettings Create(App app)
+            {
+                return new FormSettings
+                {
+                    BorderStyle = app.FormBorderStyle,
+                    NormalLocation = app.IsMaximized ? app.NormalLocation : app.Location,
+                    NormalSize = app.IsMaximized ? app.NormalSize : app.Size,
+                    SplitRenderCoding = (float)app.splitRenderCoding.SplitterDistance / app.splitRenderCoding.Width,
+                    SplitRenderOutput = (float)app.splitRenderOutput.SplitterDistance / app.splitRenderOutput.Height,
+                    SplitDebug = (float)app.splitDebug.SplitterDistance / app.splitDebug.Width,
+                    NewLineHelper = CodeEditor.NewLineHelper,
+                    ThemeXml = Theme.Name + ".xml",
                 };
             }
 
@@ -801,6 +805,8 @@ namespace App
                     (int)(SplitDebug * app.splitDebug.Width);
                 // select 'float' as the default buffer value type
                 app.comboBufType.SelectedIndex = 8;
+                // change new line helper position
+                CodeEditor.NewLineHelper = NewLineHelper;
             }
         }
         #endregion

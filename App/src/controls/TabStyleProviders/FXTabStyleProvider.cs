@@ -27,8 +27,7 @@ namespace System.Windows.Forms
                     {
                         using (var closerBtnPath = GetCloserButtonPath(closerRect))
                         {
-                            g.FillPath(Brushes.White, closerBtnPath);
-                            g.DrawPath(CloserColorPen, closerBtnPath);
+                            g.FillPath(CloserColorBrush, closerBtnPath);
                         }
                         g.DrawPath(CloserColorActivePen, closerPath);
                     }

@@ -22,9 +22,9 @@ namespace System.Windows.Forms
         #endregion
 
         /// <summary>
-        /// Default theme is the dark theme.
+        /// Initialize the dark theme.
         /// </summary>
-        static Theme()
+        public static void DarkTheme()
         {
             palette.Name = "DarkTheme";
             palette.BackColor = Color.FromArgb(255, 45, 45, 50);
@@ -36,6 +36,23 @@ namespace System.Windows.Forms
             palette.Workspace = Color.FromArgb(255, 30, 30, 30);
             palette.WorkspaceHighlight = Color.FromArgb(255, 60, 60, 60);
             palette.TextColor = Color.FromArgb(255, 220, 220, 220);
+        }
+
+        /// <summary>
+        /// Initialize the light theme.
+        /// </summary>
+        public static void LightTheme()
+        {
+            palette.Name = "LightTheme";
+            palette.BackColor = Color.FromArgb(255, 238, 238, 242);
+            palette.ForeColor = Color.FromArgb(255, 50, 50, 50);
+            palette.HighlightBackColor = Color.FromArgb(255, 198, 198, 202);
+            palette.HighlightForeColor = Color.FromArgb(255, 90, 90, 90);
+            palette.SelectBackColor = Color.FromArgb(255, 242, 198, 212);
+            palette.SelectForeColor = Color.FromArgb(255, 130, 110, 90);
+            palette.Workspace = Color.FromArgb(255, 255, 255, 255);
+            palette.WorkspaceHighlight = Color.FromArgb(255, 220, 220, 220);
+            palette.TextColor = Color.FromArgb(255, 30, 30, 30);
         }
 
         /// <summary>
@@ -55,9 +72,10 @@ namespace System.Windows.Forms
         /// Save current theme colors to xml.
         /// </summary>
         /// <param name="path"></param>
-        public static void Save(string path)
+        public static void Save(string path, bool overwrite)
         {
-            XmlSerializer.Save(palette, path);
+            if (!File.Exists(path) || overwrite)
+                XmlSerializer.Save(palette, path);
         }
 
         /// <summary>

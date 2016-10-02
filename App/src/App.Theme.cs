@@ -28,7 +28,14 @@ namespace App
             // LOAD PREVIOUS THEME
 
             if (!Theme.Load(settings.ThemeXml))
-                Theme.Save(settings.ThemeXml);
+            {
+                // save themes to xml
+                Theme.LightTheme();
+                Theme.Save(Theme.Name + ".xml", false);
+                Theme.DarkTheme();
+                Theme.Save(Theme.Name + ".xml", false);
+            }
+
             Theme.Apply(this);
         }
     }
