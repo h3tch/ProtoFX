@@ -300,21 +300,15 @@ namespace System.Windows.Forms
             get { return padding; }
             set {
                 padding = value;
-                // This line will trigger the handle to recreate, therefore invalidating the control
-                if (showTabCloser)
-                {
-                    if (value.X + radius / 2 < -6)
-                        ((TabControl)tabControl).Padding = new Drawing.Point(0, value.Y);
-                    else
-                        ((TabControl)tabControl).Padding = new Drawing.Point(value.X + radius / 2 + 6, value.Y);
-                }
-                else
-                {
-                    if (value.X + radius / 2 < 1)
-                        ((TabControl)tabControl).Padding = new Drawing.Point(0, value.Y);
-                    else
-                        ((TabControl)tabControl).Padding = new Drawing.Point(value.X + radius / 2 - 1, value.Y);
-                }
+                // This line will trigger the handle to recreate,
+                // therefore invalidating the control
+                ((TabControl)tabControl).Padding = showTabCloser
+                    ? (value.X + radius / 2 < -6
+                        ? new Drawing.Point(0, value.Y)
+                        : new Drawing.Point(value.X + radius / 2 + 6, value.Y))
+                    : (value.X + radius / 2 < 1
+                        ? new Drawing.Point(0, value.Y)
+                        : new Drawing.Point(value.X + radius / 2 - 1, value.Y));
             }
         }
         
@@ -378,9 +372,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), DefaultValue(typeof(Color), "")]
         public Color BorderColorSelected
         {
-            get {
-                return borderColorSelected;
-            }
+            get { return borderColorSelected; }
             set {
                 borderColorSelected = value;
                 BorderColorSelectedPen?.Dispose();

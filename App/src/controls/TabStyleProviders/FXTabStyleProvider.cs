@@ -21,37 +21,19 @@ namespace System.Windows.Forms
             {
                 var closerRect = tabControl.GetTabCloserRect(index);
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-                if (closerRect.Contains(tabControl.MousePosition))
+                using (var closerPath = GetCloserPath(closerRect))
                 {
-                    using (var closerPath = GetCloserButtonPath(closerRect))
+                    if (closerRect.Contains(tabControl.MousePosition))
                     {
-                        g.FillPath(Brushes.White, closerPath);
-                        g.DrawPath(CloserColorPen, closerPath);
-                    }
-                    using (var closerPath = GetCloserPath(closerRect))
-                    {
-                        CloserColorActivePen.Width = 2;
+                        using (var closerBtnPath = GetCloserButtonPath(closerRect))
+                        {
+                            g.FillPath(Brushes.White, closerBtnPath);
+                            g.DrawPath(CloserColorPen, closerBtnPath);
+                        }
                         g.DrawPath(CloserColorActivePen, closerPath);
                     }
-                }
-                else
-                {
-                    if (index == tabControl.SelectedIndex)
-                    {
-                        using (GraphicsPath closerPath = GetCloserPath(closerRect))
-                        {
-                            CloserColorPen.Width = 2;
-                            g.DrawPath(CloserColorPen, closerPath);
-                        }
-                    }
-                    else if (index == tabControl.ActiveIndex)
-                    {
-                        using (GraphicsPath closerPath = GetCloserPath(closerRect))
-                        {
-                            CloserColorPen.Width = 2;
-                            g.DrawPath(CloserColorPen, closerPath);
-                        }
-                    }
+                    else
+                        g.DrawPath(CloserColorPen, closerPath);
                 }
             }
         }
