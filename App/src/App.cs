@@ -725,9 +725,15 @@ namespace App
                     SplitRenderOutput = 0.7f,
                     SplitDebug = 0.55f,
                     NewLineHelper = 100,
-                    ThemeXml = Properties.Resources.THEME_FILE,
+                    ThemeXml = Theme.Name + ".xml",
                 };
             }
+
+            /// <summary>
+            /// Create form settings structure from application.
+            /// </summary>
+            /// <param name="app"></param>
+            /// <returns></returns>
             public static FormSettings Create(App app)
             {
                 return new FormSettings

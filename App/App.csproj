@@ -94,6 +94,12 @@
     <Compile Include="src\App.Theme.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="src\controls\CallTip.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\controls\CallTip.Designer.cs">
+      <DependentUpon>CallTip.cs</DependentUpon>
+    </Compile>
     <Compile Include="src\controls\ComboBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -182,6 +188,9 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="src\controls\CallTip.resx">
+      <DependentUpon>CallTip.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="demos\atlas\quest.tech" />
     <None Include="demos\shadow_mapping.tech" />
     <None Include="demos\shadow_mapping_pcf.tech" />
@@ -222,7 +231,6 @@
       <SubType>Designer</SubType>
     </Content>
     <None Include="resources\Maximize.png" />
-    <None Include="resources\colors.txt" />
     <Content Include="resources\dbgBody.txt" />
     <None Include="resources\ImgUncomment.png" />
     <None Include="resources\ImgComment.png" />
@@ -236,7 +244,6 @@
     <None Include="resources\ImgNew.png" />
     <None Include="resources\ImgSaveAs.png" />
     <None Include="demos\simple_include.tech" />
-    <None Include="resources\ImgClose.png" />
     <Content Include="demos\geom\cube.xml" />
     <Content Include="demos\geom\plane.xml" />
     <Content Include="demos\geom\quad.xml" />

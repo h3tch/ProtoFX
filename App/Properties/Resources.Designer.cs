@@ -71,31 +71,6 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to  0 default             #C0C0C0
-        /// 1 block               #0000FF
-        /// 2 annotation          #0099CC
-        /// 3 command             #6666FF
-        /// 4 argument            #6633CC
-        /// 5 GLSLtype            #0000FF
-        /// 6 GLSLfunction        #993333
-        /// 7 GLSLlayoutqualifier #0099CC
-        /// 8 GLSLflowcontrol     #0000FF
-        /// 9 GLSLbuiltin         #0000FF
-        ///10 opengl              #993333
-        ///11 identifier          #000000
-        ///12 number              #108030
-        ///13 string              #800000
-        ///14 char                #A03030
-        ///15 linecomment         #7F9F00
-        /// [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string colors {
-            get {
-                return ResourceManager.GetString("colors", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to #define _DBG_BOOL 1
         ///#define _DBG_INT 2
         ///#define _DBG_UINT 3
@@ -191,16 +166,6 @@ namespace App.Properties {
         internal static string dbgBody {
             get {
                 return ResourceManager.GetString("dbgBody", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap ImgClose {
-            get {
-                object obj = ResourceManager.GetObject("ImgClose", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -307,18 +272,15 @@ namespace App.Properties {
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&apos;1.0&apos;?&gt;
         ///&lt;FxLexer&gt;
-        ///  &lt;Style name=&apos;string&apos; fore=&apos;#D77763&apos;/&gt;
-        ///  &lt;Style name=&apos;operator&apos; fore=&apos;#A0A0A0&apos;/&gt;
-        ///  &lt;Style name=&apos;braces&apos; fore=&apos;#AAAAAA&apos;/&gt;
-        ///  &lt;Style name=&apos;punctuation&apos; fore=&apos;#A0A0A0&apos;/&gt;
-        ///  &lt;Style name=&apos;number&apos; fore=&apos;#328645&apos;/&gt;
-        ///  &lt;Style name=&apos;LineComment&apos; fore=&apos;#82A847&apos;/&gt;
-        ///  &lt;Style name=&apos;BlockComment&apos; fore=&apos;#82A847&apos;/&gt;
-        ///  &lt;Style name=&apos;name&apos; fore=&apos;#000000&apos;/&gt;
-        ///  &lt;!-- TECH --&gt;
-        ///  &lt;Lexer type=&apos;tech&apos; lexer=&apos;TechLexer&apos;&gt;
-        ///    &lt;Style name=&apos;preprocessor&apos; fore=&apos;#A0A0A0&apos;/&gt;
-        ///    &lt;Style name=&apos;type&apos; fore [rest of string was truncated]&quot;;.
+        ///  &lt;!-- Light Theme --&gt;
+        ///  &lt;Style theme=&apos;DarkTheme&apos; name=&apos;string&apos; fore=&apos;#D69D85&apos;/&gt;
+        ///  &lt;Style theme=&apos;DarkTheme&apos; name=&apos;operator&apos; fore=&apos;#A0A0A0&apos;/&gt;
+        ///  &lt;Style theme=&apos;DarkTheme&apos; name=&apos;braces&apos; fore=&apos;#606060&apos;/&gt;
+        ///  &lt;Style theme=&apos;DarkTheme&apos; name=&apos;punctuation&apos; fore=&apos;#A0A0A0&apos;/&gt;
+        ///  &lt;Style theme=&apos;DarkTheme&apos; name=&apos;number&apos; fore=&apos;#B5CEA8&apos;/&gt;
+        ///  &lt;Style theme=&apos;DarkTheme&apos; name=&apos;LineComment&apos; fore=&apos;#608B4E&apos;/&gt;
+        ///  &lt;Style theme=&apos;DarkTheme&apos; name=&apos;BlockComment&apos; fore=&apos;#82A847&apos;/&gt;
+        ///  &lt;Style theme=&apos;DarkThe [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string keywordsXML {
             get {
@@ -367,16 +329,7 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DarkTheme.xml.
-        /// </summary>
-        internal static string THEME_FILE {
-            get {
-                return ResourceManager.GetString("THEME_FILE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to settings.xml.
+        ///   Looks up a localized string similar to Settings.xml.
         /// </summary>
         internal static string WINDOW_SETTINGS_FILE {
             get {

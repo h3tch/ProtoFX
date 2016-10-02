@@ -1,11 +1,14 @@
 ﻿using System.Linq;
 using System.Windows.Forms;
 using System;
+using System.Drawing;
 
 namespace App
 {
     partial class CodeEditor
     {
+        private static CallTip tip;
+
         public void InitializeAutoC()
         {
             // auto completion settings
@@ -64,6 +67,26 @@ namespace App
             }
 
             CallTipCancel();
+        }
+
+        public new void CallTipShow(int position, string definition)
+        {
+            if (tip == null)
+            {
+                tip = new CallTip();
+                Theme.Apply(tip);
+            }
+            int x = PointXFromPosition(position);
+            int y = PointYFromPosition(position);
+            tip.Location = PointToScreen(new Point(x + 10, y + 30));
+            tip.Tip = definition;
+            tip.Visible = true;
+        }
+
+        public new void CallTipCancel()
+        {
+            if (tip != null)
+                tip.Visible = false;
         }
     }
 }

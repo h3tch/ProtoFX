@@ -21,6 +21,8 @@ namespace System.Windows.Forms
         public static Color TextColor => palette.TextColor;
         #endregion
 
+        #region THEME COLORS
+
         /// <summary>
         /// Initialize the dark theme.
         /// </summary>
@@ -44,16 +46,18 @@ namespace System.Windows.Forms
         public static void LightTheme()
         {
             palette.Name = "LightTheme";
-            palette.BackColor = Color.FromArgb(255, 238, 238, 242);
+            palette.BackColor = Color.FromArgb(255, 230, 230, 235);
             palette.ForeColor = Color.FromArgb(255, 50, 50, 50);
             palette.HighlightBackColor = Color.FromArgb(255, 198, 198, 202);
             palette.HighlightForeColor = Color.FromArgb(255, 90, 90, 90);
             palette.SelectBackColor = Color.FromArgb(255, 242, 198, 212);
             palette.SelectForeColor = Color.FromArgb(255, 130, 110, 90);
-            palette.Workspace = Color.FromArgb(255, 255, 255, 255);
+            palette.Workspace = Color.FromArgb(255, 245, 245, 245);
             palette.WorkspaceHighlight = Color.FromArgb(255, 220, 220, 220);
             palette.TextColor = Color.FromArgb(255, 30, 30, 30);
         }
+
+        #endregion
 
         /// <summary>
         /// Load theme from xml.

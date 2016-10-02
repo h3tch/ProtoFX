@@ -28,8 +28,9 @@ namespace App
             Styles[Style.Default].BackColor = Theme.Workspace;
             Styles[Style.LineNumber].ForeColor = Theme.HighlightBackColor;
             Styles[Style.LineNumber].BackColor = Theme.Workspace;
-            Styles[Style.CallTip].ForeColor = Theme.ForeColor;
-            Styles[Style.CallTip].BackColor = Theme.HighlightBackColor;
+            Styles[Style.CallTip].Font = "Sans";
+            Styles[Style.CallTip].ForeColor = Theme.HighlightBackColor;
+            Styles[Style.CallTip].BackColor = Theme.BackColor;
 
             if (FxLexer == null)
                 FxLexer = new Lexer.FxLexer();
