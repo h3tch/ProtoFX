@@ -144,16 +144,19 @@
             // 
             this.splitRenderCoding.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitRenderCoding.Location = new System.Drawing.Point(4, 5);
+            this.splitRenderCoding.Padding = new System.Windows.Forms.Padding(0);
             this.splitRenderCoding.Margin = new System.Windows.Forms.Padding(0);
             this.splitRenderCoding.Name = "splitRenderCoding";
             // 
             // splitRenderCoding.Panel1
             // 
             this.splitRenderCoding.Panel1.Controls.Add(this.tableLayoutRenderOutput);
+            this.splitRenderCoding.Panel1.Padding = new System.Windows.Forms.Padding(0);
             // 
             // splitRenderCoding.Panel2
             // 
             this.splitRenderCoding.Panel2.Controls.Add(this.panelCoding);
+            this.splitRenderCoding.Panel2.Padding = new System.Windows.Forms.Padding(0);
             this.splitRenderCoding.Size = new System.Drawing.Size(1466, 790);
             this.splitRenderCoding.SplitterDistance = 598;
             this.splitRenderCoding.SplitterWidth = 6;
@@ -403,6 +406,7 @@
             this.panelCoding.Controls.Add(this.tabControl);
             this.panelCoding.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelCoding.Location = new System.Drawing.Point(0, 0);
+            this.panelCoding.Margin = new System.Windows.Forms.Padding(0);
             this.panelCoding.MinimumSize = new System.Drawing.Size(600, 0);
             this.panelCoding.Name = "panelCoding";
             this.panelCoding.Padding = new System.Windows.Forms.Padding(0, 20, 0, 0);
@@ -619,7 +623,8 @@
             // 
             this.btnWindowClose.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnWindowClose.FlatAppearance.BorderSize = 0;
-            this.btnWindowClose.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
+            this.btnWindowClose.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
+            this.btnWindowClose.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(255)))));
             this.btnWindowClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnWindowClose.Image = global::App.Properties.Resources.Minimize;
             this.btnWindowClose.Location = new System.Drawing.Point(437, 0);
@@ -634,7 +639,8 @@
             // 
             this.btnWindowMaximize.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnWindowMaximize.FlatAppearance.BorderSize = 0;
-            this.btnWindowMaximize.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
+            this.btnWindowMaximize.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
+            this.btnWindowMaximize.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(255)))));
             this.btnWindowMaximize.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnWindowMaximize.Image = global::App.Properties.Resources.Maximize;
             this.btnWindowMaximize.Location = new System.Drawing.Point(488, 0);
@@ -649,7 +655,8 @@
             // 
             this.btnWindowMinimize.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnWindowMinimize.FlatAppearance.BorderSize = 0;
-            this.btnWindowMinimize.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.btnWindowMinimize.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.btnWindowMinimize.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.btnWindowMinimize.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnWindowMinimize.Image = global::App.Properties.Resources.Close;
             this.btnWindowMinimize.Location = new System.Drawing.Point(539, 0);
@@ -768,7 +775,7 @@
             this.tabSource.DisplayStyleProvider.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.tabSource.DisplayStyleProvider.Opacity = 1F;
             this.tabSource.DisplayStyleProvider.Overlap = 0;
-            this.tabSource.DisplayStyleProvider.Padding = new System.Drawing.Point(14, 3);
+            this.tabSource.DisplayStyleProvider.Padding = new System.Drawing.Point(16, 3);
             this.tabSource.DisplayStyleProvider.ShowTabCloser = true;
             this.tabSource.DisplayStyleProvider.TextColor = System.Drawing.Color.Gray;
             this.tabSource.DisplayStyleProvider.TextColorDisabled = System.Drawing.Color.Gray;

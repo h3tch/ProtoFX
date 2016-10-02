@@ -17,7 +17,7 @@ namespace System.Windows.Forms
 
         protected override void DrawTabCloser(int index, Graphics g)
         {
-            if (showTabCloser)
+            if (showTabCloser && (index == tabControl.ActiveIndex || index == tabControl.SelectedIndex))
             {
                 var closerRect = tabControl.GetTabCloserRect(index);
                 g.SmoothingMode = SmoothingMode.AntiAlias;
