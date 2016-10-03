@@ -138,11 +138,22 @@
     <Lexer type='buffer' lexer='TechBodyLexer'>
       <Style theme='DarkTheme' name='command' fore='#7AC0F4'/>
       <Style theme='LightTheme' name='command' fore='#7AC0F4'/>
-      <Keyword style_name='command' name='size' hint='size [bytes]'/>
-      <Keyword style_name='command' name='txt' hint='txt [text_name]'/>
-      <Keyword style_name='command' name='usage' hint='usage [hint]'/>
-      <Keyword style_name='command' name='xml' hint='xml [path]'/>
-      <Keyword style_name='command' name='class' hint='class [csharp_name] [class_name] [method_name]'/>
+      <Keyword style_name='command' name='size'
+               hint='Specify the buffer size in bytes.
+                    \  &lt;key&gt;size&lt;/key&gt; &lt;param&gt;[bytes]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='txt'
+               hint='Load data from a text file.
+                    \  &lt;key&gt;txt&lt;/key&gt; &lt;param&gt;[text_name]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='usage'
+               hint='Specify how the buffer will be
+                    \used by the application.
+                    \  &lt;key&gt;usage&lt;/key&gt; &lt;param&gt;[hint]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='xml'
+               hint='Load data from a xml file.
+                    \  &lt;key&gt;xml&lt;/key&gt; &lt;param&gt;[path] {node}&lt;/param&gt;'/>
+      <Keyword style_name='command' name='class'
+               hint='Post process data using the defined method.
+                    \  &lt;key&gt;class&lt;/key&gt; &lt;param&gt;[csharp_name] [class_name] [method_name]&lt;/param&gt;'/>
       <!-- buffer - USAGE -->
       <Lexer type='usage' lexer='CommandLexer'>
         <Style theme='DarkTheme' name='argument' fore='#9589CC'/>
@@ -162,8 +173,12 @@
     <Lexer type='csharp' lexer='TechBodyLexer'>
       <Style theme='DarkTheme' name='command' fore='#7AC0F4'/>
       <Style theme='LightTheme' name='command' fore='#7AC0F4'/>
-      <Keyword style_name='command' name='assembly' hint='assembly [path] {path} {...}'/>
-      <Keyword style_name='command' name='file' hint='file [path] {path} {...}'/>
+      <Keyword style_name='command' name='assembly'
+               hint='Include the specified assemply.
+                    \  &lt;key&gt;assembly&lt;/key&gt; &lt;param&gt;[path] {path} {...}&lt;/param&gt;'/>
+      <Keyword style_name='command' name='file'
+               hint='Compile the the specified files.
+                    \  &lt;key&gt;file&lt;/key&gt; &lt;param&gt;[path] {path} {...}&lt;/param&gt;'/>
     </Lexer>
     <!-- FRAGOUTPUT -->
     <Lexer type='fragoutput' lexer='TechBodyLexer'>

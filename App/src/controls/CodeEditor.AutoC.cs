@@ -2,12 +2,14 @@
 using System.Windows.Forms;
 using System;
 using System.Drawing;
+using ScintillaNET;
 
 namespace App
 {
     partial class CodeEditor
     {
-        private static CallTip tip;
+        internal static CallTip tip;
+        internal static int tipOffsetY;
 
         public void InitializeAutoC()
         {
@@ -69,24 +71,38 @@ namespace App
             CallTipCancel();
         }
 
+        /// <summary>
+        /// Show a calltip at the specified text position.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="definition"></param>
         public new void CallTipShow(int position, string definition)
         {
+            // create calltip class
             if (tip == null)
             {
                 tip = new CallTip();
+                var font = new Font(Styles[Style.Default].Font, Styles[Style.Default].SizeF);
+                tipOffsetY = TextRenderer.MeasureText("W", font).Height;
+                // compute maximum calltip size
+                var screen = Screen.PrimaryScreen.WorkingArea;
+                tip.MaximumSize = new Size((int)(screen.Width * 0.2), (int)(screen.Height * 0.2));
+                // apply the current theme to the call tip components
                 Theme.Apply(tip);
             }
+
+            // get screen position
             int x = PointXFromPosition(position);
             int y = PointYFromPosition(position);
-            tip.Location = PointToScreen(new Point(x + 10, y + 30));
-            tip.Tip = definition;
-            tip.Visible = true;
+            var p = PointToScreen(new Point(x, y));
+
+            // show calltip
+            tip.Show(p.X, p.Y, 5, 5, 0, tipOffsetY, definition);
         }
 
-        public new void CallTipCancel()
-        {
-            if (tip != null)
-                tip.Visible = false;
-        }
+        /// <summary>
+        /// Hide calltip.
+        /// </summary>
+        public new void CallTipCancel() => tip?.Hide();
     }
 }
