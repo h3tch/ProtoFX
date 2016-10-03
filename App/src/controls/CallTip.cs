@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 
 namespace System.Windows.Forms
 {
@@ -10,6 +11,7 @@ namespace System.Windows.Forms
     {
         #region FIELDS
 
+        internal string unformatedText;
         public Font KeyFont { get; set; }
         public Font ParamFont { get; set; }
         public Font CodeFont { get; set; }
@@ -21,38 +23,28 @@ namespace System.Windows.Forms
         public string Tip
         {
             get { return text.Text; }
-            set {
+            set
+            {
+                if (unformatedText != null && unformatedText == value)
+                    return;
+                unformatedText = value;
+
+                // we have to change the text
+                text.ReadOnly = false;
+
                 text.Text = value;
                 Style("key", KeyFont, KeyColor);
                 Style("param", ParamFont, ParamColor);
                 Style("code", CodeFont, CodeColor);
+
+                UpdateTextSize();
+                text.DeselectAll();
+
+                // make read only again
+                text.ReadOnly = true;
             }
         }
-        public Drawing.Size TextSize
-        {
-            get
-            {
-                var s = new Drawing.Size();
-                // for each line
-                for (int l = 0; l < text.Lines.Length; l++)
-                {
-                    // select last char in the line
-                    var i = text.GetFirstCharIndexFromLine(l) + text.Lines[l].Length - 1;
-                    text.Select(i, 1);
-                    // get the client position for the char
-                    var p = text.GetPositionFromCharIndex(i);
-                    // measure the char size in pixels
-                    var r = TextRenderer.MeasureText(text.SelectedText, text.SelectionFont);
-                    // get maximum position
-                    s.Width = Math.Max(p.X + r.Width, s.Width);
-                    s.Height = Math.Max(p.Y + r.Height, s.Height);
-                }
-                // return maximum positions
-                // which is the size of the
-                // text inside the textbox
-                return s;
-            }
-        }
+        public Drawing.Size TextSize { get; private set; }
 
         #endregion
 
@@ -60,11 +52,11 @@ namespace System.Windows.Forms
 
         public CallTip()
         {
-            Visible = false;
             InitializeComponent();
             KeyFont = new Font("Consolas", text.Font.Size);
             ParamFont = new Font("Sans", text.Font.Size);
             CodeFont = new Font("Consolas", text.Font.Size);
+            Visible = false;
         }
 
         #endregion
@@ -90,24 +82,26 @@ namespace System.Windows.Forms
             /// ADJUST CALL TIP SIZE
 
             var size = TextSize;
+            size.Width += Padding.Left + Padding.Right + 15;
+            size.Height += Padding.Top + Padding.Bottom + 10;
 
             // if the vertical scroll bar is shown, adjust the call tip size
             if (MaximumSize.Height > 0 && size.Height > MaximumSize.Height)
             {
                 size.Width += SystemInformation.VerticalScrollBarWidth + 5;
-                size.Height = MaximumSize.Height;
+                size.Height = MaximumSize.Height + Padding.Top + Padding.Bottom;
             }
 
             // if the horizontal scroll bar is shown, adjust the call tip size
             if (MaximumSize.Width > 0 && size.Width > MaximumSize.Width)
             {
-                size.Width = MaximumSize.Width;
+                size.Width = MaximumSize.Width + Padding.Left + Padding.Right;
                 size.Height += SystemInformation.HorizontalScrollBarHeight + 5;
             }
 
             // set call tip size
-            Width = size.Width + Padding.Left + Padding.Right;
-            Height = size.Height + Padding.Top + Padding.Bottom;
+            Width = size.Width;
+            Height = size.Height;
 
             /// ADJUST CALL TIP POSITION
 
@@ -118,21 +112,36 @@ namespace System.Windows.Forms
             Location = new Drawing.Point(screenx, screeny);
 
             /// SHOW CALL TIP
-            
-            Visible = true;
+
+            Show();
         }
 
         #endregion
 
         #region INTERNAL
 
-        /// <summary>
-        /// Prevent textbox from obtaining the focus.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="e"></param>
-        private void HandleGotFocus(object s, EventArgs e) => Focus();
-        
+        internal void UpdateTextSize()
+        {
+            int l = Width, r = 0, t = Height, b = 0;
+            // for each line
+            for (int i = 0; i < text.TextLength; i++)
+            {
+                // select char
+                text.Select(i, 1);
+                // get the client position for the char
+                var p = text.GetPositionFromCharIndex(i);
+                // measure the char size in pixels
+                var s = TextRenderer.MeasureText(text.SelectedText, text.SelectionFont);
+                // get maximum position
+                l = Math.Min(p.X, l);
+                t = Math.Min(p.Y, t);
+                r = Math.Max(p.X + s.Width, r);
+                b = Math.Max(p.Y + s.Height, b);
+            }
+            
+            TextSize = new Drawing.Size(Math.Max(0, r - l), Math.Max(0, b - t));
+        }
+
         /// <summary>
         /// Process text and style regions within tags accordingly.
         /// </summary>
@@ -143,9 +152,6 @@ namespace System.Windows.Forms
         {
             var tagS = $"<{tag}>";
             var tagE = $"</{tag}>";
-
-            // we might have to change the text
-            text.ReadOnly = false;
 
             // while there are any tags left
             for (int start = 0, end; (start = text.Text.IndexOf(tagS)) >= 0; start = end)
@@ -173,11 +179,10 @@ namespace System.Windows.Forms
                 text.SelectionColor = color;
                 text.SelectionFont = font;
             }
-
-            // make read only again
-            text.ReadOnly = true;
         }
 
         #endregion
+
+        private void text_MouseEnter(object sender, EventArgs e) => Hide();
     }
 }

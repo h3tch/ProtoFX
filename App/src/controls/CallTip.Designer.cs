@@ -37,16 +37,15 @@
             this.text.Dock = System.Windows.Forms.DockStyle.Fill;
             this.text.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.text.Location = new System.Drawing.Point(2, 2);
-            this.text.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.text.Margin = new System.Windows.Forms.Padding(2);
             this.text.Name = "text";
             this.text.ReadOnly = true;
-            this.text.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
             this.text.Size = new System.Drawing.Size(263, 61);
             this.text.TabIndex = 100;
             this.text.TabStop = false;
             this.text.Text = "";
             this.text.WordWrap = false;
-            this.text.GotFocus += new System.EventHandler(this.HandleGotFocus);
+            this.text.MouseEnter += new System.EventHandler(this.text_MouseEnter);
             // 
             // CallTip
             // 
@@ -55,12 +54,13 @@
             this.ClientSize = new System.Drawing.Size(267, 65);
             this.Controls.Add(this.text);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "CallTip";
             this.Opacity = 0.9D;
-            this.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Padding = new System.Windows.Forms.Padding(2);
             this.ShowInTaskbar = false;
             this.Text = "CallTip";
+            this.TopMost = true;
             this.ResumeLayout(false);
 
         }
