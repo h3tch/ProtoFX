@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 
 namespace System.Windows.Forms
 {
@@ -18,8 +17,10 @@ namespace System.Windows.Forms
         public Color KeyColor { get; set; } = Color.Blue;
         public Color ParamColor { get; set; } = Color.DarkGray;
         public Color CodeColor { get; set; } = SystemColors.ControlText;
-        public override Drawing.Size MaximumSize { get; set; }
         protected override bool ShowWithoutActivation => true;
+        /// <summary>
+        /// The call tip text in rich text format.
+        /// </summary>
         public string Tip
         {
             get { return text.Text; }
@@ -31,8 +32,9 @@ namespace System.Windows.Forms
 
                 // we have to change the text
                 text.ReadOnly = false;
-
-                text.Text = value;
+                
+                text.ResetText();
+                text.AppendText(value);
                 Style("key", KeyFont, KeyColor);
                 Style("param", ParamFont, ParamColor);
                 Style("code", CodeFont, CodeColor);
@@ -44,12 +46,18 @@ namespace System.Windows.Forms
                 text.ReadOnly = true;
             }
         }
-        public Drawing.Size TextSize { get; private set; }
+        /// <summary>
+        /// The size of the call tip text.
+        /// </summary>
+        internal Drawing.Size TextSize { get; private set; }
 
         #endregion
 
         #region CONSTRUCTORS
 
+        /// <summary>
+        /// The default constructor.
+        /// </summary>
         public CallTip()
         {
             InitializeComponent();
@@ -58,7 +66,7 @@ namespace System.Windows.Forms
             CodeFont = new Font("Consolas", text.Font.Size);
             Visible = false;
         }
-
+        
         #endregion
 
         #region METHODS
@@ -82,22 +90,9 @@ namespace System.Windows.Forms
             /// ADJUST CALL TIP SIZE
 
             var size = TextSize;
-            size.Width += Padding.Left + Padding.Right + 15;
-            size.Height += Padding.Top + Padding.Bottom + 10;
 
-            // if the vertical scroll bar is shown, adjust the call tip size
-            if (MaximumSize.Height > 0 && size.Height > MaximumSize.Height)
-            {
-                size.Width += SystemInformation.VerticalScrollBarWidth + 5;
-                size.Height = MaximumSize.Height + Padding.Top + Padding.Bottom;
-            }
-
-            // if the horizontal scroll bar is shown, adjust the call tip size
-            if (MaximumSize.Width > 0 && size.Width > MaximumSize.Width)
-            {
-                size.Width = MaximumSize.Width + Padding.Left + Padding.Right;
-                size.Height += SystemInformation.HorizontalScrollBarHeight + 5;
-            }
+            size.Width += Padding.Left + Padding.Right;
+            size.Height += Padding.Top + Padding.Bottom;
 
             // set call tip size
             Width = size.Width;
@@ -120,9 +115,20 @@ namespace System.Windows.Forms
 
         #region INTERNAL
 
+        /// <summary>
+        /// If the mouse manages to enter the window, close it to
+        /// prevent the user from selecting the rich text box.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        internal void text_MouseEnter(object sender, EventArgs e) => Hide();
+
+        /// <summary>
+        /// Update the TextSize property.
+        /// </summary>
         internal void UpdateTextSize()
         {
-            int l = Width, r = 0, t = Height, b = 0;
+            int r = 0, b = 0;
             // for each line
             for (int i = 0; i < text.TextLength; i++)
             {
@@ -133,13 +139,11 @@ namespace System.Windows.Forms
                 // measure the char size in pixels
                 var s = TextRenderer.MeasureText(text.SelectedText, text.SelectionFont);
                 // get maximum position
-                l = Math.Min(p.X, l);
-                t = Math.Min(p.Y, t);
                 r = Math.Max(p.X + s.Width, r);
                 b = Math.Max(p.Y + s.Height, b);
             }
             
-            TextSize = new Drawing.Size(Math.Max(0, r - l), Math.Max(0, b - t));
+            TextSize = new Drawing.Size(Math.Max(0, r), Math.Max(0, b));
         }
 
         /// <summary>
@@ -148,7 +152,7 @@ namespace System.Windows.Forms
         /// <param name="tag"></param>
         /// <param name="font"></param>
         /// <param name="color"></param>
-        private void Style(string tag, Font font, Color color)
+        internal void Style(string tag, Font font, Color color)
         {
             var tagS = $"<{tag}>";
             var tagE = $"</{tag}>";
@@ -180,9 +184,7 @@ namespace System.Windows.Forms
                 text.SelectionFont = font;
             }
         }
-
+        
         #endregion
-
-        private void text_MouseEnter(object sender, EventArgs e) => Hide();
     }
 }

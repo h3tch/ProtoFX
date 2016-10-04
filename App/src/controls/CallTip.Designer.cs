@@ -40,6 +40,7 @@
             this.text.Margin = new System.Windows.Forms.Padding(2);
             this.text.Name = "text";
             this.text.ReadOnly = true;
+            this.text.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
             this.text.Size = new System.Drawing.Size(263, 61);
             this.text.TabIndex = 100;
             this.text.TabStop = false;
@@ -60,7 +61,6 @@
             this.Padding = new System.Windows.Forms.Padding(2);
             this.ShowInTaskbar = false;
             this.Text = "CallTip";
-            this.TopMost = true;
             this.ResumeLayout(false);
 
         }
