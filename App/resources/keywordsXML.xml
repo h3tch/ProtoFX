@@ -184,19 +184,38 @@
     <Lexer type='fragoutput' lexer='TechBodyLexer'>
       <Style theme='DarkTheme' name='command' fore='#7AC0F4'/>
       <Style theme='LightTheme' name='command' fore='#7AC0F4'/>
-      <Keyword style_name='command' name='color' hint='color [image_name]'/>
-      <Keyword style_name='command' name='depth' hint='depth [image_name]'/>
-      <Keyword style_name='command' name='height' hint='height [pixels]'/>
-      <Keyword style_name='command' name='width' hint='width [pixels]'/>
+      <Keyword style_name='command' name='color' 
+               hint='Bind image to the next color target.
+                    \  &lt;key&gt;color&lt;/key&gt; &lt;param&gt;[image_name]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='depth' 
+               hint='Bind image to the next depth target.
+                    \  &lt;key&gt;depth&lt;/key&gt; &lt;param&gt;[image_name]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='size'
+               hint='Set the fragment output size.
+                    \  &lt;key&gt;size&lt;/key&gt; &lt;param&gt;[width] [height]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='height'
+               hint='Set the fragment output height.
+                    \  &lt;key&gt;height&lt;/key&gt; &lt;param&gt;[pixels]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='width' 
+               hint='Set the fragment output width.
+                    \  &lt;key&gt;width&lt;/key&gt; &lt;param&gt;[pixels]&lt;/param&gt;'/>
     </Lexer>
     <!-- IMAGE -->
     <Lexer type='image' lexer='TechBodyLexer'>
       <Style theme='DarkTheme' name='command' fore='#7AC0F4'/>
       <Style theme='LightTheme' name='command' fore='#7AC0F4'/>
-      <Keyword style_name='command' name='format' hint='format [pixel_format]'/>
-      <Keyword style_name='command' name='size' hint='size [width] [height] [depth] [length]'/>
-      <Keyword style_name='command' name='file' hint='file [path] {path} {...}'/>
-      <Keyword style_name='command' name='type' hint='type [texture_type]'/>
+      <Keyword style_name='command' name='format'
+               hint='Set the image pixel format.
+                    \  &lt;key&gt;format&lt;/key&gt; &lt;param&gt;[pixel_format]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='size' 
+               hint='Set image size.
+                    \  &lt;key&gt;size&lt;/key&gt; &lt;param&gt;[width] [height] [depth] [length]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='file'
+               hint='Load image data from file(s).
+                    \  &lt;key&gt;file&lt;/key&gt; &lt;param&gt;[path] {path} {...}&lt;/param&gt;'/>
+      <Keyword style_name='command' name='type'
+               hint='Manually specify the image type.
+                    \  &lt;key&gt;type&lt;/key&gt; &lt;param&gt;[texture_type]&lt;/param&gt;'/>
       <!-- image - FORMAT -->
       <Lexer type='format' lexer='CommandLexer'>
         <Style theme='DarkTheme' name='argument' fore='#9589CC'/>
@@ -267,69 +286,82 @@
       <Style theme='DarkTheme' name='indicator' fore='#2FABA7'/>
       <Style theme='LightTheme' name='command' fore='#7AC0F4'/>
       <Style theme='LightTheme' name='indicator' fore='#2FABA7'/>
-      <Keyword style_name='command' name='class' hint='class [csharp_name] [c#_class]'/>
-      <Keyword style_name='command' name='name' hint='name [new_name]'/>
+      <Keyword style_name='command' name='class' 
+               hint='The class that should be instantiated.
+                    \  &lt;key&gt;class&lt;/key&gt; &lt;param&gt;[csharp_name] [c#_class]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='name' 
+               hint='Rename the class instance.
+                    \  &lt;key&gt;name&lt;/key&gt; &lt;param&gt;[new_name]&lt;/param&gt;'/>
     </Lexer>
     <!-- PASS -->
     <Lexer type='pass' lexer='TechBodyLexer'>
       <Style theme='DarkTheme' name='command' fore='#7AC0F4'/>
       <Style theme='LightTheme' name='command' fore='#7AC0F4'/>
       <Keyword style_name='command' name='exec' hint='Execute C# class instance.
-                                                     \>  exec [instance_name]'/>
+                                                     \  &lt;key&gt;exec&lt;/key&gt; &lt;param&gt;[instance_name]&lt;/param&gt;'/>
       <Keyword style_name='command' name='comp' hint='Bind compute shader to the rendering pass.
-                                                     \>  comp [shader_name]'/>
+                                                     \  &lt;key&gt;comp&lt;/key&gt; &lt;param&gt;[shader_name]&lt;/param&gt;'/>
       <Keyword style_name='command' name='vert' hint='Bind vertex shader to the rendering pass.
-                                                     \>  vert [shader_name]'/>
+                                                     \  &lt;key&gt;vert&lt;/key&gt; &lt;param&gt;[shader_name]&lt;/param&gt;'/>
       <Keyword style_name='command' name='tess' hint='Bind tesselation control shader to the rendering pass.
-                                                     \>  tess [shader_name]'/>
+                                                     \  &lt;key&gt;tess&lt;/key&gt; &lt;param&gt;[shader_name]&lt;/param&gt;'/>
       <Keyword style_name='command' name='eval' hint='Bind tesselation evaluation shader to the rendering pass.
-                                                     \>  eval [shader_name]'/>
+                                                     \  &lt;key&gt;eval&lt;/key&gt; &lt;param&gt;[shader_name]&lt;/param&gt;'/>
       <Keyword style_name='command' name='geom' hint='Bind geometry shader to the rendering pass.
-                                                     \>  geom [shader_name]'/>
+                                                     \  &lt;key&gt;geom&lt;/key&gt; &lt;param&gt;[shader_name]&lt;/param&gt;'/>
       <Keyword style_name='command' name='frag' hint='Bind fragment shader to the rendering pass.
-                                                     \>  frag [shader_name]'/>
+                                                     \  &lt;key&gt;frag&lt;/key&gt; &lt;param&gt;[shader_name]&lt;/param&gt;'/>
       <Keyword style_name='command' name='compute'
                hint='Dispatch compute shader call.
-                    \>  compute [num_group_x] [num_group_y] {num_group_z}
-                    \>  compute [callbuffer_name]'/>
+                    \  &lt;key&gt;compute&lt;/key&gt; &lt;param&gt;[num_group_x] [num_group_y] {num_group_z}&lt;/param&gt;
+                    \  &lt;key&gt;compute&lt;/key&gt; &lt;param&gt;[callbuffer_name]&lt;/param&gt;'/>
       <Keyword style_name='command' name='draw'
                hint='Draw vertex based (possibly indexed) geometry.
-                    \>  draw [vertinput_name] [primitive_type] [base_vertex] {vertex_count}
-                    \        {base_instance} {instance_count}
-                    \>  draw [vertinput_name] [{indexbuffer_name] [index_type] [primitive_type]
-                    \        [base_vertex] [base_index] [index_count] {base_instance} {instance_count}
-                    \>  draw [vertinput_name] {callbuffer_name} {primitive_type}
-                    \        {buffer_offset} {draw_count} {stride}
-                    \>  draw [vertinput_name] [indexbuffer_name] [index_type] [callbuffer_name]
-                    \        [primitive_type] {buffer_offset} {draw_count} {stride}
-                    \>  draw [vertoutput_name] [primitive_type] {vertoutput_stream} {instance_count}
+                    \  &lt;key&gt;draw&lt;/key&gt;&lt;param&gt; [vertinput_name] [primitive_type] [base_vertex] {vertex_count}&lt;/param&gt;
+                    \  &lt;param&gt;       {base_instance} {instance_count}&lt;/param&gt;
+                    \  &lt;key&gt;draw&lt;/key&gt;&lt;param&gt; [vertinput_name] [{indexbuffer_name] [index_type] [primitive_type]&lt;/param&gt;
+                    \  &lt;param&gt;       [base_vertex] [base_index] [index_count] {base_instance} {instance_count}&lt;/param&gt;
+                    \  &lt;key&gt;draw&lt;/key&gt;&lt;param&gt; [vertinput_name] {callbuffer_name} {primitive_type}&lt;/param&gt;
+                    \  &lt;param&gt;       {buffer_offset} {draw_count} {stride}&lt;/param&gt;
+                    \  &lt;key&gt;draw&lt;/key&gt;&lt;param&gt; [vertinput_name] [indexbuffer_name] [index_type] [callbuffer_name]&lt;/param&gt;
+                    \  &lt;param&gt;       [primitive_type] {buffer_offset} {draw_count} {stride}&lt;/param&gt;
+                    \  &lt;key&gt;draw&lt;/key&gt;&lt;param&gt; [vertoutput_name] [primitive_type] {vertoutput_stream} {instance_count}&lt;/param&gt;
                     \
-                    \[primitive_type]
-                    \    points, lines, lineLoop, lineStrip, triangles, triangleStrip, triangleFan, patch,
-                    \    linesAdjacency, lineStripAdjacency, trianglesAdjacency, triangleStripAdjacency
-                    \[index_type]
-                    \    ubyte, ushort, uint'/>
+                    \ primitive_type
+                    \    &lt;param&gt;points, lines, lineLoop, lineStrip, triangles, triangleStrip, triangleFan, patch,&lt;/param&gt;
+                    \    &lt;param&gt;linesAdjacency, lineStripAdjacency, trianglesAdjacency, triangleStripAdjacency&lt;/param&gt;
+                    \ index_type
+                    \    &lt;param&gt;ubyte, ushort, uint&lt;/param&gt;'/>
       <Keyword style_name='command' name='fragout' hint='Bind fragment output object to render pass.
-                                                        \>  fragout [fragoutput_name]'/>
+                                                        \  &lt;key&gt;fragout&lt;/key&gt; &lt;param&gt;[fragoutput_name]&lt;/param&gt;'/>
       <Keyword style_name='command' name='vertout'
                hint='Bind vertex output (transform feedback) object to render pass.
-                    \>  vertout [vertoutput_name] [output_primitive_type] {write_mode} [output_varying_name]
+                    \  &lt;key&gt;vertout&lt;/key&gt; &lt;param&gt;[vertoutput_name] [output_primitive_type]&lt;/param&gt;
+                    \  &lt;param&gt;       {write_mode} [output_varying_name]&lt;/param&gt;
                     \
-                    \The optional argument [write_mode] can be "gl_SeparateAttribs" (write every
-                    \[output_varying_name] to a new buffer) or the default "gl_InterleavedAttribs"
-                    \(output varyings for different buffers need to be separated by "gl_NextBuffer")'/>
+                    \ write_mode
+                    \    gl_SeparateAttribs &lt;param&gt;write every [output_varying_name]&lt;/param&gt;
+                    \       &lt;param&gt; to a new buffer&lt;/param&gt;
+                    \    gl_InterleavedAttribs &lt;param&gt;output varyings for different&lt;/param&gt;
+                    \       &lt;param&gt; buffers need to be separated by "gl_NextBuffer"&lt;/param&gt;'/>
       <Keyword style_name='command' name='tex'
                hint='Bind/unbind a texture to/from a texture unit.
-                    \>  tex [texture_name] [unit] -- bind to unit
-                    \>  tex [unit]                -- unbind unit'/>
+                    \  &lt;key&gt;tex&lt;/key&gt; &lt;param&gt;[texture_name] [unit]&lt;/param&gt;
+                    \     bind to unit
+                    \  &lt;key&gt;tex &lt;/key&gt; &lt;param&gt;unbind [unit]&lt;/param&gt;
+                    \     unbind unit'/>
       <Keyword style_name='command' name='img'
                hint='Bind/unbind a texture to/from an image unit.
-                    \>  img [texture_name] [unit] [level] [layer] [access] [format] -- bind to unit
-                    \>  img [unit]                                                  -- unbind unit'/>
+                    \  &lt;key&gt;img&lt;/key&gt; &lt;param&gt;[texture_name] [unit] [level] [layer] [access] [format]&lt;/param&gt;
+                    \     bind to unit
+                    \  &lt;key&gt;img&lt;/key&gt; &lt;param&gt;unbind [unit]&lt;/param&gt;
+                    \     unbind unit'/>
       <Keyword style_name='command' name='samp'
                hint = 'Bind/unbind a texture sampler to/from a texture unit.
-                    \>  samp [samp_name] [unit] -- bind to unit
-                    \>  samp [unit]             -- unbind unit'/>
+                    \  &lt;key&gt;samp&lt;/key&gt; &lt;param&gt;[samp_name] [unit]&lt;/param&gt;
+                    \     bind to unit
+                    \  &lt;key&gt;samp&lt;/key&gt; &lt;param&gt;unbind [unit]&lt;/param&gt;
+                    \     unbind unit'/>
       <Keyword style_name='command' name='glBeginConditionalRender'/>
       <Keyword style_name='command' name='glBeginQuery'/>
       <Keyword style_name='command' name='glBeginQueryIndexed'/>
@@ -508,9 +540,12 @@
     <Lexer type='sampler' lexer='TechBodyLexer'>
       <Style theme='DarkTheme' name='command' fore='#7AC0F4'/>
       <Style theme='LightTheme' name='command' fore='#7AC0F4'/>
-      <Keyword style_name='command' name='magfilter' hint='magfilter [filter_type]'/>
-      <Keyword style_name='command' name='minfilter' hint='minfilter [filter_type]'/>
-      <Keyword style_name='command' name='wrap' hint='wrap [wrap_type]'/>
+      <Keyword style_name='command' name='magfilter'
+               hint='&lt;key&gt;magfilter&lt;/key&gt; &lt;param&gt;[filter_type]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='minfilter'
+               hint='&lt;key&gt;minfilter&lt;/key&gt; &lt;param&gt;[filter_type]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='wrap'
+               hint='&lt;key&gt;wrap&lt;/key&gt; &lt;param&gt;[wrap_type]&lt;/param&gt;'/>
       <!-- sampler - MAGFILTER -->
       <Lexer type='magfilter' lexer='CommandLexer'>
         <Style theme='DarkTheme' name='argument' fore='#9589CC'/>
@@ -543,18 +578,30 @@
     <Lexer type='tech' lexer='TechBodyLexer'>
       <Style theme='DarkTheme' name='command' fore='#7AC0F4'/>
       <Style theme='LightTheme' name='command' fore='#7AC0F4'/>
-      <Keyword style_name='command' name='pass' hint='Execute this pass every frame.&#xA;  pass [name]'/>
-      <Keyword style_name='command' name='init' hint='Execute this pass only once&#xA;before all "normal" passes.&#xA;  init [name]'/>
-      <Keyword style_name='command' name='uninit' hint='Execute this pass only once&#xA;before the technique is destroyed.&#xA;  uninit [name]'/>
+      <Keyword style_name='command' name='pass'
+               hint='Execute this pass every frame.
+                    \  &lt;key&gt;pass&lt;/key&gt; &lt;param&gt;[name]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='init'
+               hint='Execute this pass only once
+                    \before all "normal" passes.
+                    \  &lt;key&gt;init&lt;/key&gt; &lt;param&gt;[name]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='uninit'
+               hint='Execute this pass only once
+                    \before the technique is destroyed.
+                    \  &lt;key&gt;uninit&lt;/key&gt; &lt;param&gt;[name]&lt;/param&gt;'/>
     </Lexer>
     <!-- TEXTURE -->
     <Lexer type='texture' lexer='TechBodyLexer'>
       <Style theme='DarkTheme' name='command' fore='#7AC0F4'/>
       <Style theme='LightTheme' name='command' fore='#7AC0F4'/>
-      <Keyword style_name='command' name='buff' hint='buff [name]'/>
-      <Keyword style_name='command' name='img' hint='img [name]'/>
-      <Keyword style_name='command' name='samp' hint='samp [name]'/>
-      <Keyword style_name='command' name='format' hint='format [pixel_format]'/>
+      <Keyword style_name='command' name='buff' 
+               hint='&lt;key&gt;buff&lt;/key&gt; &lt;param&gt;[name]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='img' 
+               hint='&lt;key&gt;img&lt;/key&gt; &lt;param&gt;[name]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='samp' 
+               hint='&lt;key&gt;samp&lt;/key&gt; &lt;param&gt;[name]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='format' 
+               hint='&lt;key&gt;format&lt;/key&gt; &lt;param&gt;[pixel_format]&lt;/param&gt;'/>
       <!-- image - FORMAT -->
       <Lexer type='format' lexer='CommandLexer'>
         <Style theme='DarkTheme' name='argument' fore='#9589CC'/>
@@ -613,7 +660,8 @@
     <Lexer type='vertinput' lexer='TechBodyLexer'>
       <Style theme='DarkTheme' name='command' fore='#7AC0F4'/>
       <Style theme='LightTheme' name='command' fore='#7AC0F4'/>
-      <Keyword style_name='command' name='attr' hint='attr [buff_name] [type] [dim] {stride} {offset} {divisor}'/>
+      <Keyword style_name='command' name='attr'
+               hint='&lt;key&gt;attr [buff_name] [type] [dim] {stride} {offset} {divisor}'/>
       <!-- vertinput - ATTR -->
       <Lexer type='attr' lexer='CommandLexer'>
         <Style theme='DarkTheme' name='argument' fore='#9589CC'/>
@@ -635,9 +683,12 @@
     <Lexer type='vertoutput' lexer='TechBodyLexer'>
       <Style theme='DarkTheme' name='command' fore='#7AC0F4'/>
       <Style theme='LightTheme' name='command' fore='#7AC0F4'/>
-      <Keyword style_name='command' name='buff' hint='buff [name]'/>
-      <Keyword style_name='command' name='pause' hint='pause [true|false]'/>
-      <Keyword style_name='command' name='resume' hint='resume [true|false]'/>
+      <Keyword style_name='command' name='buff' 
+               hint='&lt;key&gt;buff&lt;/key&gt; &lt;param&gt;[name]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='pause' 
+               hint='&lt;key&gt;pause&lt;/key&gt; &lt;param&gt;[true|false]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='resume'
+               hint='&lt;key&gt;resume&lt;/key&gt; &lt;param&gt;[true|false]&lt;/param&gt;'/>
     </Lexer>
     <!-- SHADER -->
     <Lexer type='shader' lexer='GlslLexer'>

@@ -96,6 +96,9 @@ namespace App
             int y = PointYFromPosition(position);
             var p = PointToScreen(new Point(x, y));
 
+            // make sure the calltip window
+            // is in front of all others
+            tip.BringToFront();
             // show calltip
             tip.Show(p.X, p.Y, 5, 5, 0, tipOffsetY, definition);
         }

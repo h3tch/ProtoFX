@@ -10,7 +10,7 @@ namespace App
         #region FIELDS
         public bool EnableCodeHints = true;
         private static int HighlightIndicatorIndex = 8;
-        public static int DebugIndicatorIndex { get; } = 9;
+        public static int DebugIndicatorIndex = 9;
         private List<int[]>[] IndicatorRanges;
         private static string HiddenLines = $"{(char)177}";
         

@@ -18,6 +18,7 @@ namespace System.Windows.Forms
         public Color ParamColor { get; set; } = Color.DarkGray;
         public Color CodeColor { get; set; } = SystemColors.ControlText;
         protected override bool ShowWithoutActivation => true;
+        public bool IsActive => GetForegroundWindow() == Handle;
         /// <summary>
         /// The call tip text in rich text format.
         /// </summary>
@@ -58,7 +59,7 @@ namespace System.Windows.Forms
         /// <summary>
         /// The default constructor.
         /// </summary>
-        public CallTip()
+        public CallTip() : base()
         {
             InitializeComponent();
             KeyFont = new Font("Consolas", text.Font.Size);
@@ -66,11 +67,11 @@ namespace System.Windows.Forms
             CodeFont = new Font("Consolas", text.Font.Size);
             Visible = false;
         }
-        
+
         #endregion
 
         #region METHODS
-
+        
         /// <summary>
         /// Show the call tip at the specified screen position.
         /// </summary>
@@ -184,7 +185,11 @@ namespace System.Windows.Forms
                 text.SelectionFont = font;
             }
         }
-        
+
+
+        [Runtime.InteropServices.DllImport("user32.dll")]
+        internal static extern IntPtr GetForegroundWindow();
+
         #endregion
     }
 }
