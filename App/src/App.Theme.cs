@@ -25,15 +25,14 @@ namespace App
 
         private void ApplyTheme(FormSettings settings)
         {
-            // LOAD PREVIOUS THEME
-
+            // load previous theme
             if (!Theme.Load(settings.ThemeXml))
             {
                 // save themes to xml
                 Theme.LightTheme();
-                Theme.Save(Theme.Name + ".xml", false);
+                Theme.Save($"{Theme.Name}.xml", false);
                 Theme.DarkTheme();
-                Theme.Save(Theme.Name + ".xml", false);
+                Theme.Save($"{Theme.Name}.xml", false);
             }
 
             Theme.Apply(this);

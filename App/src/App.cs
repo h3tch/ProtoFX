@@ -14,16 +14,74 @@ namespace App
 {
     public partial class App : Form
     {
-        public static CultureInfo Culture = new CultureInfo("en");
-        public CodeEditor CompiledEditor = null;
+        #region Properties
 
+        /// <summary>
+        /// The editor where the compiled code came from.
+        /// </summary>
+        public CodeEditor CompiledEditor;
+        /// <summary>
+        /// The location of the window in its normalized state. 
+        /// </summary>
+        private Point NormalLocation;
+        /// <summary>
+        /// The size of the window in its normalized state. 
+        /// </summary>
+        private Size NormalSize;
+        /// <summary>
+        /// Get the currently selected code tab.
+        /// </summary>
+        private TabPageEx SelectedTab => (TabPageEx)tabSource.SelectedTab;
+        /// <summary>
+        /// Get the currently selected editor.
+        /// </summary>
+        private CodeEditor SelectedEditor => (CodeEditor)tabSource.SelectedTab?.Controls[0];
+        /// <summary>
+        /// Is the window currently in maximized state.
+        /// </summary>
+        private bool IsMaximized => FormBorderStyle == FormBorderStyle.None;
+
+        #region Window resize buttons
+        const int HANDLE_SIZE = 10;
+        const uint HTLEFT = 10u;
+        const uint HTRIGHT = 11u;
+        const uint HTTOP = 12u;
+        const uint HTTOPLEFT = 13u;
+        const uint HTTOPRIGHT = 14u;
+        const uint HTBOTTOM = 15u;
+        const uint HTBOTTOMLEFT = 16u;
+        const uint HTBOTTOMRIGHT = 17u;
+        private int TitleBarClickX, TitleBarClickY;
+        private Rectangle[] ResizeBoxes = new[] {
+            /* HTLEFT       */new Rectangle(0, HANDLE_SIZE, HANDLE_SIZE, 0),
+            /* HTRIGHT      */new Rectangle(0, HANDLE_SIZE, HANDLE_SIZE, 0),
+            /* HTTOP        */new Rectangle(HANDLE_SIZE, 0, 0, HANDLE_SIZE),
+            /* HTTOPLEFT    */new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
+            /* HTTOPRIGHT   */new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
+            /* HTBOTTOM     */new Rectangle(HANDLE_SIZE, 0, 0, HANDLE_SIZE),
+            /* HTBOTTOMLEFT */new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
+            /* HTBOTTOMRIGHT*/new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
+        };
+        #endregion
+
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public App()
         {
-            // INITIALIZE FORM CONTROLS
+            /// SET CULTURE TO ENGLISH STYLE
+
+            CultureInfo.CurrentCulture = new CultureInfo("en");
+
+            /// INITIALIZE FORM CONTROLS
 
             InitializeComponent();
 
-            // LOAD PREVIOUS WINDOW STATE
+            /// LOAD PREVIOUS WINDOW STATE
 
             // load settings
             var settings = LoadSettings();
@@ -33,7 +91,10 @@ namespace App
             ApplyTheme(settings);
         }
 
+        #endregion
+
         #region Form Control
+
         /// <summary>
         /// On loading the app, load form settings and instantiate GLSL debugger.
         /// </summary>
@@ -168,8 +229,6 @@ namespace App
             else
                 MaximizeWindow();
         }
-        private Point NormalLocation;
-        private Size NormalSize;
 
         /// <summary>
         /// By holding down the left mouse button, the user can move the window.
@@ -218,7 +277,8 @@ namespace App
             const uint WM_NCHITTEST = 0x0084;
             const uint WM_MOUSEMOVE = 0x0200;
             
-            if ((m.Msg == WM_NCHITTEST || m.Msg == WM_MOUSEMOVE) && FormBorderStyle == FormBorderStyle.FixedSingle)
+            if ((m.Msg == WM_NCHITTEST || m.Msg == WM_MOUSEMOVE)
+                && FormBorderStyle == FormBorderStyle.FixedSingle)
             {
                 // update resize boxes of the form
                 ResizeBoxes[d + HTLEFT]       .Height = Size.Height - HANDLE_SIZE * 2;
@@ -251,17 +311,24 @@ namespace App
             base.WndProc(ref m);
         }
         
+        /// <summary>
+        /// Maximize window form.
+        /// </summary>
         private void MaximizeWindow()
         {
             FormBorderStyle = FormBorderStyle.None;
             NormalLocation = Location;
             NormalSize = Size;
-            Location = Screen.PrimaryScreen.WorkingArea.Location;
-            Size = Screen.PrimaryScreen.WorkingArea.Size;
+            var screen = Screen.FromRectangle(DesktopBounds);
+            Location = screen.WorkingArea.Location;
+            Size = screen.WorkingArea.Size;
             Padding = new Padding(0);
             btnWindowMaximize.Image = Properties.Resources.Normalize;
         }
 
+        /// <summary>
+        /// Normalize window size.
+        /// </summary>
         private void NormalizeWindow()
         {
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -271,31 +338,10 @@ namespace App
             btnWindowMaximize.Image = Properties.Resources.Maximize;
         }
 
-        #region CONSTANT FIELDS
-        const int HANDLE_SIZE = 10;
-        const uint HTLEFT = 10u;
-        const uint HTRIGHT = 11u;
-        const uint HTTOP = 12u;
-        const uint HTTOPLEFT = 13u;
-        const uint HTTOPRIGHT = 14u;
-        const uint HTBOTTOM = 15u;
-        const uint HTBOTTOMLEFT = 16u;
-        const uint HTBOTTOMRIGHT = 17u;
-        private int TitleBarClickX, TitleBarClickY;
-        private Rectangle[] ResizeBoxes = new[] {
-            /* HTLEFT       */new Rectangle(0, HANDLE_SIZE, HANDLE_SIZE, 0),
-            /* HTRIGHT      */new Rectangle(0, HANDLE_SIZE, HANDLE_SIZE, 0),
-            /* HTTOP        */new Rectangle(HANDLE_SIZE, 0, 0, HANDLE_SIZE),
-            /* HTTOPLEFT    */new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
-            /* HTTOPRIGHT   */new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
-            /* HTBOTTOM     */new Rectangle(HANDLE_SIZE, 0, 0, HANDLE_SIZE),
-            /* HTBOTTOMLEFT */new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
-            /* HTBOTTOMRIGHT*/new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
-        };
-        #endregion
         #endregion
 
         #region glControl Events
+
         /// <summary>
         /// Handle mouse up events of the glCotrol.
         /// </summary>
@@ -318,9 +364,11 @@ namespace App
             // program, because there could be changes
             DebugRender();
         }
+
         #endregion
 
         #region Tool Buttons
+
         /// <summary>
         /// Open new tab.
         /// </summary>
@@ -366,10 +414,9 @@ namespace App
         private void toolBtnRunDebug_Click(object s, EventArgs ev)
         {
             // if no tab page is selected nothing needs to be compiled
-            var sourceTab = (TabPageEx)tabSource.SelectedTab;
-            if (sourceTab == null)
+            if (SelectedTab == null)
                 return;
-            CompiledEditor = (CodeEditor)sourceTab.Controls[0];
+            CompiledEditor = (CodeEditor)SelectedTab.Controls[0];
             
             // save code
             toolBtnSave_Click(s, null);
@@ -380,8 +427,8 @@ namespace App
             glControl.RemoveEvents();
 
             // get include directory
-            var includeDir = (sourceTab.filepath != null
-                ? Path.GetDirectoryName(sourceTab.filepath)
+            var includeDir = (SelectedTab.FilePath != null
+                ? Path.GetDirectoryName(SelectedTab.FilePath)
                 : Directory.GetCurrentDirectory()) + Path.DirectorySeparatorChar;
 
             // get code text form tab page
@@ -389,7 +436,7 @@ namespace App
             var debugging = s == toolBtnDbg;
 
             // COMPILE THE CURRENTLY SELECTED FILE
-            var root = Compiler.Compile(sourceTab.filepath);
+            var root = Compiler.Compile(SelectedTab.FilePath);
 
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
             var ex = root.Catch(x => glControl.AddObject(x, debugging)).ToArray();
@@ -443,13 +490,10 @@ namespace App
         /// <param name="e"></param>
         private void toolBtnSave_Click(object s, EventArgs e)
         {
-            if (tabSource.SelectedTab == null)
+            if (!(SelectedTab?.Text.EndsWith("*") ?? false))
                 return;
-            var tab = (TabPageEx)tabSource.SelectedTab;
-            if (!tab.Text.EndsWith("*"))
-                return;
-            SaveTabPage(tab, false);
-            tab.Text = tab.Text.Substring(0, tab.Text.Length - 1);
+            SaveTabPage(SelectedTab, false);
+            SelectedTab.Text = SelectedTab.Text.Substring(0, SelectedTab.Text.Length - 1);
         }
 
         /// <summary>
@@ -474,7 +518,7 @@ namespace App
         /// <param name="s"></param>
         /// <param name="e"></param>
         private void toolBtnSaveAs_Click(object s, EventArgs e)
-            => SaveTabPage((TabPageEx)tabSource.SelectedTab, true);
+            => SaveTabPage(SelectedTab, true);
 
         /// <summary>
         /// Close the currently active tab, but open the save dialog if there have been changes.
@@ -494,7 +538,6 @@ namespace App
                 else if (answer == DialogResult.Cancel)
                     e.Cancel = true;
             }
-            //tabSource.TabPages.RemoveAt(tabSource.SelectedIndex);
         }
 
         /// <summary>
@@ -583,9 +626,11 @@ namespace App
         #region TOOL BUTTON FIELDS
         private Regex RegexLineComment = new Regex(@"\s*//");
         #endregion
+
         #endregion
 
         #region UTIL
+
         /// <summary>
         /// Save tab.
         /// </summary>
@@ -598,7 +643,7 @@ namespace App
 
             var editor = (CodeEditor)tabPage.Controls[0];
 
-            if (tabPage.filepath == null || newfile)
+            if (tabPage.FilePath == null || newfile)
             {
                 var saveDlg = new SaveFileDialog();
                 saveDlg.Filter = "Text Files (.tech)|*.tech|All Files (*.*)|*.*";
@@ -608,11 +653,11 @@ namespace App
                 if (result != DialogResult.OK)
                     return;
 
-                tabPage.filepath = saveDlg.FileName;
+                tabPage.FilePath = saveDlg.FileName;
                 tabPage.Text = Path.GetFileName(saveDlg.FileName);
             }
 
-            System.IO.File.WriteAllText(tabPage.filepath, editor.Text);
+            System.IO.File.WriteAllText(tabPage.FilePath, editor.Text);
         }
 
         /// <summary>
@@ -688,13 +733,6 @@ namespace App
             }
         }
         
-        /// <summary>
-        /// Get code editor of the currently active tab.
-        /// </summary>
-        /// <returns></returns>
-        private CodeEditor SelectedEditor => (CodeEditor)tabSource.SelectedTab?.Controls[0];
-
-        private bool IsMaximized => FormBorderStyle == FormBorderStyle.None;
         #endregion
 
         #region Inner Classes

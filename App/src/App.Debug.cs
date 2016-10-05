@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace App
 {
-    partial class App
+    public partial class App
     {
         #region Debug Image
         /// <summary>

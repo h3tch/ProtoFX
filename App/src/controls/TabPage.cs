@@ -2,11 +2,11 @@
 {
     class TabPageEx : TabPage
     {
-        public string filepath;
+        public string FilePath { get; set; }
 
         public TabPageEx(string filepath) : base()
         {
-            this.filepath = filepath;
+            FilePath = filepath;
         }
     }
     
@@ -23,7 +23,7 @@
             for (int i = 0; i < tab.Count; i++)
             {
                 var t = (TabPageEx)tab[i];
-                if (t.filepath != null && t.filepath.Equals(path, StringComparison.CurrentCultureIgnoreCase))
+                if (t.FilePath != null && t.FilePath.Equals(path, StringComparison.CurrentCultureIgnoreCase))
                     return i;
             }
             return -1;
