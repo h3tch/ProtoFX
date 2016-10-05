@@ -9,6 +9,7 @@ using ElementType = OpenTK.Graphics.OpenGL4.DrawElementsType;
 using static System.Reflection.BindingFlags;
 using static OpenTK.Graphics.OpenGL4.GetProgramParameterName;
 using static OpenTK.Graphics.OpenGL4.TransformFeedbackMode;
+using System.Globalization;
 
 namespace App
 {
@@ -447,7 +448,7 @@ namespace App
                         Enum.Parse(param[i].ParameterType, cmd[i].Text, true),
                         param[i].ParameterType);
                 else
-                    inval[i] = Convert.ChangeType(cmd[i].Text, param[i].ParameterType, App.Culture);
+                    inval[i] = Convert.ChangeType(cmd[i].Text, param[i].ParameterType, CultureInfo.CurrentCulture);
             }
 
             glfunc.Add(new GLMethod(mtype, inval));

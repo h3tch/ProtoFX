@@ -114,7 +114,7 @@ namespace App
 
             // PROCESS COMMAND LINE ARGUMENTS
 
-            ProcessArgs(Environment.GetCommandLineArgs());
+            ProcessArgs(Environment.GetCommandLineArgs().Concat(new[] { "-HideGui" }).ToArray());
 
             // CLEAR OPENGL CONTROL
 
@@ -530,7 +530,7 @@ namespace App
             var tab = (TabPageEx)e.TabPage;
             if (tab.Text.EndsWith("*"))
             {
-                DialogResult answer = MessageBox.Show(
+                var answer = MessageBox.Show(
                     "Do you want to save the file before closing it?",
                     "File changed", MessageBoxButtons.YesNoCancel);
                 if (answer == DialogResult.Yes)
@@ -708,7 +708,7 @@ namespace App
                 {
                     case "-HideGui": HideDeveloperGui(true); break;
                     case "-Compile": toolBtnRunDebug_Click(null, null); break;
-                    case "-Title": Text = a.Length > 1 ? a[1] : Text; break;
+                    case "-Title": if (a.Length > 1) labelTitle.Text = a[1]; break;
                 }
             }
         }
@@ -721,6 +721,9 @@ namespace App
         {
             splitRenderCoding.Panel2Collapsed = hide;
             splitRenderOutput.Panel2Collapsed = hide;
+            btnWindowMinimize2.Visible = hide;
+            btnWindowMaximize2.Visible = hide;
+            btnWindowClose2.Visible = hide;
             if (hide)
             {
                 splitRenderCoding.Panel2.Hide();

@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -190,7 +191,7 @@ namespace App
                 var elType = fieldType.GetElementType();
                 var array = Array.CreateInstance(elType, cmd.Length);
                 for (int i = 0; i < cmd.Length; i++)
-                    array.SetValue(Convert.ChangeType(cmd[i].Text, elType, App.Culture), i);
+                    array.SetValue(Convert.ChangeType(cmd[i].Text, elType, CultureInfo.CurrentCulture), i);
                 val = array;
             }
             else
@@ -199,7 +200,7 @@ namespace App
                     // if this is an enum, convert the string to an enum value
                     ? Convert.ChangeType(Enum.Parse(fieldType, cmd[0].Text, true), fieldType)
                     // else try to convert it to the field type
-                    : Convert.ChangeType(cmd[0].Text, fieldType, App.Culture);
+                    : Convert.ChangeType(cmd[0].Text, fieldType, CultureInfo.CurrentCulture);
             }
 
             // set value of the field

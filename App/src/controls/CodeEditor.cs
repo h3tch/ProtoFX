@@ -8,35 +8,39 @@ namespace App
     public partial class CodeEditor : Scintilla
     {
         #region FIELDS
+
         public bool EnableCodeHints = true;
         private static int HighlightIndicatorIndex = 8;
         public static int DebugIndicatorIndex = 9;
         private List<int[]>[] IndicatorRanges;
         private static string HiddenLines = $"{(char)177}";
-        
         public new int FirstVisibleLine
         {
             get
             {
                 int line = base.FirstVisibleLine;
                 for (int i = 0; i < line && i < Lines.Count; i++)
+                {
                     if (!Lines[i].Visible)
                         line++;
+                }
                 return line;
             }
         }
-
         public int LastVisibleLine
         {
             get
             {
                 int i, line;
                 for (i = FirstVisibleLine, line = i + LinesOnScreen; i < line && i < Lines.Count; i++)
+                {
                     if (!Lines[i].Visible)
                         line++;
+                }
                 return line;
             }
         }
+
         #endregion
         
         /// <summary>

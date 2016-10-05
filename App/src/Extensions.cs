@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -38,7 +39,7 @@ namespace App
         {
             try
             {
-                return (TResult)Convert.ChangeType(str, typeof(TResult), App.Culture);
+                return (TResult)Convert.ChangeType(str, typeof(TResult), CultureInfo.CurrentCulture);
             }
             catch
             {
@@ -158,7 +159,7 @@ namespace App
                     ToStringArray(src, dst, format, tmpIdx, startDim + 1);
                 else
                     // write value to output
-                    dst.SetValue(string.Format(App.Culture, format, src.GetValue(tmpIdx)), tmpIdx);
+                    dst.SetValue(string.Format(CultureInfo.CurrentCulture, format, src.GetValue(tmpIdx)), tmpIdx);
             }
         }
 

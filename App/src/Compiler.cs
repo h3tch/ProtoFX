@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -373,7 +374,7 @@ namespace App
                                 ? scene.GetValueOrDefault<GLObject>(arg.Text)
                                 : types[i].IsEnum
                                     ? Enum.Parse(types[i], arg.Text, true)
-                                    : Convert.ChangeType(arg.Text, types[i], App.Culture);
+                                    : Convert.ChangeType(arg.Text, types[i], CultureInfo.CurrentCulture);
                             if (values[i] != null)
                             {
                                 lastArgUsed = a;

@@ -157,7 +157,7 @@ namespace App
             // get line from selected item
             int line;
             var text = view.SelectedRows[0].Cells[1].Value as string;
-            if (!int.TryParse(text, NumberStyles.Integer, Culture, out line))
+            if (!int.TryParse(text, NumberStyles.Integer, CultureInfo.CurrentCulture, out line))
                 return;
 
             // scroll to line
@@ -177,7 +177,8 @@ namespace App
             var refUri = new Uri(refDir);
             var fileUri = new Uri(filePath);
             var relPath = refUri.MakeRelativeUri(fileUri).ToString();
-            output.Rows.Add(new[] { relPath, line > 0 ? line.ToString(Culture) : string.Empty, msg });
+            var lineNumber = line > 0 ? line.ToString(CultureInfo.CurrentCulture) : string.Empty;
+            output.Rows.Add(new[] { relPath, lineNumber, msg });
         }
         #endregion
 
@@ -284,7 +285,7 @@ namespace App
             {
                 // convert row of debug variable to string array
                 var row = from c in Enumerable.Range(0, cols)
-                          select string.Format(Culture, "{0:0.000}", val.GetValue(r, c));
+                          select string.Format(CultureInfo.CurrentCulture, "{0:0.000}", val.GetValue(r, c));
                 // add row to list view
                 var item = new ListViewItem(row.ToArray());
                 item.Group = dbgVarGroup;

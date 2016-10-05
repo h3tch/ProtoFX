@@ -8,7 +8,19 @@ namespace System.Windows.Forms
     public class Theme
     {
         #region FIELDS
-        internal static Palette palette = new Palette();
+
+        internal static Palette palette = new Palette
+        {
+            BackColor = SystemColors.Control,
+            ForeColor = SystemColors.ControlText,
+            HighlightBackColor = SystemColors.ControlDark,
+            HighlightForeColor = SystemColors.ActiveCaption,
+            SelectBackColor = SystemColors.Highlight,
+            SelectForeColor = SystemColors.HighlightText,
+            Workspace = SystemColors.AppWorkspace,
+            WorkspaceHighlight = SystemColors.ControlDarkDark,
+            TextColor = SystemColors.ControlText,
+        };
         public static string Name => palette.Name;
         public static Color BackColor => palette.BackColor;
         public static Color ForeColor => palette.ForeColor;
@@ -19,10 +31,11 @@ namespace System.Windows.Forms
         public static Color Workspace => palette.Workspace;
         public static Color WorkspaceHighlight => palette.WorkspaceHighlight;
         public static Color TextColor => palette.TextColor;
+
         #endregion
 
         #region THEME COLORS
-
+        
         /// <summary>
         /// Initialize the dark theme.
         /// </summary>
@@ -248,9 +261,11 @@ namespace System.Windows.Forms
             c.CodeColor = ForeColor;
             return true;
         }
+
         #endregion
 
         #region INTERNAL
+
         public struct Palette
         {
             public string Name;
@@ -284,6 +299,7 @@ namespace System.Windows.Forms
                 set { color = ColorTranslator.FromHtml(value); }
             }
         }
+
         #endregion
     }
 }

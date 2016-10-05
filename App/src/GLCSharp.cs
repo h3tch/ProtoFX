@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
+using System.Globalization;
 
 namespace App
 {
@@ -224,7 +225,7 @@ namespace App
             var classname = cmd[1].Text;
             var instance = CompilerResults.CompiledAssembly.CreateInstance(
                 classname, false, BindingFlags.Default, null,
-                new object[] { block.Name, ToDict(block), glNames }, App.Culture, null);
+                new object[] { block.Name, ToDict(block), glNames }, CultureInfo.CurrentCulture, null);
 
             if (instance == null)
                 throw err.Add($"Main class '{classname}' could not be found.", cmd);
