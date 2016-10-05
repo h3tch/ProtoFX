@@ -106,17 +106,17 @@ namespace App
             ConvertExtensions.str2type.Keys.ForEach(x => comboBufType.Items.Add(x));
             comboBufType.SelectedIndex = ConvertExtensions.str2type.Keys.IndexOf(x => x == "float");
 
-            // LINK PROPERTY VIEWER TO DEBUG SETTINGS
+            /// LINK PROPERTY VIEWER TO DEBUG SETTINGS
 
             FxDebugger.Instantiate();
             debugProperty.SelectedObject = FxDebugger.Settings;
             debugProperty.CollapseAllGridItems();
 
-            // PROCESS COMMAND LINE ARGUMENTS
+            /// PROCESS COMMAND LINE ARGUMENTS
 
-            ProcessArgs(Environment.GetCommandLineArgs().Concat(new[] { "-HideGui" }).ToArray());
+            ProcessArgs(Environment.GetCommandLineArgs());
 
-            // CLEAR OPENGL CONTROL
+            /// CLEAR OPENGL CONTROL
 
             glControl.AddEvents();
             glControl.Render();
@@ -319,11 +319,13 @@ namespace App
             FormBorderStyle = FormBorderStyle.None;
             NormalLocation = Location;
             NormalSize = Size;
+            TopMost = false;
             var screen = Screen.FromRectangle(DesktopBounds);
             Location = screen.WorkingArea.Location;
             Size = screen.WorkingArea.Size;
             Padding = new Padding(0);
             btnWindowMaximize.Image = Properties.Resources.Normalize;
+            WindowState = Normal;
         }
 
         /// <summary>
@@ -332,10 +334,26 @@ namespace App
         private void NormalizeWindow()
         {
             FormBorderStyle = FormBorderStyle.FixedSingle;
-            Padding = new Padding(3);
             Location = NormalLocation;
             Size = NormalSize;
+            TopMost = false;
+            Padding = new Padding(3);
             btnWindowMaximize.Image = Properties.Resources.Maximize;
+            WindowState = Normal;
+        }
+
+        /// <summary>
+        /// Make the window fullscreen.
+        /// </summary>
+        private void FullscreenWindow()
+        {
+            FormBorderStyle = FormBorderStyle.None;
+            NormalLocation = Location;
+            NormalSize = Size;
+            TopMost = true;
+            Padding = new Padding(0);
+            btnWindowMaximize.Image = Properties.Resources.Normalize;
+            WindowState = Maximized;
         }
 
         #endregion
@@ -706,9 +724,11 @@ namespace App
                 var a = arg.Split(new[] { ':' });
                 switch (a[0])
                 {
-                    case "-HideGui": HideDeveloperGui(true); break;
+                    case "-HideDevGui": HideDeveloperGui(true); break;
+                    case "-HideAllGui": HideAllGui(true); break;
                     case "-Compile": toolBtnRunDebug_Click(null, null); break;
                     case "-Title": if (a.Length > 1) labelTitle.Text = a[1]; break;
+                    case "-Fullscreen": FullscreenWindow(); break;
                 }
             }
         }
@@ -735,7 +755,18 @@ namespace App
                 splitRenderOutput.Panel2.Show();
             }
         }
-        
+
+        /// <summary>
+        /// Hide or show all graphical user interface
+        /// elements except glControl.
+        /// </summary>
+        /// <param name="hide"></param>
+        private void HideAllGui(bool hide)
+        {
+            HideDeveloperGui(hide);
+            tableLayoutRenderOutput.RowStyles[0].Height = 0;
+        }
+
         #endregion
 
         #region Inner Classes

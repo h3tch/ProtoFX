@@ -327,10 +327,10 @@
                     \  &lt;param&gt;       [primitive_type] {buffer_offset} {draw_count} {stride}&lt;/param&gt;
                     \  &lt;key&gt;draw&lt;/key&gt;&lt;param&gt; [vertoutput_name] [primitive_type] {vertoutput_stream} {instance_count}&lt;/param&gt;
                     \
-                    \ primitive_type
+                    \ &lt;code&gt;primitive_type&lt;/code&gt;
                     \    &lt;param&gt;points, lines, lineLoop, lineStrip, triangles, triangleStrip, triangleFan, patch,&lt;/param&gt;
                     \    &lt;param&gt;linesAdjacency, lineStripAdjacency, trianglesAdjacency, triangleStripAdjacency&lt;/param&gt;
-                    \ index_type
+                    \ &lt;code&gt;index_type&lt;/code&gt;
                     \    &lt;param&gt;ubyte, ushort, uint&lt;/param&gt;'/>
       <Keyword style_name='command' name='fragout' hint='Bind fragment output object to render pass.
                                                         \  &lt;key&gt;fragout&lt;/key&gt; &lt;param&gt;[fragoutput_name]&lt;/param&gt;'/>
@@ -661,7 +661,20 @@
       <Style theme='DarkTheme' name='command' fore='#7AC0F4'/>
       <Style theme='LightTheme' name='command' fore='#7AC0F4'/>
       <Keyword style_name='command' name='attr'
-               hint='&lt;key&gt;attr [buff_name] [type] [dim] {stride} {offset} {divisor}'/>
+               hint='Bind buffer to vertex input stream.
+                    \  &lt;key&gt;attr&lt;/key&gt; &lt;param&gt;[buff_name] [type] [dim] {stride} {offset} {divisor}&lt;/param&gt;
+                    \
+                    \ &lt;code&gt;type&lt;/code&gt;
+                    \    &lt;param&gt;byte, ubyte, short, ushort, int, uint, float, double, half&lt;/param&gt;
+                    \ &lt;code&gt;dim&lt;/code&gt;
+                    \    &lt;param&gt;vector dimension (must be 1, 2, 3 or 4)&lt;/param&gt;
+                    \ &lt;code&gt;stride&lt;/code&gt;
+                    \    &lt;param&gt;stride between two vertex values in bytes&lt;/param&gt;
+                    \ &lt;code&gt;offset&lt;/code&gt;
+                    \    &lt;param&gt;buffer offset of the first vertex value&lt;/param&gt;
+                    \ &lt;code&gt;divisor&lt;/code&gt;
+                    \    &lt;param&gt;for how many instances should the value be &lt;/param&gt;
+                    \    &lt;param&gt;used (0 disables instancing for this attribute)&lt;/param&gt;'/>
       <!-- vertinput - ATTR -->
       <Lexer type='attr' lexer='CommandLexer'>
         <Style theme='DarkTheme' name='argument' fore='#9589CC'/>
@@ -669,6 +682,7 @@
         <Keyword style_name='argument' name='byte'/>
         <Keyword style_name='argument' name='double'/>
         <Keyword style_name='argument' name='float'/>
+        <Keyword style_name='argument' name='half'/>
         <Keyword style_name='argument' name='int'/>
         <Keyword style_name='argument' name='short'/>
         <Keyword style_name='argument' name='ubyte'/>
