@@ -84,9 +84,6 @@ namespace App
                 tip = new CallTip();
                 var font = new Font(Styles[Style.Default].Font, Styles[Style.Default].SizeF);
                 tipOffsetY = TextRenderer.MeasureText("W", font).Height;
-                // compute maximum calltip size
-                var screen = Screen.PrimaryScreen.WorkingArea;
-                tip.MaximumSize = new Size((int)(screen.Width * 0.2), (int)(screen.Height * 0.2));
                 // apply the current theme to the call tip components
                 Theme.Apply(tip);
             }
