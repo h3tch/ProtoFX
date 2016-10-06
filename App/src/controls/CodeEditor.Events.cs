@@ -149,7 +149,10 @@ namespace App
         /// <param name="s"></param>
         /// <param name="e"></param>
         private void HandleMouseWheel(object s, MouseEventArgs e)
-            => UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
+        {
+            CallTipCancel();
+            UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
+        }
 
         /// <summary>
         /// Handle drag and drop of text parts in the editor.
