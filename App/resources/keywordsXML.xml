@@ -976,984 +976,984 @@
         <Style theme='LightTheme' name='function' fore='#61ABA9'/>
         <Keyword style_name='function' name='abs'
                  hint='return the absolute value of the parameter
-                      \>  genType  abs(genType  x)
-                      \>  genIType abs(genIType x)
-                      \>  genDType abs(genDType x)'/>
+                      \  &lt;param&gt;genType &lt;/param&gt; &lt;key&gt;abs&lt;/key&gt;&lt;param&gt;(genType  x)&lt;/param&gt;
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;abs&lt;/key&gt;&lt;param&gt;(genIType x)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;abs&lt;/key&gt;&lt;param&gt;(genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='acos'
                  hint='return the arccosine of the parameter
-                      \>  genType acos(genType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;acos&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='acosh'
                  hint='return the arc hyperbolic cosine of the parameter
-                      \>  genType acosh(genType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;acosh&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='all'
                  hint='check whether all elements of a boolean vector are true
-                      \>  bool all(bvec x)'/>
+                      \  &lt;param&gt;bool&lt;/param&gt; &lt;key&gt;all&lt;/key&gt;&lt;param&gt;(bvec x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='any'
                  hint='check whether any element of a boolean vector is true
-                      \>  bool any(bvec x)'/>
+                      \  &lt;param&gt;bool&lt;/param&gt; &lt;key&gt;any&lt;/key&gt;&lt;param&gt;(bvec x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='asin'
                  hint='return the arcsine of the parameter
-                      \>  genType asin(genType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;asin&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='asinh'
                  hint='return the arc hyperbolic sine of the parameter
-                      \>  genType asinh(genType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;asinh&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='atan' 
                  hint='return the arc-tangent of the parameters
-                      \>  genType atan(genType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;atan&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='atanh'
                  hint='return the arc hyperbolic tangent of the parameter
-                      \>  genType atanh(genType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;atanh&lt;/key&gt;&lt;param&gt; (genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='atomicAdd'
                  hint='perform an atomic addition to a variable
-                      \>  int  atomicAdd(inout int  mem, int  data)
-                      \>  uint atomicAdd(inout uint mem, uint data)'/>
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;atomicAdd&lt;/key&gt;&lt;param&gt;(inout int  mem, int  data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;atomicAdd&lt;/key&gt;&lt;param&gt;(inout uint mem, uint data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='atomicAnd'
                  hint='perform an atomic logical AND operation to a variable
-                      \>  int  atomicAdd(inout int  mem, int  data)
-                      \>  uint atomicAdd(inout uint mem, uint data)'/>
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;atomicAdd&lt;/key&gt;&lt;param&gt;(inout int  mem, int  data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;atomicAdd&lt;/key&gt;&lt;param&gt;(inout uint mem, uint data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='atomicCompSwap' 
                  hint='perform an atomic compare-exchange operation to a variable
-                      \>  int  atomicCompSwap(inout int  mem, uint compare, uint data)
-                      \>  uint atomicCompSwap(inout uint mem, uint compare, uint data)'/>
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;atomicCompSwap&lt;/key&gt;&lt;param&gt;(inout int  mem, uint compare, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;atomicCompSwap&lt;/key&gt;&lt;param&gt;(inout uint mem, uint compare, uint data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='atomicCounter'
                  hint='return the current value of an atomic counter
-                      \>  uint atomicCounter(atomic_uint c)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;atomicCounter&lt;/key&gt;&lt;param&gt;(atomic_uint c)&lt;/param&gt;'/>
         <Keyword style_name='function' name='atomicCounterDecrement'
                  hint='atomically decrement a counter and return the prior value
-                      \>  uint atomicCounterDecrement(atomic_uint c)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;atomicCounterDecrement&lt;/key&gt;&lt;param&gt;(atomic_uint c)&lt;/param&gt;'/>
         <Keyword style_name='function' name='atomicCounterIncrement'
                  hint='atomically increment a counter and return the prior value
-                      \>  uint atomicCounterIncrement(atomic_uint c)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;atomicCounterIncrement&lt;/key&gt;&lt;param&gt;(atomic_uint c)&lt;/param&gt;'/>
         <Keyword style_name='function' name='atomicExchange'
                  hint='perform an atomic exchange operation to a variable
-                      \>  int  atomicExchange(inout int  mem, int  data)
-                      \>  uint atomicExchange(inout uint mem, uint data)'/>
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;atomicExchange&lt;/key&gt;&lt;param&gt;(inout int  mem, int  data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;atomicExchange&lt;/key&gt;&lt;param&gt;(inout uint mem, uint data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='atomicMax'
                  hint='perform an atomic max operation to a variable
-                      \>  int  atomicMax(inout int  mem, int  data)
-                      \>  uint atomicMax(inout uint mem, uint data)'/>
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;atomicMax&lt;/key&gt;&lt;param&gt;(inout int  mem, int  data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;atomicMax&lt;/key&gt;&lt;param&gt;(inout uint mem, uint data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='atomicMin' 
                  hint='perform an atomic min operation to a variable
-                      \>  int  atomicMin(inout int  mem, int  data)
-                      \>  uint atomicMin(inout uint mem, uint data)'/>
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;atomicMin&lt;/key&gt;&lt;param&gt;(inout int  mem, int  data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;atomicMin&lt;/key&gt;&lt;param&gt;(inout uint mem, uint data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='atomicOr'
                  hint='perform an atomic logical OR operation to a variable
-                      \>  int  atomicOr(inout int  mem, int  data)
-                      \>  uint atomicOr(inout uint mem, uint data)'/>
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;atomicOr&lt;/key&gt;&lt;param&gt;(inout int  mem, int  data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;atomicOr&lt;/key&gt;&lt;param&gt;(inout uint mem, uint data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='atomicXor' 
                  hint='perform an atomic logical exclusive OR operation to a variable
-                      \>  int  atomicXor(inout int  mem, int  data)
-                      \>  uint atomicXor(inout uint mem, uint data)'/>
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;atomicXor&lt;/key&gt;&lt;param&gt;(inout int  mem, int  data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;atomicXor&lt;/key&gt;&lt;param&gt;(inout uint mem, uint data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='barrier' 
                  hint='synchronize execution of multiple shader invocations
-                      \>  void barrier(void)'/>
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;barrier&lt;/key&gt;&lt;param&gt;(void)&lt;/param&gt;'/>
         <Keyword style_name='function' name='bitCount' 
                  hint='counts the number of 1 bits in an integer
-                      \>  genIType bitCount(genIType value)
-                      \>  genIType bitCount(genUType value)'/>
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;bitCount&lt;/key&gt;&lt;param&gt;(genIType value)&lt;/param&gt;
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;bitCount&lt;/key&gt;&lt;param&gt;(genUType value)&lt;/param&gt;'/>
         <Keyword style_name='function' name='bitfieldExtract' 
                  hint='extract a range of bits from an integer
-                      \>  genIType bitfieldExtract(genIType value, int offset, int bits)
-                      \>  genUType bitfieldExtract(genUType value, int offset, int bits)'/>
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;bitfieldExtract&lt;/key&gt;&lt;param&gt;(genIType value, int offset, int bits)&lt;/param&gt;
+                      \  &lt;param&gt;genUType&lt;/param&gt; &lt;key&gt;bitfieldExtract&lt;/key&gt;&lt;param&gt;(genUType value, int offset, int bits)&lt;/param&gt;'/>
         <Keyword style_name='function' name='bitfieldInsert' 
                  hint='insert a range of bits into an integer
-                      \>  genIType bitfieldInsert(genIType base, genIType insert, int offset, int bits)
-                      \>  genUType bitfieldInsert(genUType base, genUType insert, int offset, int bits)'/>
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;bitfieldInsert&lt;/key&gt;&lt;param&gt;(genIType base, genIType insert, int offset, int bits)&lt;/param&gt;
+                      \  &lt;param&gt;genUType&lt;/param&gt; &lt;key&gt;bitfieldInsert&lt;/key&gt;&lt;param&gt;(genUType base, genUType insert, int offset, int bits)&lt;/param&gt;'/>
         <Keyword style_name='function' name='bitfieldReverse' 
                  hint='reverse the order of bits in an integer
-                      \>  genIType bitfieldReverse(genIType value)
-                      \>  genUType bitfieldReverse(genUType value)'/>
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;bitfieldReverse&lt;/key&gt;&lt;param&gt;(genIType value)&lt;/param&gt;
+                      \  &lt;param&gt;genUType&lt;/param&gt; &lt;key&gt;bitfieldReverse&lt;/key&gt;&lt;param&gt;(genUType value)&lt;/param&gt;'/>
         <Keyword style_name='function' name='ceil' 
                  hint='find the nearest integer that is greater
                       \than or equal to the parameter
-                      \>  genType  ceil(genType  x)
-                      \>  genDType ceil(genDType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;ceil&lt;/key&gt;&lt;param&gt;(genType  x)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;ceil&lt;/key&gt;&lt;param&gt;(genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='clamp' 
                  hint='constrain a value to lie between two further values
-                      \>  genType  clamp(genType  x, genType minVal, genType maxVal)
-                      \>  genType  clamp(genType  x, float minVal, float maxVal)
-                      \>  genDType clamp(genDType x, genDType minVal, genDType maxVal)
-                      \>  genDType clamp(genDType x, double minVal, double maxVal)
-                      \>  genIType clamp(genIType x, genIType minVal, genIType maxVal)
-                      \>  genIType clamp(genIType x, int minVal, int maxVal)
-                      \>  genUType clamp(genUType x, genUType minVal, genUType maxVal)
-                      \>  genUType clamp(genUType x, uint minVal, uint maxVal)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;clamp&lt;/key&gt;&lt;param&gt;(genType  x, genType minVal, genType maxVal)&lt;/param&gt;
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;clamp&lt;/key&gt;&lt;param&gt;(genType  x, float minVal, float maxVal)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;clamp&lt;/key&gt;&lt;param&gt;(genDType x, genDType minVal, genDType maxVal)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;clamp&lt;/key&gt;&lt;param&gt;(genDType x, double minVal, double maxVal)&lt;/param&gt;
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;clamp&lt;/key&gt;&lt;param&gt;(genIType x, genIType minVal, genIType maxVal)&lt;/param&gt;
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;clamp&lt;/key&gt;&lt;param&gt;(genIType x, int minVal, int maxVal)&lt;/param&gt;
+                      \  &lt;param&gt;genUType&lt;/param&gt; &lt;key&gt;clamp&lt;/key&gt;&lt;param&gt;(genUType x, genUType minVal, genUType maxVal)&lt;/param&gt;
+                      \  &lt;param&gt;genUType&lt;/param&gt; &lt;key&gt;clamp&lt;/key&gt;&lt;param&gt;(genUType x, uint minVal, uint maxVal)&lt;/param&gt;'/>
         <Keyword style_name='function' name='cos' 
                  hint='return the cosine of the parameter
-                      \>  genType cos(genType angle)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;cos&lt;/key&gt;&lt;param&gt;(genType angle)&lt;/param&gt;'/>
         <Keyword style_name='function' name='cosh'
                  hint='return the hyperbolic cosine of the parameter
-                      \>  genType cosh(genType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;cosh&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='cross' 
                  hint='calculate the cross product of two vectors
-                      \>  vec3  cross(vec3  x, vec3  y)
-                      \>  dvec3 cross(dvec3 x, dvec3 y)'/>
+                      \  &lt;param&gt;vec3&lt;/param&gt; &lt;key&gt;cross&lt;/key&gt;&lt;param&gt;(vec3  x, vec3  y)&lt;/param&gt;
+                      \  &lt;param&gt;dvec3&lt;/param&gt; &lt;key&gt;cross&lt;/key&gt;&lt;param&gt;(dvec3 x, dvec3 y)&lt;/param&gt;'/>
         <Keyword style_name='function' name='degrees' 
                  hint='convert a quantity in radians to degrees
-                      \>  genType degrees(genType radians)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;degrees&lt;/key&gt;&lt;param&gt;(genType radians)&lt;/param&gt;'/>
         <Keyword style_name='function' name='determinant' 
                  hint='calculate the determinant of a matrix
-                      \>  float determinant(mat2 m)
-                      \>  float determinant(mat3 m)
-                      \>  float determinant(mat4 m)
-                      \>  double determinant(dmat2 m)
-                      \>  double determinant(dmat3 m)
-                      \>  double determinant(dmat4 m)'/>
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;determinant&lt;/key&gt;&lt;param&gt;(mat2 m)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;determinant&lt;/key&gt;&lt;param&gt;(mat3 m)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;determinant&lt;/key&gt;&lt;param&gt;(mat4 m)&lt;/param&gt;
+                      \  &lt;param&gt;double&lt;/param&gt; &lt;key&gt;determinant&lt;/key&gt;&lt;param&gt;(dmat2 m)&lt;/param&gt;
+                      \  &lt;param&gt;double&lt;/param&gt; &lt;key&gt;determinant&lt;/key&gt;&lt;param&gt;(dmat3 m)&lt;/param&gt;
+                      \  &lt;param&gt;double&lt;/param&gt; &lt;key&gt;determinant&lt;/key&gt;&lt;param&gt;(dmat4 m)&lt;/param&gt;'/>
         <Keyword style_name='function' name='distance' 
                  hint='calculate the distance between two points
-                      \>  float distance(genType p0, genType p1)
-                      \>  double distance(genDType p0, genDType p1)'/>
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;distance&lt;/key&gt;&lt;param&gt;(genType p0, genType p1)&lt;/param&gt;
+                      \  &lt;param&gt;double&lt;/param&gt; &lt;key&gt;distance&lt;/key&gt;&lt;param&gt;(genDType p0, genDType p1)&lt;/param&gt;'/>
         <Keyword style_name='function' name='dot'
                  hint='calculate the dot product of two vectors
-                      \>  float dot(genType x, genType y)
-                      \>  double dot(genDType x, genDType y)'/>
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;dot&lt;/key&gt;&lt;param&gt;(genType x, genType y)&lt;/param&gt;
+                      \  &lt;param&gt;double&lt;/param&gt; &lt;key&gt;dot&lt;/key&gt;&lt;param&gt;(genDType x, genDType y)&lt;/param&gt;'/>
         <Keyword style_name='function' name='equal'
                  hint='perform a component-wise equal-to
                       \comparison of two vectors
-                      \>  bvec equal(vec x, vec y)
-                      \>  bvec equal(ivec x, ivec y)
-                      \>  bvec equal(uvec x, uvec y)'/>
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;equal&lt;/key&gt;&lt;param&gt;(vec x, vec y)&lt;/param&gt;
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;equal&lt;/key&gt;&lt;param&gt;(ivec x, ivec y)&lt;/param&gt;
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;equal&lt;/key&gt;&lt;param&gt;(uvec x, uvec y)&lt;/param&gt;'/>
         <Keyword style_name='function' name='exp' 
                  hint='return the natural exponentiation of the parameter
-                      \>  genType exp(genType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;exp&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='exp2'
                  hint='return 2 raised to the power of the parameter
-                      \>  genType exp2(genType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;exp2&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='faceforward'
                  hint='return a vector pointing in the same direction as another
-                      \>  genType  faceforward(genType  N, genType  I, genType  Nref)
-                      \>  genDType faceforward(genDType N, genDType I, genDType Nref)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;faceforward&lt;/key&gt;&lt;param&gt;(genType  N, genType  I, genType  Nref)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;faceforward&lt;/key&gt;&lt;param&gt;(genDType N, genDType I, genDType Nref)&lt;/param&gt;'/>
         <Keyword style_name='function' name='findLSB' 
                  hint='find the index of the least significant
                       \bit set to 1 in an integer
-                      \>  genIType findLSB(genIType value)
-                      \>  genIType findLSB(genUType value)'/>
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;findLSB&lt;/key&gt;&lt;param&gt;(genIType value)&lt;/param&gt;
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;findLSB&lt;/key&gt;&lt;param&gt;(genUType value)&lt;/param&gt;'/>
         <Keyword style_name='function' name='findMSB'
                  hint='find the index of the most significant
                       \bit set to 1 in an integer
-                      \>  genIType findMSB(genIType value)
-                      \>  genIType findMSB(genUType value)'/>
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;findMSB&lt;/key&gt;&lt;param&gt;(genIType value)&lt;/param&gt;
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;findMSB&lt;/key&gt;&lt;param&gt;(genUType value)&lt;/param&gt;'/>
         <Keyword style_name='function' name='floor'
                  hint='find the nearest integer less than
                       \or equal to the parameter
-                      \>  genType  floor(genType  x)
-                      \>  genDType floor(genDType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;floor&lt;/key&gt;&lt;param&gt;(genType  x)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;floor&lt;/key&gt;&lt;param&gt;(genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='fma'
                  hint='perform a fused multiply-add operation (a * b + c)
-                      \>  genType  fma(genType  a, genType  b, genType  c)
-                      \>  genDType fma(genDType a, genDType b, genDType c)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;fma&lt;/key&gt;&lt;param&gt;(genType  a, genType  b, genType  c)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;fma&lt;/key&gt;&lt;param&gt;(genDType a, genDType b, genDType c)&lt;/param&gt;'/>
         <Keyword style_name='function' name='fract'
                  hint='compute the fractional part of the argument
-                      \>  genType  fract(genType  x)
-                      \>  genDType fract(genDType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;fract&lt;/key&gt;&lt;param&gt;(genType  x)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;fract&lt;/key&gt;&lt;param&gt;(genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='frexp'
                  hint='split a floating point number
-                      \>  genType  frexp(genType  x, out genIType exp)
-                      \>  genDType frexp(genDType x, out genIType exp)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;frexp&lt;/key&gt;&lt;param&gt;(genType  x, out genIType exp)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;frexp&lt;/key&gt;&lt;param&gt;(genDType x, out genIType exp)&lt;/param&gt;'/>
         <Keyword style_name='function' name='greaterThan'
                  hint='perform a component-wise greater-than
                       \comparison of two vectors
-                      \>  bvec greaterThan(vec x, vec y)
-                      \>  bvec greaterThan(ivec x, ivec y)
-                      \>  bvec greaterThan(uvec x, uvec y)'/>
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;greaterThan&lt;/key&gt;&lt;param&gt;(vec x, vec y)&lt;/param&gt;
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;greaterThan&lt;/key&gt;&lt;param&gt;(ivec x, ivec y)&lt;/param&gt;
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;greaterThan&lt;/key&gt;&lt;param&gt;(uvec x, uvec y)&lt;/param&gt;'/>
         <Keyword style_name='function' name='greaterThanEqual'
                  hint='perform a component-wise greater-than-or-equal
                       \comparison of two vectors
-                      \>  bvec greaterThanEqual(vec x, vec y)
-                      \>  bvec greaterThanEqual(ivec x, ivec y)
-                      \>  bvec greaterThanEqual(uvec x, uvec y)'/>
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;greaterThanEqual&lt;/key&gt;&lt;param&gt;(vec x, vec y)&lt;/param&gt;
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;greaterThanEqual&lt;/key&gt;&lt;param&gt;(ivec x, ivec y)&lt;/param&gt;
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;greaterThanEqual&lt;/key&gt;&lt;param&gt;(uvec x, uvec y)&lt;/param&gt;'/>
         <Keyword style_name='function' name='groupMemoryBarrier'
                  hint='controls the ordering of memory transaction issued
                       \shader invocation relative to a work group
-                      \>  void groupMemoryBarrier(void)'/>
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;groupMemoryBarrier&lt;/key&gt;&lt;param&gt;(void)&lt;/param&gt;'/>
         <Keyword style_name='function' name='imageAtomicAdd'
-                 hint='atomically add a value to an existing value in memory
-                      \and return the original value
-                      \>  uint imageAtomicAdd(gimage1D image, int   P, uint data)
-                      \>  uint imageAtomicAdd(gimage2D image, ivec2 P, uint data)
-                      \>  uint imageAtomicAdd(gimage3D image, ivec3 P, uint data)
-                      \>  uint imageAtomicAdd(gimage2DRect image, ivec2 P, uint data)
-                      \>  uint imageAtomicAdd(gimageCube   image, ivec3 P, uint data)
-                      \>  uint imageAtomicAdd(gbufferImage image, int   P, uint data)
-                      \>  uint imageAtomicAdd(gimage1DArray   image, ivec2 P, uint data)
-                      \>  uint imageAtomicAdd(gimage2DArray   image, ivec3 P, uint data)
-                      \>  uint imageAtomicAdd(gimageCubeArray image, ivec3 P, uint data)
-                      \>  uint imageAtomicAdd(gimage2DMS image, ivec2 P, int sample, uint data)
-                      \>  uint imageAtomicAdd(gimage2DMSArray image, ivec3 P, int sample, uint data)
-                      \>  int  imageAtomicAdd(gimage1D image, int   P, int data)
-                      \>  int  imageAtomicAdd(gimage2D image, ivec2 P, int data)
-                      \>  int  imageAtomicAdd(gimage3D image, ivec3 P, int data)
-                      \>  int  imageAtomicAdd(gimage2DRect image, ivec2 P, int data)
-                      \>  int  imageAtomicAdd(gimageCube   image, ivec3 P, int data)
-                      \>  int  imageAtomicAdd(gbufferImage image, int   P, int data)
-                      \>  int  imageAtomicAdd(gimage1DArray   image, ivec2 P, int data)
-                      \>  int  imageAtomicAdd(gimage2DArray   image, ivec3 P, int data)
-                      \>  int  imageAtomicAdd(gimageCubeArray image, ivec3 P, int data)
-                      \>  int  imageAtomicAdd(gimage2DMS image, ivec2 P, int sample, int data)
-                      \>  int  imageAtomicAdd(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
+                 hint='atomically add a value to an existing value in
+                      \memory and return the original value
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage1D image, int P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimageCube image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gbufferImage image, int   P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage1DArray image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage2DArray image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage1D image, int P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimageCube image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gbufferImage image, int P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage1DArray image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage2DArray image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAdd&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, int data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='imageAtomicAnd' 
                  hint='atomically compute the logical AND of a value with an existing
                       \value in memory, store that value and return the original value
-                      \>  uint imageAtomicAnd(gimage1D image, int   P, uint data)
-                      \>  uint imageAtomicAnd(gimage2D image, ivec2 P, uint data)
-                      \>  uint imageAtomicAnd(gimage3D image, ivec3 P, uint data)
-                      \>  uint imageAtomicAnd(gimage2DRect image, ivec2 P, uint data)
-                      \>  uint imageAtomicAnd(gimageCube   image, ivec3 P, uint data)
-                      \>  uint imageAtomicAnd(gbufferImage image, int   P, uint data)
-                      \>  uint imageAtomicAnd(gimage1DArray   image, ivec2 P, uint data)
-                      \>  uint imageAtomicAnd(gimage2DArray   image, ivec3 P, uint data)
-                      \>  uint imageAtomicAnd(gimageCubeArray image, ivec3 P, uint data)
-                      \>  uint imageAtomicAnd(gimage2DMS image, ivec2 P, int sample, uint data)
-                      \>  uint imageAtomicAnd(gimage2DMSArray image, ivec3 P, int sample, uint data)
-                      \>  int  imageAtomicAnd(gimage1D image, int   P, int data)
-                      \>  int  imageAtomicAnd(gimage2D image, ivec2 P, int data)
-                      \>  int  imageAtomicAnd(gimage3D image, ivec3 P, int data)
-                      \>  int  imageAtomicAnd(gimage2DRect image, ivec2 P, int data)
-                      \>  int  imageAtomicAnd(gimageCube   image, ivec3 P, int data)
-                      \>  int  imageAtomicAnd(gbufferImage image, int   P, int data)
-                      \>  int  imageAtomicAnd(gimage1DArray   image, ivec2 P, int data)
-                      \>  int  imageAtomicAnd(gimage2DArray   image, ivec3 P, int data)
-                      \>  int  imageAtomicAnd(gimageCubeArray image, ivec3 P, int data)
-                      \>  int  imageAtomicAnd(gimage2DMS image, ivec2 P, int sample, int data)
-                      \>  int  imageAtomicAnd(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage1D image, int P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimageCube image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gbufferImage image, int P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage1DArray image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage2DArray image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage1D image, int P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimageCube image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gbufferImage image, int   P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage1DArray image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage2DArray image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicAnd&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, int data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='imageAtomicCompSwap'
                  hint='atomically compares supplied data with that in memory and
                       \conditionally stores it to memory
-                      \>  uint imageAtomicCompSwap(gimage1D image, int   P, uint compare, uint data)
-                      \>  uint imageAtomicCompSwap(gimage2D image, ivec2 P, uint compare, uint data)
-                      \>  uint imageAtomicCompSwap(gimage3D image, ivec3 P, uint compare, uint data)
-                      \>  uint imageAtomicCompSwap(gimage2DRect image, ivec2 P, uint compare, uint data)
-                      \>  uint imageAtomicCompSwap(gimageCube   image, ivec3 P, uint compare, uint data)
-                      \>  uint imageAtomicCompSwap(gbufferImage image, int   P, uint compare, uint data)
-                      \>  uint imageAtomicCompSwap(gimage1DArray   image, ivec2 P, uint compare, uint data)
-                      \>  uint imageAtomicCompSwap(gimage2DArray   image, ivec3 P, uint compare, uint data)
-                      \>  uint imageAtomicCompSwap(gimageCubeArray image, ivec3 P, uint compare, uint data)
-                      \>  uint imageAtomicCompSwap(gimage2DMS image, ivec2 P, int sample, uint compare, uint data)
-                      \>  uint imageAtomicCompSwap(gimage2DMSArray image, ivec3 P, int sample, uint compare, uint data)
-                      \>  int  imageAtomicCompSwap(gimage1D image, int   P, int compare, int data)
-                      \>  int  imageAtomicCompSwap(gimage2D image, ivec2 P, int compare, int data)
-                      \>  int  imageAtomicCompSwap(gimage3D image, ivec3 P, int compare, int data)
-                      \>  int  imageAtomicCompSwap(gimage2DRect image, ivec2 P, int compare, int data)
-                      \>  int  imageAtomicCompSwap(gimageCube   image, ivec3 P, int compare, int data)
-                      \>  int  imageAtomicCompSwap(gbufferImage image, int   P, int compare, int data)
-                      \>  int  imageAtomicCompSwap(gimage1DArray   image, ivec2 P, int compare, int data)
-                      \>  int  imageAtomicCompSwap(gimage2DArray   image, ivec3 P, int compare, int data)
-                      \>  int  imageAtomicCompSwap(gimageCubeArray image, ivec3 P, int compare, int data)
-                      \>  int  imageAtomicCompSwap(gimage2DMS image, ivec2 P, int sample, int compare, int data)
-                      \>  int  imageAtomicCompSwap(gimage2DMSArray image, ivec3 P, int sample, int compare, int data)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage1D image, int   P, uint compare, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, uint compare, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, uint compare, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, uint compare, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimageCube   image, ivec3 P, uint compare, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gbufferImage image, int   P, uint compare, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage1DArray   image, ivec2 P, uint compare, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage2DArray   image, ivec3 P, uint compare, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, uint compare, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, uint compare, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, uint compare, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage1D image, int   P, int compare, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, int compare, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, int compare, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, int compare, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimageCube   image, ivec3 P, int compare, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gbufferImage image, int   P, int compare, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage1DArray   image, ivec2 P, int compare, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage2DArray   image, ivec3 P, int compare, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, int compare, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, int compare, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicCompSwap&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, int compare, int data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='imageAtomicExchange'
                  hint='atomically store supplied data into memory and
                       \return the original value from memory
-                      \>  uint imageAtomicExchange(gimage1D image, int P, uint data)
-                      \>  uint imageAtomicExchange(gimage2D image, ivec2 P, uint data)
-                      \>  uint imageAtomicExchange(gimage3D image, ivec3 P, uint data)
-                      \>  uint imageAtomicExchange(gimage2DRect image, ivec2 P, uint data)
-                      \>  uint imageAtomicExchange(gimageCube image, ivec3 P, uint data)
-                      \>  uint imageAtomicExchange(gbufferImage image, int P, uint data)
-                      \>  uint imageAtomicExchange(gimage1DArray image, ivec2 P, uint data)
-                      \>  uint imageAtomicExchange(gimage2DArray image, ivec3 P, uint data)
-                      \>  uint imageAtomicExchange(gimageCubeArray image, ivec3 P, uint data)
-                      \>  uint imageAtomicExchange(gimage2DMS image, ivec2 P, int sample, uint data)
-                      \>  uint imageAtomicExchange(gimage2DMSArray image, ivec3 P, int sample, uint data)
-                      \>  int  imageAtomicExchange(gimage1D image, int P, int data)
-                      \>  int  imageAtomicExchange(gimage2D image, ivec2 P, int data)
-                      \>  int  imageAtomicExchange(gimage3D image, ivec3 P, int data)
-                      \>  int  imageAtomicExchange(gimage2DRect image, ivec2 P, int data)
-                      \>  int  imageAtomicExchange(gimageCube image, ivec3 P, int data)
-                      \>  int  imageAtomicExchange(gbufferImage image, int P, int data)
-                      \>  int  imageAtomicExchange(gimage1DArray image, ivec2 P, int data)
-                      \>  int  imageAtomicExchange(gimage2DArray image, ivec3 P, int data)
-                      \>  int  imageAtomicExchange(gimageCubeArray image, ivec3 P, int data)
-                      \>  int  imageAtomicExchange(gimage2DMS image, ivec2 P, int sample, int data)
-                      \>  int  imageAtomicExchange(gimage2DMSArray image, ivec3 P, int sample, int data)
-                      \>  int  imageAtomicExchange(gimage1D image, int P, float data)
-                      \>  int  imageAtomicExchange(gimage2D image, ivec2 P, float data)
-                      \>  int  imageAtomicExchange(gimage3D image, ivec3 P, float data)
-                      \>  int  imageAtomicExchange(gimage2DRect image, ivec2 P, float data)
-                      \>  int  imageAtomicExchange(gimageCube image, ivec3 P, float data)
-                      \>  int  imageAtomicExchange(gbufferImage image, int P, float data)
-                      \>  int  imageAtomicExchange(gimage1DArray image, ivec2 P, float data)
-                      \>  int  imageAtomicExchange(gimage2DArray image, ivec3 P, float data)
-                      \>  int  imageAtomicExchange(gimageCubeArray image, ivec3 P, float data)
-                      \>  int  imageAtomicExchange(gimage2DMS image, ivec2 P, int sample, float data)
-                      \>  int  imageAtomicExchange(gimage2DMSArray image, ivec3 P, int sample, float data)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage1D image, int P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimageCube image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gbufferImage image, int P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage1DArray image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage2DArray image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage1D image, int P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimageCube image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gbufferImage image, int P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage1DArray image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage2DArray image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage1D image, int P, float data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, float data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, float data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, float data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimageCube image, ivec3 P, float data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gbufferImage image, int P, float data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage1DArray image, ivec2 P, float data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage2DArray image, ivec3 P, float data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, float data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, float data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicExchange&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, float data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='imageAtomicMax' 
                  hint='atomically compute the minimum of a value with an existing
                       \value in memory, store that value and return the original value
-                      \>  uint imageAtomicMax(gimage1D image, int   P, uint data)
-                      \>  uint imageAtomicMax(gimage2D image, ivec2 P, uint data)
-                      \>  uint imageAtomicMax(gimage3D image, ivec3 P, uint data)
-                      \>  uint imageAtomicMax(gimage2DRect image, ivec2 P, uint data)
-                      \>  uint imageAtomicMax(gimageCube   image, ivec3 P, uint data)
-                      \>  uint imageAtomicMax(gbufferImage image, int   P, uint data)
-                      \>  uint imageAtomicMax(gimage1DArray   image, ivec2 P, uint data)
-                      \>  uint imageAtomicMax(gimage2DArray   image, ivec3 P, uint data)
-                      \>  uint imageAtomicMax(gimageCubeArray image, ivec3 P, uint data)
-                      \>  uint imageAtomicMax(gimage2DMS image, ivec2 P, int sample, uint data)
-                      \>  uint imageAtomicMax(gimage2DMSArray image, ivec3 P, int sample, uint data)
-                      \>  int  imageAtomicMax(gimage1D image, int   P, int data)
-                      \>  int  imageAtomicMax(gimage2D image, ivec2 P, int data)
-                      \>  int  imageAtomicMax(gimage3D image, ivec3 P, int data)
-                      \>  int  imageAtomicMax(gimage2DRect image, ivec2 P, int data)
-                      \>  int  imageAtomicMax(gimageCube   image, ivec3 P, int data)
-                      \>  int  imageAtomicMax(gbufferImage image, int   P, int data)
-                      \>  int  imageAtomicMax(gimage1DArray   image, ivec2 P, int data)
-                      \>  int  imageAtomicMax(gimage2DArray   image, ivec3 P, int data)
-                      \>  int  imageAtomicMax(gimageCubeArray image, ivec3 P, int data)
-                      \>  int  imageAtomicMax(gimage2DMS image, ivec2 P, int sample, int data)
-                      \>  int  imageAtomicMax(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage1D image, int   P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimageCube   image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gbufferImage image, int   P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage1DArray   image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage2DArray   image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage1D image, int   P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimageCube   image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gbufferImage image, int   P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage1DArray   image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage2DArray   image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMax&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, int data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='imageAtomicMin' 
                  hint='atomically compute the minimum of a value with an existing
                       \value in memory, store that value and return the original value
-                      \>  uint imageAtomicMin(gimage1D image, int   P, uint data)
-                      \>  uint imageAtomicMin(gimage2D image, ivec2 P, uint data)
-                      \>  uint imageAtomicMin(gimage3D image, ivec3 P, uint data)
-                      \>  uint imageAtomicMin(gimage2DRect image, ivec2 P, uint data)
-                      \>  uint imageAtomicMin(gimageCube   image, ivec3 P, uint data)
-                      \>  uint imageAtomicMin(gbufferImage image, int   P, uint data)
-                      \>  uint imageAtomicMin(gimage1DArray   image, ivec2 P, uint data)
-                      \>  uint imageAtomicMin(gimage2DArray   image, ivec3 P, uint data)
-                      \>  uint imageAtomicMin(gimageCubeArray image, ivec3 P, uint data)
-                      \>  uint imageAtomicMin(gimage2DMS image, ivec2 P, int sample, uint data)
-                      \>  uint imageAtomicMin(gimage2DMSArray image, ivec3 P, int sample, uint data)
-                      \>  int  imageAtomicMin(gimage1D image, int   P, int data)
-                      \>  int  imageAtomicMin(gimage2D image, ivec2 P, int data)
-                      \>  int  imageAtomicMin(gimage3D image, ivec3 P, int data)
-                      \>  int  imageAtomicMin(gimage2DRect image, ivec2 P, int data)
-                      \>  int  imageAtomicMin(gimageCube   image, ivec3 P, int data)
-                      \>  int  imageAtomicMin(gbufferImage image, int   P, int data)
-                      \>  int  imageAtomicMin(gimage1DArray   image, ivec2 P, int data)
-                      \>  int  imageAtomicMin(gimage2DArray   image, ivec3 P, int data)
-                      \>  int  imageAtomicMin(gimageCubeArray image, ivec3 P, int data)
-                      \>  int  imageAtomicMin(gimage2DMS image, ivec2 P, int sample, int data)
-                      \>  int  imageAtomicMin(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage1D image, int   P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimageCube   image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gbufferImage image, int   P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage1DArray   image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage2DArray   image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage1D image, int   P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimageCube   image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gbufferImage image, int   P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage1DArray   image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage2DArray   image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicMin&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, int data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='imageAtomicOr' 
                  hint='atomically compute the logical OR of a value with an existing
                       \value in memory, store that value and return the original value
-                      \>  uint imageAtomicOr(gimage1D image, int   P, uint data)
-                      \>  uint imageAtomicOr(gimage2D image, ivec2 P, uint data)
-                      \>  uint imageAtomicOr(gimage3D image, ivec3 P, uint data)
-                      \>  uint imageAtomicOr(gimage2DRect image, ivec2 P, uint data)
-                      \>  uint imageAtomicOr(gimageCube   image, ivec3 P, uint data)
-                      \>  uint imageAtomicOr(gbufferImage image, int   P, uint data)
-                      \>  uint imageAtomicOr(gimage1DArray   image, ivec2 P, uint data)
-                      \>  uint imageAtomicOr(gimage2DArray   image, ivec3 P, uint data)
-                      \>  uint imageAtomicOr(gimageCubeArray image, ivec3 P, uint data)
-                      \>  uint imageAtomicOr(gimage2DMS image, ivec2 P, int sample, uint data)
-                      \>  uint imageAtomicOr(gimage2DMSArray image, ivec3 P, int sample, uint data)
-                      \>  int  imageAtomicOr(gimage1D image, int   P, int data)
-                      \>  int  imageAtomicOr(gimage2D image, ivec2 P, int data)
-                      \>  int  imageAtomicOr(gimage3D image, ivec3 P, int data)
-                      \>  int  imageAtomicOr(gimage2DRect image, ivec2 P, int data)
-                      \>  int  imageAtomicOr(gimageCube   image, ivec3 P, int data)
-                      \>  int  imageAtomicOr(gbufferImage image, int   P, int data)
-                      \>  int  imageAtomicOr(gimage1DArray   image, ivec2 P, int data)
-                      \>  int  imageAtomicOr(gimage2DArray   image, ivec3 P, int data)
-                      \>  int  imageAtomicOr(gimageCubeArray image, ivec3 P, int data)
-                      \>  int  imageAtomicOr(gimage2DMS image, ivec2 P, int sample, int data)
-                      \>  int  imageAtomicOr(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage1D image, int   P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimageCube   image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gbufferImage image, int   P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage1DArray   image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage2DArray   image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage1D image, int   P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimageCube   image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gbufferImage image, int   P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage1DArray   image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage2DArray   image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicOr&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, int data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='imageAtomicXor'
                  hint='atomically compute the logical exclusive OR of a value
                       \with an existing value in memory, store that value and
                       \return the original value
-                      \>  uint imageAtomicXor(gimage1D image, int   P, uint data)
-                      \>  uint imageAtomicXor(gimage2D image, ivec2 P, uint data)
-                      \>  uint imageAtomicXor(gimage3D image, ivec3 P, uint data)
-                      \>  uint imageAtomicXor(gimage2DRect image, ivec2 P, uint data)
-                      \>  uint imageAtomicXor(gimageCube   image, ivec3 P, uint data)
-                      \>  uint imageAtomicXor(gbufferImage image, int   P, uint data)
-                      \>  uint imageAtomicXor(gimage1DArray   image, ivec2 P, uint data)
-                      \>  uint imageAtomicXor(gimage2DArray   image, ivec3 P, uint data)
-                      \>  uint imageAtomicXor(gimageCubeArray image, ivec3 P, uint data)
-                      \>  uint imageAtomicXor(gimage2DMS image, ivec2 P, int sample, uint data)
-                      \>  uint imageAtomicXor(gimage2DMSArray image, ivec3 P, int sample, uint data)
-                      \>  int  imageAtomicXor(gimage1D image, int   P, int data)
-                      \>  int  imageAtomicXor(gimage2D image, ivec2 P, int data)
-                      \>  int  imageAtomicXor(gimage3D image, ivec3 P, int data)
-                      \>  int  imageAtomicXor(gimage2DRect image, ivec2 P, int data)
-                      \>  int  imageAtomicXor(gimageCube   image, ivec3 P, int data)
-                      \>  int  imageAtomicXor(gbufferImage image, int   P, int data)
-                      \>  int  imageAtomicXor(gimage1DArray   image, ivec2 P, int data)
-                      \>  int  imageAtomicXor(gimage2DArray   image, ivec3 P, int data)
-                      \>  int  imageAtomicXor(gimageCubeArray image, ivec3 P, int data)
-                      \>  int  imageAtomicXor(gimage2DMS image, ivec2 P, int sample, int data)
-                      \>  int  imageAtomicXor(gimage2DMSArray image, ivec3 P, int sample, int data)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage1D image, int   P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimageCube   image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gbufferImage image, int   P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage1DArray   image, ivec2 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage2DArray   image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, uint data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage1D image, int   P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimageCube   image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gbufferImage image, int   P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage1DArray   image, ivec2 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage2DArray   image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, int data)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageAtomicXor&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, int data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='imageLoad' 
                  hint='load a single texel from an image
-                      \>  gvec4 imageLoad(gimage1D image, int   P)
-                      \>  gvec4 imageLoad(gimage2D image, ivec2 P)
-                      \>  gvec4 imageLoad(gimage3D image, ivec3 P)
-                      \>  gvec4 imageLoad(gimage2DRect image, ivec2 P)
-                      \>  gvec4 imageLoad(gimageCube   image, ivec3 P)
-                      \>  gvec4 imageLoad(gbufferImage image, int   P)
-                      \>  gvec4 imageLoad(gimage1DArray   image, ivec2 P)
-                      \>  gvec4 imageLoad(gimage2DArray   image, ivec3 P)
-                      \>  gvec4 imageLoad(gimageCubeArray image, ivec3 P)
-                      \>  gvec4 imageLoad(gimage2DMS image, ivec2 P, int sample)
-                      \>  gvec4 imageLoad(gimage2DMSArray image, ivec3 P, int sample)'/>
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;imageLoad&lt;/key&gt;&lt;param&gt;(gimage1D image, int   P)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;imageLoad&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;imageLoad&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;imageLoad&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;imageLoad&lt;/key&gt;&lt;param&gt;(gimageCube   image, ivec3 P)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;imageLoad&lt;/key&gt;&lt;param&gt;(gbufferImage image, int   P)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;imageLoad&lt;/key&gt;&lt;param&gt;(gimage1DArray   image, ivec2 P)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;imageLoad&lt;/key&gt;&lt;param&gt;(gimage2DArray   image, ivec3 P)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;imageLoad&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;imageLoad&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;imageLoad&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample)&lt;/param&gt;'/>
         <Keyword style_name='function' name='imageSamples'
                  hint='return the number of samples of an image
-                      \>  int imageSamples(gimage2DMS image)
-                      \>  int imageSamples(gimage2DMSArray image)'/>
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageSamples&lt;/key&gt;&lt;param&gt;(gimage2DMS image)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageSamples&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image)&lt;/param&gt;'/>
         <Keyword style_name='function' name='imageSize'
                  hint='retrieve the dimensions of an image
-                      \>  int   imageSize(gimage1D image)
-                      \>  ivec2 imageSize(gimage2D image)
-                      \>  ivec3 imageSize(gimage3D image)
-                      \>  ivec2 imageSize(gimageCube image)
-                      \>  ivec3 imageSize(gimageCubeArray image)
-                      \>  ivec2 imageSize(gimageRect image)
-                      \>  ivec2 imageSize(gimage1DArray image)
-                      \>  ivec3 imageSize(gimage2DArray image)
-                      \>  int   imageSize(gimageBuffer image)
-                      \>  ivec2 imageSize(gimage2DMS image)
-                      \>  ivec3 imageSize(gimage2DMSArray image)'/>
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageSize&lt;/key&gt;&lt;param&gt;(gimage1D image)&lt;/param&gt;
+                      \  &lt;param&gt;ivec2&lt;/param&gt; &lt;key&gt;imageSize&lt;/key&gt;&lt;param&gt;(gimage2D image)&lt;/param&gt;
+                      \  &lt;param&gt;ivec3&lt;/param&gt; &lt;key&gt;imageSize&lt;/key&gt;&lt;param&gt;(gimage3D image)&lt;/param&gt;
+                      \  &lt;param&gt;ivec2&lt;/param&gt; &lt;key&gt;imageSize&lt;/key&gt;&lt;param&gt;(gimageCube image)&lt;/param&gt;
+                      \  &lt;param&gt;ivec3&lt;/param&gt; &lt;key&gt;imageSize&lt;/key&gt;&lt;param&gt;(gimageCubeArray image)&lt;/param&gt;
+                      \  &lt;param&gt;ivec2&lt;/param&gt; &lt;key&gt;imageSize&lt;/key&gt;&lt;param&gt;(gimageRect image)&lt;/param&gt;
+                      \  &lt;param&gt;ivec2&lt;/param&gt; &lt;key&gt;imageSize&lt;/key&gt;&lt;param&gt;(gimage1DArray image)&lt;/param&gt;
+                      \  &lt;param&gt;ivec3&lt;/param&gt; &lt;key&gt;imageSize&lt;/key&gt;&lt;param&gt;(gimage2DArray image)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;imageSize&lt;/key&gt;&lt;param&gt;(gimageBuffer image)&lt;/param&gt;
+                      \  &lt;param&gt;ivec2&lt;/param&gt; &lt;key&gt;imageSize&lt;/key&gt;&lt;param&gt;(gimage2DMS image)&lt;/param&gt;
+                      \  &lt;param&gt;ivec3&lt;/param&gt; &lt;key&gt;imageSize&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image)&lt;/param&gt;'/>
         <Keyword style_name='function' name='imageStore'
                  hint='write a single texel into an image
-                      \>  void imageStore(gimage1D image, int   P, gvec4 data)
-                      \>  void imageStore(gimage2D image, ivec2 P, gvec4 data)
-                      \>  void imageStore(gimage3D image, ivec3 P, gvec4 data)
-                      \>  void imageStore(gimage2DRect image, ivec2 P, gvec4 data)
-                      \>  void imageStore(gimageCube   image, ivec3 P, gvec4 data)
-                      \>  void imageStore(gbufferImage image, int   P, gvec4 data)
-                      \>  void imageStore(gimage1DArray   image, ivec2 P, gvec4 data)
-                      \>  void imageStore(gimage2DArray   image, ivec3 P, gvec4 data)
-                      \>  void imageStore(gimageCubeArray image, ivec3 P, gvec4 data)
-                      \>  void imageStore(gimage2DMS image, ivec2 P, int sample, gvec4 data)
-                      \>  void imageStore(gimage2DMSArray image, ivec3 P, int sample, gvec4 data)'/>
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;imageStore&lt;/key&gt;&lt;param&gt;(gimage1D image, int   P, gvec4 data)&lt;/param&gt;
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;imageStore&lt;/key&gt;&lt;param&gt;(gimage2D image, ivec2 P, gvec4 data)&lt;/param&gt;
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;imageStore&lt;/key&gt;&lt;param&gt;(gimage3D image, ivec3 P, gvec4 data)&lt;/param&gt;
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;imageStore&lt;/key&gt;&lt;param&gt;(gimage2DRect image, ivec2 P, gvec4 data)&lt;/param&gt;
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;imageStore&lt;/key&gt;&lt;param&gt;(gimageCube   image, ivec3 P, gvec4 data)&lt;/param&gt;
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;imageStore&lt;/key&gt;&lt;param&gt;(gbufferImage image, int   P, gvec4 data)&lt;/param&gt;
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;imageStore&lt;/key&gt;&lt;param&gt;(gimage1DArray   image, ivec2 P, gvec4 data)&lt;/param&gt;
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;imageStore&lt;/key&gt;&lt;param&gt;(gimage2DArray   image, ivec3 P, gvec4 data)&lt;/param&gt;
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;imageStore&lt;/key&gt;&lt;param&gt;(gimageCubeArray image, ivec3 P, gvec4 data)&lt;/param&gt;
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;imageStore&lt;/key&gt;&lt;param&gt;(gimage2DMS image, ivec2 P, int sample, gvec4 data)&lt;/param&gt;
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;imageStore&lt;/key&gt;&lt;param&gt;(gimage2DMSArray image, ivec3 P, int sample, gvec4 data)&lt;/param&gt;'/>
         <Keyword style_name='function' name='imulExtended'
                  hint='perform a 32- by 32-bit multiply to produce a 64-bit result
-                      \>  void imulExtended(genIType x, genIType y, out genIType msb, out genIType lsb)'/>
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;imulExtended&lt;/key&gt;&lt;param&gt;(genIType x, genIType y, out genIType msb, out genIType lsb)&lt;/param&gt;'/>
         <Keyword style_name='function' name='intBitsToFloat'
                  hint='produce a floating point using an
                       \encoding supplied as an integer
-                      \>  genType intBitsToFloat(genIType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;intBitsToFloat&lt;/key&gt;&lt;param&gt;(genIType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='interpolateAtCentroid'
                  hint='sample a varying at the centroid of a pixel
-                      \>  float interpolateAtCentroid(float interpolant)
-                      \>  vec2  interpolateAtCentroid(vec2  interpolant)
-                      \>  vec3  interpolateAtCentroid(vec3  interpolant)
-                      \>  vec4  interpolateAtCentroid(vec4  interpolant)'/>
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;interpolateAtCentroid&lt;/key&gt;&lt;param&gt;(float interpolant)&lt;/param&gt;
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;interpolateAtCentroid&lt;/key&gt;&lt;param&gt;(vec2  interpolant)&lt;/param&gt;
+                      \  &lt;param&gt;vec3&lt;/param&gt; &lt;key&gt;interpolateAtCentroid&lt;/key&gt;&lt;param&gt;(vec3  interpolant)&lt;/param&gt;
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;interpolateAtCentroid&lt;/key&gt;&lt;param&gt;(vec4  interpolant)&lt;/param&gt;'/>
         <Keyword style_name='function' name='interpolateAtOffset'
                  hint='sample a varying at specified offset from the center of a pixel
-                      \>  float interpolateAtOffset(float interpolant, vec2 offset)
-                      \>  vec2  interpolateAtOffset(vec2  interpolant, vec2 offset)
-                      \>  vec3  interpolateAtOffset(vec3  interpolant, vec2 offset)
-                      \>  vec4  interpolateAtOffset(vec4  interpolant, vec2 offset)'/>
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;interpolateAtOffset&lt;/key&gt;&lt;param&gt;(float interpolant, vec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;interpolateAtOffset&lt;/key&gt;&lt;param&gt;(vec2  interpolant, vec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;vec3&lt;/param&gt; &lt;key&gt;interpolateAtOffset&lt;/key&gt;&lt;param&gt;(vec3  interpolant, vec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;interpolateAtOffset&lt;/key&gt;&lt;param&gt;(vec4  interpolant, vec2 offset)&lt;/param&gt;'/>
         <Keyword style_name='function' name='interpolateAtSample'
                  hint='sample a varying at the location of a specified sample
-                      \>  float interpolateAtSample(float interpolant, int sample)
-                      \>  vec2  interpolateAtSample(vec2  interpolant, int sample)
-                      \>  vec3  interpolateAtSample(vec3  interpolant, int sample)
-                      \>  vec4  interpolateAtSample(vec4  interpolant, int sample)'/>
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;interpolateAtSample&lt;/key&gt;&lt;param&gt;(float interpolant, int sample)&lt;/param&gt;
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;interpolateAtSample&lt;/key&gt;&lt;param&gt;(vec2  interpolant, int sample)&lt;/param&gt;
+                      \  &lt;param&gt;vec3&lt;/param&gt; &lt;key&gt;interpolateAtSample&lt;/key&gt;&lt;param&gt;(vec3  interpolant, int sample)&lt;/param&gt;
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;interpolateAtSample&lt;/key&gt;&lt;param&gt;(vec4  interpolant, int sample)&lt;/param&gt;'/>
         <Keyword style_name='function' name='inverse'
                  hint='calculate the inverse of a matrix
-                      \>  mat2  inverse(mat2  m)
-                      \>  mat3  inverse(mat3  m)
-                      \>  mat4  inverse(mat4  m)
-                      \>  dmat2 inverse(dmat2 m)
-                      \>  dmat3 inverse(dmat3 m)
-                      \>  dmat4 inverse(dmat4 m)'/>
+                      \  &lt;param&gt;mat2&lt;/param&gt; &lt;key&gt;inverse&lt;/key&gt;&lt;param&gt;(mat2  m)&lt;/param&gt;
+                      \  &lt;param&gt;mat3&lt;/param&gt; &lt;key&gt;inverse&lt;/key&gt;&lt;param&gt;(mat3  m)&lt;/param&gt;
+                      \  &lt;param&gt;mat4&lt;/param&gt; &lt;key&gt;inverse&lt;/key&gt;&lt;param&gt;(mat4  m)&lt;/param&gt;
+                      \  &lt;param&gt;dmat2&lt;/param&gt; &lt;key&gt;inverse&lt;/key&gt;&lt;param&gt;(dmat2 m)&lt;/param&gt;
+                      \  &lt;param&gt;dmat3&lt;/param&gt; &lt;key&gt;inverse&lt;/key&gt;&lt;param&gt;(dmat3 m)&lt;/param&gt;
+                      \  &lt;param&gt;dmat4&lt;/param&gt; &lt;key&gt;inverse&lt;/key&gt;&lt;param&gt;(dmat4 m)&lt;/param&gt;'/>
         <Keyword style_name='function' name='inversesqrt'
                  hint='return the inverse of the square root of the parameter
-                      \>  genType  inversesqrt(genType  x)
-                      \>  genDType inversesqrt(genDType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;inversesqrt&lt;/key&gt;&lt;param&gt;(genType  x)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;inversesqrt&lt;/key&gt;&lt;param&gt;(genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='isinf' 
                  hint='determine whether the parameter is positive or negative infinity
-                      \>  genBType isinf(genType x)
-                      \>  genBType isinf(genDType x)'/>
+                      \  &lt;param&gt;genBType&lt;/param&gt; &lt;key&gt;isinf&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;
+                      \  &lt;param&gt;genBType&lt;/param&gt; &lt;key&gt;isinf&lt;/key&gt;&lt;param&gt;(genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='isnan'
                  hint='determine whether the parameter is a number
-                      \>  genBType isnan(genType x)
-                      \>  genBType isnan(genDType x)'/>
+                      \  &lt;param&gt;genBType&lt;/param&gt; &lt;key&gt;isnan&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;
+                      \  &lt;param&gt;genBType&lt;/param&gt; &lt;key&gt;isnan&lt;/key&gt;&lt;param&gt;(genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='ldexp'
                  hint='assemble a floating point number from a value and exponent
-                      \>  genType  ldexp(genType  x, genIType exp)
-                      \>  genDType ldexp(genDType x, genIType exp)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;ldexp&lt;/key&gt;&lt;param&gt;(genType  x, genIType exp)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;ldexp&lt;/key&gt;&lt;param&gt;(genDType x, genIType exp)&lt;/param&gt;'/>
         <Keyword style_name='function' name='length'
                  hint='calculate the length of a vector
-                      \>  float  length(genType  x)
-                      \>  double length(genDType x)'/>
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;length&lt;/key&gt;&lt;param&gt;(genType  x)&lt;/param&gt;
+                      \  &lt;param&gt;double&lt;/param&gt; &lt;key&gt;length&lt;/key&gt;&lt;param&gt;(genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='lessThan'
                  hint='perform a component-wise less-than comparison of two vectors
-                      \>  bvec lessThan(vec  x, vec  y)
-                      \>  bvec lessThan(ivec x, ivec y)
-                      \>  bvec lessThan(uvec x, uvec y)'/>
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;lessThan&lt;/key&gt;&lt;param&gt;(vec  x, vec  y)&lt;/param&gt;
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;lessThan&lt;/key&gt;&lt;param&gt;(ivec x, ivec y)&lt;/param&gt;
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;lessThan&lt;/key&gt;&lt;param&gt;(uvec x, uvec y)&lt;/param&gt;'/>
         <Keyword style_name='function' name='lessThanEqual'
                  hint='perform a component-wise less-than-or-equal comparison of two vectors
-                      \>  bvec lessThanEqual(vec  x, vec  y)
-                      \>  bvec lessThanEqual(ivec x, ivec y)
-                      \>  bvec lessThanEqual(uvec x, uvec y)'/>
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;lessThanEqual&lt;/key&gt;&lt;param&gt;(vec  x, vec  y)&lt;/param&gt;
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;lessThanEqual&lt;/key&gt;&lt;param&gt;(ivec x, ivec y)&lt;/param&gt;
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;lessThanEqual&lt;/key&gt;&lt;param&gt;(uvec x, uvec y)&lt;/param&gt;'/>
         <Keyword style_name='function' name='log' 
                  hint='return the natural logarithm of the parameter
-                      \>  genType log(genType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;log&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='log2' 
                  hint='return the base 2 logarithm of the parameter
-                      \>  genType log2(genType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;log2&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='matrixCompMult' 
                  hint='perform a component-wise multiplication of two matrices
-                      \>  mat  matrixCompMult(mat  x, mat  y)
-                      \>  dmat matrixCompMult(dmat x, dmat y)'/>
+                      \  &lt;param&gt;mat&lt;/param&gt; &lt;key&gt;matrixCompMult&lt;/key&gt;&lt;param&gt;(mat  x, mat  y)&lt;/param&gt;
+                      \  &lt;param&gt;dmat&lt;/param&gt; &lt;key&gt;matrixCompMult&lt;/key&gt;&lt;param&gt;(dmat x, dmat y)&lt;/param&gt;'/>
         <Keyword style_name='function' name='max'
                  hint='return the greater of two values
-                      \>  genType  max(genType  x, genType  y)
-                      \>  genType  max(genType  x, float    y)
-                      \>  genDType max(genDType x, genDType y)
-                      \>  genDType max(genDType x, double   y)
-                      \>  genIType max(genIType x, genIType y)
-                      \>  genIType max(genIType x, int      y)
-                      \>  genUType max(genUType x, genUType y)
-                      \>  genUType max(genUType x, uint     y)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;max&lt;/key&gt;&lt;param&gt;(genType  x, genType  y)&lt;/param&gt;
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;max&lt;/key&gt;&lt;param&gt;(genType  x, float    y)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;max&lt;/key&gt;&lt;param&gt;(genDType x, genDType y)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;max&lt;/key&gt;&lt;param&gt;(genDType x, double   y)&lt;/param&gt;
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;max&lt;/key&gt;&lt;param&gt;(genIType x, genIType y)&lt;/param&gt;
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;max&lt;/key&gt;&lt;param&gt;(genIType x, int      y)&lt;/param&gt;
+                      \  &lt;param&gt;genUType&lt;/param&gt; &lt;key&gt;max&lt;/key&gt;&lt;param&gt;(genUType x, genUType y)&lt;/param&gt;
+                      \  &lt;param&gt;genUType&lt;/param&gt; &lt;key&gt;max&lt;/key&gt;&lt;param&gt;(genUType x, uint     y)&lt;/param&gt;'/>
         <Keyword style_name='function' name='memoryBarrier' 
                  hint='controls the ordering of memory transactions
                       \issued by a single shader invocation
-                      \>  uint memoryBarrier(void)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;memoryBarrier&lt;/key&gt;&lt;param&gt;(void)&lt;/param&gt;'/>
         <Keyword style_name='function' name='memoryBarrierAtomicCounter' 
                  hint='controls the ordering of operations on atomic
                       \counters issued by a single shader invocation
-                      \>  void memoryBarrierAtomicCounter(void)'/>
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;memoryBarrierAtomicCounter&lt;/key&gt;&lt;param&gt;(void)&lt;/param&gt;'/>
         <Keyword style_name='function' name='memoryBarrierBuffer' 
                  hint='controls the ordering of operations on buffer
                       \variables issued by a single shader invocation
-                      \>  void memoryBarrierBuffer(void)'/>
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;memoryBarrierBuffer&lt;/key&gt;&lt;param&gt;(void)&lt;/param&gt;'/>
         <Keyword style_name='function' name='memoryBarrierImage' 
                  hint='controls the ordering of operations on image
                       \variables issued by a single shader invocation
-                      \>  void memoryBarrierImage(void)'/>
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;memoryBarrierImage&lt;/key&gt;&lt;param&gt;(void)&lt;/param&gt;'/>
         <Keyword style_name='function' name='memoryBarrierShared' 
                  hint='controls the ordering of operations on shared
                       \variables issued by a single shader invocation
-                      \>  void memoryBarrierShared(void)'/>
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;memoryBarrierShared&lt;/key&gt;&lt;param&gt;(void)&lt;/param&gt;'/>
         <Keyword style_name='function' name='min' 
                  hint='return the lesser of two values
-                      \>  genType  min(genType  x, genType  y)
-                      \>  genType  min(genType  x, float    y)
-                      \>  genDType min(genDType x, genDType y)
-                      \>  genDType min(genDType x, double   y)
-                      \>  genIType min(genIType x, genIType y)
-                      \>  genIType min(genIType x, int      y)
-                      \>  genUType min(genUType x, genUType y)
-                      \>  genUType min(genUType x, uint     y)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;min&lt;/key&gt;&lt;param&gt;(genType  x, genType  y)&lt;/param&gt;
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;min&lt;/key&gt;&lt;param&gt;(genType  x, float    y)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;min&lt;/key&gt;&lt;param&gt;(genDType x, genDType y)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;min&lt;/key&gt;&lt;param&gt;(genDType x, double   y)&lt;/param&gt;
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;min&lt;/key&gt;&lt;param&gt;(genIType x, genIType y)&lt;/param&gt;
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;min&lt;/key&gt;&lt;param&gt;(genIType x, int      y)&lt;/param&gt;
+                      \  &lt;param&gt;genUType&lt;/param&gt; &lt;key&gt;min&lt;/key&gt;&lt;param&gt;(genUType x, genUType y)&lt;/param&gt;
+                      \  &lt;param&gt;genUType&lt;/param&gt; &lt;key&gt;min&lt;/key&gt;&lt;param&gt;(genUType x, uint     y)&lt;/param&gt;'/>
         <Keyword style_name='function' name='mix' 
                  hint='linearly interpolate between two values
-                      \>  genType  mix(genType  x, genType  y, genType  a)
-                      \>  genType  mix(genType  x, genType  y, float    a)
-                      \>  genDType mix(genDType x, genDType y, genDType a)
-                      \>  genDType mix(genDType x, genDType y, double   a)
-                      \>  genType  mix(genType  x, genType  y, genBType a)
-                      \>  genDType mix(genDType x, genDType y, genBType a)
-                      \>  genIType mix(genIType x, genIType y, genBType a)
-                      \>  genUType mix(genUType x, genUType y, genBType a)
-                      \>  genBType mix(genBType x, genBType y, genBType a)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;mix&lt;/key&gt;&lt;param&gt;(genType  x, genType  y, genType  a)&lt;/param&gt;
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;mix&lt;/key&gt;&lt;param&gt;(genType  x, genType  y, float    a)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;mix&lt;/key&gt;&lt;param&gt;(genDType x, genDType y, genDType a)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;mix&lt;/key&gt;&lt;param&gt;(genDType x, genDType y, double   a)&lt;/param&gt;
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;mix&lt;/key&gt;&lt;param&gt;(genType  x, genType  y, genBType a)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;mix&lt;/key&gt;&lt;param&gt;(genDType x, genDType y, genBType a)&lt;/param&gt;
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;mix&lt;/key&gt;&lt;param&gt;(genIType x, genIType y, genBType a)&lt;/param&gt;
+                      \  &lt;param&gt;genUType&lt;/param&gt; &lt;key&gt;mix&lt;/key&gt;&lt;param&gt;(genUType x, genUType y, genBType a)&lt;/param&gt;
+                      \  &lt;param&gt;genBType&lt;/param&gt; &lt;key&gt;mix&lt;/key&gt;&lt;param&gt;(genBType x, genBType y, genBType a)&lt;/param&gt;'/>
         <Keyword style_name='function' name='mod'
                  hint='compute value of one parameter modulo another
-                      \>  genType  mod(genType  x, float    y)
-                      \>  genType  mod(genType  x, genType  y)
-                      \>  genDType mod(genDType x, double   y)
-                      \>  genDType mod(genDType x, genDType y)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;mod&lt;/key&gt;&lt;param&gt;(genType  x, float    y)&lt;/param&gt;
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;mod&lt;/key&gt;&lt;param&gt;(genType  x, genType  y)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;mod&lt;/key&gt;&lt;param&gt;(genDType x, double   y)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;mod&lt;/key&gt;&lt;param&gt;(genDType x, genDType y)&lt;/param&gt;'/>
         <Keyword style_name='function' name='modf'
                  hint='separate a value into its integer and fractional components
-                      \>  genType  modf(genType  x, out genType  i)
-                      \>  genDType modf(genDType x, out genDType i)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;modf&lt;/key&gt;&lt;param&gt;(genType  x, out genType  i)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;modf&lt;/key&gt;&lt;param&gt;(genDType x, out genDType i)&lt;/param&gt;'/>
         <Keyword style_name='function' name='noise1' 
                  hint='generate values with a pseudo-random noise function
-                      \>  float noise1(genType x)'/>
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;noise1&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='noise2'
                  hint='generate values with a pseudo-random noise function
-                      \>  vec2 noise2(genType x)'/>
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;noise2&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='noise3'
                  hint='generate values with a pseudo-random noise function
-                      \>  vec3 noise3(genType x)'/>
+                      \  &lt;param&gt;vec3 &lt;/param&gt; &lt;key&gt;noise3&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='noise4'
                  hint='generate values with a pseudo-random noise function
-                      \>  vec4 noise4(genType x)'/>
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;noise4&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='normalize' 
                  hint='calculate the normalize product of two vectors
-                      \>  genType  normalize(genType  v)
-                      \>  genDType normalize(genDType v)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;normalize&lt;/key&gt;&lt;param&gt;(genType  v)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;normalize&lt;/key&gt;&lt;param&gt;(genDType v)&lt;/param&gt;'/>
         <Keyword style_name='function' name='not' 
                  hint='logically invert a boolean vector
-                      \>  bvec not(bvec x)'/>
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;not(bvec x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='notEqual' 
                  hint='perform a component-wise not-equal-to comparison of two vectors
-                      \>   bvec notEqual(vec x, vec y)
-                      \>   bvec notEqual(ivec x, ivec y)
-                      \>   bvec notEqual(uvec x, uvec y)'/>
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;notEqual&lt;/key&gt;&lt;param&gt;(vec x, vec y)&lt;/param&gt;
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;notEqual&lt;/key&gt;&lt;param&gt;(ivec x, ivec y)&lt;/param&gt;
+                      \  &lt;param&gt;bvec&lt;/param&gt; &lt;key&gt;notEqual&lt;/key&gt;&lt;param&gt;(uvec x, uvec y)&lt;/param&gt;'/>
         <Keyword style_name='function' name='outerProduct' 
                  hint='calculate the outer product of a pair of vectors
-                      \>  mat2    outerProduct(vec2  c, vec2  r)
-                      \>  mat3    outerProduct(vec3  c, vec3  r)
-                      \>  mat4    outerProduct(vec4  c, vec4  r)
-                      \>  mat2x3  outerProduct(vec3  c, vec2  r)
-                      \>  mat3x2  outerProduct(vec2  c, vec3  r)
-                      \>  mat2x4  outerProduct(vec4  c, vec2  r)
-                      \>  mat4x2  outerProduct(vec2  c, vec4  r)
-                      \>  mat3x4  outerProduct(vec4  c, vec3  r)
-                      \>  mat4x3  outerProduct(vec3  c, vec4  r)
-                      \>  dmat2   outerProduct(dvec2 c, dvec2 r)
-                      \>  dmat3   outerProduct(dvec3 c, dvec3 r)
-                      \>  dmat4   outerProduct(dvec4 c, dvec4 r)
-                      \>  dmat2x3 outerProduct(dvec3 c, dvec2 r)
-                      \>  dmat3x2 outerProduct(dvec2 c, dvec3 r)
-                      \>  dmat2x4 outerProduct(dvec4 c, dvec2 r)
-                      \>  dmat4x2 outerProduct(dvec2 c, dvec4 r)
-                      \>  dmat3x4 outerProduct(dvec4 c, dvec3 r)
-                      \>  dmat4x3 outerProduct(dvec3 c, dvec4 r)'/>
+                      \  &lt;param&gt;mat2&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(vec2  c, vec2  r)&lt;/param&gt;
+                      \  &lt;param&gt;mat3&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(vec3  c, vec3  r)&lt;/param&gt;
+                      \  &lt;param&gt;mat4&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(vec4  c, vec4  r)&lt;/param&gt;
+                      \  &lt;param&gt;mat2x3&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(vec3  c, vec2  r)&lt;/param&gt;
+                      \  &lt;param&gt;mat3x2&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(vec2  c, vec3  r)&lt;/param&gt;
+                      \  &lt;param&gt;mat2x4&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(vec4  c, vec2  r)&lt;/param&gt;
+                      \  &lt;param&gt;mat4x2&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(vec2  c, vec4  r)&lt;/param&gt;
+                      \  &lt;param&gt;mat3x4&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(vec4  c, vec3  r)&lt;/param&gt;
+                      \  &lt;param&gt;mat4x3&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(vec3  c, vec4  r)&lt;/param&gt;
+                      \  &lt;param&gt;dmat2&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(dvec2 c, dvec2 r)&lt;/param&gt;
+                      \  &lt;param&gt;dmat3&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(dvec3 c, dvec3 r)&lt;/param&gt;
+                      \  &lt;param&gt;dmat4&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(dvec4 c, dvec4 r)&lt;/param&gt;
+                      \  &lt;param&gt;dmat2x3&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(dvec3 c, dvec2 r)&lt;/param&gt;
+                      \  &lt;param&gt;dmat3x2&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(dvec2 c, dvec3 r)&lt;/param&gt;
+                      \  &lt;param&gt;dmat2x4&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(dvec4 c, dvec2 r)&lt;/param&gt;
+                      \  &lt;param&gt;dmat4x2&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(dvec2 c, dvec4 r)&lt;/param&gt;
+                      \  &lt;param&gt;dmat3x4&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(dvec4 c, dvec3 r)&lt;/param&gt;
+                      \  &lt;param&gt;dmat4x3&lt;/param&gt; &lt;key&gt;outerProduct&lt;/key&gt;&lt;param&gt;(dvec3 c, dvec4 r)&lt;/param&gt;'/>
         <Keyword style_name='function' name='packDouble2x32'
                  hint='create a double-precision value
                       \from a pair of unsigned integers
-                      \>  double packDouble2x32(uvec2 v)'/>
+                      \  &lt;param&gt;double&lt;/param&gt; &lt;key&gt;packDouble2x32&lt;/key&gt;&lt;param&gt;(uvec2 v)&lt;/param&gt;'/>
         <Keyword style_name='function' name='packHalf2x16' 
                  hint='convert two 32-bit floating-point
                       \quantities to16-bit quantities and
                       \pack them into a single 32-bit integer
-                      \>  uint packHalf2x16(vec2 v)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;packHalf2x16&lt;/key&gt;&lt;param&gt;(vec2 v)&lt;/param&gt;'/>
         <Keyword style_name='function' name='packSnorm2x16'
                  hint='pack floating-point values into an unsigned integer
-                      \>  uint packSnorm2x16(vec2 v)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;packSnorm2x16&lt;/key&gt;&lt;param&gt;(vec2 v)&lt;/param&gt;'/>
         <Keyword style_name='function' name='packSnorm4x8'
                  hint='pack floating-point values into an unsigned integer
-                      \>  uint packSnorm4x8(vec4 v)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;packSnorm4x8&lt;/key&gt;&lt;param&gt;(vec4 v)&lt;/param&gt;'/>
         <Keyword style_name='function' name='packUnorm2x16'
                  hint='pack floating-point values into an unsigned integer
-                      \>  uint packUnorm2x16(vec2 v)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;packUnorm2x16&lt;/key&gt;&lt;param&gt;(vec2 v)&lt;/param&gt;'/>
         <Keyword style_name='function' name='packUnorm4x8'
                  hint='pack floating-point values into an unsigned integer
-                      \>  uint packUnorm4x8(vec4 v)'/>
+                      \  &lt;param&gt;uint&lt;/param&gt; &lt;key&gt;packUnorm4x8&lt;/key&gt;&lt;param&gt;(vec4 v)&lt;/param&gt;'/>
         <Keyword style_name='function' name='pow' 
                  hint='return the value of the first parameter raised to the power of the second
-                      \>  genType pow(genType x, genType y)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;pow&lt;/key&gt;&lt;param&gt;(genType x, genType y)&lt;/param&gt;'/>
         <Keyword style_name='function' name='radians'
                  hint='convert a quantity in degrees to radians
-                      \>  genType radians(genType degrees)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;radians&lt;/key&gt;&lt;param&gt;(genType degrees)&lt;/param&gt;'/>
         <Keyword style_name='function' name='reflect' 
                  hint='calculate the reflection direction for an incident vector
-                      \>  genType  reflect(genType  I, genType  N)
-                      \>  genDType reflect(genDType I, genDType N)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;reflect&lt;/key&gt;&lt;param&gt;(genType  I, genType  N)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;reflect&lt;/key&gt;&lt;param&gt;(genDType I, genDType N)&lt;/param&gt;'/>
         <Keyword style_name='function' name='refract'
                  hint='calculate the refraction direction for an incident vector
-                      \>  genType  refract(genType  I, genType  N, float eta)
-                      \>  genDType refract(genDType I, genDType N, float eta)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;refract&lt;/key&gt;&lt;param&gt;(genType  I, genType  N, float eta)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;refract&lt;/key&gt;&lt;param&gt;(genDType I, genDType N, float eta)&lt;/param&gt;'/>
         <Keyword style_name='function' name='round'
                  hint='find the nearest integer less than or equal to the parameter
-                      \>  genType  round(genType  x)
-                      \>  genDType round(genDType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;round&lt;/key&gt;&lt;param&gt;(genType  x)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;round&lt;/key&gt;&lt;param&gt;(genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='roundEven'
                  hint='find the nearest even integer to the parameter
-                      \>  genType  roundEven(genType  x)
-                      \>  genDType roundEven(genDType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;roundEven&lt;/key&gt;&lt;param&gt;(genType  x)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;roundEven&lt;/key&gt;&lt;param&gt;(genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='sign'
                  hint='extract the sign of the parameter
-                      \>  genType  sign(genType  x)
-                      \>  genIType sign(genIType x)
-                      \>  genDType sign(genDType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;sign&lt;/key&gt;&lt;param&gt;(genType  x)&lt;/param&gt;
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;sign&lt;/key&gt;&lt;param&gt;(genIType x)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;sign&lt;/key&gt;&lt;param&gt;(genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='sin'
                  hint='return the sine of the parameter
-                      \>  genType  sin(genType  x)
-                      \>  genDType sin(genDType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;sin&lt;/key&gt;&lt;param&gt;(genType  x)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;sin&lt;/key&gt;&lt;param&gt;(genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='sinh'
                  hint='return the hyperbolic sine of the parameter
-                      \>  genType  sinh(genType  x)
-                      \>  genDType sinh(genDType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;sinh&lt;/key&gt;&lt;param&gt;(genType  x)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;sinh&lt;/key&gt;&lt;param&gt;(genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='sqrt'
                  hint='return the square root of the parameter
-                      \>  genType  sqrt(genType  x)
-                      \>  genDType sqrt(genDType x)'/>
+                      \  &lt;param&gt;genType &lt;/param&gt; &lt;key&gt;sqrt&lt;/key&gt;&lt;param&gt;(genType  x)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;sqrt&lt;/key&gt;&lt;param&gt;(genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='step'
                  hint='generate a step function by comparing two values
-                      \>  genType step(genType edge, genType x)
-                      \>  genType step(float edge, genType x)
-                      \>  genDType step(genDType edge, genDType x)
-                      \>  genDType step(double edge, genDType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;step&lt;/key&gt;&lt;param&gt;(genType edge, genType x)&lt;/param&gt;
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;step&lt;/key&gt;&lt;param&gt;(float edge, genType x)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;step&lt;/key&gt;&lt;param&gt;(genDType edge, genDType x)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;step&lt;/key&gt;&lt;param&gt;(double edge, genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='tan'
                  hint='return the tangent of the parameter
-                      \>  genType tan(genType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;tan&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='tanh'
                  hint='return the hyperbolic tangent of the parameter
-                      \>  genType tanh(genType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;tanh&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='texelFetch'
                  hint='perform a lookup of a single texel within a texture
-                      \>  gvec4 texelFetch(gsampler1D sampler, int P, int lod)
-                      \>  gvec4 texelFetch(gsampler2D sampler, ivec2 P, int lod)
-                      \>  gvec4 texelFetch(gsampler3D sampler, ivec3 P, int lod)
-                      \>  gvec4 texelFetch(gsampler2DRect sampler, ivec2 P)
-                      \>  gvec4 texelFetch(gsampler1DArray sampler, ivec2 P, int lod)
-                      \>  gvec4 texelFetch(gsampler2DArray sampler, ivec3 P, int lod)
-                      \>  gvec4 texelFetch(gsamplerBuffer sampler, int P)
-                      \>  gvec4 texelFetch(gsampler2DMS sampler, ivec2 P, sample sample)
-                      \>  gvec4 texelFetch(gsampler2DMSArray sampler, ivec3 P, sample sample)'/>
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, int P, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, ivec2 P, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsampler3D sampler, ivec3 P, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsampler2DRect sampler, ivec2 P)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsampler1DArray sampler, ivec2 P, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsampler2DArray sampler, ivec3 P, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsamplerBuffer sampler, int P)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsampler2DMS sampler, ivec2 P, sample sample)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsampler2DMSArray sampler, ivec3 P, sample sample)&lt;/param&gt;'/>
         <Keyword style_name='function' name='texelFetchOffset'
                  hint='perform a lookup of a single texel within a texture with an offset
-                      \>  gvec4 texelFetchOffset(gsampler1D sampler, int P, int lod, int offset)
-                      \>  gvec4 texelFetchOffset(gsampler2D sampler, ivec2 P, int lod, int offset)
-                      \>  gvec4 texelFetchOffset(gsampler3D sampler, ivec3 P, int lod, int offset)
-                      \>  gvec4 texelFetchOffset(gsampler2DRect  sampler, ivec2 P, int offset)
-                      \>  gvec4 texelFetchOffset(gsampler1DArray sampler, ivec2 P, int lod, int offset)
-                      \>  gvec4 texelFetchOffset(gsampler2DArray sampler, ivec3 P, int lod, int offset)'/>
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetchOffset&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, int P, int lod, int offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetchOffset&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, ivec2 P, int lod, int offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetchOffset&lt;/key&gt;&lt;param&gt;(gsampler3D sampler, ivec3 P, int lod, int offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetchOffset&lt;/key&gt;&lt;param&gt;(gsampler2DRect  sampler, ivec2 P, int offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetchOffset&lt;/key&gt;&lt;param&gt;(gsampler1DArray sampler, ivec2 P, int lod, int offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetchOffset&lt;/key&gt;&lt;param&gt;(gsampler2DArray sampler, ivec3 P, int lod, int offset)&lt;/param&gt;'/>
         <Keyword style_name='function' name='texture'
                  hint='retrieves texels from a texture
-                      \>  gvec4 texture(gsampler1D sampler, float P, [float bias])
-                      \>  gvec4 texture(gsampler2D sampler, vec2 P, [float bias])
-                      \>  gvec4 texture(gsampler3D sampler, vec3 P, [float bias])
-                      \>  gvec4 texture(gsamplerCube sampler, vec3  P, [float bias])
-                      \>  float texture(sampler1DShadow sampler, vec3 P, [float bias])
-                      \>  float texture(sampler2DShadow sampler, vec3 P, [float bias])
-                      \>  float texture(samplerCubeShadow sampler, vec3 P, [float bias])
-                      \>  gvec4 texture(gsampler1DArray sampler, vec2 P, [float bias])
-                      \>  gvec4 texture(gsampler2DArray sampler, vec3 P, [float bias])
-                      \>  gvec4 texture(gsamplerCubeArray sampler, vec4 P, [float bias])
-                      \>  float texture(sampler1DArrayShadow sampler, vec3 P, [float bias])
-                      \>  float texture(gsampler2DArrayShadow sampler, vec4 P, [float bias])
-                      \>  gvec4 texture(gsampler2DRect sampler, vec2 P)
-                      \>  float texture(sampler2DRectShadow sampler, vec3 P)
-                      \>  float texture(gsamplerCubeArrayShadow sampler, vec4 P, float compare)'/>
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texture&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, float P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texture&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec2 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texture&lt;/key&gt;&lt;param&gt;(gsampler3D sampler, vec3 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texture&lt;/key&gt;&lt;param&gt;(gsamplerCube sampler, vec3  P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;texture&lt;/key&gt;&lt;param&gt;(sampler1DShadow sampler, vec3 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;texture&lt;/key&gt;&lt;param&gt;(sampler2DShadow sampler, vec3 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;texture&lt;/key&gt;&lt;param&gt;(samplerCubeShadow sampler, vec3 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texture&lt;/key&gt;&lt;param&gt;(gsampler1DArray sampler, vec2 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texture&lt;/key&gt;&lt;param&gt;(gsampler2DArray sampler, vec3 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texture&lt;/key&gt;&lt;param&gt;(gsamplerCubeArray sampler, vec4 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;texture&lt;/key&gt;&lt;param&gt;(sampler1DArrayShadow sampler, vec3 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;texture&lt;/key&gt;&lt;param&gt;(gsampler2DArrayShadow sampler, vec4 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texture&lt;/key&gt;&lt;param&gt;(gsampler2DRect sampler, vec2 P)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;texture&lt;/key&gt;&lt;param&gt;(sampler2DRectShadow sampler, vec3 P)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;texture&lt;/key&gt;&lt;param&gt;(gsamplerCubeArrayShadow sampler, vec4 P, float compare)&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureGather'
                  hint='gathers four texels from a texture
-                      \>  gvec4 textureGather(gsampler2D sampler, vec2 P, [int comp])
-                      \>  gvec4 textureGather(gsampler2DArray sampler, vec3 P, [int comp])
-                      \>  gvec4 textureGather(gsamplerCube sampler, vec3 P, [int comp])
-                      \>  gvec4 textureGather(gsamplerCubeArray sampler, vec4 P, [int comp])
-                      \>  gvec4 textureGather(gsampler2DRect sampler, vec3 P, [int comp])
-                      \>  vec4  textureGather(gsampler2DShadow  sampler, vec2 P, float refZ)
-                      \>  vec4  textureGather(gsampler2DArrayShadow sampler, vec3 P, float refZ)
-                      \>  vec4  textureGather(gsamplerCubeShadow sampler, vec3 P, float refZ)
-                      \>  vec4  textureGather(gsamplerCubeArrayShadow sampler, vec4 P, float refZ)
-                      \>  vec4  textureGather(gsampler2DRectShadow sampler, vec3 P, float refZ)'/>
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGather&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec2 P, [int comp])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGather&lt;/key&gt;&lt;param&gt;(gsampler2DArray sampler, vec3 P, [int comp])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGather&lt;/key&gt;&lt;param&gt;(gsamplerCube sampler, vec3 P, [int comp])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGather&lt;/key&gt;&lt;param&gt;(gsamplerCubeArray sampler, vec4 P, [int comp])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGather&lt;/key&gt;&lt;param&gt;(gsampler2DRect sampler, vec3 P, [int comp])&lt;/param&gt;
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;textureGather&lt;/key&gt;&lt;param&gt;(gsampler2DShadow  sampler, vec2 P, float refZ)&lt;/param&gt;
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;textureGather&lt;/key&gt;&lt;param&gt;(gsampler2DArrayShadow sampler, vec3 P, float refZ)&lt;/param&gt;
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;textureGather&lt;/key&gt;&lt;param&gt;(gsamplerCubeShadow sampler, vec3 P, float refZ)&lt;/param&gt;
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;textureGather&lt;/key&gt;&lt;param&gt;(gsamplerCubeArrayShadow sampler, vec4 P, float refZ)&lt;/param&gt;
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;textureGather&lt;/key&gt;&lt;param&gt;(gsampler2DRectShadow sampler, vec3 P, float refZ)&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureGatherOffset'
                  hint='gathers four texels from a texture with offset
-                      \>  gvec4 textureGatherOffset(gsampler2D sampler, vec2 P, ivec2 offset, [int comp])
-                      \>  gvec4 textureGatherOffset(gsampler2DArray sampler, vec3 P, ivec2 offset, [int comp])
-                      \>  gvec4 textureGatherOffset(gsampler2DRect sampler, vec3 P, ivec2 offset, [int comp])
-                      \>  vec4  textureGatherOffset(gsampler2DShadow sampler, vec2 P, float refZ, ivec2 offset)
-                      \>  vec4  textureGatherOffset(gsampler2DArrayShadow sampler, vec3 P, float refZ, ivec2 offset)
-                      \>  vec4  textureGatherOffset(gsampler2DRectShadow  sampler, vec3 P, float refZ, ivec2 offset)'/>
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGatherOffset&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec2 P, ivec2 offset, [int comp])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGatherOffset&lt;/key&gt;&lt;param&gt;(gsampler2DArray sampler, vec3 P, ivec2 offset, [int comp])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGatherOffset&lt;/key&gt;&lt;param&gt;(gsampler2DRect sampler, vec3 P, ivec2 offset, [int comp])&lt;/param&gt;
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;textureGatherOffset&lt;/key&gt;&lt;param&gt;(gsampler2DShadow sampler, vec2 P, float refZ, ivec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;textureGatherOffset&lt;/key&gt;&lt;param&gt;(gsampler2DArrayShadow sampler, vec3 P, float refZ, ivec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;textureGatherOffset&lt;/key&gt;&lt;param&gt;(gsampler2DRectShadow  sampler, vec3 P, float refZ, ivec2 offset)&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureGatherOffsets'
                  hint='gathers four texels from a texture with an array of offsets
-                      \>  gvec4 textureGatherOffsets(gsampler2D sampler, vec2 P, ivec2 offsets[3], [int comp])
-                      \>  gvec4 textureGatherOffsets(gsampler2DArray sampler, vec3 P, ivec2 offsets[3], [int comp])
-                      \>  gvec4 textureGatherOffsets(gsampler2DRect sampler, vec3 P, ivec2 offsets[3], [int comp])
-                      \>  vec4  textureGatherOffsets(gsampler2DShadow sampler, vec2 P, float refZ, ivec2 offsets[3])
-                      \>  vec4  textureGatherOffsets(gsampler2DArrayShadow sampler, vec3 P, float refZ, ivec2 offsets[3])
-                      \>  vec4  textureGatherOffsets(gsampler2DRectShadow  sampler, vec3 P, float refZ, ivec2 offsets[3])'/>
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGatherOffsets&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec2 P, ivec2 offsets[3], [int comp])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGatherOffsets&lt;/key&gt;&lt;param&gt;(gsampler2DArray sampler, vec3 P, ivec2 offsets[3], [int comp])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGatherOffsets&lt;/key&gt;&lt;param&gt;(gsampler2DRect sampler, vec3 P, ivec2 offsets[3], [int comp])&lt;/param&gt;
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;textureGatherOffsets&lt;/key&gt;&lt;param&gt;(gsampler2DShadow sampler, vec2 P, float refZ, ivec2 offsets[3])&lt;/param&gt;
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;textureGatherOffsets&lt;/key&gt;&lt;param&gt;(gsampler2DArrayShadow sampler, vec3 P, float refZ, ivec2 offsets[3])&lt;/param&gt;
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;textureGatherOffsets&lt;/key&gt;&lt;param&gt;(gsampler2DRectShadow  sampler, vec3 P, float refZ, ivec2 offsets[3])&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureGrad'
                  hint='perform a texture lookup with explicit gradients
-                      \>  gvec4 textureGrad(gsampler1D sampler, float P, float dPdx, float dPdy)
-                      \>  gvec4 textureGrad(gsampler2D sampler, vec2 P, vec2 dPdx, vec2 dPdy)
-                      \>  gvec4 textureGrad(gsampler3D sampler, vec3 P, vec3 dPdx, vec3 dPdy)
-                      \>  gvec4 textureGrad(gsamplerCube sampler, vec3 P, vec3 dPdx, vec3 dPdy)
-                      \>  gvec4 textureGrad(gsampler2DRect sampler, vec2 P, vec2 dPdx, vec2 dPdy)
-                      \>  float textureGrad(gsampler2DRectShadow sampler, vec2 P, vec2  dPdx, vec2 dPdy)
-                      \>  float textureGrad(sampler1DShadow sampler, vec3 P, float dPdx, float dPdy)
-                      \>  float textureGrad(sampler2DShadow sampler, vec3 P, vec2 dPdx, vec2 dPdy)
-                      \>  gvec4 textureGrad(gsampler1DArray sampler, vec2 P, float dPdx, float dPdy)
-                      \>  gvec4 textureGrad(gsampler2DArray sampler, vec3 P, vec2 dPdx, vec2 dPdy)
-                      \>  float textureGrad(sampler1DArrayShadow sampler, vec3 P, float dPdx, float dPdy)
-                      \>  gvec4 textureGrad(gsamplerCubeArray sampler, vec4  P, vec3 dPdx, vec3 dPdy)'/>
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGrad&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, float P, float dPdx, float dPdy)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGrad&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec2 P, vec2 dPdx, vec2 dPdy)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGrad&lt;/key&gt;&lt;param&gt;(gsampler3D sampler, vec3 P, vec3 dPdx, vec3 dPdy)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGrad&lt;/key&gt;&lt;param&gt;(gsamplerCube sampler, vec3 P, vec3 dPdx, vec3 dPdy)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGrad&lt;/key&gt;&lt;param&gt;(gsampler2DRect sampler, vec2 P, vec2 dPdx, vec2 dPdy)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureGrad&lt;/key&gt;&lt;param&gt;(gsampler2DRectShadow sampler, vec2 P, vec2  dPdx, vec2 dPdy)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureGrad&lt;/key&gt;&lt;param&gt;(sampler1DShadow sampler, vec3 P, float dPdx, float dPdy)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureGrad&lt;/key&gt;&lt;param&gt;(sampler2DShadow sampler, vec3 P, vec2 dPdx, vec2 dPdy)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGrad&lt;/key&gt;&lt;param&gt;(gsampler1DArray sampler, vec2 P, float dPdx, float dPdy)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGrad&lt;/key&gt;&lt;param&gt;(gsampler2DArray sampler, vec3 P, vec2 dPdx, vec2 dPdy)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureGrad&lt;/key&gt;&lt;param&gt;(sampler1DArrayShadow sampler, vec3 P, float dPdx, float dPdy)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureGrad&lt;/key&gt;&lt;param&gt;(gsamplerCubeArray sampler, vec4  P, vec3 dPdx, vec3 dPdy)&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureLod'
                  hint='perform a texture lookup with explicit level-of-detail
-                      \>  gvec4 textureLod(gsampler1D sampler, float P, float lod)
-                      \>  gvec4 textureLod(gsampler2D sampler, vec2 P, float lod)
-                      \>  gvec4 textureLod(gsampler3D sampler, vec3 P, float lod)
-                      \>  gvec4 textureLod(gsamplerCube sampler, vec3 P, float lod)
-                      \>  float textureLod(sampler1DShadow sampler, vec3 P, float lod)
-                      \>  float textureLod(sampler2DShadow sampler, vec4 P, float lod)
-                      \>  gvec4 textureLod(gsampler1DArray sampler, vec2 P, float lod)
-                      \>  gvec4 textureLod(gsampler2DArray sampler, vec3 P, float lod)
-                      \>  float textureLod(sampler1DArrayShadow sampler, vec3 P, float lod)
-                      \>  gvec4 textureLod(gsamplerCubeArray sampler, vec4 P, float lod)'/>
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureLod&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, float P, float lod)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureLod&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec2 P, float lod)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureLod&lt;/key&gt;&lt;param&gt;(gsampler3D sampler, vec3 P, float lod)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureLod&lt;/key&gt;&lt;param&gt;(gsamplerCube sampler, vec3 P, float lod)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureLod&lt;/key&gt;&lt;param&gt;(sampler1DShadow sampler, vec3 P, float lod)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureLod&lt;/key&gt;&lt;param&gt;(sampler2DShadow sampler, vec4 P, float lod)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureLod&lt;/key&gt;&lt;param&gt;(gsampler1DArray sampler, vec2 P, float lod)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureLod&lt;/key&gt;&lt;param&gt;(gsampler2DArray sampler, vec3 P, float lod)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureLod&lt;/key&gt;&lt;param&gt;(sampler1DArrayShadow sampler, vec3 P, float lod)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureLod&lt;/key&gt;&lt;param&gt;(gsamplerCubeArray sampler, vec4 P, float lod)&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureOffset'
                  hint='perform a texture lookup with offset
-                      \>  gvec4 textureOffset(gsampler1D sampler, float P, int offset, [float bias])
-                      \>  gvec4 textureOffset(gsampler2D sampler, vec2 P, ivec2 offset, [float bias])
-                      \>  gvec4 textureOffset(gsampler3D sampler, vec3 P, ivec3 offset, [float bias])
-                      \>  gvec4 textureOffset(gsampler2DRect sampler, vec2 P, ivec2 offset)
-                      \>  float textureOffset(sampler2DRectShadow  sampler, vec3  P, ivec2 offset)
-                      \>  float textureOffset(sampler1DShadow sampler, vec3 P, int offset, [float bias])
-                      \>  float textureOffset(sampler2DShadow sampler, vec4 P, ivec2 offset, [float bias])
-                      \>  gvec4 textureOffset(gsampler1DArray sampler, vec2 P, int offset, [float bias])
-                      \>  gvec4 textureOffset(gsampler2DArray sampler, vec3 P, ivec2 offset, [float bias])
-                      \>  float textureOffset(sampler1DArrayShadow sampler, vec3 P, int offset)
-                      \>  float textureOffset(sampler2DArrayShadow sampler, vec4 P, vec2 offset)'/>
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureOffset&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, float P, int offset, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureOffset&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec2 P, ivec2 offset, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureOffset&lt;/key&gt;&lt;param&gt;(gsampler3D sampler, vec3 P, ivec3 offset, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureOffset&lt;/key&gt;&lt;param&gt;(gsampler2DRect sampler, vec2 P, ivec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureOffset&lt;/key&gt;&lt;param&gt;(sampler2DRectShadow  sampler, vec3  P, ivec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureOffset&lt;/key&gt;&lt;param&gt;(sampler1DShadow sampler, vec3 P, int offset, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureOffset&lt;/key&gt;&lt;param&gt;(sampler2DShadow sampler, vec4 P, ivec2 offset, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureOffset&lt;/key&gt;&lt;param&gt;(gsampler1DArray sampler, vec2 P, int offset, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureOffset&lt;/key&gt;&lt;param&gt;(gsampler2DArray sampler, vec3 P, ivec2 offset, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureOffset&lt;/key&gt;&lt;param&gt;(sampler1DArrayShadow sampler, vec3 P, int offset)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureOffset&lt;/key&gt;&lt;param&gt;(sampler2DArrayShadow sampler, vec4 P, vec2 offset)&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureProj'
                  hint='perform a texture lookup with projection
-                      \>  vec4  textureProj(gsampler1D sampler, vec2 P, [float bias])
-                      \>  gvec4 textureProj(gsampler1D sampler, vec4 P, [float bias])
-                      \>  gvec4 textureProj(gsampler2D sampler, vec3 P, [float bias])
-                      \>  gvec4 textureProj(gsampler2D sampler, vec4 P, [float bias])
-                      \>  gvec4 textureProj(gsampler3D sampler, vec4 P, [float bias])
-                      \>  float textureProj(sampler1DShadow sampler, vec4 P, [float bias])
-                      \>  float textureProj(sampler2DShadow sampler, vec4 P, [float bias])
-                      \>  gvec4 textureProj(gsampler2DRect sampler, vec3 P)
-                      \>  gvec4 textureProj(gsampler2DRect sampler, vec4 P)
-                      \>  float textureProj(gsampler2DRectShadow sampler, vec4 P)'/>
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;textureProj&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, vec2 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProj&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, vec4 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProj&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec3 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProj&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec4 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProj&lt;/key&gt;&lt;param&gt;(gsampler3D sampler, vec4 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProj&lt;/key&gt;&lt;param&gt;(sampler1DShadow sampler, vec4 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProj&lt;/key&gt;&lt;param&gt;(sampler2DShadow sampler, vec4 P, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProj&lt;/key&gt;&lt;param&gt;(gsampler2DRect sampler, vec3 P)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProj&lt;/key&gt;&lt;param&gt;(gsampler2DRect sampler, vec4 P)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProj&lt;/key&gt;&lt;param&gt;(gsampler2DRectShadow sampler, vec4 P)&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureProjGrad'
                  hint='perform a texture lookup with projection and explicit gradients
-                      \>  gvec4 textureProjGrad(gsampler1D sampler, vec2 P, float pDx, float pDy)
-                      \>  gvec4 textureProjGrad(gsampler1D sampler, vec4 P, float pDx, float pDy)
-                      \>  gvec4 textureProjGrad(gsampler2D sampler, vec3 P, vec2 pDx, vec2 pDy)
-                      \>  gvec4 textureProjGrad(gsampler2D sampler, vec4 P, vec2 pDx, vec2 pDy)
-                      \>  gvec4 textureProjGrad(gsampler3D sampler, vec4 P, vec3 pDx, vec3 pDy)
-                      \>  float textureProjGrad(sampler1DShadow sampler, vec4 P, float pDx, float pDy)
-                      \>  float textureProjGrad(sampler2DShadow sampler, vec4 P, vec2 pDx, vec2 pDy)
-                      \>  gvec4 textureProjGrad(gsampler2DRect sampler, vec3 P, vec2 pDx, vec2 pDy)
-                      \>  gvec4 textureProjGrad(gsampler2DRect sampler, vec4 P, vec2 pDx, vec2 pDy)
-                      \>  float textureProjGrad(gsampler2DRectShadow sampler, vec4 P, vec2 pDx, vec2 pDy)'/>
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjGrad&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, vec2 P, float pDx, float pDy)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjGrad&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, vec4 P, float pDx, float pDy)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjGrad&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec3 P, vec2 pDx, vec2 pDy)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjGrad&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec4 P, vec2 pDx, vec2 pDy)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjGrad&lt;/key&gt;&lt;param&gt;(gsampler3D sampler, vec4 P, vec3 pDx, vec3 pDy)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProjGrad&lt;/key&gt;&lt;param&gt;(sampler1DShadow sampler, vec4 P, float pDx, float pDy)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProjGrad&lt;/key&gt;&lt;param&gt;(sampler2DShadow sampler, vec4 P, vec2 pDx, vec2 pDy)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjGrad&lt;/key&gt;&lt;param&gt;(gsampler2DRect sampler, vec3 P, vec2 pDx, vec2 pDy)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjGrad&lt;/key&gt;&lt;param&gt;(gsampler2DRect sampler, vec4 P, vec2 pDx, vec2 pDy)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProjGrad&lt;/key&gt;&lt;param&gt;(gsampler2DRectShadow sampler, vec4 P, vec2 pDx, vec2 pDy)&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureProjGradOffset'
                  hint='perform a texture lookup with projection, explicit gradients and offset
-                      \>  gvec4 textureProjGradOffset(gsampler1D sampler, vec2 P, float dPdx, float dPdy, int offset)
-                      \>  gvec4 textureProjGradOffset(gsampler1D sampler, vec4 P, float dPdx, float dPdy, int offset)
-                      \>  gvec4 textureProjGradOffset(gsampler2D sampler, vec3 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
-                      \>  gvec4 textureProjGradOffset(gsampler2D sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
-                      \>  gvec4 textureProjGradOffset(gsampler3D sampler, vec4 P, vec3 dPdx, vec3 dPdy, ivec3 offset)
-                      \>  float textureProjGradOffset(sampler1DShadow sampler, vec4 P, float dPdx, float dPdy, int offset)
-                      \>  float textureProjGradOffset(sampler2DShadow sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
-                      \>  gvec4 textureProjGradOffset(gsampler2DRect sampler, vec3 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
-                      \>  gvec4 textureProjGradOffset(gsampler2DRect sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)
-                      \>  float textureProjGradOffset(gsampler2DRectShadow sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)'/>
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjGradOffset&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, vec2 P, float dPdx, float dPdy, int offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjGradOffset&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, vec4 P, float dPdx, float dPdy, int offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjGradOffset&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec3 P, vec2 dPdx, vec2 dPdy, ivec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjGradOffset&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjGradOffset&lt;/key&gt;&lt;param&gt;(gsampler3D sampler, vec4 P, vec3 dPdx, vec3 dPdy, ivec3 offset)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProjGradOffset&lt;/key&gt;&lt;param&gt;(sampler1DShadow sampler, vec4 P, float dPdx, float dPdy, int offset)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProjGradOffset&lt;/key&gt;&lt;param&gt;(sampler2DShadow sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjGradOffset&lt;/key&gt;&lt;param&gt;(gsampler2DRect sampler, vec3 P, vec2 dPdx, vec2 dPdy, ivec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjGradOffset&lt;/key&gt;&lt;param&gt;(gsampler2DRect sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProjGradOffset&lt;/key&gt;&lt;param&gt;(gsampler2DRectShadow sampler, vec4 P, vec2 dPdx, vec2 dPdy, ivec2 offset)&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureProjLod'
                  hint='perform a texture lookup with projection and explicit level-of-detail
-                      \>  vec4  textureProjLod(gsampler1D sampler, vec2 P, float lod)
-                      \>  gvec4 textureProjLod(gsampler1D sampler, vec4 P, float lod)
-                      \>  gvec4 textureProjLod(gsampler2D sampler, vec3 P, float lod)
-                      \>  gvec4 textureProjLod(gsampler2D sampler, vec4 P, float lod)
-                      \>  gvec4 textureProjLod(gsampler3D sampler, vec4 P, float lod)
-                      \>  float textureProjLod(sampler1DShadow sampler, vec4 P, float lod)
-                      \>  float textureProjLod(sampler2DShadow sampler, vec4 P, float lod)'/>
+                      \  &lt;param&gt;vec4&lt;/param&gt; &lt;key&gt;textureProjLod&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, vec2 P, float lod)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjLod&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, vec4 P, float lod)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjLod&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec3 P, float lod)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjLod&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec4 P, float lod)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjLod&lt;/key&gt;&lt;param&gt;(gsampler3D sampler, vec4 P, float lod)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProjLod&lt;/key&gt;&lt;param&gt;(sampler1DShadow sampler, vec4 P, float lod)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProjLod&lt;/key&gt;&lt;param&gt;(sampler2DShadow sampler, vec4 P, float lod)&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureProjLodOffset'
                  hint='perform a texture lookup with projection and explicit level-of-detail and offset
-                      \>  gvec4 textureProjLodOffset(gsampler1D sampler, vec2 P, float lod, int offset)
-                      \>  gvec4 textureProjLodOffset(gsampler1D sampler, vec4 P, float lod, int offset)
-                      \>  gvec4 textureProjLodOffset(gsampler2D sampler, vec3 P, float lod, ivec2 offset)
-                      \>  gvec4 textureProjLodOffset(gsampler2D sampler, vec4 P, float lod, ivec2 offset)
-                      \>  gvec4 textureProjLodOffset(gsampler3D sampler, vec4 P, float lod, ivec3 offset)
-                      \>  float textureProjLodOffset(sampler1DShadow sampler, vec4 P, float lod, int   offset)
-                      \>  float textureProjLodOffset(sampler2DShadow sampler, vec4 P, float lod, ivec2 offset)'/>
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjLodOffset&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, vec2 P, float lod, int offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjLodOffset&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, vec4 P, float lod, int offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjLodOffset&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec3 P, float lod, ivec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjLodOffset&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec4 P, float lod, ivec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjLodOffset&lt;/key&gt;&lt;param&gt;(gsampler3D sampler, vec4 P, float lod, ivec3 offset)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProjLodOffset&lt;/key&gt;&lt;param&gt;(sampler1DShadow sampler, vec4 P, float lod, int   offset)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProjLodOffset&lt;/key&gt;&lt;param&gt;(sampler2DShadow sampler, vec4 P, float lod, ivec2 offset)&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureProjOffset'
                  hint='perform a texture lookup with projection and offset
-                      \>  gvec4 textureProjOffset(gsampler1D sampler, vec2 P, int offset, [float bias])
-                      \>  gvec4 textureProjOffset(gsampler1D sampler, vec4 P, int offset, [float bias])
-                      \>  gvec4 textureProjOffset(gsampler2D sampler, vec3 P, ivec2 offset, [float bias])
-                      \>  gvec4 textureProjOffset(gsampler2D sampler, vec4 P, ivec2 offset, [float bias])
-                      \>  gvec4 textureProjOffset(gsampler3D sampler, vec4 P, ivec3 offset, [float bias])
-                      \>  float textureProjOffset(sampler1DShadow sampler, vec4 P, int   offset, [float bias])
-                      \>  float textureProjOffset(sampler2DShadow sampler, vec4 P, ivec2 offset, [float bias])
-                      \>  gvec4 textureProjOffset(gsampler2DRect sampler, vec3 P, ivec2 offset)
-                      \>  gvec4 textureProjOffset(gsampler2DRect sampler, vec4 P, ivec2 offset)
-                      \>  float textureProjOffset(gsampler2DRectShadow sampler, vec4 P, ivec2 offset)'/>
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjOffset&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, vec2 P, int offset, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjOffset&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, vec4 P, int offset, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjOffset&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec3 P, ivec2 offset, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjOffset&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec4 P, ivec2 offset, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjOffset&lt;/key&gt;&lt;param&gt;(gsampler3D sampler, vec4 P, ivec3 offset, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProjOffset&lt;/key&gt;&lt;param&gt;(sampler1DShadow sampler, vec4 P, int   offset, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProjOffset&lt;/key&gt;&lt;param&gt;(sampler2DShadow sampler, vec4 P, ivec2 offset, [float bias])&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjOffset&lt;/key&gt;&lt;param&gt;(gsampler2DRect sampler, vec3 P, ivec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;textureProjOffset&lt;/key&gt;&lt;param&gt;(gsampler2DRect sampler, vec4 P, ivec2 offset)&lt;/param&gt;
+                      \  &lt;param&gt;float&lt;/param&gt; &lt;key&gt;textureProjOffset&lt;/key&gt;&lt;param&gt;(gsampler2DRectShadow sampler, vec4 P, ivec2 offset)&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureQueryLevels'
                  hint='compute the number of accessible mipmap levels of a texture
-                      \>  int textureQueryLevels(gsampler1D sampler)
-                      \>  int textureQueryLevels(gsampler2D sampler)
-                      \>  int textureQueryLevels(gsampler3D sampler)
-                      \>  int textureQueryLevels(gsamplerCube sampler)
-                      \>  int textureQueryLevels(gsampler1DArray sampler)
-                      \>  int textureQueryLevels(gsampler2DDArray sampler)
-                      \>  int textureQueryLevels(gsamplerCubeArray sampler)
-                      \>  int textureQueryLevels(gsampler1DShadow sampler)
-                      \>  int textureQueryLevels(gsampler2DShadow sampler)
-                      \>  int textureQueryLevels(gsamplerCubeShadow sampler)
-                      \>  int textureQueryLevels(gsampler1DArrayShadow sampler)
-                      \>  int textureQueryLevels(gsampler2DArrayShadow sampler)
-                      \>  int textureQueryLevels(gsamplerCubeArrayShadow sampler)'/>
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureQueryLevels&lt;/key&gt;&lt;param&gt;(gsampler1D sampler)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureQueryLevels&lt;/key&gt;&lt;param&gt;(gsampler2D sampler)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureQueryLevels&lt;/key&gt;&lt;param&gt;(gsampler3D sampler)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureQueryLevels&lt;/key&gt;&lt;param&gt;(gsamplerCube sampler)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureQueryLevels&lt;/key&gt;&lt;param&gt;(gsampler1DArray sampler)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureQueryLevels&lt;/key&gt;&lt;param&gt;(gsampler2DDArray sampler)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureQueryLevels&lt;/key&gt;&lt;param&gt;(gsamplerCubeArray sampler)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureQueryLevels&lt;/key&gt;&lt;param&gt;(gsampler1DShadow sampler)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureQueryLevels&lt;/key&gt;&lt;param&gt;(gsampler2DShadow sampler)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureQueryLevels&lt;/key&gt;&lt;param&gt;(gsamplerCubeShadow sampler)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureQueryLevels&lt;/key&gt;&lt;param&gt;(gsampler1DArrayShadow sampler)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureQueryLevels&lt;/key&gt;&lt;param&gt;(gsampler2DArrayShadow sampler)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureQueryLevels&lt;/key&gt;&lt;param&gt;(gsamplerCubeArrayShadow sampler)&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureQueryLod'
                  hint='compute the level-of-detail that would be used to sample from a texture
-                      \>  vec2 textureQueryLod(gsampler1D sampler, float P)
-                      \>  vec2 textureQueryLod(gsampler2D sampler, vec2  P)
-                      \>  vec2 textureQueryLod(gsampler3D sampler, vec3  P)
-                      \>  vec2 textureQueryLod(gsamplerCube sampler, vec3  P)
-                      \>  vec2 textureQueryLod(gsampler1DArray sampler, float P)
-                      \>  vec2 textureQueryLod(gsampler2DDArray sampler, vec2  P)
-                      \>  vec2 textureQueryLod(gsamplerCubeArray sampler, vec3  P)
-                      \>  vec2 textureQueryLod(gsampler1DShadow sampler, float P)
-                      \>  vec2 textureQueryLod(gsampler2DShadow sampler, vec2  P)
-                      \>  vec2 textureQueryLod(gsamplerCubeShadow sampler, vec3  P)
-                      \>  vec2 textureQueryLod(gsampler1DArrayShadow sampler, float P)
-                      \>  vec2 textureQueryLod(gsampler2DArrayShadow sampler, vec2  P)
-                      \>  vec2 textureQueryLod(gsamplerCubeArrayShadow sampler, vec3  P)'/>
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;textureQueryLod&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, float P)&lt;/param&gt;
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;textureQueryLod&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, vec2  P)&lt;/param&gt;
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;textureQueryLod&lt;/key&gt;&lt;param&gt;(gsampler3D sampler, vec3  P)&lt;/param&gt;
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;textureQueryLod&lt;/key&gt;&lt;param&gt;(gsamplerCube sampler, vec3  P)&lt;/param&gt;
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;textureQueryLod&lt;/key&gt;&lt;param&gt;(gsampler1DArray sampler, float P)&lt;/param&gt;
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;textureQueryLod&lt;/key&gt;&lt;param&gt;(gsampler2DDArray sampler, vec2  P)&lt;/param&gt;
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;textureQueryLod&lt;/key&gt;&lt;param&gt;(gsamplerCubeArray sampler, vec3  P)&lt;/param&gt;
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;textureQueryLod&lt;/key&gt;&lt;param&gt;(gsampler1DShadow sampler, float P)&lt;/param&gt;
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;textureQueryLod&lt;/key&gt;&lt;param&gt;(gsampler2DShadow sampler, vec2  P)&lt;/param&gt;
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;textureQueryLod&lt;/key&gt;&lt;param&gt;(gsamplerCubeShadow sampler, vec3  P)&lt;/param&gt;
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;textureQueryLod&lt;/key&gt;&lt;param&gt;(gsampler1DArrayShadow sampler, float P)&lt;/param&gt;
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;textureQueryLod&lt;/key&gt;&lt;param&gt;(gsampler2DArrayShadow sampler, vec2  P)&lt;/param&gt;
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;textureQueryLod&lt;/key&gt;&lt;param&gt;(gsamplerCubeArrayShadow sampler, vec3  P)&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureSamples'
                  hint='return the number of samples of a texture
-                      \>  int textureSamples(gsampler2DMS sampler)
-                      \>  int textureSamples(gsampler2DMSArray sampler)'/>
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureSamples&lt;/key&gt;&lt;param&gt;(gsampler2DMS sampler)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureSamples&lt;/key&gt;&lt;param&gt;(gsampler2DMSArray sampler)&lt;/param&gt;'/>
         <Keyword style_name='function' name='textureSize'
                  hint='retrieve the dimensions of a level of a texture
-                      \>  int   textureSize(gsampler1D sampler, int lod)
-                      \>  ivec2 textureSize(gsampler2D sampler, int lod)
-                      \>  ivec3 textureSize(gsampler3D sampler, int lod)
-                      \>  ivec2 textureSize(gsamplerCube sampler, int lod)
-                      \>  int   textureSize(sampler1DShadow sampler, int lod)
-                      \>  ivec2 textureSize(sampler2DShadow sampler, int lod)
-                      \>  ivec2 textureSize(samplerCubeShadow sampler, int lod)
-                      \>  ivec3 textureSize(samplerCubeArray sampler, int lod)
-                      \>  ivec3 textureSize(samplerCubeArrayShadow sampler, int lod)
-                      \>  ivec2 textureSize(gsamplerRect sampler)
-                      \>  ivec2 textureSize(gsamplerRectShadow sampler)
-                      \>  ivec2 textureSize(gsampler1DArray sampler, int lod)
-                      \>  ivec3 textureSize(gsampler2DArray sampler, int lod)
-                      \>  ivec2 textureSize(sampler1DArrayShadow sampler, int lod)
-                      \>  ivec3 textureSize(sampler2DArrayShadow sampler, int lod)
-                      \>  int   textureSize(gsamplerBuffer sampler)
-                      \>  ivec2 textureSize(gsampler2DMS sampler)
-                      \>  ivec3 textureSize(gsampler2DMSArray sampler)'/>
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;ivec2&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(gsampler2D sampler, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;ivec3&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(gsampler3D sampler, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;ivec2&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(gsamplerCube sampler, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(sampler1DShadow sampler, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;ivec2&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(sampler2DShadow sampler, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;ivec2&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(samplerCubeShadow sampler, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;ivec3&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(samplerCubeArray sampler, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;ivec3&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(samplerCubeArrayShadow sampler, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;ivec2&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(gsamplerRect sampler)&lt;/param&gt;
+                      \  &lt;param&gt;ivec2&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(gsamplerRectShadow sampler)&lt;/param&gt;
+                      \  &lt;param&gt;ivec2&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(gsampler1DArray sampler, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;ivec3&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(gsampler2DArray sampler, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;ivec2&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(sampler1DArrayShadow sampler, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;ivec3&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(sampler2DArrayShadow sampler, int lod)&lt;/param&gt;
+                      \  &lt;param&gt;int&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(gsamplerBuffer sampler)&lt;/param&gt;
+                      \  &lt;param&gt;ivec2&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(gsampler2DMS sampler)&lt;/param&gt;
+                      \  &lt;param&gt;ivec3&lt;/param&gt; &lt;key&gt;textureSize&lt;/key&gt;&lt;param&gt;(gsampler2DMSArray sampler)&lt;/param&gt;'/>
         <Keyword style_name='function' name='transpose'
                  hint='calculate the transpose of a matrix
-                      \>  mat2    transpose(mat2    m)
-                      \>  mat3    transpose(mat3    m)
-                      \>  mat4    transpose(mat4    m)
-                      \>  mat2x3  transpose(mat3x2  m)
-                      \>  mat2x4  transpose(mat4x2  m)
-                      \>  mat3x2  transpose(mat2x3  m)
-                      \>  mat3x4  transpose(mat4x3  m)
-                      \>  mat4x2  transpose(mat2x4  m)
-                      \>  mat4x3  transpose(mat3x4  m)
-                      \>  dmat2   transpose(dmat2   m)
-                      \>  dmat3   transpose(dmat3   m)
-                      \>  dmat4   transpose(dmat4   m)
-                      \>  dmat2x3 transpose(dmat3x2 m)
-                      \>  dmat2x4 transpose(dmat4x2 m)
-                      \>  dmat3x2 transpose(dmat2x3 m)
-                      \>  dmat3x4 transpose(dmat4x3 m)
-                      \>  dmat4x2 transpose(dmat2x4 m)
-                      \>  dmat4x3 transpose(dmat3x4 m)'/>
+                      \  &lt;param&gt;mat2&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(mat2    m)&lt;/param&gt;
+                      \  &lt;param&gt;mat3&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(mat3    m)&lt;/param&gt;
+                      \  &lt;param&gt;mat4&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(mat4    m)&lt;/param&gt;
+                      \  &lt;param&gt;mat2x3&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(mat3x2  m)&lt;/param&gt;
+                      \  &lt;param&gt;mat2x4&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(mat4x2  m)&lt;/param&gt;
+                      \  &lt;param&gt;mat3x2&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(mat2x3  m)&lt;/param&gt;
+                      \  &lt;param&gt;mat3x4&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(mat4x3  m)&lt;/param&gt;
+                      \  &lt;param&gt;mat4x2&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(mat2x4  m)&lt;/param&gt;
+                      \  &lt;param&gt;mat4x3&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(mat3x4  m)&lt;/param&gt;
+                      \  &lt;param&gt;dmat2&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(dmat2   m)&lt;/param&gt;
+                      \  &lt;param&gt;dmat3&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(dmat3   m)&lt;/param&gt;
+                      \  &lt;param&gt;dmat4&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(dmat4   m)&lt;/param&gt;
+                      \  &lt;param&gt;dmat2x3&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(dmat3x2 m)&lt;/param&gt;
+                      \  &lt;param&gt;dmat2x4&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(dmat4x2 m)&lt;/param&gt;
+                      \  &lt;param&gt;dmat3x2&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(dmat2x3 m)&lt;/param&gt;
+                      \  &lt;param&gt;dmat3x4&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(dmat4x3 m)&lt;/param&gt;
+                      \  &lt;param&gt;dmat4x2&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(dmat2x4 m)&lt;/param&gt;
+                      \  &lt;param&gt;dmat4x3&lt;/param&gt; &lt;key&gt;transpose&lt;/key&gt;&lt;param&gt;(dmat3x4 m)&lt;/param&gt;'/>
         <Keyword style_name='function' name='trunc'
                  hint='find the nearest integer less
                       \than or equal to the parameter
-                      \>  genType  trunc(genType  x)
-                      \>  genDType trunc(genDType x)'/>
+                      \  &lt;param&gt;genType &lt;/param&gt; &lt;key&gt;trunc&lt;/key&gt;&lt;param&gt;(genType  x)&lt;/param&gt;
+                      \  &lt;param&gt;genDType&lt;/param&gt; &lt;key&gt;trunc&lt;/key&gt;&lt;param&gt;(genDType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='uaddCarry'
                  hint='Add unsigned integers and generate carry. The
                       \carry result is the sum of x and y modulo 2^32.
-                      \>  genUType uaddCarry(genUType x, genUType y, out genUType carry)'/>
+                      \  &lt;param&gt;genUType&lt;/param&gt; &lt;key&gt;uaddCarry&lt;/key&gt;&lt;param&gt;(genUType x, genUType y, out genUType carry)&lt;/param&gt;'/>
         <Keyword style_name='function' name='uintBitsToFloat'
                  hint='produce a floating point using an
                       \encoding supplied as an integer
-                      \>  genType uintBitsToFloat(genUType x)'/>
+                      \  &lt;param&gt;genType&lt;/param&gt; &lt;key&gt;uintBitsToFloat&lt;/key&gt;&lt;param&gt;(genUType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='umulExtended'
                  hint='perform a 32- by 32-bit multiply to produce a 64-bit result
-                      \>  void umulExtended(genIType x, genIType y, out genIType msb, out genIType lsb)'/>
+                      \  &lt;param&gt;void&lt;/param&gt; &lt;key&gt;umulExtended&lt;/key&gt;&lt;param&gt;(genIType x, genIType y, out genIType msb, out genIType lsb)&lt;/param&gt;'/>
         <Keyword style_name='function' name='unpackDouble2x32'
                  hint='produce two unsigned integers containing the bit
                       \encoding of a double precision floating point value
-                      \>  uvec2 unpackDouble2x32(double d)'/>
+                      \  &lt;param&gt;uvec2&lt;/param&gt; &lt;key&gt;unpackDouble2x32&lt;/key&gt;&lt;param&gt;(double d)&lt;/param&gt;'/>
         <Keyword style_name='function' name='unpackHalf2x16'
                  hint='convert two 16-bit floating-point values
                       \packed into a single 32-bit integer into a
                       \vector of two 32-bit floating-point quantities
-                      \>  vec2 unpackHalf2x16(uint v)'/>
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;unpackHalf2x16&lt;/key&gt;&lt;param&gt;(uint v)&lt;/param&gt;'/>
         <Keyword style_name='function' name='unpackSnorm2x16'
                  hint='unpack floating-point values from an unsigned integer
-                      \>  vec2 unpackUnorm2x16(uint p)'/>
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;unpackUnorm2x16&lt;/key&gt;&lt;param&gt;(uint p)&lt;/param&gt;'/>
         <Keyword style_name='function' name='unpackSnorm4x8'
                  hint='unpack floating-point values from an unsigned integer
-                      \>  vec2 unpackSnorm4x8(uint p)'/>
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;unpackSnorm4x8&lt;/key&gt;&lt;param&gt;(uint p)&lt;/param&gt;'/>
         <Keyword style_name='function' name='unpackUnorm2x16'
                  hint='unpack floating-point values from an unsigned integer
-                      \>  vec2 unpackUnorm2x16(uint p)'/>
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;unpackUnorm2x16&lt;/key&gt;&lt;param&gt;(uint p)&lt;/param&gt;'/>
         <Keyword style_name='function' name='unpackUnorm4x8'
                  hint='unpack floating-point values from an unsigned integer
-                      \>  vec2 unpackUnorm4x8(uint p)'/>
+                      \  &lt;param&gt;vec2&lt;/param&gt; &lt;key&gt;unpackUnorm4x8&lt;/key&gt;&lt;param&gt;(uint p)&lt;/param&gt;'/>
         <Keyword style_name='function' name='usubBorrow'
                  hint='subtract unsigned integers and generate borrow
-                      \>  genUType usubBorrow(genUType x, genUType y, out genUType borrow)'/>
+                      \  &lt;param&gt;genUType&lt;/param&gt; &lt;key&gt;usubBorrow&lt;/key&gt;&lt;param&gt;(genUType x, genUType y, out genUType borrow)&lt;/param&gt;'/>
         <Keyword style_name='keyword' name='const' hint='Specify a constant variable indicating
                                                         \that the variable will not change.'/>
         <Keyword style_name='keyword' name='if'/>
