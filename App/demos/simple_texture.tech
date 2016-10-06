@@ -114,7 +114,7 @@ pass pass_render {
 }
 
 pass pass_reset {
-	tex 0
+	tex 0 unbind
 	glClearColor 0.0 0.0 0.0 0.0
 	glDisable depthTest
 }

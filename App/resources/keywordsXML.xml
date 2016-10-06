@@ -346,15 +346,33 @@
       <Keyword style_name='command' name='tex'
                hint='Bind/unbind a texture to/from a texture unit.
                     \  &lt;key&gt;tex&lt;/key&gt; &lt;param&gt;[texture_name] [unit]&lt;/param&gt;
-                    \  &lt;key&gt;tex &lt;/key&gt; &lt;param&gt;unbind [unit]&lt;/param&gt;'/>
+                    \  &lt;key&gt;tex&lt;/key&gt; &lt;param&gt;[unit] {unbind}&lt;/param&gt;'/>
       <Keyword style_name='command' name='img'
                hint='Bind/unbind a texture to/from an image unit.
                     \  &lt;key&gt;img&lt;/key&gt; &lt;param&gt;[texture_name] [unit] [level] [layer] [access] [format]&lt;/param&gt;
-                    \  &lt;key&gt;img&lt;/key&gt; &lt;param&gt;unbind [unit]&lt;/param&gt;'/>
+                    \  &lt;key&gt;img&lt;/key&gt; &lt;param&gt;[unit] {unbind}&lt;/param&gt;'/>
       <Keyword style_name='command' name='samp'
                hint = 'Bind/unbind a texture sampler to/from a texture unit.
                     \  &lt;key&gt;samp&lt;/key&gt; &lt;param&gt;[samp_name] [unit]&lt;/param&gt;
-                    \  &lt;key&gt;samp&lt;/key&gt; &lt;param&gt;unbind [unit]&lt;/param&gt;'/>
+                    \  &lt;key&gt;samp&lt;/key&gt; &lt;param&gt;[unit] {unbind}&lt;/param&gt;'/>
+      <!-- pass - TEX -->
+      <Lexer type='tex' lexer='CommandLexer'>
+        <Style theme='DarkTheme' name='argument' fore='#9589CC'/>
+        <Style theme='LightTheme' name='argument' fore='#9589CC'/>
+        <Keyword style_name='argument' name='unbind'/>
+      </Lexer>
+      <!-- pass - IMG -->
+      <Lexer type='img' lexer='CommandLexer'>
+        <Style theme='DarkTheme' name='argument' fore='#9589CC'/>
+        <Style theme='LightTheme' name='argument' fore='#9589CC'/>
+        <Keyword style_name='argument' name='unbind'/>
+      </Lexer>
+      <!-- pass - SAMP -->
+      <Lexer type='samp' lexer='CommandLexer'>
+        <Style theme='DarkTheme' name='argument' fore='#9589CC'/>
+        <Style theme='LightTheme' name='argument' fore='#9589CC'/>
+        <Keyword style_name='argument' name='unbind'/>
+      </Lexer>
       <Keyword style_name='command' name='glBeginConditionalRender'/>
       <Keyword style_name='command' name='glBeginQuery'/>
       <Keyword style_name='command' name='glBeginQueryIndexed'/>

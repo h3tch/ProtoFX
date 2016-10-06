@@ -369,9 +369,9 @@ namespace App
                 return;
             }
             // specify argument types
-            var types = new[] { typeof(GLTexture), typeof(int) };
+            var types = new[] { typeof(GLTexture), typeof(int), typeof(string) };
             // specify mandatory arguments
-            var mandatory = new[] { new[] { true, true }, new[] { false, true } };
+            var mandatory = new[] { new[] { true, true, false }, new[] { false, true, false } };
             // parse command arguments
             var values = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
@@ -393,12 +393,13 @@ namespace App
                 typeof(int),
                 typeof(int),
                 typeof(TextureAccess),
-                typeof(GpuFormat)
+                typeof(GpuFormat),
+                typeof(string)
             };
             // specify mandatory arguments
             var mandatory = new[] {
-                new[] { true, true, true, true, true, true },
-                new[] { false, true, false, false, false, false },
+                new[] { true, true, true, true, true, true, false },
+                new[] { false, true, false, false, false, false, false },
             };
             // parse command arguments
             var values = cmd.Parse(types, mandatory, classes, err);
@@ -415,9 +416,9 @@ namespace App
                 return;
             }
             // specify argument types
-            var types = new[] { typeof(GLSampler), typeof(int) };
+            var types = new[] { typeof(GLSampler), typeof(int), typeof(string) };
             // specify mandatory arguments
-            var mandatory = new[] { new[] { true, true }, new[] { false, true } };
+            var mandatory = new[] { new[] { true, true, false }, new[] { false, true, false } };
             // parse command arguments
             var values = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
