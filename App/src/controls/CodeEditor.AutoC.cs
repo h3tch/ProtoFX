@@ -87,17 +87,20 @@ namespace App
                 // apply the current theme to the call tip components
                 Theme.Apply(tip);
             }
+            
+            if (!tip.Visible)
+            {
+                // get screen position
+                int x = PointXFromPosition(position);
+                int y = PointYFromPosition(position);
+                var p = PointToScreen(new Point(x, y));
 
-            // get screen position
-            int x = PointXFromPosition(position);
-            int y = PointYFromPosition(position);
-            var p = PointToScreen(new Point(x, y));
-
-            // make sure the calltip window
-            // is in front of all others
-            tip.BringToFront();
-            // show calltip
-            tip.Show(p.X, p.Y, 5, 5, 0, tipOffsetY, definition);
+                // make sure the calltip window
+                // is in front of all others
+                tip.BringToFront();
+                // show calltip
+                tip.Show(p.X, p.Y, 5, 5, 0, tipOffsetY, definition);
+            }
         }
 
         /// <summary>

@@ -206,9 +206,13 @@ namespace App
         public static Array ReadArray<T>(this BinaryReader reader, int rows, int cols, int stride)
             where T : struct
         {
+            // does the binary reader support reading this object type
+            var Read = reader.GetType().GetMethod($"Read{typeof(T).Name}");
+            if (Read == null)
+                return null;
+
             // create array of type and find suitable read-method
             Array array = new T[rows, cols];
-            var Read = reader.GetType().GetMethod("Read" + nameof(T));
             int skip = stride - cols * Marshal.SizeOf<T>();
 
             // read types from mem and store them in the array

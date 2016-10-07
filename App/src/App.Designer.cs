@@ -48,7 +48,7 @@
             this.Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabDebugger = new System.Windows.Forms.TabPage();
             this.splitDebug = new System.Windows.Forms.SplitContainer();
-            this.debugListView = new System.Windows.Forms.ListView();
+            this.debugListView = new System.Windows.Forms.FXListView();
             this.debugProperty = new System.Windows.Forms.PropertyGrid();
             this.imgAppIcon = new System.Windows.Forms.PictureBox();
             this.btnWindowMinimize2 = new System.Windows.Forms.Button();
@@ -381,7 +381,6 @@
             this.debugListView.Name = "debugListView";
             this.debugListView.Size = new System.Drawing.Size(316, 218);
             this.debugListView.TabIndex = 0;
-            this.debugListView.UseCompatibleStateImageBehavior = false;
             // 
             // debugProperty
             // 
@@ -1348,7 +1347,7 @@
         private System.Windows.Forms.TabPage tabDebugger;
         private System.Windows.Forms.PropertyGrid debugProperty;
         private System.Windows.Forms.SplitContainer splitDebug;
-        private System.Windows.Forms.ListView debugListView;
+        private System.Windows.Forms.FXListView debugListView;
         private System.Windows.Forms.DataGridView output;
         private System.Windows.Forms.SplitContainer splitRenderOutput;
         private System.Windows.Forms.ToolStripContainer toolStripContainerCoding;

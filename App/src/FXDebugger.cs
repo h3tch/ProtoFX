@@ -314,9 +314,9 @@ namespace App
                         switch (type)
                         {
                             case 1/*BOOL */:
-                            case 2/*INT  */: return mem.ReadArray<int>(rows, cols, 16);
-                            case 3/*UINT */: return mem.ReadArray<uint>(rows, cols, 16);
-                            case 4/*FLOAT*/: return mem.ReadArray<float>(rows, cols, 16);
+                            case 2/*INT  */: return mem?.ReadArray<int>(rows, cols, 16);
+                            case 3/*UINT */: return mem?.ReadArray<uint>(rows, cols, 16);
+                            case 4/*FLOAT*/: return mem?.ReadArray<float>(rows, cols, 16);
                         }
                     }
                 }

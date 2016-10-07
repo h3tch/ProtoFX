@@ -243,13 +243,13 @@ namespace App
         private void UpdateDebugListView(CodeEditor editor)
         {
             // RESET DEBUG LIST VIEW
-            debugListView.Clear();
-            debugListView.View = View.Details;
-            debugListView.FullRowSelect = true;
-            debugListView.Columns.Add("X", 80);
-            debugListView.Columns.Add("Y", 80);
-            debugListView.Columns.Add("Z", 80);
-            debugListView.Columns.Add("W", 80);
+            debugListView.View.Clear();
+            debugListView.View.View = View.Details;
+            debugListView.View.FullRowSelect = true;
+            debugListView.View.Columns.Add("X", 80);
+            debugListView.View.Columns.Add("Y", 80);
+            debugListView.View.Columns.Add("Z", 80);
+            debugListView.View.Columns.Add("W", 80);
 
             // if the code has been edited no debug information can
             // be shown, because debug variables might have been
@@ -279,7 +279,7 @@ namespace App
             // add list group for this debug variable
             // -- dbgVar.Value ... debug variable name
             var dbgVarGroup = new ListViewGroup(groupName);
-            debugListView.Groups.Add(dbgVarGroup);
+            debugListView.View.Groups.Add(dbgVarGroup);
 
             for (int r = 0; r < rows; r++)
             {
@@ -289,7 +289,7 @@ namespace App
                 // add row to list view
                 var item = new ListViewItem(row.ToArray());
                 item.Group = dbgVarGroup;
-                debugListView.Items.Add(item);
+                debugListView.View.Items.Add(item);
             }
         }
         #endregion
