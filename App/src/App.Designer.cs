@@ -48,7 +48,8 @@
             this.Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabDebugger = new System.Windows.Forms.TabPage();
             this.splitDebug = new System.Windows.Forms.SplitContainer();
-            this.debugListView = new System.Windows.Forms.FXListView();
+            this.debugPanel = new System.Windows.Forms.Panel();
+            this.debugListView = new System.Windows.Forms.AutoSizeListView();
             this.debugProperty = new System.Windows.Forms.PropertyGrid();
             this.imgAppIcon = new System.Windows.Forms.PictureBox();
             this.btnWindowMinimize2 = new System.Windows.Forms.Button();
@@ -362,7 +363,7 @@
             // 
             // splitDebug.Panel1
             // 
-            this.splitDebug.Panel1.Controls.Add(this.debugListView);
+            this.splitDebug.Panel1.Controls.Add(this.debugPanel);
             // 
             // splitDebug.Panel2
             // 
@@ -372,10 +373,20 @@
             this.splitDebug.SplitterWidth = 6;
             this.splitDebug.TabIndex = 0;
             // 
+            // debugPanel
+            // 
+            this.debugPanel.Controls.Add(this.debugListView);
+            this.debugPanel.AutoScroll = true;
+            this.debugPanel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.debugPanel.Location = new System.Drawing.Point(0, 0);
+            this.debugPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.debugPanel.Name = "debugPanel";
+            this.debugPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.debugPanel.TabIndex = 0;
+            // 
             // debugListView
             // 
             this.debugListView.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.debugListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.debugListView.Location = new System.Drawing.Point(0, 0);
             this.debugListView.Margin = new System.Windows.Forms.Padding(0);
             this.debugListView.Name = "debugListView";
@@ -1347,7 +1358,8 @@
         private System.Windows.Forms.TabPage tabDebugger;
         private System.Windows.Forms.PropertyGrid debugProperty;
         private System.Windows.Forms.SplitContainer splitDebug;
-        private System.Windows.Forms.FXListView debugListView;
+        private System.Windows.Forms.Panel debugPanel;
+        private System.Windows.Forms.AutoSizeListView debugListView;
         private System.Windows.Forms.DataGridView output;
         private System.Windows.Forms.SplitContainer splitRenderOutput;
         private System.Windows.Forms.ToolStripContainer toolStripContainerCoding;

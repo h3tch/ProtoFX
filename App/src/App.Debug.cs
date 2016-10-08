@@ -243,13 +243,11 @@ namespace App
         private void UpdateDebugListView(CodeEditor editor)
         {
             // RESET DEBUG LIST VIEW
-            debugListView.View.Clear();
-            debugListView.View.View = View.Details;
-            debugListView.View.FullRowSelect = true;
-            debugListView.View.Columns.Add("X", 80);
-            debugListView.View.Columns.Add("Y", 80);
-            debugListView.View.Columns.Add("Z", 80);
-            debugListView.View.Columns.Add("W", 80);
+            debugListView.Clear();
+            debugListView.AddColumn("X", 80);
+            debugListView.AddColumn("Y", 80);
+            debugListView.AddColumn("Z", 80);
+            debugListView.AddColumn("W", 80);
 
             // if the code has been edited no debug information can
             // be shown, because debug variables might have been
@@ -262,6 +260,7 @@ namespace App
             var dbgVars = FxDebugger.GetDebugVariablesFromLine(editor, dbgLine).Select(x => x);
             dbgVars.Select(Var => FxDebugger.GetDebugVariableValue(Var.ID, glControl.Frame - 1))
                    .Zip(dbgVars, (Val, Var) => { if (Val != null) NewVariableItem(Var.Name, Val); });
+            debugListView.Update();
         }
 
         /// <summary>
@@ -279,7 +278,7 @@ namespace App
             // add list group for this debug variable
             // -- dbgVar.Value ... debug variable name
             var dbgVarGroup = new ListViewGroup(groupName);
-            debugListView.View.Groups.Add(dbgVarGroup);
+            debugListView.AddGroup(dbgVarGroup);
 
             for (int r = 0; r < rows; r++)
             {
@@ -289,7 +288,7 @@ namespace App
                 // add row to list view
                 var item = new ListViewItem(row.ToArray());
                 item.Group = dbgVarGroup;
-                debugListView.View.Items.Add(item);
+                debugListView.AddItem(item);
             }
         }
         #endregion

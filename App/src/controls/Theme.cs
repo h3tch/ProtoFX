@@ -47,7 +47,7 @@ namespace System.Windows.Forms
             palette.HighlightBackColor = Color.FromArgb(255, 80, 80, 80);
             palette.HighlightForeColor = Color.FromArgb(255, 240, 240, 240);
             palette.SelectBackColor = Color.FromArgb(255, 50, 80, 70);
-            palette.SelectForeColor = Color.FromArgb(255, 200, 170, 240);
+            palette.SelectForeColor = Color.FromArgb(255, 86, 156, 214);
             palette.Workspace = Color.FromArgb(255, 30, 30, 30);
             palette.WorkspaceHighlight = Color.FromArgb(255, 60, 60, 60);
             palette.TextColor = Color.FromArgb(255, 220, 220, 220);
@@ -237,7 +237,7 @@ namespace System.Windows.Forms
             return true;
         }
 
-        private static bool ApplyTo(FXListView c)
+        private static bool ApplyTo(AutoSizeListView c)
         {
             c.BackColor = Workspace;
             c.ForeColor = ForeColor;
@@ -245,6 +245,10 @@ namespace System.Windows.Forms
             c.HeaderForeColor = ForeColor;
             c.HeaderBorderColor = HighlightBackColor;
             c.GroupForeColor = SelectForeColor;
+
+            if (c.Parent?.GetType() == typeof(Panel))
+                c.Parent.BackColor = c.BackColor;
+
             return true;
         }
 
