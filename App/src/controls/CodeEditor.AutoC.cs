@@ -88,13 +88,16 @@ namespace App
                 Theme.Apply(tip);
             }
             
-            if (!tip.Visible)
-            {
-                // get screen position
-                int x = PointXFromPosition(position);
-                int y = PointYFromPosition(position);
-                var p = PointToScreen(new Point(x, y));
+            // get screen position
+            int x = PointXFromPosition(position);
+            int y = PointYFromPosition(position);
+            var p = PointToScreen(new Point(x, y));
 
+            // Fore some reason PointToScreen can return
+            // different positions. In this case the call
+            // tip needs to be repositioned.
+            if (!tip.Visible || tip.Location != p)
+            {
                 // make sure the calltip window
                 // is in front of all others
                 tip.BringToFront();
