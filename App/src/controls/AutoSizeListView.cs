@@ -6,6 +6,8 @@ namespace System.Windows.Forms
 {
     public class AutoSizeListView : Panel
     {
+        #region INTERNAL FIELDS
+
         internal Color headerBackColor = SystemColors.ButtonFace;
         internal Color headerForeColor = SystemColors.ControlText;
         internal Color headerBorderColor = SystemColors.ControlLight;
@@ -18,33 +20,53 @@ namespace System.Windows.Forms
         internal StringFormat HeaderFormat = new StringFormat();
         internal StringFormat ItemFormat = new StringFormat();
 
+        #endregion
+
         #region PROPERTIES
 
+        /// <summary>
+        /// List view.
+        /// </summary>
         internal ListView View { get; } = new ListView();
+        /// <summary>
+        /// Horizontal alignment of the column title.
+        /// </summary>
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public StringAlignment HeaderHAllign
         {
             get { return HeaderFormat.Alignment; }
             set { HeaderFormat.Alignment = value; }
         }
+        /// <summary>
+        /// Vertical alignment of the column title.
+        /// </summary>
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public StringAlignment HeaderVAllign
         {
             get { return HeaderFormat.LineAlignment; }
             set { HeaderFormat.LineAlignment = value; }
         }
+        /// <summary>
+        /// Horizontal alignment of the cell text.
+        /// </summary>
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public StringAlignment ItemHAllign
         {
             get { return ItemFormat.Alignment; }
             set { ItemFormat.Alignment = value; }
         }
+        /// <summary>
+        /// Vertical alignment of the cell text.
+        /// </summary>
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public StringAlignment ItemVAllign
         {
             get { return ItemFormat.LineAlignment; }
             set { ItemFormat.LineAlignment = value; }
         }
+        /// <summary>
+        /// Back color of the column header.
+        /// </summary>
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public Color HeaderBackColor
         {
@@ -56,6 +78,9 @@ namespace System.Windows.Forms
                 headerBackColor = value;
             }
         }
+        /// <summary>
+        /// Fore color of the column header.
+        /// </summary>
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public Color HeaderForeColor
         {
@@ -67,6 +92,9 @@ namespace System.Windows.Forms
                 headerForeColor = value;
             }
         }
+        /// <summary>
+        /// Border color of the column header.
+        /// </summary>
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public Color HeaderBorderColor
         {
@@ -77,6 +105,9 @@ namespace System.Windows.Forms
                 headerBorderColor = value;
             }
         }
+        /// <summary>
+        /// Color of the group header.
+        /// </summary>
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public Color GroupForeColor
         {
@@ -122,6 +153,9 @@ namespace System.Windows.Forms
 
         #region METHODS
 
+        /// <summary>
+        /// Clear all items, groups and columns from the list view.
+        /// </summary>
         public void Clear()
         {
             View.Clear();
@@ -129,12 +163,28 @@ namespace System.Windows.Forms
             View.FullRowSelect = true;
         }
 
+        /// <summary>
+        /// Add a new column to the list view.
+        /// </summary>
+        /// <param name="text">Header text</param>
+        /// <param name="width">Column width</param>
         public void AddColumn(string text, int width) => View.Columns.Add(text, width);
 
+        /// <summary>
+        /// Add a new group to the list view.
+        /// </summary>
+        /// <param name="group"></param>
         public void AddGroup(ListViewGroup group) => View.Groups.Add(group);
 
+        /// <summary>
+        /// Add a new item to the list view.
+        /// </summary>
+        /// <param name="item"></param>
         public void AddItem(ListViewItem item) =>View.Items.Add(item);
 
+        /// <summary>
+        /// Auto size and update the control.
+        /// </summary>
         public new void Update()
         {
             Size = Draw();
