@@ -227,6 +227,11 @@
   <ItemGroup>
     <Content Include="resources\logo.ico" />
     <Content Include="resources\Normalize.png" />
+    <Content Include="resources\wiki\Debug Variables.png" />
+    <Content Include="resources\wiki\Properties.png" />
+    <Content Include="resources\wiki\Resources Buffers.png" />
+    <Content Include="resources\wiki\Resources Images.png" />
+    <Content Include="resources\wiki\Teaser.png" />
     <None Include="resources\logo.png" />
     <None Include="resources\Minimize.png" />
     <None Include="resources\Close.png" />
@@ -269,9 +274,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="resources\wiki\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <COMReference Include="MLApp">
       <Guid>{C36E46AB-6A81-457B-9F91-A7719A06287F}</Guid>
