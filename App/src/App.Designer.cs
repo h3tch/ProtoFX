@@ -1018,7 +1018,8 @@
             this.tableBuf.AllowUserToAddRows = false;
             this.tableBuf.AllowUserToDeleteRows = false;
             this.tableBuf.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.tableBuf.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
+            this.tableBuf.ColumnHeadersVisible = false;
+            this.tableBuf.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
@@ -1038,6 +1039,7 @@
             this.tableBuf.Margin = new System.Windows.Forms.Padding(0);
             this.tableBuf.Name = "tableBuf";
             this.tableBuf.ReadOnly = true;
+            this.tableBuf.RowHeadersVisible = false;
             this.tableBuf.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));

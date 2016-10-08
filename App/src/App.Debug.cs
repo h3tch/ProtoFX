@@ -75,6 +75,7 @@ namespace App
 
             // CREATE TABLE
             var dt = new DataTable(buf.name);
+            var col = dt.Columns.Add("#", typeof(string));
             // create columns
             for (int i = 0; i < dim; i++)
                 dt.Columns.Add(i.ToString(), colType);
@@ -82,8 +83,9 @@ namespace App
             for (int i = 0; i < da.Length;)
             {
                 var row = dt.NewRow();
+                row.SetField(0, $"{{{i}}}");
                 for (int c = 0; c < dim && i < da.Length; c++)
-                    row.SetField(c, da.GetValue(i++));
+                    row.SetField(c + 1, da.GetValue(i++));
                 dt.Rows.Add(row);
             }
 
