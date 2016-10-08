@@ -226,6 +226,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="resources\logo.ico" />
+    <Content Include="resources\logoHighRes.png" />
     <Content Include="resources\Normalize.png" />
     <Content Include="resources\wiki\Debug Variables.png" />
     <Content Include="resources\wiki\Properties.png" />
