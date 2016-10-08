@@ -392,6 +392,10 @@
             this.debugListView.Name = "debugListView";
             this.debugListView.Size = new System.Drawing.Size(316, 218);
             this.debugListView.TabIndex = 0;
+            this.debugListView.HeaderHAllign = System.Drawing.StringAlignment.Center;
+            this.debugListView.HeaderVAllign = System.Drawing.StringAlignment.Center;
+            this.debugListView.ItemHAllign = System.Drawing.StringAlignment.Near;
+            this.debugListView.ItemVAllign = System.Drawing.StringAlignment.Center;
             // 
             // debugProperty
             // 

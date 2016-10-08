@@ -15,14 +15,36 @@ namespace System.Windows.Forms
         internal Brush groupForeBrush = new SolidBrush(SystemColors.ActiveCaption);
         internal Pen headerBorderPen = new Pen(SystemColors.ControlLight);
         internal Pen groupBorderPen = new Pen(SystemColors.ActiveCaption);
+        internal StringFormat HeaderFormat = new StringFormat();
+        internal StringFormat ItemFormat = new StringFormat();
 
         #region PROPERTIES
 
         internal ListView View { get; } = new ListView();
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
-        public StringFormat HeaderFormat { get; set; } = new StringFormat();
+        public StringAlignment HeaderHAllign
+        {
+            get { return HeaderFormat.Alignment; }
+            set { HeaderFormat.Alignment = value; }
+        }
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
-        public StringFormat ItemFormat { get; set; } = new StringFormat();
+        public StringAlignment HeaderVAllign
+        {
+            get { return HeaderFormat.LineAlignment; }
+            set { HeaderFormat.LineAlignment = value; }
+        }
+        [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
+        public StringAlignment ItemHAllign
+        {
+            get { return ItemFormat.Alignment; }
+            set { ItemFormat.Alignment = value; }
+        }
+        [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
+        public StringAlignment ItemVAllign
+        {
+            get { return ItemFormat.LineAlignment; }
+            set { ItemFormat.LineAlignment = value; }
+        }
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public Color HeaderBackColor
         {

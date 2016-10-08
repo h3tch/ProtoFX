@@ -116,7 +116,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\Compiler.cs" />
-    <Compile Include="src\controls\FXListView.cs">
+    <Compile Include="src\controls\AutoSizeListView.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\controls\FXTabControl.cs">
