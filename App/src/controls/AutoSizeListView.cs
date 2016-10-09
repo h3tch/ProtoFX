@@ -8,17 +8,17 @@ namespace System.Windows.Forms
     {
         #region INTERNAL FIELDS
 
-        internal Color headerBackColor = SystemColors.ButtonFace;
-        internal Color headerForeColor = SystemColors.ControlText;
-        internal Color headerBorderColor = SystemColors.ControlLight;
-        internal Color groupForeColor = SystemColors.ActiveCaption;
-        internal Brush headerBackBrush = new SolidBrush(SystemColors.ButtonFace);
-        internal Brush headerForeBrush = new SolidBrush(SystemColors.ControlText);
-        internal Brush groupForeBrush = new SolidBrush(SystemColors.ActiveCaption);
-        internal Pen headerBorderPen = new Pen(SystemColors.ControlLight);
-        internal Pen groupBorderPen = new Pen(SystemColors.ActiveCaption);
-        internal StringFormat HeaderFormat = new StringFormat();
-        internal StringFormat ItemFormat = new StringFormat();
+        private Color headerBackColor = SystemColors.ButtonFace;
+        private Color headerForeColor = SystemColors.ControlText;
+        private Color headerBorderColor = SystemColors.ControlLight;
+        private Color groupForeColor = SystemColors.ActiveCaption;
+        private Brush headerBackBrush = new SolidBrush(SystemColors.ButtonFace);
+        private Brush headerForeBrush = new SolidBrush(SystemColors.ControlText);
+        private Brush groupForeBrush = new SolidBrush(SystemColors.ActiveCaption);
+        private Pen headerBorderPen = new Pen(SystemColors.ControlLight);
+        private Pen groupBorderPen = new Pen(SystemColors.ActiveCaption);
+        private StringFormat HeaderFormat = new StringFormat();
+        private StringFormat ItemFormat = new StringFormat();
 
         #endregion
 
@@ -27,7 +27,7 @@ namespace System.Windows.Forms
         /// <summary>
         /// List view.
         /// </summary>
-        internal ListView View { get; } = new ListView();
+        private ListView View { get; } = new ListView();
         /// <summary>
         /// Horizontal alignment of the column title.
         /// </summary>
@@ -189,6 +189,8 @@ namespace System.Windows.Forms
         {
             Size = Draw();
             base.Update();
+            if (Parent?.GetType() == typeof(Panel) && (Parent as Panel).AutoScroll)
+                (Parent as Panel).Update();
         }
 
         #endregion
@@ -197,7 +199,7 @@ namespace System.Windows.Forms
 
         protected override void OnPaint(PaintEventArgs e) => Draw(e.Graphics);
 
-        internal Drawing.Size Draw(Graphics g = null)
+        private Drawing.Size Draw(Graphics g = null)
         {
             g?.Clear(BackColor);
 

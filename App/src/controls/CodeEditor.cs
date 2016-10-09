@@ -1,9 +1,8 @@
-﻿using ScintillaNET;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace App
+namespace ScintillaNET
 {
     public partial class CodeEditor : Scintilla
     {
@@ -47,10 +46,10 @@ namespace App
         /// Instantiate and initialize ScintillaNET based code editor for ProtoFX.
         /// </summary>
         /// <param name="text">[OPTIONAL] Initialize code editor with text.</param>
-        public CodeEditor(string text = null)
+        public CodeEditor(string keywordsXml, string text = null)
         {
             InitializeFindAndReplace();
-            InitializeHighlighting();
+            InitializeHighlighting(keywordsXml);
             InitializeSelection();
             InitializeAutoC();
             InitializeCodeFolding();

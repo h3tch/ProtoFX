@@ -10,7 +10,7 @@ namespace System.Windows.Forms
     {
         #region FIELDS
 
-        internal string unformatedText;
+        private string unformatedText;
         public Font KeyFont { get; set; }
         public Font ParamFont { get; set; }
         public Font CodeFont { get; set; }
@@ -50,7 +50,7 @@ namespace System.Windows.Forms
         /// <summary>
         /// The size of the call tip text.
         /// </summary>
-        internal Drawing.Size TextSize { get; private set; }
+        public Drawing.Size TextSize { get; private set; }
 
         #endregion
 
@@ -122,12 +122,12 @@ namespace System.Windows.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        internal void text_MouseEnter(object sender, EventArgs e) => Hide();
+        private void text_MouseEnter(object sender, EventArgs e) => Hide();
 
         /// <summary>
         /// Update the TextSize property.
         /// </summary>
-        internal void UpdateTextSize()
+        private void UpdateTextSize()
         {
             int r = 0, b = 0;
             // for each line
@@ -153,7 +153,7 @@ namespace System.Windows.Forms
         /// <param name="tag"></param>
         /// <param name="font"></param>
         /// <param name="color"></param>
-        internal void Style(string tag, Font font, Color color)
+        private void Style(string tag, Font font, Color color)
         {
             var tagS = $"<{tag}>";
             var tagE = $"</{tag}>";
@@ -188,7 +188,7 @@ namespace System.Windows.Forms
 
 
         [Runtime.InteropServices.DllImport("user32.dll")]
-        internal static extern IntPtr GetForegroundWindow();
+        private static extern IntPtr GetForegroundWindow();
 
         #endregion
     }

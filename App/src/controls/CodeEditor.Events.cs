@@ -1,10 +1,10 @@
-﻿using ScintillaNET;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace App
+namespace ScintillaNET
 {
     public partial class CodeEditor
     {

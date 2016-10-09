@@ -1,5 +1,6 @@
 ﻿using ScintillaNET;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
@@ -468,7 +469,7 @@ namespace App
                       select (x is CompileException ? x : x.InnerException) as CompileException;
             var err = from x in exc from y in x select y;
             var line = from x in err select x.Line;
-            err.Zip(line, (e, l) => AddOutputItem(includeDir, e.File, l + 1, e.Msg));
+            err.ForEach(line, (e, l) => AddOutputItem(includeDir, e.File, l + 1, e.Msg));
 
             // underline all debug errors
             var ranges = line.Select(x => new[] {
@@ -690,7 +691,7 @@ namespace App
 
             // create new tab objects
             var tabSourcePage = new TabPageEx(path);
-            var editor = new CodeEditor(text);
+            var editor = new CodeEditor(Properties.Resources.keywordsXML, text);
             editor.UpdateUI += new EventHandler<UpdateUIEventArgs>(editor_UpdateUI);
             editor.MouseMove += new MouseEventHandler(editor_MouseMove);
 

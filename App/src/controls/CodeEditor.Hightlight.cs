@@ -1,17 +1,17 @@
-﻿using ScintillaNET;
+﻿using ScintillaNET.Lexing;
 using System;
 using System.Windows.Forms;
 
-namespace App
+namespace ScintillaNET
 {
     partial class CodeEditor
     {
-        private static Lexer.ILexer FxLexer;
+        private static ILexer FxLexer;
 
         /// <summary>
         /// Initialize code highlighting.
         /// </summary>
-        private void InitializeHighlighting()
+        private void InitializeHighlighting(string keywordsXml)
         {
             StyleNeeded += new EventHandler<StyleNeededEventArgs>(HandleStyleNeeded);
 
@@ -33,7 +33,7 @@ namespace App
             Styles[Style.CallTip].BackColor = Theme.BackColor;
 
             if (FxLexer == null)
-                FxLexer = new Lexer.FxLexer();
+                FxLexer = new FxLexer(keywordsXml);
 
             // set styles as defined in the keyword file
             foreach (var style in FxLexer.Styles)

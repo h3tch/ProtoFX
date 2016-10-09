@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 
-namespace App.Lexer
+namespace ScintillaNET.Lexing
 {
     /// <summary>
     /// Common lexing interface for ProtoFX lexers.
@@ -57,5 +58,18 @@ namespace App.Lexer
         /// <param name="word"></param>
         /// <returns></returns>
         IEnumerable<Keyword> SelectKeywordInfo(int style, string word);
+    }
+
+    public struct Keyword
+    {
+        public string word;
+        public string hint;
+    }
+
+    public struct Style
+    {
+        public int id;
+        public Color fore;
+        public Color back;
     }
 }

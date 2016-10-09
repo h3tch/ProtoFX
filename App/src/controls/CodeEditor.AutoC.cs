@@ -2,14 +2,15 @@
 using System.Windows.Forms;
 using System;
 using System.Drawing;
-using ScintillaNET;
+using System.Collections.Generic;
 
-namespace App
+namespace ScintillaNET
 {
+    public 
     partial class CodeEditor
     {
-        internal static CallTip tip;
-        internal static int tipOffsetY;
+        private static CallTip tip;
+        private static int tipOffsetY;
 
         public void InitializeAutoC()
         {

@@ -1,4 +1,4 @@
-﻿using ScintillaNET;
+﻿using ScintillaNET.Lexing;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,14 +8,14 @@ using System.Windows.Forms;
 using System.Xml;
 using SciStyle = ScintillaNET.Style;
 
-namespace App.Lexer
+namespace ScintillaNET
 {
     /// <summary>
     /// ProtoFX tech file lexer.
     /// </summary>
     public class FxLexer : BaseLexer
     {
-        public FxLexer() : base(0, LoadFxLexerFromXml(), null) { }
+        public FxLexer(string file) : base(0, LoadFxLexerFromXml(file), null) { }
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
@@ -34,10 +34,10 @@ namespace App.Lexer
         private new ILexer FindLexerForStyle(int style)
             => lexer.Select(x => x.FindLexerForStyle(style)).FirstOr(x => x != null, null);
 
-        private static XmlNode LoadFxLexerFromXml()
+        private static XmlNode LoadFxLexerFromXml(string file)
         {
             var xml = new XmlDocument();
-            xml.LoadXml(Properties.Resources.keywordsXML);
+            xml.LoadXml(file);
             return xml.SelectSingleNode("FxLexer");
         }
 
@@ -54,8 +54,8 @@ namespace App.Lexer
         protected string lexerType;
         protected BaseLexer[] lexer;
         protected Trie<Keyword>[] keywords;
-        protected Style[] styles;
-        public IEnumerable<Style> Styles => styles.Concat(lexer.SelectMany(x => x.Styles));
+        protected ScintillaNET.Lexing.Style[] styles;
+        public IEnumerable<ScintillaNET.Lexing.Style> Styles => styles.Concat(lexer.SelectMany(x => x.Styles));
         public int firstStyle { get; private set; }
         public int lastStyle { get; private set; }
         public static int firstBaseStyle { get; private set; }
@@ -93,7 +93,7 @@ namespace App.Lexer
 
             // allocate arrays for styles
             styles = Enumerable.Range(firstStyle, styleCount)
-                .Select(x => new Style {
+                .Select(x => new ScintillaNET.Lexing.Style {
                     id = x, fore = Theme.ForeColor, back = Theme.Workspace
                 }).ToArray();
             keywords = new Trie<Keyword>[styleCount];
@@ -141,11 +141,13 @@ namespace App.Lexer
             // instantiate sub-lexers
             var lexerList = lexerNode.SelectNodes("Lexer");
             lexer = new BaseLexer[lexerList.Count];
+            var assembly = typeof(BaseLexer).FullName.Substring(0,
+                typeof(BaseLexer).FullName.Length - typeof(BaseLexer).Name.Length);
             for (int i = 0; i < lexerList.Count; i++)
             {
                 var type = lexerList[i].GetAttributeValue("lexer");
                 var param = new object[] { firstFreeStyle, lexerList[i], this };
-                var t = Type.GetType($"App.Lexer.{type}");
+                var t = Type.GetType($"{assembly}{type}");
                 lexer[i] = (BaseLexer)Activator.CreateInstance(t, param);
                 firstFreeStyle = lexer[i].MaxStyle + 1;
             }
@@ -1237,19 +1239,6 @@ namespace App.Lexer
         Name,
     }
 
-    public struct Keyword
-    {
-        public string word;
-        public string hint;
-    }
-
-    public struct Style
-    {
-        public int id;
-        public Color fore;
-        public Color back;
-    }
-    
     public class Region
     {
         private CodeEditor editor;

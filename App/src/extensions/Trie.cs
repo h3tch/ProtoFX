@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
-namespace App
+namespace System.Collections.Generic
 {
     /// <summary>
     /// A trie, also called digital tree and sometimes radix tree or prefix tree
@@ -33,7 +31,7 @@ namespace App
         /// <param name="values"></param>
         public Trie(IEnumerable<string> keys, IEnumerable<TValue> values)
         {
-            keys.Zip(values, (k, v) => Add(k, v));
+            keys.Zip(values, (k, v) => { Add(k, v); return 0; });
         }
 
         /// <summary>

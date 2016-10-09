@@ -219,7 +219,7 @@ namespace App
             
             // create OpenGL name lookup dictionary
             var glNames = new Dictionary<string, int>(scene.Count);
-            scene.Keys.Zip(scene.Values, (k, v) => glNames.Add(k, v.glname));
+            scene.Keys.ForEach(scene.Values, (k, v) => glNames.Add(k, v.glname));
 
             // create main class from compiled files
             var classname = cmd[1].Text;

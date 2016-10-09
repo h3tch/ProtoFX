@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using ScintillaNET;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,6 +14,7 @@ namespace App
     class FxDebugger
     {
         #region FIELDS
+
         public static Regex RegexDbgVar = new Regex($@"{DBG_OPEN}[\s\w\d_\.\[\] ]*{DBG_CLOSE}");
         public static Regex RegexMain = new Regex(@"void\s+main\s*\(\s*\)");
         public static Regex RegexBranch1 = new Regex(@"(if|while|for)\s*\(.*\)\s*\{");
@@ -35,6 +37,7 @@ namespace App
         private static string[] dbgUniforms = DBG_UNIFORMS.Split('\n').Select(x => x.Trim()).ToArray();
         private static string[] dbgConditions = DBG_CONDITIONS.Split('\n').Select(x => x.Trim()).ToArray();
         private static int dbgVarCount;
+
         #endregion
 
         /// <summary>
@@ -101,6 +104,7 @@ namespace App
         }
 
         #region TEXTURE AND IMAGE BINDING
+
         /// <summary>
         /// Bind image/texture to image load/store unit.
         /// </summary>
@@ -139,9 +143,11 @@ namespace App
             if (texUnits[unit].target != 0)
                 GL.BindTexture(texUnits[unit].target, glname);
         }
+
         #endregion
 
         #region DEBUG VARIABLE
+
         /// <summary>
         /// Convert debug variable into a readable string.
         /// </summary>
@@ -324,9 +330,11 @@ namespace App
             
             return null;
         }
+
         #endregion
 
         #region DEBUG CODE GENERATION FOR GLSL SHADERS
+
         /// <summary>
         /// Add debug code to GLSL shader.
         /// </summary>
@@ -416,9 +424,11 @@ namespace App
             
             return head + '\n' + rsHead + '\n' + rsBody;
         }
+
         #endregion
 
         #region DEBUG UNIFORMS
+
         private class Uniforms
         {
             // output image store unit
@@ -509,9 +519,11 @@ namespace App
                 buf.Read(ref data);
             }
         }
+
         #endregion
 
         #region DEBUG SETTINGS
+
         public class DebugSettings
         {
             [Category("Vertex Shader"), DisplayName("InstanceID"),
@@ -564,9 +576,11 @@ namespace App
                 "math computation: gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID;")]
             public int[] cs_GlobalInvocationID { get; set; } = new int[3] { 0, 0, 0 };
         }
+
         #endregion
 
         #region UTIL STRUCTURE
+
         public class DbgVar
         {
             public int ID;
@@ -595,6 +609,7 @@ namespace App
             public TextureAccess access;
             public SizedInternalFormat format;
         }
+
         #endregion
     }
 }

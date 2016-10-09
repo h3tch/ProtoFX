@@ -1,12 +1,11 @@
-﻿using ScintillaNET;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using static System.Math;
 
-namespace App
+namespace ScintillaNET
 {
     partial class CodeEditor
     {

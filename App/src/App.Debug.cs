@@ -1,5 +1,6 @@
 ﻿using ScintillaNET;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
@@ -11,6 +12,7 @@ namespace App
     public partial class App
     {
         #region Debug Image
+
         /// <summary>
         /// Raised when another image is selected for inspection.
         /// </summary>
@@ -47,9 +49,11 @@ namespace App
         /// <param name="e"></param>
         private void pictureImg_Click(object sender, EventArgs e)
             => numImgLayer_ValueChanged(sender, e);
+
         #endregion
 
         #region Debug Buffer
+
         /// <summary>
         /// Raised when another buffer is selected for inspection.
         /// </summary>
@@ -111,9 +115,11 @@ namespace App
         /// <param name="e"></param>
         private void numBufDim_ValueChanged(object sender, EventArgs e)
             => comboBuf_SelectedIndexChanged(sender, null);
+
         #endregion
 
         #region Debug Properties
+
         /// <summary>
         /// Raised when another ProtoFX "instance-object" is selected for inspection.
         /// </summary>
@@ -141,9 +147,11 @@ namespace App
         /// <param name="e"></param>
         private void propertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
             => DebugRender();
+
         #endregion
 
         #region Compiler Output
+
         /// <summary>
         /// On double clicking on a compiler error, jump to the line where the error happened.
         /// </summary>
@@ -182,9 +190,11 @@ namespace App
             var lineNumber = line > 0 ? line.ToString(CultureInfo.CurrentCulture) : string.Empty;
             output.Rows.Add(new[] { relPath, lineNumber, msg });
         }
+
         #endregion
 
         #region Debug Shader
+
         /// <summary>
         /// When the selection (caret) changed update the debug tab.
         /// </summary>
@@ -258,10 +268,11 @@ namespace App
                 return;
 
             // get debug variables of the line where the caret is placed
-            var dbgLine = editor.LineFromPosition(editor.CurrentPosition);
-            var dbgVars = FxDebugger.GetDebugVariablesFromLine(editor, dbgLine).Select(x => x);
+            var first = editor.LineFromPosition(editor.SelectionStart);
+            var last = editor.LineFromPosition(editor.SelectionEnd);
+            var dbgVars = FxDebugger.GetDebugVariablesFromLine(editor, first, last - first + 1);
             dbgVars.Select(Var => FxDebugger.GetDebugVariableValue(Var.ID, glControl.Frame - 1))
-                   .Zip(dbgVars, (Val, Var) => { if (Val != null) NewVariableItem(Var.Name, Val); });
+                   .ForEach(dbgVars, (Val, Var) => { if (Val != null) NewVariableItem(Var.Name, Val); });
             debugListView.Update();
         }
 
@@ -293,6 +304,7 @@ namespace App
                 debugListView.AddItem(item);
             }
         }
+
         #endregion
 
         /// <summary>

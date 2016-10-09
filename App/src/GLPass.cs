@@ -16,20 +16,25 @@ namespace App
     class GLPass : GLObject
     {
         #region FIELDS
+
         [FxField] private string Vert = null;
         [FxField] private string Tess = null;
         [FxField] private string Eval = null;
         [FxField] private string Geom = null;
         [FxField] private string Frag = null;
         [FxField] private string Comp = null;
-        private GLObject glvert = null;
-        private GLObject gltess = null;
-        private GLObject gleval = null;
-        private GLObject glgeom = null;
-        private GLObject glfrag = null;
-        private GLObject glcomp = null;
-        private Vertoutput vertoutput = null;
-        private GLFragoutput fragoutput = null;
+        private GLObject glvert;
+        private GLObject gltess;
+        private GLObject gleval;
+        private GLObject glgeom;
+        private GLObject glfrag;
+        private GLObject glcomp;
+        private int[] glqueries;
+        private bool timerStarted;
+        private long timerStart;
+        private long timerEnd;
+        private Vertoutput vertoutput;
+        private GLFragoutput fragoutput;
         private List<MultiDrawCall> drawcalls = new List<MultiDrawCall>();
         private List<CompCall> compcalls = new List<CompCall>();
         private List<ResTexImg> texImages = new List<ResTexImg>();
@@ -37,6 +42,8 @@ namespace App
         private List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
         private List<GLMethod> glfunc = new List<GLMethod>();
         private List<GLInstance> csexec = new List<GLInstance>();
+        private DropOutStack<float> timings = new DropOutStack<float>(60 * 5);
+
         #endregion
 
         /// <summary>
@@ -50,11 +57,11 @@ namespace App
         {
             var err = new CompileException($"pass '{name}'");
 
-            // PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
+            /// PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
 
             Cmds2Fields(block, err);
 
-            // PARSE COMMANDS
+            /// PARSE COMMANDS
 
             foreach (var cmd in block)
             {
@@ -84,7 +91,7 @@ namespace App
             if (err.HasErrors())
                 throw err;
 
-            // CREATE OPENGL OBJECT
+            /// CREATE OPENGL OBJECT
 
             if (Vert != null || Comp != null)
             {
@@ -128,6 +135,15 @@ namespace App
                     err.Add($"\n{GL.GetProgramInfoLog(glname)}", block);
             }
 
+            /// CREATE OPENGL TIMER QUERY
+
+            if (glqueries == null)
+                glqueries = new int[2];
+            GL.GenQueries(glqueries.Length, glqueries);
+            timerStarted = false;
+
+            /// CHECK FOR ERRORS
+
             if (GL.GetError() != ErrorCode.NoError)
                 err.Add($"OpenGL error '{GL.GetError()}' occurred " +
                     "during shader program creation.", block);
@@ -149,7 +165,8 @@ namespace App
 
             int fbWidth = width, fbHeight = height;
 
-            // BIND FRAGMENT OUTPUT
+            /// BIND FRAGMENT OUTPUT
+            
             // (widthOut and heightOut must be 
             // computed before setting the glViewport)
             if (fragoutput != null)
@@ -159,25 +176,31 @@ namespace App
                 fragoutput.Bind();
             }
 
-            // SET DEFAULT VIEWPORT
+            /// SET DEFAULT VIEWPORT
+            
             GL.Viewport(0, 0, fbWidth, fbHeight);
 
-            // CALL USER SPECIFIED OPENGL FUNCTIONS
+            /// CALL USER SPECIFIED OPENGL FUNCTIONS
+
             foreach (var x in glfunc)
             {
                 x.mtype.Invoke(null, x.inval);
                 ThrowOnGLError($"OpenGL error in OpenGL function '{x.mtype.Name}' of pass '{name}'.");
             }
 
-            // BIND PROGRAM
-            if (glname > 0) GL.UseProgram(glname);
+            /// BIND PROGRAM
 
-            // BIND VERTEX OUTPUT (transform feedback)
-            // (must be done after glUseProgram)
+            if (glname > 0)
+                GL.UseProgram(glname);
+
+            /// BIND VERTEX OUTPUT (transform feedback)
+            /// must be done after glUseProgram
+
             vertoutput?.Bind();
             ThrowOnGLError($"OpenGL error vertex output binding of pass '{name}'.");
 
-            // BIND TEXTURES
+            /// BIND TEXTURES
+
             foreach (var x in textures)
             {
                 GLTexture.BindTex(x.unit, x.obj);
@@ -194,31 +217,48 @@ namespace App
                 ThrowOnGLError($"OpenGL error in sampler '{x.obj?.name}' of pass '{name}'.");
             }
 
-            // EXECUTE EXTERNAL CODE
+            /// EXECUTE EXTERNAL CODE
+
             foreach (var x in csexec)
             {
                 x.Update(glname, width, height, fbWidth, fbHeight);
                 ThrowOnGLError($"OpenGL error in C# execution '{x.name}' of pass '{name}'.");
             }
 
-            // BIND DEBUGGER
-            if (glname > 0) FxDebugger.Bind(this, frame);
-            
-            // EXECUTE DRAW AND COMPUTE CALLS
+            /// BIND DEBUGGER
+
+            if (glname > 0)
+                FxDebugger.Bind(this, frame);
+
+            /// EXECUTE DRAW AND COMPUTE CALLS
+
+            // begin timer query
+            MeasureTime();
+            StartTimer();
+
+            // execute draw calls
             drawcalls.ForEach(call => call.draw());
             compcalls.ForEach(call => call.compute());
 
-            // UNBIND DEBUGGER
-            if (glname > 0) FxDebugger.Unbind(this);
+            // end timer query
+            EndTimer();
 
-            // UNBIND OPENGL OBJECTS
+            /// UNBIND DEBUGGER
+
+                if (glname > 0)
+                FxDebugger.Unbind(this);
+
+            /// UNBIND OPENGL OBJECTS
+
             csexec.ForEach(e => e.EndPass(glname));
 
-            // UNBIND OUTPUT BUFFERS
+            /// UNBIND OUTPUT BUFFERS
+
             fragoutput?.Unbind();
             vertoutput?.Unbind();
 
-            // UNBIND OPENGL RESOURCES
+            /// UNBIND OPENGL RESOURCES
+
             GL.UseProgram(0);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindBuffer(BufferTarget.DrawIndirectBuffer, 0);
@@ -240,9 +280,15 @@ namespace App
                 GL.DeleteProgram(glname);
                 glname = 0;
             }
+            if (glqueries != null)
+            {
+                GL.DeleteQueries(glqueries.Length, glqueries);
+                glqueries.Initialize();
+            }
         }
 
         #region PARSE COMMANDS
+
         private void ParseDrawCall(Compiler.Command cmd, Dict classes, CompileException err)
         {
             List<int> args = new List<int>();
@@ -471,9 +517,46 @@ namespace App
 
             csexec.Add(instance);
         }
+
+        #endregion
+
+        #region TIMING
+
+        private void StartTimer()
+        {
+            // begin timer query
+            if (!timerStarted)
+                GL.QueryCounter(glqueries[0], QueryCounterTarget.Timestamp);
+        }
+
+        private void EndTimer()
+        {
+            // end timer query
+            if (!timerStarted)
+            {
+                GL.QueryCounter(glqueries[1], QueryCounterTarget.Timestamp);
+                timerStarted = true;
+            }
+        }
+
+        private void MeasureTime()
+        {
+            if (!timerStarted)
+                return;
+            GL.GetQueryObject(glqueries[0], GetQueryObjectParam.QueryResultNoWait, out timerStart);
+            GL.GetQueryObject(glqueries[1], GetQueryObjectParam.QueryResultNoWait, out timerEnd);
+            var t = (timerEnd - timerStart) / 1000000f;
+            if (t > 0)
+            {
+                timings.Push(t);
+                timerStarted = false;
+            }
+        }
+
         #endregion
 
         #region UTIL METHODS
+
         private MethodInfo FindMethod(string name, int nparam)
             => (from method in typeof(GL).GetMethods()
                 where method.Name == name && method.GetParameters().Length == nparam
@@ -498,9 +581,11 @@ namespace App
                 throw new Exception($"{errcode}: {message}");
 #endif
         }
+
         #endregion
 
         #region HELP STRUCT
+
         private enum DrawFunc
         {
             ArraysIndirect = 0 | 2 | 0 | 0,
@@ -774,6 +859,7 @@ namespace App
 
             public void Unbind() => GLVertoutput.Unbind(pause);
         }
+
         #endregion
     }
 }
