@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Windows.Forms.DataVisualization.Charting;
 using System.Xml;
 
 namespace System.Windows.Forms
@@ -99,14 +100,17 @@ namespace System.Windows.Forms
         /// Apply theme to the specified control and its children.
         /// </summary>
         /// <param name="control"></param>
-        public static void Apply(Control control)
+        public static void Apply(object control)
         {
             var type = control.GetType();
             var method = GetMethod(type, true) ?? GetMethod(type, false);
             if (!(bool)method?.Invoke(null, new object[] { control }))
                 return;
-            foreach (Control c in control.Controls)
-                Apply(c);
+            if (control.GetType().IsSubclassOf(typeof(Control)))
+            {
+                foreach (Control c in ((Control)control).Controls)
+                    Apply(c);
+            }
         }
 
         /// <summary>
@@ -266,13 +270,6 @@ namespace System.Windows.Forms
             return false;
         }
 
-        private static bool ApplyTo(Control c)
-        {
-            c.BackColor = BackColor;
-            c.ForeColor = ForeColor;
-            return true;
-        }
-
         private static bool ApplyTo(CallTip c)
         {
             c.BackColor = BackColor;
@@ -280,6 +277,43 @@ namespace System.Windows.Forms
             c.KeyColor = Color.FromArgb(255, 66, 147, 214);
             c.ParamColor = Color.FromArgb(255, 147, 147, 147);
             c.CodeColor = ForeColor;
+            return true;
+        }
+
+        private static bool ApplyTo(Chart c)
+        {
+            c.BackColor = BackColor;
+            c.ForeColor = ForeColor;
+            foreach (var area in c.ChartAreas)
+                ApplyTo(area);
+            return false;
+        }
+
+        private static bool ApplyTo(ChartArea c)
+        {
+            c.BackColor = BackColor;
+            c.BorderColor = HighlightBackColor;
+            foreach (var axis in c.Axes)
+                ApplyTo(axis);
+            return false;
+        }
+
+        private static bool ApplyTo(Axis c)
+        {
+            c.LabelStyle.ForeColor = ForeColor;
+            return false;
+        }
+
+        private static bool ApplyTo(Series c)
+        {
+            c.Color = SelectForeColor;
+            return false;
+        }
+
+        private static bool ApplyTo(Control c)
+        {
+            c.BackColor = BackColor;
+            c.ForeColor = ForeColor;
             return true;
         }
 

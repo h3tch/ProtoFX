@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace System.Windows.Forms
 {
@@ -71,45 +72,102 @@ namespace System.Windows.Forms
         #endregion
 
         #region METHODS
-        
+
         /// <summary>
         /// Show the call tip at the specified screen position.
         /// </summary>
-        /// <param name="screenx">Screen x position.</param>
-        /// <param name="screeny">Screen y position.</param>
-        /// <param name="marginx">X margin relative to the screen position.</param>
-        /// <param name="marginy">Y margin relative to the screen position.</param>
-        /// <param name="offsetx">Additional x offset from the screen position.</param>
-        /// <param name="offsety">Additional y offset from the screen position.</param>
-        /// <param name="text">The text that should be shown in the tool tip.</param>
-        public void Show(int screenx, int screeny, int marginx, int marginy, int offsetx, int offsety, string text)
+        /// <param name="rect"></param>
+        /// <param name="tip"></param>
+        /// <param name="align"></param>
+        public void Show(Rectangle rect, string tip, ContentAlignment align = ContentAlignment.BottomLeft)
         {
             /// SET NEW TEXT
 
-            Tip = text;
+            Tip = tip;
+            text.Update();
 
-            /// ADJUST CALL TIP SIZE
+            /// ADJUST CALL TIP POSITION AND SIZE
 
-            var size = TextSize;
-
-            size.Width += Padding.Left + Padding.Right;
-            size.Height += Padding.Top + Padding.Bottom;
-
-            // set call tip size
-            Width = size.Width;
-            Height = size.Height;
-
-            /// ADJUST CALL TIP POSITION
-
-            // move the call tip in case it is placed outside the screen
-            var screen = Screen.FromPoint(new Drawing.Point(screenx, screeny));
-            screenx += screenx + Width <= screen.Bounds.Right ? offsetx + marginx : -Width - marginx;
-            screeny += screeny + Height <= screen.Bounds.Bottom ? offsety + marginy : -Height - marginy;
-            Location = new Drawing.Point(screenx, screeny);
+            Reposition(rect, TextSize, align);
 
             /// SHOW CALL TIP
 
+            text.Visible = true;
+            chart.Visible = false;
             Show();
+        }
+
+        /// <summary>
+        /// Show the chart call tip at the specified screen position.
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <param name="X"></param>
+        /// <param name="Y"></param>
+        /// <param name="align"></param>
+        public void Show(Rectangle rect, Array X, Array Y, ContentAlignment align = ContentAlignment.TopLeft)
+        {
+            /// SET NEW CHART
+
+            chart.Series.Clear();
+            var series = new Series {
+                Name = "Series",
+                IsVisibleInLegend = false,
+                IsXValueIndexed = true,
+                ChartType = SeriesChartType.Line
+            };
+            Theme.Apply(series);
+            
+            chart.Series.Add(series);
+            for (int i = 0; i < X.Length; i++)
+                series.Points.AddXY(X.GetValue(i), Y.GetValue(i));
+            chart.ResetAutoValues();
+            chart.Update();
+
+            /// ADJUST CALL TIP POSITION AND SIZE
+
+            var size = new Drawing.Size(
+                Math.Max(300, (int)(X.Length * 1.9f)),
+                Math.Max(200, (int)(Y.Length * 1.3f)));
+            Reposition(rect, size, align);
+
+            /// SHOW CALL TIP
+
+            text.Visible = false;
+            chart.Visible = true;
+            Show();
+        }
+
+        /// <summary>
+        /// Reposition the form.
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <param name="size"></param>
+        /// <param name="align"></param>
+        private void Reposition(Rectangle rect, Drawing.Size size, ContentAlignment align)
+        {
+            size.Width += Padding.Left + Padding.Right;
+            size.Height += Padding.Top + Padding.Bottom;
+
+            // move the call tip in case it is placed outside the screen
+            var screen = Screen.FromPoint(new Drawing.Point(rect.X, rect.Y));
+
+            if (align >= ContentAlignment.BottomLeft)
+            {
+                if (rect.Y + rect.Height + size.Height >= screen.Bounds.Bottom)
+                    rect.Y -= size.Height;
+                else
+                    rect.Y += rect.Height + 5;
+            }
+            else if (align <= ContentAlignment.TopRight)
+            {
+                if (rect.Y - size.Height <= screen.Bounds.Top)
+                    rect.Y += rect.Height + 5;
+                else
+                    rect.Y -= size.Height;
+            }
+
+            Location = rect.Location;
+            Size = size;
         }
 
         #endregion
@@ -122,7 +180,7 @@ namespace System.Windows.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void text_MouseEnter(object sender, EventArgs e) => Hide();
+        private void MouseEnterHandler(object sender, EventArgs e) => OnEnter(e);
 
         /// <summary>
         /// Update the TextSize property.
@@ -185,8 +243,7 @@ namespace System.Windows.Forms
                 text.SelectionFont = font;
             }
         }
-
-
+        
         [Runtime.InteropServices.DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
 

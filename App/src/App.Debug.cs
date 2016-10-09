@@ -249,6 +249,42 @@ namespace App
         }
 
         /// <summary>
+        /// When the call tip is shown, check whether there
+        /// are some performance statistics we can show.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void editor_ShowCallTip(object s, ShowTipEventHandlerArgs e)
+        {
+            var editor = s as CodeEditor;
+
+            var type = editor.GetWordFromPosition(e.TextPosition);
+            if (type != "pass")
+                return;
+
+            var pos = editor.WordEndPosition(e.TextPosition, false);
+            pos = editor.WordEndPosition(pos + 1, true);
+            var name = editor.GetWordFromPosition(pos);
+
+            var pass = glControl.Scene.GetValueOrDefault<GLPass>(name);
+            if (pass == null)
+                return;
+
+            editor.PerfTipShow(e.TextPosition,
+                pass.Frames.Reverse().ToArray(),
+                pass.Timings.Reverse().ToArray());
+        }
+
+        /// <summary>
+        /// Cancel the performance call tip
+        /// if the normal call tip is canceled.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void editor_CancleCallTip(object s, CancleTipEventHandlerArgs e)
+            => (s as CodeEditor).PerfTipCancel();
+
+        /// <summary>
         /// Show variables of the currently selected line in the editor.
         /// </summary>
         /// <param name="editor"></param>

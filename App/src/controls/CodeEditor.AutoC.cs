@@ -3,14 +3,31 @@ using System.Windows.Forms;
 using System;
 using System.Drawing;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace ScintillaNET
 {
-    public 
     partial class CodeEditor
     {
-        private static CallTip tip;
-        private static int tipOffsetY;
+        #region FIELDS
+
+        private static CallTip callTip;
+        private static CallTip perfTip;
+
+        #endregion
+
+        #region EVENTS
+
+        [Category("Behavior"), Description("Occurs when CallTipShow is called.")]
+        public event ShowTipEventHandler ShowCallTip;
+        [Category("Behavior"), Description("Occurs when CallTipCancel is called.")]
+        public event CancleTipEventHandler CancleCallTip;
+        [Category("Behavior"), Description("Occurs when CallTipShow is called.")]
+        public event ShowTipEventHandler ShowPerfTip;
+        [Category("Behavior"), Description("Occurs when CallTipCancel is called.")]
+        public event CancleTipEventHandler CanclePerfTip;
+
+        #endregion
 
         public void InitializeAutoC()
         {
@@ -72,44 +89,131 @@ namespace ScintillaNET
             CallTipCancel();
         }
 
+        #region CALL TIP METHODS
+
         /// <summary>
-        /// Show a calltip at the specified text position.
+        /// Show a call tip at the specified text position.
         /// </summary>
         /// <param name="position"></param>
         /// <param name="definition"></param>
         public new void CallTipShow(int position, string definition)
+            => TipShow(ref callTip, ShowCallTip, position, definition);
+
+        /// <summary>
+        /// Hide call tip.
+        /// </summary>
+        public new void CallTipCancel() => TipCancel(callTip, CancleCallTip);
+
+        /// <summary>
+        /// Show a performance call tip at the specified text position.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="X"></param>
+        /// <param name="Y"></param>
+        public void PerfTipShow(int position, Array X, Array Y)
+            => TipShow(ref perfTip, ShowPerfTip, position, new[] { X, Y });
+
+        /// <summary>
+        /// Hide performance call tip.
+        /// </summary>
+        public void PerfTipCancel() => TipCancel(perfTip, CanclePerfTip);
+
+        /// <summary>
+        /// Show the call tip.
+        /// </summary>
+        /// <param name="tip"></param>
+        /// <param name="handlers"></param>
+        /// <param name="position"></param>
+        /// <param name="hint"></param>
+        private void TipShow(ref CallTip tip, ShowTipEventHandler handlers, int position, object hint)
         {
             // create calltip class
             if (tip == null)
             {
                 tip = new CallTip();
-                var font = new Font(Styles[Style.Default].Font, Styles[Style.Default].SizeF);
-                tipOffsetY = TextRenderer.MeasureText("W", font).Height;
-                // apply the current theme to the call tip components
+                tip.Enter += new EventHandler(tip_MouseEnter);
                 Theme.Apply(tip);
             }
-            
+
             // get screen position
-            int x = PointXFromPosition(position);
-            int y = PointYFromPosition(position);
-            var p = PointToScreen(new Point(x, y));
+            var p = PointToScreen(new Point(
+                PointXFromPosition(position),
+                PointYFromPosition(position)));
 
             // Fore some reason PointToScreen can return
             // different positions. In this case the call
             // tip needs to be repositioned.
             if (!tip.Visible || tip.Location != p)
             {
+                // invoke event hadlers
+                var e = new ShowTipEventHandlerArgs();
+                e.TextPosition = position;
+                e.Definition = hint;
+                e.ScreenPosition = p;
+                handlers?.Invoke(this, e);
+                if (e.Cancle)
+                    return;
+
                 // make sure the calltip window
                 // is in front of all others
                 tip.BringToFront();
+
                 // show calltip
-                tip.Show(p.X, p.Y, 5, 5, 0, tipOffsetY, definition);
+                var rect = GetWordBounds(position);
+                rect.Location = PointToScreen(rect.Location);
+                if (hint is string)
+                    tip.Show(rect, (string)hint);
+                else if (hint is Array)
+                    tip.Show(rect, (Array)((Array)hint).GetValue(0), (Array)((Array)hint).GetValue(1));
             }
         }
 
         /// <summary>
-        /// Hide calltip.
+        /// Cancel the call tip.
         /// </summary>
-        public new void CallTipCancel() => tip?.Hide();
+        /// <param name="tip"></param>
+        /// <param name="handlers"></param>
+        private void TipCancel(CallTip tip, CancleTipEventHandler handlers)
+        {
+            if (tip == null || !tip.Visible)
+                return;
+
+            var e = new CancleTipEventHandlerArgs();
+            handlers?.Invoke(this, e);
+            if (e.Cancle)
+                return;
+
+            tip.Hide();
+        }
+
+        /// <summary>
+        /// Close call tips when the mouse enters.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void tip_MouseEnter(object s, EventArgs e)
+            => TipCancel(s as CallTip, s == callTip ? CancleCallTip : CanclePerfTip);
+
+        #endregion
     }
+
+    #region CALL TIP EVENTS
+
+    public delegate void ShowTipEventHandler(object sender, ShowTipEventHandlerArgs e);
+    public delegate void CancleTipEventHandler(object sender, CancleTipEventHandlerArgs e);
+
+    public class ShowTipEventHandlerArgs
+    {
+        public int TextPosition;
+        public Point ScreenPosition;
+        public object Definition;
+        public bool Cancle;
+    }
+
+    public class CancleTipEventHandlerArgs
+    {
+        public bool Cancle;
+    }
+
+    #endregion
 }

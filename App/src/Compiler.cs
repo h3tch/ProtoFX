@@ -12,10 +12,12 @@ namespace App
     class Compiler
     {
         #region FIELD
+
         public static Regex RegexBlock;
         public static Regex RegexFunction;
         public static Regex RegexLayout;
         private static HashSet<string> incpath = new HashSet<string>();
+
         #endregion
 
         static Compiler()
@@ -46,6 +48,7 @@ namespace App
         }
 
         #region Compiler classes
+
         public class File : IEnumerable<Block>
         {
             #region FIELDS
@@ -428,9 +431,11 @@ namespace App
                 Text = text.Trim();
             }
         }
+
         #endregion
 
         #region PROCESS CODE STRING
+
         /// <summary>
         /// Remove /*...*/ and // comments.
         /// </summary>
@@ -487,6 +492,7 @@ namespace App
 
             return text;
         }
+
         #endregion
     }
 

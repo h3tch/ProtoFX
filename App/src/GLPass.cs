@@ -43,6 +43,14 @@ namespace App
         private List<GLMethod> glfunc = new List<GLMethod>();
         private List<GLInstance> csexec = new List<GLInstance>();
         private DropOutStack<float> timings = new DropOutStack<float>(60 * 5);
+        private DropOutStack<int> frames = new DropOutStack<int>(60 * 5);
+
+        #endregion
+
+        #region PROPERTIES
+
+        public IEnumerable<float> Timings => timings;
+        public IEnumerable<int> Frames => frames;
 
         #endregion
 
@@ -233,7 +241,7 @@ namespace App
             /// EXECUTE DRAW AND COMPUTE CALLS
 
             // begin timer query
-            MeasureTime();
+            MeasureTime(frame);
             StartTimer();
 
             // execute draw calls
@@ -539,7 +547,7 @@ namespace App
             }
         }
 
-        private void MeasureTime()
+        private void MeasureTime(int frame)
         {
             if (!timerStarted)
                 return;
@@ -549,6 +557,7 @@ namespace App
             if (t > 0)
             {
                 timings.Push(t);
+                frames.Push(frame);
                 timerStarted = false;
             }
         }

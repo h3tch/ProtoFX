@@ -694,6 +694,8 @@ namespace App
             var editor = new CodeEditor(Properties.Resources.keywordsXML, text);
             editor.UpdateUI += new EventHandler<UpdateUIEventArgs>(editor_UpdateUI);
             editor.MouseMove += new MouseEventHandler(editor_MouseMove);
+            editor.ShowCallTip += new ShowTipEventHandler(editor_ShowCallTip);
+            editor.CancleCallTip += new CancleTipEventHandler(editor_CancleCallTip);
 
             // tabSourcePage
             Theme.Apply(tabSourcePage);

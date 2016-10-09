@@ -144,5 +144,22 @@ namespace ScintillaNET
 
             return words;
         }
+
+        /// <summary>
+        /// Get the bounding box of the word.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        public Rectangle GetWordBounds(int position)
+        {
+            var start = WordStartPosition(position, true);
+            var style = Styles[GetStyleAt(position)];
+            var word = GetWordFromPosition(position);
+            var size = TextRenderer.MeasureText(word, new Font(style.Font, style.SizeF));
+            return new Rectangle(
+                PointXFromPosition(start),
+                PointYFromPosition(start),
+                size.Width, size.Height);
+        }
     }
 }
