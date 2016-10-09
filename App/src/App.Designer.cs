@@ -1208,7 +1208,7 @@
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "App";
             this.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.App_FormClosing);
             this.Load += new System.EventHandler(this.App_Load);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.App_KeyUp);
