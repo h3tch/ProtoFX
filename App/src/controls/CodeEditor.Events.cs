@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -103,7 +104,7 @@ namespace ScintillaNET
             var tab = Parent as TabPage;
 
             // add file changed indicator '*'
-            if (!tab?.Text.EndsWith("*") ?? false)
+            if (watchChanges && (!tab?.Text.EndsWith("*") ?? false))
                 tab.Text = tab.Text + '*';
 
             // update line number margins
@@ -312,6 +313,82 @@ namespace ScintillaNET
                 var x2 = PointXFromPosition(Lines[i].EndPosition - wsEnd);
                 var y = PointYFromPosition(Lines[i].Position) + lineSize.Height - 1;
                 g.DrawLine(grayPen, x1, y, x2, y);
+            }
+        }
+
+        /// <summary>
+        /// Watch the linked file and handle events.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void HandleFileEvent(object s, FileSystemEventArgs e)
+        {
+            // only handle change events
+            switch (e.ChangeType)
+            {
+                /// HANDLE EXTERNAL EDITS
+                case WatcherChangeTypes.Changed:
+                    // update the text
+                    Invoke(new Action(() => {
+                        // if the file no longer exists
+                        if (!File.Exists(Filename))
+                        {
+                            Filename = null;
+                            return;
+                        }
+
+                        // load file
+                        var newText = File.ReadAllText(Filename);
+                        if (newText == Text)
+                            return;
+
+                        // file was edited externally
+                        // ask the user whether he/she wants to reload it
+                        var rs = MessageBox.Show(
+                            $"The file '{e.Name}' was edited outside the program.\nShould it be reloaded?",
+                            "File Edited", MessageBoxButtons.YesNo);
+                        if (rs != DialogResult.Yes)
+                            return;
+
+                        // change text
+                        PauseWatchChanges();
+                        ClearAll();
+                        Text = newText;
+                        ResumeWatchChanges();
+                    }));
+                    break;
+
+                /// HANDLE RENAMING OF THE FILE
+                case WatcherChangeTypes.Renamed:
+                    // if the file no longer exists
+                    if (!File.Exists(e.FullPath))
+                        return;
+
+                    // get class references
+                    var tab = Parent as TabPage;
+                    var name = tab.Text;
+                    if (name.EndsWith("*"))
+                        name = name.Substring(0, name.Length - 1);
+
+                    // file was edited externally
+                    // ask the user whether he/she wants to reload it
+                    var result = MessageBox.Show(
+                        $"The file name '{name}' change to '{e.Name}'.\nShould the file be reloaded?",
+                        "File Edited", MessageBoxButtons.YesNo);
+                    if (result != DialogResult.Yes)
+                        return;
+                    
+                    // update the text
+                    Invoke(new Action(() => {
+                        // change text
+                        ClearAll();
+                        Text = File.ReadAllText(e.FullPath);
+                        tab.Text = e.Name;
+                    }));
+
+                    // update the file watcher
+                    Filename = e.FullPath;
+                    break;
             }
         }
 

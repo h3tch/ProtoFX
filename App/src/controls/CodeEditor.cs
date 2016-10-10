@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace ScintillaNET
@@ -13,6 +15,14 @@ namespace ScintillaNET
         public static int DebugIndicatorIndex = 9;
         private List<int[]>[] IndicatorRanges;
         private static string HiddenLines = $"{(char)177}";
+        private string filename;
+        private FileSystemWatcher FileWatcher;
+        private bool watchChanges = true;
+
+        #endregion
+
+        #region PROPERTIES
+
         public new int FirstVisibleLine
         {
             get
@@ -39,9 +49,50 @@ namespace ScintillaNET
                 return line;
             }
         }
+        public string Filename
+        {
+            get { return filename; }
+            set
+            {
+                // stop watching
+                if (value == null)
+                {
+                    if (FileWatcher != null)
+                        FileWatcher.EnableRaisingEvents = false;
+                    return;
+                }
+
+                // check input
+                if (!System.IO.File.Exists(value))
+                    throw new ArgumentException("The file does not exist.");
+
+                // get the path and the name of the file
+                var path = Path.GetDirectoryName(value);
+                var name = Path.GetFileName(value);
+                filename = value;
+
+                // create file watcher
+                if (FileWatcher == null)
+                {
+                    FileWatcher = new FileSystemWatcher();
+                    FileWatcher.Changed += new FileSystemEventHandler(HandleFileEvent);
+                    FileWatcher.Renamed += new RenamedEventHandler(HandleFileEvent);
+                    FileWatcher.NotifyFilter = NotifyFilters.LastAccess
+                                             | NotifyFilters.LastWrite
+                                             | NotifyFilters.FileName
+                                             | NotifyFilters.DirectoryName;
+                }
+
+                FileWatcher.Path = path;
+                FileWatcher.Filter = name;
+                
+                // begin watching.
+                FileWatcher.EnableRaisingEvents = true;
+            }
+        }
 
         #endregion
-        
+
         /// <summary>
         /// Instantiate and initialize ScintillaNET based code editor for ProtoFX.
         /// </summary>
@@ -128,6 +179,34 @@ namespace ScintillaNET
             var width = TextRenderer.MeasureText(new string('9', nLines), Font).Width;
             if (Margins[0].Width != width)
                 Margins[0].Width = width;
+        }
+
+        /// <summary>
+        /// Pause watching for file changes.
+        /// </summary>
+        public void PauseFileWatch()
+        {
+            if (FileWatcher != null)
+                FileWatcher.EnableRaisingEvents = false;
+        }
+
+        /// <summary>
+        /// Resume watching for file changes.
+        /// </summary>
+        public void ResumeFileWatch()
+        {
+            if (FileWatcher != null)
+                FileWatcher.EnableRaisingEvents = true;
+        }
+        
+        public void PauseWatchChanges()
+        {
+            watchChanges = false;
+        }
+        
+        public void ResumeWatchChanges()
+        {
+            watchChanges = true;
         }
     }
 }

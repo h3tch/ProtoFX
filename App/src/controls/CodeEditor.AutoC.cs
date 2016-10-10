@@ -136,20 +136,20 @@ namespace ScintillaNET
             }
 
             // get screen position
-            var p = PointToScreen(new Point(
-                PointXFromPosition(position),
-                PointYFromPosition(position)));
+            var rect = GetWordBounds(position);
+            rect.Location = PointToScreen(rect.Location);
+            rect.Inflate(3, 3);
 
             // Fore some reason PointToScreen can return
             // different positions. In this case the call
             // tip needs to be repositioned.
-            if (!tip.Visible || tip.Location != p)
+            if (!tip.Visible || tip.Location != rect.Location)
             {
                 // invoke event hadlers
                 var e = new ShowTipEventHandlerArgs();
                 e.TextPosition = position;
                 e.Definition = hint;
-                e.ScreenPosition = p;
+                e.ScreenPosition = rect.Location;
                 handlers?.Invoke(this, e);
                 if (e.Cancle)
                     return;
@@ -159,8 +159,6 @@ namespace ScintillaNET
                 tip.BringToFront();
 
                 // show calltip
-                var rect = GetWordBounds(position);
-                rect.Location = PointToScreen(rect.Location);
                 if (hint is string)
                     tip.Show(rect, (string)hint);
                 else if (hint is Array)

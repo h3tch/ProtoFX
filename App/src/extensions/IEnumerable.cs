@@ -68,32 +68,6 @@ namespace System.Collections.Generic
         }
 
         /// <summary>
-        /// Process each object of the list using the specified
-        /// function and return all thrown exceptions.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="ie"></param>
-        /// <param name="func"></param>
-        /// <returns></returns>
-        public static IEnumerable<Exception> Catch<T>(this IEnumerable<T> ie, Action<T> func)
-        {
-            foreach (var e in ie)
-            {
-                Exception ex = null;
-                try
-                {
-                    func(e);
-                }
-                catch (Exception x)
-                {
-                    ex = x;
-                }
-                if (ex != null)
-                    yield return ex;
-            }
-        }
-
-        /// <summary>
         /// Concatenate a list of arrays.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -155,8 +129,42 @@ namespace System.Collections.Generic
                 func(e);
         }
 
+        /// <summary>
+        /// Return the maximum or, if the enumerable
+        /// is empty, the specified default value.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ie"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         public static T MaxOr<T>(this IEnumerable<T> ie, T defaultValue)
             => ie.Count() > 0 ? ie.Max() : defaultValue;
+
+        /// <summary>
+        /// Process each object of the list using the specified
+        /// function and return all thrown exceptions.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ie"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public static IEnumerable<Exception> Catch<T>(this IEnumerable<T> ie, Action<T> func)
+        {
+            foreach (var e in ie)
+            {
+                Exception ex = null;
+                try
+                {
+                    func(e);
+                }
+                catch (Exception x)
+                {
+                    ex = x;
+                }
+                if (ex != null)
+                    yield return ex;
+            }
+        }
     }
 
 }

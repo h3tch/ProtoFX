@@ -196,9 +196,6 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="src\controls\CallTip.resx">
-      <DependentUpon>CallTip.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include="demos\atlas\quest.tech" />
     <None Include="demos\shadow_mapping.tech" />
     <None Include="demos\shadow_mapping_pcf.tech" />

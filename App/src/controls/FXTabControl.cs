@@ -12,7 +12,7 @@ namespace System.Windows.Forms
         #region Private variables
         
         private int oldValue;
-        private Drawing.Point _dragStartPosition = Drawing.Point.Empty;
+        private Drawing.Point dragStartPosition = Drawing.Point.Empty;
         private TabStyle style;
         private TabStyleProvider styleProvider;
         private List<TabPage> tabPages;
@@ -87,10 +87,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public new bool Multiline {
             get { return base.Multiline; }
-            set {
-                base.Multiline = value;
-                Invalidate();
-            }
+            set { base.Multiline = value; Invalidate(); }
         }
         
         // Hide the Padding attribute so it can not be changed
@@ -117,10 +114,7 @@ namespace System.Windows.Forms
         [Category("Appearance")]
         public new TabAlignment Alignment {
             get { return base.Alignment; }
-            set {
-                base.Alignment = value;
-                Multiline = value > TabAlignment.Bottom;
-            }
+            set { base.Alignment = value; Multiline = value > TabAlignment.Bottom; }
         }
         
         // Hide the Appearance attribute so it can not be changed
@@ -276,13 +270,13 @@ namespace System.Windows.Forms
         
         #endregion
 
-        #region Drag 'n' Drop
+        #region Drag & Drop
         
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
             if (AllowDrop)
-                _dragStartPosition = new Drawing.Point(e.X, e.Y);
+                dragStartPosition = new Drawing.Point(e.X, e.Y);
             Invalidate();
         }
         
@@ -290,7 +284,7 @@ namespace System.Windows.Forms
         {
             base.OnMouseUp(e);
             if (AllowDrop)
-                _dragStartPosition = Drawing.Point.Empty;
+                dragStartPosition = Drawing.Point.Empty;
             Invalidate();
         }
         
@@ -335,19 +329,19 @@ namespace System.Windows.Forms
         
         private void StartDragDrop()
         {
-            if (_dragStartPosition.IsEmpty)
+            if (dragStartPosition.IsEmpty)
                 return;
             
             var dragTab = SelectedTab;
             if (dragTab != null){
                 // Test for movement greater than the drag activation trigger area
-                var dragTestRect = new Rectangle(_dragStartPosition, Drawing.Size.Empty);
+                var dragTestRect = new Rectangle(dragStartPosition, Drawing.Size.Empty);
                 dragTestRect.Inflate(SystemInformation.DragSize);
                 var pt = PointToClient(Control.MousePosition);
                 if (!dragTestRect.Contains(pt))
                 {
                     DoDragDrop(dragTab, DragDropEffects.All);
-                    _dragStartPosition = Drawing.Point.Empty;
+                    dragStartPosition = Drawing.Point.Empty;
                 }
             }
         }
@@ -356,9 +350,12 @@ namespace System.Windows.Forms
         
         #region Events
 
-        [Category("Action")] public event ScrollEventHandler HScroll;
-        [Category("Action")] public event EventHandler<TabControlEventArgs> TabImageClick;
-        [Category("Action")] public event EventHandler<TabControlCancelEventArgs> TabClosing;
+        [Category("Action")]
+        public event ScrollEventHandler HScroll;
+        [Category("Action")]
+        public event EventHandler<TabControlEventArgs> TabImageClick;
+        [Category("Action")]
+        public event EventHandler<TabControlCancelEventArgs> TabClosing;
         
         #endregion
 
@@ -602,13 +599,9 @@ namespace System.Windows.Forms
             else
             {
                 if (TabPages[index].Enabled)
-                {
                     g.DrawString(TabPages[index].Text, Font, styleProvider.TextColorBrush, tabBounds, GetStringFormat());
-                }
                 else
-                {
                     g.DrawString(TabPages[index].Text, Font, styleProvider.TextColorDisabledBrush, tabBounds, GetStringFormat());
-                }
             }
         }
 
@@ -622,7 +615,6 @@ namespace System.Windows.Forms
             {
                 tabImage = ImageList.Images[TabPages[index].ImageIndex];
             }
-
             else if (!string.IsNullOrEmpty(TabPages[index].ImageKey)
                 && !TabPages[index].ImageKey.Equals("(none)", StringComparison.OrdinalIgnoreCase)
                 && (ImageList?.Images.ContainsKey(TabPages[index].ImageKey) ?? false))

@@ -33,6 +33,7 @@ namespace App
         private bool timerStarted;
         private long timerStart;
         private long timerEnd;
+        private bool debug;
         private Vertoutput vertoutput;
         private GLFragoutput fragoutput;
         private List<MultiDrawCall> drawcalls = new List<MultiDrawCall>();
@@ -49,6 +50,7 @@ namespace App
 
         #region PROPERTIES
 
+        public int TimingsCount => timings?.Count ?? 0;
         public IEnumerable<float> Timings => timings;
         public IEnumerable<int> Frames => frames;
 
@@ -63,6 +65,7 @@ namespace App
         public GLPass(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
+            debug = debugging;
             var err = new CompileException($"pass '{name}'");
 
             /// PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
@@ -145,9 +148,12 @@ namespace App
 
             /// CREATE OPENGL TIMER QUERY
 
-            if (glqueries == null)
-                glqueries = new int[2];
-            GL.GenQueries(glqueries.Length, glqueries);
+            if (!debug)
+            {
+                if (glqueries == null)
+                    glqueries = new int[2];
+                GL.GenQueries(glqueries.Length, glqueries);
+            }
             timerStarted = false;
 
             /// CHECK FOR ERRORS
@@ -533,14 +539,14 @@ namespace App
         private void StartTimer()
         {
             // begin timer query
-            if (!timerStarted)
+            if (!debug && !timerStarted)
                 GL.QueryCounter(glqueries[0], QueryCounterTarget.Timestamp);
         }
 
         private void EndTimer()
         {
             // end timer query
-            if (!timerStarted)
+            if (!debug && !timerStarted)
             {
                 GL.QueryCounter(glqueries[1], QueryCounterTarget.Timestamp);
                 timerStarted = true;

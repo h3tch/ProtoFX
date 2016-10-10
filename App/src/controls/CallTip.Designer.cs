@@ -28,6 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
+
+            DataVisualization.Charting.Series chartSeries = new DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             this.text = new System.Windows.Forms.RichTextBox();
             this.chart = new System.Windows.Forms.DataVisualization.Charting.Chart();
@@ -60,15 +62,20 @@
             chartArea.AxisY.LabelAutoFitStyle = ((System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles)((((System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.IncreaseFont | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont) 
             | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.LabelsAngleStep30) 
             | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.WordWrap)));
-            chartArea.Name = "ChartArea1";
+            chartArea.Name = "ChartArea";
+            chartSeries.ChartType = DataVisualization.Charting.SeriesChartType.Line;
+            chartSeries.IsVisibleInLegend = false;
+            chartSeries.IsXValueIndexed = true;
+            chartSeries.Name = "ChartSeries";
             this.chart.ChartAreas.Add(chartArea);
             this.chart.Dock = System.Windows.Forms.DockStyle.Fill;
             this.chart.Location = new System.Drawing.Point(3, 3);
             this.chart.Margin = new System.Windows.Forms.Padding(0);
             this.chart.Name = "chart";
+            this.chart.Series.Add(chartSeries);
             this.chart.Size = new System.Drawing.Size(394, 94);
             this.chart.TabIndex = 101;
-            this.chart.Text = "chart1";
+            this.chart.Text = "chart";
             this.chart.Visible = false;
             this.chart.MouseEnter += new System.EventHandler(this.MouseEnterHandler);
             // 
@@ -81,7 +88,7 @@
             this.Controls.Add(this.text);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "CallTip";
-            this.Opacity = 0.9D;
+            this.Opacity = 0.95D;
             this.Padding = new System.Windows.Forms.Padding(3);
             this.ShowInTaskbar = false;
             this.Text = "CallTip";

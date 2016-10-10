@@ -32,7 +32,7 @@ namespace App
         /// <summary>
         /// Get the currently selected code tab.
         /// </summary>
-        private TabPageEx SelectedTab => (TabPageEx)tabSource.SelectedTab;
+        private FXTabPage SelectedTab => (FXTabPage)tabSource.SelectedTab;
         /// <summary>
         /// Get the currently selected editor.
         /// </summary>
@@ -446,8 +446,8 @@ namespace App
             glControl.RemoveEvents();
 
             // get include directory
-            var includeDir = (SelectedTab.FilePath != null
-                ? Path.GetDirectoryName(SelectedTab.FilePath)
+            var includeDir = (SelectedTab.UserData != null
+                ? Path.GetDirectoryName(SelectedTab.UserData as string)
                 : Directory.GetCurrentDirectory()) + Path.DirectorySeparatorChar;
 
             // get code text form tab page
@@ -455,7 +455,7 @@ namespace App
             var debugging = s == toolBtnDbg;
 
             // COMPILE THE CURRENTLY SELECTED FILE
-            var root = Compiler.Compile(SelectedTab.FilePath);
+            var root = Compiler.Compile(SelectedTab.UserData as string);
 
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
             var ex = root.Catch(x => glControl.AddObject(x, debugging)).ToArray();
@@ -522,7 +522,7 @@ namespace App
         /// <param name="e"></param>
         private void toolBtnSaveAll_Click(object s, EventArgs e)
         {
-            foreach (TabPageEx tab in tabSource.TabPages)
+            foreach (FXTabPage tab in tabSource.TabPages)
             {
                 if (!tab.Text.EndsWith("*"))
                     continue;
@@ -546,7 +546,7 @@ namespace App
         /// <param name="e"></param>
         private void tabSource_TabClose(object s, TabControlCancelEventArgs e)
         {
-            var tab = (TabPageEx)e.TabPage;
+            var tab = (FXTabPage)e.TabPage;
             if (tab.Text.EndsWith("*"))
             {
                 var answer = MessageBox.Show(
@@ -655,28 +655,35 @@ namespace App
         /// </summary>
         /// <param name="tabPage"></param>
         /// <param name="newfile"></param>
-        private void SaveTabPage(TabPageEx tabPage, bool newfile)
+        private void SaveTabPage(FXTabPage tabPage, bool newfile)
         {
             if (tabPage == null)
                 return;
 
             var editor = (CodeEditor)tabPage.Controls[0];
 
-            if (tabPage.FilePath == null || newfile)
+            // Open a save dialog if the tabPage is not liked
+            // to a file or a new file should be created.
+            if (tabPage.UserData == null || newfile)
             {
                 var saveDlg = new SaveFileDialog();
                 saveDlg.Filter = "Text Files (.tech)|*.tech|All Files (*.*)|*.*";
                 saveDlg.FilterIndex = 1;
 
-                var result = saveDlg.ShowDialog();
-                if (result != DialogResult.OK)
+                // if the dialog did not return a valid state
+                if (saveDlg.ShowDialog() != DialogResult.OK)
                     return;
 
-                tabPage.FilePath = saveDlg.FileName;
+                tabPage.UserData = saveDlg.FileName;
                 tabPage.Text = Path.GetFileName(saveDlg.FileName);
             }
 
-            System.IO.File.WriteAllText(tabPage.FilePath, editor.Text);
+            // save the file
+            var filename = tabPage.UserData as string;
+            editor.PauseFileWatch();
+            System.IO.File.WriteAllText(filename, editor.Text);
+            editor.ResumeFileWatch();
+            editor.Filename = filename;
         }
 
         /// <summary>
@@ -690,8 +697,10 @@ namespace App
             var text = path != null ? System.IO.File.ReadAllText(path) : "// Unnamed file";
 
             // create new tab objects
-            var tabSourcePage = new TabPageEx(path);
+            var tabSourcePage = new FXTabPage();
+            tabSourcePage.UserData = path;
             var editor = new CodeEditor(Properties.Resources.keywordsXML, text);
+            editor.Filename = path;
             editor.UpdateUI += new EventHandler<UpdateUIEventArgs>(editor_UpdateUI);
             editor.MouseMove += new MouseEventHandler(editor_MouseMove);
             editor.ShowCallTip += new ShowTipEventHandler(editor_ShowCallTip);

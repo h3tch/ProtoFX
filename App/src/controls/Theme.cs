@@ -234,7 +234,7 @@ namespace System.Windows.Forms
             return true;
         }
 
-        private static bool ApplyTo(TabPageEx c)
+        private static bool ApplyTo(FXTabPage c)
         {
             c.BackColor = BackColor;
             c.ForeColor = ForeColor;

@@ -258,21 +258,26 @@ namespace App
         {
             var editor = s as CodeEditor;
 
+            // is the selected word the "pass" keyword
             var type = editor.GetWordFromPosition(e.TextPosition);
             if (type != "pass")
                 return;
 
+            // get pass name
             var pos = editor.WordEndPosition(e.TextPosition, false);
             pos = editor.WordEndPosition(pos + 1, true);
             var name = editor.GetWordFromPosition(pos);
 
+            // get pass object
             var pass = glControl.Scene.GetValueOrDefault<GLPass>(name);
             if (pass == null)
                 return;
 
-            editor.PerfTipShow(e.TextPosition,
-                pass.Frames.Reverse().ToArray(),
-                pass.Timings.Reverse().ToArray());
+            // if there are performance timings, show them
+            if (pass.TimingsCount > 0)
+                editor.PerfTipShow(e.TextPosition,
+                    pass.Frames.Reverse().ToArray(),
+                    pass.Timings.Reverse().ToArray());
         }
 
         /// <summary>
