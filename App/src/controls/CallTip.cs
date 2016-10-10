@@ -73,6 +73,12 @@ namespace System.Windows.Forms
 
         #region METHODS
 
+        public void SetChartIntervals(double x, double y)
+        {
+            chart.ChartAreas[0].AxisX.Interval = x;
+            chart.ChartAreas[0].AxisY.Interval = y;
+        }
+
         /// <summary>
         /// Show the call tip at the specified screen position.
         /// </summary>
@@ -111,7 +117,6 @@ namespace System.Windows.Forms
             points.Clear();
             for (int i = 0; i < X.Length; i++)
                 points.AddXY(X.GetValue(i), Y.GetValue(i));
-            chart.ResetAutoValues();
             chart.Update();
 
             /// ADJUST CALL TIP POSITION AND SIZE

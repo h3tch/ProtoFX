@@ -272,7 +272,7 @@ namespace System.Windows.Forms
 
         private static bool ApplyTo(CallTip c)
         {
-            c.BackColor = BackColor;
+            c.BackColor = HighlightBackColor;
             c.ForeColor = ForeColor;
             c.KeyColor = Color.FromArgb(255, 66, 147, 214);
             c.ParamColor = Color.FromArgb(255, 147, 147, 147);
@@ -301,6 +301,7 @@ namespace System.Windows.Forms
         private static bool ApplyTo(Axis c)
         {
             c.LabelStyle.ForeColor = ForeColor;
+            c.MajorGrid.LineColor = WorkspaceHighlight;
             return false;
         }
 

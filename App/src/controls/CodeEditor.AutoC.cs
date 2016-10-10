@@ -132,6 +132,7 @@ namespace ScintillaNET
             {
                 tip = new CallTip();
                 tip.Enter += new EventHandler(tip_MouseEnter);
+                tip.SetChartIntervals(10, 0);
                 Theme.Apply(tip);
             }
 

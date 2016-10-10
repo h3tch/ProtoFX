@@ -275,9 +275,13 @@ namespace App
 
             // if there are performance timings, show them
             if (pass.TimingsCount > 0)
+            {
+                int fistFrame = pass.Frames.ElementAt(0);
+                int lastFrame = pass.Frames.LastIndexOf(x => ((x - fistFrame) % 10) == 0) + 1;
                 editor.PerfTipShow(e.TextPosition,
-                    pass.Frames.Reverse().ToArray(),
-                    pass.Timings.Reverse().ToArray());
+                    pass.Frames.Take(lastFrame).Select(x => x - fistFrame).ToArray(),
+                    pass.Timings.Take(lastFrame).ToArray());
+            }
         }
 
         /// <summary>
