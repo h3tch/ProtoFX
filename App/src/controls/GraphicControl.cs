@@ -9,6 +9,7 @@ namespace OpenTK
     class GraphicControl : GLControl
     {
         #region FIELDS
+
         public static string nullname = "__control__";
         // indicates if rendering should be enabled
         private bool render = false;
@@ -22,6 +23,7 @@ namespace OpenTK
         public Dict Scene { get { return scene; } }
         // get the current render frame
         public int Frame { get; private set; } = 0;
+
         #endregion
 
         /// <summary>
@@ -121,6 +123,7 @@ namespace OpenTK
         }
         
         #region EVENTS
+
         /// <summary>
         /// On load get the compiler error output control.
         /// </summary>
@@ -162,11 +165,7 @@ namespace OpenTK
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleMouseMove(object s, MouseEventArgs e)
-        {
-            if (render)
-                Render();
-        }
+        private void HandleMouseMove(object s, MouseEventArgs e) { if (render) Render(); }
 
         /// <summary>
         /// On key up, render.
@@ -174,6 +173,7 @@ namespace OpenTK
         /// <param name="s"></param>
         /// <param name="e"></param>
         public void HandleKeyUp(object s, KeyEventArgs e) => Render();
+
         #endregion
     }
 }

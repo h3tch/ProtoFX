@@ -1,12 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace App
 {
-    class GLTech : GLObject
+    class GLTech : FXPerf
     {
+        #region FIELDS
+
         private List<GLPass> init = new List<GLPass>();
         private List<GLPass> passes = new List<GLPass>();
         private List<GLPass> uninit = new List<GLPass>();
+        private Stopwatch clock = Stopwatch.StartNew();
+        private double freq = 1.0 / Stopwatch.Frequency;
+
+        #endregion
 
         /// <summary>
         /// Create OpenGL object. Standard object constructor for ProtoFX.
@@ -43,8 +50,16 @@ namespace App
                 init.ForEach(x => x.Exec(width, height, frame));
                 init = null;
             }
+
             // execute all passes
             passes.ForEach(x => x.Exec(width, height, frame));
+
+            // measure elapsed time
+            timings.Push((float)(clock.Elapsed.Ticks * freq));
+            frames.Push(frame);
+
+            // restart timer
+            clock.Restart();
         }
 
         /// <summary>

@@ -20,6 +20,7 @@ namespace csharp
         }
 
         #region FIELDS
+
         public float[] pos = new float[] { 0f, 0f, 0f };
         public float[] rot = new float[] { 0f, 0f, 0f };
         public float fov = 60f;
@@ -30,15 +31,18 @@ namespace csharp
         protected Matrix4 view;
         protected Dictionary<int, UniformBlock<Names>> uniform =
             new Dictionary<int, UniformBlock<Names>>();
+
         #endregion
 
         #region PROPERTIES
+
         public string Name { get { return name; } }
         public float[] Position { get { return pos; } set { pos = value; } }
         public float[] Rotation { get { return rot; } set { rot = value; } }
         public float FieldOfViewY { get { return fov; } set { fov = value; } }
         public float NearPlane { get { return near; } set { near = value; } }
         public float FarPlane { get { return far; } set { far = value; } }
+
         #endregion
 
         public StaticCamera(string name, Commands cmds, GLNames glNames)

@@ -161,9 +161,16 @@ namespace ScintillaNET
 
                 // show calltip
                 if (hint is string)
+                {
                     tip.Show(rect, (string)hint);
+                }
                 else if (hint is Array)
-                    tip.Show(rect, (Array)((Array)hint).GetValue(0), (Array)((Array)hint).GetValue(1));
+                {
+                    const int w = 400;
+                    var X = (Array)((Array)hint).GetValue(0);
+                    var Y = (Array)((Array)hint).GetValue(1);
+                    tip.Show(rect, X, Y, w, w * 0.6, ContentAlignment.TopLeft, 0.3, 0.3);
+                }
             }
         }
 

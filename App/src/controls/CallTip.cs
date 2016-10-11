@@ -109,7 +109,8 @@ namespace System.Windows.Forms
         /// <param name="X"></param>
         /// <param name="Y"></param>
         /// <param name="align"></param>
-        public void Show(Rectangle rect, Array X, Array Y, ContentAlignment align = TopLeft)
+        public void Show(Rectangle rect, Array X, Array Y, double width, double height,
+            ContentAlignment align = TopLeft, double widthFactor = 0, double heightFactor = 0)
         {
             /// SET NEW CHART
 
@@ -121,11 +122,9 @@ namespace System.Windows.Forms
 
             /// ADJUST CALL TIP POSITION AND SIZE
 
-            var size = new Drawing.Size(
-                Math.Max(300, (int)(X.Length * 1.9f)),
-                Math.Max(200, (int)(Y.Length * 1.3f)));
-
-            Reposition(rect, size, align);
+            var w = (int)(width + widthFactor * (X.Length - width));
+            var h = (int)(height + heightFactor * (X.Length - height));
+            Reposition(rect, new Drawing.Size(w, h), align);
 
             /// SHOW CALL TIP
 

@@ -258,29 +258,11 @@ namespace App
         {
             var editor = s as CodeEditor;
 
-            // is the selected word the "pass" keyword
-            var type = editor.GetWordFromPosition(e.TextPosition);
-            if (type != "pass")
-                return;
-
-            // get pass name
-            var pos = editor.WordEndPosition(e.TextPosition, false);
-            pos = editor.WordEndPosition(pos + 1, true);
-            var name = editor.GetWordFromPosition(pos);
-
-            // get pass object
-            var pass = glControl.Scene.GetValueOrDefault<GLPass>(name);
-            if (pass == null)
-                return;
-
-            // if there are performance timings, show them
-            if (pass.TimingsCount > 0)
+            // is the selected word a performance keyword
+            switch (editor.GetWordFromPosition(e.TextPosition))
             {
-                int fistFrame = pass.Frames.ElementAt(0);
-                int lastFrame = pass.Frames.LastIndexOf(x => ((x - fistFrame) % 10) == 0) + 1;
-                editor.PerfTipShow(e.TextPosition,
-                    pass.Frames.Take(lastFrame).Select(x => x - fistFrame).ToArray(),
-                    pass.Timings.Take(lastFrame).ToArray());
+                case "pass": ShowPerfTip<GLPass>(editor, e.TextPosition); break;
+                case "tech": ShowPerfTip<GLTech>(editor, e.TextPosition); break;
             }
         }
 
@@ -347,6 +329,35 @@ namespace App
                 var item = new ListViewItem(row.ToArray());
                 item.Group = dbgVarGroup;
                 debugListView.AddItem(item);
+            }
+        }
+
+        /// <summary>
+        /// Show performance tip for tech object.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="editor"></param>
+        /// <param name="position"></param>
+        private void ShowPerfTip<T>(CodeEditor editor, int position) where T : FXPerf
+        {
+            // get name
+            var pos = editor.WordEndPosition(position, false);
+            pos = editor.WordEndPosition(pos + 1, true);
+            var name = editor.GetWordFromPosition(pos);
+
+            // get object
+            var obj = glControl.Scene.GetValueOrDefault<T>(name);
+            if (obj == null)
+                return;
+
+            // if there are performance timings, show them
+            if (obj.TimingsCount > 0)
+            {
+                int fistFrame = obj.Frames.ElementAt(0);
+                int lastFrame = obj.Frames.LastIndexOf(x => ((x - fistFrame) % 10) == 0) + 1;
+                editor.PerfTipShow(position,
+                    obj.Frames.Take(lastFrame).Select(x => x - fistFrame).ToArray(),
+                    obj.Timings.Take(lastFrame).ToArray());
             }
         }
 

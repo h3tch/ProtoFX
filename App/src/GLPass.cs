@@ -13,7 +13,7 @@ using System.Globalization;
 
 namespace App
 {
-    class GLPass : GLObject
+    class GLPass : FXPerf
     {
         #region FIELDS
 
@@ -29,10 +29,9 @@ namespace App
         private GLObject glgeom;
         private GLObject glfrag;
         private GLObject glcomp;
-        private int[] glqueries;
+        private uint glquery;
         private bool timerStarted;
-        private long timerStart;
-        private long timerEnd;
+        private ulong elapsedTime;
         private bool debug;
         private Vertoutput vertoutput;
         private GLFragoutput fragoutput;
@@ -43,16 +42,6 @@ namespace App
         private List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
         private List<GLMethod> glfunc = new List<GLMethod>();
         private List<GLInstance> csexec = new List<GLInstance>();
-        private DropOutStack<float> timings = new DropOutStack<float>(60 * 5);
-        private DropOutStack<int> frames = new DropOutStack<int>(60 * 5);
-
-        #endregion
-
-        #region PROPERTIES
-
-        public int TimingsCount => timings?.Count ?? 0;
-        public IEnumerable<float> Timings => timings;
-        public IEnumerable<int> Frames => frames;
 
         #endregion
 
@@ -149,11 +138,7 @@ namespace App
             /// CREATE OPENGL TIMER QUERY
 
             if (!debug)
-            {
-                if (glqueries == null)
-                    glqueries = new int[2];
-                GL.GenQueries(glqueries.Length, glqueries);
-            }
+                glquery = (uint)GL.GenQuery();
             timerStarted = false;
 
             /// CHECK FOR ERRORS
@@ -259,7 +244,7 @@ namespace App
 
             /// UNBIND DEBUGGER
 
-                if (glname > 0)
+            if (glname > 0)
                 FxDebugger.Unbind(this);
 
             /// UNBIND OPENGL OBJECTS
@@ -294,10 +279,10 @@ namespace App
                 GL.DeleteProgram(glname);
                 glname = 0;
             }
-            if (glqueries != null)
+            if (glquery > 0)
             {
-                GL.DeleteQueries(glqueries.Length, glqueries);
-                glqueries.Initialize();
+                GL.DeleteQuery(glquery);
+                glquery = 0;
             }
         }
 
@@ -540,7 +525,7 @@ namespace App
         {
             // begin timer query
             if (!debug && !timerStarted)
-                GL.QueryCounter(glqueries[0], QueryCounterTarget.Timestamp);
+                GL.BeginQuery(QueryTarget.TimeElapsed, glquery);
         }
 
         private void EndTimer()
@@ -548,7 +533,7 @@ namespace App
             // end timer query
             if (!debug && !timerStarted)
             {
-                GL.QueryCounter(glqueries[1], QueryCounterTarget.Timestamp);
+                GL.EndQuery(QueryTarget.TimeElapsed);
                 timerStarted = true;
             }
         }
@@ -557,12 +542,10 @@ namespace App
         {
             if (!timerStarted)
                 return;
-            GL.GetQueryObject(glqueries[0], GetQueryObjectParam.QueryResultNoWait, out timerStart);
-            GL.GetQueryObject(glqueries[1], GetQueryObjectParam.QueryResultNoWait, out timerEnd);
-            var t = (timerEnd - timerStart) / 1000000f;
-            if (t > 0)
+            GL.GetQueryObject(glquery, GetQueryObjectParam.QueryResultNoWait, out elapsedTime);
+            if (elapsedTime > 0)
             {
-                timings.Push(t);
+                timings.Push((float)(elapsedTime / 1000000.0));
                 frames.Push(frame);
                 timerStarted = false;
             }
