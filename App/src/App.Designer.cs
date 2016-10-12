@@ -31,6 +31,8 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
@@ -48,8 +50,10 @@
             this.Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabDebugger = new System.Windows.Forms.TabPage();
             this.splitDebug = new System.Windows.Forms.SplitContainer();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.debugPanel = new System.Windows.Forms.Panel();
             this.debugListView = new System.Windows.Forms.AutoSizeListView();
+            this.chartPerf = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.debugProperty = new System.Windows.Forms.PropertyGrid();
             this.imgAppIcon = new System.Windows.Forms.PictureBox();
             this.btnWindowMinimize2 = new System.Windows.Forms.Button();
@@ -117,6 +121,12 @@
             this.splitDebug.Panel1.SuspendLayout();
             this.splitDebug.Panel2.SuspendLayout();
             this.splitDebug.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
+            this.debugPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chartPerf)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgAppIcon)).BeginInit();
             this.panelCoding.SuspendLayout();
             this.panelMenu.SuspendLayout();
@@ -363,39 +373,85 @@
             // 
             // splitDebug.Panel1
             // 
-            this.splitDebug.Panel1.Controls.Add(this.debugPanel);
+            this.splitDebug.Panel1.Controls.Add(this.splitContainer1);
             // 
             // splitDebug.Panel2
             // 
-            this.splitDebug.Panel2.Controls.Add(this.debugProperty);
+            this.splitDebug.Panel2.Controls.Add(this.chartPerf);
             this.splitDebug.Size = new System.Drawing.Size(584, 218);
             this.splitDebug.SplitterDistance = 316;
             this.splitDebug.SplitterWidth = 6;
             this.splitDebug.TabIndex = 0;
             // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.debugPanel);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.debugProperty);
+            this.splitContainer1.Size = new System.Drawing.Size(316, 218);
+            this.splitContainer1.SplitterDistance = 163;
+            this.splitContainer1.TabIndex = 1;
+            // 
             // debugPanel
             // 
-            this.debugPanel.Controls.Add(this.debugListView);
             this.debugPanel.AutoScroll = true;
-            this.debugPanel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.debugPanel.Controls.Add(this.debugListView);
+            this.debugPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.debugPanel.Location = new System.Drawing.Point(0, 0);
             this.debugPanel.Margin = new System.Windows.Forms.Padding(0);
             this.debugPanel.Name = "debugPanel";
-            this.debugPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.debugPanel.Size = new System.Drawing.Size(163, 218);
             this.debugPanel.TabIndex = 0;
             // 
             // debugListView
             // 
-            this.debugListView.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.debugListView.Location = new System.Drawing.Point(0, 0);
-            this.debugListView.Margin = new System.Windows.Forms.Padding(0);
-            this.debugListView.Name = "debugListView";
-            this.debugListView.Size = new System.Drawing.Size(316, 218);
-            this.debugListView.TabIndex = 0;
+            this.debugListView.GroupForeColor = System.Drawing.SystemColors.ActiveCaption;
+            this.debugListView.HeaderBackColor = System.Drawing.SystemColors.ButtonFace;
+            this.debugListView.HeaderBorderColor = System.Drawing.SystemColors.ControlLight;
+            this.debugListView.HeaderForeColor = System.Drawing.SystemColors.ControlText;
             this.debugListView.HeaderHAllign = System.Drawing.StringAlignment.Center;
             this.debugListView.HeaderVAllign = System.Drawing.StringAlignment.Center;
             this.debugListView.ItemHAllign = System.Drawing.StringAlignment.Near;
             this.debugListView.ItemVAllign = System.Drawing.StringAlignment.Center;
+            this.debugListView.Location = new System.Drawing.Point(0, 0);
+            this.debugListView.Margin = new System.Windows.Forms.Padding(0);
+            this.debugListView.Name = "debugListView";
+            this.debugListView.Size = new System.Drawing.Size(10, 10);
+            this.debugListView.TabIndex = 0;
+            // 
+            // chartPerf
+            // 
+            chartArea1.AxisX.IsMarginVisible = false;
+            chartArea1.AxisX.LabelAutoFitMaxFontSize = 8;
+            chartArea1.AxisX.LabelAutoFitStyle = ((System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles)((((System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.IncreaseFont | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont) 
+            | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.LabelsAngleStep30) 
+            | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.WordWrap)));
+            chartArea1.AxisY.LabelAutoFitMaxFontSize = 8;
+            chartArea1.AxisY.LabelAutoFitStyle = ((System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles)((((System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.IncreaseFont | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont) 
+            | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.LabelsAngleStep30) 
+            | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.WordWrap)));
+            chartArea1.Name = "ChartArea";
+            this.chartPerf.ChartAreas.Add(chartArea1);
+            this.chartPerf.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chartPerf.Location = new System.Drawing.Point(0, 0);
+            this.chartPerf.Margin = new System.Windows.Forms.Padding(0);
+            this.chartPerf.Name = "chartPerf";
+            series1.ChartArea = "ChartArea";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.IsVisibleInLegend = false;
+            series1.Name = "ChartSeries";
+            this.chartPerf.Series.Add(series1);
+            this.chartPerf.Size = new System.Drawing.Size(262, 218);
+            this.chartPerf.TabIndex = 101;
+            this.chartPerf.Text = "chartPerf";
             // 
             // debugProperty
             // 
@@ -405,7 +461,7 @@
             this.debugProperty.Margin = new System.Windows.Forms.Padding(0);
             this.debugProperty.Name = "debugProperty";
             this.debugProperty.PropertySort = System.Windows.Forms.PropertySort.Categorized;
-            this.debugProperty.Size = new System.Drawing.Size(262, 218);
+            this.debugProperty.Size = new System.Drawing.Size(149, 218);
             this.debugProperty.TabIndex = 1;
             this.debugProperty.ToolbarVisible = false;
             this.debugProperty.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid_PropertyValueChanged);
@@ -1018,13 +1074,13 @@
             this.tableBuf.AllowUserToAddRows = false;
             this.tableBuf.AllowUserToDeleteRows = false;
             this.tableBuf.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.tableBuf.ColumnHeadersVisible = false;
             this.tableBuf.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.tableBuf.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.tableBuf.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.tableBuf.ColumnHeadersVisible = false;
             dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
             dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -1039,12 +1095,12 @@
             this.tableBuf.Margin = new System.Windows.Forms.Padding(0);
             this.tableBuf.Name = "tableBuf";
             this.tableBuf.ReadOnly = true;
-            this.tableBuf.RowHeadersVisible = false;
             this.tableBuf.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.tableBuf.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
+            this.tableBuf.RowHeadersVisible = false;
             this.tableBuf.RowTemplate.Height = 28;
             this.tableBuf.Size = new System.Drawing.Size(178, 657);
             this.tableBuf.TabIndex = 1;
@@ -1230,6 +1286,12 @@
             this.splitDebug.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitDebug)).EndInit();
             this.splitDebug.ResumeLayout(false);
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
+            this.debugPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.chartPerf)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgAppIcon)).EndInit();
             this.panelCoding.ResumeLayout(false);
             this.panelMenu.ResumeLayout(false);
@@ -1400,5 +1462,7 @@
         private System.Windows.Forms.Button btnWindowMinimize2;
         private System.Windows.Forms.Button btnWindowMaximize2;
         private System.Windows.Forms.Button btnWindowClose2;
+        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chartPerf;
     }
 }

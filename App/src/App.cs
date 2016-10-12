@@ -379,6 +379,21 @@ namespace App
                 glControl.Cursor = Cursors.Default;
             }
 
+            // if there are performance timings, show them
+            if (glControl.TimingsCount > 0)
+            {
+                int fistFrame = glControl.Frames.ElementAt(0);
+                int lastFrame = glControl.Frames.LastIndexOf(x => ((x - fistFrame) % 10) == 0) + 1;
+                var X = glControl.Frames.Take(lastFrame).Select(x => x - fistFrame).ToArray();
+                var Y = glControl.Timings.Take(lastFrame).ToArray();
+
+                var points = chartPerf.Series[0].Points;
+                points.Clear();
+                for (int i = 0; i < X.Length; i++)
+                    points.AddXY(X.GetValue(i), Y.GetValue(i));
+                chartPerf.Update();
+            }
+
             // on mouse up, render and debug the
             // program, because there could be changes
             DebugRender();

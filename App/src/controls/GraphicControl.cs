@@ -74,6 +74,8 @@ namespace OpenTK
 
             try
             {
+                MakeCurrent();
+
                 // begin timer query
                 if (perf == null)
                     perf = new FXPerf(nullname, null, 300, false);
@@ -81,13 +83,13 @@ namespace OpenTK
                 perf.StartTimer(Frame);
 
                 // render the scene
-                MakeCurrent();
                 foreach (var x in from o in scene where o.Value is GLTech select o.Value as GLTech)
                     x.Exec(ClientSize.Width, ClientSize.Height, Frame);
-                SwapBuffers();
 
                 // end timer query
                 perf.EndTimer();
+
+                SwapBuffers();
             }
             catch (Exception ex)
             {

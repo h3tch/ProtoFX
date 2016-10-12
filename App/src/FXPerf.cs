@@ -56,6 +56,8 @@ namespace App
         public override void Delete()
         {
             base.Delete();
+            timings?.Clear();
+            frames?.Clear();
             if (glqueryStart > 0)
             {
                 GL.DeleteQuery(glqueryStart);
@@ -98,12 +100,10 @@ namespace App
 
             if (endTime == 0)
                 GL.GetQueryObject(glqueryEnd, GetQueryObjectParam.QueryResultNoWait, out endTime);
-
-            var elapsedTime = endTime - startTime;
-
-            if (elapsedTime > 0)
+            
+            if (startTime > 0 && endTime > 0)
             {
-                timings.Push((float)(elapsedTime / 1000000.0));
+                timings.Push((float)((endTime - startTime) / 1000000.0));
                 frames.Push(timerStartFrame);
                 timerStartFrame = -1;
                 startTime = 0;
