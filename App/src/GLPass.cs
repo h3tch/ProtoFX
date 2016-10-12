@@ -29,10 +29,6 @@ namespace App
         private GLObject glgeom;
         private GLObject glfrag;
         private GLObject glcomp;
-        private uint glquery;
-        private bool timerStarted;
-        private ulong elapsedTime;
-        private bool debug;
         private Vertoutput vertoutput;
         private GLFragoutput fragoutput;
         private List<MultiDrawCall> drawcalls = new List<MultiDrawCall>();
@@ -52,9 +48,8 @@ namespace App
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
         public GLPass(Compiler.Block block, Dict scene, bool debugging)
-            : base(block.Name, block.Anno)
+            : base(block.Name, block.Anno, 300, debugging)
         {
-            debug = debugging;
             var err = new CompileException($"pass '{name}'");
 
             /// PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
@@ -135,12 +130,6 @@ namespace App
                     err.Add($"\n{GL.GetProgramInfoLog(glname)}", block);
             }
 
-            /// CREATE OPENGL TIMER QUERY
-
-            if (!debug)
-                glquery = (uint)GL.GenQuery();
-            timerStarted = false;
-
             /// CHECK FOR ERRORS
 
             if (GL.GetError() != ErrorCode.NoError)
@@ -148,6 +137,19 @@ namespace App
                     "during shader program creation.", block);
             if (err.HasErrors())
                 throw err;
+        }
+
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
+        public override void Delete()
+        {
+            base.Delete();
+            if (glname > 0)
+            {
+                GL.DeleteProgram(glname);
+                glname = 0;
+            }
         }
 
         /// <summary>
@@ -232,8 +234,8 @@ namespace App
             /// EXECUTE DRAW AND COMPUTE CALLS
 
             // begin timer query
-            MeasureTime(frame);
-            StartTimer();
+            MeasureTime();
+            StartTimer(frame);
 
             // execute draw calls
             drawcalls.ForEach(call => call.draw());
@@ -268,24 +270,7 @@ namespace App
             // left a valid OpenGL sate
             ThrowOnGLError($"OpenGL error at the end of pass '{name}'.");
         }
-
-        /// <summary>
-        /// Standard object destructor for ProtoFX.
-        /// </summary>
-        public override void Delete()
-        {
-            if (glname > 0)
-            {
-                GL.DeleteProgram(glname);
-                glname = 0;
-            }
-            if (glquery > 0)
-            {
-                GL.DeleteQuery(glquery);
-                glquery = 0;
-            }
-        }
-
+        
         #region PARSE COMMANDS
 
         private void ParseDrawCall(Compiler.Command cmd, Dict classes, CompileException err)
@@ -515,40 +500,6 @@ namespace App
                 return;
 
             csexec.Add(instance);
-        }
-
-        #endregion
-
-        #region TIMING
-
-        private void StartTimer()
-        {
-            // begin timer query
-            if (!debug && !timerStarted)
-                GL.BeginQuery(QueryTarget.TimeElapsed, glquery);
-        }
-
-        private void EndTimer()
-        {
-            // end timer query
-            if (!debug && !timerStarted)
-            {
-                GL.EndQuery(QueryTarget.TimeElapsed);
-                timerStarted = true;
-            }
-        }
-
-        private void MeasureTime(int frame)
-        {
-            if (!timerStarted)
-                return;
-            GL.GetQueryObject(glquery, GetQueryObjectParam.QueryResultNoWait, out elapsedTime);
-            if (elapsedTime > 0)
-            {
-                timings.Push((float)(elapsedTime / 1000000.0));
-                frames.Push(frame);
-                timerStarted = false;
-            }
         }
 
         #endregion

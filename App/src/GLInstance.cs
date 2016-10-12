@@ -73,6 +73,10 @@ namespace App
         /// <summary>
         /// Standard object destructor for ProtoFX.
         /// </summary>
-        public override void Delete() => delete?.Invoke(Instance, null);
+        public override void Delete()
+        {
+            base.Delete();
+            delete?.Invoke(Instance, null);
+        }
     }
 }

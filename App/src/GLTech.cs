@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace App
 {
@@ -10,8 +9,6 @@ namespace App
         private List<GLPass> init = new List<GLPass>();
         private List<GLPass> passes = new List<GLPass>();
         private List<GLPass> uninit = new List<GLPass>();
-        private Stopwatch clock = Stopwatch.StartNew();
-        private double freq = 1.0 / Stopwatch.Frequency;
 
         #endregion
 
@@ -22,7 +19,7 @@ namespace App
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
         public GLTech(Compiler.Block block, Dict scene, bool debugging)
-            : base(block.Name, block.Anno)
+            : base(block.Name, block.Anno, 300, debugging)
         {
             var err = new CompileException($"tech '{name}'");
 
@@ -44,6 +41,10 @@ namespace App
         /// <param name="frame"></param>
         public void Exec(int width, int height, int frame)
         {
+            // begin timer query
+            MeasureTime();
+            StartTimer(frame);
+
             // when executed the first time, execute initialization passes
             if (init != null)
             {
@@ -54,18 +55,18 @@ namespace App
             // execute all passes
             passes.ForEach(x => x.Exec(width, height, frame));
 
-            // measure elapsed time
-            timings.Push((float)(clock.Elapsed.Ticks * freq));
-            frames.Push(frame);
-
-            // restart timer
-            clock.Restart();
+            // end timer query
+            EndTimer();
         }
 
         /// <summary>
         /// Standard object destructor for ProtoFX.
         /// </summary>
-        public override void Delete() => uninit.ForEach(x => x.Exec(0, 0, -1));
+        public override void Delete()
+        {
+            base.Delete();
+            uninit.ForEach(x => x.Exec(0, 0, -1));
+        }
 
         /// <summary>
         /// Parse commands in block.

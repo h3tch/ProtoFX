@@ -45,6 +45,7 @@ namespace App
         /// </summary>
         public override void Delete()
         {
+            base.Delete();
             if (glname > 0)
             {
                 GL.DeleteSampler(glname);

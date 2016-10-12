@@ -119,7 +119,7 @@ namespace App
 
             /// CLEAR OPENGL CONTROL
 
-            glControl.AddEvents();
+            glControl.AddEvents(output);
             glControl.Render();
         }
 
@@ -460,7 +460,7 @@ namespace App
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
             var ex = root.Catch(x => glControl.AddObject(x, debugging)).ToArray();
             // add events to the end of the event list
-            glControl.AddEvents();
+            glControl.AddEvents(output);
             glControl.MouseUp += new MouseEventHandler(glControl_MouseUp);
 
             // show errors
