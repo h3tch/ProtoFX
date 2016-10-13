@@ -78,7 +78,7 @@ namespace OpenTK
 
                 // begin timer query
                 if (perf == null)
-                    perf = new FXPerf(nullname, null, 300, false);
+                    perf = new FXPerf(nullname, null, 309, false);
                 perf.MeasureTime();
                 perf.StartTimer(Frame);
 

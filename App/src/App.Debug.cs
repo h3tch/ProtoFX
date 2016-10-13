@@ -275,6 +275,10 @@ namespace App
         private void editor_CancleCallTip(object s, CancleTipEventHandlerArgs e)
             => (s as CodeEditor).PerfTipCancel();
 
+        #endregion
+
+        #region HELPERS
+
         /// <summary>
         /// Show variables of the currently selected line in the editor.
         /// </summary>
@@ -292,12 +296,16 @@ namespace App
             // be shown, because debug variables might have been
             // added or removed, which leads to invalid debug output
             if ((editor.Parent as TabPage).Text.EndsWith("*"))
+            {
+                debugListView.Visible = false;
                 return;
+            }
 
             // get debug variables of the line where the caret is placed
             var first = editor.LineFromPosition(editor.SelectionStart);
             var last = editor.LineFromPosition(editor.SelectionEnd);
             var dbgVars = FxDebugger.GetDebugVariablesFromLine(editor, first, last - first + 1);
+            debugListView.Visible = dbgVars.Count() > 0;
             dbgVars.Select(Var => FxDebugger.GetDebugVariableValue(Var.ID, glControl.Frame - 1))
                    .ForEach(dbgVars, (Val, Var) => { if (Val != null) NewVariableItem(Var.Name, Val); });
             debugListView.Update();
@@ -353,12 +361,48 @@ namespace App
             // if there are performance timings, show them
             if (obj.TimingsCount > 0)
             {
-                int fistFrame = obj.Frames.ElementAt(0);
-                int lastFrame = obj.Frames.LastIndexOf(x => ((x - fistFrame) % 10) == 0) + 1;
-                editor.PerfTipShow(position,
-                    obj.Frames.Take(lastFrame).Select(x => x - fistFrame).ToArray(),
-                    obj.Timings.Take(lastFrame).ToArray());
+                IEnumerable<int> frames;
+                IEnumerable<float> times;
+                PostProcessPerfData(obj.Frames, obj.Timings, out frames, out times, 10);
+                editor.PerfTipShow(position, frames.ToArray(), times.ToArray());
             }
+        }
+
+        /// <summary>
+        /// Post process performance data for the GUI.
+        /// </summary>
+        /// <param name="frames"></param>
+        /// <param name="times"></param>
+        /// <param name="X"></param>
+        /// <param name="Y"></param>
+        /// <param name="multipleOf"></param>
+        /// <param name="removeOutliers"></param>
+        private void PostProcessPerfData(IEnumerable<int> frames, IEnumerable<float> times,
+            out IEnumerable<int> X, out IEnumerable<float> Y,
+            int multipleOf = 10, bool removeOutliers = false)
+        {
+            // remove statistical outliers
+            if (removeOutliers)
+            {
+                var mean = times.Average();
+                var std = times.Select(a => Math.Abs(a - mean)).Average();
+                var lower = mean - std * 1.5f;
+                var upper = mean + std * 1.5f;
+                var sel = times.Select(t => lower <= t && t <= upper);
+                X = frames.Zip(sel, (a, b) => b ? a : int.MinValue).Where(a => a != int.MinValue);
+                Y = times.Zip(sel, (a, b) => b ? a : float.NaN).Where(a => !float.IsNaN(a));
+            }
+            else
+            {
+                X = frames;
+                Y = times;
+            }
+
+            // make frame number relative to current frame
+            int fistFrame = X.ElementAt(0);
+            int lastIdx = X.LastIndexOf(a => ((a - fistFrame) % multipleOf) == 0) + 1;
+            X = X.Take(lastIdx).Select(a => a - fistFrame);
+            Y = Y.Take(lastIdx);
         }
 
         #endregion

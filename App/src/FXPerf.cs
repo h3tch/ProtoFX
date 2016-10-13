@@ -103,7 +103,7 @@ namespace App
             
             if (startTime > 0 && endTime > 0)
             {
-                timings.Push((float)((endTime - startTime) / 1000000.0));
+                timings.Push((float)((endTime - startTime) * 0.000000001));
                 frames.Push(timerStartFrame);
                 timerStartFrame = -1;
                 startTime = 0;

@@ -166,7 +166,7 @@ namespace ScintillaNET
                 }
                 else if (hint is Array)
                 {
-                    const int w = 400;
+                    const int w = 500;
                     var X = (Array)((Array)hint).GetValue(0);
                     var Y = (Array)((Array)hint).GetValue(1);
                     tip.Show(rect, X, Y, w, w * 0.6, ContentAlignment.TopLeft, 0.3, 0.3);

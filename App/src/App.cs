@@ -382,15 +382,13 @@ namespace App
             // if there are performance timings, show them
             if (glControl.TimingsCount > 0)
             {
-                int fistFrame = glControl.Frames.ElementAt(0);
-                int lastFrame = glControl.Frames.LastIndexOf(x => ((x - fistFrame) % 10) == 0) + 1;
-                var X = glControl.Frames.Take(lastFrame).Select(x => x - fistFrame).ToArray();
-                var Y = glControl.Timings.Take(lastFrame).ToArray();
+                IEnumerable<int> frames;
+                IEnumerable<float> times;
+                PostProcessPerfData(glControl.Frames, glControl.Timings, out frames, out times, 10, true);
 
                 var points = chartPerf.Series[0].Points;
                 points.Clear();
-                for (int i = 0; i < X.Length; i++)
-                    points.AddXY(X.GetValue(i), Y.GetValue(i));
+                frames.ForEach(times, (f, t) => points.AddXY(f, t));
                 chartPerf.Update();
             }
 
@@ -804,6 +802,7 @@ namespace App
             public Size NormalSize;
             public float SplitRenderCoding;
             public float SplitRenderOutput;
+            public float SplitDebugPerf;
             public float SplitDebug;
             public int NewLineHelper;
             public string ThemeXml;
@@ -820,8 +819,9 @@ namespace App
                     NormalSize = S,
                     NormalLocation = new Point((W - S.Width) / 2, (H - S.Height) / 2),
                     BorderStyle = FormBorderStyle.FixedSingle,
-                    SplitRenderCoding = 0.4f,
+                    SplitRenderCoding = 0.5f,
                     SplitRenderOutput = 0.7f,
+                    SplitDebugPerf = 0.52f,
                     SplitDebug = 0.55f,
                     NewLineHelper = 100,
                     ThemeXml = Theme.Name + ".xml",
@@ -842,6 +842,7 @@ namespace App
                     NormalSize = app.IsMaximized ? app.NormalSize : app.Size,
                     SplitRenderCoding = (float)app.splitRenderCoding.SplitterDistance / app.splitRenderCoding.Width,
                     SplitRenderOutput = (float)app.splitRenderOutput.SplitterDistance / app.splitRenderOutput.Height,
+                    SplitDebugPerf = (float)app.splitDebugPerf.SplitterDistance / app.splitDebugPerf.Width,
                     SplitDebug = (float)app.splitDebug.SplitterDistance / app.splitDebug.Width,
                     NewLineHelper = CodeEditor.NewLineHelper,
                     ThemeXml = Theme.Name + ".xml",
@@ -906,6 +907,8 @@ namespace App
                     (int)(SplitRenderCoding * app.splitRenderCoding.Width);
                 app.splitRenderOutput.SplitterDistance =
                     (int)(SplitRenderOutput * app.splitRenderOutput.Height);
+                app.splitDebugPerf.SplitterDistance =
+                    (int)(SplitDebugPerf * app.splitDebugPerf.Width);
                 app.splitDebug.SplitterDistance =
                     (int)(SplitDebug * app.splitDebug.Width);
                 // select 'float' as the default buffer value type

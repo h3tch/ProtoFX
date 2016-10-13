@@ -48,7 +48,7 @@ namespace App
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
         public GLPass(Compiler.Block block, Dict scene, bool debugging)
-            : base(block.Name, block.Anno, 300, debugging)
+            : base(block.Name, block.Anno, 309, debugging)
         {
             var err = new CompileException($"pass '{name}'");
 

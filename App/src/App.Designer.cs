@@ -50,7 +50,7 @@
             this.Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabDebugger = new System.Windows.Forms.TabPage();
             this.splitDebug = new System.Windows.Forms.SplitContainer();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.splitDebugPerf = new System.Windows.Forms.SplitContainer();
             this.debugPanel = new System.Windows.Forms.Panel();
             this.debugListView = new System.Windows.Forms.AutoSizeListView();
             this.chartPerf = new System.Windows.Forms.DataVisualization.Charting.Chart();
@@ -121,10 +121,10 @@
             this.splitDebug.Panel1.SuspendLayout();
             this.splitDebug.Panel2.SuspendLayout();
             this.splitDebug.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel1.SuspendLayout();
-            this.splitContainer1.Panel2.SuspendLayout();
-            this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitDebugPerf)).BeginInit();
+            this.splitDebugPerf.Panel1.SuspendLayout();
+            this.splitDebugPerf.Panel2.SuspendLayout();
+            this.splitDebugPerf.SuspendLayout();
             this.debugPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chartPerf)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgAppIcon)).BeginInit();
@@ -373,7 +373,7 @@
             // 
             // splitDebug.Panel1
             // 
-            this.splitDebug.Panel1.Controls.Add(this.splitContainer1);
+            this.splitDebug.Panel1.Controls.Add(this.splitDebugPerf);
             // 
             // splitDebug.Panel2
             // 
@@ -385,20 +385,20 @@
             // 
             // splitContainer1
             // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Name = "splitContainer1";
+            this.splitDebugPerf.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitDebugPerf.Location = new System.Drawing.Point(0, 0);
+            this.splitDebugPerf.Name = "splitDebugPerf";
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.debugPanel);
+            this.splitDebugPerf.Panel1.Controls.Add(this.debugPanel);
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.debugProperty);
-            this.splitContainer1.Size = new System.Drawing.Size(316, 218);
-            this.splitContainer1.SplitterDistance = 163;
-            this.splitContainer1.TabIndex = 1;
+            this.splitDebugPerf.Panel2.Controls.Add(this.debugProperty);
+            this.splitDebugPerf.Size = new System.Drawing.Size(316, 218);
+            this.splitDebugPerf.SplitterDistance = 163;
+            this.splitDebugPerf.TabIndex = 1;
             // 
             // debugPanel
             // 
@@ -426,6 +426,7 @@
             this.debugListView.Name = "debugListView";
             this.debugListView.Size = new System.Drawing.Size(10, 10);
             this.debugListView.TabIndex = 0;
+            this.debugListView.Visible = false;
             // 
             // chartPerf
             // 
@@ -1286,10 +1287,10 @@
             this.splitDebug.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitDebug)).EndInit();
             this.splitDebug.ResumeLayout(false);
-            this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
-            this.splitContainer1.ResumeLayout(false);
+            this.splitDebugPerf.Panel1.ResumeLayout(false);
+            this.splitDebugPerf.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitDebugPerf)).EndInit();
+            this.splitDebugPerf.ResumeLayout(false);
             this.debugPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.chartPerf)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.imgAppIcon)).EndInit();
@@ -1462,7 +1463,7 @@
         private System.Windows.Forms.Button btnWindowMinimize2;
         private System.Windows.Forms.Button btnWindowMaximize2;
         private System.Windows.Forms.Button btnWindowClose2;
-        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.SplitContainer splitDebugPerf;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartPerf;
     }
 }
