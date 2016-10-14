@@ -93,6 +93,8 @@ namespace ScintillaNET
 
         #endregion
 
+        #region CONSTRUCTION
+
         /// <summary>
         /// Instantiate and initialize ScintillaNET based code editor for ProtoFX.
         /// </summary>
@@ -169,6 +171,10 @@ namespace ScintillaNET
             TabIndex = 0;
         }
 
+        #endregion
+
+        #region LINE NUMBERS
+
         /// <summary>
         /// Update line number of the text editor.
         /// </summary>
@@ -180,6 +186,10 @@ namespace ScintillaNET
             if (Margins[0].Width != width)
                 Margins[0].Width = width;
         }
+
+        #endregion
+
+        #region WATCH FOR CHANGES
 
         /// <summary>
         /// Pause watching for file changes.
@@ -199,14 +209,22 @@ namespace ScintillaNET
                 FileWatcher.EnableRaisingEvents = true;
         }
         
+        /// <summary>
+        /// Pause watching for text changes.
+        /// </summary>
         public void PauseWatchChanges()
         {
             watchChanges = false;
         }
         
+        /// <summary>
+        /// Resume watching for text changes.
+        /// </summary>
         public void ResumeWatchChanges()
         {
             watchChanges = true;
         }
+
+        #endregion
     }
 }

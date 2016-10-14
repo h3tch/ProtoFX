@@ -2,9 +2,9 @@
 
 namespace System.Windows.Forms
 {
-    public class ToolStripEx : ToolStrip
+    public class FXToolStrip : ToolStrip
     {
-        public ToolStripEx()
+        public FXToolStrip()
         {
             Renderer = new ToolStripProfessionalRenderer(new CustomColorTable());
         }

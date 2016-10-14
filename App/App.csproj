@@ -136,7 +136,7 @@
     <Compile Include="src\controls\TabStyleProviders\TabStyleRoundedProvider.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="src\controls\ToolStrip.cs">
+    <Compile Include="src\controls\FXToolStrip.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\extensions\BinaryReader.cs" />
@@ -183,7 +183,7 @@
     <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\controls\FXLexer.cs" />
-    <Compile Include="src\controls\TabPage.cs">
+    <Compile Include="src\controls\FXTabPage.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\controls\Theme.cs" />

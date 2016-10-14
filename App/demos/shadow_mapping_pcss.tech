@@ -225,10 +225,6 @@ shader fs_render frag {
 		// pass color
 		<<color>> = in_col;
 		
-		//vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
-		//color.rgb = normalize(cross(dFdx(lpos),dFdy(lpos)));
-		//return;
-		
 		// if pixel outside light frustum clip space, do nothing
 		if (any(greaterThan(abs(in_lpos), in_lpos.wwww)))
 			return;
@@ -240,14 +236,11 @@ shader fs_render frag {
 		vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
 		
 		vec3 normal = cross(dFdx(lpos),dFdy(lpos));
-		if (normal.z < 0) {
+		if (normal.z < 0)
 			return;
-		}
 			
 		vec2 surfBias = -normal.xy / normal.z;
 		
-		//const vec2 r = 10.0 / textureSize(shadowmap, 0);
-		//float shadow = PCF((r.x + r.y) * 0.5, lpos, zChange);
 		float <<shadow>> = PCSS(surfBias, lpos);
 			
 		if (shadow == 0.0)

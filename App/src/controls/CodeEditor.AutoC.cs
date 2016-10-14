@@ -29,13 +29,19 @@ namespace ScintillaNET
 
         #endregion
 
+        #region CONSTRUCTION
+
         public void InitializeAutoC()
         {
             // auto completion settings
             AutoCSeparator = '|';
             AutoCMaxHeight = 9;
-            MouseMove += new MouseEventHandler(HandleMouseMove);
+            MouseMove += HandleMouseMove;
         }
+
+        #endregion
+
+        #region SHOW CALLTIP OR AUTOC
 
         /// <summary>
         /// Show auto complete menu for the specified text position.
@@ -88,6 +94,8 @@ namespace ScintillaNET
 
             CallTipCancel();
         }
+
+        #endregion
 
         #region CALL TIP METHODS
 

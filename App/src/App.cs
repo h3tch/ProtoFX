@@ -43,6 +43,7 @@ namespace App
         private bool IsMaximized => FormBorderStyle == FormBorderStyle.None;
 
         #region Window resize buttons
+
         const int HANDLE_SIZE = 10;
         const uint HTLEFT = 10u;
         const uint HTRIGHT = 11u;
@@ -52,7 +53,9 @@ namespace App
         const uint HTBOTTOM = 15u;
         const uint HTBOTTOMLEFT = 16u;
         const uint HTBOTTOMRIGHT = 17u;
+
         private int TitleBarClickX, TitleBarClickY;
+
         private Rectangle[] ResizeBoxes = new[] {
             /* HTLEFT       */new Rectangle(0, HANDLE_SIZE, HANDLE_SIZE, 0),
             /* HTRIGHT      */new Rectangle(0, HANDLE_SIZE, HANDLE_SIZE, 0),
@@ -63,6 +66,7 @@ namespace App
             /* HTBOTTOMLEFT */new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
             /* HTBOTTOMRIGHT*/new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
         };
+
         #endregion
 
         #endregion
@@ -656,7 +660,9 @@ namespace App
         }
 
         #region TOOL BUTTON FIELDS
+
         private Regex RegexLineComment = new Regex(@"\s*//");
+
         #endregion
 
         #endregion
@@ -795,6 +801,7 @@ namespace App
         #endregion
 
         #region Inner Classes
+
         public class FormSettings
         {
             public FormBorderStyle BorderStyle;
@@ -917,6 +924,7 @@ namespace App
                 CodeEditor.NewLineHelper = NewLineHelper;
             }
         }
+
         #endregion
     }
 }

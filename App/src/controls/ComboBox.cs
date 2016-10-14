@@ -6,15 +6,15 @@ namespace System.Windows.Forms
 {
     public class ComboBoxEx : ListControl
     {
-        #region Delegates
+        #region Delegate Definitions
 
-        public delegate void BNDroppedDownEventHandler(object sender, EventArgs e);
-        public delegate void BNDrawItemEventHandler(object sender, DrawItemEventArgs e);
-        public delegate void BNMeasureItemEventHandler(object sender, MeasureItemEventArgs e);
+        public delegate void DroppedDownEventHandler(object sender, EventArgs e);
+        public delegate void DrawItemEventHandler(object sender, DrawItemEventArgs e);
+        public delegate void MeasureItemEventHandler(object sender, MeasureItemEventArgs e);
 
         #endregion
 
-        #region Variables
+        #region Fields
 
         #pragma warning disable 0414
         private bool hovered = false;
@@ -49,13 +49,13 @@ namespace System.Windows.Forms
         #region Delegates
 
         [Category("Behavior"), Description("Occurs when IsDroppedDown changed to True.")]
-        public event BNDroppedDownEventHandler DroppedDown;
+        public event DroppedDownEventHandler DroppedDown;
         [Category("Behavior"), Description("Occurs when the SelectedIndex property changes.")]
         public event EventHandler SelectedIndexChanged;
         [Category("Behavior"), Description("Occurs whenever a particular item/area needs to be painted.")]
-        public event BNDrawItemEventHandler DrawItem;
+        public event DrawItemEventHandler DrawItem;
         [Category("Behavior"), Description("Occurs whenever a particular item's height needs to be calculated.")]
-        public event BNMeasureItemEventHandler MeasureItem;
+        public event MeasureItemEventHandler MeasureItem;
 
         #endregion
         
@@ -284,15 +284,15 @@ namespace System.Windows.Forms
 
             _dropDownWidth = Width;
 
-            _listBox.MeasureItem += new MeasureItemEventHandler(listBox_MeasureItem);
-            _listBox.DrawItem += new DrawItemEventHandler(listBox_DrawItem);
-            _listBox.MouseClick += new MouseEventHandler(listBox_MouseClick);
-            _listBox.MouseMove += new MouseEventHandler(listBox_MouseMove);
+            _listBox.MeasureItem += listBox_MeasureItem;
+            _listBox.DrawItem += listBox_DrawItem;
+            _listBox.MouseClick += listBox_MouseClick;
+            _listBox.MouseMove += listBox_MouseMove;
 
-            _popupControl.Closed += new ToolStripDropDownClosedEventHandler(popupControl_Closed);
+            _popupControl.Closed += popupControl_Closed;
 
-            _textBox.Resize += new EventHandler(textBox_Resize);
-            _textBox.TextChanged += new EventHandler(textBox_TextChanged);
+            _textBox.Resize += textBox_Resize;
+            _textBox.TextChanged += textBox_TextChanged;
 
             base.BackColor = BackColor = _backcolor;
             ForeColor = _forecolor;

@@ -9,33 +9,38 @@ namespace ScintillaNET
 {
     public partial class CodeEditor
     {
+        #region FIELDS
+
         private bool DisableEditing = false;
         private Pen grayPen;
         private Pen dashedPen;
         private Size lineSize;
         public static int NewLineHelper = 100;
 
+        #endregion
+
+        #region CONSTRUCTION
+
         /// <summary>
         /// Initialize class events.
         /// </summary>
         private void InitializeEvents()
         {
-            TextChanged += new EventHandler(HandleTextChanged);
-            UpdateUI += new EventHandler<UpdateUIEventArgs>(HandleUpdateUI);
+            TextChanged += HandleTextChanged;
+            UpdateUI += HandleUpdateUI;
 
             // enable drag & drop
             AllowDrop = true;
-            DragOver += new DragEventHandler(HandleDragOver);
-            DragDrop += new DragEventHandler(HandleDragDrop);
+            DragOver += HandleDragOver;
+            DragDrop += HandleDragDrop;
 
             // search & replace
-            KeyUp += new KeyEventHandler(HandleKeyUp);
-            KeyDown += new KeyEventHandler(HandleKeyDown);
-            InsertCheck += new EventHandler<InsertCheckEventArgs>(HandleInsertCheck);
-            CharAdded += new EventHandler<CharAddedEventArgs>(HandleCharAdded);
+            KeyUp += HandleKeyUp;
+            KeyDown += HandleKeyDown;
+            InsertCheck += HandleInsertCheck;
+            CharAdded += HandleCharAdded;
             
-            MouseWheel += new MouseEventHandler(HandleMouseWheel);
-            Painted += new EventHandler<EventArgs>(HandlePainted);
+            Painted += HandlePainted;
 
             // create default pens
             grayPen = new Pen(Brushes.Gray);
@@ -45,6 +50,10 @@ namespace ScintillaNET
             // measure default line size
             lineSize = TextRenderer.MeasureText(new string('/', NewLineHelper), Font);
         }
+
+        #endregion
+
+        #region TEXT CHANGE EVENTS
 
         /// <summary>
         /// On insert text event, auto format the text.
@@ -114,6 +123,10 @@ namespace ScintillaNET
             UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
         }
 
+        #endregion
+
+        #region UI UPDATE EVENTS
+
         /// <summary>
         /// Handle selection change events (when the caret changes the position).
         /// </summary>
@@ -138,21 +151,11 @@ namespace ScintillaNET
                     break;
                 case UpdateChange.HScroll:
                 case UpdateChange.VScroll:
+                    CallTipCancel();
                     // update code folding
                     UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
                     break;
             }
-        }
-
-        /// <summary>
-        /// Handle mouse wheel events.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="e"></param>
-        private void HandleMouseWheel(object s, MouseEventArgs e)
-        {
-            CallTipCancel();
-            UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
         }
 
         /// <summary>
@@ -285,6 +288,10 @@ namespace ScintillaNET
             }
         }
 
+        #endregion
+        
+        #region RENDER EVENTS
+
         /// <summary>
         /// Do additional painting after the control has been drawn.
         /// </summary>
@@ -315,6 +322,10 @@ namespace ScintillaNET
                 g.DrawLine(grayPen, x1, y, x2, y);
             }
         }
+
+        #endregion
+
+        #region FILE EVENTS
 
         /// <summary>
         /// Watch the linked file and handle events.
@@ -392,15 +403,21 @@ namespace ScintillaNET
             }
         }
 
-        //Codes for the handling the Indention of the lines.
-        //They are manually added here until they get officially added to the Scintilla control.
+        #endregion
+
         #region CodeIndent Handlers
+
+        // Codes for the handling the Indention of the lines.
+        // They are manually added here until they get
+        // officially added to the Scintilla control.
+
         const int SCI_SETLINEINDENTATION = 2126;
         const int SCI_GETLINEINDENTATION = 2127;
         private void SetIndent(int line, int indent)
             => DirectMessage(SCI_SETLINEINDENTATION, (IntPtr)line, new IntPtr(indent));
         private int GetIndent(int line)
             => (int)DirectMessage(SCI_GETLINEINDENTATION, (IntPtr)line, IntPtr.Zero);
+
         #endregion
     }
 }

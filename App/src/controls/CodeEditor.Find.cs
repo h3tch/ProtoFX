@@ -23,10 +23,10 @@ namespace ScintillaNET
             FindText.SetBounds(0, 0, 1, 1);
             FindText.BackColor = Theme.BackColor;
             FindText.ForeColor = Theme.BackColor;
-            FindText.TextChanged += new EventHandler(HandleFindTextChanged);
-            FindText.KeyUp += new KeyEventHandler(HandleFindKeyUp);
-            FindText.GotFocus += new EventHandler(HandleFindGotFocus);
-            FindText.LostFocus += new EventHandler(HandleFindLostFocus);
+            FindText.TextChanged += HandleFindTextChanged;
+            FindText.KeyUp += HandleFindKeyUp;
+            FindText.GotFocus += HandleFindGotFocus;
+            FindText.LostFocus += HandleFindLostFocus;
         }
 
         /// <summary>

@@ -4,6 +4,10 @@ using System.Linq;
 
 namespace System.Windows.Forms
 {
+    /// <summary>
+    /// A ListView the automatically resizes
+    /// itself when the content changes.
+    /// </summary>
     public class AutoSizeListView : Panel
     {
         #region INTERNAL FIELDS
@@ -180,7 +184,7 @@ namespace System.Windows.Forms
         /// Add a new item to the list view.
         /// </summary>
         /// <param name="item"></param>
-        public void AddItem(ListViewItem item) =>View.Items.Add(item);
+        public void AddItem(ListViewItem item) => View.Items.Add(item);
 
         /// <summary>
         /// Auto size and update the control.
@@ -199,6 +203,14 @@ namespace System.Windows.Forms
 
         protected override void OnPaint(PaintEventArgs e) => Draw(e.Graphics);
 
+        /// <summary>
+        /// Draw the control on the specified GDI+ surface and
+        /// return the size of the draw area. If <code>g</code>
+        /// is <code>null</code> nothing will be drawn, but the 
+        /// size will still be returned.
+        /// </summary>
+        /// <param name="g">The GDI+ surface to draw on.</param>
+        /// <returns>Returns the size of the drawn area.</returns>
         private Drawing.Size Draw(Graphics g = null)
         {
             g?.Clear(BackColor);

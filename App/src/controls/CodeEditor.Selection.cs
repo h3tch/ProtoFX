@@ -148,8 +148,8 @@ namespace ScintillaNET
         /// <summary>
         /// Get the bounding box of the word.
         /// </summary>
-        /// <param name="position"></param>
-        /// <returns></returns>
+        /// <param name="position">Text position</param>
+        /// <returns>Returns the bounding box of the word in control coordinates.</returns>
         public Rectangle GetWordBounds(int position)
         {
             var start = WordStartPosition(position, true);

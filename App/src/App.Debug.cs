@@ -275,10 +275,6 @@ namespace App
         private void editor_CancleCallTip(object s, CancleTipEventHandlerArgs e)
             => (s as CodeEditor).PerfTipCancel();
 
-        #endregion
-
-        #region HELPERS
-
         /// <summary>
         /// Show variables of the currently selected line in the editor.
         /// </summary>
@@ -307,7 +303,7 @@ namespace App
             var dbgVars = FxDebugger.GetDebugVariablesFromLine(editor, first, last - first + 1);
             debugListView.Visible = dbgVars.Count() > 0;
             dbgVars.Select(Var => FxDebugger.GetDebugVariableValue(Var.ID, glControl.Frame - 1))
-                   .ForEach(dbgVars, (Val, Var) => { if (Val != null) NewVariableItem(Var.Name, Val); });
+                   .ForEach(dbgVars, (Val, Var) => NewVariableItem(Var.Name, Val));
             debugListView.Update();
         }
 
@@ -318,13 +314,14 @@ namespace App
         /// <param name="val"></param>
         private void NewVariableItem(string groupName, Array val)
         {
-            // CREATE LIST VIEW ROWS
+            if (val == null)
+                return;
 
+            // get matrix size
             int rows = val.GetLength(0);
             int cols = val.GetLength(1);
 
             // add list group for this debug variable
-            // -- dbgVar.Value ... debug variable name
             var dbgVarGroup = new ListViewGroup(groupName);
             debugListView.AddGroup(dbgVarGroup);
 
@@ -339,6 +336,10 @@ namespace App
                 debugListView.AddItem(item);
             }
         }
+
+        #endregion
+
+        #region Performance Tip
 
         /// <summary>
         /// Show performance tip for tech object.

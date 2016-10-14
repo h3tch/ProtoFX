@@ -63,7 +63,7 @@
             this.panelMenu = new System.Windows.Forms.Panel();
             this.tableLayoutMenu = new System.Windows.Forms.TableLayoutPanel();
             this.toolStripContainerMenu = new System.Windows.Forms.ToolStripContainer();
-            this.toolStrip = new System.Windows.Forms.ToolStripEx();
+            this.toolStrip = new System.Windows.Forms.FXToolStrip();
             this.toolBtnNew = new System.Windows.Forms.ToolStripButton();
             this.toolBtnOpen = new System.Windows.Forms.ToolStripButton();
             this.toolBtnSave = new System.Windows.Forms.ToolStripButton();
@@ -1433,7 +1433,7 @@
         private System.Windows.Forms.SplitContainer splitRenderOutput;
         private System.Windows.Forms.ToolStripContainer toolStripContainerCoding;
         private System.Windows.Forms.ToolStripContainer toolStripContainerMenu;
-        private System.Windows.Forms.ToolStripEx toolStrip;
+        private System.Windows.Forms.FXToolStrip toolStrip;
         private System.Windows.Forms.ToolStripButton toolBtnOpen;
         private System.Windows.Forms.ToolStripButton toolBtnSave;
         private System.Windows.Forms.ToolStripButton toolBtnSaveAll;

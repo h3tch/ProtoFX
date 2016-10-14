@@ -73,6 +73,8 @@ namespace System.Windows.Forms
 
         #endregion
 
+        #region LOAD AND SAVE
+
         /// <summary>
         /// Load theme from xml.
         /// </summary>
@@ -96,43 +98,26 @@ namespace System.Windows.Forms
                 XmlSerializer.Save(palette, path);
         }
 
+        #endregion
+
         /// <summary>
         /// Apply theme to the specified control and its children.
         /// </summary>
         /// <param name="control"></param>
         public static void Apply(object control)
         {
+            // find ApplyTo method
             var type = control.GetType();
             var method = GetMethod(type, true) ?? GetMethod(type, false);
+            // call ApplyTo method
             if (!(bool)method?.Invoke(null, new object[] { control }))
                 return;
+            // call ApplyTo for all sub controls
             if (control.GetType().IsSubclassOf(typeof(Control)))
             {
                 foreach (Control c in ((Control)control).Controls)
                     Apply(c);
             }
-        }
-
-        /// <summary>
-        /// Find ApplyTo method.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="exact"></param>
-        /// <returns></returns>
-        internal static MethodInfo GetMethod(Type type, bool exact)
-        {
-            var methods = typeof(Theme).GetMethods(BindingFlags.Static | BindingFlags.NonPublic);
-            foreach (var method in methods)
-            {
-                if (method.Name != "ApplyTo")
-                    continue;
-                var @params = method.GetParameters();
-                if (@params.Length == 1 &&
-                    exact ? type.IsEquivalentTo(@params[0].ParameterType)
-                          : type.IsSubclassOf(@params[0].ParameterType))
-                    return method;
-            }
-            return null;
         }
 
         #region APPLY THEME TO
@@ -155,7 +140,7 @@ namespace System.Windows.Forms
             return false;
         }
 
-        private static bool ApplyTo(ToolStripEx c)
+        private static bool ApplyTo(FXToolStrip c)
         {
             c.BackColor = BackColor;
             c.ForeColor = ForeColor;
@@ -320,7 +305,33 @@ namespace System.Windows.Forms
 
         #endregion
 
-        #region INTERNAL
+        #region HELPERS
+
+        /// <summary>
+        /// Find ApplyTo method.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="exact"></param>
+        /// <returns></returns>
+        private static MethodInfo GetMethod(Type type, bool exact)
+        {
+            var methods = typeof(Theme).GetMethods(BindingFlags.Static | BindingFlags.NonPublic);
+            foreach (var method in methods)
+            {
+                if (method.Name != "ApplyTo")
+                    continue;
+                var @params = method.GetParameters();
+                if (@params.Length == 1 &&
+                    exact ? type.IsEquivalentTo(@params[0].ParameterType)
+                          : type.IsSubclassOf(@params[0].ParameterType))
+                    return method;
+            }
+            return null;
+        }
+
+        #endregion
+
+        #region INTERNAL CLASSES
 
         public struct Palette
         {
