@@ -12,13 +12,16 @@ namespace App
         static void Main()
         {
             if (Environment.OSVersion.Version.Major >= 6)
-                SetProcessDPIAware();
+                NativeMethods.SetProcessDPIAware();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new App());
         }
-
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        private static extern bool SetProcessDPIAware();
+        
+        internal static class NativeMethods
+        {
+            [System.Runtime.InteropServices.DllImport("user32.dll")]
+            public static extern bool SetProcessDPIAware();
+        }
     }
 }

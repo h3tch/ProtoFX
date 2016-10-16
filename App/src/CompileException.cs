@@ -1,63 +1,96 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace App
 {
-    class CompileException : Exception
+    [Serializable]
+    class CompileException : Exception, IEnumerable<CompileException.Error>, IDisposable
     {
         private List<string> callstack;
-        private List<string> messages = new List<string>();
+        private List<Error> messages;
 
         // compile call stack into a single string
-        private string callstackstring => callstack.Merge(": ");
+        private string callstackstring => callstack.Cat(": ");
 
-        // compile all messages into a single string
-        public string Text => messages.Merge("\n");
-
+        /// <summary>
+        /// Returns true if there are any errors messages in the class.
+        /// </summary>
+        /// <returns></returns>
         public bool HasErrors() => messages.Count > 0;
 
-        public CompileException() : this(new List<string>()) { }
-
-        private CompileException(List<string> callstack) : base()
+        /// <summary>
+        /// Create new compiler exception.
+        /// </summary>
+        /// <param name="callstackstring">Indicates the current position in the call stack.</param>
+        public CompileException(string callstackstring)
         {
-            this.callstack = callstack;
-        }
-
-        private CompileException(List<string> callstack, string callstackstring)
-            : this(callstack)
-        {
+            callstack = new List<string>();
             callstack.Add(callstackstring);
+            messages = new List<Error>();
         }
-
-        public CompileException(string callstackstring) : this()
+        
+        /// <summary>
+        /// Derive new compiler exception from existing one by keeping the call stack.
+        /// </summary>
+        /// <param name="err"></param>
+        /// <param name="callstackstring"></param>
+        private CompileException(CompileException err, string callstackstring)
         {
+            callstack = err.callstack;
             callstack.Add(callstackstring);
+            messages = err.messages;
         }
-
-        public CompileException(CompileException err, string callstackstring)
-            : this(err.callstack, callstackstring)
+        
+        /// <summary>
+        /// Add a compiler error message to the exception.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="file"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public CompileException Add(string message, string file, int line)
         {
-        }
-
-        public CompileException Add(string message)
-        {
-            messages.Add(callstackstring + message);
+            messages.Add(new Error(file, line, callstackstring + message));
             return this;
         }
-
-        public CompileException PushCall(string text)
-        {
-            callstack.Add(text);
-            return this;
-        }
-
-        public CompileException PopCall()
-        {
-            callstack.UseIf(callstack.Count > 0)?.RemoveAt(callstack.Count - 1);
-            return this;
-        }
-
-        public static CompileException operator +(CompileException err, string callLevel)
+        
+        /// <summary>
+        /// Add another level to the call stack.
+        /// </summary>
+        /// <param name="err"></param>
+        /// <param name="callLevel"></param>
+        /// <returns></returns>
+        public static CompileException operator | (CompileException err, string callLevel)
             => new CompileException(err, callLevel);
+
+        #region Interfaces
+        public IEnumerator<Error> GetEnumerator() => messages.GetEnumerator();
+
+        IEnumerator<Error> IEnumerable<Error>.GetEnumerator() => messages.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => messages.GetEnumerator();
+
+        public void Dispose()
+        {
+            if (callstack.Count > 0)
+                callstack.RemoveAt(callstack.Count - 1);
+        }
+        #endregion
+
+        #region INNER CLASSES
+        public struct Error
+        {
+            public Error(string file, int line, string msg)
+            {
+                File = file;
+                Line = line;
+                Msg = msg;
+            }
+            public string File;
+            public int Line;
+            public string Msg;
+        }
+        #endregion
     }
 }

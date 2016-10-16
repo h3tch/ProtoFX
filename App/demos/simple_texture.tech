@@ -39,7 +39,7 @@ texture tex_lena {
 // SHADERS //
 /////////////
 
-shader vert vs_simple {
+shader vs_simple vert {
 	#version 440
 
 	layout(binding = 0) uniform SimpleCamera {
@@ -61,7 +61,7 @@ shader vert vs_simple {
 	}
 }
 
-shader frag fs_simple {
+shader fs_simple frag {
 	#version 440
 	
 	layout(binding = 0) uniform sampler2D tex;
@@ -82,7 +82,8 @@ shader frag fs_simple {
 csharp cs_util {
 	file "<csharp>/StaticCamera.cs" ...
 	     "<csharp>/SimpleCamera.cs" ...
-	     "<csharp>/UniformBlock.cs"
+	     "<csharp>/UniformBlock.cs" ...
+	     "<csharp>/CsObject.cs"
 }
 
 instance cs_camera {
@@ -99,11 +100,11 @@ pass pass_render {
 	tex tex_lena 0
 	
 	// set clear color
-	ClearColor 0.1 0.3 1.0 0.0
+	glClearColor 0.1 0.3 1.0 0.0
 	// clear color and depth buffer
-	Clear ColorDepthBit
+	glClear ColorDepthBit
 	// enable depth buffer test
-	Enable depthTest
+	glEnable depthTest
 	
 	// execute camera code
 	exec cs_camera
@@ -112,6 +113,13 @@ pass pass_render {
 	draw buf_idx in_vert ushort triangles 0 0 36
 }
 
+pass pass_reset {
+	tex 0 unbind
+	glClearColor 0.0 0.0 0.0 0.0
+	glDisable depthTest
+}
+
 tech tech_simple {
 	pass pass_render
+	pass pass_reset
 }

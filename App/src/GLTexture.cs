@@ -5,138 +5,151 @@ namespace App
     class GLTexture : GLObject
     {
         #region FIELDS
-        [Field] private string samp = null;
-        [Field] private string buff = null;
-        [Field] private string img = null;
-        [Field] private GpuFormat format = 0;
-        private GLSampler glsamp = null;
-        private GLBuffer glbuff = null;
-        private GLImage glimg = null;
+        [FxField] private string Buff = null;
+        [FxField] private string Img = null;
+        [FxField] private GpuFormat Format = 0;
+        private GLBuffer glBuff = null;
+        private GLImage glImg = null;
         #endregion
 
         /// <summary>
+        /// Create OpenGL object specifying the texture
+        /// format and referenced scene objects directly.
         /// </summary>
-        /// <param name="params"></param>
-        /// <param name="samp"></param>
-        /// <param name="buff"></param>
-        /// <param name="img"></param>
-        public GLTexture(GLParams @params, GLSampler glsamp, GLBuffer glbuff, GLImage glimg)
-            : base(@params)
+        /// <param name="name"></param>
+        /// <param name="anno"></param>
+        /// <param name="format"></param>
+        /// <param name="glbuff"></param>
+        /// <param name="glimg"></param>
+        public GLTexture(string name, string anno, GpuFormat format, GLBuffer glbuff, GLImage glimg)
+            : base(name, anno)
         {
-            var err = new CompileException($"texture '{@params.name}'");
-
-            // PARSE TEXT
-            var body = new Commands(@params.text, err);
-
-            // PARSE ARGUMENTS
-            body.Cmds2Fields(this, err);
+            var err = new CompileException($"texture '{name}'");
 
             // set name
-            this.glsamp = glsamp;
-            this.glbuff = glbuff;
-            this.glimg = glimg;
+            Format = format;
+            glBuff = glbuff;
+            glImg = glimg;
+
+            // INCASE THIS IS A TEXTURE OBJECT
+            Link("", -1, err);
+            if (HasErrorOrGlError(err, "", -1))
+                throw err;
+        }
+
+        /// <summary>
+        /// Create OpenGL object specifying the referenced scene objects directly.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="glbuff"></param>
+        /// <param name="glimg"></param>
+        public GLTexture(Compiler.Block block, Dict scene, GLBuffer glbuff, GLImage glimg)
+            : base(block.Name, block.Anno)
+        {
+            var err = new CompileException($"texture '{name}'");
+
+            // PARSE ARGUMENTS
+            Cmds2Fields(block, err);
+
+            // set name
+            glBuff = glbuff;
+            glImg = glimg;
 
             // GET REFERENCES
-            GetReferences(samp, buff, img, @params, err);
+            if (Buff != null)
+                scene.TryGetValue(Buff, out glBuff, block, err);
+            if (Img != null)
+                scene.TryGetValue(Img, out glImg, block, err);
+            if (glBuff != null && glImg != null)
+                err.Add("Only an image or a buffer can be bound to a texture object.", block);
+            if (glBuff == null && glImg == null)
+                err.Add("Ether an image or a buffer has to be bound to a texture object.", block);
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION
             if (err.HasErrors())
                 throw err;
 
             // INCASE THIS IS A TEXTURE OBJECT
-            if (this.glimg != null)
-            {
-                glname = this.glimg.glname;
-                // get internal format
-                int f;
-                GL.GetTextureLevelParameter(glname, 0, GetTextureParameter.TextureInternalFormat, out f);
-                format = (GpuFormat)f;
-            }
-            else if (this.glbuff != null)
-            {
-                if (format == 0)
-                    throw err.Add($"No texture buffer format defined " +
-                        $"for buffer '{buff}' (e.g. format RGBA8).");
-                // CREATE OPENGL OBJECT
-                glname = GL.GenTexture();
-                GL.BindTexture(TextureTarget.TextureBuffer, glname);
-                GL.TexBuffer(TextureBufferTarget.TextureBuffer, (SizedInternalFormat)format, this.glbuff.glname);
-                GL.BindTexture(TextureTarget.TextureBuffer, 0);
-            }
-
-            if (HasErrorOrGlError(err))
+            Link(block.Filename, block.LineInFile, err);
+            if (HasErrorOrGlError(err, block))
                 throw err;
         }
 
         /// <summary>
-        /// Create OpenGL object.
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLTexture(GLParams @params) : this(@params, null, null, null)
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
+        public GLTexture(Compiler.Block block, Dict scene, bool debugging)
+            : this(block, scene, null, null)
         {
         }
 
         /// <summary>
-        /// Bind texture to texture unit.
+        /// Standard object destructor for ProtoFX.
         /// </summary>
-        /// <param name="unit">Texture unit.</param>
-        public void BindTex(int unit)
-        {
-            if (glsamp != null)
-                GL.BindSampler(unit, glsamp.glname);
-            GLDebugger.BindTex(unit, glimg != null ? glimg.target : TextureTarget.TextureBuffer, glname);
-        }
-
-        /// <summary>
-        /// Unbind texture from texture unit.
-        /// </summary>
-        /// <param name="unit">Texture unit.</param>
-        public void UnbindTex(int unit)
-        {
-            if (glsamp != null)
-                GL.BindSampler(unit, 0);
-            GLDebugger.UnbindTex(unit, glimg != null ? glimg.target : TextureTarget.TextureBuffer);
-        }
-
-        /// <summary>
-        /// Bind texture to compute image unit.
-        /// </summary>
-        /// <param name="unit">Image unit.</param>
-        /// <param name="level">Texture mipmap level.</param>
-        /// <param name="layer">Texture array index or texture depth.</param>
-        /// <param name="access">How the texture will be accessed by the shader.</param>
-        /// <param name="format">Pixel format of texture pixels.</param>
-        public void BindImg(int unit, int level, int layer, TextureAccess access, GpuFormat format)
-            => GLDebugger.BindImg(unit, level, glimg?.length > 0, layer, access, format, glname);
-
-        public void UnbindImg(int unit) => GLDebugger.UnbindImg(unit);
-
         public override void Delete()
         {
+            base.Delete();
             if (glname > 0)
             {
                 GL.DeleteTexture(glname);
                 glname = 0;
             }
         }
+
+        /// <summary>
+        /// Bind texture to texture unit.
+        /// </summary>
+        /// <param name="unit">Texture unit.</param>
+        /// <param name="tex">Texture object.</param>
+        public static void BindTex(int unit, GLTexture tex)
+            => FxDebugger.BindTex(unit, tex?.glImg?.Target ?? TextureTarget.TextureBuffer, tex?.glname ?? 0);
+
+        /// <summary>
+        /// Bind texture to compute-image unit.
+        /// </summary>
+        /// <param name="unit">Image unit.</param>
+        /// <param name="tex">Texture object.</param>
+        /// <param name="level">Texture mipmap level.</param>
+        /// <param name="layer">Texture array index or texture depth.</param>
+        /// <param name="access">How the texture will be accessed by the shader.</param>
+        /// <param name="format">Pixel format of texture pixels.</param>
+        public static void BindImg(int unit, GLTexture tex, int level = 0, int layer = 0,
+            TextureAccess access = TextureAccess.ReadOnly, GpuFormat format = GpuFormat.Rgba8)
+            => FxDebugger.BindImg(unit, level, tex?.glImg?.Length > 0, layer, access, format, tex?.glname ?? 0);
         
-        public void GetReferences(string samp, string buff, string img, GLParams @params, CompileException err)
+        /// <summary>
+        /// Link image or buffer object to the texture.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="line"></param>
+        /// <param name="err"></param>
+        private void Link(string file, int line, CompileException err)
         {
-            // GET REFERENCES
-            if (samp != null)
-                @params.scene.TryGetValue(samp, out glsamp, err);
-            if (buff != null)
-                @params.scene.TryGetValue(buff, out glbuff, err);
-            if (img != null)
-                @params.scene.TryGetValue(img, out glimg, err);
-            if (glbuff != null && glimg != null)
-                err.Add("Only an image or a buffer can be bound to a texture object.");
-            if (glbuff == null && glimg == null)
-                err.Add("Ether an image or a buffer has to be bound to a texture object.");
+            // IN CASE THIS IS A TEXTURE OBJECT
+            if (glImg != null)
+            {
+                glname = glImg.glname;
+                // get internal format
+                int f;
+                GL.GetTextureLevelParameter(glname, 0, GetTextureParameter.TextureInternalFormat, out f);
+                Format = (GpuFormat)f;
+            }
+            // IN CASE THIS IS A BUFFER OBJECT
+            else if (glBuff != null)
+            {
+                if (Format == 0)
+                    throw err.Add($"No texture buffer format defined for " +
+                        "buffer '{buff}' (e.g. format RGBA8).", file, line);
+                // CREATE OPENGL OBJECT
+                glname = GL.GenTexture();
+                GL.BindTexture(TextureTarget.TextureBuffer, glname);
+                GL.TexBuffer(TextureBufferTarget.TextureBuffer, (SizedInternalFormat)Format, glBuff.glname);
+                GL.BindTexture(TextureTarget.TextureBuffer, 0);
+            }
         }
-
-        public string GetLable() => GetLable(glname);
-
-        public static string GetLable(int glname) => GetLable(ObjectLabelIdentifier.Texture, glname);
     }
 }

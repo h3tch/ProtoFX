@@ -5,15 +5,15 @@
         public string text { get; private set; }
 
         /// <summary>
-        /// Create OpenGL object.
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLText(GLParams @params)
-            : base(@params)
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
+        public GLText(Compiler.Block block, Dict scene, bool debugging)
+            : base(block.Name, block.Anno)
         {
-            this.text = @params.text;
+            text = block.Body;
         }
-
-        public override void Delete() { }
     }
 }

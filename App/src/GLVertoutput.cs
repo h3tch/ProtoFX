@@ -6,24 +6,19 @@ namespace App
 {
     class GLVertoutput : GLObject
     {
-        #region FIELDS
-        public bool pause = false;
-        public bool resume = false;
-        #endregion
-
         /// <summary>
-        /// Create OpenGL object.
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLVertoutput(GLParams @params) : base(@params)
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
+        public GLVertoutput(Compiler.Block block, Dict scene, bool debugging)
+            : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"vertoutput '{@params.name}'");
-
-            // PARSE TEXT
-            var body = new Commands(@params.text, err);
+            var err = new CompileException($"vertoutput '{name}'");
 
             // PARSE ARGUMENTS
-            body.Cmds2Fields(this, err);
+            Cmds2Fields(block, err);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenTransformFeedback();
@@ -31,8 +26,8 @@ namespace App
 
             // parse commands
             int numbindings = 0;
-            foreach (var cmd in body["buff"])
-                attach(err + $"command {cmd.idx} 'buff'", numbindings++, cmd.args, @params.scene);
+            foreach (var cmd in block["buff"])
+                Attach(numbindings++, cmd, scene, err | $"command '{cmd.Text}'");
 
             // if errors occurred throw exception
             if (err.HasErrors())
@@ -40,7 +35,7 @@ namespace App
 
             // unbind object and check for errors
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, 0);
-            if (HasErrorOrGlError(err))
+            if (HasErrorOrGlError(err, block))
                 throw err;
         }
 
@@ -48,7 +43,7 @@ namespace App
         /// Bind transform feedback object.
         /// </summary>
         /// <param name="primitive">Transform feedback primitive type.</param>
-        public void Bind(PrimitiveType primitive)
+        public void Bind(PrimitiveType primitive, bool resume)
         {
             // bind transform feedback object
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, glname);
@@ -62,7 +57,7 @@ namespace App
         /// <summary>
         /// Unbind transform feedback object.
         /// </summary>
-        public void Unbind()
+        public static void Unbind(bool pause)
         {
             // pause or end transform feedback
             if (pause)
@@ -73,8 +68,12 @@ namespace App
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, 0);
         }
 
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
         public override void Delete()
         {
+            base.Delete();
             if (glname > 0)
             {
                 GL.DeleteTransformFeedback(glname);
@@ -82,35 +81,43 @@ namespace App
             }
         }
 
-        private void attach(CompileException err, int unit, string[] cmd, Dict<GLObject> classes)
+        /// <summary>
+        /// Parse command line and attach the buffer object
+        /// to the specified unit (output stream).
+        /// </summary>
+        /// <param name="unit">Vertex output stream unit.</param>
+        /// <param name="cmd">Command line to process.</param>
+        /// <param name="scene">Dictionary of scene objects.</param>
+        /// <param name="err">Compiler exception collector.</param>
+        private void Attach(int unit, Compiler.Command cmd, Dict scene, CompileException err)
         {
-            if (cmd.Length == 0)
+            if (cmd.ArgCount == 0)
             {
-                err.Add("Command buff needs at least one attribute (e.g. 'buff buff_name')");
+                err.Add("Command buff needs at least one attribute (e.g. 'buff buff_name')", cmd);
                 return;
             }
 
             // get buffer
-            GLBuffer buf = classes.GetValue<GLBuffer>(cmd[0]);
+            GLBuffer buf = scene.GetValueOrDefault<GLBuffer>(cmd[0].Text);
             if (buf == null)
             {
-                err.Add($"The name '{cmd[0]}' does not reference an object of type 'buffer'.");
+                err.Add($"The name '{cmd[0]}' does not reference an object of type 'buffer'.", cmd);
                 return;
             }
 
             // parse offset
             int offset = 0;
-            if (cmd.Length > 1 && int.TryParse(cmd[1], out offset) == false)
+            if (cmd.ArgCount > 1 && int.TryParse(cmd[1].Text, out offset) == false)
             {
-                err.Add($"The second parameter (offset) of buff {unit} is invalid.");
+                err.Add($"The second parameter (offset) of buff {unit} is invalid.", cmd);
                 return;
             }
 
             // parse size
-            int size = buf.size;
-            if (cmd.Length > 2 && int.TryParse(cmd[2], out size) == false)
+            int size = buf.Size;
+            if (cmd.ArgCount > 2 && int.TryParse(cmd[2].Text, out size) == false)
             {
-                err.Add($"The third parameter (size) of buff {unit} is invalid.");
+                err.Add($"The third parameter (size) of buff {unit} is invalid.", cmd);
                 return;
             }
 

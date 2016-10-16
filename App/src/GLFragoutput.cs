@@ -6,8 +6,9 @@ namespace App
     class GLFragoutput : GLObject
     {
         #region PROPERTIES
-        [Field] public int width { get; protected set; }
-        [Field] public int height { get; protected set; }
+        [FxField] public int[] Size = new int[2];
+        [FxField] public int Width { get { return Size[0]; } protected set { Size[0] = value; } }
+        [FxField] public int Height { get { return Size[1]; } protected set { Size[1] = value; } }
         #endregion
 
         #region FIELDS
@@ -34,26 +35,26 @@ namespace App
         #endregion
 
         /// <summary>
-        /// Create OpenGL framebuffer object for fragment output.
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLFragoutput(GLParams @params) : base(@params)
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
+        public GLFragoutput(Compiler.Block block, Dict scene, bool debugging)
+            : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"fragoutput '{@params.name}'");
-
-            // PARSE TEXT
-            var body = new Commands(@params.text, err);
+            var err = new CompileException($"fragoutput '{name}'");
 
             // PARSE ARGUMENTS
-            body.Cmds2Fields(this, err);
+            Cmds2Fields(block, err);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, glname);
-            
+
             // PARSE COMMANDS
-            foreach (var cmd in body)
-                attatch(err + $"command {cmd.idx} '{cmd.cmd}'", cmd.cmd, cmd.args, @params.scene);
+            foreach (var cmd in block)
+                Attach(cmd, scene, err | $"command '{cmd.Name}'");
 
             // if any errors occurred throw exception
             if (err.HasErrors())
@@ -65,12 +66,28 @@ namespace App
             Unbind();
 
             // final error checks
-            if (HasErrorOrGlError(err))
+            if (HasErrorOrGlError(err, block))
                 throw err;
             if (status != FramebufferErrorCode.FramebufferComplete)
-                throw err.Add("Could not be created due to an unknown error.");
+                throw err.Add("Could not be created due to an unknown error.", block);
         }
         
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
+        public override void Delete()
+        {
+            base.Delete();
+            if (glname > 0)
+            {
+                GL.DeleteFramebuffer(glname);
+                glname = 0;
+            }
+        }
+
+        /// <summary>
+        /// Bind fragment output object as a render target (framebuffer).
+        /// </summary>
         public void Bind()
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, glname);
@@ -81,6 +98,9 @@ namespace App
                 GL.DrawBuffer(DrawBufferMode.None);
         }
 
+        /// <summary>
+        /// Unbind fragment output object as a render target (framebuffer).
+        /// </summary>
         public void Unbind()
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -88,64 +108,63 @@ namespace App
             GL.DrawBuffer(DrawBufferMode.BackLeft);
         }
 
-        public override void Delete()
-        {
-            if (glname > 0)
-            {
-                GL.DeleteFramebuffer(glname);
-                glname = 0;
-            }
-        }
-
-        private void attatch(CompileException err, string cmd, string[] args, Dict<GLObject> classes)
+        /// <summary>
+        /// Attach image to the fragment output object.
+        /// </summary>
+        /// <param name="cmd">Command to process.</param>
+        /// <param name="scene">Dictionary of all objects in the scene.</param>
+        /// <param name="err">Compilation error collector.</param>
+        private void Attach(Compiler.Command cmd, Dict scene, CompileException err)
         {
             // get OpenGL image
-            GLImage glimg = classes.GetValue<GLImage>(args[0]);
+            GLImage glimg = scene.GetValueOrDefault<GLImage>(cmd[0].Text);
             if (glimg == null)
             {
-                err.Add($"The name '{args[0]}' does not reference an object of type 'image'.");
+                err.Add($"The name '{cmd[0].Text}' does not reference an object of type 'image'.", cmd);
                 return;
             }
 
             // set width and height for GLPass to set the right viewport size
-            if (width == 0 && height == 0)
+            if (Width == 0 && Height == 0)
             {
-                width = glimg.width;
-                height = glimg.height;
+                Width = glimg.Width;
+                Height = glimg.Height;
             }
 
             // get additional optional parameters
-            int mipmap = args.Length > 1 ? int.Parse(args[1]) : 0;
-            int layer = args.Length > 2 ? int.Parse(args[2]) : 0;
+            int mipmap = cmd.ArgCount > 1 ? int.Parse(cmd[1].Text) : 0;
+            int layer = cmd.ArgCount > 2 ? int.Parse(cmd[2].Text) : 0;
 
             // get attachment point
             FramebufferAttachment attachment;
-            if (!Enum.TryParse($"{cmd}attachment{(cmd.Equals("color") ? ""+numAttachments++ : "")}",
+            if (!Enum.TryParse(
+                $"{cmd.Name}attachment{(cmd.Name.Equals("color") ? "" + numAttachments++ : "")}",
                 true, out attachment))
             {
-                err.Add($"Invalid attachment point '{cmd}'.");
+                err.Add($"Invalid attachment point '{cmd.Name}'.", cmd);
                 return;
             }
 
             // attach texture to framebuffer
-            switch (glimg.target)
+            switch (glimg.Target)
             {
                 case TextureTarget.Texture2DArray:
                 case TextureTarget.Texture3D:
                     GL.FramebufferTexture3D(FramebufferTarget.Framebuffer,
-                        attachment, glimg.target, glimg.glname, mipmap, layer);
+                        attachment, glimg.Target, glimg.glname, mipmap, layer);
                     break;
                 case TextureTarget.Texture1DArray:
                 case TextureTarget.Texture2D:
                     GL.FramebufferTexture2D(FramebufferTarget.Framebuffer,
-                        attachment, glimg.target, glimg.glname, mipmap);
+                        attachment, glimg.Target, glimg.glname, mipmap);
                     break;
                 case TextureTarget.Texture1D:
                     GL.FramebufferTexture1D(FramebufferTarget.Framebuffer,
-                        attachment, glimg.target, glimg.glname, mipmap);
+                        attachment, glimg.Target, glimg.glname, mipmap);
                     break;
                 default:
-                    err.Add($"The texture type '{glimg.target}' of image '{args[0]}' is not supported.");
+                    err.Add($"The texture type '{glimg.Target}' of image " +
+                        $"'{cmd[0].Text}' is not supported.", cmd);
                     break;
             }
         }

@@ -1,18 +1,18 @@
-﻿uniform <<<debug uniform>>>;
-uniform <<<debug frame>>>;
+﻿uniform <<debug uniform>>;
+uniform <<debug frame>>;
 
 void _dbgMain() {
 	int _dbgIdx = 1;
-	<<<debug code>>>
+	<<debug code>>
 	_dbgStore(0, ivec2(_dbgIdx-1, _dbgFrame));
 }
 
 void _runMain() {
-	<<<runtime code>>>
+	<<runtime code>>
 }
 
 void main() {
-	if (<<<debug condition>>>)
+	if (<<debug condition>>)
 		_dbgMain();
 	else
 		_runMain();

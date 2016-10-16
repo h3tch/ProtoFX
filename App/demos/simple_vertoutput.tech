@@ -11,14 +11,6 @@ buffer buf_pos {
 	xml "geom/cube.xml" data/position
 }
 
-// buffer used for vertex output
-buffer buf_projpos {
-	// stream ... writen to once used a few times
-	// copy   ... GPU writes to and GPU reads from
-	usage streamCopy
-	size 1024
-}
-
 buffer buf_col {
 	usage staticDraw
 	xml "geom/cube.xml" data/color
@@ -27,6 +19,14 @@ buffer buf_col {
 buffer buf_idx {
 	usage staticDraw
 	xml "geom/cube.xml" data/index
+}
+
+// buffer used for vertex output
+buffer buf_projpos {
+	// stream ... writen to once used a few times
+	// copy   ... GPU writes to and GPU reads from
+	usage streamCopy
+	size 1024
 }
 
 /////////////////////////
@@ -50,7 +50,7 @@ vertinput in_projvert {
 // SHADERS //
 /////////////
 
-shader vert vs_transform {
+shader vs_transform vert {
 	#version 440
 	
 	uniform SimpleCamera {
@@ -64,11 +64,11 @@ shader vert vs_transform {
 	void main ()
 	{
 		int i = 0;
-		out_pos = camera.viewProj * in_pos;
+		<<out_pos>> = camera.viewProj * <<in_pos>>;
 	}
 }
 
-shader vert vs_render {
+shader vs_render vert {
 	#version 440
 	
 	layout(location = 0) in vec4 in_pos;
@@ -83,7 +83,7 @@ shader vert vs_render {
 	}
 }
 
-shader frag fs_render {
+shader fs_render frag {
 	#version 440
 	
 	layout(location = 0) in vec4 gs_col;
@@ -103,7 +103,8 @@ shader frag fs_render {
 csharp cs_util {
 	file "<csharp>/StaticCamera.cs" ...
 	     "<csharp>/SimpleCamera.cs" ...
-	     "<csharp>/UniformBlock.cs"
+	     "<csharp>/UniformBlock.cs" ...
+	     "<csharp>/CsObject.cs"
 }
 
 instance cs_camera {

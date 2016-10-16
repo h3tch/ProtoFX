@@ -5,43 +5,47 @@ namespace App
     class GLSampler : GLObject
     {
         #region FIELDS
-        [Field] private TextureMinFilter minfilter = TextureMinFilter.Nearest;
-        [Field] private TextureMagFilter magfilter = TextureMagFilter.Nearest;
-        [Field] private TextureWrapMode wrap = TextureWrapMode.ClampToEdge;
+        [FxField] private TextureMinFilter Minfilter = TextureMinFilter.Nearest;
+        [FxField] private TextureMagFilter Magfilter = TextureMagFilter.Nearest;
+        [FxField] private TextureWrapMode Wrap = TextureWrapMode.ClampToEdge;
         #endregion
 
         /// <summary>
-        /// Create OpenGL object.
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLSampler(GLParams @params) : base(@params)
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
+        public GLSampler(Compiler.Block block, Dict scene, bool debugging)
+            : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"sampler '{@params.name}'");
-
-            // PARSE TEXT
-            var body = new Commands(@params.text, err);
+            var err = new CompileException($"sampler '{name}'");
 
             // PARSE ARGUMENTS
-            body.Cmds2Fields(this, err);
+            Cmds2Fields(block, err);
 
             // CREATE OPENGL OBJECT
             glname = GL.GenSampler();
-            int mini = (int)minfilter;
-            int magi = (int)magfilter;
-            int wrapi = (int)wrap;
+            int mini = (int)Minfilter;
+            int magi = (int)Magfilter;
+            int wrapi = (int)Wrap;
             GL.SamplerParameterI(glname, SamplerParameterName.TextureMinFilter, ref mini);
             GL.SamplerParameterI(glname, SamplerParameterName.TextureMagFilter, ref magi);
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapR, ref wrapi);
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapS, ref wrapi);
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapT, ref wrapi);
 
-            HasErrorOrGlError(err);
+            HasErrorOrGlError(err, block);
             if (err.HasErrors())
                 throw err;
         }
 
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
         public override void Delete()
         {
+            base.Delete();
             if (glname > 0)
             {
                 GL.DeleteSampler(glname);

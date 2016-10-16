@@ -1,8 +1,10 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Reflection;
 using LockMode = System.Drawing.Imaging.ImageLockMode;
 using TexTarget = OpenTK.Graphics.OpenGL4.TextureTarget;
 using TexParamName = OpenTK.Graphics.OpenGL4.TextureParameterName;
@@ -11,48 +13,52 @@ using CpuFormat = System.Drawing.Imaging.PixelFormat;
 using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
 using GpuColorFormat = OpenTK.Graphics.OpenGL4.PixelInternalFormat;
 using TexParameter = OpenTK.Graphics.OpenGL4.GetTextureParameter;
+using System.Linq;
 
 namespace App
 {
     class GLImage : GLObject
     {
         #region FIELDS
-        [Field] private string[] file = null;
-        [Field] public int width = 1;
-        [Field] public int height = 0;
-        [Field] public int depth = 0;
-        [Field] public int length = 0;
-        [Field] public int mipmaps = 0;
-        [Field] private TexTarget type = 0;
-        [Field] private GpuFormat format = GpuFormat.Rgba8;
+        [FxField] private string[] File = null;
+        [FxField] public int[] Size = null;
+        [FxField] public int Mipmaps = 0;
+        [FxField] private TexTarget Type = 0;
+        [FxField] private GpuFormat Format = GpuFormat.Rgba8;
         #endregion
 
         #region PROPERTIES
-        public TexTarget target { get { return type; } private set { type = value; } }
-        public GpuFormat gpuFormat { get { return format; } private set { format = value; } }
+        public int Width { get { return Size[0]; } set { Size[0] = value; } }
+        public int Height { get { return Size[1]; } set { Size[1] = value; } }
+        public int Depth { get { return Size[2]; } set { Size[2] = value; } }
+        public int Length { get { return Size[3]; } set { Size[3] = value; } }
+        public TexTarget Target { get { return Type; } private set { Type = value; } }
+        public GpuFormat GpuFormat { get { return Format; } private set { Format = value; } }
         #endregion
 
         /// <summary>
         /// Link GLBuffer to existing OpenGL image. Used
         /// to provide debug information in the debug view.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
+        /// <param name="name"></param>
+        /// <param name="anno"></param>
         /// <param name="glname">OpenGL object to like to.</param>
-        public GLImage(GLParams @params, int glname) : base(@params)
+        public GLImage(string name, string anno, int glname) : base(name, anno)
         {
             int f, t;
             this.glname = glname;
+            this.Size = Enumerable.Repeat(1, 4).ToArray();
             GL.GetTextureParameter(glname, TexParameter.TextureTarget, out t);
             GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureInternalFormat, out f);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureWidth, out width);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureHeight, out height);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureDepth, out depth);
-            type = (TexTarget)t;
-            format = (GpuFormat)f;
-            if (type != TexTarget.Texture3D)
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureWidth, out Size[0]);
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureHeight, out Size[1]);
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureDepth, out Size[2]);
+            Type = (TexTarget)t;
+            Format = (GpuFormat)f;
+            if (Type != TexTarget.Texture3D)
             {
-                length = depth;
-                depth = 0;
+                Size[3] = Size[2];
+                Size[2] = 1;
             }
         }
 
@@ -60,71 +66,93 @@ namespace App
         /// Create OpenGL image object.
         /// </summary>
         /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLImage(GLParams @params) : base(@params)
+        public GLImage(Compiler.Block block, Dict scene, bool debugging)
+            : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"image '{@params.name}'");
-
-            // PARSE TEXT
-            var cmds = new Commands(@params.text, err);
+            var err = new CompileException($"image '{name}'");
 
             // PARSE ARGUMENTS
-            cmds.Cmds2Fields(this, err);
+            Cmds2Fields(block, err);
 
-            // if type was not specified
-            if (target == 0)
-            {
-                if (width > 0 && height == 1 && depth == 0 && length == 0)
-                    target = TexTarget.Texture1D;
-                else if (width > 0 && height == 1 && depth == 0 && length > 0)
-                    target = TexTarget.Texture1DArray;
-                else if (width > 0 && height > 1 && depth == 0 && length == 0)
-                    target = TexTarget.Texture2D;
-                else if (width > 0 && height > 1 && depth == 0 && length > 0)
-                    target = TexTarget.Texture2DArray;
-                else if (width > 0 && height > 1 && depth > 0 && length == 0)
-                    target = TexTarget.Texture3D;
-                else
-                    err.Add("Texture type could not be derived from 'width', 'height', "
-                        + "'depth' and 'length'. Please check these parameters "
-                        + "or specify the type directly (e.g. 'type = texture2D').");
-            }
-
-            // LOAD IMAGE DATA
-            var data = LoadImageFiles(err, @params.dir, file, ref width, ref height, ref depth, format);
+            if (Target == 0 && Size == null)
+                err.Add("Texture needs to specify a file or texture size " +
+                    "(e.g., size <width> <height> <depth> <length>).", block);
 
             // on errors throw an exception
             if (err.HasErrors())
                 throw err;
 
+            // complete size array
+            if (Size == null)
+                Size = Enumerable.Repeat(1, 4).ToArray();
+            else if (Size.Length < 4)
+                Size = Enumerable.Range(0, 4).Select(i => i < Size.Length ? Size[i] : 1).ToArray();
+
+            // LOAD IMAGE DATA
+            var dir = Path.GetDirectoryName(block.Filename) + Path.DirectorySeparatorChar;
+            var data = LoadImageFiles(dir, File, Size, Format);
+
+            // if type was not specified
+            if (Target == 0)
+            {
+                if (Width > 1 && Height == 1 && Depth == 1 && Length == 1)
+                    Target = TexTarget.Texture1D;
+                else if (Width > 1 && Height == 1 && Depth == 1 && Length > 1)
+                    Target = TexTarget.Texture1DArray;
+                else if (Width > 1 && Height > 1 && Depth == 1 && Length == 1)
+                    Target = TexTarget.Texture2D;
+                else if (Width > 1 && Height > 1 && Depth == 1 && Length > 1)
+                    Target = TexTarget.Texture2DArray;
+                else if (Width > 1 && Height > 1 && Depth > 1 && Length == 1)
+                    Target = TexTarget.Texture3D;
+                else
+                    err.Add("Texture type could not be derived from 'width', 'height', "
+                        + "'depth' and 'length'. Please check these parameters or specify "
+                        + "the type directly (e.g. 'type = texture2D').", block);
+            }
+
             // CREATE OPENGL OBJECT
             glname = GL.GenTexture();
-            GL.BindTexture(target, glname);
-            GL.TexParameter(target, TexParamName.TextureMinFilter,
-                (int)(mipmaps > 0 ? TexMinFilter.NearestMipmapNearest : TexMinFilter.Nearest));
-            GL.TexParameter(target, TexParamName.TextureMagFilter,
-                (int)(mipmaps > 0 ? TexMinFilter.NearestMipmapNearest : TexMinFilter.Nearest));
-            GL.TexParameter(target, TexParamName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(target, TexParamName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(target, TexParamName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            
+            GL.BindTexture(Target, glname);
+            GL.TexParameter(Target, TexParamName.TextureMinFilter,
+                (int)(Mipmaps > 0 ? TexMinFilter.NearestMipmapNearest : TexMinFilter.Nearest));
+            GL.TexParameter(Target, TexParamName.TextureMagFilter,
+                (int)(Mipmaps > 0 ? TexMinFilter.NearestMipmapNearest : TexMinFilter.Nearest));
+            GL.TexParameter(Target, TexParamName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(Target, TexParamName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(Target, TexParamName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+
             // ALLOCATE IMAGE MEMORY
             if (data != null)
             {
                 var dataPtr = Marshal.AllocHGlobal(data.Length);
                 Marshal.Copy(data, 0, dataPtr, data.Length);
-                TexImage(target, width, height, depth, length, PixelFormat.Bgra, PixelType.UnsignedByte, dataPtr);
+                TexImage(Target, Width, Height, Depth, Length, PixelFormat.Bgra, PixelType.UnsignedByte, dataPtr);
                 Marshal.FreeHGlobal(dataPtr);
             }
             else
-                TexImage(target, width, height, depth, length, mipmaps);
+                TexImage(Target, Width, Height, Depth, Length, Mipmaps);
 
             // GENERATE MIPMAPS
-            if (mipmaps > 0)
-                GL.GenerateMipmap((GenerateMipmapTarget)target);
+            if (Mipmaps > 0)
+                GL.GenerateMipmap((GenerateMipmapTarget)Target);
 
-            GL.BindTexture(target, 0);
-            if (HasErrorOrGlError(err))
+            GL.BindTexture(Target, 0);
+            if (HasErrorOrGlError(err, block))
                 throw err;
+        }
+        
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
+        public override void Delete()
+        {
+            base.Delete();
+            if (glname > 0)
+            {
+                GL.DeleteTexture(glname);
+                glname = 0;
+            }
         }
 
         /// <summary>
@@ -172,11 +200,10 @@ namespace App
             Marshal.FreeHGlobal(data);
             return bmp;
         }
-
+        
         /// <summary>
         /// Read GPU sub-image data.
         /// </summary>
-        /// <typeparam name="T">return type</typeparam>
         /// <param name="ID">OpenGL texture name</param>
         /// <param name="level">texture mipmap level</param>
         /// <param name="x">sub-image x offset</param>
@@ -185,23 +212,10 @@ namespace App
         /// <param name="w">sub-image width</param>
         /// <param name="h">sub-image height</param>
         /// <param name="d">sub-image depth</param>
-        /// <param name="format">returned pixel format (RGBA, BRGA, Red, Depth, ...)</param>
-        /// <param name="type">returned pixel type (UnsignedByte, Short, UnsignedInt, ...)</param>
-        /// <returns></returns>
-        public static T[] Read<T>(int ID, int level, int x, int y, int z, int w, int h, int d,
-            PixelFormat format, PixelType type) where T : struct
-        {
-            int size;
-
-            // read sub-image data and convert it to T[]
-            var data = ReadSubImage(ID, level, x, y, z, w, h, d, format, type, out size);
-            var ptr = data.To<T>(size);
-
-            // free memory allocated by OpenGL
-            Marshal.FreeHGlobal(data);
-            return ptr;
-        }
-
+        /// <param name="format">pixel format (RGBA, BRGA, Red, Depth, ...)</param>
+        /// <param name="type">pixel type (UnsignedByte, Short, UnsignedInt, ...)</param>
+        /// <param name="size">returns the buffer size in bytes</param>
+        /// <returns>Returns a buffer containing the specified sub-image region.</returns>
         private static IntPtr ReadSubImage(int ID, int level, int x, int y, int z, int w, int h, int d,
             PixelFormat format, PixelType type, out int size)
         {
@@ -214,6 +228,11 @@ namespace App
             return data;
         }
 
+        /// <summary>
+        /// Convert pixel type to number of color bits.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         private static int ColorBits(PixelType type)
         {
             switch (type)
@@ -238,6 +257,11 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Get the number of color channels from the specified pixel format.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <returns></returns>
         private static int ColorChannels(PixelFormat format)
         {
             switch (format)
@@ -270,22 +294,36 @@ namespace App
             }
         }
         
-        public override void Delete()
-        {
-            if (glname > 0)
-            {
-                GL.DeleteTexture(glname);
-                glname = 0;
-            }
-        }
+        /// <summary>
+        /// Get the OpenGL object label of the image object.
+        /// </summary>
+        /// <param name="glname"></param>
+        /// <returns></returns>
+        public static string GetLabel(int glname) => GetLabel(ObjectLabelIdentifier.Texture, glname);
 
-        public string GetLable() => GetLable(glname);
-
-        public static string GetLable(int glname) => GetLable(ObjectLabelIdentifier.Texture, glname);
+        /// <summary>
+        /// Find OpenGL textures.
+        /// </summary>
+        /// <param name="existing">List of objects already existent in the scene.</param>
+        /// <param name="range">Range in which to search for external objects (starting with 0).</param>
+        /// <returns></returns>
+        public static IEnumerable<GLObject> FindTextures(GLObject[] existing, int range = 64)
+            => FindObjects(existing, new[] { typeof(GLImage), typeof(GLTexture) }, GLIsTexMethod, GLTexLabel, range);
+        private static MethodInfo GLIsTexMethod = typeof(GL).GetMethod("IsTexture", new[] { typeof(int) });
+        private static MethodInfo GLTexLabel = typeof(GLImage).GetMethod("GetLabel", new[] { typeof(int) });
 
         #region UTIL METHODS
-        private static byte[] LoadImageFiles(CompileException err, string dir, string[] filenames,
-            ref int w, ref int h, ref int d, GpuFormat gpuformat)
+        /// <summary>
+        /// Load a list of image files and return them as a single byte array.
+        /// </summary>
+        /// <param name="dir">compilation directory</param>
+        /// <param name="filepaths">file paths to the image files</param>
+        /// <param name="w">width of the returned texture data</param>
+        /// <param name="h">height of the returned texture data</param>
+        /// <param name="d">number of texture layers</param>
+        /// <param name="gpuformat"></param>
+        /// <returns></returns>
+        private static byte[] LoadImageFiles(string dir, string[] filepaths, int[] size, GpuFormat gpuformat)
         {
             // SET DEFAULT DATA FOR OUTPUTS
             byte[] data = null;
@@ -295,43 +333,46 @@ namespace App
             var pixelsize = Image.GetPixelFormatSize(fileformat) / 8;
 
             // LOAD IMAGA DATA FROM FILES
-            if (filenames?.Length > 0 && !isdepth)
+            if (filepaths?.Length > 0 && !isdepth)
             {
                 // pre-load all files to get information
                 // like minimal width and height
-                var bmps = new Bitmap[filenames.Length];
+                var bmps = new Bitmap[filepaths.Length];
                 int imgW = int.MaxValue;
                 int imgH = int.MaxValue;
-                int imgD = d > 0 ? Math.Min(filenames.Length, d) : filenames.Length;
+                int imgL = size[3] > 0 ? Math.Min(filepaths.Length, size[3]) : filepaths.Length;
 
-                for (int i = 0; i < imgD; i++)
+                for (int i = 0; i < imgL; i++)
                 {
-                    var path = Path.IsPathRooted(filenames[i]) ? filenames[i] : dir + filenames[i];
-                    bmps[i] = new Bitmap(path);
+                    var path = filepaths[i];
+                    bmps[i] = new Bitmap(Path.IsPathRooted(path) ? path : dir + path);
                     imgW = Math.Min(bmps[i].Width, imgW);
                     imgH = Math.Min(bmps[i].Height, imgH);
                 }
 
                 // if w, h and d where not set by the user,
                 // use the minimal image size
-                if (w == 1 && h == 0 && d == 0)
+                if (size.All(x => x == 1))
                 {
-                    w = imgW;
-                    h = imgH;
-                    d = imgD;
+                    size[0] = imgW;
+                    size[1] = imgH;
+                    size[2] = 1;
+                    size[3] = imgL;
                 }
+                else if (size[2] > 1 && size[3] > 1)
+                    size[2] = 1;
 
                 // allocate texture memory
-                data = new byte[pixelsize * w * h * d];
+                data = new byte[pixelsize * size[0] * size[1] * size[2] * size[3]];
 
                 // copy data to texture memory
-                for (int i = 0; i < imgD; i++)
+                for (int i = 0; i < imgL; i++)
                 {
                     bmps[i].RotateFlip(RotateFlipType.RotateNoneFlipY);
                     var bits = bmps[i].LockBits(
-                        new Rectangle(0, 0, Math.Min(bmps[i].Width, w), Math.Min(bmps[i].Height, h)),
+                        new Rectangle(0, 0, Math.Min(bmps[i].Width, size[0]), Math.Min(bmps[i].Height, size[1])),
                         LockMode.ReadOnly, fileformat);
-                    Marshal.Copy(bits.Scan0, data, pixelsize * w * h * i, bits.Stride * bits.Height);
+                    Marshal.Copy(bits.Scan0, data, pixelsize * size[0] * size[1] * i, bits.Stride * bits.Height);
                     bmps[i].UnlockBits(bits);
                 }
             }
@@ -339,10 +380,19 @@ namespace App
             return data;
         }
 
+        /// <summary>
+        /// Allocate image memory.
+        /// </summary>
+        /// <param name="target">texture target</param>
+        /// <param name="width">texture width</param>
+        /// <param name="height">texture height</param>
+        /// <param name="depth">number of texture layers</param>
+        /// <param name="length">number of texture layers</param>
+        /// <param name="levels">number of mipmap layers</param>
         private void TexImage(TexTarget target, int width, int height, int depth, int length, int levels)
         {
             levels = levels <= 0 ? MaxMipmapLevels(width, height) : 1;
-            var colFormat = (SizedInternalFormat)gpuFormat;
+            var colFormat = (SizedInternalFormat)GpuFormat;
             switch (target)
             {
                 case TexTarget.Texture1D:
@@ -363,10 +413,21 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Allocate image memory and fill it with the specified data.
+        /// </summary>
+        /// <param name="target">texture target</param>
+        /// <param name="width">texture width</param>
+        /// <param name="height">texture height</param>
+        /// <param name="depth">number of texture layers</param>
+        /// <param name="length">number of texture layers</param>
+        /// <param name="format">pixel format of the data to be uploaded</param>
+        /// <param name="type">pixel type of the data to be uploaded</param>
+        /// <param name="pixels">pixel data</param>
         private void TexImage(TexTarget target, int width, int height, int depth, int length,
             PixelFormat format, PixelType type, IntPtr pixels)
         {
-            var colFormat = (GpuColorFormat)gpuFormat;
+            var colFormat = (GpuColorFormat)GpuFormat;
             switch (target)
             {
                 case TexTarget.Texture1D:
@@ -387,6 +448,12 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Get the maximum number of mipmap levels.
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
         private static int MaxMipmapLevels(int width, int height)
         {
             int n = 0;

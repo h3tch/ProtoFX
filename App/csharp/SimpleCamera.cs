@@ -1,25 +1,27 @@
 using OpenTK;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Commands = System.Collections.Generic.Dictionary<string, string[]>;
+using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace csharp
 {
-    using Commands = Dictionary<string, string[]>;
-
     class SimpleCamera : StaticCamera
     {
         #region FIELDS
+
         private Point mousedown = new Point(0, 0);
         private Point mousepos = new Point(0, 0);
+
         #endregion
 
-        public SimpleCamera(string name, Commands cmd)
-            : base(name, cmd)
+        public SimpleCamera(string name, Commands cmds, GLNames glNames)
+            : base(name, cmds, glNames)
         {
         }
 
         #region OPENTK GLCONTROL WINDOW EVENTS
+
         public void MouseDown(object sender, MouseEventArgs e)
         {
             mousedown.X = mousepos.X = e.X;
@@ -35,9 +37,11 @@ namespace csharp
             mousepos.X = e.X;
             mousepos.Y = e.Y;
         }
+
         #endregion
 
         #region PRIVATE UTILITY METHODS
+
         private void Rotate(float x, float y, float z)
         {
             rot[0] += x;
@@ -52,6 +56,7 @@ namespace csharp
             pos[1] += v[1];
             pos[2] += v[2];
         }
+
         #endregion
     }
 }

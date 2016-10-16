@@ -3,18 +3,16 @@
     class GLReference : GLObject
     {
         public object reference { get; }
-
+        
         /// <summary>
-        /// Instantiate and initialize object.
+        /// Create a reference to another object.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        /// <param name="reference">Reference to an object.</param>
-        public GLReference(GLParams @params, object reference) : base(@params)
+        /// <param name="name">Name of the reference object.</param>
+        /// <param name="anno">Reference object annotation.</param>
+        /// <param name="reference">Object to be referenced.</param>
+        public GLReference(string name, string anno, object reference) : base(name, anno)
         {
             this.reference = reference;
         }
-
-        public override void Delete()
-        { }
     }
 }

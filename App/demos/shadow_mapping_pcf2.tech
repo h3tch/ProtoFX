@@ -23,8 +23,7 @@ buffer buf_idx {
 }
 
 image img_shadowmap {
-	width 512
-	height 512
+	size 512 512
 	format depth32f
 }
 
@@ -55,7 +54,7 @@ texture tex_shadowmap {
 // SHADERS //
 /////////////
 
-shader vert vs_shadowmap {
+shader vs_shadowmap vert {
 	#version 440
 	
 	layout(binding = 0) uniform SpotLight {
@@ -72,7 +71,7 @@ shader vert vs_shadowmap {
 	}
 }
 
-shader vert vs_render {
+shader vs_render vert {
 	#version 440
 	
 	layout(binding = 0) uniform SpotLight {
@@ -102,7 +101,7 @@ shader vert vs_render {
 	}
 }
 
-shader frag fs_render {
+shader fs_render frag {
 	#version 440
 	#define NUM_POINTS 25
 	#define PI 3.1415926535897932384626433832795
@@ -175,7 +174,8 @@ csharp cs_util {
 	     "<csharp>/SimpleCamera.cs" ...
 	     "<csharp>/SpotLight.cs" ...
 	     "<csharp>/PoissonDisc.cs" ...
-	     "<csharp>/UniformBlock.cs"
+	     "<csharp>/UniformBlock.cs" ...
+	     "<csharp>/CsObject.cs"
 }
 
 instance cs_light {
@@ -207,9 +207,9 @@ pass pass_shadowmap {
 	fragout out_shadowmap
 	
 	// OpenGL calls
-	Clear depthBit
-	Enable depthTest
-	Enable CullFace
+	glClear depthBit
+	glEnable depthTest
+	glEnable CullFace
 
 	// execute camera code
 	exec cs_light
@@ -227,9 +227,8 @@ pass pass_render {
 	tex tex_shadowmap 0
 	
 	// OpenGL calls
-	ClearColor 0.1 0.3 1.0 0.0
-	Clear colorDepthBit
-	Enable depthTest
+	glClearColor 0.1 0.3 1.0 0.0
+	glClear colorDepthBit
 
 	// execute camera code
 	exec cs_light
@@ -242,9 +241,10 @@ pass pass_render {
 }
 
 pass pass_reset {
-	ClearColor 0 0 0 0
-	Disable depthTest
-	Disable CullFace
+	tex 0
+	glClearColor 0 0 0 0
+	glDisable depthTest
+	glDisable CullFace
 }
 
 tech tech_simple {

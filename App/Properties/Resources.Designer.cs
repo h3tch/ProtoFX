@@ -61,13 +61,23 @@ namespace App.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Close {
+            get {
+                object obj = ResourceManager.GetObject("Close", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to #define _DBG_BOOL 1
         ///#define _DBG_INT 2
         ///#define _DBG_UINT 3
         ///#define _DBG_FLOAT 4
         ///#define _i2f intBitsToFloat
         ///#define _u2f uintBitsToFloat
-        ///const int _dbgStageOffset = &lt;&lt;&lt;stage offset&gt;&gt;&gt;;
+        ///const int _dbgStageOffset = &lt;&lt;stage offset&gt;&gt;;
         ///
         ///layout(rgba32f) uniform writeonly imageBuffer _dbgOut;
         ///
@@ -78,7 +88,7 @@ namespace App.Properties {
         ///int _dbgStore(int idx, ivec4 val) {
         ///	return _dbgStore(idx, vec4(_i2f(val.x), _i2f(val.y), _i2f(val.z), _i2f(val.w)));
         ///}
-        ///int _dbgStore(int idx, uvec4 va [rest of string was truncated]&quot;;.
+        ///int _dbgStore(int idx, uvec4 val) [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string dbg {
             get {
@@ -87,21 +97,67 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to uniform &lt;&lt;&lt;debug uniform&gt;&gt;&gt;;
-        ///uniform &lt;&lt;&lt;debug frame&gt;&gt;&gt;;
+        ///   Looks up a localized string similar to &gt;&gt;.
+        /// </summary>
+        internal static string DBG_CLOSE {
+            get {
+                return ResourceManager.GetString("DBG_CLOSE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to all(equal(_dbgVert, ivec2(gl_InstanceID, gl_VertexID)))
+        ///all(equal(_dbgTess, ivec2(gl_InvocationID, gl_PrimitiveID)))
+        ///_dbgEval == gl_PrimitiveID
+        ///all(equal(_dbgGeom, ivec2(gl_PrimitiveIDIn, gl_InvocationID)))
+        ///all(equal(_dbgFrag, ivec4(int(gl_FragCoord.x), int(gl_FragCoord.y), gl_Layer, gl_ViewportIndex)))
+        ///all(equal(_dbgComp, gl_GlobalInvocationID)).
+        /// </summary>
+        internal static string DBG_CONDITIONS {
+            get {
+                return ResourceManager.GetString("DBG_CONDITIONS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;&lt;.
+        /// </summary>
+        internal static string DBG_OPEN {
+            get {
+                return ResourceManager.GetString("DBG_OPEN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ivec2 _dbgVert
+        ///ivec2 _dbgTess
+        ///int _dbgEval
+        ///ivec2 _dbgGeom
+        ///ivec4 _dbgFrag
+        ///uvec3 _dbgComp.
+        /// </summary>
+        internal static string DBG_UNIFORMS {
+            get {
+                return ResourceManager.GetString("DBG_UNIFORMS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to uniform &lt;&lt;debug uniform&gt;&gt;;
+        ///uniform &lt;&lt;debug frame&gt;&gt;;
         ///
         ///void _dbgMain() {
         ///	int _dbgIdx = 1;
-        ///	&lt;&lt;&lt;debug code&gt;&gt;&gt;
+        ///	&lt;&lt;debug code&gt;&gt;
         ///	_dbgStore(0, ivec2(_dbgIdx-1, _dbgFrame));
         ///}
         ///
         ///void _runMain() {
-        ///	&lt;&lt;&lt;runtime code&gt;&gt;&gt;
+        ///	&lt;&lt;runtime code&gt;&gt;
         ///}
         ///
         ///void main() {
-        ///	if (&lt;&lt;&lt;debug condition&gt;&gt;&gt;)
+        ///	if (&lt;&lt;debug condition&gt;&gt;)
         ///		_dbgMain();
         ///	else
         ///		_runMain();
@@ -116,9 +172,9 @@ namespace App.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ImgClose {
+        internal static System.Drawing.Bitmap ImgComment {
             get {
-                object obj = ResourceManager.GetObject("ImgClose", resourceCulture);
+                object obj = ResourceManager.GetObject("ImgComment", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -200,6 +256,84 @@ namespace App.Properties {
             get {
                 object obj = ResourceManager.GetObject("ImgSaveAs", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ImgUncomment {
+            get {
+                object obj = ResourceManager.GetObject("ImgUncomment", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&apos;1.0&apos;?&gt;
+        ///&lt;FxLexer&gt;
+        ///  &lt;!-- Light Theme --&gt;
+        ///  &lt;Style theme=&apos;DarkTheme&apos; name=&apos;string&apos; fore=&apos;#D69D85&apos;/&gt;
+        ///  &lt;Style theme=&apos;DarkTheme&apos; name=&apos;operator&apos; fore=&apos;#A0A0A0&apos;/&gt;
+        ///  &lt;Style theme=&apos;DarkTheme&apos; name=&apos;braces&apos; fore=&apos;#606060&apos;/&gt;
+        ///  &lt;Style theme=&apos;DarkTheme&apos; name=&apos;punctuation&apos; fore=&apos;#A0A0A0&apos;/&gt;
+        ///  &lt;Style theme=&apos;DarkTheme&apos; name=&apos;number&apos; fore=&apos;#B5CEA8&apos;/&gt;
+        ///  &lt;Style theme=&apos;DarkTheme&apos; name=&apos;LineComment&apos; fore=&apos;#608B4E&apos;/&gt;
+        ///  &lt;Style theme=&apos;DarkTheme&apos; name=&apos;BlockComment&apos; fore=&apos;#82A847&apos;/&gt;
+        ///  &lt;Style theme=&apos;DarkThe [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string keywordsXML {
+            get {
+                return ResourceManager.GetString("keywordsXML", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap logo {
+            get {
+                object obj = ResourceManager.GetObject("logo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Maximize {
+            get {
+                object obj = ResourceManager.GetObject("Maximize", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Minimize {
+            get {
+                object obj = ResourceManager.GetObject("Minimize", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Normalize {
+            get {
+                object obj = ResourceManager.GetObject("Normalize", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.xml.
+        /// </summary>
+        internal static string WINDOW_SETTINGS_FILE {
+            get {
+                return ResourceManager.GetString("WINDOW_SETTINGS_FILE", resourceCulture);
             }
         }
     }

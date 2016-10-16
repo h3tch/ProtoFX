@@ -4,7 +4,7 @@
 // ==========================
 //
 // In this tutorial we will add a camera control class to the
-// ProtoGL program to navigate the scene and set shader uniforms.
+// ProtoFX program to navigate the scene and set shader uniforms.
 
 /////////////////////
 // DEFINE GEOMETRY //
@@ -87,10 +87,9 @@ shader vert vs_simple {
 	
 	// Shader variable set by "SimpleCamera.cs" (only
 	// uniforms can be accessed outside the shader).
-	struct SimpleCamera {
+	layout(binding = 0) uniform SimpleCamera {
 		mat4 viewProj;
-	};
-	uniform SimpleCamera Camera;
+	} camera;
 	
 	layout(location = 0) in vec4 in_pos;
 	layout(location = 1) in vec4 in_col;
@@ -98,7 +97,7 @@ shader vert vs_simple {
 	layout(location = 0) out vec4 out_col;
 	
 	void main () {
-		gl_Position = Camera.viewProj * in_pos;
+		gl_Position = camera.viewProj * in_pos;
 		out_col = in_col;
 	}
 }
@@ -123,18 +122,27 @@ shader frag fs_simple {
 csharp cs_util {
 	// Compile C# file "SimpleCamera.cs" to add class
 	// csharp.SimpleCamera (multiple files can be listed).
-	file "<csharp>/StaticCamera.cs" "<csharp>/SimpleCamera.cs"
+	file "<csharp>/StaticCamera.cs" ...
+	     "<csharp>/SimpleCamera.cs" ...
+	     "<csharp>/UniformBlock.cs" ...
+	     "<csharp>/CsObject.cs"
 }
 
 instance cs_camera {
 	class cs_util csharp.SimpleCamera
-	name Camera
+	name SimpleCamera
 	pos 0 0 5
 }
 
 /////////////////
 // RENDER PASS //
 /////////////////
+
+pass pass_init {
+	// Enable depth buffer test. This is necessary to draw the
+	// cube correctly. You can try to turn this test off.
+	glEnable depthTest
+}
 
 pass pass_render {
 	vert vs_simple
@@ -148,11 +156,7 @@ pass pass_render {
 	// Note: OpenGL states are set before draw calls are executed.
 
 	// Clear color and depth framebuffer.
-	Clear ColorDepthBit
-	
-	// Enable depth buffer test. This is necessary to draw the
-	// cube correctly. You can try to turn this test off.
-	Enable depthTest
+	glClear ColorDepthBit
 	
 	// Execute camera code (sets g_viewproj in vs_simple).
 	// You can control the camera with the left (rotate)
@@ -160,8 +164,8 @@ pass pass_render {
 	exec cs_camera
 }
 
-pass pass_reset {
-	Disable depthTest
+pass pass_uninit {
+	glDisable depthTest
 }
 
 ///////////////
@@ -169,6 +173,7 @@ pass pass_reset {
 ///////////////
 
 tech tech_simple {
+	init pass_init
 	pass pass_render
-	pass pass_reset
+	uninit pass_uninit
 }

@@ -1,33 +1,27 @@
 ﻿using OpenTK;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
+using Commands = System.Collections.Generic.Dictionary<string, string[]>;
+using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace csharp
 {
-    using Commands = Dictionary<string, string[]>;
-
-    public class PoissonDisc
+    class PoissonDisc : CsObject
     {
         public enum Names
         {
-            points,
             numPoints,
-            radius,
+            points,
         }
 
         #region FIELDS
         private string name = "PoissonDisc";
         public int maxPoints = 0;
-        public int numRadii = 0;
         public float minRadius = 0f;
-        private float[,] points;
-        private int[] radius;
+        public float[,] points;
         protected Dictionary<int, UniformBlock<Names>> uniform =
             new Dictionary<int, UniformBlock<Names>>();
-        protected List<string> errors = new List<string>();
-        private static CultureInfo culture = new CultureInfo("en");
         #endregion
 
         // Properties accessible by ProtoGL
@@ -35,88 +29,22 @@ namespace csharp
         public string Name { get { return name; } }
         public int MaxPoints { get { return maxPoints; } }
         public float MinRadius { get { return minRadius; } }
-        public int NumRadii { get { return numRadii; } }
         #endregion
 
-        public List<string> GetErrors() { return errors; }
-
-        public PoissonDisc(string name, Commands cmds)
+        public PoissonDisc(string name, Commands cmds, GLNames glNames)
         {
             // PARSE COMMAND VALUES SPECIFIED BY THE USER
+
             this.name = name;
             Convert(cmds, "name", ref this.name);
             Convert(cmds, "maxPoints", ref maxPoints);
+            Convert(cmds, "nPoints", ref maxPoints);
             Convert(cmds, "minRadius", ref minRadius);
-            Convert(cmds, "numRadii", ref numRadii);
-
-            if (minRadius <= 0f)
-            {
-                errors.Add("At least 'radius' (minimal sample distance) "
-                    + "needs to be defined and has to be bigger than 0.0.");
-                return;
-            }
+            Convert(cmds, "minDist", ref minRadius);
 
             // CREATE POISSON DISK
 
-            //var points = PoissonDiscSampler.Disc(minRadius);
-            var points = new Disc(minRadius).Points;
-
-            // SORT POISSON DISK POINTS BY DESCENDING DISTANCE TO EACH OTHER
-
-            maxPoints = maxPoints > 0 ? Math.Min(points.Count, maxPoints) : points.Count;
-            List<Vector2> sortedPoints = new List<Vector2>(maxPoints);
-            List<float> sortedDist = new List<float>(maxPoints);
-
-            // find center point
-            int idx = ClosestPoint(points, new Vector2(0f, 0f));
-            sortedPoints.Add(points[idx]);
-            sortedDist.Add(float.MaxValue);
-            points[idx] = points[points.Count - 1];
-            points.RemoveAt(points.Count - 1);
-
-            // sort points
-            for (int i = 1; i < maxPoints; i++)
-            {
-                float r;
-                // find most distant non-sorted point in point list
-                idx = MostDistantPoint(points, sortedPoints, out r);
-                // add point to sorted list and remove it from non-sorted list
-                sortedPoints.Add(points[idx]);
-                sortedDist.Add(r);
-                points[idx] = points[points.Count - 1];
-                points.RemoveAt(points.Count - 1);
-            }
-
-            // save the result
-            this.points = new float[sortedPoints.Count, 2];
-            int iter = 0;
-            foreach (var point in sortedPoints)
-            {
-                this.points[iter, 0] = point.X;
-                this.points[iter, 1] = point.Y;
-                iter++;
-            }
-
-            // CREATE RADIUS LOOKUP TABLE
-
-            if (numRadii <= 0)
-                return;
-
-            var dist = sortedDist.ToArray();
-            radius = new int[Math.Max(numRadii, 1)];
-
-            for (int i = 0, j = 0; i < numRadii; i++)
-            {
-                // interpolate radius value
-                var t = i / (float)numRadii;
-                var r = 1f - t;
-                // find first distance smaller than the interpolated radius
-                for (; j < maxPoints; j++)
-                    if (dist[j] <= r)
-                        break;
-                // save index in lookup table
-                radius[i] = j;
-            }
+            points = Disc.Generate(maxPoints, minRadius);
         }
 
         public void Update(int program, int width, int height, int widthTex, int heightTex)
@@ -127,9 +55,8 @@ namespace csharp
             {
                 uniform.Add(program, unif = new UniformBlock<Names>(program, name));
                 // SET UNIFORM VALUES
-                unif.Set(Names.points, points);
                 unif.Set(Names.numPoints, new[] { points.GetLength(0) });
-                unif.Set(Names.radius, radius);
+                unif.Set(Names.points, points);
                 // UPDATE UNIFORM BUFFER
                 unif.Update();
             }
@@ -142,163 +69,235 @@ namespace csharp
             foreach (var u in uniform)
                 u.Value.Delete();
         }
-        
-        #region UTILITY METHOD
-        private static int ClosestPoint(List<Vector2> points, Vector2 query)
-        {
-            int i = 0, idx = 0;
-            float minDist = float.MaxValue;
-
-            // find minimal distance and index to query point
-            foreach (var point in points)
-            {
-                var dist = (point - query).LengthSquared;
-
-                // cache minimal distance
-                if (dist < minDist)
-                {
-                    minDist = dist;
-                    idx = i;
-                }
-
-                i++;
-            }
-
-            return idx;
-        }
-
-        private static int MostDistantPoint(List<Vector2> points, List<Vector2> queries, out float maxDist)
-        {
-            int i = 0, idx = 0;
-            maxDist = 0f;
-
-            // find maximal distance and index to all query points
-            foreach (var point in points)
-            {
-                // get closest query point distance
-                var minDistToQueries = float.MaxValue;
-                foreach (var query in queries)
-                    minDistToQueries = Math.Min((point - query).LengthSquared, minDistToQueries);
-
-                // cache maximal distance
-                if (minDistToQueries > maxDist)
-                {
-                    maxDist = minDistToQueries;
-                    idx = i;
-                }
-
-                i++;
-            }
-
-            return idx;
-        }
-
-        private void Convert<T>(Commands cmds, string cmd, ref T v)
-        {
-            if (cmds.ContainsKey(cmd))
-            {
-                var s = cmds[cmd];
-                if (s.Length == 0)
-                    return;
-                if (!TryChangeType(s[0], ref v))
-                    errors.Add("Command '" + cmd + "': Could not convert argument 1 '" + s[0] + "'.");
-            }
-        }
-
-        private static bool TryChangeType<T>(object invalue, ref T value)
-        {
-
-            if (invalue == null || invalue as IConvertible == null)
-                return false;
-
-            try
-            {
-                value = (T)System.Convert.ChangeType(invalue, typeof(T), culture);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-        #endregion
 
         #region INNER CLASSES
         class Disc
         {
-            private static Random random = new Random();
-            public List<Vector2> Points
-            { get; private set; }
-
-            public Disc(float r, int resolution = 8)
+            private class DefaultRandom
             {
-                var indices = new List<int>();
-
-                // create grid
-                var gridsize = (int)(1 / (r / resolution));
-                var grid = Enumerable.Range(0, gridsize * gridsize).ToList();
-                var mask = ComputeMask(resolution, gridsize);
-
-                try
+                public DefaultRandom()
                 {
-                    // Poisson sampling of the grid
-                    while (grid.Count > 0)
-                    {
-                        // pick random grid point
-                        int idx = grid[random.Next(grid.Count)];
-                        indices.Add(idx);
-                        int Cy = idx / gridsize, Cx = idx - Cy * gridsize;
+                    rnd = new Random();
+                }
 
-                        // remove all grid points within the mask
-                        for (int cur = 0, i = 0; i < mask.Length; i++)
+                public float RandomFloat()
+                {
+                    return (float)rnd.NextDouble();
+                }
+
+                public int RandomInt(int Max)
+                {
+                    return rnd.Next(Max);
+                }
+
+                private Random rnd;
+            };
+
+            private struct Point
+            {
+                public float x;
+                public float y;
+                public bool m_Valid;
+
+                public Point(bool valid = false)
+                {
+                    x = 0;
+                    y = 0;
+                    m_Valid = valid;
+                }
+
+                public Point(float X, float Y)
+                {
+                    x = X;
+                    y = Y;
+                    m_Valid = true;
+                }
+
+                public bool IsInRectangle()
+                {
+                    return x >= 0 && y >= 0 && x <= 1 && y <= 1;
+                }
+
+                public bool IsInCircle()
+                {
+
+                    float fx = x - 0.5f;
+                    float fy = y - 0.5f;
+                    return ( fx* fx + fy* fy ) <= 0.25f;
+                }
+
+                public float lengthSq() {
+                    return x* x + y* y;
+                }
+
+                public Point Sub(Point b)
+                {
+                    return new Point(x - b.x, y - b.y);
+                }
+            };
+
+            private struct GridPoint
+            {
+                public int x;
+                public int y;
+
+                public GridPoint(int X, int Y)
+                {
+                    x = X;
+                    y = Y;
+                }
+            };
+
+            private static float GetDistance(Point P1, Point P2 )
+            {
+                return (float)Math.Sqrt((P1.x - P2.x) * (P1.x - P2.x) + (P1.y - P2.y) * (P1.y - P2.y));
+            }
+
+            private static GridPoint ImageToGrid(Point P, float CellSize)
+            {
+                return new GridPoint((int)(P.x / CellSize), (int)(P.y / CellSize));
+            }
+
+            private struct Grid
+            {
+                public Grid(int W, int H, float CellSize)
+                {
+                    m_W = W;
+                    m_H = H;
+                    m_CellSize = CellSize;
+                    m_Grid = new Point[m_H][];
+
+                    for (var i = 0; i != m_Grid.Length; i++)
+                        m_Grid[i] = new Point[m_W];
+                }
+
+                public void Insert(Point P )
+                {
+                    GridPoint G = ImageToGrid(P, m_CellSize);
+                    m_Grid[G.x][G.y] = P;
+                }
+
+                public bool IsInNeighbourhood(Point Point, float MinDist, float CellSize)
+                {
+                    GridPoint G = ImageToGrid(Point, CellSize);
+
+                    // number of adjucent cells to look for neighbour points
+                    const int D = 5;
+
+                    // scan the neighbourhood of the point in the grid
+                    for (int i = G.x - D; i < G.x + D; i++)
+                    {
+                        for (int j = G.y - D; j < G.y + D; j++)
                         {
-                            int Px = Cx + mask[i][0];
-                            if (Px < 0 || Px >= gridsize)
-                                continue;
-                            int Py = Cy + mask[i][1];
-                            if (Py < 0 || Py >= gridsize)
-                                continue;
-                            int rem = gridsize * Py + Px;
-                            while (cur < grid.Count && grid[cur] < rem)
-                                cur++;
-                            if (cur < grid.Count && grid[cur] == rem)
-                                grid.RemoveAt(cur);
+                            if (i >= 0 && i < m_W && j >= 0 && j < m_H)
+                            {
+                                Point P = m_Grid[i][j];
+                                if (P.m_Valid && GetDistance(P, Point) < MinDist)
+                                    return true;
+                            }
+                        }
+                    }
+
+                    return false;
+                }
+
+                public int m_W;
+                public int m_H;
+                public float m_CellSize;
+                Point[][] m_Grid;
+            };
+
+            private static Point PopRandom(List<Point> Points, DefaultRandom Generator)
+            {
+                int Idx = Generator.RandomInt(Points.Count - 1);
+                Point P = Points[Idx];
+                Points.RemoveAt(Idx);
+                return P;
+            }
+            
+            private static Point GenerateRandomPointAround(Point P, float MinDist, DefaultRandom Generator )
+            {
+                // start with non-uniform distribution
+                float R1 = Generator.RandomFloat();
+                float R2 = Generator.RandomFloat();
+
+                // radius should be between MinDist and 2 * MinDist
+                float Radius = MinDist * (R1 + 1.0f);
+
+                // random angle
+                float Angle = 2 * 3.141592653589f * R2;
+
+                // the new point is generated around the point (x, y)
+                float X = (float)(P.x + Radius * Math.Cos(Angle));
+                float Y = (float)(P.y + Radius * Math.Sin(Angle));
+
+                return new Point(X, Y);
+            }
+            
+            public static float[,] Generate(int NumPoints = 0, float MinDist = -1f,
+                bool Circle = true, int NewPointsCount = 30)
+            {
+                if (MinDist <= 0.0f && NumPoints <= 0)
+                    NumPoints = 2000;
+                if (MinDist <= 0.0f)
+                    MinDist = (float)Math.Sqrt((float)NumPoints) / NumPoints;
+                if (NumPoints <= 0)
+                    NumPoints = (int)(1 / (MinDist * MinDist));
+
+                var Generator = new DefaultRandom();
+                var SamplePoints = new List<Point>();
+                var ProcessList = new List<Point>();
+
+                // create the grid
+                float CellSize = MinDist / (float)Math.Sqrt(2.0f);
+
+                int GridW = (int)Math.Ceiling(1.0f / CellSize);
+                int GridH = (int)Math.Ceiling(1.0f / CellSize);
+
+                Grid Grid = new Grid(GridW, GridH, CellSize);
+
+                Point FirstPoint;
+                do
+                {
+                    FirstPoint = new Point(Generator.RandomFloat(), Generator.RandomFloat());
+                } while (!(Circle ? FirstPoint.IsInCircle() : FirstPoint.IsInRectangle()));
+
+                // update containers
+                ProcessList.Add(FirstPoint);
+                SamplePoints.Add(FirstPoint);
+                Grid.Insert(FirstPoint);
+
+                // generate new points for each point in the queue
+                while (ProcessList.Count > 0 && SamplePoints.Count < NumPoints)
+                {
+                    Point Point = PopRandom(ProcessList, Generator);
+
+                    for (int i = 0; i < NewPointsCount; i++)
+                    {
+                        Point NewPoint = GenerateRandomPointAround(Point, MinDist, Generator);
+
+                        bool Fits = Circle ? NewPoint.IsInCircle() : NewPoint.IsInRectangle();
+
+                        if (Fits && !Grid.IsInNeighbourhood(NewPoint, MinDist, CellSize))
+                        {
+                            ProcessList.Add(NewPoint);
+                            SamplePoints.Add(NewPoint);
+                            Grid.Insert(NewPoint);
+                            continue;
                         }
                     }
                 }
-                catch (Exception ex)
+
+                var result = new float[SamplePoints.Count, 2];
+                for (int i = 0; i < SamplePoints.Count; i++)
                 {
-                    string msg = ex.Message;
+                    result[i, 0] = SamplePoints[i].x * 2 - 1;
+                    result[i, 1] = SamplePoints[i].y * 2 - 1;
                 }
 
-                // convert indices to UV coordinates
-                Points = Indices2Uv(indices, gridsize).ToList();
+                return result;
             }
 
-            private int[][] ComputeMask(int resolution, int gridsize)
-            {
-                var mask = new List<int[]>();
-
-                for (int y = -resolution; y <= resolution; y++)
-                {
-                    for (int x = -resolution; x <= resolution; x++)
-                        if (x * x + y * y <= resolution * resolution)
-                            mask.Add(new[] { x, y });
-                }
-
-                return mask.ToArray();
-            }
-
-            private IEnumerable<Vector2> Indices2Uv(IEnumerable<int> indices, int gridsize)
-            {
-                foreach (var i in indices)
-                {
-                    int Y = i / gridsize;
-                    float y = (float)Y / gridsize;
-                    float x = (float)(i - (Y * gridsize)) / gridsize;
-                    yield return new Vector2(x * 2 - 1, y * 2 - 1);
-                }
-            }
         }
         #endregion
     }

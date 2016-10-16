@@ -46,7 +46,7 @@ vertinput in_vert {
 
 // Simple GLSL vertex shader transforming
 // vertex positions from model to perspective space
-shader vert vs_simple {
+shader vs_simple vert {
 	#version 440
 	
 	// shader variable which will be set by "SimpleCamera.cs"
@@ -64,14 +64,14 @@ shader vert vs_simple {
 	
 	void main ()
 	{
-		<<<gl_Position>>> = <<<camera.viewProj>>> * <<<in_pos>>>;
-		vs_col = <<<in_col>>>;
+		<<gl_Position>> = <<camera.viewProj>> * <<in_pos>>;
+		vs_col = <<in_col>>;
 	}
 }
 
 // Simple GLSL fragment shader writing
 // the color of the fragment to the framebuffer
-shader frag fs_simple {
+shader fs_simple frag {
 	#version 440
 	
 	// fragment shader input (see vs_col in vs_simple)
@@ -82,7 +82,7 @@ shader frag fs_simple {
 	
 	void main ()
 	{
-		color = <<<gs_col>>>;
+		color = <<gs_col>>;
 	}
 }
 
@@ -93,10 +93,12 @@ shader frag fs_simple {
 // Include C# code to allow
 // for simple camera controls
 csharp cs_util {
+	assembly "OpenTK.dll"
 	// Compile C# file "SimpleCamera.cs"
 	file "<csharp>/StaticCamera.cs" ...
 	     "<csharp>/SimpleCamera.cs" ...
-	     "<csharp>/UniformBlock.cs"
+	     "<csharp>/UniformBlock.cs" ...
+	     "<csharp>/CsObject.cs"
 }
 
 instance cs_camera {
@@ -118,11 +120,11 @@ pass pass_render {
 	
 	// OPENGL FUNCTIONS
 	// set clear color
-	ClearColor 0.1 0.3 1.0 0.0
+	glClearColor 0.1 0.3 1.0 0.0
 	// clear color and depth buffer
-	Clear ColorDepthBit
+	glClear colorDepthBit
 	// enable depth buffer test
-	Enable depthTest
+	glEnable depthTest
 	
 	// EXECUTE CONTROL
 	// execute camera code (sets g_viewproj in vs_simple)
@@ -143,6 +145,11 @@ pass pass_render {
 	draw buf_idx in_vert ushort triangles 0 0 36
 }
 
+pass pass_reset {
+	glClearColor 0.0 0.0 0.0 0.0
+	glDisable depthTest
+}
+
 ///////////////
 // TECHNIQUE //
 ///////////////
@@ -152,4 +159,5 @@ pass pass_render {
 tech tech_simple {
 	// First pass
 	pass pass_render
+	pass pass_reset
 }

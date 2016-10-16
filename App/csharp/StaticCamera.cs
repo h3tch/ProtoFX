@@ -1,24 +1,26 @@
 ﻿using OpenTK;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using Commands = System.Collections.Generic.Dictionary<string, string[]>;
+using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace csharp
 {
-    using Commands = Dictionary<string, string[]>;
 
-    class StaticCamera
+    class StaticCamera : CsObject
     {
-        public static CultureInfo culture = new CultureInfo("en");
         public enum Names
         {
             view,
             proj,
             viewProj,
             camera,
+            position,
+            rotation,
         }
 
         #region FIELDS
+
         public float[] pos = new float[] { 0f, 0f, 0f };
         public float[] rot = new float[] { 0f, 0f, 0f };
         public float fov = 60f;
@@ -29,19 +31,21 @@ namespace csharp
         protected Matrix4 view;
         protected Dictionary<int, UniformBlock<Names>> uniform =
             new Dictionary<int, UniformBlock<Names>>();
-        protected List<string> errors = new List<string>();
+
         #endregion
 
         #region PROPERTIES
+
         public string Name { get { return name; } }
         public float[] Position { get { return pos; } set { pos = value; } }
         public float[] Rotation { get { return rot; } set { rot = value; } }
         public float FieldOfViewY { get { return fov; } set { fov = value; } }
         public float NearPlane { get { return near; } set { near = value; } }
         public float FarPlane { get { return far; } set { far = value; } }
+
         #endregion
 
-        public StaticCamera(string name, Commands cmds)
+        public StaticCamera(string name, Commands cmds, GLNames glNames)
         {
             // The constructor is executed only once when the pass is created.
 
@@ -79,15 +83,23 @@ namespace csharp
                 uniform.Add(program, unif = new UniformBlock<Names>(program, name));
 
             // SET UNIFORM VALUES
-            unif.Set(Names.view, view.AsInt32());
+            if (unif.Has(Names.view))
+                unif.Set(Names.view, view.AsInt32());
 
-            unif.Set(Names.proj, proj.AsInt32());
+            if (unif.Has(Names.proj))
+                unif.Set(Names.proj, proj.AsInt32());
 
-            if (unif[Names.viewProj] >= 0)
+            if (unif.Has(Names.viewProj))
                 unif.Set(Names.viewProj, (view * proj).AsInt32());
 
-            if (unif[Names.camera] >= 0)
+            if (unif.Has(Names.camera))
                 unif.Set(Names.camera, new[] { fov * rad2deg, aspect, near, far }.AsInt32());
+
+            if (unif.Has(Names.position))
+                unif.Set(Names.position, pos.AsInt32());
+
+            if (unif.Has(Names.rotation))
+                unif.Set(Names.rotation, rot.AsInt32());
 
             // UPDATE UNIFORM BUFFER
             unif.Update();
@@ -105,58 +117,5 @@ namespace csharp
             foreach (var u in uniform)
                 u.Value.Delete();
         }
-
-        public List<string> GetErrors()
-        {
-            return errors;
-        }
-
-        #region UTILITY METHOD
-        protected void Convert<T>(Commands cmds, string cmd, ref T[] v)
-        {
-            int i = 0, l;
-
-            int length = v.Length;
-
-            if (cmds.ContainsKey(cmd))
-            {
-                var s = cmds[cmd];
-                for (l = Math.Min(s.Length, length); i < s.Length; i++)
-                {
-                    if (!TryChangeType(s[i], ref v[i]))
-                        errors.Add("Command '" + cmd + "': Could not convert argument "
-                            + (i + 1) + " '" + s[i] + "'.");
-                }
-            }
-        }
-
-        protected void Convert<T>(Commands cmds, string cmd, ref T v)
-        {
-            if (cmds.ContainsKey(cmd))
-            {
-                var s = cmds[cmd];
-                if (s.Length == 0)
-                    return;
-                if (!TryChangeType(s[0], ref v))
-                    errors.Add("Command '" + cmd + "': Could not convert argument 1 '" + s[0] + "'.");
-            }
-        }
-
-        private static bool TryChangeType<T>(object invalue, ref T value)
-        {
-            if (invalue == null || invalue as IConvertible == null)
-                return false;
-
-            try
-            {
-                value = (T)System.Convert.ChangeType(invalue, typeof(T), culture);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-        #endregion
     }
 }

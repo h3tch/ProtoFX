@@ -4,14 +4,13 @@
 // SHADERS //
 /////////////
 
-shader vert vs_simple {
+shader vs_simple vert {
 	#version 440
 	
-	struct SimpleCamera {
+	uniform SimpleCamera {
 		mat4 view;
 		mat4 proj;
-	};
-	uniform SimpleCamera Camera;
+	} camera;
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
@@ -22,12 +21,12 @@ shader vert vs_simple {
 	
 	void main ()
 	{
-		gl_Position = Camera.proj * Camera.view * in_pos;
+		gl_Position = camera.proj * camera.view * in_pos;
 		vs_col = in_col;
 	}
 }
 
-shader frag fs_simple {
+shader fs_simple frag {
 	#version 440
 	
 	layout(location = 0) in vec4 gs_col;

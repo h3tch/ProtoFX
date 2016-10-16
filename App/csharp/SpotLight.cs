@@ -1,11 +1,12 @@
 ﻿using OpenTK;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using Commands = System.Collections.Generic.Dictionary<string, string[]>;
+using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace csharp
 {
-    using System.Globalization;
-    using Commands = Dictionary<string, string[]>;
 
     class SpotLight
     {
@@ -49,7 +50,7 @@ namespace csharp
         public float InnerCone { get { return innerCone; } set { innerCone = value; } }
         #endregion
 
-        public SpotLight(string name, Commands cmds)
+        public SpotLight(string name, Commands cmds, GLNames glNames)
         {
             this.name = name;
             // parse command for values specified by the user
@@ -83,16 +84,16 @@ namespace csharp
 
             unif.Set(Names.proj, proj.AsInt32());
 
-            if (unif[Names.viewProj] >= 0)
+            if (unif.Has(Names.viewProj))
                 unif.Set(Names.viewProj, (view * proj).AsInt32());
 
-            if (unif[Names.camera] >= 0)
+            if (unif.Has(Names.camera))
                 unif.Set(Names.camera, new[] { fov * rad2deg, aspect, near, far }.AsInt32());
 
-            if (unif[Names.color] >= 0)
+            if (unif.Has(Names.color))
                 unif.Set(Names.color, new[] { color[0], color[1], color[2], intensity }.AsInt32());
 
-            if (unif[Names.light] >= 0)
+            if (unif.Has(Names.light))
             {
                 var x = near * (float)Math.Tan(fov * rad2deg);
                 var y = x / aspect;

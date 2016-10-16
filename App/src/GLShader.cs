@@ -5,16 +5,19 @@ namespace App
     class GLShader : GLObject
     {
         /// <summary>
-        /// Create OpenGL object.
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLShader(GLParams @params) : base(@params)
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
+        public GLShader(Compiler.Block block, Dict scene, bool debugging)
+            : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"shader '{@params.name}'");
+            var err = new CompileException($"shader '{name}'");
 
             // CREATE OPENGL OBJECT
             ShaderType type;
-            switch (@params.anno)
+            switch (anno)
             {
                 case "vert": type = ShaderType.VertexShader; break;
                 case "tess": type = ShaderType.TessControlShader; break;
@@ -22,15 +25,16 @@ namespace App
                 case "geom": type = ShaderType.GeometryShader; break;
                 case "frag": type = ShaderType.FragmentShader; break;
                 case "comp": type = ShaderType.ComputeShader; break;
-                default: throw err.Add($"Shader type '{@params.anno}' is not supported.");
+                default:
+                    throw err.Add($"Shader type '{anno}' is not supported.", block);
             }
 
             // ADD OR REMOVE DEBUG INFORMATION
-            @params.text = GLDebugger.AddDebugCode(@params.text, type, @params.debuging);
+            var text = FxDebugger.AddDebugCode(block, type, debugging, err);
 
             // CREATE OPENGL OBJECT
             glname = GL.CreateShader(type);
-            GL.ShaderSource(glname, @params.text);
+            GL.ShaderSource(glname, text);
             GL.CompileShader(glname);
 
             // CHECK FOR ERRORS
@@ -39,14 +43,18 @@ namespace App
             if (status != 1)
             {
                 var compilerErrors = GL.GetShaderInfoLog(glname);
-                throw err.Add("\n" + compilerErrors);
+                throw err.Add("\n" + compilerErrors, block);
             }
-            if (HasErrorOrGlError(err))
+            if (HasErrorOrGlError(err, block))
                 throw err;
         }
 
+        /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
         public override void Delete()
         {
+            base.Delete();
             if (glname > 0)
             {
                 GL.DeleteShader(glname);

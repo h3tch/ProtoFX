@@ -36,17 +36,15 @@ buffer buf_idx {
 // Color image (used as a render target)
 image img_color {
 	// image size in pixels
-	width 1024
-	height 768
+	size 1024 768
 	// pixel format is (red,green,blue,alpha)
-	format RGBA8
+	format rgba8
 }
 
 // 32 bit floatingpoint depth image (used as a render target)
 image img_depth {
 	// image size in pixels
-	width 1024
-	height 768
+	size 1024 768
 	// pixel format is a 32 bit floating point depth
 	format depth32f
 }
@@ -84,7 +82,7 @@ texture tex_color {
 // SHADERS //
 /////////////
 
-shader vert vs_simple {
+shader vs_simple vert {
 	#version 440
 	
 	layout(location = 0) uniform SimpleCamera {
@@ -105,7 +103,7 @@ shader vert vs_simple {
 	}
 }
 
-shader frag fs_simple {
+shader fs_simple frag {
 	#version 440
 	
 	layout(location = 0) in vec4 gs_col;
@@ -117,7 +115,7 @@ shader frag fs_simple {
 	}
 }
 
-shader vert vs_present {
+shader vs_present vert {
 	#version 440
 	
 	layout(location = 0) in vec4 in_pos;
@@ -130,7 +128,7 @@ shader vert vs_present {
 	}
 }
 
-shader frag fs_present {
+shader fs_present frag {
 	#version 440
 
 	layout(binding = 0) uniform sampler2D tex;
@@ -152,7 +150,8 @@ csharp cs_util {
 	// Compile C# file "SimpleCamera.cs"
 	file "<csharp>/StaticCamera.cs" ...
 	     "<csharp>/SimpleCamera.cs" ...
-	     "<csharp>/UniformBlock.cs"
+	     "<csharp>/UniformBlock.cs" ...
+	     "<csharp>/CsObject.cs"
 }
 
 instance cs_camera {
@@ -170,9 +169,9 @@ pass pass_render {
 	fragout out_frag
 	
 	// OpenGL calls
-	ClearColor 0.1 0.3 1.0 1.0
-	Clear colorDepthBit
-	Enable depthTest
+	glClearColor 0.1 0.3 1.0 1.0
+	glClear colorDepthBit
+	glEnable depthTest
 
 	// execute camera code
 	exec cs_camera
@@ -191,13 +190,20 @@ pass pass_present {
 	samp samp_linear 0
 	
 	// OpenGL calls
-	Disable depthTest
+	glDisable depthTest
 	
 	// draw fullscreen rectangle
 	draw buf_idx in_vert ushort triangles 8 36 6
 }
 
+pass pass_reset {
+	glClearColor 0.0 0.0 0.0 0.0
+	tex 0
+	samp 0
+}
+
 tech tech_simple {
 	pass pass_render
 	pass pass_present
+	pass pass_reset
 }

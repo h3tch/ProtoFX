@@ -7,123 +7,291 @@ using System.Linq;
 using System.Reflection;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
+using System.Globalization;
 
 namespace App
 {
     class GLCsharp : GLObject
     {
         #region FIELDS
-        [Field] private string version = null;
-        [Field] private string[] file = null;
-        private CompilerResults compilerresults;
+        [FxField] private string Version = null;
+        [FxField] private string[] Assembly = null;
+        [FxField] private string[] File = null;
+        private CompilerResults CompilerResults;
         #endregion
 
         /// <summary>
-        /// Create C# object compiler class.
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLCsharp(GLParams @params) : base(@params)
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
+        public GLCsharp(Compiler.Block block, Dict scene, bool debugging)
+            : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"csharp '{@params.name}'");
-
-            // PARSE TEXT
-            var cmds = new Commands(@params.text, err);
+            var err = new CompileException($"csharp '{name}'");
 
             // PARSE ARGUMENTS
-            cmds.Cmds2Fields(this, err);
+            Cmds2Fields(block, err);
 
             // check for errors
             if (err.HasErrors())
                 throw err;
-            if (file == null || file.Length == 0)
+            if (File == null || File.Length == 0)
                 return;
 
+            // LOAD ADDITIONAL ASSEMBLIES
+            if (Assembly != null)
+            {
+                foreach (var assemblypath in Assembly)
+                {
+                    try
+                    {
+                        System.Reflection.Assembly.LoadFrom(assemblypath);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        err.Add($"Assembly file '{assemblypath}' cound not be found.", block);
+                    }
+                    catch (FileLoadException)
+                    {
+                        err.Add($"Assembly '{assemblypath}' cound not be loaded.", block);
+                    }
+                    catch
+                    {
+                        err.Add($"Unknown exception when loading assembly '{assemblypath}'.", block);
+                    }
+                }
+            }
+
             // replace placeholders with actual path
-            var path = (IEnumerable<string>)file;
-            var curDir = Directory.GetCurrentDirectory() + "/";
-            var placeholders = new[] { new[] { "<csharp>", curDir + "../csharp" } };
-            foreach (var placeholder in placeholders)
-                path = path.Select(x => x.Replace(placeholder[0], placeholder[1]));
+            var dir = Path.GetDirectoryName(block.Filename) + Path.DirectorySeparatorChar;
+            var filepath = ProcessPaths(dir, File);
 
-            // convert relative file paths to absolut file paths
-            path = path.Select(x => Path.IsPathRooted(x) ? x : @params.dir + x);
-
-            // use '\\' file paths instead of '/' and set absolute directory path
-            if (Path.DirectorySeparatorChar != '/')
-                path = path.Select(x => x.Replace('/', Path.DirectorySeparatorChar));
-            
-            // compile files
+            // COMPILE FILES
             try
             {
                 // set compiler parameters and assemblies
-                CompilerParameters compilerParams = new CompilerParameters();
+                var compilerParams = new CompilerParameters();
                 compilerParams.GenerateInMemory = true;
                 compilerParams.GenerateExecutable = false;
-                #if DEBUG
+#if DEBUG
                 compilerParams.IncludeDebugInformation = true;
                 compilerParams.CompilerOptions = "/define:DEBUG";
-                #else
+#else
                 compilerParams.IncludeDebugInformation = false;
-                #endif
+#endif
                 compilerParams.ReferencedAssemblies.AddRange(
                     AppDomain.CurrentDomain.GetAssemblies()
                              .Where(a => !a.IsDynamic)
                              .Select(a => a.Location).ToArray());
 
                 // select compiler version
-                CSharpCodeProvider provider = version != null ? 
-                    new CSharpCodeProvider(new Dictionary<string, string> { {"CompilerVersion", version} }) :
+                var provider = Version != null ?
+                    new CSharpCodeProvider(new Dictionary<string, string> { { "CompilerVersion", Version } }) :
                     new CSharpCodeProvider();
-                compilerresults = provider.CompileAssemblyFromFile(compilerParams, path.ToArray());
+                CompilerResults = provider.CompileAssemblyFromFile(compilerParams, filepath.ToArray());
             }
             catch (DirectoryNotFoundException ex)
             {
-                throw err.Add(ex.Message);
+                throw err.Add(ex.Message, block);
+            }
+            catch (FileNotFoundException ex)
+            {
+                throw err.Add(ex.Message, block);
             }
 
             // check for compiler errors
-            if (compilerresults.Errors.Count != 0)
+            if (CompilerResults.Errors.Count != 0)
             {
                 string msg = "";
-                foreach (var message in compilerresults.Errors)
-                    msg += "\n" + message;
-                throw err.Add(msg);
+                foreach (var message in CompilerResults.Errors)
+                    msg += $"\n{message}";
+                throw err.Add(msg, block);
             }
         }
 
         /// <summary>
-        /// Create an instance of a C# class.
+        /// Process paths to replace predefined placeholders like <code>"<sharp>"</code>.
         /// </summary>
-        /// <param name="classname">Name of the class type (class classname { ... }).</param>
-        /// <param name="name">Name to identify the class instance.</param>
-        /// <param name="cmds">Commands to pass to the class constructor.</param>
-        /// <param name="err">[OPTIONAL] Error and exception collector.</param>
+        /// <param name="abspath"></param>
+        /// <param name="paths"></param>
         /// <returns></returns>
-        public object CreateInstance(string classname, string name, Dictionary<string,string[]> cmds,
-            CompileException err = null)
+        private IEnumerable<string> ProcessPaths(string abspath, string[] paths)
         {
-            // create main class from compiled files
-            object instance = compilerresults.CompiledAssembly.CreateInstance(
-                classname, false, BindingFlags.Default, null,
-                new object[] { name, cmds }, App.culture, null);
+            // replace placeholders with actual path
+            var path = (IEnumerable<string>)paths;
+            var curDir = Directory.GetCurrentDirectory() + "/";
+            var placeholders = new[] { new[] { "<csharp>", $"{curDir}../csharp" } };
+            foreach (var placeholder in placeholders)
+                path = path.Select(x => x.Replace(placeholder[0], placeholder[1]));
 
-            if (instance == null && err != null)
-                throw err.Add($"Main class '{classname}' could not be found.");
+            // convert relative file paths to absolut file paths
+            path = path.Select(x => Path.IsPathRooted(x) ? x : abspath + x);
+
+            // use '\\' file paths instead of '/' and set absolute directory path
+            if (Path.DirectorySeparatorChar != '/')
+                path = path.Select(x => x.Replace('/', Path.DirectorySeparatorChar));
+
+            return path;
+        }
+
+        /// <summary>
+        /// Create a new external method-call by processing the specified compiler command.
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="err"></param>
+        /// <returns></returns>
+        public static MethodInfo GetMethod(Compiler.Command cmd, Dict scene, CompileException err)
+        {
+            // check command
+            if (cmd.ArgCount < 1)
+            {
+                err.Add("'class' command must specify a csharp object name.", cmd);
+                return null;
+            }
+
+            // FIND CSHARP CLASS DEFINITION
+            var csharp = scene.GetValueOrDefault<GLCsharp>(cmd[0].Text);
+            if (csharp == null)
+            {
+                err.Add($"Could not find csharp code '{cmd[0].Text}' of command '{cmd.Text}' ", cmd);
+                return null;
+            }
+
+            // INSTANTIATE CSHARP CLASS
+            return csharp.GetMethod(cmd, err);
+        }
+
+        /// <summary>
+        /// Create a new external class instance by processing the specified compiler block.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="err"></param>
+        /// <returns></returns>
+        public static object CreateInstance(Compiler.Block block, Dict scene, CompileException err)
+        {
+            // GET CLASS COMMAND
+            var cmds = block["class"].ToList();
+            if (cmds.Count == 0)
+            {
+                err.Add("Instance must specify a 'class' command " +
+                    "(e.g., class csharp_name class_name).", block);
+                return null;
+            }
+            var cmd = cmds.First();
+
+            // check command
+            if (cmd.ArgCount < 1)
+            {
+                err.Add("'class' command must specify a csharp object name.", cmd);
+                return null;
+            }
+
+            // FIND CSHARP CLASS DEFINITION
+            var csharp = scene.GetValueOrDefault<GLCsharp>(cmd[0].Text);
+            if (csharp == null)
+            {
+                err.Add($"Could not find csharp code '{cmd[0].Text}' of command '{cmd.Text}' ", cmd);
+                return null;
+            }
+
+            // INSTANTIATE CSHARP CLASS
+            return csharp.CreateInstance(block, cmd, scene, err);
+        }
+
+        /// <summary>
+        /// Create a new external class instance by processing the specified compiler block.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <param name="cmd"></param>
+        /// <param name="err"></param>
+        /// <returns></returns>
+        private object CreateInstance(Compiler.Block block, Compiler.Command cmd, Dict scene, CompileException err)
+        {
+            // check if the command is valid
+            if (cmd.ArgCount < 2)
+            {
+                err.Add("'class' command must specify a class name.", block);
+                return null;
+            }
             
-            List<string> errors = InvokeMethod<List<string>>(instance, "GetErrors");
-            errors?.ForEach(msg => err?.Add(msg));
+            // create OpenGL name lookup dictionary
+            var glNames = new Dictionary<string, int>(scene.Count);
+            scene.Keys.ForEach(scene.Values, (k, v) => glNames.Add(k, v.glname));
+
+            // create main class from compiled files
+            var classname = cmd[1].Text;
+            var instance = CompilerResults.CompiledAssembly.CreateInstance(
+                classname, false, BindingFlags.Default, null,
+                new object[] { block.Name, ToDict(block), glNames }, CultureInfo.CurrentCulture, null);
+
+            if (instance == null)
+                throw err.Add($"Main class '{classname}' could not be found.", cmd);
+            
+            InvokeMethod<List<string>>(instance, "GetErrors")?.ForEach(msg => err.Add(msg, cmd));
 
             return instance;
         }
 
-        private T InvokeMethod<T>(object instance, string valuename)
+        /// <summary>
+        /// Create a new external method-call by processing the specified compiler command.
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="err"></param>
+        /// <returns></returns>
+        private MethodInfo GetMethod(Compiler.Command cmd, CompileException err)
         {
-            var value = instance.GetType().GetMethod(valuename)?.Invoke(instance, new object[] { });
-            if (value == null)
-                return default(T);
-            return value.GetType() == typeof(T) ? (T)value : default(T);
+            // check if the command is valid
+            if (cmd.ArgCount < 2)
+            {
+                err.Add("'class' command must specify a class name.", cmd);
+                return null;
+            }
+            if (cmd.ArgCount < 3)
+            {
+                err.Add("'class' command must specify a method name.", cmd);
+                return null;
+            }
+
+            var classname = cmd[1].Text;
+            var methodname = cmd[2].Text;
+            var type = CompilerResults.CompiledAssembly.GetType(classname);
+            return type?.GetMethod(methodname, BindingFlags.Public | BindingFlags.Static);
         }
 
-        public override void Delete() { }
+        /// <summary>
+        /// Convert code block commands to dictionary.
+        /// </summary>
+        /// <param name="block"></param>
+        /// <returns></returns>
+        private Dictionary<string, string[]> ToDict(Compiler.Block block)
+        {
+            // convert to dictionary of string arrays
+            var dict = new Dictionary<string, string[]>();
+            // add commands to dictionary
+            block.ForEach(cmd => dict.Add(cmd.Name, cmd.Select(x => x.Text).ToArray()));
+            return dict;
+        }
+        
+        /// <summary>
+        /// Invoke a method of an object instance.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="instance"></param>
+        /// <param name="methodname"></param>
+        /// <returns></returns>
+        private T InvokeMethod<T>(object instance, string methodname)
+        {
+            // try to find and invoke the specified method
+            var value = instance.GetType().GetMethod(methodname)?.Invoke(instance, new object[] { });
+            // if nothing was returned, return the default value
+            if (value == null)
+                return default(T);
+            // if the type of the returned value is not of
+            // the required type, return the default value
+            return value.GetType() == typeof(T) ? (T)value : default(T);
+        }
     }
 }

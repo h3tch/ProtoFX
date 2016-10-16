@@ -5,8 +5,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ProtoGL")]
-[assembly: AssemblyDescription("ProtoGL is a tool to speed up the prototyping of OpenGL applications.")]
+[assembly: AssemblyTitle("ProtoFX")]
+[assembly: AssemblyDescription("ProtoFX is a tool to speed up the prototyping of OpenGL applications.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("App")]

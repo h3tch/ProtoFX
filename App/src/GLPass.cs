@@ -1,36 +1,36 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using PrimType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 using VertoutPrimType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
 using ElementType = OpenTK.Graphics.OpenGL4.DrawElementsType;
+using static System.Reflection.BindingFlags;
+using static OpenTK.Graphics.OpenGL4.GetProgramParameterName;
+using static OpenTK.Graphics.OpenGL4.TransformFeedbackMode;
+using System.Globalization;
 
 namespace App
 {
-    class GLPass : GLObject
+    class GLPass : FXPerf
     {
         #region FIELDS
-        private static CultureInfo culture = new CultureInfo("en");
-        [Field] private string vert = null;
-        [Field] private string tess = null;
-        [Field] private string eval = null;
-        [Field] private string geom = null;
-        [Field] private string frag = null;
-        [Field] private string comp = null;
-        [Field] private string[] vertout = null;
-        [Field] private string fragout = null;
-        private GLObject glvert = null;
-        private GLObject gltess = null;
-        private GLObject gleval = null;
-        private GLObject glgeom = null;
-        private GLObject glfrag = null;
-        private GLObject glcomp = null;
-        private GLVertoutput glvertout = null;
-        private VertoutPrimType vertoutPrim = VertoutPrimType.Points;
-        private GLFragoutput glfragout = null;
+
+        [FxField] private string Vert = null;
+        [FxField] private string Tess = null;
+        [FxField] private string Eval = null;
+        [FxField] private string Geom = null;
+        [FxField] private string Frag = null;
+        [FxField] private string Comp = null;
+        private GLObject glvert;
+        private GLObject gltess;
+        private GLObject gleval;
+        private GLObject glgeom;
+        private GLObject glfrag;
+        private GLObject glcomp;
+        private Vertoutput vertoutput;
+        private GLFragoutput fragoutput;
         private List<MultiDrawCall> drawcalls = new List<MultiDrawCall>();
         private List<CompCall> compcalls = new List<CompCall>();
         private List<ResTexImg> texImages = new List<ResTexImg>();
@@ -38,67 +38,75 @@ namespace App
         private List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
         private List<GLMethod> glfunc = new List<GLMethod>();
         private List<GLInstance> csexec = new List<GLInstance>();
+
         #endregion
 
         /// <summary>
-        /// Create pass object.
+        /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
-        /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLPass(GLParams @params) : base(@params)
+        /// <param name="block"></param>
+        /// <param name="scene"></param>
+        /// <param name="debugging"></param>
+        public GLPass(Compiler.Block block, Dict scene, bool debugging)
+            : base(block.Name, block.Anno, 309, debugging)
         {
             var err = new CompileException($"pass '{name}'");
 
-            // PARSE TEXT
-            var body = new Commands(@params.text, err);
+            /// PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
 
-            // PARSE ARGUMENTS
-            body.Cmds2Fields(this, err);
+            Cmds2Fields(block, err);
 
-            // PARSE COMMANDS
-            foreach (var cmd in body)
+            /// PARSE COMMANDS
+
+            foreach (var cmd in block)
             {
-                err.PushCall($"command {cmd.idx} '{cmd.cmd}'");
-                switch (cmd.cmd)
+                // ignore class fields
+                var field = GetType().GetField(cmd.Name, Instance | Public | NonPublic);
+                var attr = field?.GetCustomAttributes(typeof(FxField), false);
+                if (attr?.Length > 0)
+                    continue;
+
+                using (var e = err | $"command '{cmd.Name}' line {cmd.LineInFile}")
                 {
-                    case "draw": ParseDrawCall(err, cmd.args, @params.scene); break;
-                    case "compute": ParseComputeCall(err, cmd.args, @params.scene); break;
-                    case "tex": ParseTexCmd(err, cmd.args, @params.scene); break;
-                    case "samp": ParseSampCmd(err, cmd.args, @params.scene); break;
-                    case "exec": ParseCsharpExec(err, cmd.cmd, cmd.args, @params.scene); break;
-                    default: ParseOpenGLCall(err, cmd.cmd, cmd.args); break;
+                    switch (cmd.Name)
+                    {
+                        case "draw": ParseDrawCall(cmd, scene, e); break;
+                        case "compute": ParseComputeCall(cmd, scene, e); break;
+                        case "tex": ParseTexCmd(cmd, scene, e); break;
+                        case "img": ParseImgCmd(cmd, scene, e); break;
+                        case "samp": ParseSampCmd(cmd, scene, e); break;
+                        case "exec": ParseCsharpExec(cmd, scene, e); break;
+                        case "vertout": vertoutput = new Vertoutput(cmd, scene, e);  break;
+                        case "fragout": scene.TryGetValue(cmd[0].Text, out fragoutput, cmd, e); break;
+                        default: ParseOpenGLCall(cmd, e); break;
+                    }
                 }
-                err.PopCall();
             }
 
-            // GET VERTEX AND FRAGMENT OUTPUT BINDINGS
-            
-            if (fragout != null && !@params.scene.TryGetValue(fragout, out glfragout))
-                err.Add($"The name '{fragout}' does not reference an object of type 'fragout'.");
-            if (vertout != null && vertout.Length > 0 && !@params.scene.TryGetValue(vertout[0], out glvertout))
-                err.Add($"The name '{vertout[0]}' does not reference an object of type 'vertout'.");
             if (err.HasErrors())
                 throw err;
 
-            // CREATE OPENGL OBJECT
-            if (vert != null || comp != null)
+            /// CREATE OPENGL OBJECT
+
+            if (Vert != null || Comp != null)
             {
                 glname = GL.CreateProgram();
 
                 // Attach shader objects.
                 // First try attaching a compute shader. If that
                 // fails, try attaching the default shader pipeline.
-                if ((glcomp = attach(err, comp, @params.scene)) == null)
+                if ((glcomp = Attach(block, Comp, scene, err)) == null)
                 {
-                    glvert = attach(err, vert, @params.scene);
-                    gltess = attach(err, tess, @params.scene);
-                    gleval = attach(err, eval, @params.scene);
-                    glgeom = attach(err, geom, @params.scene);
-                    glfrag = attach(err, frag, @params.scene);
+                    glvert = Attach(block, Vert, scene, err);
+                    gltess = Attach(block, Tess, scene, err);
+                    gleval = Attach(block, Eval, scene, err);
+                    glgeom = Attach(block, Geom, scene, err);
+                    glfrag = Attach(block, Frag, scene, err);
                 }
 
                 // specify vertex output varyings of the shader program
-                if (glvertout != null)
-                    setVertexOutputVaryings(err, vertout);
+                if (vertoutput != null)
+                    vertoutput.SetProgramVaryings(glname);
 
                 // link program
                 GL.LinkProgram(glname);
@@ -108,139 +116,35 @@ namespace App
                     GL.DetachShader(glname, glcomp.glname);
                 else
                 {
-                    if (glvert != null)
-                        GL.DetachShader(glname, glvert.glname);
-                    if (gltess != null)
-                        GL.DetachShader(glname, gltess.glname);
-                    if (gleval != null)
-                        GL.DetachShader(glname, gleval.glname);
-                    if (glgeom != null)
-                        GL.DetachShader(glname, glgeom.glname);
-                    if (glfrag != null)
-                        GL.DetachShader(glname, glfrag.glname);
+                    if (glvert != null) GL.DetachShader(glname, glvert.glname);
+                    if (gltess != null) GL.DetachShader(glname, gltess.glname);
+                    if (gleval != null) GL.DetachShader(glname, gleval.glname);
+                    if (glgeom != null) GL.DetachShader(glname, glgeom.glname);
+                    if (glfrag != null) GL.DetachShader(glname, glfrag.glname);
                 }
 
                 // check for link errors
                 int status;
-                GL.GetProgram(glname, GetProgramParameterName.LinkStatus, out status);
+                GL.GetProgram(glname, LinkStatus, out status);
                 if (status != 1)
-                {
-                    var msg = GL.GetProgramInfoLog(glname);
-                    if (msg != null && msg.Length > 0)
-                        err.Add("\n" + msg);
-                }
+                    err.Add($"\n{GL.GetProgramInfoLog(glname)}", block);
             }
 
+            /// CHECK FOR ERRORS
+
             if (GL.GetError() != ErrorCode.NoError)
-                err.Add($"OpenGL error '{GL.GetError()}' occurred during shader program creation.");
+                err.Add($"OpenGL error '{GL.GetError()}' occurred " +
+                    "during shader program creation.", block);
             if (err.HasErrors())
                 throw err;
         }
 
         /// <summary>
-        /// Execute pass.
+        /// Standard object destructor for ProtoFX.
         /// </summary>
-        /// <param name="width">Width of the OpenGL control.</param>
-        /// <param name="height">Height of the OpenGL control.</param>
-        public void Exec(int width, int height, int frame)
-        {
-#if DEBUG
-            // in debug mode check if the
-            // OpenGL sate is valid
-            var errcode = GL.GetError();
-            if (errcode != ErrorCode.NoError)
-                throw new Exception("OpenGL error.");
-#endif
-
-            int fbWidth = width;
-            int fbHeight = height;
-
-            // BIND FRAGMENT OUTPUT
-            // (widthOut and heightOut must be 
-            // computed before setting the glViewport)
-            if (glfragout != null)
-            {
-                fbWidth = glfragout.width;
-                fbHeight = glfragout.height;
-                glfragout.Bind();
-            }
-
-            // SET DEFAULT VIEWPORT
-            GL.Viewport(0, 0, fbWidth, fbHeight);
-
-            // CALL USER SPECIFIED OPENGL FUNCTIONS
-            foreach (var glcall in glfunc)
-                glcall.mtype.Invoke(null, glcall.inval);
-
-            // BIND PROGRAM
-            if (glname > 0)
-                GL.UseProgram(glname);
-
-            // BIND VERTEX OUTPUT (transform feedback)
-            // (must be done after glUseProgram)
-            if (glvertout != null)
-                glvertout.Bind(vertoutPrim);
-
-            // BIND TEXTURES
-            foreach (var t in textures)
-                t.obj.BindTex(t.unit);
-            foreach (var t in texImages)
-                t.obj.BindImg(t.unit, t.level, t.layer, t.access, t.format);
-            foreach (var s in sampler)
-                GL.BindSampler(s.unit, s.obj.glname);
-
-            // EXECUTE EXTERNAL CODE
-            foreach (var e in csexec)
-                e.Update(glname, width, height, fbWidth, fbHeight);
-            
-            // BIND DEBUGGER
-            if (glname > 0)
-                GLDebugger.Bind(this, frame);
-            
-            // EXECUTE DRAW CALLS
-            foreach (var call in drawcalls)
-                call.draw();
-
-            // EXECUTE COMPUTE CALLS
-            foreach (var call in compcalls)
-                call.compute();
-
-            // UNBIND DEBUGGER
-            if (glname > 0)
-                GLDebugger.Unbind(this);
-
-            // UNBIND OUTPUT BUFFERS
-            if (glfragout != null)
-                glfragout.Unbind();
-            if (glvertout != null)
-                glvertout.Unbind();
-
-            // UNBIND OPENGL RESOURCES
-            GL.UseProgram(0);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-            GL.BindBuffer(BufferTarget.DrawIndirectBuffer, 0);
-            GL.BindBuffer(BufferTarget.DispatchIndirectBuffer, 0);
-            GL.BindVertexArray(0);
-
-            // UNBIND OPENGL OBJECTS
-            foreach (var t in textures)
-                t.obj.UnbindTex(t.unit);
-            foreach (var t in texImages)
-                t.obj.UnbindImg(t.unit);
-            foreach (var s in sampler)
-                GL.BindSampler(s.unit, 0);
-            foreach (var e in csexec)
-                e.EndPass(glname);
-#if DEBUG
-            // in debug mode check if the pass
-            // left a valid OpenGL sate
-            if ((errcode = GL.GetError()) != ErrorCode.NoError)
-                throw new Exception("OpenGL error.");
-#endif
-        }
-
         public override void Delete()
         {
+            base.Delete();
             if (glname > 0)
             {
                 GL.DeleteProgram(glname);
@@ -248,10 +152,130 @@ namespace App
             }
         }
 
-        #region PARSE COMMANDS
-        private void ParseDrawCall(CompileException err, string[] cmd, Dict<GLObject> classes)
+        /// <summary>
+        /// Execute pass.
+        /// </summary>
+        /// <param name="width">Width of the OpenGL control.</param>
+        /// <param name="height">Height of the OpenGL control.</param>
+        /// <param name="frame">The ID of the current frame.</param>
+        public void Exec(int width, int height, int frame)
         {
-            List<int> arg = new List<int>();
+            // in debug mode check if the
+            // OpenGL sate is valid
+            ThrowOnGLError($"OpenGL error at the beginning of pass '{name}'.");
+
+            int fbWidth = width, fbHeight = height;
+
+            /// BIND FRAGMENT OUTPUT
+            
+            // (widthOut and heightOut must be 
+            // computed before setting the glViewport)
+            if (fragoutput != null)
+            {
+                fbWidth = fragoutput.Width;
+                fbHeight = fragoutput.Height;
+                fragoutput.Bind();
+            }
+
+            /// SET DEFAULT VIEWPORT
+            
+            GL.Viewport(0, 0, fbWidth, fbHeight);
+
+            /// CALL USER SPECIFIED OPENGL FUNCTIONS
+
+            foreach (var x in glfunc)
+            {
+                x.mtype.Invoke(null, x.inval);
+                ThrowOnGLError($"OpenGL error in OpenGL function '{x.mtype.Name}' of pass '{name}'.");
+            }
+
+            /// BIND PROGRAM
+
+            if (glname > 0)
+                GL.UseProgram(glname);
+
+            /// BIND VERTEX OUTPUT (transform feedback)
+            /// must be done after glUseProgram
+
+            vertoutput?.Bind();
+            ThrowOnGLError($"OpenGL error vertex output binding of pass '{name}'.");
+
+            /// BIND TEXTURES
+
+            foreach (var x in textures)
+            {
+                GLTexture.BindTex(x.unit, x.obj);
+                ThrowOnGLError($"OpenGL error in texture '{x.obj?.name}' of pass '{name}'.");
+            }
+            foreach (var x in texImages)
+            {
+                GLTexture.BindImg(x.unit, x.obj, x.level, x.layer, x.access, x.format);
+                ThrowOnGLError($"OpenGL error in image '{x.obj?.name}' of pass '{name}'.");
+            }
+            foreach (var x in sampler)
+            {
+                GL.BindSampler(x.unit, x.obj?.glname ?? 0);
+                ThrowOnGLError($"OpenGL error in sampler '{x.obj?.name}' of pass '{name}'.");
+            }
+
+            /// EXECUTE EXTERNAL CODE
+
+            foreach (var x in csexec)
+            {
+                x.Update(glname, width, height, fbWidth, fbHeight);
+                ThrowOnGLError($"OpenGL error in C# execution '{x.name}' of pass '{name}'.");
+            }
+
+            /// BIND DEBUGGER
+
+            if (glname > 0)
+                FxDebugger.Bind(this, frame);
+
+            /// EXECUTE DRAW AND COMPUTE CALLS
+
+            // begin timer query
+            MeasureTime();
+            StartTimer(frame);
+
+            // execute draw calls
+            drawcalls.ForEach(call => call.draw());
+            compcalls.ForEach(call => call.compute());
+
+            // end timer query
+            EndTimer();
+
+            /// UNBIND DEBUGGER
+
+            if (glname > 0)
+                FxDebugger.Unbind(this);
+
+            /// UNBIND OPENGL OBJECTS
+
+            csexec.ForEach(e => e.EndPass(glname));
+
+            /// UNBIND OUTPUT BUFFERS
+
+            fragoutput?.Unbind();
+            vertoutput?.Unbind();
+
+            /// UNBIND OPENGL RESOURCES
+
+            GL.UseProgram(0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            GL.BindBuffer(BufferTarget.DrawIndirectBuffer, 0);
+            GL.BindBuffer(BufferTarget.DispatchIndirectBuffer, 0);
+            GL.BindVertexArray(0);
+            
+            // in debug mode check if the pass
+            // left a valid OpenGL sate
+            ThrowOnGLError($"OpenGL error at the end of pass '{name}'.");
+        }
+        
+        #region PARSE COMMANDS
+
+        private void ParseDrawCall(Compiler.Command cmd, Dict classes, CompileException err)
+        {
+            List<int> args = new List<int>();
             GLVertinput vertexin = null;
             GLVertoutput vertout = null;
             GLBuffer indexbuf = null;
@@ -263,64 +287,73 @@ namespace App
             int val;
 
             // parse draw call arguments
-            for (var i = 0; i < cmd.Length; i++)
+            foreach (var arg in cmd)
             {
-                if (classes.TryGetValue(cmd[i], ref vertexin)) continue;
-                if (classes.TryGetValue(cmd[i], ref vertout)) continue;
-                if (classes.TryGetValue(cmd[i], ref indexbuf)) continue;
-                if (classes.TryGetValue(cmd[i], ref indirect)) continue;
-                if (int.TryParse(cmd[i], out val))
-                    arg.Add(val);
-                else if (typeIsSet == false && Enum.TryParse(cmd[i], true, out indextype))
+                if (classes.TryGetValue(arg.Text, ref vertexin))
+                    continue;
+                if (classes.TryGetValue(arg.Text, ref vertout))
+                    continue;
+                if (classes.TryGetValue(arg.Text, ref indexbuf))
+                    continue;
+                if (classes.TryGetValue(arg.Text, ref indirect))
+                    continue;
+                if (int.TryParse(arg.Text, out val))
+                    args.Add(val);
+                else if (typeIsSet == false && Enum.TryParse(arg.Text, true, out indextype))
                     typeIsSet = true;
-                else if (modeIsSet == false && Enum.TryParse(cmd[i], true, out primitive))
+                else if (modeIsSet == false && Enum.TryParse(arg.Text, true, out primitive))
                     modeIsSet = true;
+                else
+                    err.Add($"Unable to process argument '{arg.Text}'.", cmd);
             }
 
+            if (err.HasErrors())
+                return;
+            
             // a draw call must specify a primitive type
             if (modeIsSet == false)
             {
-                err.Add("Draw call must specify a primitive type "
-                    + "(e.g. triangles, trianglefan, lines, points, ...).");
+                err.Add("Draw call must specify a primitive type (e.g. triangles, "
+                    + "trianglefan, lines, points, ...).", cmd);
                 return;
             }
 
             // determine the right draw call function
-            int bits = (vertout != null ? 1 : 0) 
+            int bits = (vertout != null ? 1 : 0)
                 | (indexbuf != null ? 2 : 0)
                 | (indirect != null ? 4 : 0)
                 | (typeIsSet ? 8 : 0);
 
             if (!Enum.IsDefined(typeof(DrawFunc), bits))
             {
-                err.Add("Draw call function not recognized or ambiguous.");
+                err.Add("Draw call function not recognized or ambiguous.", cmd);
                 return;
             }
 
             DrawFunc drawfunc = (DrawFunc)bits;
-                 
+
             // get index buffer object (if present) and find existing MultiDraw class
-            MultiDrawCall multidrawcall = drawcalls.Find(
+            var multidrawcall = drawcalls.Find(
                 x => x.vertexin == (vertexin != null ? vertexin.glname : 0)
                   && x.indexbuf == (indexbuf != null ? indexbuf.glname : 0)
-                  && x.vertout  == (vertout  != null ?  vertout.glname : 0)
+                  && x.vertout == (vertout != null ? vertout.glname : 0)
                   && x.indirect == (indirect != null ? indirect.glname : 0))
                 ?? new MultiDrawCall(drawfunc, vertexin, vertout, indexbuf, indirect);
 
             // add new draw command to the MultiDraw class
-            multidrawcall.cmd.Add(new DrawCall(drawfunc, primitive, indextype, arg));
-            
+            multidrawcall.cmd.Add(new DrawCall(drawfunc, primitive, indextype, args));
+
             drawcalls.Add(multidrawcall);
         }
-
-        private void ParseComputeCall(CompileException err, string[] cmd, Dict<GLObject> classes)
+        
+        private void ParseComputeCall(Compiler.Command cmd, Dict classes, CompileException err)
         {
             // check for errors
-            if (cmd.Length < 2 || cmd.Length > 3)
+            if (cmd.ArgCount < 2 || cmd.ArgCount > 3)
             {
                 err.Add("Compute command does not provide enough arguments "
                     + "(e.g., 'compute num_groups_X num_groups_y num_groups_z' or "
-                    + "'compute buffer_name indirect_pointer').");
+                    + "'compute buffer_name indirect_pointer').", cmd);
                 return;
             }
 
@@ -329,24 +362,24 @@ namespace App
                 CompCall call = new CompCall();
 
                 // this is an indirect compute call
-                if (cmd.Length == 2)
+                if (cmd.ArgCount == 2)
                 {
                     // indirect compute call buffer
-                    call.numGroupsX = (uint)classes.GetValue<GLBuffer>(cmd[0],
+                    call.numGroupsX = (uint)classes.GetValue<GLBuffer>(cmd[0].Text,
                         "First argument of compute command must be a buffer name").glname;
                     // indirect compute call buffer pointer
-                    call.numGroupsY = cmd[1].To<uint>("Argument must be an unsigned integer, "
+                    call.numGroupsY = cmd[1].Text.To<uint>("Argument must be an unsigned integer, "
                         + "specifying a pointer into the indirect compute call buffer.");
                 }
                 // this is a normal compute call
                 else
                 {
                     // number of compute groups
-                    call.numGroupsX = cmd[0].To<uint>("Argument must be an unsigned integer, "
+                    call.numGroupsX = cmd[0].Text.To<uint>("Argument must be an unsigned integer, "
                         + "specifying the number of compute groups in X.");
-                    call.numGroupsY = cmd[1].To<uint>("Argument must be an unsigned integer, "
+                    call.numGroupsY = cmd[1].Text.To<uint>("Argument must be an unsigned integer, "
                         + "specifying the number of compute groups in Y.");
-                    call.numGroupsZ = cmd[2].To<uint>("Argument must be an unsigned integer, "
+                    call.numGroupsZ = cmd[2].Text.To<uint>("Argument must be an unsigned integer, "
                         + "specifying the number of compute groups in Z.");
                 }
 
@@ -354,80 +387,84 @@ namespace App
             }
             catch (CompileException ex)
             {
-                err.Add(ex.Message);
+                err.Add(ex.Message, cmd);
             }
         }
-
-        private void ParseTexCmd(CompileException err, string[] args, Dict<GLObject> classes)
+        
+        private void ParseTexCmd(Compiler.Command cmd, Dict classes, CompileException err)
         {
+            if (cmd.ArgCount != 1 && cmd.ArgCount != 2)
+            {
+                err.Add("Arguments of the 'tex' command are invalid.", cmd);
+                return;
+            }
+            // specify argument types
+            var types = new[] { typeof(GLTexture), typeof(int), typeof(string) };
+            // specify mandatory arguments
+            var mandatory = new[] { new[] { true, true, false }, new[] { false, true, false } };
+            // parse command arguments
+            var values = cmd.Parse(types, mandatory, classes, err);
+            // if there are no errors, add the object to the pass
+            if (!err.HasErrors())
+                textures.Add(new Res<GLTexture>(values));
+        }
+
+        private void ParseImgCmd(Compiler.Command cmd, Dict classes, CompileException err)
+        {
+            if (cmd.ArgCount != 1 && cmd.ArgCount != 6)
+            {
+                err.Add("Arguments of the 'img' command are invalid.", cmd);
+                return;
+            }
+            // specify argument types
             var types = new[] {
                 typeof(GLTexture),
                 typeof(int),
                 typeof(int),
                 typeof(int),
                 typeof(TextureAccess),
-                typeof(GpuFormat)
+                typeof(GpuFormat),
+                typeof(string)
             };
-            var values = ParseCmd(args, types, args.Length == 6 ? 6 : 2, classes, err);
+            // specify mandatory arguments
+            var mandatory = new[] {
+                new[] { true, true, true, true, true, true, false },
+                new[] { false, true, false, false, false, false, false },
+            };
+            // parse command arguments
+            var values = cmd.Parse(types, mandatory, classes, err);
+            // if there are no errors, add the object to the pass
             if (!err.HasErrors())
-            {
-                if (args.Length == 6)
-                    texImages.Add(new ResTexImg(values));
-                else
-                    textures.Add(new Res<GLTexture>(values));
-            }
+                texImages.Add(new ResTexImg(values));
         }
 
-        private void ParseSampCmd(CompileException err, string[] args, Dict<GLObject> classes)
+        private void ParseSampCmd(Compiler.Command cmd, Dict classes, CompileException err)
         {
-            var types = new[] {
-                typeof(GLSampler),
-                typeof(int),
-            };
-            var values = ParseCmd(args, types, 2, classes, err);
+            if (cmd.ArgCount != 1 && cmd.ArgCount != 2)
+            {
+                err.Add("Arguments of the 'samp' command are invalid.", cmd);
+                return;
+            }
+            // specify argument types
+            var types = new[] { typeof(GLSampler), typeof(int), typeof(string) };
+            // specify mandatory arguments
+            var mandatory = new[] { new[] { true, true, false }, new[] { false, true, false } };
+            // parse command arguments
+            var values = cmd.Parse(types, mandatory, classes, err);
+            // if there are no errors, add the object to the pass
             if (!err.HasErrors())
                 sampler.Add(new Res<GLSampler>(values));
         }
-
-        private object[] ParseCmd(string[] args, Type[] types, int numMandatory,
-            Dict<GLObject> classes, CompileException err)
-        {
-            object[] values = new object[types.Length];
-
-            // parse command arguments
-            foreach (string arg in args)
-            {
-                for (int i = values.IndexOf(x => x == null); i < 0 || i < types.Length; i++)
-                {
-                    try
-                    {
-                        values[i] = types[i].IsSubclassOf(typeof(GLObject))
-                            ? classes.GetValue<GLObject>(arg)
-                            : types[i].IsEnum
-                                ? Enum.Parse(types[i], arg, true)
-                                : Convert.ChangeType(arg, types[i], App.culture);
-                        if (values[i] != null)
-                            break;
-                    }
-                    catch { }
-                }
-            }
-            
-            // check for errors
-            for (int i = 0; i < Math.Min(numMandatory, values.Length); i++)
-                if (values[i] == null)
-                    err?.Add($"Error parsing argument {i}.");
-
-            return values;
-        }
-
-        private void ParseOpenGLCall(CompileException err, string cmd, string[] args)
+        
+        private void ParseOpenGLCall(Compiler.Command cmd, CompileException err)
         {
             // find OpenGL method
-            var mtype = FindMethod(cmd, args.Length);
+            var mname = cmd.Name.StartsWith("gl") ? cmd.Name.Substring(2) : cmd.Name;
+            var mtype = FindMethod(mname, cmd.ArgCount);
             if (mtype == null)
             {
-                err.Add("Unknown command " + string.Join(" ", args) + ".");
+                if (GetFxField(mname) == null)
+                    err.Add("Unknown command '" + cmd.Text + "'", cmd);
                 return;
             }
 
@@ -439,96 +476,66 @@ namespace App
             {
                 if (param[i].ParameterType.IsEnum)
                     inval[i] = Convert.ChangeType(
-                        Enum.Parse(param[i].ParameterType, args[i], true),
+                        Enum.Parse(param[i].ParameterType, cmd[i].Text, true),
                         param[i].ParameterType);
                 else
-                    inval[i] = Convert.ChangeType(args[i], param[i].ParameterType, App.culture);
+                    inval[i] = Convert.ChangeType(cmd[i].Text, param[i].ParameterType, CultureInfo.CurrentCulture);
             }
-            
+
             glfunc.Add(new GLMethod(mtype, inval));
         }
-
-        private void ParseCsharpExec(CompileException err, string cmd, string[] args, Dict<GLObject> classes)
+        
+        private void ParseCsharpExec(Compiler.Command cmd, Dict classes, CompileException err)
         {
             // check if command provides the correct amount of parameters
-            if (args.Length == 0)
+            if (cmd.ArgCount == 0)
             {
-                err.Add("Not enough arguments for exec command.");
+                err.Add("Not enough arguments for exec command.", cmd);
                 return;
             }
 
             // get instance
             GLInstance instance;
-            if (classes.TryGetValue(args[0], out instance, err) == false)
+            if (!classes.TryGetValue(cmd[0].Text, out instance, cmd, err))
                 return;
 
             csexec.Add(instance);
         }
+
         #endregion
 
         #region UTIL METHODS
-        private MethodInfo FindMethod(string name, int nparam)
-        {
-            var methods = from method in typeof(GL).GetMethods()
-                          where method.Name == name && method.GetParameters().Length == nparam
-                          select method;
-            return methods.Count() > 0 ? methods.First() : null;
-        }
 
-        private GLShader attach(CompileException err, string sh, Dict<GLObject> classes)
+        private MethodInfo FindMethod(string name, int nparam)
+            => (from method in typeof(GL).GetMethods()
+                where method.Name == name && method.GetParameters().Length == nparam
+                select method).FirstOrDefault();
+
+        private GLShader Attach(Compiler.Block block, string sh, Dict classes, CompileException err)
         {
             GLShader glsh = null;
 
             // get shader from class list
-            if (sh != null && classes.TryGetValue(sh, out glsh, err))
+            if (sh != null && classes.TryGetValue(sh, out glsh, block, err))
                 GL.AttachShader(glname, glsh.glname);
 
             return glsh;
         }
 
-        private void setVertexOutputVaryings(CompileException err, string[] varyings)
+        private static void ThrowOnGLError(string message)
         {
-            // the vertout command needs at least 3 arguments
-            if (varyings.Length < 3)
-                throw err.Add("vertout command does not have "
-                    + "enough arguments (e.g. vertout vertout_name points varying_name).");
-
-            // parse vertex output primitive type
-            if (!Enum.TryParse(varyings[1], true, out vertoutPrim))
-                throw err.Add("vertout command does not support "
-                    + $"the specified primitive type '{varyings[1]}' "
-                    + "(must be 'points', 'lines' or 'triangles').");
-
-            // get vertex output varying specification
-            int skip = 2;
-            TransformFeedbackMode vertoutMode = TransformFeedbackMode.InterleavedAttribs;
-
-            // write output varyings into separate buffers
-            if (varyings[2] == "gl_SeparateAttribs")
-            {
-                vertoutMode = TransformFeedbackMode.SeparateAttribs;
-                skip = 3;
-            }
-            // write output varyings into the same buffer except
-            // if 'gl_NextBuffer' is specified in the varyings list
-            else if (varyings[2] == "gl_InterleavedAttribs")
-                skip = 3;
-
-            // set transform feedback varyings in the shader program
-            if (varyings.Length - skip > 0)
-            {
-                string[] outputVaryings = new string[varyings.Length - skip];
-                Array.Copy(varyings, skip, outputVaryings, 0, varyings.Length - skip);
-                GL.TransformFeedbackVaryings(glname, outputVaryings.Length, outputVaryings, vertoutMode);
-            }
-            else
-                throw err.Add("vertout command does not specify shader output varying names "
-                    + "(e.g. vertout vertout_name points varying_name).");
+#if DEBUG
+            ErrorCode errcode = GL.GetError();
+            if (errcode != ErrorCode.NoError)
+                throw new Exception($"{errcode}: {message}");
+#endif
         }
+
         #endregion
 
         #region HELP STRUCT
-        public enum DrawFunc
+
+        private enum DrawFunc
         {
             ArraysIndirect = 0 | 2 | 0 | 0,
             ArraysInstanced = 0 | 0 | 0 | 0,
@@ -591,8 +598,8 @@ namespace App
                         GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexbuf);
                         GL.BindBuffer(BufferTarget.DrawIndirectBuffer, indirect);
                         foreach (var draw in cmd)
-                            GL.DrawElementsIndirect(draw.mode, (All)draw.indextype,
-                                draw.indirectPtr);
+                            GL.MultiDrawElementsIndirect((All)draw.mode, (All)draw.indextype,
+                                draw.indirectPtr, draw.indirectCount, draw.indirectStride);
                         break;
 
                     case DrawFunc.ElementsInstanced:
@@ -613,7 +620,7 @@ namespace App
             }
         }
 
-        public struct DrawCall
+        private struct DrawCall
         {
             public PrimType mode;
             public ElementType indextype;
@@ -627,11 +634,30 @@ namespace App
             {
                 this.mode = mode;
                 this.indextype = indextype;
+                // iBaseVertex, vBaseVertex, voStream, indirectPtr
                 arg0 = arg.Count > 0 ? arg[0] : 0;
-                arg1 = arg.Count > 1 ? arg[1] : (drawfunc == DrawFunc.TransformFeedback ? 1 : 0);
-                arg2 = arg.Count > 2 ? arg[2] : 0;
-                arg3 = arg.Count > 3 ? arg[3] : (drawfunc == DrawFunc.ArraysInstanced ? 1 : 0);
-                arg4 = arg.Count > 4 ? arg[4] : (drawfunc == DrawFunc.ElementsInstanced ? 1 : 0);
+                // iBaseIndex, vVertexCount, indirectCount
+                arg1 = arg.Count > 1 ? arg[1] : 
+                    drawfunc == DrawFunc.TransformFeedback
+                    || drawfunc == DrawFunc.ArraysIndirect
+                    || drawfunc == DrawFunc.ElementsIndirect
+                    ? 1
+                    : 0;
+                // iIndexCount, vBaseInstance, indirectStride
+                arg2 = arg.Count > 2 ? arg[2] :
+                    drawfunc == DrawFunc.TransformFeedback
+                    ? 1
+                    : drawfunc == DrawFunc.ArraysIndirect
+                        ? 16
+                        : drawfunc == DrawFunc.ElementsIndirect
+                            ? 32
+                            : 0;
+                // iBaseInstance, vInstanceCount
+                arg3 = arg.Count > 3 ? arg[3] :
+                    drawfunc == DrawFunc.ArraysInstanced ? 1 : 0;
+                // iInstanceCount
+                arg4 = arg.Count > 4 ? arg[4] : 
+                    drawfunc == DrawFunc.ElementsInstanced ? 1 : 0;
             }
 
             // arguments for indexed buffer drawing
@@ -654,6 +680,8 @@ namespace App
             public int voInstanceCount { get { return arg1; } set { arg1 = value; } }
             // get arguments for indirect drawing
             public IntPtr indirectPtr { get { return (IntPtr)arg0; } set { arg0 = (int)value; } }
+            public int indirectCount { get { return arg1; } set { arg1 = value; } }
+            public int indirectStride { get { return arg2; } set { arg2 = value; } }
         }
 
         private struct CompCall
@@ -661,10 +689,8 @@ namespace App
             public uint numGroupsX;
             public uint numGroupsY;
             public uint numGroupsZ;
-            public int indirect
-            { get { return (int)numGroupsX; } }
-            public IntPtr indirectPtr
-            { get { return (IntPtr)numGroupsY; } }
+            public int indirect { get { return (int)numGroupsX; } }
+            public IntPtr indirectPtr { get { return (IntPtr)numGroupsY; } }
 
             public void compute()
             {
@@ -728,6 +754,61 @@ namespace App
                 this.inval = inval;
             }
         }
+
+        private class Vertoutput
+        {
+            enum ResumePause { None, Pause, Resume, }
+            public GLVertoutput glvertout;
+            public VertoutPrimType vertoutPrim;
+            public TransformFeedbackMode vertoutMode;
+            public bool pause;
+            public bool resume;
+            public string[] outputVaryings;
+
+            public Vertoutput(Compiler.Command cmd, Dict scene, CompileException err)
+            {
+                // specify argument types
+                var types = new[] {
+                    typeof(GLVertoutput),
+                    typeof(VertoutPrimType),
+                    typeof(ResumePause),
+                    typeof(TransformFeedbackMode),
+                };
+                // specify mandatory arguments
+                var mandatory = new[] {
+                    new[] { false, false, false, false },
+                };
+                // parse command arguments
+                var values = cmd.Parse(types, mandatory, out outputVaryings, scene, err);
+                if (err.HasErrors())
+                    return;
+
+                // set transform feedback varyings in the shader program
+                if (outputVaryings.Length == 0)
+                    err.Add("vertout command does not specify shader output varying names "
+                        + "(e.g. vertout vertout_name points [pause resume] varying_name).", cmd);
+                if (err.HasErrors())
+                    return;
+
+                // set fields
+                glvertout = (GLVertoutput)values[0];
+                vertoutPrim = (VertoutPrimType)values[1];
+                switch ((ResumePause)(values[2] ?? ResumePause.None))
+                {
+                    case ResumePause.Pause: pause = true; break;
+                    case ResumePause.Resume: resume = true; break;
+                }
+                vertoutMode = (TransformFeedbackMode)(values[3] ?? InterleavedAttribs);
+            }
+
+            public void SetProgramVaryings(int glname)
+                => GL.TransformFeedbackVaryings(glname, outputVaryings.Length, outputVaryings, vertoutMode);
+
+            public void Bind() => glvertout.Bind(vertoutPrim, resume);
+
+            public void Unbind() => GLVertoutput.Unbind(pause);
+        }
+
         #endregion
     }
 }
