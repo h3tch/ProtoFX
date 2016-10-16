@@ -72,7 +72,7 @@ namespace App
             try
             {
                 // set compiler parameters and assemblies
-                CompilerParameters compilerParams = new CompilerParameters();
+                var compilerParams = new CompilerParameters();
                 compilerParams.GenerateInMemory = true;
                 compilerParams.GenerateExecutable = false;
 #if DEBUG
