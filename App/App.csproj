@@ -148,10 +148,11 @@
     <Compile Include="src\extensions\IEnumerable.cs" />
     <Compile Include="src\extensions\String.cs" />
     <Compile Include="src\FXDebugger.cs" />
+    <Compile Include="src\FXGlslTypes.cs" />
     <Compile Include="src\FXPerf.cs" />
     <Compile Include="src\GLInstance.cs" />
     <Compile Include="src\GLReference.cs" />
-    <Compile Include="src\GLSL.cs" />
+    <Compile Include="src\FXGlslToCSharp.cs" />
     <Compile Include="src\GLText.cs" />
     <Compile Include="src\App.cs">
       <SubType>Form</SubType>

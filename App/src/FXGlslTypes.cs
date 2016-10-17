@@ -1,7 +1,7 @@
-﻿namespace GLSL
-{
-    using System;
+﻿using System;
 
+namespace App
+{
     #region Typedef
 
     struct sampler1D { public int i; public static implicit operator int(sampler1D a) => a.i; public static implicit operator sampler1D(int a) => new sampler1D { i = a }; }
@@ -86,7 +86,7 @@
     class vec2 : tvec2<double>
     {
         #region vec2
-        
+
         public vec2() : base() { }
         public vec2(double a) : base(a, a) { }
         public vec2(double x, double y) : base(x, y) { }
@@ -1053,7 +1053,7 @@
     class vec4 : tvec4<double>
     {
         #region vec4
-        
+
         public vec4() { }
         public vec4(double a) : this(a, a, a, a) { }
         public vec4(double X, double Y, double Z, double W) : this() { x = X; y = Y; z = Z; w = W; }
@@ -2863,7 +2863,8 @@
             double _00, double _10,
             double _01, double _11) : this(
                 new vec2(_00, _10),
-                new vec2(_01, _11)) { }
+                new vec2(_01, _11))
+        { }
 
         #endregion
 
@@ -2911,7 +2912,8 @@
             double _02, double _12, double _22) : this(
                 new vec3(_00, _10, _20),
                 new vec3(_01, _11, _21),
-                new vec3(_02, _12, _22)) { }
+                new vec3(_02, _12, _22))
+        { }
 
         #endregion
 
@@ -2952,7 +2954,8 @@
                 new vec4(_00, _10, _20, _30),
                 new vec4(_01, _11, _21, _31),
                 new vec4(_02, _12, _22, _32),
-                new vec4(_03, _13, _23, _33)) { }
+                new vec4(_03, _13, _23, _33))
+        { }
 
         #endregion
 
@@ -2982,7 +2985,11 @@
         #endregion
     }
 
+    struct stdXXX { }
+
     #endregion
+
+    #region Math
 
     class Math
     {
@@ -3081,12 +3088,14 @@
         #endregion
     }
 
+    #endregion
+
+    #region Debug Super Classes
+
     class Shader : Math
     {
-        public static int[] gl_SamplerID = new int[32];
-        public static object[][] gl_InAttr = new object[32][];
-        public static object[] gl_UniformObject = new object[32];
-        
+        public const int std430 = 430;
+
         public static vec4 texture(sampler1D sampler, float P, float bias = 0) { return new vec4(0); }
         public static vec4 texture(isampler1D sampler, float P, float bias = 0) { return new vec4(0); }
         public static vec4 texture(usampler1D sampler, float P, float bias = 0) { return new vec4(0); }
@@ -3096,7 +3105,7 @@
         public static vec4 texture(sampler3D sampler, vec3 P, float bias = 0) { return new vec4(0); }
         public static vec4 texture(isampler3D sampler, vec3 P, float bias = 0) { return new vec4(0); }
         public static vec4 texture(usampler3D sampler, vec3 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(samplerCube sampler, vec3  P, float bias = 0) { return new vec4(0); }
+        public static vec4 texture(samplerCube sampler, vec3 P, float bias = 0) { return new vec4(0); }
         public static vec4 texture(isamplerCube sampler, vec3 P, float bias = 0) { return new vec4(0); }
         public static vec4 texture(usamplerCube sampler, vec3 P, float bias = 0) { return new vec4(0); }
         public static vec4 texture(sampler1DShadow sampler, vec3 P, float bias = 0) { return new vec4(0); }
@@ -3122,6 +3131,8 @@
         public static vec4 texture(samplerCubeArrayShadow sampler, vec4 P, float compare) { return new vec4(0); }
         public static vec4 texture(isamplerCubeArrayShadow sampler, vec4 P, float compare) { return new vec4(0); }
         public static vec4 texture(usamplerCubeArrayShadow sampler, vec4 P, float compare) { return new vec4(0); }
+
+        public static void Init() { }
     }
 
     class VertexShader : Shader
@@ -3132,201 +3143,76 @@
         public static float gl_PointSize;
         public static float[] gl_ClipDistance = new float[4];
 
-        public void Init() { }
-    }
-
-    class CShartToGlsl
-    {
-        public string Version(string text)
+        public static new void Init()
         {
-            return text;
-        }
-
-        public string Constants(string text)
-        {
-            return text;
-        }
-
-        public string FloatToDouble(string text)
-        {
-            return text;
-        }
-
-        public string UniformSampler(string text)
-        {
-            return text;
-        }
-
-        public string UniformBuffer(string text)
-        {
-            return text;
-        }
-
-        public string VertexInput(string text)
-        {
-            return text;
+            Shader.Init();
         }
     }
 
-    [System.AttributeUsage(System.AttributeTargets.Field)]
-    public class IN : System.Attribute { }
-
-    [System.AttributeUsage(System.AttributeTargets.Field)]
-    public class OUT : System.Attribute { }
-
-    [System.AttributeUsage(System.AttributeTargets.Struct | System.AttributeTargets.Field)]
-    public class layout : System.Attribute
+    class EvaluationShader : Shader
     {
+        public static new void Init()
+        {
+            Shader.Init();
+        }
+    }
+
+    class TesselationShader : Shader
+    {
+        public static new void Init()
+        {
+            Shader.Init();
+        }
+    }
+
+    class GeometryShader : Shader
+    {
+        public static new void Init()
+        {
+            Shader.Init();
+        }
+    }
+
+    class FragmentShader : Shader
+    {
+        public static new void Init()
+        {
+            Shader.Init();
+        }
+    }
+
+    class ComputeShader : Shader
+    {
+        public static new void Init()
+        {
+            Shader.Init();
+        }
+    }
+
+    #endregion
+
+    #region Attributes
+
+    [AttributeUsage(AttributeTargets.All)]
+    public class IN : Attribute { }
+
+    [AttributeUsage(AttributeTargets.All)]
+    public class OUT : Attribute { }
+
+    [AttributeUsage(AttributeTargets.All)]
+    public class layout : Attribute
+    {
+        public layout(int std = 0) { standard = std; }
         public int binding;
         public int location;
+        public int standard;
     }
 
-    [System.AttributeUsage(System.AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.All)]
     public class uniform : System.Attribute
     {
         public int binding;
     }
 
-    class fs_render : VertexShader
-    {
-        [layout(binding = 0)] struct SpotLight {
-            public mat4 viewProj;
-            public vec4 camera;
-            public vec4 light;
-        } [uniform] static SpotLight light;
-
-        [layout(binding = 2)] struct PoissonDisc {
-            public vec2[] points;
-            public int numPoints;
-        } [uniform] static PoissonDisc disc;
-
-        [layout(binding = 0)] sampler2D shadowmap;
-    
-        [layout(location = 0) IN] vec4 in_lpos;
-        [layout(location = 1) IN] vec4 in_col;
-        [OUT] vec4 color;
-
-        double PI => 3.14159265358979;
-        double lightR => light.light.y;
-        double zNear => light.camera.z;
-        double zFar => light.camera.w;
-        vec2 fovVec => light.light.zw;
-
-        double rand(vec2 xy) {
-            return fract(sin(dot(xy, vec2(12.9898,78.233))) * 43758.5453);
-        }
-
-        mat2 randRot(double angle) {
-            double sa = sin(angle);
-            double ca = cos(angle);
-            return mat2(ca, -sa, sa, ca);
-        }
-    
-        vec2 depthNormalBias(vec3 lpos) {
-            vec3 normal = cross(dFdx(lpos), dFdy(lpos));
-            return vec2(1,-1) * normal.xy / normal.z;
-        }
-
-        double light2plane(double value, double zReceiver) {
-            return value * (zReceiver - zNear) / zReceiver;
-        }
-
-        vec2 plane2tex(double value) {
-            return vec2(value) / fovVec;
-        }
-
-        double light2penumbra(double value, double zBlocker, double zReceiver) {
-            return value * (zReceiver - zBlocker) / zBlocker;
-        }
-
-        double penumbra2plane(double value, double zReceiver) {
-            return value * zNear / zReceiver;
-        }
-
-        double bias(vec2 zChange, vec2 offset) {
-            return dot(zChange, offset) - 0.001;
-        }
-
-        double exp2linDepth(double z) {
-            return zFar * zNear / (zFar - z * (zFar - zNear));  
-        }
-
-        double BlockerSearch(vec2 filterR, vec3 lpos, vec2 surfBias) {
-            int nBlocker = 0;
-            double zBlocker = 0.0;
-            mat2 R = randRot(2 * PI * rand(lpos.xy));
-
-            for (int i = 0; i < disc.numPoints; i++) {
-                vec2 p = R * disc.points[i] * filterR;
-                double z = texture(shadowmap, lpos.xy + p).x;
-                //z = exp2linDepth(z);
-                if (lpos.z + bias(surfBias, p) > z) {
-                    zBlocker += z;
-                    nBlocker++;
-                }
-            }
-            //return zBlocker / float(nBlocker);
-            return exp2linDepth(zBlocker / (double)(nBlocker));
-        }
-
-        double PCF(vec2 filterR, vec3 lpos, vec2 surfBias) {
-            // PCF SHADOW MAPPING
-            double shadow = 0.0f;
-            mat2 R = randRot(2 * PI * rand(lpos.xy));
-
-            for (int i = 0; i < disc.numPoints; i++) {
-                vec2 p = R * disc.points[i] * filterR;
-                double z = texture(shadowmap, lpos.xy + p).x;
-                //z = exp2linDepth(z);
-                shadow += lpos.z + bias(surfBias, p) > z ? 1.0 : 0.0;
-            }
-
-            return shadow / (double)(disc.numPoints);
-        }
-
-        double PCSS(vec2 surfBias, vec3 lpos) {
-            double receiverZ = exp2linDepth(lpos.z);
-
-            // BLOCKER SEARCH
-            double planeR = light2plane(lightR, receiverZ);
-            vec2 filterR = plane2tex(planeR);
-            double zBlocker = BlockerSearch(filterR, lpos, surfBias);
-            if (isnan(zBlocker))
-                return 0;//zBlocker = lpos.z;
-
-            // PCF SHADOW MAPPING
-            double penumbraR = light2penumbra(lightR, zBlocker, receiverZ);
-            planeR = penumbra2plane(penumbraR, receiverZ);
-            filterR = plane2tex(planeR);
-            return PCF(filterR, lpos, surfBias);
-        }
-    
-        void main () {
-            // pass color
-            color = in_col;
-        
-            // if pixel outside light frustum clip space, do nothing
-            if (any(greaterThan(abs(in_lpos), in_lpos.wwww)))
-                return;
-            
-            // SHADOW MAPPING
-        
-            // transform to normalized device coordinates [-1;+1]
-            // and then to shadow map texture coordinates [0;1]
-            vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
-        
-            vec3 normal = cross(dFdx(lpos),dFdy(lpos));
-            if (normal.z < 0)
-                return;
-            
-            vec2 surfBias = -normal.xy / normal.z;
-
-            double shadow = PCSS(surfBias, lpos);
-            
-            if (shadow == 0.0)
-                return;
-        
-            color.xyz *= (1.0 - shadow) * 0.5 + 0.5;
-        }
-    }
+    #endregion
 }
