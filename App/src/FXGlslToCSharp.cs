@@ -17,6 +17,10 @@ namespace App
 
         private string Version(string text) => Regex.Replace(text, "#version [0-9]{3}", "");
 
+        private string Floats(string text) => Regex.Replace(text, @"\bfloat\b", "double");
+
+        private string Layouts(string text) => Regex.Replace(text, @"layout\s*\(.*\)", "");
+
         private string Constants(string text)
         {
             Match  match;
@@ -33,8 +37,6 @@ namespace App
             return Regex.Replace(text, @"\bconst\b", "");
         }
 
-        private string Floats(string text) => Regex.Replace(text, @"\bfloat\b", "double");
-
         private string Uniforms(string text) => Regex.Replace(text, "\buniform\b", "");
 
         private string UniformBuffers(string text)
@@ -43,12 +45,12 @@ namespace App
 
             while (true)
             {
-                match = Regex.Match(text, @"layout\s*\(.*\)\s*uniform[\s\w\d]+\{[\s\w\d\[\];]*\}[\s\w\d]*;");
+                match = Regex.Match(text, @"uniform[\s\w\d]+\{[\s\w\d\[\];]*\}[\s\w\d]*;");
                 if (match == null)
                     break;
                 var sub = text.Substring(match.Index, match.Length);
 
-                sub = Regex.Replace(sub, @"layout\s*\(.*\)\s*uniform", "struct");
+                sub = sub.Replace("uniform", "struct");
 
                 text = text.Remove(match.Index, match.Length).Insert(match.Index, sub);
             }
