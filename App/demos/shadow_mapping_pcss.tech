@@ -108,7 +108,6 @@ shader vs_render vert {
 
 shader fs_render frag {
 	#version 440
-	#define PI 3.1415926535897932384626433832795
 	
 	layout(binding = 0) uniform SpotLight {
 		mat4 viewProj;
@@ -127,6 +126,7 @@ shader fs_render frag {
 	layout(location = 1) in vec4 in_col;
 	out vec4 color;
 
+	const float PI = 3.14159265358979;
 	const float lightR = light.light.y;
 	const float zNear = light.camera.z;
 	const float zFar = light.camera.w;
