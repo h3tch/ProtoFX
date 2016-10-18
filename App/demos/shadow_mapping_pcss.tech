@@ -70,7 +70,7 @@ shader vs_shadowmap vert {
 	void main ()
 	{
 		// transform vertex to light projection space
-		<<gl_Position>> = <<light.viewProj>> * <<in_pos>>;
+		gl_Position = light.viewProj * in_pos;
 	}
 }
 
@@ -98,9 +98,9 @@ shader vs_render vert {
 	void main ()
 	{
 		// transform vertex to camera projection space
-		<<gl_Position>> = camera.viewProj * in_pos;
+		gl_Position = camera.viewProj * in_pos;
 		// transform vertex to light projection space
-		<<out_lpos>> = light.viewProj * in_pos;
+		out_lpos = light.viewProj * in_pos;
 		// pass vertex color
 		out_col = in_col;
 	}
@@ -223,7 +223,7 @@ shader fs_render frag {
 	
 	void main () {
 		// pass color
-		<<color>> = in_col;
+		color = in_col;
 		
 		// if pixel outside light frustum clip space, do nothing
 		if (any(greaterThan(abs(in_lpos), in_lpos.wwww)))
@@ -241,7 +241,7 @@ shader fs_render frag {
 			
 		vec2 surfBias = -normal.xy / normal.z;
 		
-		float <<shadow>> = PCSS(surfBias, lpos);
+		float shadow = PCSS(surfBias, lpos);
 			
 		if (shadow == 0.0)
 			return;

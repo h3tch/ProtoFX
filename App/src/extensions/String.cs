@@ -46,6 +46,46 @@ namespace System
         }
 
         /// <summary>
+        /// Get the start position of the word before or after the current position.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="startIndex">Start searching from this position.</param>
+        /// <param name="ignoreWordCount">The number of words to ignore before
+        /// returning the word position. If positive, the next words will be
+        /// processed. If negative, the preceding words will be processed. If
+        /// zero, the start position of the current word will be returned.</param>
+        /// <returns>Returns the start position of the indicated word.</returns>
+        public static int IndexOfWord(this string s, int startIndex, int ignoreWordCount = 1)
+        {
+            var step = ignoreWordCount <= 0 ? -1 : 1;
+
+            for (var count = Math.Abs(ignoreWordCount); count != 0; count--)
+            {
+                while (startIndex > 0 && startIndex < s.Length - 1 && !char.IsWhiteSpace(s[startIndex + step]))
+                    startIndex += step;
+                while (startIndex > 0 && startIndex < s.Length - 1 && char.IsWhiteSpace(s[startIndex + step]))
+                    startIndex += step;
+            }
+
+            while (startIndex > 0 && startIndex < s.Length - 1 && !char.IsWhiteSpace(s[startIndex + step]))
+                startIndex += step;
+
+            return startIndex;
+        }
+
+        public static string Word(this string s, int position)
+        {
+            int start = position, end = position;
+
+            while (start > 0 && !char.IsWhiteSpace(s[start - 1]))
+                start--;
+            while (end < s.Length && !char.IsWhiteSpace(s[end]))
+                end++;
+
+            return s.Subrange(Math.Max(0, start), Math.Min(s.Length, end));
+        }
+
+        /// <summary>
         /// The sub range of the string beginning at the zero based start index
         /// and ending at the zero based end index.
         /// </summary>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace App
+namespace App.Glsl
 {
     #region Typedef
 
@@ -83,13 +83,13 @@ namespace App
         #endregion
     }
 
-    class vec2 : tvec2<double>
+    class vec2 : tvec2<float>
     {
         #region vec2
 
         public vec2() : base() { }
-        public vec2(double a) : base(a, a) { }
-        public vec2(double x, double y) : base(x, y) { }
+        public vec2(float a) : base(a, a) { }
+        public vec2(float x, float y) : base(x, y) { }
 
         #endregion
 
@@ -98,24 +98,24 @@ namespace App
         public static vec2 operator +(vec2 a) => new vec2(a.x, a.y);
         public static vec2 operator -(vec2 a) => new vec2(-a.x, -a.y);
         public static vec2 operator +(vec2 a, vec2 b) => new vec2(a.x + b.x, a.y + b.y);
-        public static vec2 operator +(vec2 a, double b) => new vec2(a.x + b, a.y + b);
-        public static vec2 operator +(double a, vec2 b) => new vec2(a + b.x, a + b.y);
+        public static vec2 operator +(vec2 a, float b) => new vec2(a.x + b, a.y + b);
+        public static vec2 operator +(float a, vec2 b) => new vec2(a + b.x, a + b.y);
         public static vec2 operator -(vec2 a, vec2 b) => new vec2(a.x - b.x, a.y - b.y);
-        public static vec2 operator -(vec2 a, double b) => new vec2(a.x - b, a.y - b);
-        public static vec2 operator -(double a, vec2 b) => new vec2(a - b.x, a - b.y);
+        public static vec2 operator -(vec2 a, float b) => new vec2(a.x - b, a.y - b);
+        public static vec2 operator -(float a, vec2 b) => new vec2(a - b.x, a - b.y);
         public static vec2 operator *(vec2 a, vec2 b) => new vec2(a.x * b.x, a.y * b.y);
-        public static vec2 operator *(vec2 a, double b) => new vec2(a.x * b, a.y * b);
-        public static vec2 operator *(double a, vec2 b) => new vec2(a * b.x, a * b.y);
+        public static vec2 operator *(vec2 a, float b) => new vec2(a.x * b, a.y * b);
+        public static vec2 operator *(float a, vec2 b) => new vec2(a * b.x, a * b.y);
         public static vec2 operator /(vec2 a, vec2 b) => new vec2(a.x / b.x, a.y / b.y);
-        public static vec2 operator /(vec2 a, double b) => new vec2(a.x / b, a.y / b);
-        public static vec2 operator /(double a, vec2 b) => new vec2(a / b.x, a / b.y);
+        public static vec2 operator /(vec2 a, float b) => new vec2(a.x / b, a.y / b);
+        public static vec2 operator /(float a, vec2 b) => new vec2(a / b.x, a / b.y);
 
         #endregion
 
         #region Generated
 
-        public double x { get { return v[0]; } set { v[0] = value; } }
-        public double y { get { return v[1]; } set { v[1] = value; } }
+        public float x { get { return v[0]; } set { v[0] = value; } }
+        public float y { get { return v[1]; } set { v[1] = value; } }
         public vec2 xx { get { return new vec2(v[0], v[0]); } set { v[0] = value.v[0]; v[0] = value.v[1]; } }
         public vec2 xy { get { return new vec2(v[0], v[1]); } set { v[0] = value.v[0]; v[1] = value.v[1]; } }
         public vec2 yx { get { return new vec2(v[1], v[0]); } set { v[1] = value.v[0]; v[0] = value.v[1]; } }
@@ -351,13 +351,13 @@ namespace App
         #endregion
     }
 
-    class vec3 : tvec3<double>
+    class vec3 : tvec3<float>
     {
         #region vec3
 
         public vec3() : base() { }
-        public vec3(double a) : base(a, a, a) { }
-        public vec3(double x, double y, double z) : base(x, y, z) { }
+        public vec3(float a) : base(a, a, a) { }
+        public vec3(float x, float y, float z) : base(x, y, z) { }
 
         #endregion
 
@@ -366,25 +366,25 @@ namespace App
         public static vec3 operator +(vec3 a) => new vec3(a.x, a.y, a.z);
         public static vec3 operator -(vec3 a) => new vec3(-a.x, -a.y, -a.z);
         public static vec3 operator +(vec3 a, vec3 b) => new vec3(a.x + b.x, a.y + b.y, a.z + b.z);
-        public static vec3 operator +(vec3 a, double b) => new vec3(a.x + b, a.y + b, a.z + b);
-        public static vec3 operator +(double a, vec3 b) => new vec3(a + b.x, a + b.y, a + b.z);
+        public static vec3 operator +(vec3 a, float b) => new vec3(a.x + b, a.y + b, a.z + b);
+        public static vec3 operator +(float a, vec3 b) => new vec3(a + b.x, a + b.y, a + b.z);
         public static vec3 operator -(vec3 a, vec3 b) => new vec3(a.x - b.x, a.y - b.y, a.z - b.z);
-        public static vec3 operator -(vec3 a, double b) => new vec3(a.x - b, a.y - b, a.z - b);
-        public static vec3 operator -(double a, vec3 b) => new vec3(a - b.x, a - b.y, a - b.z);
+        public static vec3 operator -(vec3 a, float b) => new vec3(a.x - b, a.y - b, a.z - b);
+        public static vec3 operator -(float a, vec3 b) => new vec3(a - b.x, a - b.y, a - b.z);
         public static vec3 operator *(vec3 a, vec3 b) => new vec3(a.x * b.x, a.y * b.y, a.z * b.z);
-        public static vec3 operator *(vec3 a, double b) => new vec3(a.x * b, a.y * b, a.z * b);
-        public static vec3 operator *(double a, vec3 b) => new vec3(a * b.x, a * b.y, a * b.z);
+        public static vec3 operator *(vec3 a, float b) => new vec3(a.x * b, a.y * b, a.z * b);
+        public static vec3 operator *(float a, vec3 b) => new vec3(a * b.x, a * b.y, a * b.z);
         public static vec3 operator /(vec3 a, vec3 b) => new vec3(a.x / b.x, a.y / b.y, a.z / b.z);
-        public static vec3 operator /(double a, vec3 b) => new vec3(a / b.x, a / b.y, a / b.z);
-        public static vec3 operator /(vec3 a, double b) => new vec3(a.x / b, a.y / b, a.z / b);
+        public static vec3 operator /(float a, vec3 b) => new vec3(a / b.x, a / b.y, a / b.z);
+        public static vec3 operator /(vec3 a, float b) => new vec3(a.x / b, a.y / b, a.z / b);
 
         #endregion
 
         #region Generated
 
-        public double x { get { return v[0]; } set { v[0] = value; } }
-        public double y { get { return v[1]; } set { v[1] = value; } }
-        public double z { get { return v[2]; } set { v[2] = value; } }
+        public float x { get { return v[0]; } set { v[0] = value; } }
+        public float y { get { return v[1]; } set { v[1] = value; } }
+        public float z { get { return v[2]; } set { v[2] = value; } }
         public vec2 xx { get { return new vec2(v[0], v[0]); } set { v[0] = value.v[0]; v[0] = value.v[1]; } }
         public vec2 xy { get { return new vec2(v[0], v[1]); } set { v[0] = value.v[0]; v[1] = value.v[1]; } }
         public vec2 xz { get { return new vec2(v[0], v[2]); } set { v[0] = value.v[0]; v[2] = value.v[1]; } }
@@ -1050,13 +1050,13 @@ namespace App
         #endregion
     }
 
-    class vec4 : tvec4<double>
+    class vec4 : tvec4<float>
     {
         #region vec4
 
         public vec4() { }
-        public vec4(double a) : this(a, a, a, a) { }
-        public vec4(double X, double Y, double Z, double W) : this() { x = X; y = Y; z = Z; w = W; }
+        public vec4(float a) : base(a, a, a, a) { }
+        public vec4(float X, float Y, float Z, float W) : base(X, Y, Z, W) { }
 
         #endregion
 
@@ -1065,26 +1065,26 @@ namespace App
         public static vec4 operator +(vec4 a) => new vec4(a.x, a.y, a.z, a.w);
         public static vec4 operator -(vec4 a) => new vec4(-a.x, -a.y, -a.z, -a.w);
         public static vec4 operator +(vec4 a, vec4 b) => new vec4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
-        public static vec4 operator +(vec4 a, double b) => new vec4(a.x + b, a.y + b, a.z + b, a.w + b);
-        public static vec4 operator +(double a, vec4 b) => new vec4(a + b.x, a + b.y, a + b.z, a + b.w);
+        public static vec4 operator +(vec4 a, float b) => new vec4(a.x + b, a.y + b, a.z + b, a.w + b);
+        public static vec4 operator +(float a, vec4 b) => new vec4(a + b.x, a + b.y, a + b.z, a + b.w);
         public static vec4 operator -(vec4 a, vec4 b) => new vec4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
-        public static vec4 operator -(vec4 a, double b) => new vec4(a.x - b, a.y - b, a.z - b, a.w - b);
-        public static vec4 operator -(double a, vec4 b) => new vec4(a - b.x, a - b.y, a - b.z, a - b.w);
+        public static vec4 operator -(vec4 a, float b) => new vec4(a.x - b, a.y - b, a.z - b, a.w - b);
+        public static vec4 operator -(float a, vec4 b) => new vec4(a - b.x, a - b.y, a - b.z, a - b.w);
         public static vec4 operator *(vec4 a, vec4 b) => new vec4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
-        public static vec4 operator *(vec4 a, double b) => new vec4(a.x * b, a.y * b, a.z * b, a.w * b);
-        public static vec4 operator *(double a, vec4 b) => new vec4(a * b.x, a * b.y, a * b.z, a * b.w);
+        public static vec4 operator *(vec4 a, float b) => new vec4(a.x * b, a.y * b, a.z * b, a.w * b);
+        public static vec4 operator *(float a, vec4 b) => new vec4(a * b.x, a * b.y, a * b.z, a * b.w);
         public static vec4 operator /(vec4 a, vec4 b) => new vec4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w);
-        public static vec4 operator /(vec4 a, double b) => new vec4(a.x / b, a.y / b, a.z / b, a.w / b);
-        public static vec4 operator /(double a, vec4 b) => new vec4(a / b.x, a / b.y, a / b.z, a / b.w);
+        public static vec4 operator /(vec4 a, float b) => new vec4(a.x / b, a.y / b, a.z / b, a.w / b);
+        public static vec4 operator /(float a, vec4 b) => new vec4(a / b.x, a / b.y, a / b.z, a / b.w);
 
         #endregion
 
         #region Generated
 
-        public double x { get { return v[0]; } set { v[0] = value; } }
-        public double y { get { return v[1]; } set { v[1] = value; } }
-        public double z { get { return v[2]; } set { v[2] = value; } }
-        public double w { get { return v[3]; } set { v[3] = value; } }
+        public float x { get { return v[0]; } set { v[0] = value; } }
+        public float y { get { return v[1]; } set { v[1] = value; } }
+        public float z { get { return v[2]; } set { v[2] = value; } }
+        public float w { get { return v[3]; } set { v[3] = value; } }
         public vec2 xx { get { return new vec2(v[0], v[0]); } set { v[0] = value.v[0]; v[0] = value.v[1]; } }
         public vec2 xy { get { return new vec2(v[0], v[1]); } set { v[0] = value.v[0]; v[1] = value.v[1]; } }
         public vec2 xz { get { return new vec2(v[0], v[2]); } set { v[0] = value.v[0]; v[2] = value.v[1]; } }
@@ -1427,7 +1427,7 @@ namespace App
 
     class dvec4 : tvec4<double>
     {
-        #region vec4
+        #region dvec4
 
         public dvec4() { }
         public dvec4(double a) : base(a, a, a, a) { }
@@ -1783,7 +1783,7 @@ namespace App
 
     class bvec4 : tvec4<bool>
     {
-        #region vec4
+        #region bvec4
 
         public bvec4() { }
         public bvec4(bool a) : base(a, a, a, a) { }
@@ -2139,7 +2139,7 @@ namespace App
 
     class ivec4 : tvec4<int>
     {
-        #region vec4
+        #region ivec4
 
         public ivec4() { }
         public ivec4(int a) : base(a, a, a, a) { }
@@ -2495,7 +2495,7 @@ namespace App
 
     class uvec4 : tvec4<uint>
     {
-        #region vec4
+        #region uvec4
 
         public uvec4() { }
         public uvec4(uint a) : base(a, a, a, a) { }
@@ -2857,11 +2857,11 @@ namespace App
         public vec2 this[int i] { get { return C[i]; } set { C[i] = value; } }
 
         public mat2() { C = new vec2[] { new vec2(), new vec2() }; }
-        public mat2(double a) : this(a, a, a, a) { }
+        public mat2(float a) : this(a, a, a, a) { }
         public mat2(vec2 a, vec2 b) { C = new vec2[] { a, b }; }
         public mat2(
-            double _00, double _10,
-            double _01, double _11) : this(
+            float _00, float _10,
+            float _01, float _11) : this(
                 new vec2(_00, _10),
                 new vec2(_01, _11))
         { }
@@ -2904,12 +2904,12 @@ namespace App
         public vec3 this[int i] { get { return C[i]; } set { C[i] = value; } }
 
         public mat3() { C = new vec3[] { new vec3(), new vec3(), new vec3() }; }
-        public mat3(double a) : this(new vec3(a), new vec3(a), new vec3(a)) { }
+        public mat3(float a) : this(new vec3(a), new vec3(a), new vec3(a)) { }
         public mat3(vec3 a, vec3 b, vec3 c) { C = new vec3[] { a, b, c }; }
         public mat3(
-            double _00, double _10, double _20,
-            double _01, double _11, double _21,
-            double _02, double _12, double _22) : this(
+            float _00, float _10, float _20,
+            float _01, float _11, float _21,
+            float _02, float _12, float _22) : this(
                 new vec3(_00, _10, _20),
                 new vec3(_01, _11, _21),
                 new vec3(_02, _12, _22))
@@ -2944,13 +2944,13 @@ namespace App
         public vec4 this[int i] { get { return C[i]; } set { C[i] = value; } }
 
         public mat4() { C = new vec4[] { new vec4(), new vec4(), new vec4(), new vec4() }; }
-        public mat4(double a) : this(new vec4(a), new vec4(a), new vec4(a), new vec4(a)) { }
+        public mat4(float a) : this(new vec4(a), new vec4(a), new vec4(a), new vec4(a)) { }
         public mat4(vec4 a, vec4 b, vec4 c, vec4 d) { C = new vec4[] { a, b, c, d }; }
         public mat4(
-            double _00, double _10, double _20, double _30,
-            double _01, double _11, double _21, double _31,
-            double _02, double _12, double _22, double _32,
-            double _03, double _13, double _23, double _33) : this(
+            float _00, float _10, float _20, float _30,
+            float _01, float _11, float _21, float _31,
+            float _02, float _12, float _22, float _32,
+            float _03, float _13, float _23, float _33) : this(
                 new vec4(_00, _10, _20, _30),
                 new vec4(_01, _11, _21, _31),
                 new vec4(_02, _12, _22, _32),
@@ -2982,11 +2982,27 @@ namespace App
                 a[0][3] * b[3][0] + a[1][3] * b[3][1] + a[2][3] * b[3][2] + a[3][3] * b[3][3]);
         }
 
+        public static vec4 operator *(mat4 a, vec4 b)
+        {
+            return new vec4(
+                a[0][0] * b[0] + a[1][0] * b[1] + a[2][0] * b[2] + a[3][0] * b[3],
+                a[0][1] * b[0] + a[1][1] * b[1] + a[2][1] * b[2] + a[3][1] * b[3],
+                a[0][2] * b[0] + a[1][2] * b[1] + a[2][2] * b[2] + a[3][2] * b[3],
+                a[0][3] * b[0] + a[1][3] * b[1] + a[2][3] * b[2] + a[3][3] * b[3]);
+        }
+
+        public static vec4 operator *(vec4 a, mat4 b)
+        {
+            return new vec4(
+                a[0] * b[0][0] + a[1] * b[0][1] + a[2] * b[0][2] + a[3] * b[0][3],
+                a[0] * b[1][0] + a[1] * b[1][1] + a[2] * b[1][2] + a[3] * b[1][3],
+                a[0] * b[2][0] + a[1] * b[2][1] + a[2] * b[2][2] + a[3] * b[2][3],
+                a[0] * b[3][0] + a[1] * b[3][1] + a[2] * b[3][2] + a[3] * b[3][3]);
+        }
+
         #endregion
     }
-
-    struct stdXXX { }
-
+    
     #endregion
 
     #region Math
@@ -2995,36 +3011,44 @@ namespace App
     {
         #region 
 
+        public static float abs(float a) => System.Math.Abs(a);
         public static double abs(double a) => System.Math.Abs(a);
         public static vec2 abs(vec2 a) => new vec2(System.Math.Abs(a.x), System.Math.Abs(a.y));
         public static vec3 abs(vec3 a) => new vec3(System.Math.Abs(a.x), System.Math.Abs(a.y), System.Math.Abs(a.z));
         public static vec4 abs(vec4 a) => new vec4(System.Math.Abs(a.x), System.Math.Abs(a.y), System.Math.Abs(a.z), System.Math.Abs(a.w));
+        public static float fract(float a) => a - (long)a;
         public static double fract(double a) => a - (long)a;
         public static vec2 fract(vec2 a) => new vec2(a.x - (long)a.x, a.y - (long)a.y);
         public static vec3 fract(vec3 a) => new vec3(a.x - (long)a.x, a.y - (long)a.y, a.z - (long)a.z);
         public static vec4 fract(vec4 a) => new vec4(a.x - (long)a.x, a.y - (long)a.y, a.z - (long)a.z, a.w - (long)a.w);
+        public static float sin(float a) => (float)System.Math.Sin(a);
         public static double sin(double a) => System.Math.Sin(a);
-        public static vec2 sin(vec2 a) => new vec2(System.Math.Sin(a.x), System.Math.Sin(a.y));
-        public static vec3 sin(vec3 a) => new vec3(System.Math.Sin(a.x), System.Math.Sin(a.y), System.Math.Sin(a.z));
-        public static vec4 sin(vec4 a) => new vec4(System.Math.Sin(a.x), System.Math.Sin(a.y), System.Math.Sin(a.z), System.Math.Sin(a.w));
+        public static vec2 sin(vec2 a) => new vec2((float)System.Math.Sin(a.x), (float)System.Math.Sin(a.y));
+        public static vec3 sin(vec3 a) => new vec3((float)System.Math.Sin(a.x), (float)System.Math.Sin(a.y), (float)System.Math.Sin(a.z));
+        public static vec4 sin(vec4 a) => new vec4((float)System.Math.Sin(a.x), (float)System.Math.Sin(a.y), (float)System.Math.Sin(a.z), (float)System.Math.Sin(a.w));
+        public static float cos(float a) => (float)System.Math.Cos(a);
         public static double cos(double a) => System.Math.Cos(a);
-        public static vec2 cos(vec2 a) => new vec2(System.Math.Cos(a.x), System.Math.Cos(a.y));
-        public static vec3 cos(vec3 a) => new vec3(System.Math.Cos(a.x), System.Math.Cos(a.y), System.Math.Cos(a.z));
-        public static vec4 cos(vec4 a) => new vec4(System.Math.Cos(a.x), System.Math.Cos(a.y), System.Math.Cos(a.z), System.Math.Cos(a.w));
+        public static vec2 cos(vec2 a) => new vec2((float)System.Math.Cos(a.x), (float)System.Math.Cos(a.y));
+        public static vec3 cos(vec3 a) => new vec3((float)System.Math.Cos(a.x), (float)System.Math.Cos(a.y), (float)System.Math.Cos(a.z));
+        public static vec4 cos(vec4 a) => new vec4((float)System.Math.Cos(a.x), (float)System.Math.Cos(a.y), (float)System.Math.Cos(a.z), (float)System.Math.Cos(a.w));
+        public static float tan(float a) => (float)System.Math.Tan(a);
         public static double tan(double a) => System.Math.Tan(a);
-        public static vec2 tan(vec2 a) => new vec2(System.Math.Tan(a.x), System.Math.Tan(a.y));
-        public static vec3 tan(vec3 a) => new vec3(System.Math.Tan(a.x), System.Math.Tan(a.y), System.Math.Tan(a.z));
-        public static vec4 tan(vec4 a) => new vec4(System.Math.Tan(a.x), System.Math.Tan(a.y), System.Math.Tan(a.z), System.Math.Tan(a.w));
-        public static double dot(vec2 a, vec2 b) => a.x * b.x + a.y * b.y;
-        public static double dot(vec3 a, vec3 b) => a.x * b.x + a.y * b.y + a.z * b.z;
-        public static double dot(vec4 a, vec4 b) => a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+        public static vec2 tan(vec2 a) => new vec2((float)System.Math.Tan(a.x), (float)System.Math.Tan(a.y));
+        public static vec3 tan(vec3 a) => new vec3((float)System.Math.Tan(a.x), (float)System.Math.Tan(a.y), (float)System.Math.Tan(a.z));
+        public static vec4 tan(vec4 a) => new vec4((float)System.Math.Tan(a.x), (float)System.Math.Tan(a.y), (float)System.Math.Tan(a.z), (float)System.Math.Tan(a.w));
+        public static float dot(vec2 a, vec2 b) => a.x * b.x + a.y * b.y;
+        public static float dot(vec3 a, vec3 b) => a.x * b.x + a.y * b.y + a.z * b.z;
+        public static float dot(vec4 a, vec4 b) => a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
         public static vec3 cross(vec3 a, vec3 b) => new vec3(a.y * b.z - a.z * b.y, a.x * b.z - a.z * b.x, a.x * b.y - a.y * b.x);
+        public static bool isnan(float a) => float.IsNaN(a);
         public static bool isnan(double a) => double.IsNaN(a);
         public static float dFdx(float a) { throw new NotImplementedException(); }
+        public static double dFdx(double a) { throw new NotImplementedException(); }
         public static vec2 dFdx(vec2 a) { throw new NotImplementedException(); }
         public static vec3 dFdx(vec3 a) { throw new NotImplementedException(); }
         public static vec4 dFdx(vec4 a) { throw new NotImplementedException(); }
         public static float dFdy(float a) { throw new NotImplementedException(); }
+        public static double dFdy(double a) { throw new NotImplementedException(); }
         public static vec2 dFdy(vec2 a) { throw new NotImplementedException(); }
         public static vec3 dFdy(vec3 a) { throw new NotImplementedException(); }
         public static vec4 dFdy(vec4 a) { throw new NotImplementedException(); }
@@ -3051,35 +3075,35 @@ namespace App
 
         #region Constructors
 
-        public static vec2 vec2(double a) => new vec2(a);
-        public static vec2 vec2(double x, double y) => new vec2(x, y);
-        public static vec3 vec3(double a) => new vec3(a);
-        public static vec3 vec3(double x, double y, double z) => new vec3(x, y, z);
-        public static vec4 vec4(double a) => new vec4(a);
-        public static vec4 vec4(double x, double y, double z, double w) => new vec4(x, y, z, w);
-        public static mat2 mat2(double a) => new mat2(a);
+        public static vec2 vec2(float a) => new vec2(a);
+        public static vec2 vec2(float x, float y) => new vec2(x, y);
+        public static vec3 vec3(float a) => new vec3(a);
+        public static vec3 vec3(float x, float y, float z) => new vec3(x, y, z);
+        public static vec4 vec4(float a) => new vec4(a);
+        public static vec4 vec4(float x, float y, float z, float w) => new vec4(x, y, z, w);
+        public static mat2 mat2(float a) => new mat2(a);
         public static mat2 mat2(vec2 a, vec2 b) => new mat2(a, b);
         public static mat2 mat2(
-            double _00, double _10,
-            double _01, double _11) => new mat2(
+            float _00, float _10,
+            float _01, float _11) => new mat2(
                 _00, _10,
                 _01, _11);
-        public static mat3 mat3(double a) => new mat3(a);
+        public static mat3 mat3(float a) => new mat3(a);
         public static mat3 mat3(vec3 a, vec3 b, vec3 c) => new mat3(a, b, c);
         public static mat3 mat3(
-            double _00, double _10, double _20,
-            double _01, double _11, double _21,
-            double _02, double _12, double _22) => new mat3(
+            float _00, float _10, float _20,
+            float _01, float _11, float _21,
+            float _02, float _12, float _22) => new mat3(
                 _00, _10, _20,
                 _01, _11, _21,
                 _02, _12, _22);
         public static mat4 mat4(float a) => new mat4(a);
         public static mat4 mat4(vec4 a, vec4 b, vec4 c, vec4 d) => new mat4(a, b, c, d);
         public static mat4 mat4(
-            double _00, double _10, double _20, double _30,
-            double _01, double _11, double _21, double _31,
-            double _02, double _12, double _22, double _32,
-            double _03, double _13, double _23, double _33) => new mat4(
+            float _00, float _10, float _20, float _30,
+            float _01, float _11, float _21, float _31,
+            float _02, float _12, float _22, float _32,
+            float _03, float _13, float _23, float _33) => new mat4(
                 _00, _10, _20, _30,
                 _01, _11, _21, _31,
                 _02, _12, _22, _32,
@@ -3135,7 +3159,7 @@ namespace App
         public static void Init() { }
     }
 
-    class VertexShader : Shader
+    class vert : Shader
     {
         public static int gl_VertexID;
         public static int gl_InstanceID;
@@ -3149,7 +3173,7 @@ namespace App
         }
     }
 
-    class EvaluationShader : Shader
+    class tess : Shader
     {
         public static new void Init()
         {
@@ -3157,7 +3181,7 @@ namespace App
         }
     }
 
-    class TesselationShader : Shader
+    class eval : Shader
     {
         public static new void Init()
         {
@@ -3165,7 +3189,7 @@ namespace App
         }
     }
 
-    class GeometryShader : Shader
+    class geom : Shader
     {
         public static new void Init()
         {
@@ -3173,7 +3197,7 @@ namespace App
         }
     }
 
-    class FragmentShader : Shader
+    class frag : Shader
     {
         public static new void Init()
         {
@@ -3181,37 +3205,12 @@ namespace App
         }
     }
 
-    class ComputeShader : Shader
+    class comp : Shader
     {
         public static new void Init()
         {
             Shader.Init();
         }
-    }
-
-    #endregion
-
-    #region Attributes
-
-    [AttributeUsage(AttributeTargets.All)]
-    public class IN : Attribute { }
-
-    [AttributeUsage(AttributeTargets.All)]
-    public class OUT : Attribute { }
-
-    [AttributeUsage(AttributeTargets.All)]
-    public class layout : Attribute
-    {
-        public layout(int std = 0) { standard = std; }
-        public int binding;
-        public int location;
-        public int standard;
-    }
-
-    [AttributeUsage(AttributeTargets.All)]
-    public class uniform : System.Attribute
-    {
-        public int binding;
     }
 
     #endregion

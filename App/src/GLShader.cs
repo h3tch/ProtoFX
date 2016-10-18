@@ -37,6 +37,16 @@ namespace App
             GL.ShaderSource(glname, text);
             GL.CompileShader(glname);
 
+            // CREATE CSHARP DEBUG CODE
+            if (debugging)
+            {
+                var body = FXGlslToCSharp.Process(block.Body);
+                var csharp = "using System;\n\n"
+                    + "namespace App.Glsl\n{\n"
+                    + $"class {block.Name} : {anno} {{\n{body}\n}}"
+                    + "\n}";
+            }
+
             // CHECK FOR ERRORS
             int status;
             GL.GetShader(glname, ShaderParameter.CompileStatus, out status);
