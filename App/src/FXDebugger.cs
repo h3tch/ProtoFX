@@ -3,6 +3,7 @@ using ScintillaNET;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -608,6 +609,49 @@ namespace App
             public int glname;
             public TextureAccess access;
             public SizedInternalFormat format;
+        }
+
+        #endregion
+
+        #region Debug Trace
+
+        public static List<TraceInfo> TraceLog = new List<TraceInfo>();
+
+        public static void TraceType(object o) => Trace(false, new[] { o });
+
+        public static void TraceFunction(object output, params object[] input)
+            => Trace(true, input, output);
+
+        private static void Trace(bool isFunc, object[] input, object output = null)
+        {
+            var trace = new StackTrace(true);
+            var traceMethod = $"Trace{(isFunc ? "Function" : "Type")}";
+
+            for (var i = 0; i < trace.FrameCount; i++)
+            {
+                if (traceMethod == trace.GetFrame(i).GetMethod()?.Name)
+                {
+                    TraceLog.Add(new TraceInfo
+                    {
+                        Line = trace.GetFrame(i + 2).GetFileLineNumber(),
+                        Column = trace.GetFrame(i + 2).GetFileColumnNumber(),
+                        Function = isFunc ? trace.GetFrame(i + 1).GetMethod().Name : null,
+                        output = output?.ToString(),
+                        input = isFunc ? "(" + (input?.Select(x => x.ToString()).Cat(", ") ?? "") + ")"
+                            : input[0].ToString(),
+                    });
+                    return;
+                }
+            }
+        }
+
+        public struct TraceInfo
+        {
+            public int Line;
+            public int Column;
+            public string Function;
+            public string output;
+            public string input;
         }
 
         #endregion
