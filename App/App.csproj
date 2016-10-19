@@ -152,7 +152,14 @@
     <Compile Include="src\FXPerf.cs" />
     <Compile Include="src\GLInstance.cs" />
     <Compile Include="src\GLReference.cs" />
-    <Compile Include="src\FXGlslToCSharp.cs" />
+    <Compile Include="src\glsl\Converter.cs" />
+    <Compile Include="src\glsl\mat2.cs" />
+    <Compile Include="src\glsl\mat3.cs" />
+    <Compile Include="src\glsl\mat4.cs" />
+    <Compile Include="src\glsl\math.cs" />
+    <Compile Include="src\glsl\vec2.cs" />
+    <Compile Include="src\glsl\vec3.cs" />
+    <Compile Include="src\glsl\vec4.cs" />
     <Compile Include="src\GLText.cs" />
     <Compile Include="src\App.cs">
       <SubType>Form</SubType>
@@ -191,6 +198,7 @@
     <Compile Include="src\controls\Theme.cs" />
     <Compile Include="src\extensions\Trie.cs" />
     <Compile Include="src\extensions\XmlSerializer.cs" />
+    <Compile Include="src\Test.cs" />
     <EmbeddedResource Include="src\App.resx">
       <DependentUpon>App.cs</DependentUpon>
     </EmbeddedResource>

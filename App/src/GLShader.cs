@@ -40,11 +40,12 @@ namespace App
             // CREATE CSHARP DEBUG CODE
             if (debugging)
             {
-                var body = FXGlslToCSharp.Process(block.Body);
+                var body = Glsl.Converter.Process(block.Body);
                 var csharp = "using System;\n\n"
                     + "namespace App.Glsl\n{\n"
-                    + $"class {block.Name} : {anno} {{\n{body}\n}}"
-                    + "\n}";
+                    + $"class {block.Name} : {anno} {{\n{body}\n"
+                    + $"public static void Main() {{ var o = new {block.Name}(); o.Init(); o.main(); }}\n"
+                    + "\n}\n}";
             }
 
             // CHECK FOR ERRORS

@@ -107,6 +107,7 @@ namespace App
         /// <param name="e"></param>
         private void App_Load(object s, EventArgs e)
         {
+            Glsl.Shader.TraceFunction(null, new[] { s, e });
             // select default item
             ConvertExtensions.str2type.Keys.ForEach(x => comboBufType.Items.Add(x));
             comboBufType.SelectedIndex = ConvertExtensions.str2type.Keys.IndexOf(x => x == "float");

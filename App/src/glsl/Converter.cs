@@ -2,13 +2,13 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace App
+namespace App.Glsl
 {
-    public class FXGlslToCSharp
+    public class Converter
     {
         public static string Process(string text)
         {
-            var methods = typeof(FXGlslToCSharp).GetMethods(BindingFlags.NonPublic | BindingFlags.Static);
+            var methods = typeof(Converter).GetMethods(BindingFlags.NonPublic | BindingFlags.Static);
 
             foreach (var method in methods)
                 text = (string)method.Invoke(null, new[] { text });
