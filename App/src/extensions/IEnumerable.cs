@@ -95,7 +95,7 @@ namespace System.Collections.Generic
             var build = new StringBuilder(list.Sum(x => x.Length + sepLen));
             foreach (var s in list)
                 build.Append(s + separator);
-            return build.ToString(0, Math.Max(0, build.Length - sepLen - 1));
+            return build.ToString(0, Math.Max(0, build.Length - sepLen));
         }
 
         /// <summary>

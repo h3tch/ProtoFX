@@ -1,16 +1,13 @@
-﻿namespace App.Glsl
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace App.Glsl
 {
-    class tvec4<T>
+    class tvec4<T> : tvecN<T>
     {
-        #region vec4
-
-        internal T[] v = new T[4];
-        public T this[int i] { get { return v[i]; } set { v[i] = value; } }
-        public tvec4() { }
-        public tvec4(T a) : this(a, a, a, a) { }
-        public tvec4(T x, T y, T z, T w) { v[0] = x; v[1] = y; v[2] = z; v[3] = w; }
-
-        #endregion
+        public tvec4() : base(default(T), default(T), default(T), default(T)) { }
+        public tvec4(T a) : base(a, a, a, a) { }
+        public tvec4(T x, T y, T z, T w) : base(x, y, z, w) { }
     }
 
     class vec4 : tvec4<float>
@@ -25,20 +22,20 @@
 
         #region Operators
 
-        public static vec4 operator +(vec4 a) => new vec4(a.x, a.y, a.z, a.w);
-        public static vec4 operator -(vec4 a) => new vec4(-a.x, -a.y, -a.z, -a.w);
-        public static vec4 operator +(vec4 a, vec4 b) => new vec4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
-        public static vec4 operator +(vec4 a, float b) => new vec4(a.x + b, a.y + b, a.z + b, a.w + b);
-        public static vec4 operator +(float a, vec4 b) => new vec4(a + b.x, a + b.y, a + b.z, a + b.w);
-        public static vec4 operator -(vec4 a, vec4 b) => new vec4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
-        public static vec4 operator -(vec4 a, float b) => new vec4(a.x - b, a.y - b, a.z - b, a.w - b);
-        public static vec4 operator -(float a, vec4 b) => new vec4(a - b.x, a - b.y, a - b.z, a - b.w);
-        public static vec4 operator *(vec4 a, vec4 b) => new vec4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
-        public static vec4 operator *(vec4 a, float b) => new vec4(a.x * b, a.y * b, a.z * b, a.w * b);
-        public static vec4 operator *(float a, vec4 b) => new vec4(a * b.x, a * b.y, a * b.z, a * b.w);
-        public static vec4 operator /(vec4 a, vec4 b) => new vec4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w);
-        public static vec4 operator /(vec4 a, float b) => new vec4(a.x / b, a.y / b, a.z / b, a.w / b);
-        public static vec4 operator /(float a, vec4 b) => new vec4(a / b.x, a / b.y, a / b.z, a / b.w);
+        public static vec4 operator +(vec4 a) => Shader.TraceVar(new vec4(a.x, a.y, a.z, a.w));
+        public static vec4 operator -(vec4 a) => Shader.TraceVar(new vec4(-a.x, -a.y, -a.z, -a.w));
+        public static vec4 operator +(vec4 a, vec4 b) => Shader.TraceFunc(new vec4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w), a, b);
+        public static vec4 operator +(vec4 a, float b) => Shader.TraceFunc(new vec4(a.x + b, a.y + b, a.z + b, a.w + b), a, b);
+        public static vec4 operator +(float a, vec4 b) => Shader.TraceFunc(new vec4(a + b.x, a + b.y, a + b.z, a + b.w), a, b);
+        public static vec4 operator -(vec4 a, vec4 b) => Shader.TraceFunc(new vec4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w), a, b);
+        public static vec4 operator -(vec4 a, float b) => Shader.TraceFunc(new vec4(a.x - b, a.y - b, a.z - b, a.w - b), a, b);
+        public static vec4 operator -(float a, vec4 b) => Shader.TraceFunc(new vec4(a - b.x, a - b.y, a - b.z, a - b.w), a, b);
+        public static vec4 operator *(vec4 a, vec4 b) => Shader.TraceFunc(new vec4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w), a, b);
+        public static vec4 operator *(vec4 a, float b) => Shader.TraceFunc(new vec4(a.x * b, a.y * b, a.z * b, a.w * b), a, b);
+        public static vec4 operator *(float a, vec4 b) => Shader.TraceFunc(new vec4(a * b.x, a * b.y, a * b.z, a * b.w), a, b);
+        public static vec4 operator /(vec4 a, vec4 b) => Shader.TraceFunc(new vec4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w), a, b);
+        public static vec4 operator /(vec4 a, float b) => Shader.TraceFunc(new vec4(a.x / b, a.y / b, a.z / b, a.w / b), a, b);
+        public static vec4 operator /(float a, vec4 b) => Shader.TraceFunc(new vec4(a / b.x, a / b.y, a / b.z, a / b.w), a, b);
 
         #endregion
 

@@ -1,16 +1,10 @@
 ﻿namespace App.Glsl
 {
-    class tvec3<T>
+    class tvec3<T> : tvecN<T>
     {
-        #region vec3
-
-        internal T[] v = new T[3];
-        public T this[int i] { get { return v[i]; } set { v[i] = value; } }
-        public tvec3() { }
-        public tvec3(T a) : this(a, a, a) { }
-        public tvec3(T x, T y, T z) : this() { v[0] = x; v[1] = y; v[2] = z; }
-
-        #endregion
+        public tvec3() : base(default(T), default(T), default(T)) { }
+        public tvec3(T a) : base(a, a, a) { }
+        public tvec3(T x, T y, T z) : base(x, y, z) { }
     }
 
     class vec3 : tvec3<float>

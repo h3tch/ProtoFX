@@ -1,16 +1,10 @@
 ﻿namespace App.Glsl
 {
-    class tvec2<T>
+    class tvec2<T> : tvecN<T>
     {
-        #region tvec2
-
-        internal T[] v = new T[2];
-        public T this[int i] { get { return v[i]; } set { v[i] = value; } }
-        public tvec2() { }
-        public tvec2(T a) : this(a, a) { }
-        public tvec2(T x, T y) : this() { v[0] = x; v[1] = y; }
-
-        #endregion
+        public tvec2() : base(default(T), default(T)) { }
+        public tvec2(T a) : base(a, a) { }
+        public tvec2(T x, T y) : base(x, y) { }
     }
 
     class vec2 : tvec2<float>
@@ -25,20 +19,20 @@
 
         #region Operators
 
-        public static vec2 operator +(vec2 a) => new vec2(a.x, a.y);
-        public static vec2 operator -(vec2 a) => new vec2(-a.x, -a.y);
-        public static vec2 operator +(vec2 a, vec2 b) => new vec2(a.x + b.x, a.y + b.y);
-        public static vec2 operator +(vec2 a, float b) => new vec2(a.x + b, a.y + b);
-        public static vec2 operator +(float a, vec2 b) => new vec2(a + b.x, a + b.y);
-        public static vec2 operator -(vec2 a, vec2 b) => new vec2(a.x - b.x, a.y - b.y);
-        public static vec2 operator -(vec2 a, float b) => new vec2(a.x - b, a.y - b);
-        public static vec2 operator -(float a, vec2 b) => new vec2(a - b.x, a - b.y);
-        public static vec2 operator *(vec2 a, vec2 b) => new vec2(a.x * b.x, a.y * b.y);
-        public static vec2 operator *(vec2 a, float b) => new vec2(a.x * b, a.y * b);
-        public static vec2 operator *(float a, vec2 b) => new vec2(a * b.x, a * b.y);
-        public static vec2 operator /(vec2 a, vec2 b) => new vec2(a.x / b.x, a.y / b.y);
-        public static vec2 operator /(vec2 a, float b) => new vec2(a.x / b, a.y / b);
-        public static vec2 operator /(float a, vec2 b) => new vec2(a / b.x, a / b.y);
+        public static vec2 operator +(vec2 a) => Shader.TraceVar(new vec2(a.x, a.y));
+        public static vec2 operator -(vec2 a) => Shader.TraceVar(new vec2(-a.x, -a.y));
+        public static vec2 operator +(vec2 a, vec2 b) => Shader.TraceFunc(new vec2(a.x + b.x, a.y + b.y), a, b);
+        public static vec2 operator +(vec2 a, float b) => Shader.TraceFunc(new vec2(a.x + b, a.y + b), a, b);
+        public static vec2 operator +(float a, vec2 b) => Shader.TraceFunc(new vec2(a + b.x, a + b.y), a, b);
+        public static vec2 operator -(vec2 a, vec2 b) => Shader.TraceFunc(new vec2(a.x - b.x, a.y - b.y), a, b);
+        public static vec2 operator -(vec2 a, float b) => Shader.TraceFunc(new vec2(a.x - b, a.y - b), a, b);
+        public static vec2 operator -(float a, vec2 b) => Shader.TraceFunc(new vec2(a - b.x, a - b.y), a, b);
+        public static vec2 operator *(vec2 a, vec2 b) => Shader.TraceFunc(new vec2(a.x * b.x, a.y * b.y), a, b);
+        public static vec2 operator *(vec2 a, float b) => Shader.TraceFunc(new vec2(a.x * b, a.y * b), a, b);
+        public static vec2 operator *(float a, vec2 b) => Shader.TraceFunc(new vec2(a * b.x, a * b.y), a, b);
+        public static vec2 operator /(vec2 a, vec2 b) => Shader.TraceFunc(new vec2(a.x / b.x, a.y / b.y), a, b);
+        public static vec2 operator /(vec2 a, float b) => Shader.TraceFunc(new vec2(a.x / b, a.y / b), a, b);
+        public static vec2 operator /(float a, vec2 b) => Shader.TraceFunc(new vec2(a / b.x, a / b.y), a, b);
 
         #endregion
 

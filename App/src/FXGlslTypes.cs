@@ -46,7 +46,7 @@ namespace App.Glsl
     
     #region Debug Super Classes
 
-    class Shader : Math
+    class Shader : MathFunctions
     {
         #region Texture Access
 
@@ -92,15 +92,14 @@ namespace App.Glsl
 
         public static List<TraceInfo> TraceLog = new List<TraceInfo>();
 
-        public static void TraceType(object o) => Trace(false, new[] { o });
+        internal static T TraceVar<T>(T value) => Trace(false, null, value);
 
-        public static void TraceFunction(object output, params object[] input)
-            => Trace(true, input, output);
+        internal static T TraceFunc<T>(T output, params object[] input) => Trace(true, input, output);
 
-        private static void Trace(bool isFunc, object[] input, object output = null)
+        private static T Trace<T>(bool isFunc, object[] input, T output)
         {
             var trace = new StackTrace(true);
-            var traceMethod = $"Trace{(isFunc ? "Function" : "Type")}";
+            var traceMethod = $"Trace{(isFunc ? "Func" : "Var")}";
             
             for (var i = 0; i < trace.FrameCount; i++)
             {
@@ -111,13 +110,13 @@ namespace App.Glsl
                         Line = trace.GetFrame(i + 2).GetFileLineNumber(),
                         Column = trace.GetFrame(i + 2).GetFileColumnNumber(),
                         Function = isFunc ? trace.GetFrame(i + 1).GetMethod().Name : null,
-                        output = output?.ToString(),
-                        input = isFunc ? "(" + (input?.Select(x => x.ToString()).Cat(", ") ?? "") + ")"
-                            : input[0].ToString(),
+                        Output = output?.ToString(),
+                        Input = input?.Select(x => x.ToString()).ToArray(),
                     });
-                    return;
+                    break;
                 }
             }
+            return output;
         }
 
         public struct TraceInfo
@@ -125,8 +124,31 @@ namespace App.Glsl
             public int Line;
             public int Column;
             public string Function;
-            public string output;
-            public string input;
+            public string Output;
+            public string[] Input;
+            public override string ToString()
+            {
+                string func;
+                switch (Function)
+                {
+                    case "op_Addition":
+                        func = " = " + Input[0] + " + " + Input[1];
+                        break;
+                    case "op_Substraction":
+                        func = " = " + Input[0] + " + " + Input[1];
+                        break;
+                    case "op_Multiply":
+                        func = " = " + Input[0] + " / " + Input[1];
+                        break;
+                    case "op_Division":
+                        func = " = " + Input[0] + " / " + Input[1];
+                        break;
+                    default:
+                        func = Function != null ? " = " + Function + "(" + Input.Cat(", ") + ")" : "";
+                        break;
+                }
+                return "L" + Line + "::C" + Column + "::" + Output + func;
+            }
         }
 
         #endregion

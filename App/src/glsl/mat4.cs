@@ -1,4 +1,7 @@
-﻿namespace App.Glsl
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace App.Glsl
 {
     class mat4
     {
@@ -6,6 +9,7 @@
 
         internal vec4[] C;
         public vec4 this[int i] { get { return C[i]; } set { C[i] = value; } }
+        public static mat4 Identity = new mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
         public mat4() { C = new vec4[] { new vec4(), new vec4(), new vec4(), new vec4() }; }
         public mat4(float a) : this(new vec4(a), new vec4(a), new vec4(a), new vec4(a)) { }
@@ -20,6 +24,7 @@
                 new vec4(_02, _12, _22, _32),
                 new vec4(_03, _13, _23, _33))
         { }
+        public override string ToString() => "[" + C.Select(x => x.ToString()).Cat(", ") + "]";
 
         #endregion
 

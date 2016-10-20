@@ -1,4 +1,7 @@
-﻿namespace App.Glsl
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace App.Glsl
 {
     class mat2
     {
@@ -16,6 +19,7 @@
                 new vec2(_00, _10),
                 new vec2(_01, _11))
         { }
+        public override string ToString() => "[" + C.Select(x => x.ToString()).Cat(", ") + "]";
 
         #endregion
 
@@ -23,25 +27,25 @@
 
         public static mat2 operator *(mat2 a, mat2 b)
         {
-            return new mat2(
+            return Shader.TraceFunc(new mat2(
                 a[0][0] * b[0][0] + a[1][0] * b[0][1],
                 a[0][0] * b[1][0] + a[1][0] * b[1][1],
                 a[0][1] * b[0][0] + a[1][1] * b[0][1],
-                a[0][1] * b[1][0] + a[1][1] * b[1][1]);
+                a[0][1] * b[1][0] + a[1][1] * b[1][1]), a, b);
         }
 
         public static vec2 operator *(mat2 a, vec2 b)
         {
-            return new vec2(
+            return Shader.TraceFunc(new vec2(
                 a[0][0] * b[0] + a[1][0] * b[1],
-                a[0][1] * b[0] + a[1][1] * b[1]);
+                a[0][1] * b[0] + a[1][1] * b[1]), a, b);
         }
 
         public static vec2 operator *(vec2 a, mat2 b)
         {
-            return new vec2(
+            return Shader.TraceFunc(new vec2(
                 a[0] * b[0][0] + a[1] * b[0][1],
-                a[0] * b[1][0] + a[1] * b[1][1]);
+                a[0] * b[1][0] + a[1] * b[1][1]), a, b);
         }
 
         #endregion

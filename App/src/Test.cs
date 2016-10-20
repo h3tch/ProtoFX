@@ -1,28 +1,30 @@
-﻿namespace App.Glsl
+﻿using System.Linq;
+
+namespace App.Glsl
 {
     class fs_render : frag {
     
         class SpotLight
         {
-            public mat4 viewProj;
-            public vec4 camera;
-            public vec4 light;
+            public mat4 viewProj = Glsl.mat4.Identity;
+            public vec4 camera = vec4(0, 0, 0, 1);
+            public vec4 light = vec4(0, 0, 0, 1);
         }
-        SpotLight light;
+        SpotLight light = new SpotLight();
 
 
         class PoissonDisc
         {
-            public vec2[] points = new vec2[25];
-            public int numPoints;
+            public vec2[] points = Enumerable.Repeat(new vec2(0), 25).ToArray();
+            public int numPoints = 25;
         }
-        PoissonDisc disc;
+        PoissonDisc disc = new PoissonDisc();
         
-        sampler2D shadowmap;
+        sampler2D shadowmap = 0;
         
-        vec4 in_lpos;
-        vec4 in_col;
-        vec4 color;
+        vec4 in_lpos = vec4(0, 0, 0, 1);
+        vec4 in_col = vec4(1);
+        vec4 color = vec4(1);
 
         float PI => 3.14159265358979f;
         float lightR => light.light.y;
@@ -134,7 +136,7 @@
             return PCF(filterR, lpos, surfBias);
         }
 
-        void main()
+        public void main()
         {
             // pass color
             color = in_col;

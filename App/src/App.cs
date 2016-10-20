@@ -1,4 +1,5 @@
-﻿using ScintillaNET;
+﻿using App.Glsl;
+using ScintillaNET;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -107,7 +108,11 @@ namespace App
         /// <param name="e"></param>
         private void App_Load(object s, EventArgs e)
         {
-            Glsl.Shader.TraceFunction(null, new[] { s, e });
+            //fs_render test = new fs_render();
+            //test.main();
+            //foreach (var info in Shader.TraceLog)
+            //    System.Diagnostics.Debug.Print(info.ToString());
+
             // select default item
             ConvertExtensions.str2type.Keys.ForEach(x => comboBufType.Items.Add(x));
             comboBufType.SelectedIndex = ConvertExtensions.str2type.Keys.IndexOf(x => x == "float");

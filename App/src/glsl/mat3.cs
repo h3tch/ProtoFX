@@ -1,4 +1,7 @@
-﻿namespace App.Glsl
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace App.Glsl
 {
     class mat3
     {
@@ -18,6 +21,7 @@
                 new vec3(_01, _11, _21),
                 new vec3(_02, _12, _22))
         { }
+        public override string ToString() => "[" + C.Select(x => x.ToString()).Cat(", ") + "]";
 
         #endregion
 

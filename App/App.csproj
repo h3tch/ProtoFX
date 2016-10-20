@@ -157,6 +157,7 @@
     <Compile Include="src\glsl\mat3.cs" />
     <Compile Include="src\glsl\mat4.cs" />
     <Compile Include="src\glsl\math.cs" />
+    <Compile Include="src\glsl\tvec.cs" />
     <Compile Include="src\glsl\vec2.cs" />
     <Compile Include="src\glsl\vec3.cs" />
     <Compile Include="src\glsl\vec4.cs" />
