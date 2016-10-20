@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-
-namespace App.Glsl
+﻿namespace App.Glsl
 {
     #region Typedef
 
@@ -155,7 +151,6 @@ namespace App.Glsl
 
         public static void Init()
         {
-            TraceLog.Clear();
         }
     }
 
