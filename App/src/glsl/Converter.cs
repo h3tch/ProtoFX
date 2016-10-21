@@ -1,57 +1,68 @@
 ﻿using System;
-using System.Reflection;
 using System.Text.RegularExpressions;
+using static System.Reflection.BindingFlags;
 
 namespace App.Glsl
 {
     public class Converter
     {
-        public static string Process(string text)
+        #region Regex
+
+        private static Regex buffer = new Regex(@"\buniform[\s\w\d]+\{[\s\w\d\[\];]*\}[\s\w\d]*;");
+        private static Regex variable = new Regex(@"\b[\w\d]+\s+[\w\d\[\]]+;");
+        private static Regex vararray = new Regex(@"\[.*\]");
+        private static Regex version = new Regex(@"#version [0-9]{3}");
+        private static Regex layout = new Regex(@"\blayout\s*\(.*\)");
+        private static Regex number = new Regex(@"\b[0-9]*\.[0-9]+\b");
+        private static Regex uniform = new Regex(@"\buniform\b");
+        private static Regex IN = new Regex(@"\bin\b");
+        private static Regex OUT = new Regex(@"\bout\b");
+        private static Regex main = new Regex(@"\bvoid\s+main\b");
+        private static Func<string, string, string> typecast = delegate(string text, string type)
         {
-            var methods = typeof(Converter).GetMethods(BindingFlags.NonPublic | BindingFlags.Static);
+            var match = Regex.Matches(text, @"\b" + type + @"\(.*\)");
+            for (int i = match.Count - 1; i >= 0; i--)
+                text = text.Insert(match[i].Index + type.Length, ")").Insert(match[i].Index, "(");
+            return text;
+        };
 
-            foreach (var method in methods)
+        #endregion
+
+        /// <summary>
+        /// Convert GLSL shader to C# code.
+        /// </summary>
+        /// <param name="text">GLSL shader.</param>
+        /// <returns>Return C# code.</returns>
+        public static string Shader2Csharp(string text)
+        {
+            foreach (var method in typeof(Converter).GetMethods(NonPublic | Static))
                 text = (string)method.Invoke(null, new[] { text });
-
             return text;
         }
 
-        private static string Version(string text) => Regex.Replace(text, "#version [0-9]{3}", "");
+        #region Methods to Process Shaders
+
+        private static string Version(string text) => version.Replace(text, string.Empty);
 
         private static string Floats(string text)
         {
-            var regex = @"\b[0-9]*\.[0-9]+\b";
-
-            for (Match match = Regex.Match(text, regex); match.Success; match = Regex.Match(text, regex))
-                text = text.Insert(match.Index + match.Length, "f");
-
+            var match = number.Matches(text);
+            for (int i = match.Count - 1; i >= 0; i--)
+                text = text.Insert(match[i].Index + match[i].Length, "f");
             return text;
         }
 
         private static string TypeCasts(string text)
         {
-            Action<string> replace = delegate(string t)
-            {
-                var regex = new Regex(@"\b" + t + @"\(.*\)");
-
-                for (var match = regex.Match(text); match.Success;)
-                {
-                    text = text.Insert(match.Index + t.Length, ")");
-                    text = text.Insert(match.Index, "(");
-                    match = regex.Match(text, match.Index + match.Length + 2);
-                }
-            };
-
-            replace("bool");
-            replace("int");
-            replace("uint");
-            replace("float");
-            replace("double");
-
+            text = typecast(text, "bool");
+            text = typecast(text, "int");
+            text = typecast(text, "uint");
+            text = typecast(text, "float");
+            text = typecast(text, "double");
             return text;
         }
 
-        private static string Layouts(string text) => Regex.Replace(text, @"\blayout\s*\(.*\)", "");
+        private static string Layouts(string text) => layout.Replace(text, string.Empty);
 
         private static string Constants(string text)
         {
@@ -63,14 +74,11 @@ namespace App.Glsl
                 text = text.Insert(index + 1, ">");
             }
 
-            return Regex.Replace(text, @"\bconst\b", "");
+            return Regex.Replace(text, @"\bconst\b", string.Empty);
         }
 
         private static string UniformBuffers(string text)
         {
-            var buffer = new Regex(@"\buniform[\s\w\d]+\{[\s\w\d\[\];]*\}[\s\w\d]*;");
-            var variable = new Regex(@"\b[\w\d]+\s+[\w\d\[\]]+;");
-            var vararray = new Regex(@"\[.*\]");
             const string uniform = "uniform";
             const string clazz = "class";
             const string Public = "public ";
@@ -113,10 +121,14 @@ namespace App.Glsl
             return text;
         }
 
-        private static string Uniforms(string text) => Regex.Replace(text, @"\buniform\b", "");
+        private static string Uniforms(string text) => uniform.Replace(text, string.Empty);
 
-        private static string Inputs(string text) => Regex.Replace(text, @"\bin\b", "");
+        private static string Inputs(string text) => IN.Replace(text, string.Empty);
 
-        private static string Outputs(string text) => Regex.Replace(text, @"\bout\b", "");
+        private static string Outputs(string text) => OUT.Replace(text, string.Empty);
+
+        private static string Main(string text) => main.Replace(text, "public void main");
+
+        #endregion
     }
 }

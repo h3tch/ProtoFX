@@ -10,6 +10,7 @@ using static System.Reflection.BindingFlags;
 using static OpenTK.Graphics.OpenGL4.GetProgramParameterName;
 using static OpenTK.Graphics.OpenGL4.TransformFeedbackMode;
 using System.Globalization;
+using App.Glsl;
 
 namespace App
 {
@@ -23,12 +24,18 @@ namespace App
         [FxField] private string Geom = null;
         [FxField] private string Frag = null;
         [FxField] private string Comp = null;
-        private GLObject glvert;
-        private GLObject gltess;
-        private GLObject gleval;
-        private GLObject glgeom;
-        private GLObject glfrag;
-        private GLObject glcomp;
+        private GLShader glvert;
+        private GLShader gltess;
+        private GLShader gleval;
+        private GLShader glgeom;
+        private GLShader glfrag;
+        private GLShader glcomp;
+        private Shader dbgvert;
+        private Shader dbgtess;
+        private Shader dbgeval;
+        private Shader dbggeom;
+        private Shader dbgfrag;
+        private Shader dbgcomp;
         private Vertoutput vertoutput;
         private GLFragoutput fragoutput;
         private List<MultiDrawCall> drawcalls = new List<MultiDrawCall>();
@@ -103,6 +110,14 @@ namespace App
                     glgeom = Attach(block, Geom, scene, err);
                     glfrag = Attach(block, Frag, scene, err);
                 }
+
+                // get debug shaders
+                dbgcomp = glcomp?.DebugShader;
+                dbgvert = glvert?.DebugShader;
+                dbgtess = gltess?.DebugShader;
+                dbgeval = gleval?.DebugShader;
+                dbggeom = glgeom?.DebugShader;
+                dbgfrag = glfrag?.DebugShader;
 
                 // specify vertex output varyings of the shader program
                 if (vertoutput != null)
@@ -232,6 +247,13 @@ namespace App
                 FxDebugger.Bind(this, frame);
 
             /// EXECUTE DRAW AND COMPUTE CALLS
+
+            dbgcomp?.Init();
+            dbgvert?.Init();
+            dbgtess?.Init();
+            dbgeval?.Init();
+            dbggeom?.Init();
+            dbgfrag?.Init();
 
             // begin timer query
             MeasureTime();

@@ -1,9 +1,14 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using App.Glsl;
+using OpenTK.Graphics.OpenGL4;
+using System.Globalization;
+using System.Reflection;
 
 namespace App
 {
     class GLShader : GLObject
     {
+        public Shader DebugShader { get; private set; }
+
         /// <summary>
         /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
@@ -25,8 +30,7 @@ namespace App
                 case "geom": type = ShaderType.GeometryShader; break;
                 case "frag": type = ShaderType.FragmentShader; break;
                 case "comp": type = ShaderType.ComputeShader; break;
-                default:
-                    throw err.Add($"Shader type '{anno}' is not supported.", block);
+                default: throw err.Add($"Shader type '{anno}' is not supported.", block);
             }
 
             // ADD OR REMOVE DEBUG INFORMATION
@@ -40,12 +44,13 @@ namespace App
             // CREATE CSHARP DEBUG CODE
             if (debugging)
             {
-                var body = Glsl.Converter.Process(block.Body);
-                var csharp = "using System;\n\n"
-                    + "namespace App.Glsl\n{\n"
-                    + $"class {block.Name} : {anno} {{\n{body}\n"
-                    + $"public static void Main() {{ var o = new {block.Name}(); o.Init(); o.main(); }}\n"
-                    + "\n}\n}";
+                var body = Converter.Shader2Csharp(block.Body);
+                var code = "using System;\n\nnamespace App.Glsl\n{\n"
+                    + $"class {block.Name} : {anno} {{\n{body}\n}}\n}}";
+                var rs = GLCsharp.CompileFilesOrSource(new[] { code }, null, block, err);
+                DebugShader = (Shader)rs.CompiledAssembly.CreateInstance(
+                    block.Name, false, BindingFlags.Default, null,
+                    null, CultureInfo.CurrentCulture, null);
             }
 
             // CHECK FOR ERRORS

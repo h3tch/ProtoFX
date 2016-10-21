@@ -1,4 +1,8 @@
-﻿namespace App.Glsl
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+
+namespace App.Glsl
 {
     #region Typedef
 
@@ -42,7 +46,7 @@
     
     #region Debug Super Classes
 
-    class Shader : MathFunctions
+    abstract class Shader : MathFunctions
     {
         #region Texture Access
 
@@ -86,7 +90,7 @@
 
         #region Debug Trace
 
-        public static List<TraceInfo> TraceLog = new List<TraceInfo>();
+        public static List<TraceInfo> TraceLog { get; protected set; } = new List<TraceInfo>();
 
         internal static T TraceVar<T>(T value) => Trace(false, null, value);
 
@@ -149,62 +153,56 @@
 
         #endregion
 
-        public static void Init()
+        public abstract void Init();
+
+        public abstract void main();
+    }
+
+    abstract class vert : Shader
+    {
+        protected int gl_VertexID;
+        protected int gl_InstanceID;
+        protected vec4 gl_Position = new vec4(0, 0, 0, 1);
+        public float gl_PointSize;
+        public float[] gl_ClipDistance = new float[4];
+
+        public override void Init()
         {
         }
     }
 
-    class vert : Shader
+    abstract class tess : Shader
     {
-        //public static int gl_VertexID;
-        //public static int gl_InstanceID;
-        //public static vec4 gl_Position;
-        //public static float gl_PointSize;
-        //public static float[] gl_ClipDistance = new float[4];
-
-        public static new void Init()
+        public override void Init()
         {
-            Shader.Init();
         }
     }
 
-    class tess : Shader
+    abstract class eval : Shader
     {
-        public static new void Init()
+        public override void Init()
         {
-            Shader.Init();
         }
     }
 
-    class eval : Shader
+    abstract class geom : Shader
     {
-        public static new void Init()
+        public override void Init()
         {
-            Shader.Init();
         }
     }
 
-    class geom : Shader
+    abstract class frag : Shader
     {
-        public static new void Init()
+        public override void Init()
         {
-            Shader.Init();
         }
     }
 
-    class frag : Shader
+    abstract class comp : Shader
     {
-        public static new void Init()
+        public override void Init()
         {
-            Shader.Init();
-        }
-    }
-
-    class comp : Shader
-    {
-        public static new void Init()
-        {
-            Shader.Init();
         }
     }
 
