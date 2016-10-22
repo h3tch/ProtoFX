@@ -1,6 +1,7 @@
 ﻿using App.Glsl;
 using OpenTK.Graphics.OpenGL4;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 
 namespace App
@@ -45,8 +46,8 @@ namespace App
             if (debugging)
             {
                 var body = Converter.Shader2Csharp(block.Body);
-                var code = "using System;\n\nnamespace App.Glsl\n{\n"
-                    + $"class {block.Name} : {anno} {{\n{body}\n}}\n}}";
+                var clazz = $"{char.ToUpper(anno.First()) + anno.Skip(1).ToString()}Shader";
+                var code = $"using System; namespace App.Glsl {{ class {name} : {clazz} {{{body}}}}}";
                 var rs = GLCsharp.CompileFilesOrSource(new[] { code }, null, block, err);
                 DebugShader = (Shader)rs.CompiledAssembly.CreateInstance(
                     block.Name, false, BindingFlags.Default, null,

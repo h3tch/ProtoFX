@@ -148,19 +148,26 @@
     <Compile Include="src\extensions\IEnumerable.cs" />
     <Compile Include="src\extensions\String.cs" />
     <Compile Include="src\FXDebugger.cs" />
-    <Compile Include="src\FXDebugShaders.cs" />
+    <Compile Include="src\glsl\Typedef.cs" />
     <Compile Include="src\FXPerf.cs" />
     <Compile Include="src\GLInstance.cs" />
     <Compile Include="src\GLReference.cs" />
+    <Compile Include="src\glsl\CompShader.cs" />
     <Compile Include="src\glsl\Converter.cs" />
+    <Compile Include="src\glsl\EvalShader.cs" />
+    <Compile Include="src\glsl\FragShader.cs" />
+    <Compile Include="src\glsl\GeomShader.cs" />
     <Compile Include="src\glsl\mat2.cs" />
     <Compile Include="src\glsl\mat3.cs" />
     <Compile Include="src\glsl\mat4.cs" />
     <Compile Include="src\glsl\math.cs" />
+    <Compile Include="src\glsl\Shader.cs" />
+    <Compile Include="src\glsl\TessShader.cs" />
     <Compile Include="src\glsl\tvec.cs" />
     <Compile Include="src\glsl\vec2.cs" />
     <Compile Include="src\glsl\vec3.cs" />
     <Compile Include="src\glsl\vec4.cs" />
+    <Compile Include="src\glsl\VertShader.cs" />
     <Compile Include="src\GLText.cs" />
     <Compile Include="src\App.cs">
       <SubType>Form</SubType>
@@ -199,7 +206,6 @@
     <Compile Include="src\controls\Theme.cs" />
     <Compile Include="src\extensions\Trie.cs" />
     <Compile Include="src\extensions\XmlSerializer.cs" />
-    <Compile Include="src\Test.cs" />
     <EmbeddedResource Include="src\App.resx">
       <DependentUpon>App.cs</DependentUpon>
     </EmbeddedResource>
