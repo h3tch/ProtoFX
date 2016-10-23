@@ -45,6 +45,7 @@ namespace App
         private List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
         private List<GLMethod> glfunc = new List<GLMethod>();
         private List<GLInstance> csexec = new List<GLInstance>();
+        private bool debug;
 
         #endregion
 
@@ -58,6 +59,7 @@ namespace App
             : base(block.Name, block.Anno, 309, debugging)
         {
             var err = new CompileException($"pass '{name}'");
+            debug = debugging;
 
             /// PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
 
@@ -112,12 +114,21 @@ namespace App
                 }
 
                 // get debug shaders
-                dbgcomp = glcomp?.DebugShader;
-                dbgvert = glvert?.DebugShader;
-                dbgtess = gltess?.DebugShader;
-                dbgeval = gleval?.DebugShader;
-                dbggeom = glgeom?.DebugShader;
-                dbgfrag = glfrag?.DebugShader;
+                if (debug)
+                {
+                    dbgcomp = glcomp?.DebugShader;
+                    dbgvert = glvert?.DebugShader;
+                    dbgtess = gltess?.DebugShader;
+                    dbgeval = gleval?.DebugShader;
+                    dbggeom = glgeom?.DebugShader;
+                    dbgfrag = glfrag?.DebugShader;
+                    dbgcomp?.Init(null, null);
+                    dbgvert?.Init(null, dbgtess);
+                    dbgtess?.Init(dbgvert, dbgeval);
+                    dbgeval?.Init(dbgtess, dbggeom);
+                    dbggeom?.Init(dbgeval, dbgfrag);
+                    dbgfrag?.Init(dbggeom, null);
+                }
 
                 // specify vertex output varyings of the shader program
                 if (vertoutput != null)
@@ -247,13 +258,6 @@ namespace App
                 FxDebugger.Bind(this, frame);
 
             /// EXECUTE DRAW AND COMPUTE CALLS
-
-            dbgcomp?.Init();
-            dbgvert?.Init();
-            dbgtess?.Init();
-            dbgeval?.Init();
-            dbggeom?.Init();
-            dbgfrag?.Init();
 
             // begin timer query
             MeasureTime();

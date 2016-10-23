@@ -1,9 +1,27 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
 namespace App.Glsl
 {
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    class __in__ : Attribute { }
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    class __out__ : Attribute { }
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    class __layout : Attribute
+    {
+        public __layout(object param0)
+        {
+            this.param0 = param0;
+        }
+        public object param0;
+        public int location;
+        public int binding;
+        public int max_vertices;
+    }
+
     abstract class Shader : MathFunctions
     {
         #region Texture Access
@@ -48,7 +66,9 @@ namespace App.Glsl
 
         #region Debug Trace
 
-        public static List<TraceInfo> TraceLog { get; protected set; } = new List<TraceInfo>();
+        protected List<TraceInfo> DebugTrace = new List<TraceInfo>();
+
+        internal static List<TraceInfo> TraceLog { get; set; }
 
         internal static T TraceVar<T>(T value) => Trace(false, null, value);
 
@@ -56,6 +76,9 @@ namespace App.Glsl
 
         private static T Trace<T>(bool isFunc, object[] input, T output)
         {
+            if (TraceLog == null)
+                return output;
+            
             var trace = new StackTrace(true);
             var traceMethod = $"Trace{(isFunc ? "Func" : "Var")}";
 
@@ -63,7 +86,7 @@ namespace App.Glsl
             {
                 if (traceMethod == trace.GetFrame(i).GetMethod()?.Name)
                 {
-                    TraceLog.Add(new TraceInfo
+                    TraceLog?.Add(new TraceInfo
                     {
                         Line = trace.GetFrame(i + 2).GetFileLineNumber(),
                         Column = trace.GetFrame(i + 2).GetFileColumnNumber(),

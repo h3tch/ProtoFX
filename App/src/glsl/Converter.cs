@@ -62,11 +62,16 @@ namespace App.Glsl
             return text;
         }
 
-        private static string Layouts(string text) => layout.Replace(text, string.Empty);
+        private static string Layouts(string text)
+        {
+            for (Match match = layout.Match(text); match.Success; match = layout.Match(text))
+                text = text.Insert(match.Index + match.Length, "]").Insert(match.Index, "[__");
+            return text;
+        }
 
         private static string Constants(string text)
         {
-            var regex = @"\bconst\s+\w+\s+[\w\d]+\s*=\s*[\w\d.]+;";
+            const string regex = @"\bconst\s+\w+\s+[\w\d]+\s*=\s*[\w\d.]+;";
 
             for (Match match = Regex.Match(text, regex); match.Success; match = Regex.Match(text, regex))
             {
@@ -123,9 +128,11 @@ namespace App.Glsl
 
         private static string Uniforms(string text) => uniform.Replace(text, string.Empty);
 
-        private static string Inputs(string text) => IN.Replace(text, string.Empty);
+        private static string Discard(string text) => Regex.Replace(text, @"\bdiscard\b", "return");
 
-        private static string Outputs(string text) => OUT.Replace(text, string.Empty);
+        private static string Inputs(string text) => IN.Replace(text, "[__in__]");
+
+        private static string Outputs(string text) => OUT.Replace(text, "[__out__]");
 
         private static string Main(string text) => main.Replace(text, "public void main");
 

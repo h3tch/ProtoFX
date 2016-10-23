@@ -63,7 +63,7 @@ namespace ScintillaNET
                 }
 
                 // check input
-                if (!System.IO.File.Exists(value))
+                if (!File.Exists(value))
                     throw new ArgumentException("The file does not exist.");
 
                 // get the path and the name of the file

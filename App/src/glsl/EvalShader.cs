@@ -1,4 +1,6 @@
-﻿namespace App.Glsl
+﻿using System.Collections.Generic;
+
+namespace App.Glsl
 {
     abstract class EvalShader : Shader
     {
@@ -28,6 +30,28 @@
         {
             vert = (TessShader)prev;
             eval = (GeomShader)next;
+        }
+
+        public Dictionary<string, object> DebugPatch(int primitiveID)
+        {
+            DebugTrace.Clear();
+            TraceLog = DebugTrace;
+            var result = GetPatch(primitiveID);
+            TraceLog = null;
+            return result;
+        }
+
+        internal Dictionary<string, object> GetPatch(int primitiveID)
+        {
+            // set shader input
+            gl_PrimitiveID = primitiveID;
+
+            // execute shader
+            main();
+
+            // get shader output
+            var result = new Dictionary<string, object>();
+            return result;
         }
     }
 }
