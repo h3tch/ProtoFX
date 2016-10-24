@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace App.Glsl
 {
@@ -6,52 +7,50 @@ namespace App.Glsl
     {
         #region Input
         
-        protected vec3 gl_TessCoord;
-        protected int gl_PatchVerticesIn;
-        protected int gl_PrimitiveID;
-        protected float[] gl_TessLevelOuter = new float[3];
-        protected float[] gl_TessLevelInner = new float[1];
-        protected INOUT[] gl_in;
+        int gl_PatchVerticesIn;
+        int gl_PrimitiveID;
+        vec3 gl_TessCoord = new vec3();
+        float[] gl_TessLevelOuter;
+        float[] gl_TessLevelInner;
+        __InOut[] gl_in;
+        float[] __TessLevelOuter = new float[4];
+        float[] __TessLevelInner = new float[2];
+        __InOut[] __in = new __InOut[4];
 
         #endregion
 
         #region Output
 
-        public vec4 gl_Position;
-        public float gl_PointSize;
-        public float[] gl_ClipDistance;
+        [__out] vec4 gl_Position;
+        [__out] float gl_PointSize;
+        [__out] float[] gl_ClipDistance;
 
         #endregion
 
-        private TessShader vert;
-        private GeomShader eval;
+        private Random rnd;
 
-        public override void Init(Shader prev, Shader next)
-        {
-            vert = (TessShader)prev;
-            eval = (GeomShader)next;
-        }
-
-        public Dictionary<string, object> DebugPatch(int primitiveID)
+        internal void Debug()
         {
             DebugTrace.Clear();
             TraceLog = DebugTrace;
-            var result = GetPatch(primitiveID);
+            Execute(Settings.ts_PrimitiveID, Settings.ts_TessCoord);
             TraceLog = null;
-            return result;
         }
 
-        internal Dictionary<string, object> GetPatch(int primitiveID)
+        internal void Execute(int primitiveID, float[] tessCoord)
         {
             // set shader input
+            gl_PatchVerticesIn = GL.GetInteger(GetPName.PatchVertices);
             gl_PrimitiveID = primitiveID;
+            gl_TessCoord.x = Math.Min(Math.Max(0, tessCoord[0]), 1);
+            gl_TessCoord.y = Math.Min(Math.Max(0, tessCoord[1]), 1);
+            gl_TessCoord.z = gl_PatchVerticesIn < 4 ? Math.Min(Math.Max(0, tessCoord[2]), 1) : 0f;
+            gl_TessLevelOuter = prev?.GetOutputVarying<float[]>("gl_TessLevelOuter") ?? __TessLevelOuter;
+            gl_TessLevelInner = prev?.GetOutputVarying<float[]>("gl_TessLevelInner") ?? __TessLevelInner;
+            gl_in = prev?.GetOutputVarying<__InOut[]>("gl_out") ?? __in;
 
             // execute shader
             main();
-
-            // get shader output
-            var result = new Dictionary<string, object>();
-            return result;
         }
     }
 }

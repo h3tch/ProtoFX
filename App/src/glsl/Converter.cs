@@ -15,9 +15,10 @@ namespace App.Glsl
         private static Regex layout = new Regex(@"\blayout\s*\(.*\)");
         private static Regex number = new Regex(@"\b[0-9]*\.[0-9]+\b");
         private static Regex uniform = new Regex(@"\buniform\b");
-        private static Regex IN = new Regex(@"\bin\b");
+        private static Regex IN = new Regex(@"\bin\s+[\w\d]+\s+[\w\d]+\s*;");
         private static Regex OUT = new Regex(@"\bout\b");
         private static Regex main = new Regex(@"\bvoid\s+main\b");
+        private static Regex word = new Regex(@"\b[\w\d]+\b");
         private static Func<string, string, string> typecast = delegate(string text, string type)
         {
             var match = Regex.Matches(text, @"\b" + type + @"\(.*\)");
@@ -130,9 +131,22 @@ namespace App.Glsl
 
         private static string Discard(string text) => Regex.Replace(text, @"\bdiscard\b", "return");
 
-        private static string Inputs(string text) => IN.Replace(text, "[__in__]");
+        private static string Inputs(string text)
+        {
+            var matches = IN.Matches(text);
+            for (int i = matches.Count - 1; i >= 0; i--)
+            {
+                var match = matches[i];
+                var words = word.Matches(match.Value);
+                var type = words[1].Value;
+                var name = words[2].Value;
+                text = text.Insert(match.Index + match.Length - 1, $" => GetInputVarying<{type}>(\"{name}\")");
+                text = text.Insert(match.Index + 2, "]").Insert(match.Index, "[__");
+            }
+            return text;
+        }
 
-        private static string Outputs(string text) => OUT.Replace(text, "[__out__]");
+        private static string Outputs(string text) => OUT.Replace(text, "[__out]");
 
         private static string Main(string text) => main.Replace(text, "public void main");
 

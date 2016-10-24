@@ -12,9 +12,5 @@
         protected uint gl_LocalInvocationIndex;
 
         #endregion
-
-        public override void Init(Shader prev, Shader next)
-        {
-        }
     }
 }

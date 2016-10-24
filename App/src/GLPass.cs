@@ -566,7 +566,7 @@ namespace App
 
         #region HELP STRUCT
 
-        private enum DrawFunc
+        internal enum DrawFunc
         {
             ArraysIndirect = 0 | 2 | 0 | 0,
             ArraysInstanced = 0 | 0 | 0 | 0,
@@ -575,7 +575,7 @@ namespace App
             TransformFeedback = 1 | 2 | 0 | 0,
         }
 
-        private class MultiDrawCall
+        internal class MultiDrawCall
         {
             public GLVertinput vertin;
             public GLBuffer indbuf;
@@ -655,7 +655,7 @@ namespace App
             }
         }
 
-        private struct DrawCall
+        internal struct DrawCall
         {
             public PrimType mode;
             public ElementType indextype;

@@ -23,12 +23,5 @@
         public int[] gl_SampleMask;
 
         #endregion
-        
-        private GeomShader geom;
-
-        public override void Init(Shader prev, Shader next)
-        {
-            geom = (GeomShader)prev;
-        }
     }
 }

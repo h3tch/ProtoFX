@@ -1,14 +1,17 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 
 namespace App.Glsl
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    class __in__ : Attribute { }
+    class __in : Attribute { }
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    class __out__ : Attribute { }
+    class __out : Attribute { }
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     class __layout : Attribute
     {
@@ -20,6 +23,11 @@ namespace App.Glsl
         public int location;
         public int binding;
         public int max_vertices;
+    }
+
+    static class ArrayExtention
+    {
+        public static int length(this Array data) => data.Length;
     }
 
     abstract class Shader : MathFunctions
@@ -134,13 +142,97 @@ namespace App.Glsl
 
         #endregion
 
-        public abstract void Init(Shader prev, Shader next);
+        #region DEBUG SETTINGS
 
-        public abstract void main();
+        internal static GLPass.MultiDrawCall drawcall;
 
-        public abstract T GetInputVarying<T>(int location);
+        internal static DebugSettings Settings = new DebugSettings();
 
-        public struct INOUT
+        public class DebugSettings
+        {
+            [Category("Vertex Shader"), DisplayName("InstanceID"),
+             Description("the index of the current instance when doing some form of instanced " +
+                "rendering. The instance count always starts at 0, even when using base instance " +
+                "calls. When not using instanced rendering, this value will be 0.")]
+            public int vs_InstanceID { get; set; } = 0;
+
+            [Category("Vertex Shader"), DisplayName("VertexID"),
+             Description("the index of the vertex currently being processed. When using non-indexed " +
+                "rendering, it is the effective index of the current vertex (the number of vertices " +
+                "processed + the first​ value). For indexed rendering, it is the index used to fetch " +
+                "this vertex from the buffer.")]
+            public int vs_VertexID { get; set; } = 0;
+
+            [Category("Tesselation"), DisplayName("InvocationID"),
+             Description("the index of the shader invocation within this patch. An invocation " +
+                "writes to per-vertex output variables by using this to index them.")]
+            public int ts_InvocationID { get; set; } = 0;
+
+            [Category("Tesselation"), DisplayName("PrimitiveID"),
+             Description("the index of the current patch within this rendering command.")]
+            public int ts_PrimitiveID { get; set; } = 0;
+
+            [Category("Tesselation"), DisplayName("TessCoord"),
+             Description("the index of the current patch within this rendering command.")]
+            public float[] ts_TessCoord { get; set; } = new float[3] { 0, 0, 0 };
+
+            [Category("Geometry Shader"), DisplayName("InvocationID"),
+             Description("the current instance, as defined when instancing geometry shaders.")]
+            public int gs_InvocationID { get; set; } = 0;
+
+            [Category("Geometry Shader"), DisplayName("PrimitiveIDIn"),
+             Description("the current input primitive's ID, based on the number of primitives " +
+                "processed by the GS since the current drawing command started.")]
+            public int gs_PrimitiveIDIn { get; set; } = 0;
+
+            [Category("Fragment Shader"), DisplayName("FragCoord"),
+             Description("The location of the fragment in window space. The X and Y components " +
+                "are the window-space position of the fragment.")]
+            public int[] fs_FragCoord { get; set; } = new int[2] { 0, 0 };
+
+            [Category("Fragment Shader"), DisplayName("Layer"),
+             Description("is either 0 or the layer number for this primitive output by the Geometry Shader.")]
+            public int fs_Layer { get; set; } = 0;
+
+            [Category("Fragment Shader"), DisplayName("ViewportIndex"),
+             Description("is either 0 or the viewport index for this primitive output by the Geometry Shader.")]
+            public int fs_ViewportIndex { get; set; } = 0;
+
+            [Category("Compute Shader"), DisplayName("GlobalInvocationID"),
+             Description("uniquely identifies this particular invocation of the compute shader " +
+                "among all invocations of this compute dispatch call. It's a short-hand for the " +
+                "math computation: gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID;")]
+            public int[] cs_GlobalInvocationID { get; set; } = new int[3] { 0, 0, 0 };
+        }
+
+        #endregion
+
+        protected Shader prev;
+
+        internal void Init(Shader prev)
+        {
+            this.prev = prev;
+        }
+
+        internal abstract void main();
+        
+        internal virtual T GetInputVarying<T>(string varyingName)
+        {
+            return prev != null ? prev.GetOutputVarying<T>(varyingName) : default(T);
+        }
+
+        internal virtual T GetOutputVarying<T>(string varyingName)
+        {
+            var props = GetType().GetProperties(BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var prop in props)
+            {
+                if (prop.GetCustomAttribute(typeof(__out)) != null && prop.Name == varyingName)
+                    return (T)prop.GetValue(this);
+            }
+            return default(T);
+        }
+
+        internal struct __InOut
         {
             public vec4 gl_Position;
             public float gl_PointSize;
