@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace App.Glsl
@@ -9,6 +10,7 @@ namespace App.Glsl
 
         protected int gl_VertexID;
         protected int gl_InstanceID;
+        private GLVertinput vertexInput;
 
         #endregion
 
@@ -26,22 +28,22 @@ namespace App.Glsl
         {
             tess = (TessShader)next;
         }
-
-        public Dictionary<string, object> DebugVertex(int vertexID, int instanceID)
+        
+        public Dictionary<string, object> DebugVertex(GLVertinput vertin, int vertexID, int instanceID)
         {
             DebugTrace.Clear();
             TraceLog = DebugTrace;
-            var result = GetVertex(vertexID, instanceID);
+            var result = GetVertex(vertin, vertexID, instanceID);
             TraceLog = null;
             return result;
         }
 
-        internal Dictionary<string, object> GetVertex(int vertexID, int instanceID)
+        internal Dictionary<string, object> GetVertex(GLVertinput vertin, int vertexID, int instanceID)
         {
             // set shader input
             gl_VertexID = vertexID;
             gl_InstanceID = instanceID;
-            SetVertexAttributes(vertexID);
+            vertexInput = vertin;
 
             // execute shader
             main();
@@ -62,9 +64,14 @@ namespace App.Glsl
             return result;
         }
 
-        private void SetVertexAttributes(int vertexID)
+        public override T GetInputVarying<T>(int location)
         {
-
+            var data = vertexInput.GetVertexData(gl_VertexID, gl_InstanceID);
+            var array = data.Skip(location).First();
+            if (new[] { typeof(int), typeof(uint), typeof(float), typeof(double) }.Any(x => x == typeof(T)))
+                return (T)(array.To(typeof(T)).GetValue(0));
+            var ctor = typeof(T).GetConstructor(new[] { typeof(byte[]) });
+            return (T)ctor.Invoke(new[] { array });
         }
     }
 }

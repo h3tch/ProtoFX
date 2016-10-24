@@ -113,7 +113,7 @@ namespace App
         }
 
         /// <summary>
-        /// Read whole GPU buffer data.
+        /// Read GPU buffer data.
         /// </summary>
         /// <returns>Return GPU buffer data as byte array.</returns>
         public void Read(ref byte[] data, int offset = 0)

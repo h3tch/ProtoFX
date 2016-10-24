@@ -5,6 +5,7 @@
         public tvec3() : base(default(T), default(T), default(T)) { }
         public tvec3(T a) : base(a, a, a) { }
         public tvec3(T x, T y, T z) : base(x, y, z) { }
+        public tvec3(byte[] data) : base((T[])data.To(typeof(T))) { }
     }
 
     class vec3 : tvec3<float>
@@ -14,6 +15,7 @@
         public vec3() : base() { }
         public vec3(float a) : base(a, a, a) { }
         public vec3(float x, float y, float z) : base(x, y, z) { }
+        public vec3(byte[] data) : base(data) { }
 
         #endregion
 
@@ -169,6 +171,7 @@
         public dvec3() : base() { }
         public dvec3(double a) : base(a, a, a) { }
         public dvec3(double x, double y, double z) : base(x, y, z) { }
+        public dvec3(byte[] data) : base(data) { }
 
         #endregion
 
@@ -305,6 +308,7 @@
         public bvec3() : base() { }
         public bvec3(bool a) : base(a, a, a) { }
         public bvec3(bool x, bool y, bool z) : base(x, y, z) { }
+        public bvec3(byte[] data) : base(data) { }
 
         #endregion
 
@@ -441,6 +445,7 @@
         public ivec3() : base() { }
         public ivec3(int a) : base(a, a, a) { }
         public ivec3(int x, int y, int z) : base(x, y, z) { }
+        public ivec3(byte[] data) : base(data) { }
 
         #endregion
 
@@ -577,6 +582,7 @@
         public uvec3() : base() { }
         public uvec3(uint a) : base(a, a, a) { }
         public uvec3(uint x, uint y, uint z) : base(x, y, z) { }
+        public uvec3(byte[] data) : base(data) { }
 
         #endregion
 

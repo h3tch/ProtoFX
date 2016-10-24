@@ -12,6 +12,8 @@ namespace App.Glsl
 
         public mat3() { C = new vec3[] { new vec3(), new vec3(), new vec3() }; }
         public mat3(float a) : this(new vec3(a), new vec3(a), new vec3(a)) { }
+        public mat3(float[] v) : this(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]) { }
+        public mat3(byte[] data) : this((float[])data.To(typeof(float))) { }
         public mat3(vec3 a, vec3 b, vec3 c) { C = new vec3[] { a, b, c }; }
         public mat3(
             float _00, float _10, float _20,

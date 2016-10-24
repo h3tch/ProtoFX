@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace App.Glsl
+﻿namespace App.Glsl
 {
     class tvec4<T> : tvecN<T>
     {
         public tvec4() : base(default(T), default(T), default(T), default(T)) { }
         public tvec4(T a) : base(a, a, a, a) { }
         public tvec4(T x, T y, T z, T w) : base(x, y, z, w) { }
+        public tvec4(byte[] data) : base((T[])data.To(typeof(T))) { }
     }
 
     class vec4 : tvec4<float>
@@ -17,6 +15,7 @@ namespace App.Glsl
         public vec4() { }
         public vec4(float a) : base(a, a, a, a) { }
         public vec4(float X, float Y, float Z, float W) : base(X, Y, Z, W) { }
+        public vec4(byte[] data) : base(data) { }
 
         #endregion
 
@@ -392,6 +391,7 @@ namespace App.Glsl
         public dvec4() { }
         public dvec4(double a) : base(a, a, a, a) { }
         public dvec4(double X, double Y, double Z, double W) : base(X, Y, Z, W) { }
+        public dvec4(byte[] data) : base(data) { }
 
         #endregion
 
@@ -748,6 +748,7 @@ namespace App.Glsl
         public bvec4() { }
         public bvec4(bool a) : base(a, a, a, a) { }
         public bvec4(bool X, bool Y, bool Z, bool W) : base(X, Y, Z, W) { }
+        public bvec4(byte[] data) : base(data) { }
 
         #endregion
 
@@ -1104,6 +1105,7 @@ namespace App.Glsl
         public ivec4() { }
         public ivec4(int a) : base(a, a, a, a) { }
         public ivec4(int X, int Y, int Z, int W) : base(X, Y, Z, W) { }
+        public ivec4(byte[] data) : base(data) { }
 
         #endregion
 
@@ -1460,6 +1462,7 @@ namespace App.Glsl
         public uvec4() { }
         public uvec4(uint a) : base(a, a, a, a) { }
         public uvec4(uint X, uint Y, uint Z, uint W) : base(X, Y, Z, W) { }
+        public uvec4(byte[] data) : base(data) { }
 
         #endregion
 

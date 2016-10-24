@@ -5,6 +5,7 @@
         public tvec2() : base(default(T), default(T)) { }
         public tvec2(T a) : base(a, a) { }
         public tvec2(T x, T y) : base(x, y) { }
+        public tvec2(byte[] data) : base((T[])data.To(typeof(T))) { }
     }
 
     class vec2 : tvec2<float>
@@ -14,6 +15,7 @@
         public vec2() : base() { }
         public vec2(float a) : base(a, a) { }
         public vec2(float x, float y) : base(x, y) { }
+        public vec2(byte[] data) : base(data) { }
 
         #endregion
 
@@ -79,6 +81,7 @@
         public dvec2() : base() { }
         public dvec2(double a) : base(a, a) { }
         public dvec2(double x, double y) : base(x, y) { }
+        public dvec2(byte[] data) : base(data) { }
 
         #endregion
 
@@ -144,6 +147,7 @@
         public bvec2() : base() { }
         public bvec2(bool a) : base(a, a) { }
         public bvec2(bool x, bool y) : base(x, y) { }
+        public bvec2(byte[] data) : base(data) { }
 
         #endregion
 
@@ -190,6 +194,7 @@
         public ivec2() : base() { }
         public ivec2(int a) : base(a, a) { }
         public ivec2(int x, int y) : base(x, y) { }
+        public ivec2(byte[] data) : base(data) { }
 
         #endregion
 
@@ -236,6 +241,7 @@
         public uvec2() : base() { }
         public uvec2(uint a) : base(a, a) { }
         public uvec2(uint x, uint y) : base(x, y) { }
+        public uvec2(byte[] data) : base(data) { }
 
         #endregion
 

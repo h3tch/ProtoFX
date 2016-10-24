@@ -13,6 +13,8 @@ namespace App.Glsl
 
         public mat4() { C = new vec4[] { new vec4(), new vec4(), new vec4(), new vec4() }; }
         public mat4(float a) : this(new vec4(a), new vec4(a), new vec4(a), new vec4(a)) { }
+        public mat4(float[] v) : this(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]) { }
+        public mat4(byte[] data) : this((float[])data.To(typeof(float))) { }
         public mat4(vec4 a, vec4 b, vec4 c, vec4 d) { C = new vec4[] { a, b, c, d }; }
         public mat4(
             float _00, float _10, float _20, float _30,

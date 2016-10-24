@@ -12,6 +12,8 @@ namespace App.Glsl
 
         public mat2() { C = new vec2[] { new vec2(), new vec2() }; }
         public mat2(float a) : this(a, a, a, a) { }
+        public mat2(float[] v) : this(v[0], v[1], v[2], v[3]) { }
+        public mat2(byte[] data) : this((float[])data.To(typeof(float))) { }
         public mat2(vec2 a, vec2 b) { C = new vec2[] { a, b }; }
         public mat2(
             float _00, float _10,

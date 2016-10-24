@@ -138,6 +138,8 @@ namespace App.Glsl
 
         public abstract void main();
 
+        public abstract T GetInputVarying<T>(int location);
+
         public struct INOUT
         {
             public vec4 gl_Position;

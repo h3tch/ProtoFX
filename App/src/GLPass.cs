@@ -30,12 +30,12 @@ namespace App
         private GLShader glgeom;
         private GLShader glfrag;
         private GLShader glcomp;
-        private Shader dbgvert;
-        private Shader dbgtess;
-        private Shader dbgeval;
-        private Shader dbggeom;
-        private Shader dbgfrag;
-        private Shader dbgcomp;
+        private VertShader dbgvert;
+        private TessShader dbgtess;
+        private EvalShader dbgeval;
+        private GeomShader dbggeom;
+        private FragShader dbgfrag;
+        private CompShader dbgcomp;
         private Vertoutput vertoutput;
         private GLFragoutput fragoutput;
         private List<MultiDrawCall> drawcalls = new List<MultiDrawCall>();
@@ -116,12 +116,12 @@ namespace App
                 // get debug shaders
                 if (debug)
                 {
-                    dbgcomp = glcomp?.DebugShader;
-                    dbgvert = glvert?.DebugShader;
-                    dbgtess = gltess?.DebugShader;
-                    dbgeval = gleval?.DebugShader;
-                    dbggeom = glgeom?.DebugShader;
-                    dbgfrag = glfrag?.DebugShader;
+                    dbgcomp = (CompShader)glcomp?.DebugShader;
+                    dbgvert = (VertShader)glvert?.DebugShader;
+                    dbgtess = (TessShader)gltess?.DebugShader;
+                    dbgeval = (EvalShader)gleval?.DebugShader;
+                    dbggeom = (GeomShader)glgeom?.DebugShader;
+                    dbgfrag = (FragShader)glfrag?.DebugShader;
                     dbgcomp?.Init(null, null);
                     dbgvert?.Init(null, dbgtess);
                     dbgtess?.Init(dbgvert, dbgeval);
@@ -256,6 +256,11 @@ namespace App
 
             if (glname > 0)
                 FxDebugger.Bind(this, frame);
+
+            if (debug)
+            {
+                var firstcall = drawcalls.First();
+            }
 
             /// EXECUTE DRAW AND COMPUTE CALLS
 
@@ -572,6 +577,8 @@ namespace App
 
         private class MultiDrawCall
         {
+            public GLVertinput vertin;
+            public GLBuffer indbuf;
             public DrawFunc drawfunc;
             public int vertexin;
             public int indexbuf;
@@ -586,6 +593,8 @@ namespace App
                 GLBuffer indexbuf,
                 GLBuffer indirect)
             {
+                vertin = vertexin;
+                indbuf = indexbuf;
                 this.cmd = new List<DrawCall>();
                 this.drawfunc = drawfunc;
                 this.vertexin = vertexin != null ? vertexin.glname : 0;
