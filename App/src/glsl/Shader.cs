@@ -1,5 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -8,29 +7,46 @@ using System.Reflection;
 
 namespace App.Glsl
 {
+    #region GLSL Qualifiers
+
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     class __in : Attribute { }
+
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     class __out : Attribute { }
+
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     class __layout : Attribute
     {
-        public __layout(object param0)
-        {
-            this.param0 = param0;
-        }
+#pragma warning disable 0649
+#pragma warning disable 0169
+
         public object param0;
         public int location;
         public int binding;
         public int max_vertices;
+
+#pragma warning restore 0649
+#pragma warning restore 0169
+
+        public __layout(object param0)
+        {
+            this.param0 = param0;
+        }
     }
+
+    #endregion
+
+    #region Necessary Extension
 
     static class ArrayExtention
     {
         public static int length(this Array data) => data.Length;
     }
 
-    abstract class Shader : MathFunctions
+    #endregion
+
+    class Shader : MathFunctions
     {
         #region Texture Access
 
@@ -76,6 +92,17 @@ namespace App.Glsl
 
         protected List<TraceInfo> DebugTrace = new List<TraceInfo>();
 
+        protected void BeginTracing()
+        {
+            DebugTrace.Clear();
+            TraceLog = DebugTrace;
+        }
+
+        protected void EndTracing()
+        {
+            TraceLog = null;
+        }
+
         internal static List<TraceInfo> TraceLog { get; set; }
 
         internal static T TraceVar<T>(T value) => Trace(false, null, value);
@@ -108,7 +135,7 @@ namespace App.Glsl
             return output;
         }
 
-        public struct TraceInfo
+        internal struct TraceInfo
         {
             public int Line;
             public int Column;
@@ -207,18 +234,13 @@ namespace App.Glsl
 
         #endregion
 
-        protected Shader prev;
+        internal Shader Prev;
 
-        internal void Init(Shader prev)
-        {
-            this.prev = prev;
-        }
-
-        internal abstract void main();
+        internal virtual void main() { }
         
         internal virtual T GetInputVarying<T>(string varyingName)
         {
-            return prev != null ? prev.GetOutputVarying<T>(varyingName) : default(T);
+            return Prev != null ? Prev.GetOutputVarying<T>(varyingName) : default(T);
         }
 
         internal virtual T GetOutputVarying<T>(string varyingName)

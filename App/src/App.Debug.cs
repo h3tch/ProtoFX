@@ -229,21 +229,21 @@ namespace App
             // convert cursor position to text position
             int pos = editor.CharPositionFromPoint(e.X, e.Y);
 
-            // get debug variable information from position
-            var dbgVar = FxDebugger.GetDebugVariableFromPosition(editor, pos);
-            // no debug variable found
-            if (dbgVar != null)
-            {
-                // get debug variable value
-                var dbgVal = FxDebugger.GetDebugVariableValue(dbgVar.ID, glControl.Frame - 1);
-                if (dbgVal != null)
-                {
-                    pos = editor.WordStartPosition(pos, true);
-                    editor.CallTipShow(pos, FxDebugger.DebugVariableToString(dbgVal));
-                    editor.EnableCodeHints = false;
-                    return;
-                }
-            }
+            //// get debug variable information from position
+            //var dbgVar = FxDebugger.GetDebugVariableFromPosition(editor, pos);
+            //// no debug variable found
+            //if (dbgVar != null)
+            //{
+            //    // get debug variable value
+            //    var dbgVal = FxDebugger.GetDebugVariableValue(dbgVar.ID, glControl.Frame - 1);
+            //    if (dbgVal != null)
+            //    {
+            //        pos = editor.WordStartPosition(pos, true);
+            //        editor.CallTipShow(pos, FxDebugger.DebugVariableToString(dbgVal));
+            //        editor.EnableCodeHints = false;
+            //        return;
+            //    }
+            //}
 
             editor.EnableCodeHints = true;
         }
@@ -297,13 +297,13 @@ namespace App
                 return;
             }
 
-            // get debug variables of the line where the caret is placed
-            var first = editor.LineFromPosition(editor.SelectionStart);
-            var last = editor.LineFromPosition(editor.SelectionEnd);
-            var dbgVars = FxDebugger.GetDebugVariablesFromLine(editor, first, last - first + 1);
-            debugListView.Visible = dbgVars.Count() > 0;
-            dbgVars.Select(Var => FxDebugger.GetDebugVariableValue(Var.ID, glControl.Frame - 1))
-                   .ForEach(dbgVars, (Val, Var) => NewVariableItem(Var.Name, Val));
+            //// get debug variables of the line where the caret is placed
+            //var first = editor.LineFromPosition(editor.SelectionStart);
+            //var last = editor.LineFromPosition(editor.SelectionEnd);
+            //var dbgVars = FxDebugger.GetDebugVariablesFromLine(editor, first, last - first + 1);
+            //debugListView.Visible = dbgVars.Count() > 0;
+            //dbgVars.Select(Var => FxDebugger.GetDebugVariableValue(Var.ID, glControl.Frame - 1))
+            //       .ForEach(dbgVars, (Val, Var) => NewVariableItem(Var.Name, Val));
             debugListView.Update();
         }
 

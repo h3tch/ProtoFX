@@ -138,8 +138,6 @@ namespace OpenTK
             scene.Clear();
             // add default OpenTK glControl
             scene.Add(nullname, new GLReference(nullname, "internal", this));
-            // (re)initialize OpenGL/GLSL debugger
-            FxDebugger.Initilize(scene);
         }
         
         #region EVENTS

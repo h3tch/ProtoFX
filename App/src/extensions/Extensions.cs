@@ -64,6 +64,20 @@ namespace App
         }
 
         /// <summary>
+        /// Convert all array values to the specified return type.
+        /// </summary>
+        /// <typeparam name="TResult">The return type all values should be converted to.</typeparam>
+        /// <param name="array"></param>
+        /// <returns>Returns an array for converted values.</returns>
+        public static TResult[] To<TResult>(this Array array)
+        {
+            TResult[] result = new TResult[array.Length];
+            for (int i = 0; i < array.Length; i++)
+                result[i] = (TResult)array.GetValue(i);
+            return result;
+        }
+
+        /// <summary>
         /// Cast an array to another type, not by element, but by memory.
         /// </summary>
         /// <param name="data"></param>

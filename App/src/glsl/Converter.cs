@@ -148,7 +148,7 @@ namespace App.Glsl
 
         private static string Outputs(string text) => OUT.Replace(text, "[__out]");
 
-        private static string Main(string text) => main.Replace(text, "public void main");
+        private static string MainFunc(string text) => main.Replace(text, "public void main");
 
         #endregion
     }

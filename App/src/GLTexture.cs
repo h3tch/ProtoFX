@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace App
 {
@@ -106,7 +107,12 @@ namespace App
         /// <param name="unit">Texture unit.</param>
         /// <param name="tex">Texture object.</param>
         public static void BindTex(int unit, GLTexture tex)
-            => FxDebugger.BindTex(unit, tex?.glImg?.Target ?? TextureTarget.TextureBuffer, tex?.glname ?? 0);
+        {
+            var target = tex?.glImg?.Target ?? TextureTarget.TextureBuffer;
+            GL.ActiveTexture(TextureUnit.Texture0 + unit);
+            if (target != 0)
+                GL.BindTexture(target, tex?.glname ?? 0);
+        }
 
         /// <summary>
         /// Bind texture to compute-image unit.
@@ -119,7 +125,8 @@ namespace App
         /// <param name="format">Pixel format of texture pixels.</param>
         public static void BindImg(int unit, GLTexture tex, int level = 0, int layer = 0,
             TextureAccess access = TextureAccess.ReadOnly, GpuFormat format = GpuFormat.Rgba8)
-            => FxDebugger.BindImg(unit, level, tex?.glImg?.Length > 0, layer, access, format, tex?.glname ?? 0);
+            => GL.BindImageTexture(unit, tex?.glname ?? 0, level, tex?.glImg?.Length > 0,
+                Math.Max(layer, 0), access, (SizedInternalFormat)format);
         
         /// <summary>
         /// Link image or buffer object to the texture.

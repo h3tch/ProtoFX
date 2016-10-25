@@ -116,18 +116,17 @@ namespace App
                 // get debug shaders
                 if (debug)
                 {
-                    dbgcomp = (CompShader)glcomp?.DebugShader;
-                    dbgvert = (VertShader)glvert?.DebugShader;
-                    dbgtess = (TessShader)gltess?.DebugShader;
-                    dbgeval = (EvalShader)gleval?.DebugShader;
-                    dbggeom = (GeomShader)glgeom?.DebugShader;
-                    dbgfrag = (FragShader)glfrag?.DebugShader;
-                    dbgcomp?.Init(null, null);
-                    dbgvert?.Init(null, dbgtess);
-                    dbgtess?.Init(dbgvert, dbgeval);
-                    dbgeval?.Init(dbgtess, dbggeom);
-                    dbggeom?.Init(dbgeval, dbgfrag);
-                    dbgfrag?.Init(dbggeom, null);
+                    if (glcomp != null)
+                        dbgcomp = (CompShader)glcomp?.DebugShader ?? CompShader.Default;
+                    else
+                    {
+                        dbgvert = (VertShader)glvert?.DebugShader ?? VertShader.Default;
+                        dbgtess = (TessShader)gltess?.DebugShader ?? TessShader.Default;
+                        dbgeval = (EvalShader)gleval?.DebugShader ?? EvalShader.Default;
+                        dbggeom = (GeomShader)glgeom?.DebugShader ?? GeomShader.Default;
+                        dbgfrag = (FragShader)glfrag?.DebugShader ?? FragShader.Default;
+                        (((dbgfrag.Prev = dbggeom).Prev = dbgeval).Prev = dbgtess).Prev = dbgvert;
+                    }
                 }
 
                 // specify vertex output varyings of the shader program
@@ -254,12 +253,22 @@ namespace App
 
             /// BIND DEBUGGER
 
-            if (glname > 0)
-                FxDebugger.Bind(this, frame);
+            //if (glname > 0)
+            //    FxDebugger.Bind(this, frame);
 
             if (debug)
             {
-                var firstcall = drawcalls.First();
+                Shader.drawcall = drawcalls.First();
+                if (dbgcomp != null)
+                    dbgcomp.Debug();
+                else
+                {
+                    dbgvert?.Debug();
+                    dbgtess?.Debug();
+                    dbgeval?.Debug();
+                    dbggeom?.Debug();
+                    dbgfrag?.Debug();
+                }
             }
 
             /// EXECUTE DRAW AND COMPUTE CALLS
@@ -277,8 +286,8 @@ namespace App
 
             /// UNBIND DEBUGGER
 
-            if (glname > 0)
-                FxDebugger.Unbind(this);
+            //if (glname > 0)
+            //    FxDebugger.Unbind(this);
 
             /// UNBIND OPENGL OBJECTS
 
@@ -605,6 +614,37 @@ namespace App
                 {
                     this.indirect = this.indexbuf;
                     this.indexbuf = 0;
+                }
+            }
+
+            public Array GetPatch(int primitiveID)
+            {
+                var inum = GL.GetInteger(GetPName.PatchVertices);
+
+                if (indbuf == null)
+                {
+                    // get vertex array drawcall patch
+                    return Enumerable.Range(inum * primitiveID, inum).ToArray();
+                }
+
+                // get index type size
+                var isize = 4;
+                switch (cmd[0].indextype)
+                {
+                    case DrawElementsType.UByte: isize = 1; break;
+                    case DrawElementsType.UShort: isize = 2; break;
+                }
+
+                // get data from the index buffer
+                var data = new byte[isize * inum];
+                indbuf.Read(ref data, data.Length * primitiveID);
+
+                // convert data to index array
+                switch (cmd[0].indextype)
+                {
+                    case DrawElementsType.UByte: return data;
+                    case DrawElementsType.UShort: return data.To(typeof(ushort));
+                    default: return data.To(typeof(uint));
                 }
             }
 

@@ -2,10 +2,19 @@
 
 namespace App.Glsl
 {
-    abstract class GeomShader : Shader
+    class GeomShader : Shader
     {
+        #region Field
+
+        public static readonly GeomShader Default = new GeomShader();
+
+        #endregion
+
+#pragma warning disable 0649
+#pragma warning disable 0169
+
         #region Input
-        
+
         int gl_PrimitiveIDIn;
         int gl_InvocationID;
         __InOut[] gl_in;
@@ -24,12 +33,14 @@ namespace App.Glsl
 
         #endregion
 
+#pragma warning restore 0649
+#pragma warning restore 0169
+
         internal void Debug()
         {
-            DebugTrace.Clear();
-            TraceLog = DebugTrace;
+            BeginTracing();
             Execute(Settings.gs_PrimitiveIDIn, Settings.gs_InvocationID);
-            TraceLog = null;
+            EndTracing();
         }
 
         internal void Execute(int primitiveID, int invocationID)
@@ -37,7 +48,7 @@ namespace App.Glsl
             // set shader input
             gl_PrimitiveIDIn = primitiveID;
             gl_InvocationID = invocationID;
-            gl_in = prev?.GetOutputVarying<__InOut[]>("gl_out") ?? __in;
+            gl_in = Prev?.GetOutputVarying<__InOut[]>("gl_out") ?? __in;
 
             // execute shader
             main();

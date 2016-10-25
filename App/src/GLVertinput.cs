@@ -8,7 +8,7 @@ namespace App
 {
     class GLVertinput : GLObject
     {
-        private List<VertAttr> attributes;
+        private List<VertAttr> attributes = new List<VertAttr>();
 
         /// <summary>
         /// Create OpenGL object. Standard object constructor for ProtoFX.
@@ -108,6 +108,7 @@ namespace App
         public override void Delete()
         {
             base.Delete();
+            attributes.Clear();
             if (glname > 0)
             {
                 GL.DeleteVertexArray(glname);

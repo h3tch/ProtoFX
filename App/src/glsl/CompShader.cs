@@ -1,7 +1,16 @@
 ﻿namespace App.Glsl
 {
-    abstract class CompShader : Shader
+    class CompShader : Shader
     {
+        #region Field
+
+        public static readonly CompShader Default = new CompShader();
+
+        #endregion
+
+#pragma warning disable 0649
+#pragma warning disable 0169
+
         #region Input
 
         protected uvec3 gl_NumWorkGroups;
@@ -12,5 +21,14 @@
         protected uint gl_LocalInvocationIndex;
 
         #endregion
+
+#pragma warning restore 0649
+#pragma warning restore 0169
+
+        public void Debug()
+        {
+            BeginTracing();
+            EndTracing();
+        }
     }
 }

@@ -35,7 +35,8 @@ namespace App
             }
 
             // ADD OR REMOVE DEBUG INFORMATION
-            var text = FxDebugger.AddDebugCode(block, type, debugging, err);
+            //var text = FxDebugger.AddDebugCode(block, type, debugging, err);
+            var text = block.Body;
 
             // CREATE OPENGL OBJECT
             glname = GL.CreateShader(type);

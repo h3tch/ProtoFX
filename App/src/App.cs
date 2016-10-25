@@ -112,9 +112,8 @@ namespace App
             comboBufType.SelectedIndex = ConvertExtensions.str2type.Keys.IndexOf(x => x == "float");
 
             /// LINK PROPERTY VIEWER TO DEBUG SETTINGS
-
-            FxDebugger.Instantiate();
-            debugProperty.SelectedObject = FxDebugger.Settings;
+            
+            debugProperty.SelectedObject = Glsl.Shader.Settings;
             debugProperty.CollapseAllGridItems();
 
             /// PROCESS COMMAND LINE ARGUMENTS
@@ -376,8 +375,8 @@ namespace App
             // the fragment debug position to that pixel
             if (toolBtnPick.Checked)
             {
-                FxDebugger.Settings.fs_FragCoord[0] = e.X;
-                FxDebugger.Settings.fs_FragCoord[1] = glControl.Height - e.Y;
+                Glsl.Shader.Settings.fs_FragCoord[0] = e.X;
+                Glsl.Shader.Settings.fs_FragCoord[1] = glControl.Height - e.Y;
                 debugProperty.Refresh();
                 toolBtnPick.Checked = false;
                 glControl.Cursor = Cursors.Default;

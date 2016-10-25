@@ -1,11 +1,23 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using App;
+using OpenTK.Graphics.OpenGL4;
+using System;
+using System.Linq;
 
 namespace App.Glsl
 {
-    abstract class TessShader : Shader
+    class TessShader : Shader
     {
+        #region Field
+
+        public static readonly TessShader Default = new TessShader();
+
+        #endregion
+
+#pragma warning disable 0649
+#pragma warning disable 0169
+
         #region Input
-        
+
         int gl_PatchVerticesIn;
         int gl_PrimitiveID;
         int gl_InvocationID;
@@ -21,36 +33,32 @@ namespace App.Glsl
 
         #endregion
 
-        internal void Debug(int primitiveID, int invocationID)
+#pragma warning restore 0649
+#pragma warning restore 0169
+
+        internal void Debug()
         {
-            DebugTrace.Clear();
-            TraceLog = DebugTrace;
+            BeginTracing();
             Execute(Settings.ts_PrimitiveID, Settings.ts_InvocationID);
-            TraceLog = null;
+            EndTracing();
         }
 
         internal void Execute(int primitiveID, int invocationID)
         {
-            // load patch data from vertex shader
-            var inum = GL.GetInteger(GetPName.PatchVertices);
-            var isize = 4;
-            switch (drawcall.cmd[0].indextype)
-            {
-                case DrawElementsType.UByte: isize = 1; break;
-                case DrawElementsType.UShort: isize = 2; break;
-            }
-            var patch = new byte[isize * inum];
-            drawcall.indbuf.Read(ref patch, patch.Length * primitiveID);
+            if (drawcall?.cmd?.Count == 0)
+                return;
             
             // set shader input
-            gl_PatchVerticesIn = inum;
+            gl_PatchVerticesIn = GL.GetInteger(GetPName.PatchVertices);
             gl_PrimitiveID = primitiveID;
             gl_InvocationID = invocationID;
 
-            var vert = (VertShader)prev;
+            // load patch data from vertex shader
+            var patch = drawcall.GetPatch(primitiveID);
+            var vert = (VertShader)Prev;
             for (int i = 0; i < gl_PatchVerticesIn; i++)
             {
-                vert.Execute(patch[i], gl_InvocationID);
+                vert.Execute((int)patch.GetValue(i), gl_InvocationID);
                 gl_in[i].gl_Position = vert.GetOutputVarying<vec4>("gl_Position");
                 gl_in[i].gl_PointSize = vert.GetOutputVarying<float>("gl_PointSize");
                 gl_in[i].gl_ClipDistance = vert.GetOutputVarying<float[]>("gl_ClipDistance");
