@@ -253,18 +253,20 @@ namespace App
 
             /// BIND DEBUGGER
 
-            if (debug)
+            if (debug && drawcalls.Count > 0)
             {
                 Shader.drawcall = drawcalls.First();
                 if (dbgcomp != null)
-                    dbgcomp.Debug();
+                { 
+                    if (dbgcomp != CompShader.Default) dbgcomp.Debug();
+                }
                 else
                 {
-                    dbgvert?.Debug();
-                    dbgtess?.Debug();
-                    dbgeval?.Debug();
-                    dbggeom?.Debug();
-                    dbgfrag?.Debug();
+                    if (dbgvert != VertShader.Default) dbgvert.Debug();
+                    if (dbgtess != TessShader.Default) dbgtess.Debug();
+                    if (dbgeval != EvalShader.Default) dbgeval.Debug();
+                    if (dbggeom != GeomShader.Default) dbggeom.Debug();
+                    if (dbgfrag != FragShader.Default) dbgfrag.Debug();
                 }
             }
 
@@ -611,20 +613,20 @@ namespace App
 
             public Array GetPatch(int primitiveID)
             {
+                // get patch size
                 var inum = GL.GetInteger(GetPName.PatchVertices);
 
+                // no vertex element array bound
+                // return the respective primitive
                 if (indbuf == null)
-                {
-                    // get vertex array drawcall patch
                     return Enumerable.Range(inum * primitiveID, inum).ToArray();
-                }
 
                 // get index type size
                 var isize = 4;
                 switch (cmd[0].indextype)
                 {
-                    case DrawElementsType.UByte: isize = 1; break;
-                    case DrawElementsType.UShort: isize = 2; break;
+                    case ElementType.UByte: isize = 1; break;
+                    case ElementType.UShort: isize = 2; break;
                 }
 
                 // get data from the index buffer
@@ -634,8 +636,8 @@ namespace App
                 // convert data to index array
                 switch (cmd[0].indextype)
                 {
-                    case DrawElementsType.UByte: return data;
-                    case DrawElementsType.UShort: return data.To(typeof(ushort));
+                    case ElementType.UByte: return data;
+                    case ElementType.UShort: return data.To(typeof(ushort));
                     default: return data.To(typeof(uint));
                 }
             }

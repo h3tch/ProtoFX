@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace App.Glsl
 {
@@ -194,7 +193,7 @@ namespace App.Glsl
 
         #endregion
 
-        #region DEBUG SETTINGS
+        #region Debug Settings
 
         internal static GLPass.MultiDrawCall drawcall;
 
@@ -259,8 +258,8 @@ namespace App.Glsl
 
         #endregion
 
-        public virtual void main() { }
-        
+        #region Shader Data Access
+
         public virtual T GetInputVarying<T>(string varyingName)
         {
             return Prev != null ? Prev.GetOutputVarying<T>(varyingName) : default(T);
@@ -372,5 +371,9 @@ namespace App.Glsl
             public float gl_PointSize;
             public float[] gl_ClipDistance;
         }
+
+        #endregion
+
+        public virtual void main() { }
     }
 }

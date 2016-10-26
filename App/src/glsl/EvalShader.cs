@@ -22,9 +22,6 @@ namespace App.Glsl
         float[] gl_TessLevelOuter;
         float[] gl_TessLevelInner;
         __InOut[] gl_in;
-        float[] __TessLevelOuter = new float[4];
-        float[] __TessLevelInner = new float[2];
-        __InOut[] __in = new __InOut[4];
 
         #endregion
 
@@ -41,25 +38,78 @@ namespace App.Glsl
 
         internal void Debug()
         {
+            GetTesselationOutput(Settings.ts_PrimitiveID, Settings.ts_InvocationID, Settings.ts_TessCoord);
             BeginTracing();
-            Execute(Settings.ts_PrimitiveID, Settings.ts_TessCoord);
+            main();
             EndTracing();
         }
 
-        internal void Execute(int primitiveID, float[] tessCoord)
+        internal void Execute(int primitiveID, int invocationID, float[] tessCoord)
         {
-            // set shader input
+            GetTesselationOutput(primitiveID, invocationID, tessCoord);
+            main();
+        }
+
+        public override void main()
+        {
+            gl_ClipDistance = new float[gl_in[0].gl_ClipDistance.Length];
+            if (gl_PatchVerticesIn == 4)
+            {
+                gl_Position = (
+                    mix(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_TessCoord.x) +
+                    mix(gl_in[1].gl_Position, gl_in[2].gl_Position, gl_TessCoord.y) +
+                    mix(gl_in[2].gl_Position, gl_in[3].gl_Position, gl_TessCoord.x) +
+                    mix(gl_in[3].gl_Position, gl_in[0].gl_Position, gl_TessCoord.y)) *0.25f;
+                gl_PointSize = (
+                    mix(gl_in[0].gl_PointSize, gl_in[1].gl_PointSize, gl_TessCoord.x) +
+                    mix(gl_in[1].gl_PointSize, gl_in[2].gl_PointSize, gl_TessCoord.y) +
+                    mix(gl_in[2].gl_PointSize, gl_in[3].gl_PointSize, gl_TessCoord.x) +
+                    mix(gl_in[3].gl_PointSize, gl_in[0].gl_PointSize, gl_TessCoord.y)) * 0.25f;
+                for (int i = 0; i < gl_ClipDistance.Length; i++)
+                {
+                    gl_ClipDistance[i] = (
+                        mix(gl_in[0].gl_ClipDistance[i], gl_in[1].gl_ClipDistance[i], gl_TessCoord.x) +
+                        mix(gl_in[1].gl_ClipDistance[i], gl_in[2].gl_ClipDistance[i], gl_TessCoord.y) +
+                        mix(gl_in[2].gl_ClipDistance[i], gl_in[3].gl_ClipDistance[i], gl_TessCoord.x) +
+                        mix(gl_in[3].gl_ClipDistance[i], gl_in[0].gl_ClipDistance[i], gl_TessCoord.y)) * 0.25f;
+                }
+            }
+            else
+            {
+                gl_Position =
+                    gl_in[0].gl_Position * gl_TessCoord.x +
+                    gl_in[1].gl_Position * gl_TessCoord.y +
+                    gl_in[2].gl_Position * gl_TessCoord.z;
+                gl_PointSize =
+                    gl_in[0].gl_PointSize * gl_TessCoord.x +
+                    gl_in[1].gl_PointSize * gl_TessCoord.y +
+                    gl_in[2].gl_PointSize * gl_TessCoord.z;
+                for (int i = 0; i < gl_ClipDistance.Length; i++)
+                {
+                    gl_ClipDistance[i] =
+                        gl_in[0].gl_ClipDistance[i] * gl_TessCoord.x +
+                        gl_in[1].gl_ClipDistance[i] * gl_TessCoord.y +
+                        gl_in[2].gl_ClipDistance[i] * gl_TessCoord.x;
+                }
+            }
+        }
+
+        private float mix(float a, float b, float t) => a * (1 - t) + b * t;
+
+        private vec4 mix(vec4 a, vec4 b, float t) => a * (1 - t) + b * t;
+
+        private void GetTesselationOutput(int primitiveID, int invocationID, float[] tessCoord)
+        {
             gl_PatchVerticesIn = GL.GetInteger(GetPName.PatchVertices);
             gl_PrimitiveID = primitiveID;
-            gl_TessCoord.x = Math.Min(Math.Max(0, tessCoord[0]), 1);
-            gl_TessCoord.y = Math.Min(Math.Max(0, tessCoord[1]), 1);
-            gl_TessCoord.z = gl_PatchVerticesIn < 4 ? Math.Min(Math.Max(0, tessCoord[2]), 1) : 0f;
-            gl_TessLevelOuter = Prev?.GetOutputVarying<float[]>("gl_TessLevelOuter") ?? __TessLevelOuter;
-            gl_TessLevelInner = Prev?.GetOutputVarying<float[]>("gl_TessLevelInner") ?? __TessLevelInner;
-            gl_in = Prev?.GetOutputVarying<__InOut[]>("gl_out") ?? __in;
-
-            // execute shader
-            main();
+            gl_TessCoord.x = tessCoord[0];
+            gl_TessCoord.y = tessCoord[1];
+            gl_TessCoord.z = tessCoord[2];
+            var tess = (TessShader)Prev;
+            tess.Execute(gl_PrimitiveID, invocationID);
+            gl_TessLevelOuter = tess.GetOutputVarying<float[]>("gl_TessLevelOuter");
+            gl_TessLevelInner = tess.GetOutputVarying<float[]>("gl_TessLevelInner");
+            gl_in = tess.GetOutputVarying<__InOut[]>("gl_out");
         }
     }
 }

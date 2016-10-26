@@ -1,7 +1,5 @@
-﻿using App;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Linq;
 
 namespace App.Glsl
 {
@@ -38,16 +36,36 @@ namespace App.Glsl
 
         internal void Debug()
         {
+            GetVertexOutput(Settings.ts_PrimitiveID, Settings.ts_InvocationID);
             BeginTracing();
-            Execute(Settings.ts_PrimitiveID, Settings.ts_InvocationID);
+            main();
             EndTracing();
         }
 
         internal void Execute(int primitiveID, int invocationID)
         {
+            GetVertexOutput(primitiveID, invocationID);
+            main();
+        }
+
+        public override void main()
+        {
+            gl_TessLevelInner[0] = 0f;
+            gl_TessLevelInner[1] = 0f;
+            for (int i = 0; i < 4; i++)
+            {
+                gl_TessLevelOuter[i] = 0f;
+                gl_out[i].gl_Position = gl_in[i].gl_Position;
+                gl_out[i].gl_PointSize = gl_in[i].gl_PointSize;
+                gl_out[i].gl_ClipDistance = gl_in[i].gl_ClipDistance;
+            }
+        }
+
+        private void GetVertexOutput(int primitiveID, int invocationID)
+        {
             if (drawcall?.cmd?.Count == 0)
                 return;
-            
+
             // set shader input
             gl_PatchVerticesIn = GL.GetInteger(GetPName.PatchVertices);
             gl_PrimitiveID = primitiveID;
@@ -56,16 +74,14 @@ namespace App.Glsl
             // load patch data from vertex shader
             var patch = drawcall.GetPatch(primitiveID);
             var vert = (VertShader)Prev;
-            for (int i = 0; i < gl_PatchVerticesIn; i++)
+            for (int i = 0; i < patch.Length; i++)
             {
-                vert.Execute((int)patch.GetValue(i), gl_InvocationID);
+                var vertexID = Convert.ToInt32(patch.GetValue(i));
+                vert.Execute(vertexID, gl_InvocationID);
                 gl_in[i].gl_Position = vert.GetOutputVarying<vec4>("gl_Position");
                 gl_in[i].gl_PointSize = vert.GetOutputVarying<float>("gl_PointSize");
                 gl_in[i].gl_ClipDistance = vert.GetOutputVarying<float[]>("gl_ClipDistance");
             }
-
-            // execute shader
-            main();
         }
     }
 }
