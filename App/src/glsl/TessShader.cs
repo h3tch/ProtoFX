@@ -7,7 +7,7 @@ namespace App.Glsl
     {
         #region Field
 
-        public static readonly TessShader Default = new TessShader();
+        public static readonly TessShader Default = new TessShader(0);
 
         #endregion
 
@@ -34,10 +34,19 @@ namespace App.Glsl
 #pragma warning restore 0649
 #pragma warning restore 0169
 
+        #region Constructors
+
+        public TessShader() : this(0) { }
+
+        public TessShader(int startLine) : base(startLine) { }
+
+        #endregion
+
         internal void Debug()
         {
             GetVertexOutput(Settings.ts_PrimitiveID, Settings.ts_InvocationID);
-            BeginTracing();
+            if (this != Default)
+                BeginTracing();
             main();
             EndTracing();
         }

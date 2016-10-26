@@ -6,7 +6,7 @@ namespace App.Glsl
     {
         #region Field
 
-        public static readonly GeomShader Default = new GeomShader();
+        public static readonly GeomShader Default = new GeomShader(0);
 
         #endregion
 
@@ -18,7 +18,6 @@ namespace App.Glsl
         int gl_PrimitiveIDIn;
         int gl_InvocationID;
         __InOut[] gl_in;
-        __InOut[] __in = new __InOut[0];
 
         #endregion
 
@@ -36,9 +35,18 @@ namespace App.Glsl
 #pragma warning restore 0649
 #pragma warning restore 0169
 
+        #region Constructors
+
+        public GeomShader() : this(0) { }
+
+        public GeomShader(int startLine) : base(startLine) { }
+
+        #endregion
+
         internal void Debug()
         {
-            BeginTracing();
+            if (this != Default)
+                BeginTracing();
             Execute(Settings.gs_PrimitiveIDIn, Settings.gs_InvocationID);
             EndTracing();
         }
@@ -48,7 +56,7 @@ namespace App.Glsl
             // set shader input
             gl_PrimitiveIDIn = primitiveID;
             gl_InvocationID = invocationID;
-            gl_in = Prev?.GetOutputVarying<__InOut[]>("gl_out") ?? __in;
+            gl_in = Prev.GetOutputVarying<__InOut[]>("gl_out");
 
             // execute shader
             main();

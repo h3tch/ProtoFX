@@ -1,5 +1,4 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using System;
 
 namespace App.Glsl
 {
@@ -7,7 +6,7 @@ namespace App.Glsl
     {
         #region Field
 
-        public static readonly EvalShader Default = new EvalShader();
+        public static readonly EvalShader Default = new EvalShader(0);
 
         #endregion
 
@@ -36,10 +35,19 @@ namespace App.Glsl
 #pragma warning restore 0649
 #pragma warning restore 0169
 
+        #region Constructors
+
+        public EvalShader() : this(0) { }
+
+        public EvalShader(int startLine) : base(startLine) { }
+
+        #endregion
+
         internal void Debug()
         {
             GetTesselationOutput(Settings.ts_PrimitiveID, Settings.ts_InvocationID, Settings.ts_TessCoord);
-            BeginTracing();
+            if (this != Default)
+                BeginTracing();
             main();
             EndTracing();
         }

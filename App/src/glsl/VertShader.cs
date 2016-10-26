@@ -1,5 +1,4 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using System;
 using System.Linq;
 
 namespace App.Glsl
@@ -8,7 +7,7 @@ namespace App.Glsl
     {
         #region Fields
 
-        public static readonly VertShader Default = new VertShader();
+        public static readonly VertShader Default = new VertShader(0);
 
         #endregion
 
@@ -33,9 +32,18 @@ namespace App.Glsl
 #pragma warning restore 0649
 #pragma warning restore 0169
 
+        #region Constructors
+
+        public VertShader() : this(0) { }
+
+        public VertShader(int startLine) : base(startLine) { }
+
+        #endregion
+
         internal void Debug()
         {
-            BeginTracing();
+            if (this != Default)
+                BeginTracing();
             Execute(Settings.vs_VertexID, Settings.vs_InstanceID);
             EndTracing();
         }

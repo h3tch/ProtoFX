@@ -35,25 +35,12 @@ namespace App
             }
 
             // ADD OR REMOVE DEBUG INFORMATION
-            //var text = FxDebugger.AddDebugCode(block, type, debugging, err);
             var text = block.Body;
 
             // CREATE OPENGL OBJECT
             glname = GL.CreateShader(type);
             GL.ShaderSource(glname, text);
             GL.CompileShader(glname);
-
-            // CREATE CSHARP DEBUG CODE
-            if (debugging)
-            {
-                var body = Converter.Shader2Csharp(block.Body);
-                var clazz = $"{char.ToUpper(anno.First()) + anno.Substring(1)}Shader";
-                var code = $"using System; namespace App.Glsl {{ class {name} : {clazz} {{{body}}}}}";
-                var rs = GLCsharp.CompileFilesOrSource(new[] { code }, null, block, err, new[] { name });
-                DebugShader = (Shader)rs.CompiledAssembly.CreateInstance(
-                    $"App.Glsl.{block.Name}", false, BindingFlags.Default, null,
-                    null, CultureInfo.CurrentCulture, null);
-            }
 
             // CHECK FOR ERRORS
             int status;
@@ -64,6 +51,28 @@ namespace App
                 throw err.Add("\n" + compilerErrors, block);
             }
             if (HasErrorOrGlError(err, block))
+                throw err;
+
+            // CREATE CSHARP DEBUG CODE
+            if (debugging)
+            {
+                var body = Converter.Shader2Csharp(block.Body);
+                var clazz = $"{char.ToUpper(anno.First()) + anno.Substring(1)}Shader";
+                var code = "using System; "
+                    + "namespace App.Glsl { "
+                    + $"class {name} : {clazz} {{ "
+                    + $"public {name}() : this(0) {{ }} "
+                    + $"public {name}(int l) : base(l) {{ }} "
+                    + $"{body}}}}}";
+                var rs = GLCsharp.CompileFilesOrSource(new[] { code }, null, block, err, new[] { name });
+                if (rs.Errors.Count == 0)
+                    DebugShader = (Shader)rs.CompiledAssembly.CreateInstance(
+                        $"App.Glsl.{name}", false, BindingFlags.Default, null,
+                        new object[] { block.LineInFile }, CultureInfo.CurrentCulture, null);
+            }
+
+            // check for errors
+            if (err.HasErrors())
                 throw err;
         }
 

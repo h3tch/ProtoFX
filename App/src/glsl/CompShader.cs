@@ -4,7 +4,7 @@
     {
         #region Field
 
-        public static readonly CompShader Default = new CompShader();
+        public static readonly CompShader Default = new CompShader(0);
 
         #endregion
 
@@ -25,9 +25,18 @@
 #pragma warning restore 0649
 #pragma warning restore 0169
 
+        #region Constructors
+
+        public CompShader() : this(0) { }
+
+        public CompShader(int startLine) : base(startLine) { }
+
+        #endregion
+
         public void Debug()
         {
-            BeginTracing();
+            if (this != Default)
+                BeginTracing();
             EndTracing();
         }
     }

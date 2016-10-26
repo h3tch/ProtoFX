@@ -195,6 +195,48 @@ namespace App
 
         #region Debug Shader
 
+        private Glsl.Shader.TraceInfo[] DebugInfo;
+        private int CurrentDebugInfo;
+
+        private void DebugStart(int line)
+        {
+            DebugInfo = Glsl.Shader.DebugTrace.ToArray();
+            DebugNextLine(line);
+            ShowCurrentDebugInfo();
+        }
+
+        private void DebugEnd()
+        {
+            DebugInfo = null;
+        }
+
+        private void DebugStepInto()
+        {
+            if (DebugInfo == null || CurrentDebugInfo == DebugInfo.Length)
+                return;
+            CurrentDebugInfo++;
+        }
+
+        private void DebugStepUndo()
+        {
+            if (DebugInfo == null || CurrentDebugInfo == 0)
+                return;
+            CurrentDebugInfo--;
+        }
+
+        private void ShowCurrentDebugInfo()
+        {
+            if (DebugInfo == null)
+                return;
+        }
+
+        private void DebugNextLine(int line)
+        {
+            for (CurrentDebugInfo = 0; CurrentDebugInfo < DebugInfo.Length; CurrentDebugInfo++)
+                if (DebugInfo[CurrentDebugInfo].Line >= line)
+                    break;
+        }
+
         /// <summary>
         /// When the selection (caret) changed update the debug tab.
         /// </summary>

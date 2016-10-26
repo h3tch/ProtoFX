@@ -4,7 +4,7 @@
     {
         #region Field
 
-        public static readonly FragShader Default = new FragShader();
+        public static readonly FragShader Default = new FragShader(0);
 
         #endregion
 
@@ -36,9 +36,18 @@
 #pragma warning restore 0649
 #pragma warning restore 0169
 
+        #region Constructors
+
+        public FragShader() : this(0) { }
+
+        public FragShader(int startLine) : base(startLine) { }
+
+        #endregion
+
         public void Debug()
         {
-            BeginTracing();
+            if (this != Default)
+                BeginTracing();
             EndTracing();
         }
     }

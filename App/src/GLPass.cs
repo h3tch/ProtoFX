@@ -117,7 +117,9 @@ namespace App
                 if (debug)
                 {
                     if (glcomp != null)
-                        dbgcomp = (CompShader)glcomp?.DebugShader ?? CompShader.Default;
+                    {
+                        dbgcomp = (CompShader)glcomp.DebugShader;
+                    }
                     else
                     {
                         dbgvert = (VertShader)glvert?.DebugShader ?? VertShader.Default;
@@ -138,7 +140,9 @@ namespace App
 
                 // detach shader objects
                 if (glcomp != null)
+                { 
                     GL.DetachShader(glname, glcomp.glname);
+                }
                 else
                 {
                     if (glvert != null) GL.DetachShader(glname, glvert.glname);
@@ -258,15 +262,15 @@ namespace App
                 Shader.drawcall = drawcalls.First();
                 if (dbgcomp != null)
                 { 
-                    if (dbgcomp != CompShader.Default) dbgcomp.Debug();
+                    dbgcomp.Debug();
                 }
                 else
                 {
-                    if (dbgvert != VertShader.Default) dbgvert.Debug();
-                    if (dbgtess != TessShader.Default) dbgtess.Debug();
-                    if (dbgeval != EvalShader.Default) dbgeval.Debug();
-                    if (dbggeom != GeomShader.Default) dbggeom.Debug();
-                    if (dbgfrag != FragShader.Default) dbgfrag.Debug();
+                    dbgvert.Debug();
+                    dbgtess.Debug();
+                    dbgeval.Debug();
+                    dbggeom.Debug();
+                    dbgfrag.Debug();
                 }
             }
 

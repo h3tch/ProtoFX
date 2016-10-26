@@ -48,7 +48,8 @@ namespace App.Glsl
     public class Shader : MathFunctions
     {
         #region Fields
-        
+
+        protected int LineInFile;
         internal Shader Prev;
         internal static readonly Type[] BaseIntTypes = new[] { typeof(bool), typeof(int), typeof(uint) };
         internal static readonly Type[] BaseFloatTypes = new[] { typeof(float), typeof(double) };
@@ -69,6 +70,17 @@ namespace App.Glsl
         internal static readonly Type[] MatTypes = MatFloatTypes;
         internal static readonly Type[] IntTypes = BaseIntTypes.Concat(VecIntTypes).ToArray();
         internal static readonly Type[] FloatTypes = BaseFloatTypes.Concat(VecIntTypes).Concat(MatFloatTypes).ToArray();
+
+        #endregion
+
+        #region Constructors
+
+        public Shader() : this(0) { }
+
+        public Shader(int startLine)
+        {
+            LineInFile = startLine;
+        }
 
         #endregion
 
@@ -114,20 +126,27 @@ namespace App.Glsl
 
         #region Debug Trace
 
-        protected List<TraceInfo> DebugTrace = new List<TraceInfo>();
+        internal static int ShaderLineOffset = 0;
+        internal static bool CollectDebugData = false;
+        internal static List<TraceInfo> TraceLog = new List<TraceInfo>();
+        public static IEnumerable<TraceInfo> DebugTrace => TraceLog;
 
+        public void ClearDebugTrace()
+        {
+            TraceLog.Clear();
+        }
+        
         protected void BeginTracing()
         {
-            DebugTrace.Clear();
-            TraceLog = DebugTrace;
+            CollectDebugData = true;
+            ShaderLineOffset = LineInFile;
         }
 
         protected void EndTracing()
         {
-            TraceLog = null;
+            CollectDebugData = false;
+            ShaderLineOffset = 0;
         }
-
-        internal static List<TraceInfo> TraceLog { get; set; }
 
         internal static T TraceVar<T>(T value) => Trace(false, null, value);
 
@@ -135,27 +154,22 @@ namespace App.Glsl
 
         private static T Trace<T>(bool isFunc, object[] input, T output)
         {
-            if (TraceLog == null)
+            if (!CollectDebugData)
                 return output;
             
             var trace = new StackTrace(true);
             var traceMethod = $"Trace{(isFunc ? "Func" : "Var")}";
+            var idx = trace.GetFrames().IndexOf(x => x.GetMethod()?.Name == traceMethod);
 
-            for (var i = 0; i < trace.FrameCount; i++)
+            TraceLog.Add(new TraceInfo
             {
-                if (traceMethod == trace.GetFrame(i).GetMethod()?.Name)
-                {
-                    TraceLog?.Add(new TraceInfo
-                    {
-                        Line = trace.GetFrame(i + 2).GetFileLineNumber(),
-                        Column = trace.GetFrame(i + 2).GetFileColumnNumber(),
-                        Function = isFunc ? trace.GetFrame(i + 1).GetMethod().Name : null,
-                        Output = output?.ToString(),
-                        Input = input?.Select(x => x.ToString()).ToArray(),
-                    });
-                    break;
-                }
-            }
+                Line = trace.GetFrame(idx + 2).GetFileLineNumber() + ShaderLineOffset,
+                Column = trace.GetFrame(idx + 2).GetFileColumnNumber(),
+                Function = isFunc ? trace.GetFrame(idx + 1).GetMethod().Name : null,
+                Output = output?.ToString(),
+                Input = input?.Select(x => x.ToString()).ToArray(),
+            });
+
             return output;
         }
 
