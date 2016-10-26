@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace App.Glsl
 {
-    class tvecN<T>
+    public class tvecN<T>
     {
         internal T[] v;
         public T this[int i] { get { return v[i]; } set { v[i] = value; } }

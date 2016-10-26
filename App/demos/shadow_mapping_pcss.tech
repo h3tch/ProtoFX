@@ -246,7 +246,7 @@ shader fs_render frag {
 		if (shadow == 0.0)
 			return;
 		
-		color.rgb *= (1.0 - shadow) * 0.5 + 0.5;
+		color.xyz *= (1.0 - shadow) * 0.5 + 0.5;
 	}
 }
 

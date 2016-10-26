@@ -1,27 +1,29 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace App.Glsl
 {
     #region GLSL Qualifiers
 
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    class __in : Attribute { }
+    [AttributeUsage(AttributeTargets.All)]
+    public class __in : Attribute { }
 
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    class __out : Attribute { }
+    [AttributeUsage(AttributeTargets.All)]
+    public class __out : Attribute { }
 
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    class __layout : Attribute
+    [AttributeUsage(AttributeTargets.All)]
+    public class __layout : Attribute
     {
 #pragma warning disable 0649
 #pragma warning disable 0169
-
-        public object param0;
+        
         public int location;
         public int binding;
         public int max_vertices;
@@ -29,10 +31,8 @@ namespace App.Glsl
 #pragma warning restore 0649
 #pragma warning restore 0169
 
-        public __layout(object param0)
-        {
-            this.param0 = param0;
-        }
+        public __layout() { }
+        public __layout(params object[] param) { }
     }
 
     #endregion
@@ -46,8 +46,33 @@ namespace App.Glsl
 
     #endregion
 
-    class Shader : MathFunctions
+    public class Shader : MathFunctions
     {
+        #region Fields
+        
+        internal Shader Prev;
+        internal static readonly Type[] BaseIntTypes = new[] { typeof(bool), typeof(int), typeof(uint) };
+        internal static readonly Type[] BaseFloatTypes = new[] { typeof(float), typeof(double) };
+        internal static readonly Type[] BaseTypes = BaseIntTypes.Concat(BaseFloatTypes).ToArray();
+        internal static readonly Type[] VecIntTypes = new[] {
+            typeof(bvec2), typeof(bvec3), typeof(bvec4),
+            typeof(ivec2), typeof(ivec3), typeof(ivec4),
+            typeof(uvec2), typeof(uvec3), typeof(uvec4),
+        };
+        internal static readonly Type[] VecFloatTypes = new[] {
+            typeof(vec2), typeof(vec3), typeof(vec4),
+            typeof(dvec2), typeof(dvec3), typeof(dvec4)
+        };
+        internal static readonly Type[] VecTypes = BaseIntTypes.Concat(BaseFloatTypes).ToArray();
+        internal static readonly Type[] MatFloatTypes = new[] {
+            typeof(mat2), typeof(mat3), typeof(mat4),
+        };
+        internal static readonly Type[] MatTypes = MatFloatTypes;
+        internal static readonly Type[] IntTypes = BaseIntTypes.Concat(VecIntTypes).ToArray();
+        internal static readonly Type[] FloatTypes = BaseFloatTypes.Concat(VecIntTypes).Concat(MatFloatTypes).ToArray();
+
+        #endregion
+
         #region Texture Access
 
         public static vec4 texture(sampler1D sampler, float P, float bias = 0) { return new vec4(0); }
@@ -135,7 +160,7 @@ namespace App.Glsl
             return output;
         }
 
-        internal struct TraceInfo
+        public struct TraceInfo
         {
             public int Line;
             public int Column;
@@ -234,11 +259,9 @@ namespace App.Glsl
 
         #endregion
 
-        internal Shader Prev;
-
-        internal virtual void main() { }
+        public virtual void main() { }
         
-        internal virtual T GetInputVarying<T>(string varyingName)
+        public virtual T GetInputVarying<T>(string varyingName)
         {
             return Prev != null ? Prev.GetOutputVarying<T>(varyingName) : default(T);
         }
@@ -252,6 +275,95 @@ namespace App.Glsl
                     return (T)prop.GetValue(this);
             }
             return default(T);
+        }
+
+        public static object GetUniform<T>(string uniformName)
+        {
+            int unit, glbuf, type, size, length, offset, stride;
+            int[] locations = new int[1];
+
+            // get current shader program
+            var program = GL.GetInteger(GetPName.CurrentProgram);
+            if (program <= 0)
+                return default(T);
+            
+            // get uniform buffer object block index
+            int block = GL.GetUniformBlockIndex(program, uniformName.Substring(0, uniformName.IndexOf('.')));
+            if (block < 0)
+                return default(T);
+
+            // get bound buffer object
+            GL.GetActiveUniformBlock(program, block, ActiveUniformBlockParameter.UniformBlockBinding, out unit);
+            GL.GetInteger(GetIndexedPName.UniformBufferBinding, unit, out glbuf);
+            if (glbuf <= 0)
+                return default(T);
+
+            // get uniform indices in uniform block
+            GL.GetUniformIndices(program, 1, new[] { uniformName }, locations);
+            var location = locations[0];
+            if (location < 0)
+                return default(T);
+
+            // get uniform information
+            GL.GetActiveUniforms(program, 1, ref location, ActiveUniformParameter.UniformType, out type);
+            GL.GetActiveUniforms(program, 1, ref location, ActiveUniformParameter.UniformSize, out length);
+            GL.GetActiveUniforms(program, 1, ref location, ActiveUniformParameter.UniformOffset, out offset);
+            GL.GetActiveUniforms(program, 1, ref location, ActiveUniformParameter.UniformArrayStride, out stride);
+
+            // get size of the uniform type
+            switch ((All)type)
+            {
+                case All.IntVec2:
+                case All.UnsignedIntVec2:
+                case All.FloatVec2:
+                case All.Double:
+                    size = 8;
+                    break;
+                case All.IntVec3:
+                case All.UnsignedIntVec3:
+                case All.FloatVec3:
+                    size = 12;
+                    break;
+                case All.IntVec4:
+                case All.UnsignedIntVec4:
+                case All.FloatVec4:
+                case All.DoubleVec2:
+                case All.FloatMat2:
+                    size = 16;
+                    break;
+                case All.DoubleVec3:
+                    size = 24;
+                    break;
+                case All.DoubleVec4:
+                    size = 32;
+                    break;
+                case All.FloatMat3:
+                    size = 36;
+                    break;
+                case All.FloatMat4:
+                    size = 64;
+                    break;
+                default:
+                    size = 4;
+                    break;
+            }
+
+            // read uniform buffer data
+            byte[] array = new byte[Math.Max(stride, size) * length];
+            var src = GL.MapNamedBufferRange(glbuf, (IntPtr)offset, array.Length, BufferAccessMask.MapReadBit);
+            Marshal.Copy(src, array, 0, array.Length);
+            GL.UnmapNamedBuffer(glbuf);
+            
+            // if the return type is an array
+            if (typeof(T).IsArray && BaseTypes.Any(x => x == typeof(T).GetElementType()))
+                return array.To(typeof(T).GetElementType());
+
+            // if the return type is a base type
+            if (BaseTypes.Any(x => x == typeof(T)))
+                return array.To(typeof(T)).GetValue(0);
+
+            // create new object from byte array
+            return typeof(T).GetConstructor(new[] { typeof(byte[]) })?.Invoke(new[] { array });
         }
 
         internal struct __InOut

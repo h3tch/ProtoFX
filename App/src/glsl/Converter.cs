@@ -77,7 +77,11 @@ namespace App.Glsl
             for (Match match = Regex.Match(text, regex); match.Success; match = Regex.Match(text, regex))
             {
                 var index = text.IndexOf('=', match.Index);
-                text = text.Insert(index + 1, ">");
+                text = text
+                    .Remove(match.Index + match.Length - 1, 1)
+                    .Insert(match.Index + match.Length - 1, "; } }")
+                    .Remove(index, 1)
+                    .Insert(index, "{ get { return ");
             }
 
             return Regex.Replace(text, @"\bconst\b", string.Empty);
@@ -92,29 +96,45 @@ namespace App.Glsl
             for (var match = buffer.Match(text); match.Success;)
             {
                 var sub = match.Value;
+                var idx = sub.IndexOf('{');
+                var name = sub.Word(sub.IndexOfWord(idx, -1));
 
                 // replace 'uniform' with 'struct'
-                sub = sub.Remove(0, uniform.Length).Insert(0, clazz);
+                sub = sub
+                    .Insert(sub.Length - 1, $" = new {name}()")
+                    .Remove(0, uniform.Length)
+                    .Insert(0, clazz);
 
                 // insert struct name before instance name
-                var idx = sub.IndexOf('{');
                 var end = sub.IndexOf('}', idx);
-                var name = sub.Word(sub.IndexOfWord(idx, -1)) + ' ';
-                sub = sub.Insert(end + 1, name);
+                sub = sub.Insert(end + 1, name + ' ');
 
                 // insert 'public' keyword before variable names
-                for (var varMatch = variable.Match(sub, idx); varMatch.Success && varMatch.Index < end;)
+                var varMatches = variable.Matches(sub.Substring(0, end), idx);
+                for (int i = varMatches.Count - 1; i >= 0; i--)
                 {
+                    var varMatch = varMatches[i];
+                    var words = word.Matches(varMatch.Value);
+                    var type = words[0].Value;
+                    var field = words[1].Value;
+
                     var arrayMatch = vararray.Match(sub, varMatch.Index, varMatch.Length);
+                    var arrayType = type + (arrayMatch.Success ? "[]" : string.Empty);
+
+                    sub = sub
+                        .Remove(varMatch.Index + varMatch.Length - 1, 1)
+                        .Insert(varMatch.Index + varMatch.Length - 1,
+                            $"{{ get {{ return ({arrayType})GetUniform<{arrayType}>(\"{name}.{field}\"); }} }}");
+
                     if (arrayMatch.Success)
                     {
-                        var type = sub.Word(varMatch.Index);
-                        var New = $"= new {type}";
-                        sub = sub.Insert(arrayMatch.Index, New);
-                        sub = sub.Insert(varMatch.Index + type.Length, "[]");
-                        end += New.Length + 2;
+                        sub = sub
+                            .Remove(arrayMatch.Index, arrayMatch.Length)
+                            .Insert(varMatch.Index + type.Length, "[]");
                     }
+
                     sub = sub.Insert(varMatch.Index, Public);
+
                     end += Public.Length;
                     varMatch = variable.Match(sub, varMatch.Index + varMatch.Length + Public.Length);
                 }
@@ -140,7 +160,9 @@ namespace App.Glsl
                 var words = word.Matches(match.Value);
                 var type = words[1].Value;
                 var name = words[2].Value;
-                text = text.Insert(match.Index + match.Length - 1, $" => GetInputVarying<{type}>(\"{name}\")");
+                text = text.Remove(match.Index + match.Length - 1, 1).Insert(
+                    match.Index + match.Length - 1,
+                    $" {{ get {{ return GetInputVarying<{type}>(\"{name}\"); }} }}");
                 text = text.Insert(match.Index + 2, "]").Insert(match.Index, "[__");
             }
             return text;
@@ -148,7 +170,7 @@ namespace App.Glsl
 
         private static string Outputs(string text) => OUT.Replace(text, "[__out]");
 
-        private static string MainFunc(string text) => main.Replace(text, "public void main");
+        private static string MainFunc(string text) => main.Replace(text, "public override void main");
 
         #endregion
     }

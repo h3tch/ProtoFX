@@ -2,7 +2,7 @@
 
 namespace App.Glsl
 {
-    class MathFunctions
+    public class MathFunctions
     {
         #region Arithmetic
 

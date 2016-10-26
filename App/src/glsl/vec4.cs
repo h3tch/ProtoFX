@@ -1,6 +1,6 @@
 ﻿namespace App.Glsl
 {
-    class tvec4<T> : tvecN<T>
+    public class tvec4<T> : tvecN<T>
     {
         public tvec4() : base(default(T), default(T), default(T), default(T)) { }
         public tvec4(T a) : base(a, a, a, a) { }
@@ -8,7 +8,7 @@
         public tvec4(byte[] data) : base((T[])data.To(typeof(T))) { }
     }
 
-    class vec4 : tvec4<float>
+    public class vec4 : tvec4<float>
     {
         #region vec4
 
@@ -384,7 +384,7 @@
         #endregion
     }
 
-    class dvec4 : tvec4<double>
+    public class dvec4 : tvec4<double>
     {
         #region dvec4
 
@@ -741,7 +741,7 @@
         #endregion
     }
 
-    class bvec4 : tvec4<bool>
+    public class bvec4 : tvec4<bool>
     {
         #region bvec4
 
@@ -1098,7 +1098,7 @@
         #endregion
     }
 
-    class ivec4 : tvec4<int>
+    public class ivec4 : tvec4<int>
     {
         #region ivec4
 
@@ -1455,7 +1455,7 @@
         #endregion
     }
 
-    class uvec4 : tvec4<uint>
+    public class uvec4 : tvec4<uint>
     {
         #region uvec4
 

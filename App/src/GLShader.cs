@@ -47,11 +47,11 @@ namespace App
             if (debugging)
             {
                 var body = Converter.Shader2Csharp(block.Body);
-                var clazz = $"{char.ToUpper(anno.First()) + anno.Skip(1).ToString()}Shader";
+                var clazz = $"{char.ToUpper(anno.First()) + anno.Substring(1)}Shader";
                 var code = $"using System; namespace App.Glsl {{ class {name} : {clazz} {{{body}}}}}";
-                var rs = GLCsharp.CompileFilesOrSource(new[] { code }, null, block, err);
+                var rs = GLCsharp.CompileFilesOrSource(new[] { code }, null, block, err, new[] { name });
                 DebugShader = (Shader)rs.CompiledAssembly.CreateInstance(
-                    block.Name, false, BindingFlags.Default, null,
+                    $"App.Glsl.{block.Name}", false, BindingFlags.Default, null,
                     null, CultureInfo.CurrentCulture, null);
             }
 

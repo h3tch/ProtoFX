@@ -77,7 +77,7 @@ namespace App
         /// <param name="err"></param>
         /// <returns></returns>
         internal static CompilerResults CompileFilesOrSource(string[] code, string version,
-            Compiler.Block block, CompileException err)
+            Compiler.Block block, CompileException err, string[] tmpNames = null)
         {
             CompilerResults rs = null;
             try
@@ -103,9 +103,31 @@ namespace App
                     new CSharpCodeProvider();
                 var check = code.Count(x => IsFilename(x));
                 if (check == code.Length)
+                {
                     rs = provider.CompileAssemblyFromFile(compilerParams, code);
+                }
                 else if (check == 0)
+                {
+#if DEBUG
+                    Directory.CreateDirectory("tmp");
+                    var filenames = new string[code.Length];
+                    for (int i = 0; i < filenames.Length; i++)
+                    {
+                        filenames[i] = $"tmp{Path.DirectorySeparatorChar}tmp_{tmpNames[i]}.cs";
+                        if (System.IO.File.Exists(filenames[i]))
+                        {
+                            var tmp = System.IO.File.ReadAllText(filenames[i]);
+                            if (tmp != code[i])
+                                System.IO.File.WriteAllText(filenames[i], code[i]);
+                        }
+                        else
+                            System.IO.File.WriteAllText(filenames[i], code[i]);
+                    }
+                    rs = provider.CompileAssemblyFromFile(compilerParams, filenames);
+#else
                     rs = provider.CompileAssemblyFromSource(compilerParams, code);
+#endif
+                }
                 else
                     throw err.Add("Cannot mix filenames and source code"
                         + "strings when compiling C# code.", block);

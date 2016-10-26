@@ -4,14 +4,11 @@ using System.Linq;
 
 namespace App.Glsl
 {
-    class VertShader : Shader
+    public class VertShader : Shader
     {
         #region Fields
 
         public static readonly VertShader Default = new VertShader();
-        static readonly Type[] InputTypes = new[] {
-            typeof(int), typeof(uint), typeof(float), typeof(double)
-        };
 
         #endregion
 
@@ -52,7 +49,7 @@ namespace App.Glsl
             main();
         }
 
-        internal override T GetInputVarying<T>(string varyingName)
+        public override T GetInputVarying<T>(string varyingName)
         {
             if (drawcall == null)
                 return default(T);
@@ -74,7 +71,7 @@ namespace App.Glsl
                 return default(T);
 
             // return default type
-            if (InputTypes.Any(x => x == typeof(T)))
+            if (BaseTypes.Any(x => x == typeof(T)))
                 return (T)array.To(typeof(T)).GetValue(0);
             
             // create new object from byte array

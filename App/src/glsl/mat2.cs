@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace App.Glsl
 {
-    class mat2
+    public class mat2
     {
         #region mat2
 

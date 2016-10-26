@@ -21,13 +21,13 @@ namespace csharp
         #endregion
 
         public Info this[Names name] { get {
-                return new Info {
-                    location = location[Convert.ToInt32(name)],
-                    length = length[Convert.ToInt32(name)],
-                    offset = offset[Convert.ToInt32(name)],
-                    stride = stride[Convert.ToInt32(name)],
-                    matstride = matstride[Convert.ToInt32(name)],
-                };
+            return new Info {
+                location = location[Convert.ToInt32(name)],
+                length = length[Convert.ToInt32(name)],
+                offset = offset[Convert.ToInt32(name)],
+                stride = stride[Convert.ToInt32(name)],
+                matstride = matstride[Convert.ToInt32(name)],
+            };
         } }
 
         public UniformBlock(int program, string name)

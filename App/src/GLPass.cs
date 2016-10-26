@@ -253,9 +253,6 @@ namespace App
 
             /// BIND DEBUGGER
 
-            //if (glname > 0)
-            //    FxDebugger.Bind(this, frame);
-
             if (debug)
             {
                 Shader.drawcall = drawcalls.First();
@@ -283,11 +280,6 @@ namespace App
 
             // end timer query
             EndTimer();
-
-            /// UNBIND DEBUGGER
-
-            //if (glname > 0)
-            //    FxDebugger.Unbind(this);
 
             /// UNBIND OPENGL OBJECTS
 

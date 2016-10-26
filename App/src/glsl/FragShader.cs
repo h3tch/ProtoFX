@@ -1,6 +1,6 @@
 ﻿namespace App.Glsl
 {
-    class FragShader : Shader
+    public class FragShader : Shader
     {
         #region Field
 
