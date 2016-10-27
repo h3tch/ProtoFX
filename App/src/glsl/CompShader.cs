@@ -1,4 +1,6 @@
-﻿namespace App.Glsl
+﻿using OpenTK.Graphics.OpenGL4;
+
+namespace App.Glsl
 {
     class CompShader : Shader
     {
@@ -39,5 +41,8 @@
                 BeginTracing();
             EndTracing();
         }
+
+        public static object GetUniform<T>(string uniformName)
+            => Shader.GetUniform<T>(uniformName, ProgramPipelineParameter.ComputeShader);
     }
 }

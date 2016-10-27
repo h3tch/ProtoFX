@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using OpenTK.Graphics.OpenGL4;
 
 namespace App.Glsl
 {
@@ -15,20 +15,20 @@ namespace App.Glsl
 
         #region Input
 
-        int gl_PrimitiveIDIn;
-        int gl_InvocationID;
-        __InOut[] gl_in;
+        protected int gl_PrimitiveIDIn;
+        protected int gl_InvocationID;
+        protected __InOut[] gl_in;
 
         #endregion
 
         #region Output
 
-        [__out] int gl_PrimitiveID;
-        [__out] int gl_Layer;
-        [__out] int gl_ViewportIndex;
-        [__out] vec4 gl_Position;
-        [__out] float gl_PointSize;
-        [__out] float[] gl_ClipDistance;
+        [__out] protected int gl_PrimitiveID;
+        [__out] protected int gl_Layer;
+        [__out] protected int gl_ViewportIndex;
+        [__out] protected vec4 gl_Position;
+        [__out] protected float gl_PointSize;
+        [__out] protected float[] gl_ClipDistance;
 
         #endregion
 
@@ -61,5 +61,8 @@ namespace App.Glsl
             // execute shader
             main();
         }
+
+        public static object GetUniform<T>(string uniformName)
+            => Shader.GetUniform<T>(uniformName, ProgramPipelineParameter.GeometryShader);
     }
 }

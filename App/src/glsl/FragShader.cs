@@ -1,4 +1,6 @@
-﻿namespace App.Glsl
+﻿using OpenTK.Graphics.OpenGL4;
+
+namespace App.Glsl
 {
     public class FragShader : Shader
     {
@@ -13,23 +15,23 @@
 
         #region Input
 
-        vec4 gl_FragCoord;
-        bool gl_FrontFacing;
-        vec2 gl_PointCoord;
-        int gl_SampleID;
-        vec2 gl_SamplePosition;
-        int[] gl_SampleMaskIn;
-        float gl_ClipDistance;
-        int gl_PrimitiveID;
-        int gl_Layer;
-        int gl_ViewportIndex;
+        protected vec4 gl_FragCoord;
+        protected bool gl_FrontFacing;
+        protected vec2 gl_PointCoord;
+        protected int gl_SampleID;
+        protected vec2 gl_SamplePosition;
+        protected int[] gl_SampleMaskIn;
+        protected float gl_ClipDistance;
+        protected int gl_PrimitiveID;
+        protected int gl_Layer;
+        protected int gl_ViewportIndex;
 
         #endregion
 
         #region Output
 
-        [__out] float gl_FragDepth;
-        [__out] int[] gl_SampleMask;
+        [__out] protected float gl_FragDepth;
+        [__out] protected int[] gl_SampleMask;
 
         #endregion
 
@@ -50,5 +52,8 @@
                 BeginTracing();
             EndTracing();
         }
+
+        public static object GetUniform<T>(string uniformName)
+            => Shader.GetUniform<T>(uniformName, ProgramPipelineParameter.FragmentShader);
     }
 }

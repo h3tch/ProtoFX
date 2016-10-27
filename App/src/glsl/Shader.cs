@@ -281,22 +281,35 @@ namespace App.Glsl
 
         internal virtual T GetOutputVarying<T>(string varyingName)
         {
-            var props = GetType().GetProperties(BindingFlags.NonPublic | BindingFlags.Instance);
+            var type = GetType();
+            var props = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Instance);
             foreach (var prop in props)
             {
                 if (prop.GetCustomAttribute(typeof(__out)) != null && prop.Name == varyingName)
                     return (T)prop.GetValue(this);
             }
+            var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var field in fields)
+            {
+                if (field.GetCustomAttribute(typeof(__out)) != null && field.Name == varyingName)
+                    return (T)field.GetValue(this);
+            }
             return default(T);
         }
 
-        public static object GetUniform<T>(string uniformName)
+        protected static object GetUniform<T>(string uniformName, ProgramPipelineParameter shader)
         {
             int unit, glbuf, type, size, length, offset, stride;
             int[] locations = new int[1];
 
-            // get current shader program
-            var program = GL.GetInteger(GetPName.CurrentProgram);
+            // get current shader program pipeline
+            var pipeline = GL.GetInteger(GetPName.ProgramPipelineBinding);
+            if (pipeline <= 0)
+                return default(T);
+
+            // get vertex shader
+            int program;
+            GL.GetProgramPipeline(pipeline, shader, out program);
             if (program <= 0)
                 return default(T);
             

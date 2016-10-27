@@ -23,9 +23,9 @@ namespace App.Glsl
 
         #region Output
         
-        [__out] public vec4 gl_Position;
-        [__out] public float gl_PointSize;
-        [__out] public float[] gl_ClipDistance = new float[4];
+        [__out] protected vec4 gl_Position;
+        [__out] protected float gl_PointSize;
+        [__out] protected float[] gl_ClipDistance = new float[4];
 
         #endregion
 
@@ -62,8 +62,14 @@ namespace App.Glsl
             if (drawcall == null)
                 return default(T);
 
-            // get current shader program
-            var program = GL.GetInteger(GetPName.CurrentProgram);
+            // get current shader program pipeline
+            var pipeline = GL.GetInteger(GetPName.ProgramPipelineBinding);
+            if (pipeline <= 0)
+                return default(T);
+
+            // get vertex shader
+            int program;
+            GL.GetProgramPipeline(pipeline, ProgramPipelineParameter.VertexShader, out program);
             if (program <= 0)
                 return default(T);
 
@@ -85,5 +91,8 @@ namespace App.Glsl
             // create new object from byte array
             return (T)typeof(T).GetConstructor(new[] { typeof(byte[]) })?.Invoke(new[] { array });
         }
+
+        public static object GetUniform<T>(string uniformName)
+            => Shader.GetUniform<T>(uniformName, ProgramPipelineParameter.VertexShader);
     }
 }

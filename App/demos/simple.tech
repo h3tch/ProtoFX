@@ -60,6 +60,9 @@ shader vs_simple vert {
 	layout(location = 1) in vec4 in_col;
 
 	// vertex shader output
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
 	layout(location = 0) out vec4 vs_col;
 	
 	void main ()

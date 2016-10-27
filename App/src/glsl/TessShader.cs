@@ -16,18 +16,18 @@ namespace App.Glsl
 
         #region Input
 
-        int gl_PatchVerticesIn;
-        int gl_PrimitiveID;
-        int gl_InvocationID;
-        __InOut[] gl_in = new __InOut[4];
+        protected int gl_PatchVerticesIn;
+        protected int gl_PrimitiveID;
+        protected int gl_InvocationID;
+        protected __InOut[] gl_in = new __InOut[4];
 
         #endregion
 
         #region Output
 
-        [__out] float[] gl_TessLevelOuter = new float[4];
-        [__out] float[] gl_TessLevelInner = new float[2];
-        [__out] __InOut[] gl_out = new __InOut[4];
+        [__out] protected float[] gl_TessLevelOuter = new float[4];
+        [__out] protected float[] gl_TessLevelInner = new float[2];
+        [__out] protected __InOut[] gl_out = new __InOut[4];
 
         #endregion
 
@@ -92,5 +92,8 @@ namespace App.Glsl
                 gl_in[i].gl_ClipDistance = vert.GetOutputVarying<float[]>("gl_ClipDistance");
             }
         }
+
+        public static object GetUniform<T>(string uniformName)
+            => Shader.GetUniform<T>(uniformName, ProgramPipelineParameter.TessControlShader);
     }
 }

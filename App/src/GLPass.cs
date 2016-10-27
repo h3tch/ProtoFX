@@ -1,16 +1,17 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using App.Glsl;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using static OpenTK.Graphics.OpenGL4.GetProgramParameterName;
+using static OpenTK.Graphics.OpenGL4.ProgramStageMask;
+using static OpenTK.Graphics.OpenGL4.TransformFeedbackMode;
+using static System.Reflection.BindingFlags;
+using ElementType = OpenTK.Graphics.OpenGL4.DrawElementsType;
 using PrimType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 using VertoutPrimType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
-using ElementType = OpenTK.Graphics.OpenGL4.DrawElementsType;
-using static System.Reflection.BindingFlags;
-using static OpenTK.Graphics.OpenGL4.GetProgramParameterName;
-using static OpenTK.Graphics.OpenGL4.TransformFeedbackMode;
-using System.Globalization;
-using App.Glsl;
 
 namespace App
 {
@@ -99,7 +100,7 @@ namespace App
 
             if (Vert != null || Comp != null)
             {
-                glname = GL.CreateProgram();
+                GL.CreateProgramPipelines(1, out glname);
 
                 // Attach shader objects.
                 // First try attaching a compute shader. If that
@@ -130,33 +131,6 @@ namespace App
                         (((dbgfrag.Prev = dbggeom).Prev = dbgeval).Prev = dbgtess).Prev = dbgvert;
                     }
                 }
-
-                // specify vertex output varyings of the shader program
-                if (vertoutput != null)
-                    vertoutput.SetProgramVaryings(glname);
-
-                // link program
-                GL.LinkProgram(glname);
-
-                // detach shader objects
-                if (glcomp != null)
-                { 
-                    GL.DetachShader(glname, glcomp.glname);
-                }
-                else
-                {
-                    if (glvert != null) GL.DetachShader(glname, glvert.glname);
-                    if (gltess != null) GL.DetachShader(glname, gltess.glname);
-                    if (gleval != null) GL.DetachShader(glname, gleval.glname);
-                    if (glgeom != null) GL.DetachShader(glname, glgeom.glname);
-                    if (glfrag != null) GL.DetachShader(glname, glfrag.glname);
-                }
-
-                // check for link errors
-                int status;
-                GL.GetProgram(glname, LinkStatus, out status);
-                if (status != 1)
-                    err.Add($"\n{GL.GetProgramInfoLog(glname)}", block);
             }
 
             /// CHECK FOR ERRORS
@@ -176,7 +150,8 @@ namespace App
             base.Delete();
             if (glname > 0)
             {
-                GL.DeleteProgram(glname);
+                //GL.DeleteProgram(glname);
+                GL.DeleteProgramPipeline(glname);
                 glname = 0;
             }
         }
@@ -221,7 +196,7 @@ namespace App
             /// BIND PROGRAM
 
             if (glname > 0)
-                GL.UseProgram(glname);
+                GL.BindProgramPipeline(glname);
 
             /// BIND VERTEX OUTPUT (transform feedback)
             /// must be done after glUseProgram
@@ -298,7 +273,7 @@ namespace App
 
             /// UNBIND OPENGL RESOURCES
 
-            GL.UseProgram(0);
+            GL.BindProgramPipeline(0);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindBuffer(BufferTarget.DrawIndirectBuffer, 0);
             GL.BindBuffer(BufferTarget.DispatchIndirectBuffer, 0);
@@ -549,15 +524,30 @@ namespace App
                 where method.Name == name && method.GetParameters().Length == nparam
                 select method).FirstOrDefault();
 
-        private GLShader Attach(Compiler.Block block, string sh, Dict classes, CompileException err)
+        private GLShader Attach(Compiler.Block block, string shadername, Dict classes,
+            CompileException err)
         {
-            GLShader glsh = null;
+            GLShader obj = null;
 
             // get shader from class list
-            if (sh != null && classes.TryGetValue(sh, out glsh, block, err))
-                GL.AttachShader(glname, glsh.glname);
+            if (shadername != null && classes.TryGetValue(shadername, out obj, block, err))
+                GL.UseProgramStages(glname, ShaderType2ShaderBit(obj.ShaderType), obj.glname);
 
-            return glsh;
+            return obj;
+        }
+
+        private static ProgramStageMask ShaderType2ShaderBit(ShaderType type)
+        {
+            switch (type)
+            {
+                case ShaderType.VertexShader: return VertexShaderBit;
+                case ShaderType.TessControlShader: return TessControlShaderBit;
+                case ShaderType.TessEvaluationShader: return TessEvaluationShaderBit;
+                case ShaderType.GeometryShader: return GeometryShaderBit;
+                case ShaderType.FragmentShader: return FragmentShaderBit;
+                case ShaderType.ComputeShader: return ComputeShaderBit;
+            }
+            return 0;
         }
 
         private static void ThrowOnGLError(string message)
@@ -874,8 +864,8 @@ namespace App
                 vertoutMode = (TransformFeedbackMode)(values[3] ?? InterleavedAttribs);
             }
 
-            public void SetProgramVaryings(int glname)
-                => GL.TransformFeedbackVaryings(glname, outputVaryings.Length, outputVaryings, vertoutMode);
+            //public void SetProgramVaryings(int glname)
+            //    => GL.TransformFeedbackVaryings(glname, outputVaryings.Length, outputVaryings, vertoutMode);
 
             public void Bind() => glvertout.Bind(vertoutPrim, resume);
 
