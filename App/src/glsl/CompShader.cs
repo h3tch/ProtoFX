@@ -43,6 +43,6 @@ namespace App.Glsl
         }
 
         public static object GetUniform<T>(string uniformName)
-            => Shader.GetUniform<T>(uniformName, ProgramPipelineParameter.ComputeShader);
+            => GetUniform<T>(uniformName, ProgramPipelineParameter.ComputeShader);
     }
 }

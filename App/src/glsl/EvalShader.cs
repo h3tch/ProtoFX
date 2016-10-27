@@ -121,6 +121,6 @@ namespace App.Glsl
         }
 
         public static object GetUniform<T>(string uniformName)
-            => Shader.GetUniform<T>(uniformName, ProgramPipelineParameter.TessEvaluationShader);
+            => GetUniform<T>(uniformName, ProgramPipelineParameter.TessEvaluationShader);
     }
 }

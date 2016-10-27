@@ -94,6 +94,6 @@ namespace App.Glsl
         }
 
         public static object GetUniform<T>(string uniformName)
-            => Shader.GetUniform<T>(uniformName, ProgramPipelineParameter.TessControlShader);
+            => GetUniform<T>(uniformName, ProgramPipelineParameter.TessControlShader);
     }
 }

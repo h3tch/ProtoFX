@@ -156,7 +156,8 @@ namespace App.Glsl
         {
             if (!CollectDebugData)
                 return output;
-            
+
+            var type = output.GetType();
             var trace = new StackTrace(true);
             var traceMethod = $"Trace{(isFunc ? "Func" : "Var")}";
             var idx = trace.GetFrames().IndexOf(x => x.GetMethod()?.Name == traceMethod);
