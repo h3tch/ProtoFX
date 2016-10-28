@@ -21,8 +21,8 @@
 
         #region Operators
 
-        public static vec2 operator +(vec2 a) => Shader.TraceVar(new vec2(a.x, a.y));
-        public static vec2 operator -(vec2 a) => Shader.TraceVar(new vec2(-a.x, -a.y));
+        public static vec2 operator +(vec2 a) => new vec2(a.x, a.y);
+        public static vec2 operator -(vec2 a) => new vec2(-a.x, -a.y);
         public static vec2 operator +(vec2 a, vec2 b) => Shader.TraceFunc(new vec2(a.x + b.x, a.y + b.y), a, b);
         public static vec2 operator +(vec2 a, float b) => Shader.TraceFunc(new vec2(a.x + b, a.y + b), a, b);
         public static vec2 operator +(float a, vec2 b) => Shader.TraceFunc(new vec2(a + b.x, a + b.y), a, b);

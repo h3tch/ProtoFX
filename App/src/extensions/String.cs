@@ -59,16 +59,23 @@ namespace System
         {
             var step = ignoreWordCount <= 0 ? -1 : 1;
 
+            // skip specified number of words
             for (var count = Math.Abs(ignoreWordCount); count != 0; count--)
             {
-                while (startIndex > 0 && startIndex < s.Length - 1 && !char.IsWhiteSpace(s[startIndex + step]))
-                    startIndex += step;
-                while (startIndex > 0 && startIndex < s.Length - 1 && char.IsWhiteSpace(s[startIndex + step]))
-                    startIndex += step;
+                // while inside the word
+                for (; 0 <= startIndex && startIndex < s.Length; startIndex += step)
+                    if (char.IsWhiteSpace(s[startIndex]))
+                        break;
+                // while a whitespace
+                for (; 0 <= startIndex && startIndex < s.Length; startIndex += step)
+                    if (!char.IsWhiteSpace(s[startIndex]))
+                        break;
             }
 
-            while (startIndex > 0 && startIndex < s.Length - 1 && !char.IsWhiteSpace(s[startIndex + step]))
-                startIndex += step;
+            // goto the start index of the word
+            for (int next = startIndex - 1; 0 <= next && next < s.Length; startIndex = next, next--)
+                if (char.IsWhiteSpace(s[next]))
+                    break;
 
             return startIndex;
         }

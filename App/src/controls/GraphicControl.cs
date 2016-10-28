@@ -76,6 +76,9 @@ namespace OpenTK
             {
                 MakeCurrent();
 
+                // clear debug trace
+                App.Glsl.Shader.ClearDebugTrace();
+
                 // begin timer query
                 if (perf == null)
                     perf = new FXPerf(nullname, null, 309, false);

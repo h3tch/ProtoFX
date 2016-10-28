@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using static System.Reflection.BindingFlags;
@@ -150,6 +151,61 @@ namespace App.Glsl
         }
 
         private static string Uniforms(string text) => uniform.Replace(text, string.Empty);
+
+        private static string AddDebugCode(string text)
+        {
+            var datatypes = new[] {
+                "bool", "int", "uint", "float", "double",
+                "bvec2", "ivec2", "uvec2", "vec2", "dvec2",
+                "bvec3", "ivec3", "uvec3", "vec3", "dvec3",
+                "bvec4", "ivec4", "uvec4", "vec4", "dvec4",
+                "mat2", "dmat2", "mat3", "dmat3", "mat4", "dmat4"
+            };
+
+            var s = @"\s*";
+            var word = @"[\w\d]+";
+            var idx = $"\\[{s}{word}{s}\\]";
+            var obj = $"{word}{s}({idx})*{s}\\.";
+            var ex = $"({obj})*";
+
+            var regexFunc = Compiler.RegexFunction;
+
+            // get variable names
+            var varnames = new List<string>();
+            foreach (var type in datatypes)
+            {
+                var matches = Regex.Matches(text, $"\\b{type}\\s+[\\w\\d]+");
+                foreach (Match match in matches)
+                    varnames.Add(match.Value.Word(match.Length - 1));
+            }
+
+            var funcs = regexFunc.Matches(text);
+            foreach (Match func in funcs)
+            {
+                var start = func.Value.IndexOf('{');
+                var str = func.Value.Substring(start);
+                var length = str.Length;
+                foreach (var varname in varnames)
+                {
+                    var regex = $"{ex}{varname}({idx})?(?!\\s*=)";
+                    var matches = Regex.Matches(str, regex);
+                    for (int i = matches.Count - 1; i >= 0; i--)
+                    {
+                        var match = matches[i];
+                        var typeidx = str.IndexOfWord(match.Index, -1);
+                        var typename = typeidx >= 0 ? str.Word(typeidx) : string.Empty;
+                        if (typeidx >= 0 && datatypes.Any(x => x == typename))
+                            continue;
+                        str = str
+                            .Insert(match.Index + match.Length, $", \"{match.Value}\")")
+                            .Insert(match.Index, "TraceVar(");
+                    }
+                }
+                text = text.Remove(func.Index + start, length).Insert(func.Index + start, str);
+            }
+
+            return text;
+        }
 
         private static string Discard(string text) => Regex.Replace(text, @"\bdiscard\b", "return");
 

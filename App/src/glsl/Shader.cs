@@ -131,10 +131,7 @@ namespace App.Glsl
         internal static List<TraceInfo> TraceLog = new List<TraceInfo>();
         public static IEnumerable<TraceInfo> DebugTrace => TraceLog;
 
-        public void ClearDebugTrace()
-        {
-            TraceLog.Clear();
-        }
+        public static void ClearDebugTrace() => TraceLog.Clear();
         
         protected void BeginTracing()
         {
@@ -148,25 +145,39 @@ namespace App.Glsl
             ShaderLineOffset = 0;
         }
 
-        internal static T TraceVar<T>(T value) => Trace(false, null, value);
-
-        internal static T TraceFunc<T>(T output, params object[] input) => Trace(true, input, output);
-
-        private static T Trace<T>(bool isFunc, object[] input, T output)
+        public static T TraceVar<T>(T value, string valueName)
         {
             if (!CollectDebugData)
-                return output;
-
-            var type = output.GetType();
+                return value;
+            
             var trace = new StackTrace(true);
-            var traceMethod = $"Trace{(isFunc ? "Func" : "Var")}";
-            var idx = trace.GetFrames().IndexOf(x => x.GetMethod()?.Name == traceMethod);
+            var idx = trace.GetFrames().IndexOf(x => x.GetMethod()?.Name == "TraceVar");
 
             TraceLog.Add(new TraceInfo
             {
                 Line = trace.GetFrame(idx + 2).GetFileLineNumber() + ShaderLineOffset,
                 Column = trace.GetFrame(idx + 2).GetFileColumnNumber(),
-                Function = isFunc ? trace.GetFrame(idx + 1).GetMethod().Name : null,
+                Function = valueName,
+                Output = value?.ToString(),
+                Input = null,
+            });
+
+            return value;
+        }
+
+        public static T TraceFunc<T>(T output, params object[] input)
+        {
+            if (!CollectDebugData)
+                return output;
+            
+            var trace = new StackTrace(true);
+            var idx = trace.GetFrames().IndexOf(x => x.GetMethod()?.Name == "TraceFunc");
+
+            TraceLog.Add(new TraceInfo
+            {
+                Line = trace.GetFrame(idx + 2).GetFileLineNumber() + ShaderLineOffset,
+                Column = trace.GetFrame(idx + 2).GetFileColumnNumber(),
+                Function = trace.GetFrame(idx + 1).GetMethod().Name,
                 Output = output?.ToString(),
                 Input = input?.Select(x => x.ToString()).ToArray(),
             });
@@ -183,26 +194,33 @@ namespace App.Glsl
             public string[] Input;
             public override string ToString()
             {
-                string func;
-                switch (Function)
+                if (Input == null)
                 {
-                    case "op_Addition":
-                        func = " = " + Input[0] + " + " + Input[1];
-                        break;
-                    case "op_Substraction":
-                        func = " = " + Input[0] + " + " + Input[1];
-                        break;
-                    case "op_Multiply":
-                        func = " = " + Input[0] + " / " + Input[1];
-                        break;
-                    case "op_Division":
-                        func = " = " + Input[0] + " / " + Input[1];
-                        break;
-                    default:
-                        func = Function != null ? " = " + Function + "(" + Input.Cat(", ") + ")" : "";
-                        break;
+                    return "[L" + Line + ", C" + Column + "] " + Function + ": " + Output;
                 }
-                return "L" + Line + "::C" + Column + "::" + Output + func;
+                else
+                {
+                    string func;
+                    switch (Function)
+                    {
+                        case "op_Addition":
+                            func = " = " + Input[0] + " + " + Input[1];
+                            break;
+                        case "op_Substraction":
+                            func = " = " + Input[0] + " + " + Input[1];
+                            break;
+                        case "op_Multiply":
+                            func = " = " + Input[0] + " / " + Input[1];
+                            break;
+                        case "op_Division":
+                            func = " = " + Input[0] + " / " + Input[1];
+                            break;
+                        default:
+                            func = Function != null ? " = " + Function + "(" + Input.Cat(", ") + ")" : "";
+                            break;
+                    }
+                    return "[L" + Line + ", C" + Column + "] " + Output + func;
+                }
             }
         }
 

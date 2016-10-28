@@ -98,60 +98,60 @@ namespace App.Glsl
 
         #region Constructors
 
-        public static vec2 vec2(float a) => Shader.TraceVar(new vec2(a));
-        public static vec2 vec2(float x, float y) => Shader.TraceVar(new vec2(x, y));
-        public static vec3 vec3(float a) => Shader.TraceVar(new vec3(a));
-        public static vec3 vec3(float x, float y, float z) => Shader.TraceVar(new vec3(x, y, z));
-        public static vec4 vec4(float a) => Shader.TraceVar(new vec4(a));
-        public static vec4 vec4(float x, float y, float z, float w) => Shader.TraceVar(new vec4(x, y, z, w));
-        public static dvec2 dvec2(double a) => Shader.TraceVar(new dvec2(a));
-        public static dvec2 dvec2(double x, double y) => Shader.TraceVar(new dvec2(x, y));
-        public static dvec3 dvec3(double a) => Shader.TraceVar(new dvec3(a));
-        public static dvec3 dvec3(double x, double y, double z) => Shader.TraceVar(new dvec3(x, y, z));
-        public static dvec4 dvec4(double a) => Shader.TraceVar(new dvec4(a));
-        public static dvec4 dvec4(double x, double y, double z, double w) => Shader.TraceVar(new dvec4(x, y, z, w));
-        public static ivec2 ivec2(int a) => Shader.TraceVar(new ivec2(a));
-        public static ivec2 ivec2(int x, int y) => Shader.TraceVar(new ivec2(x, y));
-        public static ivec3 ivec3(int a) => Shader.TraceVar(new ivec3(a));
-        public static ivec3 ivec3(int x, int y, int z) => Shader.TraceVar(new ivec3(x, y, z));
-        public static ivec4 ivec4(int a) => Shader.TraceVar(new ivec4(a));
-        public static ivec4 ivec4(int x, int y, int z, int w) => Shader.TraceVar(new ivec4(x, y, z, w));
-        public static uvec2 uvec2(uint a) => Shader.TraceVar(new uvec2(a));
-        public static uvec2 uvec2(uint x, uint y) => Shader.TraceVar(new uvec2(x, y));
-        public static uvec3 uvec3(uint a) => Shader.TraceVar(new uvec3(a));
-        public static uvec3 uvec3(uint x, uint y, uint z) => Shader.TraceVar(new uvec3(x, y, z));
-        public static uvec4 uvec4(uint a) => Shader.TraceVar(new uvec4(a));
-        public static uvec4 uvec4(uint x, uint y, uint z, uint w) => Shader.TraceVar(new uvec4(x, y, z, w));
-        public static mat2 mat2(float a) => Shader.TraceVar(new mat2(a));
-        public static mat2 mat2(vec2 a, vec2 b) => Shader.TraceVar(new mat2(a, b));
+        public static vec2 vec2(float a) => new vec2(a);
+        public static vec2 vec2(float x, float y) => new vec2(x, y);
+        public static vec3 vec3(float a) => new vec3(a);
+        public static vec3 vec3(float x, float y, float z) => new vec3(x, y, z);
+        public static vec4 vec4(float a) => new vec4(a);
+        public static vec4 vec4(float x, float y, float z, float w) => new vec4(x, y, z, w);
+        public static dvec2 dvec2(double a) => new dvec2(a);
+        public static dvec2 dvec2(double x, double y) => new dvec2(x, y);
+        public static dvec3 dvec3(double a) => new dvec3(a);
+        public static dvec3 dvec3(double x, double y, double z) => new dvec3(x, y, z);
+        public static dvec4 dvec4(double a) => new dvec4(a);
+        public static dvec4 dvec4(double x, double y, double z, double w) => new dvec4(x, y, z, w);
+        public static ivec2 ivec2(int a) => new ivec2(a);
+        public static ivec2 ivec2(int x, int y) => new ivec2(x, y);
+        public static ivec3 ivec3(int a) => new ivec3(a);
+        public static ivec3 ivec3(int x, int y, int z) => new ivec3(x, y, z);
+        public static ivec4 ivec4(int a) => new ivec4(a);
+        public static ivec4 ivec4(int x, int y, int z, int w) => new ivec4(x, y, z, w);
+        public static uvec2 uvec2(uint a) => new uvec2(a);
+        public static uvec2 uvec2(uint x, uint y) => new uvec2(x, y);
+        public static uvec3 uvec3(uint a) => new uvec3(a);
+        public static uvec3 uvec3(uint x, uint y, uint z) => new uvec3(x, y, z);
+        public static uvec4 uvec4(uint a) => new uvec4(a);
+        public static uvec4 uvec4(uint x, uint y, uint z, uint w) => new uvec4(x, y, z, w);
+        public static mat2 mat2(float a) => new mat2(a);
+        public static mat2 mat2(vec2 a, vec2 b) => new mat2(a, b);
         public static mat2 mat2(
             float _00, float _10,
             float _01, float _11)
-            => Shader.TraceVar(new mat2(
+            => new mat2(
                 _00, _10,
-                _01, _11));
-        public static mat3 mat3(float a) => Shader.TraceVar(new mat3(a));
-        public static mat3 mat3(vec3 a, vec3 b, vec3 c) => Shader.TraceVar(new mat3(a, b, c));
+                _01, _11);
+        public static mat3 mat3(float a) => new mat3(a);
+        public static mat3 mat3(vec3 a, vec3 b, vec3 c) => new mat3(a, b, c);
         public static mat3 mat3(
             float _00, float _10, float _20,
             float _01, float _11, float _21,
             float _02, float _12, float _22)
-            => Shader.TraceVar(new mat3(
+            => new mat3(
                 _00, _10, _20,
                 _01, _11, _21,
-                _02, _12, _22));
-        public static mat4 mat4(float a) => Shader.TraceVar(new mat4(a));
-        public static mat4 mat4(vec4 a, vec4 b, vec4 c, vec4 d) => Shader.TraceVar(new mat4(a, b, c, d));
+                _02, _12, _22);
+        public static mat4 mat4(float a) => new mat4(a);
+        public static mat4 mat4(vec4 a, vec4 b, vec4 c, vec4 d) => new mat4(a, b, c, d);
         public static mat4 mat4(
             float _00, float _10, float _20, float _30,
             float _01, float _11, float _21, float _31,
             float _02, float _12, float _22, float _32,
             float _03, float _13, float _23, float _33)
-            => Shader.TraceVar(new mat4(
+            => new mat4(
                 _00, _10, _20, _30,
                 _01, _11, _21, _31,
                 _02, _12, _22, _32,
-                _03, _13, _23, _33));
+                _03, _13, _23, _33);
 
         #endregion
     }
