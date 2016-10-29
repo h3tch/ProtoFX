@@ -4,12 +4,6 @@ namespace App.Glsl
 {
     public class FragShader : Shader
     {
-        #region Field
-
-        public static readonly FragShader Default = new FragShader(0);
-
-        #endregion
-
 #pragma warning disable 0649
 #pragma warning disable 0169
 
@@ -46,9 +40,9 @@ namespace App.Glsl
 
         #endregion
 
-        public void Debug()
+        internal void Debug()
         {
-            if (this != Default)
+            if (LineInFile >= 0)
                 BeginTracing();
             EndTracing();
         }

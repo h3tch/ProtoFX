@@ -331,7 +331,7 @@ namespace App.Glsl
             GL.GetProgramPipeline(pipeline, shader, out program);
             if (program <= 0)
                 return default(T);
-            
+
             // get uniform buffer object block index
             int block = GL.GetUniformBlockIndex(program, uniformName.Substring(0, uniformName.IndexOf('.')));
             if (block < 0)
@@ -419,7 +419,7 @@ namespace App.Glsl
         }
 
         #endregion
-
+        
         public virtual void main() { }
     }
 }

@@ -123,11 +123,11 @@ namespace App
                     }
                     else
                     {
-                        dbgvert = (VertShader)glvert?.DebugShader ?? VertShader.Default;
-                        dbgtess = (TessShader)gltess?.DebugShader ?? TessShader.Default;
-                        dbgeval = (EvalShader)gleval?.DebugShader ?? EvalShader.Default;
-                        dbggeom = (GeomShader)glgeom?.DebugShader ?? GeomShader.Default;
-                        dbgfrag = (FragShader)glfrag?.DebugShader ?? FragShader.Default;
+                        dbgvert = (VertShader)glvert?.DebugShader ?? new VertShader();
+                        dbgtess = (TessShader)gltess?.DebugShader ?? new TessShader();
+                        dbgeval = (EvalShader)gleval?.DebugShader ?? new EvalShader();
+                        dbggeom = (GeomShader)glgeom?.DebugShader ?? new GeomShader();
+                        dbgfrag = (FragShader)glfrag?.DebugShader ?? new FragShader();
                         (((dbgfrag.Prev = dbggeom).Prev = dbgeval).Prev = dbgtess).Prev = dbgvert;
                     }
                 }

@@ -4,12 +4,6 @@ namespace App.Glsl
 {
     class EvalShader : Shader
     {
-        #region Field
-
-        public static readonly EvalShader Default = new EvalShader(0);
-
-        #endregion
-
 #pragma warning disable 0649
 #pragma warning disable 0169
 
@@ -46,7 +40,7 @@ namespace App.Glsl
         internal void Debug()
         {
             GetTesselationOutput(Settings.ts_PrimitiveID, Settings.ts_InvocationID, Settings.ts_TessCoord);
-            if (this != Default)
+            if (LineInFile >= 0)
                 BeginTracing();
             main();
             EndTracing();

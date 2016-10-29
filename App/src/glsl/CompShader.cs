@@ -4,12 +4,6 @@ namespace App.Glsl
 {
     class CompShader : Shader
     {
-        #region Field
-
-        public static readonly CompShader Default = new CompShader(0);
-
-        #endregion
-
 #pragma warning disable 0649
 #pragma warning disable 0169
 
@@ -35,9 +29,9 @@ namespace App.Glsl
 
         #endregion
 
-        public void Debug()
+        internal void Debug()
         {
-            if (this != Default)
+            if (LineInFile >= 0)
                 BeginTracing();
             EndTracing();
         }

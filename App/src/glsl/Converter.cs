@@ -48,14 +48,6 @@ namespace App.Glsl
 
         private static string Version(string text) => version.Replace(text, string.Empty);
 
-        private static string Floats(string text)
-        {
-            var match = number.Matches(text);
-            for (int i = match.Count - 1; i >= 0; i--)
-                text = text.Insert(match[i].Index + match[i].Length, "f");
-            return text;
-        }
-
         private static string TypeCasts(string text)
         {
             text = typecast(text, "bool");
@@ -152,6 +144,8 @@ namespace App.Glsl
 
         private static string Uniforms(string text) => uniform.Replace(text, string.Empty);
 
+        private static string Discard(string text) => Regex.Replace(text, @"\bdiscard\b", "return");
+
         private static string AddDebugCode(string text)
         {
             var datatypes = new[] {
@@ -159,7 +153,8 @@ namespace App.Glsl
                 "bvec2", "ivec2", "uvec2", "vec2", "dvec2",
                 "bvec3", "ivec3", "uvec3", "vec3", "dvec3",
                 "bvec4", "ivec4", "uvec4", "vec4", "dvec4",
-                "mat2", "dmat2", "mat3", "dmat3", "mat4", "dmat4"
+                "mat2", "dmat2", "mat3", "dmat3", "mat4", "dmat4",
+                "return"
             };
 
             var s = @"\s*";
@@ -168,46 +163,68 @@ namespace App.Glsl
             var obj = $"{word}{s}({idx})*{s}\\.";
             var ex = $"({obj})*";
 
+            var regexVar = new Regex(@"(?<!\.\s*)[\w\d]+\b\s*(\[.+\])?\s*(\.\b[\w\d]+\b\s*(\[.+\])?\s*)*(?!\s*[=\(])(?!\s*[\-\+]{2})(?!\s*[\+\-\*/]=)");
             var regexFunc = Compiler.RegexFunction;
+            double tmp;
 
-            // get variable names
-            var varnames = new List<string>();
-            foreach (var type in datatypes)
-            {
-                var matches = Regex.Matches(text, $"\\b{type}\\s+[\\w\\d]+");
-                foreach (Match match in matches)
-                    varnames.Add(match.Value.Word(match.Length - 1));
-            }
+            //// get variable names
+            //var varnames = new HashSet<string>();
+            //foreach (var type in datatypes)
+            //{
+            //    var matches = Regex.Matches(text, $"\\b{type}\\s+[\\w\\d]+");
+            //    foreach (Match match in matches)
+            //        varnames.Add(match.Value.Word(match.Length - 1));
+            //}
 
             var funcs = regexFunc.Matches(text);
-            foreach (Match func in funcs)
+            for (var i_func = funcs.Count - 1; i_func >= 0; i_func--)
             {
+                Match func = funcs[i_func];
                 var start = func.Value.IndexOf('{');
                 var str = func.Value.Substring(start);
                 var length = str.Length;
-                foreach (var varname in varnames)
+
+                var variables = regexVar.Matches(str);
+                for (int i_var = variables.Count - 1; i_var >= 0; i_var--)
                 {
-                    var regex = $"{ex}{varname}({idx})?(?!\\s*=)";
-                    var matches = Regex.Matches(str, regex);
-                    for (int i = matches.Count - 1; i >= 0; i--)
-                    {
-                        var match = matches[i];
-                        var typeidx = str.IndexOfWord(match.Index, -1);
-                        var typename = typeidx >= 0 ? str.Word(typeidx) : string.Empty;
-                        if (typeidx >= 0 && datatypes.Any(x => x == typename))
-                            continue;
-                        str = str
-                            .Insert(match.Index + match.Length, $", \"{match.Value}\")")
-                            .Insert(match.Index, "TraceVar(");
-                    }
+                    var variable = variables[i_var];
+                    var varname = variable.Value.Trim();
+                    if (datatypes.Any(x => x == varname) || double.TryParse(varname, out tmp))
+                        continue;
+                    str = str
+                        .Insert(variable.Index + varname.Length, $", \"{varname}\")")
+                        .Insert(variable.Index, "TraceVar(");
                 }
+
+                //foreach (var varname in varnames)
+                //{
+                //    var regex = $"{ex}\\b{varname}\\b({idx})?(?!\\s*[=\\.\\(])";
+                //    var variables = Regex.Matches(str, regex);
+                //    for (int i_var = variables.Count - 1; i_var >= 0; i_var--)
+                //    {
+                //        var variable = variables[i_var];
+                //        var typeidx = str.IndexOfWord(variable.Index, -1);
+                //        var typename = typeidx >= 0 ? str.Word(typeidx) : string.Empty;
+                //        if (typeidx >= 0 && datatypes.Any(x => x == typename))
+                //            continue;
+                //        str = str
+                //            .Insert(variable.Index + variable.Length, $", \"{variable.Value}\")")
+                //            .Insert(variable.Index, "TraceVar(");
+                //    }
+                //}
                 text = text.Remove(func.Index + start, length).Insert(func.Index + start, str);
             }
 
             return text;
         }
 
-        private static string Discard(string text) => Regex.Replace(text, @"\bdiscard\b", "return");
+        private static string Floats(string text)
+        {
+            var match = number.Matches(text);
+            for (int i = match.Count - 1; i >= 0; i--)
+                text = text.Insert(match[i].Index + match[i].Length, "f");
+            return text;
+        }
 
         private static string Inputs(string text)
         {

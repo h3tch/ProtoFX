@@ -4,12 +4,6 @@ namespace App.Glsl
 {
     class GeomShader : Shader
     {
-        #region Field
-
-        public static readonly GeomShader Default = new GeomShader(0);
-
-        #endregion
-
 #pragma warning disable 0649
 #pragma warning disable 0169
 
@@ -37,7 +31,7 @@ namespace App.Glsl
 
         #region Constructors
 
-        public GeomShader() : this(0) { }
+        public GeomShader() : this(-1) { }
 
         public GeomShader(int startLine) : base(startLine) { }
 
@@ -45,7 +39,7 @@ namespace App.Glsl
 
         internal void Debug()
         {
-            if (this != Default)
+            if (LineInFile >= 0)
                 BeginTracing();
             Execute(Settings.gs_PrimitiveIDIn, Settings.gs_InvocationID);
             EndTracing();

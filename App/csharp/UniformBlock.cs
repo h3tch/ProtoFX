@@ -9,6 +9,7 @@ namespace csharp
     public class UniformBlock<Names>
     {
         #region FIELDS
+        public int program;
         private int glbuf;
         private int unit;
         private int size;
@@ -30,10 +31,28 @@ namespace csharp
             };
         } }
 
-        public UniformBlock(int program, string name)
+        public UniformBlock(int pipeline, string name)
         {
-            // get uniform block binding unit and size
-            int block = GL.GetUniformBlockIndex(program, name);
+            var stages = new[] {
+                ProgramPipelineParameter.ComputeShader,
+                ProgramPipelineParameter.VertexShader,
+                ProgramPipelineParameter.TessControlShader,
+                ProgramPipelineParameter.TessEvaluationShader,
+                ProgramPipelineParameter.GeometryShader,
+                ProgramPipelineParameter.FragmentShader,
+            };
+
+            int block = -1;
+            foreach (var stage in stages)
+            {
+                // get the shader program of the pipeline
+                GL.GetProgramPipeline(pipeline, stage, out program);
+                if (program > 0 && (block = GL.GetUniformBlockIndex(program, name)) >= 0)
+                    break;
+            }
+
+            if (program <= 0)
+                throw new Exception("No shader program active in the current pipeline bound.");
             if (block < 0)
                 throw new Exception("Could not find uniform block '" + name + "'.");
             GL.GetActiveUniformBlock(program, block,
@@ -80,9 +99,9 @@ namespace csharp
 
             // allocate GPU memory
             var flags = BufferStorageFlags.MapWriteBit;
-            #if DEBUG
+#if DEBUG
             flags |= BufferStorageFlags.MapReadBit;
-            #endif
+#endif
             glbuf = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.UniformBuffer, glbuf); // Note: needs to be bound once!
             GL.NamedBufferStorage(glbuf, size, IntPtr.Zero, flags);

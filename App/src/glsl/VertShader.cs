@@ -5,12 +5,6 @@ namespace App.Glsl
 {
     public class VertShader : Shader
     {
-        #region Fields
-
-        public static readonly VertShader Default = new VertShader(0);
-
-        #endregion
-
 #pragma warning disable 0649
 #pragma warning disable 0169
 
@@ -42,7 +36,7 @@ namespace App.Glsl
 
         internal void Debug()
         {
-            if (this != Default)
+            if (LineInFile >= 0)
                 BeginTracing();
             Execute(Settings.vs_VertexID, Settings.vs_InstanceID);
             EndTracing();

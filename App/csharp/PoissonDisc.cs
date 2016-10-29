@@ -47,13 +47,13 @@ namespace csharp
             points = Disc.Generate(maxPoints, minRadius);
         }
 
-        public void Update(int program, int width, int height, int widthTex, int heightTex)
+        public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
             // GET OR CREATE POISSON DISC UNIFORMS FOR program
             UniformBlock<Names> unif;
-            if (uniform.TryGetValue(program, out unif) == false)
+            if (uniform.TryGetValue(pipeline, out unif) == false)
             {
-                uniform.Add(program, unif = new UniformBlock<Names>(program, name));
+                uniform.Add(pipeline, unif = new UniformBlock<Names>(pipeline, name));
                 // SET UNIFORM VALUES
                 unif.Set(Names.numPoints, new[] { points.GetLength(0) });
                 unif.Set(Names.points, points);

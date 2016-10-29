@@ -68,7 +68,7 @@ namespace csharp
             Convert(cmds, "far", ref far);
         }
 
-        public void Update(int program, int width, int height, int widthTex, int heightTex)
+        public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
             // This function is executed every frame at the beginning of a pass.
             view = Matrix4.CreateTranslation(-pos[0], -pos[1], -pos[2])
@@ -79,8 +79,8 @@ namespace csharp
 
             // GET OR CREATE CAMERA UNIFORMS FOR program
             UniformBlock<Names> unif;
-            if (uniform.TryGetValue(program, out unif) == false)
-                uniform.Add(program, unif = new UniformBlock<Names>(program, name));
+            if (uniform.TryGetValue(pipeline, out unif) == false)
+                uniform.Add(pipeline, unif = new UniformBlock<Names>(pipeline, name));
 
             // SET UNIFORM VALUES
             if (unif.Has(Names.view))

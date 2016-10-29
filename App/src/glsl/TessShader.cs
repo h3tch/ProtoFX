@@ -5,12 +5,6 @@ namespace App.Glsl
 {
     class TessShader : Shader
     {
-        #region Field
-
-        public static readonly TessShader Default = new TessShader(0);
-
-        #endregion
-
 #pragma warning disable 0649
 #pragma warning disable 0169
 
@@ -45,7 +39,7 @@ namespace App.Glsl
         internal void Debug()
         {
             GetVertexOutput(Settings.ts_PrimitiveID, Settings.ts_InvocationID);
-            if (this != Default)
+            if (LineInFile >= 0)
                 BeginTracing();
             main();
             EndTracing();

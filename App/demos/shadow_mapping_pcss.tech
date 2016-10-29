@@ -67,6 +67,11 @@ shader vs_shadowmap vert {
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
 	
+	// vertex shader output
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
+	
 	void main ()
 	{
 		// transform vertex to light projection space
@@ -94,6 +99,9 @@ shader vs_render vert {
 	// vertex shader output
 	layout(location = 0) out vec4 out_lpos;
 	layout(location = 1) out vec4 out_col;
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
 	
 	void main ()
 	{

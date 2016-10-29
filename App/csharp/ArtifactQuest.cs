@@ -94,7 +94,7 @@ namespace csharp
             randomAngle = NextRandomAngle();
         }
 
-        public void Update(int program, int widthScreen, int heightScreen, int widthTex, int heightTex)
+        public void Update(int pipeline, int widthScreen, int heightScreen, int widthTex, int heightTex)
         {
             var sub = quests[activeQuest];
             var size = artifactSize[sub.artifactId];
@@ -108,10 +108,10 @@ namespace csharp
             // GET OR CREATE CAMERA UNIFORMS FOR program
             UniformBlock<Names> unif;
             UniformBlock<Disc> unifDisc;
-            if (uniform.TryGetValue(program, out unif) == false)
-                uniform.Add(program, unif = new UniformBlock<Names>(program, name));
-            if (uniformDisc.TryGetValue(program, out unifDisc) == false)
-                uniformDisc.Add(program, unifDisc = new UniformBlock<Disc>(program, name + "Disc"));
+            if (uniform.TryGetValue(pipeline, out unif) == false)
+                uniform.Add(pipeline, unif = new UniformBlock<Names>(pipeline, name));
+            if (uniformDisc.TryGetValue(pipeline, out unifDisc) == false)
+                uniformDisc.Add(pipeline, unifDisc = new UniformBlock<Disc>(pipeline, name + "Disc"));
 
             // SET UNIFORM VALUES
             unif.Set(Names.rendertargetSize, new[] {
