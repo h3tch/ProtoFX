@@ -1,15 +1,15 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Linq;
 
 namespace App.Glsl
 {
     public class VertShader : Shader
     {
-#pragma warning disable 0649
-#pragma warning disable 0169
-
         #region Input
 
+#pragma warning disable 0649
+#pragma warning disable 0169
         protected int gl_VertexID;
         protected int gl_InstanceID;
 
@@ -20,28 +20,49 @@ namespace App.Glsl
         [__out] protected vec4 gl_Position;
         [__out] protected float gl_PointSize;
         [__out] protected float[] gl_ClipDistance = new float[4];
-
-        #endregion
-
 #pragma warning restore 0649
 #pragma warning restore 0169
 
+        #endregion
+        
         #region Constructors
 
-        public VertShader() : this(0) { }
+        public VertShader() : this(-1) { }
 
         public VertShader(int startLine) : base(startLine) { }
 
         #endregion
 
+        /// <summary>
+        /// Execute shader and generate debug trace
+        /// if the shader is linked to a file.
+        /// </summary>
         internal void Debug()
         {
-            if (LineInFile >= 0)
-                BeginTracing();
-            Execute(Settings.vs_VertexID, Settings.vs_InstanceID);
-            EndTracing();
+            try
+            { 
+                // only generate debug trace if the shader is linked to a file
+                if (LineInFile >= 0)
+                    BeginTracing();
+                // execute the shader
+                Execute(Settings.vs_VertexID, Settings.vs_InstanceID);
+            }
+            catch (Exception e)
+            {
+                TraceExeption(e);
+            }
+            finally
+            {
+                // end debug trace generation
+                EndTracing();
+            }
         }
 
+        /// <summary>
+        /// Execute the shader.
+        /// </summary>
+        /// <param name="vertexID"></param>
+        /// <param name="instanceID"></param>
         internal void Execute(int vertexID, int instanceID)
         {
             // set shader input
@@ -50,6 +71,8 @@ namespace App.Glsl
             // execute shader
             main();
         }
+
+        #region Overrides
 
         public override T GetInputVarying<T>(string varyingName)
         {
@@ -88,5 +111,7 @@ namespace App.Glsl
 
         public static object GetUniform<T>(string uniformName)
             => GetUniform<T>(uniformName, ProgramPipelineParameter.VertexShader);
+
+        #endregion
     }
 }

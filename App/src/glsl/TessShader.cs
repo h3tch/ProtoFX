@@ -5,10 +5,10 @@ namespace App.Glsl
 {
     class TessShader : Shader
     {
+        #region Input
+
 #pragma warning disable 0649
 #pragma warning disable 0169
-
-        #region Input
 
         protected int gl_PatchVerticesIn;
         protected int gl_PrimitiveID;
@@ -23,41 +23,64 @@ namespace App.Glsl
         [__out] protected float[] gl_TessLevelInner = new float[2];
         [__out] protected __InOut[] gl_out = new __InOut[4];
 
-        #endregion
-
 #pragma warning restore 0649
 #pragma warning restore 0169
 
+        #endregion
+
         #region Constructors
 
-        public TessShader() : this(0) { }
+        public TessShader() : this(-1) { }
 
         public TessShader(int startLine) : base(startLine) { }
 
         #endregion
 
+        /// <summary>
+        /// Execute shader and generate debug trace
+        /// if the shader is linked to a file.
+        /// </summary>
         internal void Debug()
         {
+            // get data from the vertex shader
             GetVertexOutput(Settings.ts_PrimitiveID, Settings.ts_InvocationID);
+            // only generate debug trace if the shader is linked to a file
             if (LineInFile >= 0)
                 BeginTracing();
+            // execute the main function of the shader
             main();
+            // end debug trace generation
             EndTracing();
         }
 
+        /// <summary>
+        /// Execute the shader.
+        /// </summary>
+        /// <param name="primitiveID"></param>
+        /// <param name="invocationID"></param>
         internal void Execute(int primitiveID, int invocationID)
         {
+            // get data from the vertex shader
             GetVertexOutput(primitiveID, invocationID);
+            // execute the main function of the shader
             main();
         }
 
+        #region Overrides
+
+        /// <summary>
+        /// Default shader main function.
+        /// Used when no custom tessellation shader is prescient.
+        /// </summary>
         public override void main()
         {
-            gl_TessLevelInner[0] = 0f;
-            gl_TessLevelInner[1] = 0f;
+            // RETURN DEFAULT OUTPUT VALUES
+
+            gl_TessLevelInner[0] = 1f;
+            gl_TessLevelInner[1] = 1f;
             for (int i = 0; i < 4; i++)
             {
-                gl_TessLevelOuter[i] = 0f;
+                gl_TessLevelOuter[i] = 1f;
                 gl_out[i].gl_Position = gl_in[i].gl_Position;
                 gl_out[i].gl_PointSize = gl_in[i].gl_PointSize;
                 gl_out[i].gl_ClipDistance = gl_in[i].gl_ClipDistance;
@@ -89,5 +112,7 @@ namespace App.Glsl
 
         public static object GetUniform<T>(string uniformName)
             => GetUniform<T>(uniformName, ProgramPipelineParameter.TessControlShader);
+
+        #endregion
     }
 }

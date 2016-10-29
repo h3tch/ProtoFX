@@ -185,6 +185,11 @@ namespace App.Glsl
             return output;
         }
 
+        public static void TraceExeption(Exception ex)
+        {
+
+        }
+
         public struct TraceInfo
         {
             public int Line;
@@ -301,18 +306,26 @@ namespace App.Glsl
         internal virtual T GetOutputVarying<T>(string varyingName)
         {
             var type = GetType();
+
+            // search properties
             var props = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Instance);
             foreach (var prop in props)
             {
+                // has out qualifier and the respective name
                 if (prop.GetCustomAttribute(typeof(__out)) != null && prop.Name == varyingName)
                     return (T)prop.GetValue(this);
             }
+
+            // search fields
             var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
             foreach (var field in fields)
             {
+                // has out qualifier and the respective name
                 if (field.GetCustomAttribute(typeof(__out)) != null && field.Name == varyingName)
                     return (T)field.GetValue(this);
             }
+
+            // varying could not be found
             return default(T);
         }
 
