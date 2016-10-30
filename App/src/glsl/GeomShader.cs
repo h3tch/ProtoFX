@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace App.Glsl
 {
@@ -43,13 +44,25 @@ namespace App.Glsl
         /// </summary>
         internal void Debug()
         {
-            // only generate debug trace if the shader is linked to a file
-            if (LineInFile >= 0)
-                BeginTracing();
-            // execute the main function of the shader
-            Execute(Settings.gs_PrimitiveIDIn, Settings.gs_InvocationID);
-            // end debug trace generation
-            EndTracing();
+            try
+            {
+                // only generate debug trace if the shader is linked to a file
+                if (LineInFile >= 0)
+                    BeginTracing();
+                // execute the main function of the shader
+                Execute(Settings.gs_PrimitiveIDIn, Settings.gs_InvocationID);
+                // end debug trace generation
+                EndTracing();
+            }
+            catch (Exception e)
+            {
+                TraceExeption(e);
+            }
+            finally
+            {
+                // end debug trace generation
+                EndTracing();
+            }
         }
 
         /// <summary>

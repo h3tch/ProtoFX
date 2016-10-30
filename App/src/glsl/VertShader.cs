@@ -76,7 +76,7 @@ namespace App.Glsl
 
         public override T GetInputVarying<T>(string varyingName)
         {
-            if (drawcall == null)
+            if (DrawCall == null)
                 return default(T);
 
             // get current shader program pipeline
@@ -96,7 +96,7 @@ namespace App.Glsl
                 return default(T);
 
             // get vertex input data
-            var data = drawcall?.vertin.GetVertexData(gl_VertexID, gl_InstanceID);
+            var data = DrawCall?.vertin.GetVertexData(gl_VertexID, gl_InstanceID);
             var array = data?.Skip(location).First();
             if (array == null)
                 return default(T);

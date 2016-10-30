@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using System;
 
 namespace App.Glsl
 {
@@ -31,11 +32,23 @@ namespace App.Glsl
 
         internal void Debug()
         {
-            // only generate debug trace if the shader is linked to a file
-            if (LineInFile >= 0)
-                BeginTracing();
-            // end debug trace generation
-            EndTracing();
+            try
+            { 
+                // only generate debug trace if the shader is linked to a file
+                if (LineInFile >= 0)
+                    BeginTracing();
+                // end debug trace generation
+                EndTracing();
+            }
+            catch (Exception e)
+            {
+                TraceExeption(e);
+            }
+            finally
+            {
+                // end debug trace generation
+                EndTracing();
+            }
         }
 
         #region Overrides

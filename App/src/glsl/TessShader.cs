@@ -42,15 +42,27 @@ namespace App.Glsl
         /// </summary>
         internal void Debug()
         {
-            // get data from the vertex shader
-            GetVertexOutput(Settings.ts_PrimitiveID, Settings.ts_InvocationID);
-            // only generate debug trace if the shader is linked to a file
-            if (LineInFile >= 0)
-                BeginTracing();
-            // execute the main function of the shader
-            main();
-            // end debug trace generation
-            EndTracing();
+            try
+            {
+                // get data from the vertex shader
+                GetVertexOutput(Settings.ts_PrimitiveID, Settings.ts_InvocationID);
+                // only generate debug trace if the shader is linked to a file
+                if (LineInFile >= 0)
+                    BeginTracing();
+                // execute the main function of the shader
+                main();
+                // end debug trace generation
+                EndTracing();
+            }
+            catch (Exception e)
+            {
+                TraceExeption(e);
+            }
+            finally
+            {
+                // end debug trace generation
+                EndTracing();
+            }
         }
 
         /// <summary>
@@ -89,7 +101,7 @@ namespace App.Glsl
 
         private void GetVertexOutput(int primitiveID, int invocationID)
         {
-            if (drawcall?.cmd?.Count == 0)
+            if (DrawCall?.cmd?.Count == 0)
                 return;
 
             // set shader input
@@ -98,7 +110,7 @@ namespace App.Glsl
             gl_InvocationID = invocationID;
 
             // load patch data from vertex shader
-            var patch = drawcall.GetPatch(primitiveID);
+            var patch = DrawCall.GetPatch(primitiveID);
             var vert = (VertShader)Prev;
             for (int i = 0; i < patch.Length; i++)
             {

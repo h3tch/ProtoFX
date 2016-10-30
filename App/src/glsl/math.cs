@@ -8,18 +8,18 @@ namespace App.Glsl
 
         private static float __abs(float a) => Math.Abs(a);
         private static double __abs(double a) => Math.Abs(a);
-        public static float abs(float a) => Shader.TraceFunc(__abs(a), a);
-        public static double abs(double a) => Shader.TraceFunc(__abs(a), a);
-        public static vec2 abs(vec2 a) => Shader.TraceFunc(new vec2(__abs(a.x), __abs(a.y)), a);
-        public static vec3 abs(vec3 a) => Shader.TraceFunc(new vec3(__abs(a.x), __abs(a.y), __abs(a.z)), a);
-        public static vec4 abs(vec4 a) => Shader.TraceFunc(new vec4(__abs(a.x), __abs(a.y), __abs(a.z), __abs(a.w)), a);
+        public static float abs(float a) => Shader.TraceFunction(__abs(a), a);
+        public static double abs(double a) => Shader.TraceFunction(__abs(a), a);
+        public static vec2 abs(vec2 a) => Shader.TraceFunction(new vec2(__abs(a.x), __abs(a.y)), a);
+        public static vec3 abs(vec3 a) => Shader.TraceFunction(new vec3(__abs(a.x), __abs(a.y), __abs(a.z)), a);
+        public static vec4 abs(vec4 a) => Shader.TraceFunction(new vec4(__abs(a.x), __abs(a.y), __abs(a.z), __abs(a.w)), a);
         private static float __fract(float a) => a - (int)a;
         private static double __fract(double a) => a - (long)a;
-        public static float fract(float a) => Shader.TraceFunc(__fract(a), a);
-        public static double fract(double a) => Shader.TraceFunc(__fract(a), a);
-        public static vec2 fract(vec2 a) => Shader.TraceFunc(new vec2(__fract(a.x), __fract(a.y)), a);
-        public static vec3 fract(vec3 a) => Shader.TraceFunc(new vec3(__fract(a.x), __fract(a.y), __fract(a.z)), a);
-        public static vec4 fract(vec4 a) => Shader.TraceFunc(new vec4(__fract(a.x), __fract(a.y), __fract(a.z), __fract(a.w)), a);
+        public static float fract(float a) => Shader.TraceFunction(__fract(a), a);
+        public static double fract(double a) => Shader.TraceFunction(__fract(a), a);
+        public static vec2 fract(vec2 a) => Shader.TraceFunction(new vec2(__fract(a.x), __fract(a.y)), a);
+        public static vec3 fract(vec3 a) => Shader.TraceFunction(new vec3(__fract(a.x), __fract(a.y), __fract(a.z)), a);
+        public static vec4 fract(vec4 a) => Shader.TraceFunction(new vec4(__fract(a.x), __fract(a.y), __fract(a.z), __fract(a.w)), a);
 
         #endregion
 
@@ -27,29 +27,29 @@ namespace App.Glsl
 
         public static float __sin(float a) => (float)Math.Sin(a);
         public static double __sin(double a) => Math.Sin(a);
-        public static float sin(float a) => Shader.TraceFunc(__sin(a), a);
-        public static double sin(double a) => Shader.TraceFunc(__sin(a), a);
-        public static vec2 sin(vec2 a) => Shader.TraceFunc(new vec2(__sin(a.x), __sin(a.y)), a);
-        public static vec3 sin(vec3 a) => Shader.TraceFunc(new vec3(__sin(a.x), __sin(a.y), __sin(a.z)), a);
-        public static vec4 sin(vec4 a) => Shader.TraceFunc(new vec4(__sin(a.x), __sin(a.y), __sin(a.z), __sin(a.w)), a);
+        public static float sin(float a) => Shader.TraceFunction(__sin(a), a);
+        public static double sin(double a) => Shader.TraceFunction(__sin(a), a);
+        public static vec2 sin(vec2 a) => Shader.TraceFunction(new vec2(__sin(a.x), __sin(a.y)), a);
+        public static vec3 sin(vec3 a) => Shader.TraceFunction(new vec3(__sin(a.x), __sin(a.y), __sin(a.z)), a);
+        public static vec4 sin(vec4 a) => Shader.TraceFunction(new vec4(__sin(a.x), __sin(a.y), __sin(a.z), __sin(a.w)), a);
         public static float __cos(float a) => (float)Math.Cos(a);
         public static double __cos(double a) => Math.Cos(a);
-        public static float cos(float a) => Shader.TraceFunc(__cos(a), a);
-        public static double cos(double a) => Shader.TraceFunc(__cos(a), a);
-        public static vec2 cos(vec2 a) => Shader.TraceFunc(new vec2(__cos(a.x), __cos(a.y)), a);
-        public static vec3 cos(vec3 a) => Shader.TraceFunc(new vec3(__cos(a.x), __cos(a.y), __cos(a.z)), a);
-        public static vec4 cos(vec4 a) => Shader.TraceFunc(new vec4(__cos(a.x), __cos(a.y), __cos(a.z), __cos(a.w)), a);
+        public static float cos(float a) => Shader.TraceFunction(__cos(a), a);
+        public static double cos(double a) => Shader.TraceFunction(__cos(a), a);
+        public static vec2 cos(vec2 a) => Shader.TraceFunction(new vec2(__cos(a.x), __cos(a.y)), a);
+        public static vec3 cos(vec3 a) => Shader.TraceFunction(new vec3(__cos(a.x), __cos(a.y), __cos(a.z)), a);
+        public static vec4 cos(vec4 a) => Shader.TraceFunction(new vec4(__cos(a.x), __cos(a.y), __cos(a.z), __cos(a.w)), a);
         public static float __tan(float a) => (float)Math.Tan(a);
         public static double __tan(double a) => Math.Tan(a);
-        public static float tan(float a) => Shader.TraceFunc(__tan(a), a);
-        public static double tan(double a) => Shader.TraceFunc(__tan(a), a);
-        public static vec2 tan(vec2 a) => Shader.TraceFunc(new vec2(__tan(a.x), __tan(a.y)), a);
-        public static vec3 tan(vec3 a) => Shader.TraceFunc(new vec3(__tan(a.x), __tan(a.y), __tan(a.z)), a);
-        public static vec4 tan(vec4 a) => Shader.TraceFunc(new vec4(__tan(a.x), __tan(a.y), __tan(a.z), __tan(a.w)), a);
-        public static float dot(vec2 a, vec2 b) => Shader.TraceFunc(a.x * b.x + a.y * b.y, a, b);
-        public static float dot(vec3 a, vec3 b) => Shader.TraceFunc(a.x * b.x + a.y * b.y + a.z * b.z, a, b);
-        public static float dot(vec4 a, vec4 b) => Shader.TraceFunc(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w, a, b);
-        public static vec3 cross(vec3 a, vec3 b) => Shader.TraceFunc(new vec3(a.y * b.z - a.z * b.y, a.x * b.z - a.z * b.x, a.x * b.y - a.y * b.x), a, b);
+        public static float tan(float a) => Shader.TraceFunction(__tan(a), a);
+        public static double tan(double a) => Shader.TraceFunction(__tan(a), a);
+        public static vec2 tan(vec2 a) => Shader.TraceFunction(new vec2(__tan(a.x), __tan(a.y)), a);
+        public static vec3 tan(vec3 a) => Shader.TraceFunction(new vec3(__tan(a.x), __tan(a.y), __tan(a.z)), a);
+        public static vec4 tan(vec4 a) => Shader.TraceFunction(new vec4(__tan(a.x), __tan(a.y), __tan(a.z), __tan(a.w)), a);
+        public static float dot(vec2 a, vec2 b) => Shader.TraceFunction(a.x * b.x + a.y * b.y, a, b);
+        public static float dot(vec3 a, vec3 b) => Shader.TraceFunction(a.x * b.x + a.y * b.y + a.z * b.z, a, b);
+        public static float dot(vec4 a, vec4 b) => Shader.TraceFunction(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w, a, b);
+        public static vec3 cross(vec3 a, vec3 b) => Shader.TraceFunction(new vec3(a.y * b.z - a.z * b.y, a.x * b.z - a.z * b.x, a.x * b.y - a.y * b.x), a, b);
 
         #endregion
 
@@ -70,29 +70,29 @@ namespace App.Glsl
 
         #region Inequalities
 
-        public static bool isnan(float a) => Shader.TraceFunc(float.IsNaN(a), a);
-        public static bool isnan(double a) => Shader.TraceFunc(double.IsNaN(a), a);
-        public static bvec2 isnan(vec2 a) => Shader.TraceFunc(new bvec2(float.IsNaN(a.x), float.IsNaN(a.y)), a);
-        public static bvec3 isnan(vec3 a) => Shader.TraceFunc(new bvec3(float.IsNaN(a.x), float.IsNaN(a.y), float.IsNaN(a.z)), a);
-        public static bvec4 isnan(vec4 a) => Shader.TraceFunc(new bvec4(float.IsNaN(a.x), float.IsNaN(a.y), float.IsNaN(a.z), float.IsNaN(a.w)), a);
-        public static bvec2 lessThan(vec2 a, vec2 b) => Shader.TraceFunc(new bvec2(a.x < b.x, a.y < b.y), a, b);
-        public static bvec3 lessThan(vec3 a, vec3 b) => Shader.TraceFunc(new bvec3(a.x < b.x, a.y < b.y, a.z < b.z), a, b);
-        public static bvec4 lessThan(vec4 a, vec4 b) => Shader.TraceFunc(new bvec4(a.x < b.x, a.y < b.y, a.z < b.z, a.w < b.w), a, b);
-        public static bvec2 lessThanEqual(vec2 a, vec2 b) => Shader.TraceFunc(new bvec2(a.x <= b.x, a.y <= b.y), a, b);
-        public static bvec3 lessThanEqual(vec3 a, vec3 b) => Shader.TraceFunc(new bvec3(a.x <= b.x, a.y <= b.y, a.z <= b.z), a, b);
-        public static bvec4 lessThanEqual(vec4 a, vec4 b) => Shader.TraceFunc(new bvec4(a.x <= b.x, a.y <= b.y, a.z <= b.z, a.w <= b.w), a, b);
-        public static bvec2 greaterThan(vec2 a, vec2 b) => Shader.TraceFunc(new bvec2(a.x > b.x, a.y > b.y), a, b);
-        public static bvec3 greaterThan(vec3 a, vec3 b) => Shader.TraceFunc(new bvec3(a.x > b.x, a.y > b.y, a.z > b.z), a, b);
-        public static bvec4 greaterThan(vec4 a, vec4 b) => Shader.TraceFunc(new bvec4(a.x > b.x, a.y > b.y, a.z > b.z, a.w > b.w), a, b);
-        public static bvec2 greaterThanEqual(vec2 a, vec2 b) => Shader.TraceFunc(new bvec2(a.x >= b.x, a.y >= b.y), a, b);
-        public static bvec3 greaterThanEqual(vec3 a, vec3 b) => Shader.TraceFunc(new bvec3(a.x >= b.x, a.y >= b.y, a.z >= b.z), a, b);
-        public static bvec4 greaterThanEqual(vec4 a, vec4 b) => Shader.TraceFunc(new bvec4(a.x >= b.x, a.y >= b.y, a.z >= b.z, a.w >= b.w), a, b);
-        public static bool any(bvec2 a) => Shader.TraceFunc(a.x || a.y, a);
-        public static bool any(bvec3 a) => Shader.TraceFunc(a.x || a.y || a.z, a);
-        public static bool any(bvec4 a) => Shader.TraceFunc(a.x || a.y || a.z || a.w, a);
-        public static bool all(bvec2 a) => Shader.TraceFunc(a.x && a.y, a);
-        public static bool all(bvec3 a) => Shader.TraceFunc(a.x && a.y && a.z, a);
-        public static bool all(bvec4 a) => Shader.TraceFunc(a.x && a.y && a.z && a.w, a);
+        public static bool isnan(float a) => Shader.TraceFunction(float.IsNaN(a), a);
+        public static bool isnan(double a) => Shader.TraceFunction(double.IsNaN(a), a);
+        public static bvec2 isnan(vec2 a) => Shader.TraceFunction(new bvec2(float.IsNaN(a.x), float.IsNaN(a.y)), a);
+        public static bvec3 isnan(vec3 a) => Shader.TraceFunction(new bvec3(float.IsNaN(a.x), float.IsNaN(a.y), float.IsNaN(a.z)), a);
+        public static bvec4 isnan(vec4 a) => Shader.TraceFunction(new bvec4(float.IsNaN(a.x), float.IsNaN(a.y), float.IsNaN(a.z), float.IsNaN(a.w)), a);
+        public static bvec2 lessThan(vec2 a, vec2 b) => Shader.TraceFunction(new bvec2(a.x < b.x, a.y < b.y), a, b);
+        public static bvec3 lessThan(vec3 a, vec3 b) => Shader.TraceFunction(new bvec3(a.x < b.x, a.y < b.y, a.z < b.z), a, b);
+        public static bvec4 lessThan(vec4 a, vec4 b) => Shader.TraceFunction(new bvec4(a.x < b.x, a.y < b.y, a.z < b.z, a.w < b.w), a, b);
+        public static bvec2 lessThanEqual(vec2 a, vec2 b) => Shader.TraceFunction(new bvec2(a.x <= b.x, a.y <= b.y), a, b);
+        public static bvec3 lessThanEqual(vec3 a, vec3 b) => Shader.TraceFunction(new bvec3(a.x <= b.x, a.y <= b.y, a.z <= b.z), a, b);
+        public static bvec4 lessThanEqual(vec4 a, vec4 b) => Shader.TraceFunction(new bvec4(a.x <= b.x, a.y <= b.y, a.z <= b.z, a.w <= b.w), a, b);
+        public static bvec2 greaterThan(vec2 a, vec2 b) => Shader.TraceFunction(new bvec2(a.x > b.x, a.y > b.y), a, b);
+        public static bvec3 greaterThan(vec3 a, vec3 b) => Shader.TraceFunction(new bvec3(a.x > b.x, a.y > b.y, a.z > b.z), a, b);
+        public static bvec4 greaterThan(vec4 a, vec4 b) => Shader.TraceFunction(new bvec4(a.x > b.x, a.y > b.y, a.z > b.z, a.w > b.w), a, b);
+        public static bvec2 greaterThanEqual(vec2 a, vec2 b) => Shader.TraceFunction(new bvec2(a.x >= b.x, a.y >= b.y), a, b);
+        public static bvec3 greaterThanEqual(vec3 a, vec3 b) => Shader.TraceFunction(new bvec3(a.x >= b.x, a.y >= b.y, a.z >= b.z), a, b);
+        public static bvec4 greaterThanEqual(vec4 a, vec4 b) => Shader.TraceFunction(new bvec4(a.x >= b.x, a.y >= b.y, a.z >= b.z, a.w >= b.w), a, b);
+        public static bool any(bvec2 a) => Shader.TraceFunction(a.x || a.y, a);
+        public static bool any(bvec3 a) => Shader.TraceFunction(a.x || a.y || a.z, a);
+        public static bool any(bvec4 a) => Shader.TraceFunction(a.x || a.y || a.z || a.w, a);
+        public static bool all(bvec2 a) => Shader.TraceFunction(a.x && a.y, a);
+        public static bool all(bvec3 a) => Shader.TraceFunction(a.x && a.y && a.z, a);
+        public static bool all(bvec4 a) => Shader.TraceFunction(a.x && a.y && a.z && a.w, a);
 
         #endregion
 

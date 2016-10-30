@@ -34,7 +34,7 @@ namespace App.Glsl
 
         public static mat4 operator *(mat4 a, mat4 b)
         {
-            return Shader.TraceFunc(new mat4(
+            return Shader.TraceFunction(new mat4(
                 a[0][0] * b[0][0] + a[1][0] * b[0][1] + a[2][0] * b[0][2] + a[3][0] * b[0][3],
                 a[0][0] * b[1][0] + a[1][0] * b[1][1] + a[2][0] * b[1][2] + a[3][0] * b[1][3],
                 a[0][0] * b[2][0] + a[1][0] * b[2][1] + a[2][0] * b[2][2] + a[3][0] * b[2][3],
@@ -56,7 +56,7 @@ namespace App.Glsl
 
         public static vec4 operator *(mat4 a, vec4 b)
         {
-            return Shader.TraceFunc(new vec4(
+            return Shader.TraceFunction(new vec4(
                 a[0][0] * b[0] + a[1][0] * b[1] + a[2][0] * b[2] + a[3][0] * b[3],
                 a[0][1] * b[0] + a[1][1] * b[1] + a[2][1] * b[2] + a[3][1] * b[3],
                 a[0][2] * b[0] + a[1][2] * b[1] + a[2][2] * b[2] + a[3][2] * b[3],
@@ -66,7 +66,7 @@ namespace App.Glsl
 
         public static vec4 operator *(vec4 a, mat4 b)
         {
-            return Shader.TraceFunc(new vec4(
+            return Shader.TraceFunction(new vec4(
                 a[0] * b[0][0] + a[1] * b[0][1] + a[2] * b[0][2] + a[3] * b[0][3],
                 a[0] * b[1][0] + a[1] * b[1][1] + a[2] * b[1][2] + a[3] * b[1][3],
                 a[0] * b[2][0] + a[1] * b[2][1] + a[2] * b[2][2] + a[3] * b[2][3],

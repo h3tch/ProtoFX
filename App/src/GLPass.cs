@@ -234,7 +234,7 @@ namespace App
 
             if (debug && drawcalls.Count > 0)
             {
-                Shader.drawcall = drawcalls.First();
+                Shader.DrawCall = drawcalls.First();
                 if (dbgcomp != null)
                 {
                     dbgcomp.Debug();

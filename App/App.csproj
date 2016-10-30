@@ -147,6 +147,7 @@
     </Compile>
     <Compile Include="src\extensions\IEnumerable.cs" />
     <Compile Include="src\extensions\String.cs" />
+    <Compile Include="src\glsl\Access.cs" />
     <Compile Include="src\glsl\Typedef.cs" />
     <Compile Include="src\FXPerf.cs" />
     <Compile Include="src\GLInstance.cs" />
