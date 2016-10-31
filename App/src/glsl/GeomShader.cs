@@ -46,13 +46,7 @@ namespace App.Glsl
         {
             try
             {
-                // only generate debug trace if the shader is linked to a file
-                if (LineInFile >= 0)
-                    BeginTracing();
-                // execute the main function of the shader
-                Execute(Settings.gs_PrimitiveIDIn, Settings.gs_InvocationID);
-                // end debug trace generation
-                EndTracing();
+                Execute(Settings.gs_PrimitiveIDIn, Settings.vs_InstanceID, true);
             }
             catch (Exception e)
             {
@@ -69,16 +63,56 @@ namespace App.Glsl
         /// Execute the shader.
         /// </summary>
         /// <param name="primitiveID"></param>
-        /// <param name="invocationID"></param>
-        internal void Execute(int primitiveID, int invocationID)
+        internal void Execute(int primitiveID, int instanceID, bool debug = false)
         {
             // set shader input
-            gl_PrimitiveIDIn = primitiveID;
-            gl_InvocationID = invocationID;
-            gl_in = Prev.GetOutputVarying<__InOut[]>("gl_out");
+            GetVertexShaderOutput(primitiveID, instanceID);
+
+            // get input qualifier
+            var layout = GetQualifier<__layout>("__in__");
+
+            // only generate debug trace if the shader is linked to a file
+            if (LineInFile >= 0 && debug)
+                BeginTracing();
 
             // execute shader
-            main();
+            for (int i = 0, I = layout?.invocations ?? 1; i < I; i++)
+            {
+                gl_InvocationID = i;
+                main();
+            }
+
+            // end debug trace generation
+            if (debug)
+                EndTracing();
+        }
+
+        /// <summary>
+        /// Get the vertex shader output for the
+        /// respective primitive ID and instance.
+        /// </summary>
+        /// <param name="primitiveID"></param>
+        /// <param name="instanceID"></param>
+        private void GetVertexShaderOutput(int primitiveID, int instanceID)
+        {
+            if (DrawCall?.cmd?.Count == 0)
+                return;
+
+            // set shader input
+            gl_PrimitiveIDIn = primitiveID;
+
+            // load patch data from vertex shader
+            var vert = (VertShader)Prev.Prev.Prev;
+            var patch = DrawCall.GetPatch(primitiveID);
+            gl_in = new __InOut[patch.Length];
+            for (int i = 0; i < patch.Length; i++)
+            {
+                var vertexID = Convert.ToInt32(patch.GetValue(i));
+                vert.Execute(vertexID, instanceID);
+                gl_in[i].gl_Position = vert.GetOutputVarying<vec4>("gl_Position");
+                gl_in[i].gl_PointSize = vert.GetOutputVarying<float>("gl_PointSize");
+                gl_in[i].gl_ClipDistance = vert.GetOutputVarying<float[]>("gl_ClipDistance");
+            }
         }
 
         #region Overrides

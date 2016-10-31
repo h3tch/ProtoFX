@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using static System.Reflection.BindingFlags;
@@ -19,6 +18,8 @@ namespace App.Glsl
         private static Regex uniform = new Regex(@"\buniform\b");
         private static Regex IN = new Regex(@"\bin\s+[\w\d]+\s+[\w\d]+\s*;");
         private static Regex OUT = new Regex(@"\bout\b");
+        private static Regex flat = new Regex(@"\bflat\b");
+        private static Regex smooth = new Regex(@"\bsmooth\b");
         private static Regex PreDefOut = new Regex(@"\bout\s+gl_PerVertex\s*\{.*};", RegexOptions.Singleline);
         private static Regex main = new Regex(@"\bvoid\s+main\b");
         private static Regex word = new Regex(@"\b[\w\d]+\b");
@@ -55,6 +56,21 @@ namespace App.Glsl
             text = typecast(text, "uint");
             text = typecast(text, "float");
             text = typecast(text, "double");
+            return text;
+        }
+
+        private static string InOutLayouts(string text)
+        {
+            foreach (var q in new[] { "in", "out" })
+            {
+                var matches = Regex.Matches(text, @"\blayout\s*\(.*\)\s+" + q + @"\s*;");
+                for (int i = matches.Count - 1; i >= 0; i--)
+                {
+                    Match match = matches[i];
+                    var replacement = Regex.Replace(match.Value, $"\\b{q}\\b", $"object __{q}__");
+                    text = text.Remove(match.Index, match.Length).Insert(match.Index, replacement);
+                }
+            }
             return text;
         }
 
@@ -166,16 +182,7 @@ namespace App.Glsl
             var regexVar = new Regex(@"(?<!\.\s*)[\w\d]+\b\s*(\[.+\])?\s*(\.\b[\w\d]+\b\s*(\[.+\])?\s*)*(?!\s*[=\(])(?!\s*[\-\+]{2})(?!\s*[\+\-\*/]=)");
             var regexFunc = Compiler.RegexFunction;
             double tmp;
-
-            //// get variable names
-            //var varnames = new HashSet<string>();
-            //foreach (var type in datatypes)
-            //{
-            //    var matches = Regex.Matches(text, $"\\b{type}\\s+[\\w\\d]+");
-            //    foreach (Match match in matches)
-            //        varnames.Add(match.Value.Word(match.Length - 1));
-            //}
-
+            
             var funcs = regexFunc.Matches(text);
             for (var i_func = funcs.Count - 1; i_func >= 0; i_func--)
             {
@@ -193,25 +200,9 @@ namespace App.Glsl
                         continue;
                     str = str
                         .Insert(variable.Index + varname.Length, $", \"{varname}\")")
-                        .Insert(variable.Index, "TraceVar(");
+                        .Insert(variable.Index, "TraceVariable(");
                 }
-
-                //foreach (var varname in varnames)
-                //{
-                //    var regex = $"{ex}\\b{varname}\\b({idx})?(?!\\s*[=\\.\\(])";
-                //    var variables = Regex.Matches(str, regex);
-                //    for (int i_var = variables.Count - 1; i_var >= 0; i_var--)
-                //    {
-                //        var variable = variables[i_var];
-                //        var typeidx = str.IndexOfWord(variable.Index, -1);
-                //        var typename = typeidx >= 0 ? str.Word(typeidx) : string.Empty;
-                //        if (typeidx >= 0 && datatypes.Any(x => x == typename))
-                //            continue;
-                //        str = str
-                //            .Insert(variable.Index + variable.Length, $", \"{variable.Value}\")")
-                //            .Insert(variable.Index, "TraceVar(");
-                //    }
-                //}
+                
                 text = text.Remove(func.Index + start, length).Insert(func.Index + start, str);
             }
 
@@ -257,6 +248,10 @@ namespace App.Glsl
         }
 
         private static string Outputs(string text) => OUT.Replace(text, "[__out]");
+
+        private static string Flat(string text) => flat.Replace(text, "[__flat]");
+
+        private static string Smooth(string text) => smooth.Replace(text, "[__smooth]");
 
         private static string MainFunc(string text) => main.Replace(text, "public override void main");
 

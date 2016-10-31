@@ -7,33 +7,6 @@ using System.Reflection;
 
 namespace App.Glsl
 {
-    #region GLSL Qualifiers
-
-    [AttributeUsage(AttributeTargets.All)]
-    public class __in : Attribute { }
-
-    [AttributeUsage(AttributeTargets.All)]
-    public class __out : Attribute { }
-
-    [AttributeUsage(AttributeTargets.All)]
-    public class __layout : Attribute
-    {
-#pragma warning disable 0649
-#pragma warning disable 0169
-        
-        public int location;
-        public int binding;
-        public int max_vertices;
-
-#pragma warning restore 0649
-#pragma warning restore 0169
-
-        public __layout() { }
-        public __layout(params object[] param) { }
-    }
-
-    #endregion
-
     #region Necessary Extension
 
     static class ArrayExtention
@@ -235,6 +208,9 @@ namespace App.Glsl
             // varying could not be found
             return default(T);
         }
+
+        protected T GetQualifier<T>(string field)
+            => (T)GetType().GetField(field)?.GetCustomAttributes(typeof(T), false)?.FirstOrDefault();
 
         #endregion
         
