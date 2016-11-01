@@ -2,26 +2,16 @@
 
 namespace App.Glsl
 {
-    public enum __InputPrimitive
-    {
-        invalid,
-        points,
-        lines,
-        lines_adjacency​,
-        triangles​,
-        triangles_adjacency​,
-        quads,
-        isolines,
-    }
-
-    public enum __OutputPrimitive
-    {
-        invalid,
-        points,
-        line_strip,
-        triangle_strip
-    }
-
+    public class points { }
+    public class lines { }
+    public class lines_adjacency​ { }
+    public class triangles​ { }
+    public class triangles_adjacency​ { }
+    public class quads { }
+    public class isolines { }
+    public class line_strip { }
+    public class triangle_strip { }
+    
     public enum __TessSpacing
     {
         equal_spacing​,
@@ -123,15 +113,7 @@ namespace App.Glsl
 #pragma warning disable 0649
 #pragma warning disable 0169
 
-        public __StdLayout std_layout = __StdLayout.shared;
-        public __InputPrimitive input_primitive = __InputPrimitive.invalid;
-        public __OutputPrimitive output_primitive = __OutputPrimitive.invalid;
-        public __TessSpacing tess_spacing = __TessSpacing.equal_spacing;
-        public __FragOrigin pixel_origin = __FragOrigin.origin_default;
-        public __FragPixelCenter pixel_location = __FragPixelCenter.pixel_center_default;
-        public __FragTest frag_test = __FragTest.default_test;
-        public __ImageFormat image_format = __ImageFormat.undefined;
-        public __MatrixLayout matrix_layout = __MatrixLayout.column_major;
+        public object[] @params;
         public int location = -1;
         public int index = -1;
         public int component = -1;
@@ -150,18 +132,7 @@ namespace App.Glsl
         public __layout() { }
         public __layout(params object[] @params)
         {
-            var fields = GetType().GetFields();
-            foreach (var param in @params)
-            {
-                foreach (var field in fields)
-                {
-                    if (field.GetType() == param.GetType())
-                    {
-                        field.SetValue(this, param);
-                        break;
-                    }
-                }
-            }
+            this.@params = @params;
         }
     }
 }

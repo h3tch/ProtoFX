@@ -9,6 +9,9 @@
     public struct sampler3D { public int i; public static implicit operator int(sampler3D a) => a.i; public static implicit operator sampler3D(int a) => new sampler3D { i = a }; }
     public struct isampler3D { public int i; public static implicit operator int(isampler3D a) => a.i; public static implicit operator isampler3D(int a) => new isampler3D { i = a }; }
     public struct usampler3D { public int i; public static implicit operator int(usampler3D a) => a.i; public static implicit operator usampler3D(int a) => new usampler3D { i = a }; }
+    public struct samplerBuffer { public int i; public static implicit operator int(samplerBuffer a) => a.i; public static implicit operator samplerBuffer(int a) => new samplerBuffer { i = a }; }
+    public struct isamplerBuffer { public int i; public static implicit operator int(isamplerBuffer a) => a.i; public static implicit operator isamplerBuffer(int a) => new isamplerBuffer { i = a }; }
+    public struct usamplerBuffer { public int i; public static implicit operator int(usamplerBuffer a) => a.i; public static implicit operator usamplerBuffer(int a) => new usamplerBuffer { i = a }; }
     public struct samplerCube { public int i; public static implicit operator int(samplerCube a) => a.i; public static implicit operator samplerCube(int a) => new samplerCube { i = a }; }
     public struct isamplerCube { public int i; public static implicit operator int(isamplerCube a) => a.i; public static implicit operator isamplerCube(int a) => new isamplerCube { i = a }; }
     public struct usamplerCube { public int i; public static implicit operator int(usamplerCube a) => a.i; public static implicit operator usamplerCube(int a) => new usamplerCube { i = a }; }
@@ -35,4 +38,11 @@
     public struct samplerCubeArrayShadow { public int i; public static implicit operator int(samplerCubeArrayShadow a) => a.i; public static implicit operator samplerCubeArrayShadow(int a) => new samplerCubeArrayShadow { i = a }; }
     public struct isamplerCubeArrayShadow { public int i; public static implicit operator int(isamplerCubeArrayShadow a) => a.i; public static implicit operator isamplerCubeArrayShadow(int a) => new isamplerCubeArrayShadow { i = a }; }
     public struct usamplerCubeArrayShadow { public int i; public static implicit operator int(usamplerCubeArrayShadow a) => a.i; public static implicit operator usamplerCubeArrayShadow(int a) => new usamplerCubeArrayShadow { i = a }; }
+    public struct sampler2DMS { public int i; public static implicit operator int(sampler2DMS a) => a.i; public static implicit operator sampler2DMS(int a) => new sampler2DMS { i = a }; }
+    public struct isampler2DMS { public int i; public static implicit operator int(isampler2DMS a) => a.i; public static implicit operator isampler2DMS(int a) => new isampler2DMS { i = a }; }
+    public struct usampler2DMS { public int i; public static implicit operator int(usampler2DMS a) => a.i; public static implicit operator usampler2DMS(int a) => new usampler2DMS { i = a }; }
+    public struct sampler2DMSArray { public int i; public static implicit operator int(sampler2DMSArray a) => a.i; public static implicit operator sampler2DMSArray(int a) => new sampler2DMSArray { i = a }; }
+    public struct isampler2DMSArray { public int i; public static implicit operator int(isampler2DMSArray a) => a.i; public static implicit operator isampler2DMSArray(int a) => new isampler2DMSArray { i = a }; }
+    public struct usampler2DMSArray { public int i; public static implicit operator int(usampler2DMSArray a) => a.i; public static implicit operator usampler2DMSArray(int a) => new usampler2DMSArray { i = a }; }
+
 }

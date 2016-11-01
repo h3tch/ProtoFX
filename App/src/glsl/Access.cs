@@ -10,40 +10,72 @@ namespace App.Glsl
         #region Texture Access
 
         public static vec4 texture(sampler1D sampler, float P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(isampler1D sampler, float P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(usampler1D sampler, float P, float bias = 0) { return new vec4(0); }
+        public static ivec4 texture(isampler1D sampler, float P, float bias = 0) { return new ivec4(0); }
+        public static uvec4 texture(usampler1D sampler, float P, float bias = 0) { return new uvec4(0); }
         public static vec4 texture(sampler2D sampler, vec2 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(isampler2D sampler, vec2 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(usampler2D sampler, vec2 P, float bias = 0) { return new vec4(0); }
+        public static ivec4 texture(isampler2D sampler, vec2 P, float bias = 0) { return new ivec4(0); }
+        public static uvec4 texture(usampler2D sampler, vec2 P, float bias = 0) { return new uvec4(0); }
         public static vec4 texture(sampler3D sampler, vec3 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(isampler3D sampler, vec3 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(usampler3D sampler, vec3 P, float bias = 0) { return new vec4(0); }
+        public static ivec4 texture(isampler3D sampler, vec3 P, float bias = 0) { return new ivec4(0); }
+        public static uvec4 texture(usampler3D sampler, vec3 P, float bias = 0) { return new uvec4(0); }
         public static vec4 texture(samplerCube sampler, vec3 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(isamplerCube sampler, vec3 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(usamplerCube sampler, vec3 P, float bias = 0) { return new vec4(0); }
+        public static ivec4 texture(isamplerCube sampler, vec3 P, float bias = 0) { return new ivec4(0); }
+        public static uvec4 texture(usamplerCube sampler, vec3 P, float bias = 0) { return new uvec4(0); }
         public static vec4 texture(sampler1DShadow sampler, vec3 P, float bias = 0) { return new vec4(0); }
         public static vec4 texture(sampler2DShadow sampler, vec3 P, float bias = 0) { return new vec4(0); }
         public static vec4 texture(samplerCubeShadow sampler, vec3 P, float bias = 0) { return new vec4(0); }
         public static vec4 texture(sampler1DArray sampler, vec2 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(isampler1DArray sampler, vec2 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(usampler1DArray sampler, vec2 P, float bias = 0) { return new vec4(0); }
+        public static ivec4 texture(isampler1DArray sampler, vec2 P, float bias = 0) { return new ivec4(0); }
+        public static uvec4 texture(usampler1DArray sampler, vec2 P, float bias = 0) { return new uvec4(0); }
         public static vec4 texture(sampler2DArray sampler, vec3 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(isampler2DArray sampler, vec3 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(usampler2DArray sampler, vec3 P, float bias = 0) { return new vec4(0); }
+        public static ivec4 texture(isampler2DArray sampler, vec3 P, float bias = 0) { return new ivec4(0); }
+        public static uvec4 texture(usampler2DArray sampler, vec3 P, float bias = 0) { return new uvec4(0); }
         public static vec4 texture(samplerCubeArray sampler, vec4 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(isamplerCubeArray sampler, vec4 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(usamplerCubeArray sampler, vec4 P, float bias = 0) { return new vec4(0); }
+        public static ivec4 texture(isamplerCubeArray sampler, vec4 P, float bias = 0) { return new ivec4(0); }
+        public static uvec4 texture(usamplerCubeArray sampler, vec4 P, float bias = 0) { return new uvec4(0); }
         public static vec4 texture(sampler1DArrayShadow sampler, vec3 P, float bias = 0) { return new vec4(0); }
         public static vec4 texture(sampler2DArrayShadow sampler, vec4 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(isampler2DArrayShadow sampler, vec4 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(usampler2DArrayShadow sampler, vec4 P, float bias = 0) { return new vec4(0); }
+        public static ivec4 texture(isampler2DArrayShadow sampler, vec4 P, float bias = 0) { return new ivec4(0); }
+        public static uvec4 texture(usampler2DArrayShadow sampler, vec4 P, float bias = 0) { return new uvec4(0); }
         public static vec4 texture(sampler2DRect sampler, vec2 P) { return new vec4(0); }
-        public static vec4 texture(isampler2DRect sampler, vec2 P) { return new vec4(0); }
-        public static vec4 texture(usampler2DRect sampler, vec2 P) { return new vec4(0); }
+        public static ivec4 texture(isampler2DRect sampler, vec2 P) { return new ivec4(0); }
+        public static uvec4 texture(usampler2DRect sampler, vec2 P) { return new uvec4(0); }
         public static vec4 texture(sampler2DRectShadow sampler, vec3 P) { return new vec4(0); }
         public static vec4 texture(samplerCubeArrayShadow sampler, vec4 P, float compare) { return new vec4(0); }
-        public static vec4 texture(isamplerCubeArrayShadow sampler, vec4 P, float compare) { return new vec4(0); }
-        public static vec4 texture(usamplerCubeArrayShadow sampler, vec4 P, float compare) { return new vec4(0); }
+        public static ivec4 texture(isamplerCubeArrayShadow sampler, vec4 P, float compare) { return new ivec4(0); }
+        public static uvec4 texture(usamplerCubeArrayShadow sampler, vec4 P, float compare) { return new uvec4(0); }
+
+        #endregion
+
+        #region
+
+        public static vec4 texelFetch(sampler1D sampler, int P, int lod) { return new vec4(0); }
+        public static vec4 texelFetch(sampler2D sampler, ivec2 P, int lod) { return new vec4(0); }
+        public static vec4 texelFetch(sampler3D sampler, ivec3 P, int lod) { return new vec4(0); }
+        public static vec4 texelFetch(sampler2DRect sampler, ivec2 P) { return new vec4(0); }
+        public static vec4 texelFetch(sampler1DArray sampler, ivec2 P, int lod) { return new vec4(0); }
+        public static vec4 texelFetch(sampler2DArray sampler, ivec3 P, int lod) { return new vec4(0); }
+        public static vec4 texelFetch(samplerBuffer sampler, int P) { return new vec4(0); }
+        public static vec4 texelFetch(sampler2DMS sampler, ivec2 P, int sample) { return new vec4(0); }
+        public static vec4 texelFetch(sampler2DMSArray sampler, ivec3 P, int sample) { return new vec4(0); }
+        public static ivec4 texelFetch(isampler1D sampler, int P, int lod) { return new ivec4(0); }
+        public static ivec4 texelFetch(isampler2D sampler, ivec2 P, int lod) { return new ivec4(0); }
+        public static ivec4 texelFetch(isampler3D sampler, ivec3 P, int lod) { return new ivec4(0); }
+        public static ivec4 texelFetch(isampler2DRect sampler, ivec2 P) { return new ivec4(0); }
+        public static ivec4 texelFetch(isampler1DArray sampler, ivec2 P, int lod) { return new ivec4(0); }
+        public static ivec4 texelFetch(isampler2DArray sampler, ivec3 P, int lod) { return new ivec4(0); }
+        public static ivec4 texelFetch(isamplerBuffer sampler, int P) { return new ivec4(0); }
+        public static ivec4 texelFetch(isampler2DMS sampler, ivec2 P, int sample) { return new ivec4(0); }
+        public static ivec4 texelFetch(isampler2DMSArray sampler, ivec3 P, int sample) { return new ivec4(0); }
+        public static uvec4 texelFetch(usampler1D sampler, int P, int lod) { return new uvec4(0); }
+        public static uvec4 texelFetch(usampler2D sampler, ivec2 P, int lod) { return new uvec4(0); }
+        public static uvec4 texelFetch(usampler3D sampler, ivec3 P, int lod) { return new uvec4(0); }
+        public static uvec4 texelFetch(usampler2DRect sampler, ivec2 P) { return new uvec4(0); }
+        public static uvec4 texelFetch(usampler1DArray sampler, ivec2 P, int lod) { return new uvec4(0); }
+        public static uvec4 texelFetch(usampler2DArray sampler, ivec3 P, int lod) { return new uvec4(0); }
+        public static uvec4 texelFetch(usamplerBuffer sampler, int P) { return new uvec4(0); }
+        public static uvec4 texelFetch(usampler2DMS sampler, ivec2 P, int sample) { return new uvec4(0); }
+        public static uvec4 texelFetch(usampler2DMSArray sampler, ivec3 P, int sample) { return new uvec4(0); }
 
         #endregion
 

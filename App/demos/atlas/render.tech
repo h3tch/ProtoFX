@@ -204,6 +204,10 @@ shader gs_shadowmap geom {
 	} IN[];
 	
 	layout(triangle_strip, max_vertices = 3*MAX_CAMS) out;
+	out gl_PerVertex {
+		vec4 gl_Position;
+		float gl_ClipDistance[4];
+	};
 	
 	void main ()
 	{

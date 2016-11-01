@@ -1698,8 +1698,8 @@
                       \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsampler1DArray sampler, ivec2 P, int lod)&lt;/param&gt;
                       \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsampler2DArray sampler, ivec3 P, int lod)&lt;/param&gt;
                       \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsamplerBuffer sampler, int P)&lt;/param&gt;
-                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsampler2DMS sampler, ivec2 P, sample sample)&lt;/param&gt;
-                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsampler2DMSArray sampler, ivec3 P, sample sample)&lt;/param&gt;'/>
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsampler2DMS sampler, ivec2 P, int sample)&lt;/param&gt;
+                      \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetch&lt;/key&gt;&lt;param&gt;(gsampler2DMSArray sampler, ivec3 P, int sample)&lt;/param&gt;'/>
         <Keyword style_name='function' name='texelFetchOffset'
                  hint='perform a lookup of a single texel within a texture with an offset
                       \  &lt;param&gt;gvec4&lt;/param&gt; &lt;key&gt;texelFetchOffset&lt;/key&gt;&lt;param&gt;(gsampler1D sampler, int P, int lod, int offset)&lt;/param&gt;

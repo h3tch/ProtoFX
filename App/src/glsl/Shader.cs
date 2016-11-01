@@ -9,7 +9,7 @@ namespace App.Glsl
 {
     #region Necessary Extension
 
-    static class ArrayExtention
+    public static class ArrayExtention
     {
         public static int length(this Array data) => data.Length;
     }
@@ -213,7 +213,15 @@ namespace App.Glsl
             => (T)GetType().GetField(field)?.GetCustomAttributes(typeof(T), false)?.FirstOrDefault();
 
         #endregion
-        
+
+        public void EmitVertex() { }
+
+        public void EndPrimitive() { }
+
+        public void EmitStreamVertex(int stream) { }
+
+        public void EndStreamPrimitive(int stream) { }
+
         public virtual void main() { }
 
         #region Inner Classes
@@ -328,7 +336,7 @@ namespace App.Glsl
             }
         }
 
-        internal struct __InOut
+        public struct __InOut
         {
             public vec4 gl_Position;
             public float gl_PointSize;

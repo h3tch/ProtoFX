@@ -3,7 +3,7 @@ using System;
 
 namespace App.Glsl
 {
-    class GeomShader : Shader
+    public class GeomShader : Shader
     {
         #region Input
 
