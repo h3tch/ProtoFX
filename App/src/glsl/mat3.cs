@@ -43,6 +43,24 @@ namespace App.Glsl
                 a[0][2] * b[2][0] + a[1][2] * b[2][1] + a[2][2] * b[2][2]);
         }
 
+        public static vec3 operator *(mat3 a, vec3 b)
+        {
+            return Shader.TraceFunction(new vec3(
+                a[0][0] * b[0] + a[1][0] * b[1] + a[2][0] * b[2],
+                a[0][1] * b[0] + a[1][1] * b[1] + a[2][1] * b[2],
+                a[0][2] * b[0] + a[1][2] * b[1] + a[2][2] * b[2]),
+                a, b);
+        }
+
+        public static vec3 operator *(vec3 a, mat3 b)
+        {
+            return Shader.TraceFunction(new vec3(
+                a[0] * b[0][0] + a[1] * b[0][1] + a[2] * b[0][2],
+                a[0] * b[1][0] + a[1] * b[1][1] + a[2] * b[1][2],
+                a[0] * b[2][0] + a[1] * b[2][1] + a[2] * b[2][2]),
+                a, b);
+        }
+
         #endregion
     }
 }

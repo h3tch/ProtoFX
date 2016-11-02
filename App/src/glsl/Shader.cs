@@ -18,6 +18,74 @@ namespace App.Glsl
 
     public class Shader : Access
     {
+        #region
+
+        public const string points                  = "points";
+        public const string lines                   = "lines";
+        public const string lines_adjacency​         = "lines_adjacency​";
+        public const string triangles​               = "triangles​";
+        public const string triangles_adjacency​     = "triangles_adjacency​";
+        public const string quads                   = "quads";
+        public const string isolines                = "isolines";
+        public const string line_strip              = "line_strip";
+        public const string triangle_strip          = "triangle_strip";
+        public const string equal_spacing​           = "equal_spacing​";
+        public const string fractional_even_spacing​ = "fractional_even_spacing​";
+        public const string fractional_odd_spacing​  = "fractional_odd_spacing​";
+        public const string std140                  = "std140";
+        public const string std430                  = "std430";
+        public const string shared                  = "shared";
+        public const string packed                  = "packed";
+        public const string row_major               = "row_major";
+        public const string column_major            = "column_major";
+        public const string origin_default          = "origin_default";
+        public const string origin_upper_left       = "origin_upper_left";
+        public const string pixel_center_default    = "pixel_center_default";
+        public const string pixel_center_integer    = "pixel_center_integer";
+        public const string default_test            = "default_test";
+        public const string early_fragment_tests    = "early_fragment_tests";
+        public const string rgba32f                 = "rgba32f";
+        public const string rgba16f                 = "rgba16f";
+        public const string rg32f                   = "rg32f";
+        public const string rg16f                   = "rg16f";
+        public const string r11f_g11f_b10f          = "r11f_g11f_b10f";
+        public const string r32f                    = "r32f";
+        public const string r16f                    = "r16f";
+        public const string rgba16                  = "rgba16";
+        public const string rgb10_a2                = "rgb10_a2";
+        public const string rgba8                   = "rgba8";
+        public const string rg16                    = "rg16";
+        public const string rg8                     = "rg8";
+        public const string r16                     = "r16";
+        public const string r8                      = "r8";
+        public const string rgba16_snorm            = "rgba16_snorm";
+        public const string rgba8_snorm             = "rgba8_snorm";
+        public const string rg16_snorm              = "rg16_snorm";
+        public const string rg8_snorm               = "rg8_snorm";
+        public const string r16_snorm               = "r16_snorm";
+        public const string r8_snorm                = "r8_snorm";
+        public const string rgba32i                 = "rgba32i";
+        public const string rgba16i                 = "rgba16i";
+        public const string rgba8i                  = "rgba8i";
+        public const string rg32i                   = "rg32i";
+        public const string rg16i                   = "rg16i";
+        public const string rg8i                    = "rg8i";
+        public const string r32i                    = "r32i";
+        public const string r16i                    = "r16i";
+        public const string r8i                     = "r8i";
+        public const string rgba32ui                = "rgba32ui";
+        public const string rgba16ui                = "rgba16ui";
+        public const string rgb10_a2ui              = "rgb10_a2ui";
+        public const string rgba8ui                 = "rgba8ui";
+        public const string rg32ui                  = "rg32ui";
+        public const string rg16ui                  = "rg16ui";
+        public const string rg8ui                   = "rg8ui";
+        public const string r32ui                   = "r32ui";
+        public const string r16ui                   = "r16ui";
+        public const string r8ui                    = "r8ui";
+
+        #endregion
+
         #region Fields
 
         protected int LineInFile;

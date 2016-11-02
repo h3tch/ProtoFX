@@ -56,6 +56,19 @@ namespace App.Glsl
 
         private static string Version(string text) => version.Replace(text, string.Empty);
 
+        private static string PredefinedOutputs(string text)
+        {
+            var matches = PreDefOut.Matches(text);
+            for (int i = matches.Count - 1; i >= 0; i--)
+            {
+                var match = matches[i];
+                var nNewLines = match.Value.Count(x => x == '\n');
+                text = text.Remove(match.Index, match.Length)
+                    .Insert(match.Index, new string('\n', nNewLines));
+            }
+            return text;
+        }
+
         private static string TypeCasts(string text)
         {
             text = typecast(text, "bool");
@@ -209,14 +222,14 @@ namespace App.Glsl
                 "bvec3", "ivec3", "uvec3", "vec3", "dvec3",
                 "bvec4", "ivec4", "uvec4", "vec4", "dvec4",
                 "mat2", "dmat2", "mat3", "dmat3", "mat4", "dmat4",
-                "return", "new"
+                "return", "continue", "new", "."
             };
             datatypes = datatypes.Concat(datatypes.Select(x => x + "[]")).ToArray();
 
             var s = @"\s*";
             var word = @"\b[\w\d]+\b";
             var pattern = $"{word}{s}({Helpers.RegexMatchingBrace(@"\[",@"\]")})?";
-            var rexVar = new Regex($"{pattern}({s}\\.{s}{pattern})*", RegexOptions.RightToLeft);
+            var rexVar = new Regex($"(?<!\\.){pattern}({s}\\.{s}{pattern})*", RegexOptions.RightToLeft);
             var rexExclude = new Regex(@"\s*(=|\*=|/=|\+=|\-=|\+\+|\-\-|\()");
             var rexType = new Regex($"\\b.+?\\b{s}", RegexOptions.RightToLeft);
 
@@ -235,7 +248,7 @@ namespace App.Glsl
                 foreach (Match variable in rexVar.Matches(str))
                 {
                     var varname = variable.Value.Trim();
-                    var vartype = rexType.Match(str, 0, variable.Index).Value?.Trim();
+                    var vartype = str.Word(str.IndexOfWord(variable.Index, -1));
                     var invalidChar = rexExclude.Match(str, variable.Index + variable.Length);
                     if (datatypes.Any(x => x == varname || x == vartype)
                         || double.TryParse(varname, out tmp)
@@ -273,19 +286,6 @@ namespace App.Glsl
                     match.Index + match.Length - 1,
                     $" {{ get {{ return GetInputVarying<{type}>(\"{name}\"); }} }}");
                 text = text.Insert(match.Index + 2, "]").Insert(match.Index, "[__");
-            }
-            return text;
-        }
-
-        private static string PredefinedOutputs(string text)
-        {
-            var matches = PreDefOut.Matches(text);
-            for (int i = matches.Count - 1; i >= 0; i--)
-            {
-                var match = matches[i];
-                var nNewLines = match.Value.Count(x => x == '\n');
-                text = text.Remove(match.Index, match.Length)
-                    .Insert(match.Index, new string('\n', nNewLines));
             }
             return text;
         }

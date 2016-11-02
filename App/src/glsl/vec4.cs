@@ -15,6 +15,12 @@
         public vec4() { }
         public vec4(float a) : base(a, a, a, a) { }
         public vec4(float X, float Y, float Z, float W) : base(X, Y, Z, W) { }
+        public vec4(vec2 xy, float z, float w) : base(xy.x, xy.y, z, w) { }
+        public vec4(float x, vec2 yz, float w) : base(x, yz.x, yz.y, w) { }
+        public vec4(float x, float y, vec2 zw) : base(x, y, zw.x, zw.y) { }
+        public vec4(vec2 xy, vec2 zw) : base(xy.x, xy.y, zw.x, zw.y) { }
+        public vec4(vec3 xyz, float w) : base(xyz.x, xyz.y, xyz.z, w) { }
+        public vec4(float x, vec3 yzw) : base(x, yzw.x, yzw.y, yzw.z) { }
         public vec4(byte[] data) : base(data) { }
 
         #endregion
@@ -391,7 +397,32 @@
         public dvec4() { }
         public dvec4(double a) : base(a, a, a, a) { }
         public dvec4(double X, double Y, double Z, double W) : base(X, Y, Z, W) { }
+        public dvec4(dvec2 xy, double z, double w) : base(xy.x, xy.y, z, w) { }
+        public dvec4(double x, dvec2 yz, double w) : base(x, yz.x, yz.y, w) { }
+        public dvec4(double x, double y, dvec2 zw) : base(x, y, zw.x, zw.y) { }
+        public dvec4(dvec2 xy, dvec2 zw) : base(xy.x, xy.y, zw.x, zw.y) { }
+        public dvec4(dvec3 xyz, double w) : base(xyz.x, xyz.y, xyz.z, w) { }
+        public dvec4(double x, dvec3 yzw) : base(x, yzw.x, yzw.y, yzw.z) { }
         public dvec4(byte[] data) : base(data) { }
+
+        #endregion
+
+        #region Operators
+
+        public static dvec4 operator +(dvec4 a) => new dvec4(a.x, a.y, a.z, a.w);
+        public static dvec4 operator -(dvec4 a) => new dvec4(-a.x, -a.y, -a.z, -a.w);
+        public static dvec4 operator +(dvec4 a, dvec4 b) => Shader.TraceFunction(new dvec4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w), a, b);
+        public static dvec4 operator +(dvec4 a, double b) => Shader.TraceFunction(new dvec4(a.x + b, a.y + b, a.z + b, a.w + b), a, b);
+        public static dvec4 operator +(double a, dvec4 b) => Shader.TraceFunction(new dvec4(a + b.x, a + b.y, a + b.z, a + b.w), a, b);
+        public static dvec4 operator -(dvec4 a, dvec4 b) => Shader.TraceFunction(new dvec4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w), a, b);
+        public static dvec4 operator -(dvec4 a, double b) => Shader.TraceFunction(new dvec4(a.x - b, a.y - b, a.z - b, a.w - b), a, b);
+        public static dvec4 operator -(double a, dvec4 b) => Shader.TraceFunction(new dvec4(a - b.x, a - b.y, a - b.z, a - b.w), a, b);
+        public static dvec4 operator *(dvec4 a, dvec4 b) => Shader.TraceFunction(new dvec4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w), a, b);
+        public static dvec4 operator *(dvec4 a, double b) => Shader.TraceFunction(new dvec4(a.x * b, a.y * b, a.z * b, a.w * b), a, b);
+        public static dvec4 operator *(double a, dvec4 b) => Shader.TraceFunction(new dvec4(a * b.x, a * b.y, a * b.z, a * b.w), a, b);
+        public static dvec4 operator /(dvec4 a, dvec4 b) => Shader.TraceFunction(new dvec4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w), a, b);
+        public static dvec4 operator /(dvec4 a, double b) => Shader.TraceFunction(new dvec4(a.x / b, a.y / b, a.z / b, a.w / b), a, b);
+        public static dvec4 operator /(double a, dvec4 b) => Shader.TraceFunction(new dvec4(a / b.x, a / b.y, a / b.z, a / b.w), a, b);
 
         #endregion
 
@@ -748,6 +779,12 @@
         public bvec4() { }
         public bvec4(bool a) : base(a, a, a, a) { }
         public bvec4(bool X, bool Y, bool Z, bool W) : base(X, Y, Z, W) { }
+        public bvec4(bvec2 xy, bool z, bool w) : base(xy.x, xy.y, z, w) { }
+        public bvec4(bool x, bvec2 yz, bool w) : base(x, yz.x, yz.y, w) { }
+        public bvec4(bool x, bool y, bvec2 zw) : base(x, y, zw.x, zw.y) { }
+        public bvec4(bvec2 xy, bvec2 zw) : base(xy.x, xy.y, zw.x, zw.y) { }
+        public bvec4(bvec3 xyz, bool w) : base(xyz.x, xyz.y, xyz.z, w) { }
+        public bvec4(bool x, bvec3 yzw) : base(x, yzw.x, yzw.y, yzw.z) { }
         public bvec4(byte[] data) : base(data) { }
 
         #endregion
@@ -1105,6 +1142,12 @@
         public ivec4() { }
         public ivec4(int a) : base(a, a, a, a) { }
         public ivec4(int X, int Y, int Z, int W) : base(X, Y, Z, W) { }
+        public ivec4(ivec2 xy, int z, int w) : base(xy.x, xy.y, z, w) { }
+        public ivec4(int x, ivec2 yz, int w) : base(x, yz.x, yz.y, w) { }
+        public ivec4(int x, int y, ivec2 zw) : base(x, y, zw.x, zw.y) { }
+        public ivec4(ivec2 xy, ivec2 zw) : base(xy.x, xy.y, zw.x, zw.y) { }
+        public ivec4(ivec3 xyz, int w) : base(xyz.x, xyz.y, xyz.z, w) { }
+        public ivec4(int x, ivec3 yzw) : base(x, yzw.x, yzw.y, yzw.z) { }
         public ivec4(byte[] data) : base(data) { }
 
         #endregion
@@ -1462,6 +1505,12 @@
         public uvec4() { }
         public uvec4(uint a) : base(a, a, a, a) { }
         public uvec4(uint X, uint Y, uint Z, uint W) : base(X, Y, Z, W) { }
+        public uvec4(uvec2 xy, uint z, uint w) : base(xy.x, xy.y, z, w) { }
+        public uvec4(uint x, uvec2 yz, uint w) : base(x, yz.x, yz.y, w) { }
+        public uvec4(uint x, uint y, uvec2 zw) : base(x, y, zw.x, zw.y) { }
+        public uvec4(uvec2 xy, uvec2 zw) : base(xy.x, xy.y, zw.x, zw.y) { }
+        public uvec4(uvec3 xyz, uint w) : base(xyz.x, xyz.y, xyz.z, w) { }
+        public uvec4(uint x, uvec3 yzw) : base(x, yzw.x, yzw.y, yzw.z) { }
         public uvec4(byte[] data) : base(data) { }
 
         #endregion

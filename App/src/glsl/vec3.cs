@@ -15,6 +15,8 @@
         public vec3() : base() { }
         public vec3(float a) : base(a, a, a) { }
         public vec3(float x, float y, float z) : base(x, y, z) { }
+        public vec3(vec2 xy, float z) : base(xy.x, xy.y, z) { }
+        public vec3(float x, vec2 yz) : base(x, yz.x, yz.y) { }
         public vec3(byte[] data) : base(data) { }
 
         #endregion
@@ -171,7 +173,28 @@
         public dvec3() : base() { }
         public dvec3(double a) : base(a, a, a) { }
         public dvec3(double x, double y, double z) : base(x, y, z) { }
+        public dvec3(dvec2 xy, double z) : base(xy.x, xy.y, z) { }
+        public dvec3(double x, dvec2 yz) : base(x, yz.x, yz.y) { }
         public dvec3(byte[] data) : base(data) { }
+
+        #endregion
+
+        #region Operators
+
+        public static dvec3 operator +(dvec3 a) => new dvec3(a.x, a.y, a.z);
+        public static dvec3 operator -(dvec3 a) => new dvec3(-a.x, -a.y, -a.z);
+        public static dvec3 operator +(dvec3 a, dvec3 b) => new dvec3(a.x + b.x, a.y + b.y, a.z + b.z);
+        public static dvec3 operator +(dvec3 a, double b) => new dvec3(a.x + b, a.y + b, a.z + b);
+        public static dvec3 operator +(double a, dvec3 b) => new dvec3(a + b.x, a + b.y, a + b.z);
+        public static dvec3 operator -(dvec3 a, dvec3 b) => new dvec3(a.x - b.x, a.y - b.y, a.z - b.z);
+        public static dvec3 operator -(dvec3 a, double b) => new dvec3(a.x - b, a.y - b, a.z - b);
+        public static dvec3 operator -(double a, dvec3 b) => new dvec3(a - b.x, a - b.y, a - b.z);
+        public static dvec3 operator *(dvec3 a, dvec3 b) => new dvec3(a.x * b.x, a.y * b.y, a.z * b.z);
+        public static dvec3 operator *(dvec3 a, double b) => new dvec3(a.x * b, a.y * b, a.z * b);
+        public static dvec3 operator *(double a, dvec3 b) => new dvec3(a * b.x, a * b.y, a * b.z);
+        public static dvec3 operator /(dvec3 a, dvec3 b) => new dvec3(a.x / b.x, a.y / b.y, a.z / b.z);
+        public static dvec3 operator /(double a, dvec3 b) => new dvec3(a / b.x, a / b.y, a / b.z);
+        public static dvec3 operator /(dvec3 a, double b) => new dvec3(a.x / b, a.y / b, a.z / b);
 
         #endregion
 
@@ -308,6 +331,8 @@
         public bvec3() : base() { }
         public bvec3(bool a) : base(a, a, a) { }
         public bvec3(bool x, bool y, bool z) : base(x, y, z) { }
+        public bvec3(bvec2 xy, bool z) : base(xy.x, xy.y, z) { }
+        public bvec3(bool x, bvec2 yz) : base(x, yz.x, yz.y) { }
         public bvec3(byte[] data) : base(data) { }
 
         #endregion
@@ -445,6 +470,8 @@
         public ivec3() : base() { }
         public ivec3(int a) : base(a, a, a) { }
         public ivec3(int x, int y, int z) : base(x, y, z) { }
+        public ivec3(ivec2 xy, int z) : base(xy.x, xy.y, z) { }
+        public ivec3(int x, ivec2 yz) : base(x, yz.x, yz.y) { }
         public ivec3(byte[] data) : base(data) { }
 
         #endregion
@@ -582,6 +609,8 @@
         public uvec3() : base() { }
         public uvec3(uint a) : base(a, a, a) { }
         public uvec3(uint x, uint y, uint z) : base(x, y, z) { }
+        public uvec3(uvec2 xy, uint z) : base(xy.x, xy.y, z) { }
+        public uvec3(uint x, uvec2 yz) : base(x, yz.x, yz.y) { }
         public uvec3(byte[] data) : base(data) { }
 
         #endregion
