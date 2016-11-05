@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -93,30 +94,30 @@ namespace App.Glsl
             // get current shader program pipeline
             var pipeline = GL.GetInteger(GetPName.ProgramPipelineBinding);
             if (pipeline <= 0)
-                return default(T);
+                return DebugGetError<T>(new StackTrace(true));
 
             // get vertex shader
             int program;
             GL.GetProgramPipeline(pipeline, shader, out program);
             if (program <= 0)
-                return default(T);
+                return DebugGetError<T>(new StackTrace(true));
 
             // get uniform buffer object block index
             int block = GL.GetUniformBlockIndex(program, uniformName.Substring(0, uniformName.IndexOf('.')));
             if (block < 0)
-                return default(T);
+                return DebugGetError<T>(new StackTrace(true));
 
             // get bound buffer object
             GL.GetActiveUniformBlock(program, block, ActiveUniformBlockParameter.UniformBlockBinding, out unit);
             GL.GetInteger(GetIndexedPName.UniformBufferBinding, unit, out glbuf);
             if (glbuf <= 0)
-                return default(T);
+                return DebugGetError<T>(new StackTrace(true));
 
             // get uniform indices in uniform block
             GL.GetUniformIndices(program, 1, new[] { uniformName }, locations);
             var location = locations[0];
             if (location < 0)
-                return default(T);
+                return DebugGetError<T>(new StackTrace(true));
 
             // get uniform information
             GL.GetActiveUniforms(program, 1, ref location, ActiveUniformParameter.UniformType, out type);
@@ -163,10 +164,12 @@ namespace App.Glsl
             }
 
             // read uniform buffer data
-            byte[] array = new byte[Math.Max(stride, size) * length];
+            var array = new byte[Math.Max(stride, size) * length];
             var src = GL.MapNamedBufferRange(glbuf, (IntPtr)offset, array.Length, BufferAccessMask.MapReadBit);
             Marshal.Copy(src, array, 0, array.Length);
             GL.UnmapNamedBuffer(glbuf);
+
+            DebugGetError(new StackTrace(true));
 
             // if the return type is an array
             if (typeof(T).IsArray && BaseTypes.Any(x => x == typeof(T).GetElementType()))
@@ -178,6 +181,24 @@ namespace App.Glsl
 
             // create new object from byte array
             return typeof(T).GetConstructor(new[] { typeof(byte[]) })?.Invoke(new[] { array });
+        }
+
+        public static T DebugGetError<T>(StackTrace trace = null)
+        {
+            DebugGetError(trace);
+            return default(T);
+        }
+
+        public static ErrorCode DebugGetError(StackTrace trace = null)
+        {
+            var error = GL.GetError();
+            var frame = trace?.GetFrame(0);
+            if (error != ErrorCode.NoError)
+                Debug.Print("[" + frame.GetFileName()
+                    + "(" + frame.GetFileLineNumber()
+                    + ")] OpenGL error: " + error.ToString()
+                    + " occurred during shader debugging.");
+            return error;
         }
 
         #endregion

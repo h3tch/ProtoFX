@@ -12,7 +12,7 @@ namespace App.Glsl
 
         protected int gl_PatchVerticesIn;
         protected int gl_PrimitiveID;
-        protected vec3 gl_TessCoord = new vec3();
+        protected vec3 gl_TessCoord;
         protected float[] gl_TessLevelOuter;
         protected float[] gl_TessLevelInner;
         protected __InOut[] gl_in;
@@ -45,16 +45,8 @@ namespace App.Glsl
         internal void Debug()
         {
             try
-            { 
-                // get data from the tessellation shader
-                GetTesselationOutput(Settings.ts_PrimitiveID, Settings.ts_InvocationID, Settings.ts_TessCoord);
-                // only generate debug trace if the shader is linked to a file
-                if (LineInFile >= 0)
-                    BeginTracing();
-                // execute the main function of the shader
-                main();
-                // end debug trace generation
-                EndTracing();
+            {
+                Execute(Settings.ts_PrimitiveID, Settings.ts_InvocationID, Settings.ts_TessCoord, LineInFile >= 0);
             }
             catch (Exception e)
             {
@@ -62,7 +54,6 @@ namespace App.Glsl
             }
             finally
             {
-                // end debug trace generation
                 EndTracing();
             }
         }
@@ -73,12 +64,21 @@ namespace App.Glsl
         /// <param name="primitiveID"></param>
         /// <param name="invocationID"></param>
         /// <param name="tessCoord"></param>
-        internal void Execute(int primitiveID, int invocationID, float[] tessCoord)
+        internal void Execute(int primitiveID, int invocationID, float[] tessCoord, bool debug = false)
         {
+            DebugGetError(new System.Diagnostics.StackTrace(true));
+
             // get data from the tessellation shader
             GetTesselationOutput(primitiveID, invocationID, tessCoord);
+            // only generate debug trace if the shader is linked to a file
+            if (debug)
+                BeginTracing();
             // execute the main function of the shader
             main();
+            // end debug trace generation
+            EndTracing();
+
+            DebugGetError(new System.Diagnostics.StackTrace(true));
         }
 
         #region Overrides

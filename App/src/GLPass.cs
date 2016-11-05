@@ -241,11 +241,17 @@ namespace App
                 }
                 else
                 {
+                    Shader.DebugGetError(new System.Diagnostics.StackTrace(true));
                     dbgvert.Debug();
+                    Shader.DebugGetError(new System.Diagnostics.StackTrace(true));
                     dbgtess.Debug();
+                    Shader.DebugGetError(new System.Diagnostics.StackTrace(true));
                     dbgeval.Debug();
+                    Shader.DebugGetError(new System.Diagnostics.StackTrace(true));
                     dbggeom.Debug();
+                    Shader.DebugGetError(new System.Diagnostics.StackTrace(true));
                     dbgfrag.Debug();
+                    Shader.DebugGetError(new System.Diagnostics.StackTrace(true));
                 }
             }
 

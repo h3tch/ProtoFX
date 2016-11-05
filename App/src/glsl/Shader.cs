@@ -185,8 +185,7 @@ namespace App.Glsl
                 return;
 
             var trace = new StackTrace(ex, true);
-
-            TraceLog.Add(new TraceInfo
+            var info = new TraceInfo
             {
                 Line = trace.GetFrame(0).GetFileLineNumber() + ShaderLineOffset,
                 Column = trace.GetFrame(0).GetFileColumnNumber(),
@@ -194,7 +193,11 @@ namespace App.Glsl
                 Name = ex.GetType().Name,
                 Output = ex.Message,
                 Input = null,
-            });
+            };
+
+            TraceLog.Add(info);
+
+            Debug.Print(ex.GetType().Name + ": " + ex.Message + '\n' + ex.StackTrace);
         }
 
         /// <summary>

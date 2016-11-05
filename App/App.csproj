@@ -164,7 +164,6 @@
     <Compile Include="src\glsl\math.cs" />
     <Compile Include="src\glsl\Shader.cs" />
     <Compile Include="src\glsl\TessShader.cs" />
-    <Compile Include="src\glsl\tvec.cs" />
     <Compile Include="src\glsl\vec2.cs" />
     <Compile Include="src\glsl\vec3.cs" />
     <Compile Include="src\glsl\vec4.cs" />

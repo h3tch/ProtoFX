@@ -46,7 +46,6 @@ namespace App.Glsl
             }
             finally
             {
-                // end debug trace generation
                 EndTracing();
             }
         }

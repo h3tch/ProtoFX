@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Diagnostics;
 
 namespace App.Glsl
 {
@@ -46,7 +47,7 @@ namespace App.Glsl
         {
             try
             {
-                Execute(Settings.gs_PrimitiveIDIn, Settings.vs_InstanceID, true);
+                Execute(Settings.gs_PrimitiveIDIn, Settings.vs_InstanceID, LineInFile >= 0);
             }
             catch (Exception e)
             {
@@ -54,7 +55,6 @@ namespace App.Glsl
             }
             finally
             {
-                // end debug trace generation
                 EndTracing();
             }
         }
@@ -65,6 +65,8 @@ namespace App.Glsl
         /// <param name="primitiveID"></param>
         internal void Execute(int primitiveID, int instanceID, bool debug = false)
         {
+            DebugGetError(new StackTrace(true));
+
             // set shader input
             GetVertexShaderOutput(primitiveID, instanceID);
 
@@ -72,7 +74,7 @@ namespace App.Glsl
             var layout = GetQualifier<__layout>("__in__");
 
             // only generate debug trace if the shader is linked to a file
-            if (LineInFile >= 0 && debug)
+            if (debug)
                 BeginTracing();
 
             // execute shader
@@ -83,8 +85,9 @@ namespace App.Glsl
             }
 
             // end debug trace generation
-            if (debug)
-                EndTracing();
+            EndTracing();
+
+            DebugGetError(new StackTrace(true));
         }
 
         /// <summary>
@@ -104,6 +107,7 @@ namespace App.Glsl
             // load patch data from vertex shader
             var vert = (VertShader)Prev.Prev.Prev;
             var patch = DrawCall.GetPatch(primitiveID);
+            DebugGetError(new StackTrace(true));
             gl_in = new __InOut[patch.Length];
             for (int i = 0; i < patch.Length; i++)
             {

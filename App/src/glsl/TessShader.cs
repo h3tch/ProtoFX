@@ -44,7 +44,7 @@ namespace App.Glsl
         {
             try
             {
-                Execute(Settings.ts_PrimitiveID, Settings.vs_InstanceID, true);
+                Execute(Settings.ts_PrimitiveID, Settings.vs_InstanceID, LineInFile >= 0);
             }
             catch (Exception e)
             {
@@ -52,7 +52,6 @@ namespace App.Glsl
             }
             finally
             {
-                // end debug trace generation
                 EndTracing();
             }
         }
@@ -65,11 +64,13 @@ namespace App.Glsl
         /// <param name="debug">Enable debug tracing if true.</param>
         internal void Execute(int primitiveID, int instanceID, bool debug = false)
         {
+            DebugGetError(new System.Diagnostics.StackTrace(true));
+
             // get data from the vertex shader
             GetVertexShaderOutput(primitiveID, instanceID);
 
             // only generate debug trace if the shader is linked to a file
-            if (LineInFile >= 0 && debug)
+            if (debug)
                 BeginTracing();
 
             // execute the main function of the shader
@@ -81,8 +82,9 @@ namespace App.Glsl
             }
 
             // end debug trace generation
-            if (debug)
-                EndTracing();
+            EndTracing();
+
+            DebugGetError(new System.Diagnostics.StackTrace(true));
         }
 
         private void GetVertexShaderOutput(int primitiveID, int instanceID)
@@ -95,8 +97,9 @@ namespace App.Glsl
             gl_PrimitiveID = primitiveID;
 
             // load patch data from vertex shader
-            var patch = DrawCall.GetPatch(primitiveID);
             var vert = (VertShader)Prev;
+            var patch = DrawCall.GetPatch(primitiveID);
+            DebugGetError(new System.Diagnostics.StackTrace(true));
             for (int i = 0; i < patch.Length; i++)
             {
                 var vertexID = Convert.ToInt32(patch.GetValue(i));

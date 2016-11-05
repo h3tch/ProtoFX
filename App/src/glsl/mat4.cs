@@ -1,21 +1,46 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace App.Glsl
 {
-    public class mat4
+    public struct mat4
     {
         #region mat4
-
-        internal vec4[] C;
-        public vec4 this[int i] { get { return C[i]; } set { C[i] = value; } }
+        
+        internal vec4 C0, C1, C2, C3;
+        public vec4 this[int i]
+        {
+            get
+            {
+                switch (i)
+                {
+                    case 0: return C0;
+                    case 1: return C1;
+                    case 2: return C2;
+                    case 3: return C3;
+                }
+                throw new IndexOutOfRangeException();
+            }
+            set
+            {
+                switch (i)
+                {
+                    case 0: C0 = value; break;
+                    case 1: C1 = value; break;
+                    case 2: C2 = value; break;
+                    case 3: C3 = value; break;
+                }
+                throw new IndexOutOfRangeException();
+            }
+        }
         public static mat4 Identity = new mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        public override string ToString() => "[" + C0 + "; " + C1 + "; " + C2 + "; " + C3 + "]";
 
-        public mat4() { C = new vec4[] { new vec4(), new vec4(), new vec4(), new vec4() }; }
         public mat4(float a) : this(new vec4(a), new vec4(a), new vec4(a), new vec4(a)) { }
         public mat4(float[] v) : this(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]) { }
         public mat4(byte[] data) : this((float[])data.To(typeof(float))) { }
-        public mat4(vec4 a, vec4 b, vec4 c, vec4 d) { C = new vec4[] { a, b, c, d }; }
+        public mat4(vec4 a, vec4 b, vec4 c, vec4 d) { C0 = a; C1 = b; C2 = c; C3 = d; }
         public mat4(
             float _00, float _10, float _20, float _30,
             float _01, float _11, float _21, float _31,
@@ -26,7 +51,6 @@ namespace App.Glsl
                 new vec4(_02, _12, _22, _32),
                 new vec4(_03, _13, _23, _33))
         { }
-        public override string ToString() => "[" + C.Select(x => x.ToString()).Cat(", ") + "]";
 
         #endregion
 
@@ -67,6 +91,103 @@ namespace App.Glsl
         public static vec4 operator *(vec4 a, mat4 b)
         {
             return Shader.TraceFunction(new vec4(
+                a[0] * b[0][0] + a[1] * b[0][1] + a[2] * b[0][2] + a[3] * b[0][3],
+                a[0] * b[1][0] + a[1] * b[1][1] + a[2] * b[1][2] + a[3] * b[1][3],
+                a[0] * b[2][0] + a[1] * b[2][1] + a[2] * b[2][2] + a[3] * b[2][3],
+                a[0] * b[3][0] + a[1] * b[3][1] + a[2] * b[3][2] + a[3] * b[3][3]),
+                a, b);
+        }
+
+        #endregion
+    }
+
+    public struct dmat4
+    {
+        #region mat4
+        
+        internal dvec4 C0, C1, C2, C3;
+        public dvec4 this[int i]
+        {
+            get
+            {
+                switch (i)
+                {
+                    case 0: return C0;
+                    case 1: return C1;
+                    case 2: return C2;
+                    case 3: return C3;
+                }
+                throw new IndexOutOfRangeException();
+            }
+            set
+            {
+                switch (i)
+                {
+                    case 0: C0 = value; break;
+                    case 1: C1 = value; break;
+                    case 2: C2 = value; break;
+                    case 3: C3 = value; break;
+                }
+                throw new IndexOutOfRangeException();
+            }
+        }
+        public static mat4 Identity = new mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        public override string ToString() => "[" + C0 + "; " + C1 + "; " + C2 + "; " + C3 + "]";
+
+        public dmat4(double a = 0) : this(new dvec4(a), new dvec4(a), new dvec4(a), new dvec4(a)) { }
+        public dmat4(double[] v) : this(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]) { }
+        public dmat4(byte[] data) : this((double[])data.To(typeof(double))) { }
+        public dmat4(dvec4 a, dvec4 b, dvec4 c, dvec4 d) { C0 = a; C1 = b; C2 = c; C3 = d; }
+        public dmat4(
+            double _00, double _10, double _20, double _30,
+            double _01, double _11, double _21, double _31,
+            double _02, double _12, double _22, double _32,
+            double _03, double _13, double _23, double _33) : this(
+                new dvec4(_00, _10, _20, _30),
+                new dvec4(_01, _11, _21, _31),
+                new dvec4(_02, _12, _22, _32),
+                new dvec4(_03, _13, _23, _33))
+        { }
+
+        #endregion
+
+        #region Operator
+
+        public static dmat4 operator *(dmat4 a, dmat4 b)
+        {
+            return Shader.TraceFunction(new dmat4(
+                a[0][0] * b[0][0] + a[1][0] * b[0][1] + a[2][0] * b[0][2] + a[3][0] * b[0][3],
+                a[0][0] * b[1][0] + a[1][0] * b[1][1] + a[2][0] * b[1][2] + a[3][0] * b[1][3],
+                a[0][0] * b[2][0] + a[1][0] * b[2][1] + a[2][0] * b[2][2] + a[3][0] * b[2][3],
+                a[0][0] * b[3][0] + a[1][0] * b[3][1] + a[2][0] * b[3][2] + a[3][0] * b[3][3],
+                a[0][1] * b[0][0] + a[1][1] * b[0][1] + a[2][1] * b[0][2] + a[3][1] * b[0][3],
+                a[0][1] * b[1][0] + a[1][1] * b[1][1] + a[2][1] * b[1][2] + a[3][1] * b[1][3],
+                a[0][1] * b[2][0] + a[1][1] * b[2][1] + a[2][1] * b[2][2] + a[3][1] * b[2][3],
+                a[0][1] * b[3][0] + a[1][1] * b[3][1] + a[2][1] * b[3][2] + a[3][1] * b[3][3],
+                a[0][2] * b[0][0] + a[1][2] * b[0][1] + a[2][2] * b[0][2] + a[3][2] * b[0][3],
+                a[0][2] * b[1][0] + a[1][2] * b[1][1] + a[2][2] * b[1][2] + a[3][2] * b[1][3],
+                a[0][2] * b[2][0] + a[1][2] * b[2][1] + a[2][2] * b[2][2] + a[3][2] * b[2][3],
+                a[0][2] * b[3][0] + a[1][3] * b[3][1] + a[2][2] * b[3][2] + a[3][2] * b[3][3],
+                a[0][3] * b[0][0] + a[1][3] * b[0][1] + a[2][3] * b[0][2] + a[3][3] * b[0][3],
+                a[0][3] * b[1][0] + a[1][3] * b[1][1] + a[2][3] * b[1][2] + a[3][3] * b[1][3],
+                a[0][3] * b[2][0] + a[1][3] * b[2][1] + a[2][3] * b[2][2] + a[3][3] * b[2][3],
+                a[0][3] * b[3][0] + a[1][3] * b[3][1] + a[2][3] * b[3][2] + a[3][3] * b[3][3]),
+                a, b);
+        }
+
+        public static dvec4 operator *(dmat4 a, dvec4 b)
+        {
+            return Shader.TraceFunction(new dvec4(
+                a[0][0] * b[0] + a[1][0] * b[1] + a[2][0] * b[2] + a[3][0] * b[3],
+                a[0][1] * b[0] + a[1][1] * b[1] + a[2][1] * b[2] + a[3][1] * b[3],
+                a[0][2] * b[0] + a[1][2] * b[1] + a[2][2] * b[2] + a[3][2] * b[3],
+                a[0][3] * b[0] + a[1][3] * b[1] + a[2][3] * b[2] + a[3][3] * b[3]),
+                a, b);
+        }
+
+        public static dvec4 operator *(dvec4 a, dmat4 b)
+        {
+            return Shader.TraceFunction(new dvec4(
                 a[0] * b[0][0] + a[1] * b[0][1] + a[2] * b[0][2] + a[3] * b[0][3],
                 a[0] * b[1][0] + a[1] * b[1][1] + a[2] * b[1][2] + a[3] * b[1][3],
                 a[0] * b[2][0] + a[1] * b[2][1] + a[2] * b[2][2] + a[3] * b[2][3],

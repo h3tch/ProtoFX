@@ -141,8 +141,9 @@ namespace App
                 data = new byte[Size];
 
             // map buffer and copy data to CPU memory
-            var dataPtr = GL.MapNamedBuffer(glname, BufferAccess.ReadOnly);
-            Marshal.Copy(dataPtr, data, offset, Math.Min(Size, data.Length));
+            var mapSize = Math.Min(Size, data.Length);
+            var dataPtr = GL.MapNamedBufferRange(glname, (IntPtr)offset, mapSize, BufferAccessMask.MapReadBit);
+            Marshal.Copy(dataPtr, data, 0, mapSize);
             GL.UnmapNamedBuffer(glname);
         }
 

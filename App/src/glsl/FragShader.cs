@@ -52,8 +52,6 @@ namespace App.Glsl
                 // only generate debug trace if the shader is linked to a file
                 if (LineInFile >= 0)
                     BeginTracing();
-                // end debug trace generation
-                EndTracing();
             }
             catch (Exception e)
             {
