@@ -53,7 +53,7 @@ namespace App.Glsl
         #region Overrides
 
         public static object GetUniform<T>(string uniformName)
-            => GetUniform<T>(uniformName, ProgramPipelineParameter.ComputeShader);
+            => GetUniform(uniformName, typeof(T), ProgramPipelineParameter.ComputeShader);
 
         #endregion
     }

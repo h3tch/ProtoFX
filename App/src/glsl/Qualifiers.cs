@@ -15,6 +15,15 @@ namespace App.Glsl
     public class __out : Attribute { }
 
     [AttributeUsage(AttributeTargets.All)]
+    public class __array : Attribute
+    {
+        public int length = 0;
+    }
+
+    [AttributeUsage(AttributeTargets.All)]
+    public class __uniform : Attribute { }
+
+    [AttributeUsage(AttributeTargets.All)]
     public class __layout : Attribute
     {
 #pragma warning disable 0649

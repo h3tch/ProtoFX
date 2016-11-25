@@ -27,7 +27,7 @@ namespace App.Glsl
                 throw new IndexOutOfRangeException();
             }
         }
-        public override string ToString() => "(" + x + ", " + y + ", " + z + ")";
+        public override string ToString() => "(" + x + ", " + y + ", " + z + ", " + w + ")";
 
         #region vec4
         
@@ -430,7 +430,7 @@ namespace App.Glsl
                 throw new IndexOutOfRangeException();
             }
         }
-        public override string ToString() => "(" + x + ", " + y + ", " + z + ")";
+        public override string ToString() => "(" + x + ", " + y + ", " + z + ", " + w + ")";
 
         #region vec4
         
@@ -833,7 +833,7 @@ namespace App.Glsl
                 throw new IndexOutOfRangeException();
             }
         }
-        public override string ToString() => "(" + x + ", " + y + ", " + z + ")";
+        public override string ToString() => "(" + x + ", " + y + ", " + z + ", " + w + ")";
 
         #region vec4
         
@@ -1217,7 +1217,7 @@ namespace App.Glsl
                 throw new IndexOutOfRangeException();
             }
         }
-        public override string ToString() => "(" + x + ", " + y + ", " + z + ")";
+        public override string ToString() => "(" + x + ", " + y + ", " + z + ", " + w + ")";
 
         #region vec4
         
@@ -1601,7 +1601,7 @@ namespace App.Glsl
                 throw new IndexOutOfRangeException();
             }
         }
-        public override string ToString() => "(" + x + ", " + y + ", " + z + ")";
+        public override string ToString() => "(" + x + ", " + y + ", " + z + ", " + w + ")";
 
         #region vec4
         

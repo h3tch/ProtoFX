@@ -152,7 +152,7 @@ namespace App.Glsl
         }
 
         public static object GetUniform<T>(string uniformName)
-            => GetUniform<T>(uniformName, ProgramPipelineParameter.TessEvaluationShader);
+            => GetUniform(uniformName, typeof(T), ProgramPipelineParameter.TessEvaluationShader);
 
         private float mix(float a, float b, float t) => a * (1 - t) + b * t;
         private vec4 mix(vec4 a, vec4 b, float t) => a * (1 - t) + b * t;

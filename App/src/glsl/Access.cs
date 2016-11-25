@@ -86,7 +86,7 @@ namespace App.Glsl
         internal static readonly Type[] BaseFloatTypes = new[] { typeof(float), typeof(double) };
         internal static readonly Type[] BaseTypes = BaseIntTypes.Concat(BaseFloatTypes).ToArray();
 
-        protected static object GetUniform<T>(string uniformName, ProgramPipelineParameter shader)
+        protected static object GetUniform(string uniformName, Type uniformType, ProgramPipelineParameter shader)
         {
             int unit, glbuf, type, size, length, offset, stride;
             int[] locations = new int[1];
@@ -94,30 +94,30 @@ namespace App.Glsl
             // get current shader program pipeline
             var pipeline = GL.GetInteger(GetPName.ProgramPipelineBinding);
             if (pipeline <= 0)
-                return DebugGetError<T>(new StackTrace(true));
+                return DebugGetError(uniformType, new StackTrace(true));
 
             // get vertex shader
             int program;
             GL.GetProgramPipeline(pipeline, shader, out program);
             if (program <= 0)
-                return DebugGetError<T>(new StackTrace(true));
+                return DebugGetError(uniformType, new StackTrace(true));
 
             // get uniform buffer object block index
             int block = GL.GetUniformBlockIndex(program, uniformName.Substring(0, uniformName.IndexOf('.')));
             if (block < 0)
-                return DebugGetError<T>(new StackTrace(true));
+                return DebugGetError(uniformType, new StackTrace(true));
 
             // get bound buffer object
             GL.GetActiveUniformBlock(program, block, ActiveUniformBlockParameter.UniformBlockBinding, out unit);
             GL.GetInteger(GetIndexedPName.UniformBufferBinding, unit, out glbuf);
             if (glbuf <= 0)
-                return DebugGetError<T>(new StackTrace(true));
+                return DebugGetError(uniformType, new StackTrace(true));
 
             // get uniform indices in uniform block
             GL.GetUniformIndices(program, 1, new[] { uniformName }, locations);
             var location = locations[0];
             if (location < 0)
-                return DebugGetError<T>(new StackTrace(true));
+                return DebugGetError(uniformType, new StackTrace(true));
 
             // get uniform information
             GL.GetActiveUniforms(program, 1, ref location, ActiveUniformParameter.UniformType, out type);
@@ -172,21 +172,21 @@ namespace App.Glsl
             DebugGetError(new StackTrace(true));
 
             // if the return type is an array
-            if (typeof(T).IsArray && BaseTypes.Any(x => x == typeof(T).GetElementType()))
-                return array.To(typeof(T).GetElementType());
+            if (uniformType.IsArray && BaseTypes.Any(x => x == uniformType.GetElementType()))
+                return array.To(uniformType.GetElementType());
 
             // if the return type is a base type
-            if (BaseTypes.Any(x => x == typeof(T)))
-                return array.To(typeof(T)).GetValue(0);
+            if (BaseTypes.Any(x => x == uniformType))
+                return array.To(uniformType).GetValue(0);
 
             // create new object from byte array
-            return typeof(T).GetConstructor(new[] { typeof(byte[]) })?.Invoke(new[] { array });
+            return uniformType.GetConstructor(new[] { typeof(byte[]) })?.Invoke(new[] { array });
         }
 
-        public static T DebugGetError<T>(StackTrace trace = null)
+        public static object DebugGetError(Type type, StackTrace trace = null)
         {
             DebugGetError(trace);
-            return default(T);
+            return type ?? Activator.CreateInstance(type);
         }
 
         public static ErrorCode DebugGetError(StackTrace trace = null)

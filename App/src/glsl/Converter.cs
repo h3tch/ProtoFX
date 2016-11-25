@@ -11,16 +11,17 @@ namespace App.Glsl
 
         private static readonly string s = @"\s";
         private static readonly string word = @"\b[\w\d]+\b";
-        private static readonly string array = @"\[.*?\]";
+        private static readonly string array = Helpers.RegexMatchingBrace(@"\[",@"\]");
         private static readonly string arrayWord = $"{word}\\s*{array}";
-        private static Regex rexBuffer = new Regex($"{word}{s}+{word}{s}*\\{{.*?\\}}{s}*{word}(\\[.*?\\])?;", RegexOptions.Singleline);
+        private static readonly string layout = $"\\blayout{s}*{Helpers.RegexMatchingBrace(@"\(",@"\)")}";
+        private static Regex rexBuffer = new Regex($"({layout}{s}*)?{word}{s}+{word}{s}*\\{{.*?\\}}{s}*{word}(\\[.*?\\])?;", RegexOptions.Singleline);
         private static Regex buffer = new Regex(@"\buniform\s+[\w\d_]+\{[\s\w\d\[\];]*\}[\s\w\d]*;");
         private static Regex outBuffer = new Regex(@"\bout\s+[\w\d_]+\{[\s\w\d\[\];]*\}[\s\w\d]*;");
         private static Regex inBuffer = new Regex(@"\bin\s+[\w\d_]+\{[\s\w\d\[\];]*\}[\s\w\d]*;");
         private static Regex variable = new Regex(@"\b[\w\d_]+\s+[\w\d\[\]_]+;");
         private static Regex rexArrayBraces = new Regex($"{array}\\s*;", RegexOptions.Singleline);
         private static Regex version = new Regex(@"#version [0-9]{3}");
-        private static Regex layout = new Regex(@"\blayout\s*\(.*\)");
+        private static Regex rexLayout = new Regex(layout);
         private static Regex number = new Regex(@"\b[0-9]*\.[0-9]+\b");
         private static Regex uniform = new Regex(@"\buniform\b");
         private static Regex IN = new Regex(@"\bin\s+[\w\d]+\s+[\w\d]+\s*;");
@@ -94,13 +95,6 @@ namespace App.Glsl
             return text;
         }
 
-        private static string Layouts(string text)
-        {
-            for (Match match = layout.Match(text); match.Success; match = layout.Match(text))
-                text = text.Insert(match.Index + match.Length, "]").Insert(match.Index, "[__");
-            return text;
-        }
-
         private static string Constants(string text)
         {
             const string regex = @"\bconst\s+\w+\s+[\w\d]+\s*=\s*[\w\d.]+;";
@@ -129,52 +123,57 @@ namespace App.Glsl
                 var sub = bufMatch.Value;
                 var idx = sub.IndexOf('{');
                 var end = sub.IndexOf('}', idx);
-                var bufDef = rexWord.Matches(sub);
+                var bufLayout = rexLayout.Match(sub);
+                var bufDef = rexWord.Matches(sub, bufLayout.Index + bufLayout.Length);
                 var bufType = bufDef[0];
                 var bufName = bufDef[1];
 
+                // convert GLSL type to C# class and constructor
                 var braces = rexArrayBraces.Match(sub, end);
-                string clazz, ctor;
+                string clazz;//, ctor;
                 if (braces.Success)
                 {
                     var array = braces.Value;
                     var value = array.Subrange(array.IndexOf('[') + 1, array.IndexOf(']')).Trim();
-                    ctor = $"{bufName.Value}[{(value.Length == 0 ? "0" : value)}]";
+                    //ctor = value.Length > 0 ? $" = new {bufName.Value}[{value}]" : string.Empty;
                     clazz = $"{bufName.Value}[]";
                 }
                 else
                 {
-                    ctor = $"{bufName.Value}()";
+                    //ctor = $" = new {bufName.Value}()";
                     clazz = $"{bufName.Value}";
                 }
 
                 // add class constructor to the end of the block
-                sub = sub
-                    .Insert(sub.Length - 1, $" = new {ctor}");
+                //sub = sub.Insert(sub.Length - 1, ctor);
+                // remove GLSL array definition
                 if (braces.Success)
-                    sub = sub.Remove(braces.Index, braces.Length);
-                sub = sub
-                    // add class name before instance name
-                    .Insert(end + 1, clazz + ' ')
-                    // replace type with 'class'
-                    .Remove(bufType.Index, bufType.Length)
-                    .Insert(bufType.Index, "class");
+                    sub = sub.Remove(braces.Index, braces.Length - 1);
+                // add class name before instance name
+                sub = sub.Insert(end + 1, $"[__{bufLayout.Value}] [__{bufType}] {clazz} ");
 
                 // process variable names
                 var varMatches = variable.Matches(sub.Substring(0, end), idx);
                 for (int i = varMatches.Count - 1; i >= 0; i--)
-                {
-                    // get variable definitions
-                    var varMatch = varMatches[i];
-                    // insert 'public' keyword before variable names
-                    sub = sub.Insert(varMatch.Index, "public ");
-                }
+                    sub = sub.Insert(varMatches[i].Index, "public ");
+
+                // replace type with class keyword but keep in/out attributes
+                sub = sub.Insert(bufType.Index + bufType.Length, "class");
+                sub = sub.Remove(bufType.Index, bufType.Length);
+                sub = sub.Remove(bufLayout.Index, bufLayout.Length);
 
                 // commit changes to text
                 text = text.Remove(bufMatch.Index, bufMatch.Length).Insert(bufMatch.Index, sub);
-                bufMatch = buffer.Match(text, bufMatch.Index + sub.Length);
+                //bufMatch = buffer.Match(text, bufMatch.Index + sub.Length);
             }
 
+            return text;
+        }
+
+        private static string Layouts(string text)
+        {
+            for (Match match = rexLayout.Match(text); match.Success; match = rexLayout.Match(text))
+                text = text.Insert(match.Index + match.Length, "]").Insert(match.Index, "[__");
             return text;
         }
 
@@ -282,9 +281,9 @@ namespace App.Glsl
                 var words = rexWord.Matches(match.Value);
                 var type = words[1].Value;
                 var name = words[2].Value;
-                text = text.Remove(match.Index + match.Length - 1, 1).Insert(
-                    match.Index + match.Length - 1,
-                    $" {{ get {{ return GetInputVarying<{type}>(\"{name}\"); }} }}");
+                //text = text.Remove(match.Index + match.Length - 1, 1).Insert(
+                //    match.Index + match.Length - 1,
+                //    $" {{ get {{ return GetInputVarying<{type}>(\"{name}\"); }} }}");
                 text = text.Insert(match.Index + 2, "]").Insert(match.Index, "[__");
             }
             return text;

@@ -285,6 +285,8 @@ namespace App.Glsl
 
         #endregion
 
+        #region Geometry Shader Functions
+
         public void EmitVertex() { }
 
         public void EndPrimitive() { }
@@ -292,6 +294,8 @@ namespace App.Glsl
         public void EmitStreamVertex(int stream) { }
 
         public void EndStreamPrimitive(int stream) { }
+
+        #endregion
 
         public virtual void main() { }
 
