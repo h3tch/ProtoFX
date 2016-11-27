@@ -1,4 +1,4 @@
-﻿namespace App.Glsl
+﻿namespace App.Glsl.SamplerTypes
 {
     public struct sampler1D { public int i; public static implicit operator int(sampler1D a) => a.i; public static implicit operator sampler1D(int a) => new sampler1D { i = a }; }
     public struct isampler1D { public int i; public static implicit operator int(isampler1D a) => a.i; public static implicit operator isampler1D(int a) => new isampler1D { i = a }; }

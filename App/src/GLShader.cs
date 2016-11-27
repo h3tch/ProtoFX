@@ -57,14 +57,7 @@ namespace App
 
             if (debugging)
             {
-                var body = Converter.Shader2Csharp(block.Body);
-                var clazz = $"{char.ToUpper(anno.First())}{anno.Substring(1)}Shader";
-                var code = "using System; "
-                    + "namespace App.Glsl { "
-                    + $"class {name} : {clazz} {{ "
-                    + $"public {name}() : this(0) {{ }} "
-                    + $"public {name}(int l) : base(l) {{ }} "
-                    + $"{body}}}}}";
+                var code = Converter.Shader2Class(ShaderType, name, block.Body);
                 var rs = GLCsharp.CompileFilesOrSource(new[] { code }, null, block, err, new[] { name });
                 if (rs.Errors.Count == 0)
                     DebugShader = (Shader)rs.CompiledAssembly.CreateInstance(

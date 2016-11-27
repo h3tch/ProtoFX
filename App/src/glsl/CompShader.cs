@@ -26,7 +26,7 @@ namespace App.Glsl
 
         public CompShader() : this(-1) { }
 
-        public CompShader(int startLine) : base(startLine) { }
+        public CompShader(int startLine) : base(startLine, ProgramPipelineParameter.ComputeShader) { }
 
         #endregion
 
@@ -49,12 +49,5 @@ namespace App.Glsl
                 EndTracing();
             }
         }
-
-        #region Overrides
-
-        public static object GetUniform<T>(string uniformName)
-            => GetUniform(uniformName, typeof(T), ProgramPipelineParameter.ComputeShader);
-
-        #endregion
     }
 }

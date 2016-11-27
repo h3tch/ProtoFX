@@ -1,9 +1,12 @@
-﻿using System;
+﻿using App.Glsl.SamplerTypes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using static System.Reflection.BindingFlags;
+using OpenTK.Graphics.OpenGL4;
 
 namespace App.Glsl
 {
@@ -18,7 +21,7 @@ namespace App.Glsl
 
     public class Shader : Access
     {
-        #region
+        #region Qualifiers
 
         public const string points                  = "points";
         public const string lines                   = "lines";
@@ -89,6 +92,7 @@ namespace App.Glsl
         #region Fields
 
         protected int LineInFile;
+        protected ProgramPipelineParameter ShaderType;
         internal Shader Prev;
         internal static int ShaderLineOffset = 0;
         internal static bool CollectDebugData = false;
@@ -114,13 +118,19 @@ namespace App.Glsl
 
         #endregion
 
+        #region GLSL Built In
+
+        protected int gl_MaxClipDistances;
+
+        #endregion
+
         #region Constructors
 
-        public Shader() : this(0) { }
-
-        public Shader(int startLine)
+        public Shader(int startLine, ProgramPipelineParameter shaderType)
         {
             LineInFile = startLine;
+            ShaderType = shaderType;
+            gl_MaxClipDistances = GL.GetInteger(GetPName.MaxClipDistances);
         }
 
         #endregion
@@ -232,7 +242,105 @@ namespace App.Glsl
         }
 
         #endregion
-        
+
+        #region Process Shader Fields
+
+        private delegate void ProcessField(object obj, FieldInfo field, string prefix);
+
+        protected void ProcessFields(object obj)
+        {
+            ProcessFields(obj, AllocField, new[] { typeof(__in), typeof(__out), typeof(__uniform) });
+            ProcessFields(obj, ProcessInField, new[] { typeof(__in) });
+            ProcessFields(obj, ProcessUniformField, new[] { typeof(__uniform) });
+        }
+
+        private void ProcessFields(object obj, ProcessField func, Type[] attrType = null, string prefix = "")
+        {
+            // for all non static fields of the object
+            foreach (var field in obj.GetType().GetFields(Public | NonPublic | Instance))
+                // check if a valid attribute is defined for the field
+                if (attrType == null ? true : attrType.Any(x => field.IsDefined(x)))
+                    // process field
+                    func(obj, field, prefix);
+        }
+
+        private void AllocField(object obj, FieldInfo field, string unused = null)
+        {
+            // if the field is a primitive, there
+            // is nothing to be allocated
+            if (field.FieldType.IsPrimitive)
+                return;
+            var type = field.FieldType;
+            var value = field.GetValue(obj);
+
+            // if the field has not been instantiated yet
+            // allocate an instance of this type
+            if (value == null)
+            {
+                // allocate an array
+                if (type.IsArray)
+                {
+                    var qualifier = (__array)field.GetCustomAttribute(typeof(__array));
+                    value = Array.CreateInstance(type, qualifier?.length ?? 0);
+                }
+                // allocate an object
+                else
+                    value = Activator.CreateInstance(type);
+                // set the fields value
+                field.SetValue(obj, value);
+            }
+
+            // if the new value is an array, we also need
+            // to allocate the elements of the array
+            if (type.IsArray)
+            {
+                var array = (Array)value;
+                for (var i = 0; i < array.Length; i++)
+                {
+                    if (array.GetValue(i) == null)
+                        array.SetValue(Activator.CreateInstance(type), i);
+                    ProcessFields(array.GetValue(i), AllocField);
+                }
+            }
+            else
+                ProcessFields(value, AllocField);
+        }
+
+        private void ProcessInField(object obj, FieldInfo field, string prefix)
+        {
+            // If this is a input-stream or uniform-buffer structure or class 
+            if (field.FieldType.IsClass)
+                // process fields of the object
+                ProcessFields(field.GetValue(obj), ProcessInField, null, $"{prefix}{field.Name}.");
+            else
+                // else load input stream data
+                field.SetValue(obj, GetInputVarying(prefix + field.Name, field.FieldType));
+        }
+
+        private void ProcessUniformField(object obj, FieldInfo field, string prefix)
+        {
+            var type = field.FieldType;
+            // If this is a input-stream or uniform-buffer structure or class 
+            if (type.IsClass)
+            {
+                // process fields of the object
+                ProcessFields(field.GetValue(obj), ProcessUniformField, null, $"{prefix}{type.Name}.");
+            }
+            else
+            {
+                // if a sampler type that also specifies a layout qualifier
+                var value = type.Namespace == typeof(sampler1D).Namespace
+                    && field.IsDefined(typeof(__layout))
+                    // set to binding value of the layout qualifier
+                    ? field.GetCustomAttribute<__layout>().binding
+                    // else load uniform buffer data
+                    : GetUniform(prefix + field.Name, type, ShaderType);
+                field.SetValue(obj, value);
+            }
+        }
+
+        #endregion
+
         #region Shader Data Access
 
         /// <summary>
@@ -242,10 +350,12 @@ namespace App.Glsl
         /// <typeparam name="T"></typeparam>
         /// <param name="varyingName"></param>
         /// <returns></returns>
-        public virtual T GetInputVarying<T>(string varyingName)
+        public virtual object GetInputVarying(string varyingName, Type type)
         {
-            return Prev != null ? Prev.GetOutputVarying<T>(varyingName) : default(T);
+            return Prev != null ? Prev.GetOutputVarying(varyingName, type) : Activator.CreateInstance(type);
         }
+
+        public T GetInputVarying<T>(string varyingName) => (T)GetInputVarying(varyingName, typeof(T));
 
         /// <summary>
         /// Get the output varying of the shader stage or
@@ -254,46 +364,34 @@ namespace App.Glsl
         /// <typeparam name="T"></typeparam>
         /// <param name="varyingName"></param>
         /// <returns></returns>
-        internal virtual T GetOutputVarying<T>(string varyingName)
+        internal virtual object GetOutputVarying(string varyingName, Type type)
         {
-            var type = GetType();
-
             // search properties
-            var props = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Instance);
+            var props = GetType().GetProperties(NonPublic | Instance);
             foreach (var prop in props)
             {
                 // has out qualifier and the respective name
                 if (prop.GetCustomAttribute(typeof(__out)) != null && prop.Name == varyingName)
-                    return (T)prop.GetValue(this);
+                    return prop.GetValue(this);
             }
 
             // search fields
-            var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
+            var fields = GetType().GetFields(NonPublic | Instance);
             foreach (var field in fields)
             {
                 // has out qualifier and the respective name
                 if (field.GetCustomAttribute(typeof(__out)) != null && field.Name == varyingName)
-                    return (T)field.GetValue(this);
+                    return field.GetValue(this);
             }
 
             // varying could not be found
-            return default(T);
+            return Activator.CreateInstance(type);
         }
+
+        internal T GetOutputVarying<T>(string varyingName) => (T)GetOutputVarying(varyingName, typeof(T));
 
         protected T GetQualifier<T>(string field)
             => (T)GetType().GetField(field)?.GetCustomAttributes(typeof(T), false)?.FirstOrDefault();
-
-        #endregion
-
-        #region Geometry Shader Functions
-
-        public void EmitVertex() { }
-
-        public void EndPrimitive() { }
-
-        public void EmitStreamVertex(int stream) { }
-
-        public void EndStreamPrimitive(int stream) { }
 
         #endregion
 
@@ -327,7 +425,7 @@ namespace App.Glsl
 
             [Category("Tesselation"), DisplayName("TessCoord"),
              Description("the index of the current patch within this rendering command.")]
-            public float[] ts_TessCoord { get; set; } = new float[3] { 0, 0, 0 };
+            public float[] ts_TessCoord { get; set; } = new float[3] { 1, 0, 0 };
 
             [Category("Geometry Shader"), DisplayName("InvocationID"),
              Description("the current instance, as defined when instancing geometry shaders.")]
@@ -416,6 +514,13 @@ namespace App.Glsl
             public vec4 gl_Position;
             public float gl_PointSize;
             public float[] gl_ClipDistance;
+            public static __InOut Create()
+            {
+                var o = new __InOut();
+                o.gl_ClipDistance = new float[GL.GetInteger(GetPName.MaxClipDistances)];
+                return o;
+            }
+            public static __InOut[] Create(int n) => Enumerable.Repeat(Create(), n).ToArray();
         }
 
         #endregion

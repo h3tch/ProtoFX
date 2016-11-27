@@ -37,7 +37,7 @@ namespace App.Glsl
 
         public FragShader() : this(-1) { }
 
-        public FragShader(int startLine) : base(startLine) { }
+        public FragShader(int startLine) : base(startLine, ProgramPipelineParameter.FragmentShader) { }
 
         #endregion
 
@@ -63,12 +63,5 @@ namespace App.Glsl
                 EndTracing();
             }
         }
-
-        #region Overrides
-
-        public static object GetUniform<T>(string uniformName)
-            => GetUniform(uniformName, typeof(T), ProgramPipelineParameter.FragmentShader);
-
-        #endregion
     }
 }

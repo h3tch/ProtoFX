@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL4;
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using static System.Reflection.BindingFlags;
@@ -44,13 +45,35 @@ namespace App.Glsl
         /// <summary>
         /// Convert GLSL shader to C# code.
         /// </summary>
-        /// <param name="text">GLSL shader.</param>
+        /// <param name="body">GLSL shader.</param>
         /// <returns>Return C# code.</returns>
-        public static string Shader2Csharp(string text)
+        public static string Shader2Class(ShaderType shaderType, string className, string body)
         {
+            // get shader class name from shader type
+            string shaderClass;
+            switch (shaderType)
+            {
+                case ShaderType.VertexShader: shaderClass = typeof(VertShader).Name; break;
+                case ShaderType.TessControlShader: shaderClass = typeof(TessShader).Name; break;
+                case ShaderType.TessEvaluationShader: shaderClass = typeof(EvalShader).Name; break;
+                case ShaderType.GeometryShader: shaderClass = typeof(GeomShader).Name; break;
+                case ShaderType.FragmentShader: shaderClass = typeof(FragShader).Name; break;
+                case ShaderType.ComputeShader: shaderClass = typeof(CompShader).Name; break;
+                default: return null;
+            }
+
+            // invoke all private static methods of this class to convert the body of the shader
             foreach (var method in typeof(Converter).GetMethods(NonPublic | Static))
-                text = (string)method.Invoke(null, new[] { text });
-            return text;
+                body = (string)method.Invoke(null, new[] { body });
+
+            // surround by C# class code block
+            var code = "using System; using App.Glsl.SamplerTypes; "
+                + "namespace App.Glsl { "
+                + $"class {className} : {shaderClass} {{ "
+                + $"public {className}() : this(0) {{ }} "
+                + $"public {className}(int l) : base(l) {{ }} "
+                + $"{body}}}}}";
+            return code;
         }
 
         #region Methods to Process Shaders
@@ -213,7 +236,7 @@ namespace App.Glsl
 
         private static string Discard(string text) => Regex.Replace(text, @"\bdiscard\b", "return");
 
-        private static string AddDebugCode(string text)
+        private static string DebugTrace(string text)
         {
             var datatypes = new[] {
                 "bool", "int", "uint", "float", "double",

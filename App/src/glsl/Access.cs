@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using App.Glsl.SamplerTypes;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Diagnostics;
 using System.Linq;

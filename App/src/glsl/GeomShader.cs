@@ -25,6 +25,7 @@ namespace App.Glsl
         [__out] protected vec4 gl_Position;
         [__out] protected float gl_PointSize;
         [__out] protected float[] gl_ClipDistance;
+        private VertShader VertShader => (VertShader)Prev.Prev.Prev;
 
 #pragma warning restore 0649
 #pragma warning restore 0169
@@ -35,7 +36,10 @@ namespace App.Glsl
 
         public GeomShader() : this(-1) { }
 
-        public GeomShader(int startLine) : base(startLine) { }
+        public GeomShader(int startLine) : base(startLine, ProgramPipelineParameter.GeometryShader)
+        {
+            gl_ClipDistance = new float[gl_MaxClipDistances];
+        }
 
         #endregion
 
@@ -69,6 +73,7 @@ namespace App.Glsl
 
             // set shader input
             GetVertexShaderOutput(primitiveID, instanceID);
+            ProcessFields(this);
 
             // get input qualifier
             var layout = GetQualifier<__layout>("__in__");
@@ -105,24 +110,32 @@ namespace App.Glsl
             gl_PrimitiveIDIn = primitiveID;
 
             // load patch data from vertex shader
-            var vert = (VertShader)Prev.Prev.Prev;
             var patch = DrawCall.GetPatch(primitiveID);
             DebugGetError(new StackTrace(true));
-            gl_in = new __InOut[patch.Length];
+            gl_in = __InOut.Create(patch.Length);
             for (int i = 0; i < patch.Length; i++)
             {
+                // compute vertex shader output
                 var vertexID = Convert.ToInt32(patch.GetValue(i));
-                vert.Execute(vertexID, instanceID);
-                gl_in[i].gl_Position = vert.GetOutputVarying<vec4>("gl_Position");
-                gl_in[i].gl_PointSize = vert.GetOutputVarying<float>("gl_PointSize");
-                gl_in[i].gl_ClipDistance = vert.GetOutputVarying<float[]>("gl_ClipDistance");
+                VertShader.Execute(vertexID, instanceID);
+                // set geometry shader input varyings
+                gl_in[i].gl_Position = VertShader.GetOutputVarying<vec4>("gl_Position");
+                gl_in[i].gl_PointSize = VertShader.GetOutputVarying<float>("gl_PointSize");
+                var clipDistance = VertShader.GetOutputVarying<float[]>("gl_ClipDistance");
+                for (int j = 0; j < clipDistance.Length; j++)
+                    gl_in[i].gl_ClipDistance[j] = clipDistance[j];
             }
         }
 
-        #region Overrides
+        #region Geometry Shader Functions
 
-        public static object GetUniform<T>(string uniformName)
-            => GetUniform(uniformName, typeof(T), ProgramPipelineParameter.GeometryShader);
+        public void EmitVertex() { }
+
+        public void EndPrimitive() { }
+
+        public void EmitStreamVertex(int stream) { }
+
+        public void EndStreamPrimitive(int stream) { }
 
         #endregion
     }
