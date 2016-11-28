@@ -248,7 +248,9 @@ namespace App.Glsl
                     ? field.GetCustomAttribute<__layout>().binding
                     // else load uniform buffer data
                     : GetUniform(prefix + field.Name, type, ShaderType);
-                field.SetValue(obj, value);
+                var converter = TypeDescriptor.GetConverter(type);
+                if (converter.CanConvertFrom(value.GetType()))
+                    field.SetValue(obj, converter.ConvertFrom(value));
             }
         }
 
