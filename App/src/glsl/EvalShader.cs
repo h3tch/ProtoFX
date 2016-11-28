@@ -59,11 +59,11 @@ namespace App.Glsl
             }
             catch (Exception e)
             {
-                TraceExeption(e);
+                Debugger.TraceExeption(e);
             }
             finally
             {
-                EndTracing();
+                Debugger.EndTracing();
             }
         }
 
@@ -83,13 +83,13 @@ namespace App.Glsl
 
             // only generate debug trace if the shader is linked to a file
             if (debug)
-                BeginTracing();
+                Debugger.BeginTracing(LineInFile);
 
             // execute the main function of the shader
             main();
 
             // end debug trace generation
-            EndTracing();
+            Debugger.EndTracing();
 
             DebugGetError(new System.Diagnostics.StackTrace(true));
         }

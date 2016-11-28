@@ -195,14 +195,19 @@ namespace App
 
         #region Debug Shader
 
-        private Glsl.Shader.TraceInfo[] DebugInfo;
+        private Glsl.TraceInfo[] DebugInfo;
         private int CurrentDebugInfo;
 
         private void DebugStart(int line)
         {
-            DebugInfo = Glsl.Shader.DebugTrace.ToArray();
+            DebugInfo = Glsl.Debugger.DebugTrace.ToArray();
             DebugNextLine(line);
             ShowCurrentDebugInfo();
+        }
+
+        private void DebugContinue()
+        {
+
         }
 
         private void DebugEnd()

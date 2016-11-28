@@ -77,7 +77,7 @@ namespace OpenTK
                 MakeCurrent();
 
                 // clear debug trace
-                App.Glsl.Shader.ClearDebugTrace();
+                App.Glsl.Debugger.ClearDebugTrace();
 
                 // begin timer query
                 if (perf == null)

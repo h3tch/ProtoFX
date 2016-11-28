@@ -94,9 +94,6 @@ namespace App.Glsl
         protected int LineInFile;
         protected ProgramPipelineParameter ShaderType;
         internal Shader Prev;
-        internal static int ShaderLineOffset = 0;
-        internal static bool CollectDebugData = false;
-        internal static List<TraceInfo> TraceLog = new List<TraceInfo>();
         internal static GLPass.MultiDrawCall DrawCall;
         internal static DebugSettings Settings = new DebugSettings();
         internal static readonly Type[] VecIntTypes = new[] {
@@ -136,35 +133,7 @@ namespace App.Glsl
         #endregion
 
         #region Debug Trace
-
-        /// <summary>
-        /// Return list of debug trace information.
-        /// </summary>
-        public static IEnumerable<TraceInfo> DebugTrace => TraceLog;
-
-        /// <summary>
-        /// Clear debug trace.
-        /// </summary>
-        public static void ClearDebugTrace() => TraceLog.Clear();
         
-        /// <summary>
-        /// Begin tracing debug information.
-        /// </summary>
-        protected void BeginTracing()
-        {
-            CollectDebugData = true;
-            ShaderLineOffset = LineInFile;
-        }
-
-        /// <summary>
-        /// Stop tracting debug information.
-        /// </summary>
-        protected void EndTracing()
-        {
-            CollectDebugData = false;
-            ShaderLineOffset = 0;
-        }
-
         /// <summary>
         /// Generate debug trace for a variable.
         /// </summary>
@@ -172,8 +141,8 @@ namespace App.Glsl
         /// <param name="value"></param>
         /// <param name="valueName"></param>
         /// <returns></returns>
-        public static T TraceVariable<T>(T value, string valueName)
-            => Trace(TraceInfoType.Variable, valueName, value, null);
+        public static T TraceVariable<T>(int column, int length, T value, string valueName)
+            => Debugger.Trace(TraceInfoType.Variable, column, length, valueName, value, null);
 
         /// <summary>
         /// Generate debug trace for a function.
@@ -183,64 +152,8 @@ namespace App.Glsl
         /// <param name="input"></param>
         /// <returns></returns>
         public static T TraceFunction<T>(T output, params object[] input)
-            => Trace(TraceInfoType.Function, null, output, input);
-
-        /// <summary>
-        /// Generate debug trace for an exception.
-        /// </summary>
-        /// <param name="ex"></param>
-        public static void TraceExeption(Exception ex)
-        {
-            if (!CollectDebugData)
-                return;
-
-            var trace = new StackTrace(ex, true);
-            var info = new TraceInfo
-            {
-                Line = trace.GetFrame(0).GetFileLineNumber() + ShaderLineOffset,
-                Column = trace.GetFrame(0).GetFileColumnNumber(),
-                Type = TraceInfoType.Exception,
-                Name = ex.GetType().Name,
-                Output = ex.Message,
-                Input = null,
-            };
-
-            TraceLog.Add(info);
-
-            Debug.Print(ex.GetType().Name + ": " + ex.Message + '\n' + ex.StackTrace);
-        }
-
-        /// <summary>
-        /// Generate debug trace for variables or functions.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="type"></param>
-        /// <param name="name"></param>
-        /// <param name="output"></param>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        private static T Trace<T>(TraceInfoType type, string name, T output, params object[] input)
-        {
-            if (!CollectDebugData)
-                return output;
-            
-            var trace = new StackTrace(true);
-            var traceFunc = "Trace" + type.ToString();
-            var idx = trace.GetFrames().IndexOf(x => x.GetMethod()?.Name == traceFunc);
-
-            TraceLog.Add(new TraceInfo
-            {
-                Line = trace.GetFrame(idx + 2).GetFileLineNumber() + ShaderLineOffset,
-                Column = trace.GetFrame(idx + 2).GetFileColumnNumber(),
-                Type = type,
-                Name = name == null ? trace.GetFrame(idx + 1).GetMethod().Name : name,
-                Output = output,
-                Input = input,
-            });
-
-            return output;
-        }
-
+            => Debugger.Trace(TraceInfoType.Function, -1, 0, null, output, input);
+        
         #endregion
 
         #region Process Shader Fields
@@ -455,60 +368,7 @@ namespace App.Glsl
                 "math computation: gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID;")]
             public int[] cs_GlobalInvocationID { get; set; } = new int[3] { 0, 0, 0 };
         }
-
-        public enum TraceInfoType
-        {
-            Variable,
-            Function,
-            Exception
-        }
-
-        public struct TraceInfo
-        {
-            public int Line;
-            public int Column;
-            public TraceInfoType Type;
-            public string Name;
-            public object Output;
-            public object[] Input;
-
-            public override string ToString()
-            {
-                switch (Type)
-                {
-                    case TraceInfoType.Variable:
-                    case TraceInfoType.Exception:
-                        return "[L" + Line + ", C" + Column + "] " + Name + ": " + Output.ToString();
-                    case TraceInfoType.Function:
-                        return "[L" + Line + ", C" + Column + "] " + FunctionName;
-                }
-                return "[L" + Line + ", C" + Column + "] " + Name + ": "
-                    + Output?.ToString() ?? string.Empty + " = ("
-                    + Input?.Select(x => x?.ToString() ?? string.Empty).Cat(", ") ?? string.Empty
-                    + ")";
-            }
-
-            private string FunctionName
-            {
-                get
-                {
-                    var Out = Output.ToString() + " = ";
-                    switch (Name)
-                    {
-                        case "op_Addition":
-                            return Out + Input[0].ToString() + " + " + Input[1].ToString();
-                        case "op_Substraction":
-                            return Out + Input[0].ToString() + " + " + Input[1].ToString();
-                        case "op_Multiply":
-                            return Out + Input[0].ToString() + " / " + Input[1].ToString();
-                        case "op_Division":
-                            return Out + Input[0].ToString() + " / " + Input[1].ToString();
-                    }
-                    return Out + Name + "(" + Input.Select(x => x.ToString()).Cat(", ") + ")";
-                }
-            }
-        }
-
+        
         public struct __InOut
         {
             public vec4 gl_Position;

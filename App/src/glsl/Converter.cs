@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using static System.Reflection.BindingFlags;
@@ -10,28 +11,39 @@ namespace App.Glsl
     {
         #region Regex
 
-        private static readonly string s = @"\s";
-        private static readonly string word = @"\b[\w\d]+\b";
-        private static readonly string array = Helpers.RegexMatchingBrace(@"\[",@"\]");
-        private static readonly string arrayWord = $"{word}\\s*{array}";
-        private static readonly string layout = $"\\blayout{s}*{Helpers.RegexMatchingBrace(@"\(",@"\)")}";
-        private static Regex rexBuffer = new Regex($"({layout}{s}*)?{word}{s}+{word}{s}*\\{{.*?\\}}{s}*{word}(\\[.*?\\])?;", RegexOptions.Singleline);
-        private static Regex buffer = new Regex(@"\buniform\s+[\w\d_]+\{[\s\w\d\[\];]*\}[\s\w\d]*;");
-        private static Regex outBuffer = new Regex(@"\bout\s+[\w\d_]+\{[\s\w\d\[\];]*\}[\s\w\d]*;");
-        private static Regex inBuffer = new Regex(@"\bin\s+[\w\d_]+\{[\s\w\d\[\];]*\}[\s\w\d]*;");
-        private static Regex variable = new Regex(@"\b[\w\d_]+\s+[\w\d\[\]_]+;");
-        private static Regex rexArrayBraces = new Regex($"{array}\\s*;", RegexOptions.Singleline);
-        private static Regex version = new Regex(@"#version [0-9]{3}");
-        private static Regex rexLayout = new Regex(layout);
-        private static Regex number = new Regex(@"\b[0-9]*\.[0-9]+\b");
-        private static Regex uniform = new Regex(@"\buniform\b");
-        private static Regex IN = new Regex(@"\bin\s+[\w\d]+\s+[\w\d]+\s*;");
-        private static Regex OUT = new Regex(@"\bout\b");
-        private static Regex flat = new Regex(@"\bflat\b");
-        private static Regex smooth = new Regex(@"\bsmooth\b");
+        private static class Pattern
+        {
+            public static readonly string Word = @"\b[\w\d_]+\b";
+            public static readonly string ArrayBraces = Helpers.RegexMatchingBrace(@"\[",@"\]");
+            public static readonly string FunctionBraces = Helpers.RegexMatchingBrace(@"\(",@"\)");
+            public static readonly string BodyBraces = Helpers.RegexMatchingBrace(@"\{",@"\}");
+            public static readonly string Array = $"{Word}\\s*{ArrayBraces}";
+            public static readonly string WordOrArray = $"{Word}\\s*({ArrayBraces})?";
+            public static readonly string Layout = $"\\blayout\\s*{FunctionBraces}";
+        }
+        
+        private static class RegEx
+        {
+            public static Regex Operation = new Regex(@"\s*(=|\*=|/=|\+=|\-=|\+\+|\-\-|\(|\))");
+            public static Regex Variable = new Regex($"(?<!\\.){Pattern.WordOrArray}(\\s*\\.\\s*{Pattern.WordOrArray})*", RegexOptions.RightToLeft);
+            public static Regex Buffer = new Regex($"({Pattern.Layout}\\s*)?{Pattern.Word}\\s+{Pattern.Word}\\s*\\{{.*?\\}}\\s*{Pattern.Word}(\\[.*?\\])?;", RegexOptions.Singleline | RegexOptions.RightToLeft);
+            public static Regex Layout = new Regex(Pattern.Layout);
+            public static Regex Word = new Regex(Pattern.Word);
+            public static Regex VariableDef = new Regex($"{Pattern.Word}\\s+{Pattern.WordOrArray};", RegexOptions.RightToLeft);
+            public static Regex Float = new Regex(@"\b[0-9]*\.[0-9]+\b", RegexOptions.RightToLeft);
+            public static Regex InVarying = new Regex(@"\bin\s+[\w\d]+\s+[\w\d]+\s*;", RegexOptions.RightToLeft);
+            //public static Regex OutBuffer = new Regex($"\\bout\\s+{Pattern.Word}\\s*{Pattern.BodyBraces}\\s*({Word})?;");
+            //public static Regex InBuffer = new Regex($"\\bin\\s+{Pattern.Word}\\s*{Pattern.BodyBraces}\\s*({Word})?;");
+        }
+        
+        private static readonly string[] DataTypes;
+        private static readonly string[] SamplerTypes;
+        //private static Regex outBuffer = new Regex(@"\bout\s+[\w\d_]+\{[\s\w\d\[\];]*\}[\s\w\d]*;");
+        //private static Regex inBuffer = new Regex(@"\bin\s+[\w\d_]+\{[\s\w\d\[\];]*\}[\s\w\d]*;");
+        //private static Regex variable = new Regex(@"\b[\w\d_]+\s+[\w\d\[\]_]+;");
+        private static Regex rexArrayBraces = new Regex($"{Pattern.ArrayBraces}\\s*;", RegexOptions.Singleline);
+        //private static Regex number = new Regex(@"\b[0-9]*\.[0-9]+\b");
         private static Regex PreDefOut = new Regex(@"\bout\s+gl_PerVertex\s*\{.*};", RegexOptions.Singleline);
-        private static Regex rexMain = new Regex(@"\bvoid\s+main\b");
-        private static Regex rexWord = new Regex(word);
         private static Func<string, string, string> typecast = delegate(string text, string type)
         {
             var match = Regex.Matches(text, @"\b" + type + @"\(.*\)");
@@ -41,6 +53,37 @@ namespace App.Glsl
         };
 
         #endregion
+
+        static Converter()
+        {
+            // initialize the list of GLSL data types
+            var datatypes = new[] {
+                "bool", "int", "uint", "float", "double",
+                "bvec2", "ivec2", "uvec2", "vec2", "dvec2",
+                "bvec3", "ivec3", "uvec3", "vec3", "dvec3",
+                "bvec4", "ivec4", "uvec4", "vec4", "dvec4",
+                "mat2", "dmat2", "mat3", "dmat3", "mat4", "dmat4",
+                "return", "continue", "new", "."
+            };
+            DataTypes = datatypes.Concat(datatypes.Select(x => x + "[]")).ToArray();
+
+            // initialize the list of GLSL sampler types
+            SamplerTypes = new[]
+            {
+                "sampler1D", "isampler1D", "usampler1D", "sampler2D", "isampler2D",
+                "usampler2D", "sampler3D", "isampler3D", "usampler3D", "samplerBuffer",
+                "isamplerBuffer", "usamplerBuffer", "samplerCube", "isamplerCube",
+                "usamplerCube", "sampler1DShadow", "sampler2DShadow", "samplerCubeShadow",
+                "sampler1DArray", "isampler1DArray", "usampler1DArray", "sampler2DArray",
+                "usampler2DArray", "isampler2DArray", "samplerCubeArray", "usamplerCubeArray",
+                "isamplerCubeArray", "sampler1DArrayShadow", "sampler2DArrayShadow",
+                "usampler2DArrayShadow", "isampler2DArrayShadow", "sampler2DRect",
+                "isampler2DRect", "usampler2DRect", "sampler2DRectShadow",
+                "samplerCubeArrayShadow", "isamplerCubeArrayShadow", "usamplerCubeArrayShadow",
+                "sampler2DMS", "isampler2DMS", "usampler2DMS", "sampler2DMSArray",
+                "isampler2DMSArray", "usampler2DMSArray",
+            };
+        }
 
         /// <summary>
         /// Convert GLSL shader to C# code.
@@ -76,9 +119,26 @@ namespace App.Glsl
             return code;
         }
 
+        public static IEnumerable<Match> FindVariables(string text)
+        {
+            double tmp;
+
+            foreach (Match variable in RegEx.Variable.Matches(text))
+            {
+                var varname = variable.Value.Trim();
+                var vartype = text.Word(text.IndexOfWord(variable.Index, -1));
+                var invalidChar = RegEx.Operation.Match(text, variable.Index + variable.Length);
+                if (DataTypes.Any(x => x == varname || x == vartype)
+                    || double.TryParse(varname, out tmp)
+                    || (invalidChar.Success && invalidChar.Index == variable.Index + variable.Length))
+                    continue;
+                yield return variable;
+            }
+        }
+
         #region Methods to Process Shaders
 
-        private static string Version(string text) => version.Replace(text, string.Empty);
+        private static string Version(string text) => Regex.Replace(text, @"#version [0-9]{3}", string.Empty);
 
         private static string PredefinedOutputs(string text)
         {
@@ -138,37 +198,31 @@ namespace App.Glsl
         private static string Buffers(string text)
         {
             // process buffers
-            var bufMatches = rexBuffer.Matches(text);
-            for (int i_buf = bufMatches.Count - 1; i_buf >= 0; i_buf--)
+            foreach (Match bufMatch in RegEx.Buffer.Matches(text))
             {
                 // get buffer definitions
-                var bufMatch = bufMatches[i_buf];
                 var sub = bufMatch.Value;
                 var idx = sub.IndexOf('{');
                 var end = sub.IndexOf('}', idx);
-                var bufLayout = rexLayout.Match(sub);
-                var bufDef = rexWord.Matches(sub, bufLayout.Index + bufLayout.Length);
+                var bufLayout = RegEx.Layout.Match(sub);
+                var bufDef = RegEx.Word.Matches(sub, bufLayout.Index + bufLayout.Length);
                 var bufType = bufDef[0];
                 var bufName = bufDef[1];
 
                 // convert GLSL type to C# class and constructor
                 var braces = rexArrayBraces.Match(sub, end);
-                string clazz;//, ctor;
+                string clazz;
                 if (braces.Success)
                 {
-                    var array = braces.Value;
-                    var value = array.Subrange(array.IndexOf('[') + 1, array.IndexOf(']')).Trim();
-                    //ctor = value.Length > 0 ? $" = new {bufName.Value}[{value}]" : string.Empty;
+                    //var array = braces.Value;
+                    //var value = array.Subrange(array.IndexOf('[') + 1, array.IndexOf(']')).Trim();
                     clazz = $"{bufName.Value}[]";
                 }
                 else
                 {
-                    //ctor = $" = new {bufName.Value}()";
                     clazz = $"{bufName.Value}";
                 }
-
-                // add class constructor to the end of the block
-                //sub = sub.Insert(sub.Length - 1, ctor);
+                
                 // remove GLSL array definition
                 if (braces.Success)
                     sub = sub.Remove(braces.Index, braces.Length - 1);
@@ -176,9 +230,8 @@ namespace App.Glsl
                 sub = sub.Insert(end + 1, $"[__{bufLayout.Value}] [__{bufType}] {clazz} ");
 
                 // process variable names
-                var varMatches = variable.Matches(sub.Substring(0, end), idx);
-                for (int i = varMatches.Count - 1; i >= 0; i--)
-                    sub = sub.Insert(varMatches[i].Index, "public ");
+                foreach (Match varMatch in RegEx.VariableDef.Matches(sub.Substring(idx, end - idx)))
+                    sub = sub.Insert(idx + varMatch.Index, "public ");
 
                 // replace type with class keyword but keep in/out attributes
                 sub = sub.Insert(bufType.Index + bufType.Length, "class");
@@ -187,15 +240,13 @@ namespace App.Glsl
 
                 // commit changes to text
                 text = text.Remove(bufMatch.Index, bufMatch.Length).Insert(bufMatch.Index, sub);
-                //bufMatch = buffer.Match(text, bufMatch.Index + sub.Length);
             }
-
             return text;
         }
 
         private static string Layouts(string text)
         {
-            for (Match match = rexLayout.Match(text); match.Success; match = rexLayout.Match(text))
+            for (Match match = RegEx.Layout.Match(text); match.Success; match = RegEx.Layout.Match(text))
                 text = text.Insert(match.Index + match.Length, "]").Insert(match.Index, "[__");
             return text;
         }
@@ -204,12 +255,12 @@ namespace App.Glsl
         {
             // type name [ . ] ;
             // type[] name = new type[ . ];
-            var matches = Regex.Matches(text, $"{word}\\s+{arrayWord}\\s*;");
+            var matches = Regex.Matches(text, $"{Pattern.Word}\\s+{Pattern.Array}\\s*;");
             for (int i = matches.Count - 1; i >= 0; i--)
             {
                 // get variable definitions
                 var match = matches[i];
-                var Def = rexWord.Matches(match.Value);
+                var Def = RegEx.Word.Matches(match.Value);
                 var Type = Def[0].Value;
                 if (Type == "new")
                     continue;
@@ -232,56 +283,38 @@ namespace App.Glsl
             return text;
         }
 
-        private static string Uniforms(string text) => uniform.Replace(text, string.Empty);
-
+        private static string Uniforms(string text) => Regex.Replace(text, @"\buniform\b", "[__uniform]");
+        
         private static string Discard(string text) => Regex.Replace(text, @"\bdiscard\b", "return");
 
         private static string DebugTrace(string text)
         {
-            var datatypes = new[] {
-                "bool", "int", "uint", "float", "double",
-                "bvec2", "ivec2", "uvec2", "vec2", "dvec2",
-                "bvec3", "ivec3", "uvec3", "vec3", "dvec3",
-                "bvec4", "ivec4", "uvec4", "vec4", "dvec4",
-                "mat2", "dmat2", "mat3", "dmat3", "mat4", "dmat4",
-                "return", "continue", "new", "."
-            };
-            datatypes = datatypes.Concat(datatypes.Select(x => x + "[]")).ToArray();
+            // for all functions in the text, find all variable
+            // accesses and add the respective debug trace function
+            var funcs = Compiler.RegexFunction.Matches(text);
 
-            var s = @"\s*";
-            var word = @"\b[\w\d]+\b";
-            var pattern = $"{word}{s}({Helpers.RegexMatchingBrace(@"\[",@"\]")})?";
-            var rexVar = new Regex($"(?<!\\.){pattern}({s}\\.{s}{pattern})*", RegexOptions.RightToLeft);
-            var rexExclude = new Regex(@"\s*(=|\*=|/=|\+=|\-=|\+\+|\-\-|\()");
-            var rexType = new Regex($"\\b.+?\\b{s}", RegexOptions.RightToLeft);
-
-            var regexFunc = Compiler.RegexFunction;
-            double tmp;
-            
-            var funcs = regexFunc.Matches(text);
+            // process the string from the back to the front
             for (var i_func = funcs.Count - 1; i_func >= 0; i_func--)
             {
-                Match func = funcs[i_func];
+                // get the body of the function
+                var func = funcs[i_func];
                 var start = func.Value.IndexOf('{');
-                var str = func.Value.Substring(start);
-                var length = str.Length;
+                var body = func.Value.Substring(start);
+                var length = body.Length;
 
-                var variables = rexVar.Matches(str);
-                foreach (Match variable in rexVar.Matches(str))
+                // find all variable accesses in the function
+                foreach (Match variable in FindVariables(body))
                 {
+                    // add debug trace function
                     var varname = variable.Value.Trim();
-                    var vartype = str.Word(str.IndexOfWord(variable.Index, -1));
-                    var invalidChar = rexExclude.Match(str, variable.Index + variable.Length);
-                    if (datatypes.Any(x => x == varname || x == vartype)
-                        || double.TryParse(varname, out tmp)
-                        || (invalidChar.Success && invalidChar.Index == variable.Index + variable.Length))
-                        continue;
-                    str = str
+                    var column = variable.Index - body.LastIndexOf('\n', variable.Index) + 1;
+                    body = body
                         .Insert(variable.Index + varname.Length, $", \"{varname}\")")
-                        .Insert(variable.Index, "TraceVariable(");
+                        .Insert(variable.Index, $"TraceVariable({column}, {varname.Length}, ");
                 }
                 
-                text = text.Remove(func.Index + start, length).Insert(func.Index + start, str);
+                // replace old function body with the new debug code
+                text = text.Remove(func.Index + start, length).Insert(func.Index + start, body);
             }
 
             return text;
@@ -289,36 +322,30 @@ namespace App.Glsl
 
         private static string Floats(string text)
         {
-            var match = number.Matches(text);
-            for (int i = match.Count - 1; i >= 0; i--)
-                text = text.Insert(match[i].Index + match[i].Length, "f");
+            foreach (Match match in RegEx.Float.Matches(text))
+                text = text.Insert(match.Index + match.Length, "f");
             return text;
         }
 
         private static string Inputs(string text)
         {
-            var matches = IN.Matches(text);
-            for (int i = matches.Count - 1; i >= 0; i--)
+            foreach (Match match in RegEx.InVarying.Matches(text))
             {
-                var match = matches[i];
-                var words = rexWord.Matches(match.Value);
+                var words = RegEx.Word.Matches(match.Value);
                 var type = words[1].Value;
                 var name = words[2].Value;
-                //text = text.Remove(match.Index + match.Length - 1, 1).Insert(
-                //    match.Index + match.Length - 1,
-                //    $" {{ get {{ return GetInputVarying<{type}>(\"{name}\"); }} }}");
                 text = text.Insert(match.Index + 2, "]").Insert(match.Index, "[__");
             }
             return text;
         }
 
-        private static string Outputs(string text) => OUT.Replace(text, "[__out]");
+        private static string Outputs(string text) => Regex.Replace(text, @"\bout\b", "[__out]");
 
-        private static string Flat(string text) => flat.Replace(text, "[__flat]");
+        private static string Flat(string text) => Regex.Replace(text, @"\bflat\b", "[__flat]");
 
-        private static string Smooth(string text) => smooth.Replace(text, "[__smooth]");
+        private static string Smooth(string text) => Regex.Replace(text, @"\bsmooth\b", "[__smooth]");
 
-        private static string MainFunc(string text) => rexMain.Replace(text, "public override void main");
+        private static string MainFunc(string text) => Regex.Replace(text, @"\bvoid\s+main\b", "public override void main");
 
         #endregion
 

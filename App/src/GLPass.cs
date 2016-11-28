@@ -234,24 +234,25 @@ namespace App
 
             if (debug && drawcalls.Count > 0)
             {
-                Shader.DrawCall = drawcalls.First();
-                if (dbgcomp != null)
+                try
                 {
-                    dbgcomp.Debug();
+                    Shader.DrawCall = drawcalls.First();
+                    if (dbgcomp != null)
+                    {
+                        dbgcomp.Debug();
+                    }
+                    else
+                    {
+                        dbgvert.Debug();
+                        dbgtess.Debug();
+                        dbgeval.Debug();
+                        dbggeom.Debug();
+                        dbgfrag.Debug();
+                    }
                 }
-                else
+                catch
                 {
-                    Shader.DebugGetError(new System.Diagnostics.StackTrace(true));
-                    dbgvert.Debug();
-                    Shader.DebugGetError(new System.Diagnostics.StackTrace(true));
-                    dbgtess.Debug();
-                    Shader.DebugGetError(new System.Diagnostics.StackTrace(true));
-                    dbgeval.Debug();
-                    Shader.DebugGetError(new System.Diagnostics.StackTrace(true));
-                    dbggeom.Debug();
-                    Shader.DebugGetError(new System.Diagnostics.StackTrace(true));
-                    dbgfrag.Debug();
-                    Shader.DebugGetError(new System.Diagnostics.StackTrace(true));
+
                 }
             }
 

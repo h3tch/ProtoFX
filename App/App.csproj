@@ -148,6 +148,7 @@
     <Compile Include="src\extensions\IEnumerable.cs" />
     <Compile Include="src\extensions\String.cs" />
     <Compile Include="src\glsl\Access.cs" />
+    <Compile Include="src\glsl\Debugger.cs" />
     <Compile Include="src\glsl\Qualifiers.cs" />
     <Compile Include="src\glsl\Typedef.cs" />
     <Compile Include="src\FXPerf.cs" />
