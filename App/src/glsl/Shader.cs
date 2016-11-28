@@ -1,8 +1,6 @@
 ﻿using App.Glsl.SamplerTypes;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using static System.Reflection.BindingFlags;
@@ -19,7 +17,7 @@ namespace App.Glsl
 
     #endregion
 
-    public class Shader : Access
+    public abstract class Shader : Access
     {
         #region Qualifiers
 
@@ -160,10 +158,18 @@ namespace App.Glsl
 
         private delegate void ProcessField(object obj, FieldInfo field, string prefix);
 
+        /// <summary>
+        /// Process all fields of the shader.
+        /// This includes allocation and loading of the data.
+        /// </summary>
+        /// <param name="obj"></param>
         protected void ProcessFields(object obj)
         {
+            // allocate field data
             ProcessFields(obj, AllocField, new[] { typeof(__in), typeof(__out), typeof(__uniform) });
+            // load input fields
             ProcessFields(obj, ProcessInField, new[] { typeof(__in) });
+            // load uniform fields
             ProcessFields(obj, ProcessUniformField, new[] { typeof(__uniform) });
         }
 
@@ -172,7 +178,7 @@ namespace App.Glsl
             // for all non static fields of the object
             foreach (var field in obj.GetType().GetFields(Public | NonPublic | Instance))
                 // check if a valid attribute is defined for the field
-                if (attrType == null ? true : attrType.Any(x => field.IsDefined(x)))
+                if (attrType?.Any(x => field.IsDefined(x)) ?? true)
                     // process field
                     func(obj, field, prefix);
         }
@@ -248,9 +254,15 @@ namespace App.Glsl
                     ? field.GetCustomAttribute<__layout>().binding
                     // else load uniform buffer data
                     : GetUniform(prefix + field.Name, type, ShaderType);
+                // get type converter
                 var converter = TypeDescriptor.GetConverter(type);
+                // convert value to the field type
                 if (converter.CanConvertFrom(value.GetType()))
                     field.SetValue(obj, converter.ConvertFrom(value));
+                else
+                    // this code will cause an exception, but will
+                    // be necessary to find bugs in the debugger
+                    field.SetValue(obj, value);
             }
         }
 
@@ -267,7 +279,7 @@ namespace App.Glsl
         /// <returns></returns>
         public virtual object GetInputVarying(string varyingName, Type type)
         {
-            return Prev != null ? Prev.GetOutputVarying(varyingName, type) : Activator.CreateInstance(type);
+            return Prev != null ? Prev?.GetOutputVarying(varyingName, type) : Activator.CreateInstance(type);
         }
 
         public T GetInputVarying<T>(string varyingName) => (T)GetInputVarying(varyingName, typeof(T));
@@ -310,7 +322,7 @@ namespace App.Glsl
 
         #endregion
 
-        public virtual void main() { }
+        public abstract void main();
 
         #region Inner Classes
 

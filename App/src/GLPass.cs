@@ -123,7 +123,7 @@ namespace App
                     }
                     else
                     {
-                        dbgvert = (VertShader)glvert?.DebugShader ?? new VertShader();
+                        dbgvert = (VertShader)glvert.DebugShader;
                         dbgtess = (TessShader)gltess?.DebugShader ?? new TessShader();
                         dbgeval = (EvalShader)gleval?.DebugShader ?? new EvalShader();
                         dbggeom = (GeomShader)glgeom?.DebugShader ?? new GeomShader();
@@ -241,7 +241,7 @@ namespace App
                     {
                         dbgcomp.Debug();
                     }
-                    else
+                    else if (dbgvert != null)
                     {
                         dbgvert.Debug();
                         dbgtess.Debug();
@@ -250,9 +250,9 @@ namespace App
                         dbgfrag.Debug();
                     }
                 }
-                catch
+                catch (Exception e)
                 {
-
+                    throw new Exception($"Debugger crashed with the following message: {e.Message}", e);
                 }
             }
 

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace App.Glsl
 {
-    public class VertShader : Shader
+    public abstract class VertShader : Shader
     {
         #region Input
 

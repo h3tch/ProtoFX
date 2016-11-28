@@ -32,18 +32,11 @@ namespace App.Glsl
             public static Regex VariableDef = new Regex($"{Pattern.Word}\\s+{Pattern.WordOrArray};", RegexOptions.RightToLeft);
             public static Regex Float = new Regex(@"\b[0-9]*\.[0-9]+\b", RegexOptions.RightToLeft);
             public static Regex InVarying = new Regex(@"\bin\s+[\w\d]+\s+[\w\d]+\s*;", RegexOptions.RightToLeft);
-            //public static Regex OutBuffer = new Regex($"\\bout\\s+{Pattern.Word}\\s*{Pattern.BodyBraces}\\s*({Word})?;");
-            //public static Regex InBuffer = new Regex($"\\bin\\s+{Pattern.Word}\\s*{Pattern.BodyBraces}\\s*({Word})?;");
+            public static Regex ArrayBraces = new Regex($"{Pattern.ArrayBraces}\\s*;", RegexOptions.Singleline);
+            public static Regex PreDefOut = new Regex(@"\bout\s+gl_PerVertex\s*\{.*};", RegexOptions.Singleline | RegexOptions.RightToLeft);
         }
         
         private static readonly string[] DataTypes;
-        private static readonly string[] SamplerTypes;
-        //private static Regex outBuffer = new Regex(@"\bout\s+[\w\d_]+\{[\s\w\d\[\];]*\}[\s\w\d]*;");
-        //private static Regex inBuffer = new Regex(@"\bin\s+[\w\d_]+\{[\s\w\d\[\];]*\}[\s\w\d]*;");
-        //private static Regex variable = new Regex(@"\b[\w\d_]+\s+[\w\d\[\]_]+;");
-        private static Regex rexArrayBraces = new Regex($"{Pattern.ArrayBraces}\\s*;", RegexOptions.Singleline);
-        //private static Regex number = new Regex(@"\b[0-9]*\.[0-9]+\b");
-        private static Regex PreDefOut = new Regex(@"\bout\s+gl_PerVertex\s*\{.*};", RegexOptions.Singleline);
         private static Func<string, string, string> typecast = delegate(string text, string type)
         {
             var match = Regex.Matches(text, @"\b" + type + @"\(.*\)");
@@ -66,23 +59,6 @@ namespace App.Glsl
                 "return", "continue", "new", "."
             };
             DataTypes = datatypes.Concat(datatypes.Select(x => x + "[]")).ToArray();
-
-            // initialize the list of GLSL sampler types
-            SamplerTypes = new[]
-            {
-                "sampler1D", "isampler1D", "usampler1D", "sampler2D", "isampler2D",
-                "usampler2D", "sampler3D", "isampler3D", "usampler3D", "samplerBuffer",
-                "isamplerBuffer", "usamplerBuffer", "samplerCube", "isamplerCube",
-                "usamplerCube", "sampler1DShadow", "sampler2DShadow", "samplerCubeShadow",
-                "sampler1DArray", "isampler1DArray", "usampler1DArray", "sampler2DArray",
-                "usampler2DArray", "isampler2DArray", "samplerCubeArray", "usamplerCubeArray",
-                "isamplerCubeArray", "sampler1DArrayShadow", "sampler2DArrayShadow",
-                "usampler2DArrayShadow", "isampler2DArrayShadow", "sampler2DRect",
-                "isampler2DRect", "usampler2DRect", "sampler2DRectShadow",
-                "samplerCubeArrayShadow", "isamplerCubeArrayShadow", "usamplerCubeArrayShadow",
-                "sampler2DMS", "isampler2DMS", "usampler2DMS", "sampler2DMSArray",
-                "isampler2DMSArray", "usampler2DMSArray",
-            };
         }
 
         /// <summary>
@@ -142,10 +118,8 @@ namespace App.Glsl
 
         private static string PredefinedOutputs(string text)
         {
-            var matches = PreDefOut.Matches(text);
-            for (int i = matches.Count - 1; i >= 0; i--)
+            foreach (Match match in RegEx.PreDefOut.Matches(text))
             {
-                var match = matches[i];
                 var nNewLines = match.Value.Count(x => x == '\n');
                 text = text.Remove(match.Index, match.Length)
                     .Insert(match.Index, new string('\n', nNewLines));
@@ -210,7 +184,7 @@ namespace App.Glsl
                 var bufName = bufDef[1];
 
                 // convert GLSL type to C# class and constructor
-                var braces = rexArrayBraces.Match(sub, end);
+                var braces = RegEx.ArrayBraces.Match(sub, end);
                 string clazz;
                 if (braces.Success)
                 {
@@ -265,7 +239,7 @@ namespace App.Glsl
                 if (Type == "new")
                     continue;
                 var Name = Def[1].Value;
-                var braces = rexArrayBraces.Match(text, match.Index, match.Length);
+                var braces = RegEx.ArrayBraces.Match(text, match.Index, match.Length);
                 text = text
                     // replace array braces with return string
                     .Remove(braces.Index, braces.Length)

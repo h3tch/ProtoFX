@@ -127,6 +127,10 @@ namespace App.Glsl
             }
         }
 
+        public override void main()
+        {
+        }
+
         #region Geometry Shader Functions
 
         public void EmitVertex() { }

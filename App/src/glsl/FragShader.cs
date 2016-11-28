@@ -63,5 +63,9 @@ namespace App.Glsl
                 Debugger.EndTracing();
             }
         }
+
+        public override void main()
+        {
+        }
     }
 }
