@@ -130,7 +130,7 @@ namespace App.Glsl
         
         /// <summary>
         /// Default shader main function.
-        /// Used when no custom tessellation shader is prescient.
+        /// Used when no custom tessellation shader is present.
         /// </summary>
         public override void main()
         {

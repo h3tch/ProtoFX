@@ -3,7 +3,7 @@ using System;
 
 namespace App.Glsl
 {
-    class CompShader : Shader
+    abstract class CompShader : Shader
     {
         #region Input
 
@@ -48,10 +48,6 @@ namespace App.Glsl
             {
                 Debugger.EndTracing();
             }
-        }
-
-        public override void main()
-        {
         }
     }
 }

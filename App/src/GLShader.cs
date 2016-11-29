@@ -46,10 +46,7 @@ namespace App
             int status;
             GL.GetProgram(glname, GetProgramParameterName.LinkStatus, out status);
             if (status != 1)
-            {
-                var infolog = GL.GetProgramInfoLog(glname);
-                err.Add('\n' + infolog, block);
-            }
+                err.Add($"\n{GL.GetProgramInfoLog(glname)}", block);
             if (HasErrorOrGlError(err, block))
                 throw err;
             

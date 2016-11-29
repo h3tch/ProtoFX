@@ -130,7 +130,11 @@ namespace App.Glsl
                     gl_in[i].gl_ClipDistance[j] = tessOut[i].gl_ClipDistance[j];
             }
         }
-        
+
+        /// <summary>
+        /// Default shader main function.
+        /// Used when no custom tessellation evaluation shader is present.
+        /// </summary>
         public override void main()
         {
             // if patch is a quad

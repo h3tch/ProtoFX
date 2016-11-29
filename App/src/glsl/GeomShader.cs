@@ -127,9 +127,11 @@ namespace App.Glsl
             }
         }
 
-        public override void main()
-        {
-        }
+        /// <summary>
+        /// Default shader main function.
+        /// Used when no custom geometry shader is present.
+        /// </summary>
+        public override void main() { }
 
         #region Geometry Shader Functions
 

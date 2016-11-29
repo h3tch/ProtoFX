@@ -176,6 +176,10 @@ namespace App
                 case Keys.F6:
                     toolBtnRunDebug_Click(toolBtnDbg, null);
                     break;
+                case Keys.F10:
+                    break;
+                case Keys.F11:
+                    break;
                 // Save
                 case Keys.S:
                     if (e.Control && e.Shift)
@@ -269,6 +273,9 @@ namespace App
             toolBtnSaveAs.Enabled = enable;
             toolBtnComment.Enabled = enable;
             toolBtnUncomment.Enabled = enable;
+            toolBtnDbgStepBreakpoint.Enabled = enable;
+            toolBtnDbgStepInto.Enabled = enable;
+            toolBtnDbgStepOver.Enabled = enable;
         }
 
         /// <summary>
@@ -452,7 +459,7 @@ namespace App
             if (SelectedTab == null)
                 return;
             CompiledEditor = (CodeEditor)SelectedTab.Controls[0];
-            
+
             // save code
             toolBtnSave_Click(s, null);
 
@@ -516,6 +523,11 @@ namespace App
             // UPDATE DEBUG INFORMATION IF NECESSARY
             if (debugging)
                 UpdateDebugListView(CompiledEditor);
+
+            // SHOW DEBUG BUTTONS IF NECESSARY
+            toolBtnDbgStepBreakpoint.Enabled = debugging;
+            toolBtnDbgStepInto.Enabled = debugging;
+            toolBtnDbgStepOver.Enabled = debugging;
         }
 
         /// <summary>
