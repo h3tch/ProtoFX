@@ -82,10 +82,10 @@ namespace System
 
         public static string Word(this string s, int position)
         {
-            int start = position, end = position;
-
+            int start = position;
             while (start > 0 && !char.IsWhiteSpace(s[start - 1]))
                 start--;
+            int end = start;
             while (end < s.Length && !char.IsWhiteSpace(s[end]))
                 end++;
 

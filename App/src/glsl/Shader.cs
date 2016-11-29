@@ -199,8 +199,33 @@ namespace App.Glsl
                 // allocate an array
                 if (type.IsArray)
                 {
-                    var qualifier = (__array)field.GetCustomAttribute(typeof(__array));
-                    value = Array.CreateInstance(type, qualifier?.length ?? 0);
+                    int size = 0;
+                    if (field.IsDefined(typeof(__in)))
+                    {
+                        var layout = GetQualifier<__layout>("__in__");
+                        if (layout != null)
+                        {
+                            if (layout.@params.Any(x => x.Equals(points)))
+                                size = 1;
+                            else if (layout.@params.Any(x => x.Equals(lines)))
+                                size = 2;
+                            else if (layout.@params.Any(x => x.Equals(triangles)))
+                                size = 3;
+                        }
+                    }
+                    else if (field.IsDefined(typeof(__out)))
+                    {
+                        var layout = GetQualifier<__layout>("__out__");
+                        if (layout != null)
+                            size = layout.max_vertices;
+                    }
+                    else
+                    {
+                        var qualifier = (__array)field.GetCustomAttribute(typeof(__array));
+                        if (qualifier != null)
+                            size = qualifier.length;
+                    }
+                    value = Array.CreateInstance(type.GetElementType(), size);
                 }
                 // allocate an object
                 else
@@ -217,7 +242,7 @@ namespace App.Glsl
                 for (var i = 0; i < array.Length; i++)
                 {
                     if (array.GetValue(i) == null)
-                        array.SetValue(Activator.CreateInstance(type), i);
+                        array.SetValue(Activator.CreateInstance(type.GetElementType()), i);
                     ProcessFields(array.GetValue(i), AllocField);
                 }
             }
@@ -317,8 +342,8 @@ namespace App.Glsl
 
         internal T GetOutputVarying<T>(string varyingName) => (T)GetOutputVarying(varyingName, typeof(T));
 
-        protected T GetQualifier<T>(string field)
-            => (T)GetType().GetField(field)?.GetCustomAttributes(typeof(T), false)?.FirstOrDefault();
+        protected T GetQualifier<T>(string field) where T: Attribute
+            => GetType().GetField(field, Instance | Public | NonPublic)?.GetCustomAttribute<T>();
 
         #endregion
 
@@ -383,18 +408,18 @@ namespace App.Glsl
             public int[] cs_GlobalInvocationID { get; set; } = new int[3] { 0, 0, 0 };
         }
         
-        public struct __InOut
+        public class __InOut
         {
             public vec4 gl_Position;
             public float gl_PointSize;
             public float[] gl_ClipDistance;
-            public static __InOut Create()
+            public __InOut()
             {
-                var o = new __InOut();
-                o.gl_ClipDistance = new float[GL.GetInteger(GetPName.MaxClipDistances)];
-                return o;
+                gl_Position = new vec4();
+                gl_PointSize = 0f;
+                gl_ClipDistance = new float[GL.GetInteger(GetPName.MaxClipDistances)];
             }
-            public static __InOut[] Create(int n) => Enumerable.Repeat(Create(), n).ToArray();
+            public static __InOut[] Create(int n) => Enumerable.Repeat(new __InOut(), n).ToArray();
         }
 
         #endregion

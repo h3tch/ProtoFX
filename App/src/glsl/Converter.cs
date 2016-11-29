@@ -11,39 +11,38 @@ namespace App.Glsl
     {
         #region Regex
 
+        private static readonly string[] DataTypes;
+
         private static class Pattern
         {
             public static readonly string Word = @"\b[\w\d_]+\b";
+            public static readonly string InOut = "(in|out)";
             public static readonly string ArrayBraces = Helpers.RegexMatchingBrace(@"\[",@"\]");
             public static readonly string FunctionBraces = Helpers.RegexMatchingBrace(@"\(",@"\)");
             public static readonly string BodyBraces = Helpers.RegexMatchingBrace(@"\{",@"\}");
             public static readonly string Array = $"{Word}\\s*{ArrayBraces}";
             public static readonly string WordOrArray = $"{Word}\\s*({ArrayBraces})?";
             public static readonly string Layout = $"\\blayout\\s*{FunctionBraces}";
+            public static readonly string InOutLayout = $"\\blayout\\s*\\(.*\\)\\s*{InOut}\\s*;";
+            public static readonly string Const = @"\bconst\s+\w+\s+[\w\d]+\s*=\s*[\w\d.]+;";
         }
         
         private static class RegEx
         {
             public static Regex Operation = new Regex(@"\s*(=|\*=|/=|\+=|\-=|\+\+|\-\-|\(|\))");
             public static Regex Variable = new Regex($"(?<!\\.){Pattern.WordOrArray}(\\s*\\.\\s*{Pattern.WordOrArray})*", RegexOptions.RightToLeft);
-            public static Regex Buffer = new Regex($"({Pattern.Layout}\\s*)?{Pattern.Word}\\s+{Pattern.Word}\\s*\\{{.*?\\}}\\s*{Pattern.Word}(\\[.*?\\])?;", RegexOptions.Singleline | RegexOptions.RightToLeft);
-            public static Regex Layout = new Regex(Pattern.Layout);
+            public static Regex Buffer = new Regex($"({Pattern.Layout}\\s*)?{Pattern.Word}\\s+{Pattern.Word}\\s*{Pattern.BodyBraces}\\s*{Pattern.Word}({Pattern.ArrayBraces})?;", RegexOptions.Singleline | RegexOptions.RightToLeft);
+            public static Regex Layout = new Regex(Pattern.Layout, RegexOptions.RightToLeft);
             public static Regex Word = new Regex(Pattern.Word);
             public static Regex VariableDef = new Regex($"{Pattern.Word}\\s+{Pattern.WordOrArray};", RegexOptions.RightToLeft);
             public static Regex Float = new Regex(@"\b[0-9]*\.[0-9]+\b", RegexOptions.RightToLeft);
             public static Regex InVarying = new Regex(@"\bin\s+[\w\d]+\s+[\w\d]+\s*;", RegexOptions.RightToLeft);
             public static Regex ArrayBraces = new Regex($"{Pattern.ArrayBraces}\\s*;", RegexOptions.Singleline);
             public static Regex PreDefOut = new Regex(@"\bout\s+gl_PerVertex\s*\{.*};", RegexOptions.Singleline | RegexOptions.RightToLeft);
+            public static Regex InOut = new Regex(Pattern.InOut, RegexOptions.RightToLeft);
+            public static Regex InOutLayout = new Regex(Pattern.InOutLayout, RegexOptions.RightToLeft);
+            public static Regex Const = new Regex(Pattern.Const, RegexOptions.RightToLeft);
         }
-        
-        private static readonly string[] DataTypes;
-        private static Func<string, string, string> typecast = delegate(string text, string type)
-        {
-            var match = Regex.Matches(text, @"\b" + type + @"\(.*\)");
-            for (int i = match.Count - 1; i >= 0; i--)
-                text = text.Insert(match[i].Index + type.Length, ")").Insert(match[i].Index, "(");
-            return text;
-        };
 
         #endregion
 
@@ -95,27 +94,44 @@ namespace App.Glsl
             return code;
         }
 
+        /// <summary>
+        /// Find all variable accesses.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         public static IEnumerable<Match> FindVariables(string text)
         {
             double tmp;
 
+            // for each accessed variable
             foreach (Match variable in RegEx.Variable.Matches(text))
             {
+                // get variable information
                 var varname = variable.Value.Trim();
                 var vartype = text.Word(text.IndexOfWord(variable.Index, -1));
                 var invalidChar = RegEx.Operation.Match(text, variable.Index + variable.Length);
-                if (DataTypes.Any(x => x == varname || x == vartype)
-                    || double.TryParse(varname, out tmp)
-                    || (invalidChar.Success && invalidChar.Index == variable.Index + variable.Length))
-                    continue;
-                yield return variable;
+                // make sure this is a variable and not a function, type or number
+                if (!DataTypes.Any(x => x == varname || x == vartype)
+                    && !double.TryParse(varname, out tmp)
+                    && !(invalidChar.Success && invalidChar.Index == variable.Index + variable.Length))
+                    yield return variable;
             }
         }
 
         #region Methods to Process Shaders
 
+        /// <summary>
+        /// Remove version definition.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string Version(string text) => Regex.Replace(text, @"#version [0-9]{3}", string.Empty);
 
+        /// <summary>
+        /// Remove predefined built in output varyings.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string PredefinedOutputs(string text)
         {
             foreach (Match match in RegEx.PreDefOut.Matches(text))
@@ -127,38 +143,50 @@ namespace App.Glsl
             return text;
         }
 
+        /// <summary>
+        /// Convert type casts from GLSL to C#.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string TypeCasts(string text)
         {
-            text = typecast(text, "bool");
-            text = typecast(text, "int");
-            text = typecast(text, "uint");
-            text = typecast(text, "float");
-            text = typecast(text, "double");
-            return text;
+            text = Helpers.typecast(text, "bool");
+            text = Helpers.typecast(text, "int");
+            text = Helpers.typecast(text, "uint");
+            text = Helpers.typecast(text, "float");
+            return Helpers.typecast(text, "double");
         }
 
+        /// <summary>
+        /// Convert input and output shader layouts to C# friendly code.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string InOutLayouts(string text)
         {
-            foreach (var q in new[] { "in", "out" })
+            foreach (Match match in RegEx.InOutLayout.Matches(text))
             {
-                var matches = Regex.Matches(text, @"\blayout\s*\(.*\)\s+" + q + @"\s*;");
-                for (int i = matches.Count - 1; i >= 0; i--)
-                {
-                    Match match = matches[i];
-                    var replacement = Regex.Replace(match.Value, $"\\b{q}\\b", $"object __{q}__");
-                    text = text.Remove(match.Index, match.Length).Insert(match.Index, replacement);
-                }
+                // get in/out word
+                var word = RegEx.InOut.Match(match.Value);
+                // get word position in the text
+                var idx = match.Index + word.Index;
+                // convert to C# friendly code
+                text = text.Insert(idx + word.Length, "__").Insert(idx, "object __");
             }
             return text;
         }
 
+        /// <summary>
+        /// Convert GLSL constants to C# friendly code.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string Constants(string text)
         {
-            const string regex = @"\bconst\s+\w+\s+[\w\d]+\s*=\s*[\w\d.]+;";
-
-            for (Match match = Regex.Match(text, regex); match.Success; match = Regex.Match(text, regex))
+            foreach (Match match in RegEx.Const.Matches(text))
             {
-                var index = text.IndexOf('=', match.Index);
+                // convert constant to C# property
+                var index = text.IndexOf('=', match.Index, match.Length);
                 text = text
                     .Remove(match.Index + match.Length - 1, 1)
                     .Insert(match.Index + match.Length - 1, "; } }")
@@ -169,6 +197,11 @@ namespace App.Glsl
             return Regex.Replace(text, @"\bconst\b", string.Empty);
         }
 
+        /// <summary>
+        /// Convert GLSL buffer to C# class.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string Buffers(string text)
         {
             // process buffers
@@ -185,17 +218,7 @@ namespace App.Glsl
 
                 // convert GLSL type to C# class and constructor
                 var braces = RegEx.ArrayBraces.Match(sub, end);
-                string clazz;
-                if (braces.Success)
-                {
-                    //var array = braces.Value;
-                    //var value = array.Subrange(array.IndexOf('[') + 1, array.IndexOf(']')).Trim();
-                    clazz = $"{bufName.Value}[]";
-                }
-                else
-                {
-                    clazz = $"{bufName.Value}";
-                }
+                var clazz = bufName.Value + (braces.Success ? "[]" : string.Empty);
                 
                 // remove GLSL array definition
                 if (braces.Success)
@@ -218,13 +241,23 @@ namespace App.Glsl
             return text;
         }
 
+        /// <summary>
+        /// Convert layout qualifier to class attribute.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string Layouts(string text)
         {
-            for (Match match = RegEx.Layout.Match(text); match.Success; match = RegEx.Layout.Match(text))
+            foreach (Match match in RegEx.Layout.Matches(text))
                 text = text.Insert(match.Index + match.Length, "]").Insert(match.Index, "[__");
             return text;
         }
 
+        /// <summary>
+        /// Convert GLSL array to C# array.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string Arrays(string text)
         {
             // type name [ . ] ;
@@ -257,10 +290,25 @@ namespace App.Glsl
             return text;
         }
 
+        /// <summary>
+        /// Convert uniform keyword to C# attributes.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string Uniforms(string text) => Regex.Replace(text, @"\buniform\b", "[__uniform]");
         
+        /// <summary>
+        /// Replace discard keyword with return keyword.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string Discard(string text) => Regex.Replace(text, @"\bdiscard\b", "return");
 
+        /// <summary>
+        /// Add debug trace methods.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string DebugTrace(string text)
         {
             // for all functions in the text, find all variable
@@ -294,6 +342,11 @@ namespace App.Glsl
             return text;
         }
 
+        /// <summary>
+        /// Convert GLSL floating point number to C# float.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string Floats(string text)
         {
             foreach (Match match in RegEx.Float.Matches(text))
@@ -301,6 +354,11 @@ namespace App.Glsl
             return text;
         }
 
+        /// <summary>
+        /// Convert GLSL input stream varyings layout to C# attribute.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string Inputs(string text)
         {
             foreach (Match match in RegEx.InVarying.Matches(text))
@@ -313,12 +371,32 @@ namespace App.Glsl
             return text;
         }
 
+        /// <summary>
+        /// Convert GLSL output stream varyings layout to C# attribute.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string Outputs(string text) => Regex.Replace(text, @"\bout\b", "[__out]");
 
+        /// <summary>
+        /// Convert GLSL flat qualifier to C# attribute.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string Flat(string text) => Regex.Replace(text, @"\bflat\b", "[__flat]");
 
+        /// <summary>
+        /// Convert GLSL smooth qualifier to C# attribute.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string Smooth(string text) => Regex.Replace(text, @"\bsmooth\b", "[__smooth]");
 
+        /// <summary>
+        /// Convert GLSL main function to C# method.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private static string MainFunc(string text) => Regex.Replace(text, @"\bvoid\s+main\b", "public override void main");
 
         #endregion
@@ -331,6 +409,14 @@ namespace App.Glsl
                 return  $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
                     $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}";
             }
+            
+            public static Func<string, string, string> typecast = delegate(string text, string type)
+            {
+                var match = Regex.Matches(text, @"\b" + type + @"\(.*\)");
+                for (int i = match.Count - 1; i >= 0; i--)
+                    text = text.Insert(match[i].Index + type.Length, ")").Insert(match[i].Index, "(");
+                return text;
+            };
         }
     }
 }
