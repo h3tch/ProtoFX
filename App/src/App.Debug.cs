@@ -204,15 +204,15 @@ namespace App
             DebugNextLine(line);
             ShowCurrentDebugInfo();
         }
-
-        private void DebugContinue()
-        {
-
-        }
-
+        
         private void DebugEnd()
         {
             DebugInfo = null;
+        }
+
+        private void DebugStepBreakpoint()
+        {
+
         }
 
         private void DebugStepInto()

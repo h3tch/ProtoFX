@@ -101,6 +101,9 @@
     <Compile Include="src\controls\CallTip.Designer.cs">
       <DependentUpon>CallTip.cs</DependentUpon>
     </Compile>
+    <Compile Include="src\controls\CodeEditor.Bookmarks.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="src\controls\ComboBox.cs">
       <SubType>Component</SubType>
     </Compile>

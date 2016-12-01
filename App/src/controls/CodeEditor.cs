@@ -18,6 +18,11 @@ namespace ScintillaNET
         private string filename;
         private FileSystemWatcher FileWatcher;
         private bool watchChanges = true;
+        private const int LINE_NUMBER_MARGIN = 0;
+        private const int BOOKMARK_MARGIN = 1;
+        private const int FOLDING_MARGIN = 2;
+        private const int BOOKMARK_MARKER = 1;
+        private const int BOOKMARK_MARKER_MASK = 1 << BOOKMARK_MARKER;
 
         #endregion
 
@@ -108,7 +113,8 @@ namespace ScintillaNET
             InitializeCodeFolding();
             InitializeLayout();
             InitializeEvents();
-            
+            InitializeBookmarks();
+
             // insert text
             Text = text ?? string.Empty;
             UpdateLineNumbers();
@@ -123,10 +129,11 @@ namespace ScintillaNET
             SetProperty("fold", "1");
             SetProperty("fold.compact", "1");
 
-            Margins[2].Type = MarginType.Symbol;
-            Margins[2].Mask = Marker.MaskFolders;
-            Margins[2].Sensitive = true;
-            Margins[2].Width = 20;
+            var margin = Margins[FOLDING_MARGIN];
+            margin.Type = MarginType.Symbol;
+            margin.Mask = Marker.MaskFolders;
+            margin.Sensitive = true;
+            margin.Width = 20;
 
             CallTipSetForeHlt(Theme.ForeColor);
             
@@ -183,8 +190,8 @@ namespace ScintillaNET
             // UPDATE LINE NUMBERS
             int nLines = Lines.Count.ToString().Length;
             var width = TextRenderer.MeasureText(new string('9', nLines), Font).Width;
-            if (Margins[0].Width != width)
-                Margins[0].Width = width;
+            if (Margins[LINE_NUMBER_MARGIN].Width != width)
+                Margins[LINE_NUMBER_MARGIN].Width = width;
         }
 
         #endregion
