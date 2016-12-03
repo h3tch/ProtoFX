@@ -370,8 +370,10 @@ namespace App
                 {
                     bmps[i].RotateFlip(RotateFlipType.RotateNoneFlipY);
                     var bits = bmps[i].LockBits(
-                        new Rectangle(0, 0, Math.Min(bmps[i].Width, size[0]), Math.Min(bmps[i].Height, size[1])),
-                        LockMode.ReadOnly, fileformat);
+                        new Rectangle(0, 0,
+                            Math.Min(bmps[i].Width, size[0]),
+                            Math.Min(bmps[i].Height, size[1])),
+                            LockMode.ReadOnly, fileformat);
                     Marshal.Copy(bits.Scan0, data, pixelsize * size[0] * size[1] * i, bits.Stride * bits.Height);
                     bmps[i].UnlockBits(bits);
                 }
