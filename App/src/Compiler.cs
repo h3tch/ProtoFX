@@ -177,6 +177,7 @@ namespace App
             #region FIELD
             public File Owner { get; private set; }
             public int Line { get; private set; }
+            public int LineCount { get; private set; }
             public int LineInFile => Line;
             public string Text { get; private set; }
             public string Body => Text.Subrange(Text.IndexOf('{') + 1, Text.LastIndexOf('}') - 1);
@@ -199,6 +200,7 @@ namespace App
             {
                 Owner = owner;
                 Line = line;
+                LineCount = text.Count(c => c == '\n');
                 Text = text.Trim();
 
                 // find all words before the brace

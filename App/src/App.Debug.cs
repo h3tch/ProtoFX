@@ -196,52 +196,44 @@ namespace App
         #region Debug Shader
 
         private Glsl.TraceInfo[] DebugInfo;
+        private int[] DebugLines;
+        private int[] BreakpointLines;
         private int CurrentDebugInfo;
+        private int CurrentDebugLine => DebugInfo[CurrentDebugInfo].Line;
 
-        private void DebugStart(int line)
+        private void DebugStepBreakpoint_Click(object s = null, EventArgs e = null)
+            => DebugGotoNext(BreakpointLines);
+
+        private void DebugStepOver_Click(object s = null, EventArgs e = null)
+            => DebugGotoNext(DebugLines);
+
+        private void DebugStepInto_Click(object s = null, EventArgs e = null)
+        {
+            if (CurrentDebugInfo + 1 < DebugInfo.Length)
+                CurrentDebugInfo++;
+        }
+
+        private void DebugStart()
         {
             DebugInfo = Glsl.Debugger.DebugTrace.ToArray();
-            DebugNextLine(line);
-            ShowCurrentDebugInfo();
+            Array.Sort(DebugLines = DebugInfo.Select(x => x.Line).Distinct().ToArray());
+            BreakpointLines = CompiledEditor.GetBreakpoints().ToArray();
+            CurrentDebugInfo = 0;
+            DebugStepBreakpoint_Click();
         }
         
-        private void DebugEnd()
+        private void DebugGotoNext(int[] validLines)
         {
-            DebugInfo = null;
-        }
-
-        private void DebugStepBreakpoint()
-        {
-
-        }
-
-        private void DebugStepInto()
-        {
-            if (DebugInfo == null || CurrentDebugInfo == DebugInfo.Length)
+            CompiledEditor.RemoveExecutionMarker(CurrentDebugLine);
+            var nextDebugLine = validLines.FirstOr(l => CurrentDebugLine < l, -1);
+            if (nextDebugLine < 0)
                 return;
-            CurrentDebugInfo++;
+            while (CurrentDebugInfo < DebugInfo.Length && CurrentDebugLine == nextDebugLine)
+                DebugStepInto_Click();
+            if (CurrentDebugInfo < DebugInfo.Length)
+                CompiledEditor.AddExecutionMarker(CurrentDebugLine);
         }
-
-        private void DebugStepUndo()
-        {
-            if (DebugInfo == null || CurrentDebugInfo == 0)
-                return;
-            CurrentDebugInfo--;
-        }
-
-        private void ShowCurrentDebugInfo()
-        {
-            if (DebugInfo == null)
-                return;
-        }
-
-        private void DebugNextLine(int line)
-        {
-            for (CurrentDebugInfo = 0; CurrentDebugInfo < DebugInfo.Length; CurrentDebugInfo++)
-                if (DebugInfo[CurrentDebugInfo].Line >= line)
-                    break;
-        }
-
+        
         /// <summary>
         /// When the selection (caret) changed update the debug tab.
         /// </summary>

@@ -12,6 +12,37 @@ namespace App.Glsl
     {
         #region Texture Access
 
+        #region Helpers
+
+        private static int Ptr(int w, int h, int x, int y, int z, int c) => ((z * h + y) * w + x) * 4 + c;
+
+        private delegate void MixFunc<T>(T[] p, int x0, int y0, int z0, int x1, int y1, int z1, int w, int h, int d, float t);
+
+        private static Dictionary<Type, Delegate> Mixers = new Dictionary<Type, Delegate>()
+        { {
+            typeof(int), (MixFunc<int>)
+            ((int[] p, int x0, int y0, int z0, int x1, int y1, int z1, int w, int h, int d, float t) => {
+                for (int c = 0; c < 4; c++)
+                    p[Ptr(w, h, x0, y0, z0, c)] = (int)
+                        ((1 - t) * p[Ptr(w, h, x0, y0, z0, c)] + t * p[Ptr(w, h, x1, y1, z1, c)]);
+            })
+        },{
+            typeof(uint), (MixFunc<uint>)
+            ((uint[] p, int x0, int y0, int z0, int x1, int y1, int z1, int w, int h, int d, float t) => {
+                for (int c = 0; c < 4; c++)
+                    p[Ptr(w, h, x0, y0, z0, c)] = (uint)
+                        ((1 - t) * p[Ptr(w, h, x0, y0, z0, c)] + t * p[Ptr(w, h, x1, y1, z1, c)]);
+            })
+        },{
+            typeof(float), (MixFunc<float>)
+            ((float[] p, int x0, int y0, int z0, int x1, int y1, int z1, int w, int h, int d, float t) => {
+                for (int c = 0; c < 4; c++)
+                    p[Ptr(w, h, x0, y0, z0, c)] = mix(p[Ptr(w, h, x0, y0, z0, c)], p[Ptr(w, h, x1, y1, z1, c)], t);
+            })
+        } };
+
+        #endregion
+
         public static vec4 texture(sampler1D sampler, float P, float bias = 0)
             => texturef(sampler.i, P, 0, 0, 0, GetPName.TextureBinding1D);
         public static ivec4 texture(isampler1D sampler, float P, float bias = 0)
@@ -134,11 +165,11 @@ namespace App.Glsl
                 if (h > 1)
                 {
                     for (int i = 0; i < w; i++)
-                        mix(p, i, 0, 0, i, 1, 0, w, h, d, y);
+                        mix(p, i, 0, 0, i, 1, 0, w, h, 1, y);
                 }
 
                 if (w > 1)
-                    mix(p, 0, 0, 0, 1, 0, 0, w, h, d, x);
+                    mix(p, 0, 0, 0, 1, 0, 0, w, 1, 1, x);
             }
             // get nearest pixel
             else
@@ -175,41 +206,6 @@ namespace App.Glsl
             }
             return a;
         }
-
-        static int Ptr(int w, int h, int x, int y, int z, int c) => ((z * h + y) * w + x) * 4 + c;
-
-        delegate void MixFunc<T>(T[] p, int x0, int y0, int z0, int x1, int y1, int z1, int w, int h, int d, float t);
-
-        private static Dictionary<Type, Delegate> Mixers = new Dictionary<Type, Delegate>()
-        {
-            {
-                typeof(int), (MixFunc<int>)
-                ((int[] p, int x0, int y0, int z0, int x1, int y1, int z1, int w, int h, int d, float t) => {
-                    p[Ptr(w, h, x0, y0, z0, 0)] = (int)((1 - t) * p[Ptr(w, h, x0, y0, z0, 0)] + t * p[Ptr(w, h, x1, y1, z1, 0)]);
-                    p[Ptr(w, h, x0, y0, z0, 1)] = (int)((1 - t) * p[Ptr(w, h, x0, y0, z0, 1)] + t * p[Ptr(w, h, x1, y1, z1, 1)]);
-                    p[Ptr(w, h, x0, y0, z0, 2)] = (int)((1 - t) * p[Ptr(w, h, x0, y0, z0, 2)] + t * p[Ptr(w, h, x1, y1, z1, 2)]);
-                    p[Ptr(w, h, x0, y0, z0, 3)] = (int)((1 - t) * p[Ptr(w, h, x0, y0, z0, 3)] + t * p[Ptr(w, h, x1, y1, z1, 3)]);
-                })
-            },
-            {
-                typeof(uint), (MixFunc<uint>)
-                ((uint[] p, int x0, int y0, int z0, int x1, int y1, int z1, int w, int h, int d, float t) => {
-                    p[Ptr(w, h, x0, y0, z0, 0)] = (uint)((1 - t) * p[Ptr(w, h, x0, y0, z0, 0)] + t * p[Ptr(w, h, x1, y1, z1, 0)]);
-                    p[Ptr(w, h, x0, y0, z0, 1)] = (uint)((1 - t) * p[Ptr(w, h, x0, y0, z0, 1)] + t * p[Ptr(w, h, x1, y1, z1, 1)]);
-                    p[Ptr(w, h, x0, y0, z0, 2)] = (uint)((1 - t) * p[Ptr(w, h, x0, y0, z0, 2)] + t * p[Ptr(w, h, x1, y1, z1, 2)]);
-                    p[Ptr(w, h, x0, y0, z0, 3)] = (uint)((1 - t) * p[Ptr(w, h, x0, y0, z0, 3)] + t * p[Ptr(w, h, x1, y1, z1, 3)]);
-                })
-            },
-            {
-                typeof(float), (MixFunc<float>)
-                ((float[] p, int x0, int y0, int z0, int x1, int y1, int z1, int w, int h, int d, float t) => {
-                    p[Ptr(w, h, x0, y0, z0, 0)] = (1 - t) * p[Ptr(w, h, x0, y0, z0, 0)] + t * p[Ptr(w, h, x1, y1, z1, 0)];
-                    p[Ptr(w, h, x0, y0, z0, 1)] = (1 - t) * p[Ptr(w, h, x0, y0, z0, 1)] + t * p[Ptr(w, h, x1, y1, z1, 1)];
-                    p[Ptr(w, h, x0, y0, z0, 2)] = (1 - t) * p[Ptr(w, h, x0, y0, z0, 2)] + t * p[Ptr(w, h, x1, y1, z1, 2)];
-                    p[Ptr(w, h, x0, y0, z0, 3)] = (1 - t) * p[Ptr(w, h, x0, y0, z0, 3)] + t * p[Ptr(w, h, x1, y1, z1, 3)];
-                })
-            },
-        };
 
         #endregion
 
@@ -297,10 +293,22 @@ namespace App.Glsl
             GL.ActiveTexture(TextureUnit.Texture0 + sampler);
             GL.GetInteger(binding, out ID);
             GL.GetTextureLevelParameter(ID, lod, GetTextureParameter.TextureWidth, out w);
-            GL.GetTextureLevelParameter(ID, lod, GetTextureParameter.TextureHeight, out h);
-            GL.GetTextureLevelParameter(ID, lod, GetTextureParameter.TextureDepth, out d);
-            if (0 <= x && x < w && 0 <= y && y < h && 0 <= z && z < d)
-                GL.GetTextureSubImage(ID, lod, x, y, z, 1, 1, 1, PixelFormat.Rgba, type, data.Length, data);
+            if (0 <= x && x < w)
+            {
+                int size = Marshal.SizeOf<T>();
+                if (binding == GetPName.TextureBindingBuffer)
+                    GL.GetNamedBufferSubData(ID, (IntPtr)(size * x), size * data.Length, data);
+                else
+                {
+                    GL.GetTextureLevelParameter(ID, lod, GetTextureParameter.TextureHeight, out h);
+                    GL.GetTextureLevelParameter(ID, lod, GetTextureParameter.TextureDepth, out d);
+                    if (0 <= y && y < h && 0 <= z && z < d)
+                        GL.GetTextureSubImage(ID, lod, x, y, z, 1, 1, 1, PixelFormat.Rgba, type, size * data.Length, data);
+
+                    DebugGetError(new StackTrace(true));
+                }
+            }
+            
             return data;
         }
 

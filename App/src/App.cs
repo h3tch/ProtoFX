@@ -176,9 +176,15 @@ namespace App
                 case Keys.F6:
                     toolBtnRunDebug_Click(toolBtnDbg, null);
                     break;
+                // Debug stepping
+                case Keys.F9:
+                    DebugStepBreakpoint_Click();
+                    break;
                 case Keys.F10:
+                    DebugStepOver_Click();
                     break;
                 case Keys.F11:
+                    DebugStepInto_Click();
                     break;
                 // Save
                 case Keys.S:
@@ -479,7 +485,9 @@ namespace App
 
             // COMPILE THE CURRENTLY SELECTED FILE
             var root = Compiler.Compile(SelectedTab.UserData as string);
-
+            var shaderLines = from x in root where x.Type == "shader" select new[] { x.Line, x.LineCount };
+            CompiledEditor.RemoveInvalidBreakpoints(shaderLines);
+            
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
             var ex = root.Catch(x => glControl.AddObject(x, debugging)).ToArray();
             // add events to the end of the event list
@@ -522,7 +530,10 @@ namespace App
 
             // UPDATE DEBUG INFORMATION IF NECESSARY
             if (debugging)
+            {
+                DebugStart();
                 UpdateDebugListView(CompiledEditor);
+            }
 
             // SHOW DEBUG BUTTONS IF NECESSARY
             toolBtnDbgStepBreakpoint.Enabled = debugging;

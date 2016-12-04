@@ -19,10 +19,12 @@ namespace ScintillaNET
         private FileSystemWatcher FileWatcher;
         private bool watchChanges = true;
         private const int LINE_NUMBER_MARGIN = 0;
-        private const int BOOKMARK_MARGIN = 1;
+        private const int BREAKPOINT_MARGIN = 1;
         private const int FOLDING_MARGIN = 2;
-        private const int BOOKMARK_MARKER = 1;
-        private const int BOOKMARK_MARKER_MASK = 1 << BOOKMARK_MARKER;
+        private const int BREAKPOINT_MARKER = 1;
+        private const int EXE_LINE_MARKER = 2;
+        private const int BREAKPOINT_MARKER_MASK = 1 << BREAKPOINT_MARKER;
+        private const int EXE_LINE_MARKER_MASK = 1 << EXE_LINE_MARKER;
 
         #endregion
 
