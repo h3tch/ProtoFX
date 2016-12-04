@@ -25,6 +25,9 @@ namespace App
             return dst;
         }
 
+        public static int Size(this Array array)
+            => Marshal.SizeOf(array.GetType().GetElementType()) * array.Length;
+
         /// <summary>
         /// Convert string into the specified type.
         /// </summary>

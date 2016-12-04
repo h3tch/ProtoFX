@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using static OpenTK.Graphics.OpenGL4.PixelFormat;
+using Parameter = OpenTK.Graphics.OpenGL4.GetTextureParameter;
 
 namespace App.Glsl
 {
@@ -13,33 +15,15 @@ namespace App.Glsl
         #region Texture Access
 
         #region Helpers
-
-        private static int Ptr(int w, int h, int x, int y, int z, int c) => ((z * h + y) * w + x) * 4 + c;
-
-        private delegate void MixFunc<T>(T[] p, int x0, int y0, int z0, int x1, int y1, int z1, int w, int h, int d, float t);
+        
+        private delegate T MixFunc<T>(T a, T b, float t);
 
         private static Dictionary<Type, Delegate> Mixers = new Dictionary<Type, Delegate>()
-        { {
-            typeof(int), (MixFunc<int>)
-            ((int[] p, int x0, int y0, int z0, int x1, int y1, int z1, int w, int h, int d, float t) => {
-                for (int c = 0; c < 4; c++)
-                    p[Ptr(w, h, x0, y0, z0, c)] = (int)
-                        ((1 - t) * p[Ptr(w, h, x0, y0, z0, c)] + t * p[Ptr(w, h, x1, y1, z1, c)]);
-            })
-        },{
-            typeof(uint), (MixFunc<uint>)
-            ((uint[] p, int x0, int y0, int z0, int x1, int y1, int z1, int w, int h, int d, float t) => {
-                for (int c = 0; c < 4; c++)
-                    p[Ptr(w, h, x0, y0, z0, c)] = (uint)
-                        ((1 - t) * p[Ptr(w, h, x0, y0, z0, c)] + t * p[Ptr(w, h, x1, y1, z1, c)]);
-            })
-        },{
-            typeof(float), (MixFunc<float>)
-            ((float[] p, int x0, int y0, int z0, int x1, int y1, int z1, int w, int h, int d, float t) => {
-                for (int c = 0; c < 4; c++)
-                    p[Ptr(w, h, x0, y0, z0, c)] = mix(p[Ptr(w, h, x0, y0, z0, c)], p[Ptr(w, h, x1, y1, z1, c)], t);
-            })
-        } };
+        {
+            { typeof(int), (MixFunc<int>)((int a, int b, float t) => { return (int)((1 - t) * a + t * b); }) },
+            { typeof(uint), (MixFunc<uint>)((uint a, uint b, float t) => { return (uint)((1 - t) * a + t * b); }) },
+            { typeof(float), (MixFunc<float>)((float a, float b, float t) => { return (1 - t) * a + t * b; }) }
+        };
 
         #endregion
 
@@ -104,19 +88,18 @@ namespace App.Glsl
         private static uvec4 textureu(int sampler, float x, float y, float z, int lod, GetPName binding)
             => new uvec4(texture<uint>(sampler, x, y, z, lod, binding, PixelType.UnsignedInt));
 
-        private static T[] texture<T>(int sampler, float x, float y, float z, int lod, 
+        private static T texture<T>(int sampler, float x, float y, float z, int lod, 
             GetPName binding, PixelType type)
             where T : struct
         {
             int ID, sID, minFilter, magFilter, w, h, d, wrapR, wrapS, wrapT;
-            var p = new T[4*8];
             
             // get texture info
             GL.ActiveTexture(TextureUnit.Texture0 + sampler);
             GL.GetInteger(binding, out ID);
-            GL.GetTextureLevelParameter(ID, lod, GetTextureParameter.TextureWidth, out w);
-            GL.GetTextureLevelParameter(ID, lod, GetTextureParameter.TextureHeight, out h);
-            GL.GetTextureLevelParameter(ID, lod, GetTextureParameter.TextureDepth, out d);
+            GL.GetTextureLevelParameter(ID, lod, Parameter.TextureWidth, out w);
+            GL.GetTextureLevelParameter(ID, lod, Parameter.TextureHeight, out h);
+            GL.GetTextureLevelParameter(ID, lod, Parameter.TextureDepth, out d);
 
             // get sampler info
             GL.GetInteger(GetPName.SamplerBinding, out sID);
@@ -141,52 +124,42 @@ namespace App.Glsl
             w = (int)x + 2 >= w ? 1 : 2;
             h = (int)y + 2 >= h ? 1 : 2;
             d = (int)z + 2 >= d ? 1 : 2;
-
+            
             // get texture data
-            GL.GetTextureSubImage(ID, lod, (int)x, (int)y, (int)z, w, h, d,
-                PixelFormat.Rgba, type, p.Length, p);
-
-            // get fraction from coordinates
-            x -= (int)x;
-            y -= (int)y;
-            z -= (int)z;
+            var p = new T[w,h,d];
+            if (binding == GetPName.TextureBindingBuffer)
+                GL.GetNamedBufferSubData(ID, (IntPtr)(Marshal.SizeOf<T>() * x), p.Size(), p);
+            else
+                GL.GetTextureSubImage(ID, lod, (int)x, (int)y, (int)z, w, h, d, Rgba, type, p.Size(), p);
 
             // interpolate between pixels
-            if ((z > 0 ? minFilter : magFilter) != (int)TextureMinFilter.Nearest)
+            var mix = (MixFunc<T>)Mixers[typeof(T)];
+            if (d > 1)
             {
-                var mix = (MixFunc<T>)Mixers[typeof(T)];
-                if (d > 1)
-                {
-                    for (int i = 0; i < w; i++)
-                        for (int j = 0; j < h; j++)
-                            mix(p, i, j, 0, i, j, 1, w, h, d, z);
-                }
-
-                if (h > 1)
-                {
-                    for (int i = 0; i < w; i++)
-                        mix(p, i, 0, 0, i, 1, 0, w, h, 1, y);
-                }
-
-                if (w > 1)
-                    mix(p, 0, 0, 0, 1, 0, 0, w, 1, 1, x);
+                z -= (int)z;
+                var Z = magFilter == (int)TextureMinFilter.Nearest ? (float)Math.Round(z) : z;
+                for (int i = 0; i < w; i++)
+                    for (int j = 0; j < h; j++)
+                            p[i, j, 0] = mix(p[i, j, 0], p[i, j, 1], Z);
             }
-            // get nearest pixel
-            else
+            if (h > 1)
             {
-                int X = (int)Math.Round(x);
-                int Y = (int)Math.Round(y);
-                int Z = (int)Math.Round(z);
-                p[0] = p[Ptr(w, h, X, Y, Z, 0)];
-                p[1] = p[Ptr(w, h, X, Y, Z, 1)];
-                p[2] = p[Ptr(w, h, X, Y, Z, 2)];
-                p[3] = p[Ptr(w, h, X, Y, Z, 3)];
+                y -= (int)y;
+                var Y = minFilter == (int)TextureMinFilter.Nearest ? (float)Math.Round(y) : y;
+                for (int i = 0; i < w; i++)
+                    p[i, 0, 0] = mix(p[i, 0, 0], p[i, 1, 0], Y);
+            }
+            if (w > 1)
+            {
+                x -= (int)x;
+                var X = minFilter == (int)TextureMinFilter.Nearest ? (float)Math.Round(x) : x;
+                p[0, 0, 0] = mix(p[0, 0, 0], p[1, 1, 0], X);
             }
 
-            return p;
+            return p[0,0,0];
         }
 
-        static float Wrap(float a, TextureWrapMode mode)
+        private static float Wrap(float a, TextureWrapMode mode)
         {
             switch (mode)
             {
@@ -289,27 +262,36 @@ namespace App.Glsl
             where T : struct
         {
             int ID, w, h, d;
-            var data = new T[4];
+            var p = new T[4];
+
+            // get texture ID
             GL.ActiveTexture(TextureUnit.Texture0 + sampler);
             GL.GetInteger(binding, out ID);
-            GL.GetTextureLevelParameter(ID, lod, GetTextureParameter.TextureWidth, out w);
+
+            // get texture size
+            GL.GetTextureLevelParameter(ID, lod, Parameter.TextureWidth, out w);
+
+            // if valid texture coordinate
             if (0 <= x && x < w)
             {
-                int size = Marshal.SizeOf<T>();
+                // if this is a buffer texture
                 if (binding == GetPName.TextureBindingBuffer)
-                    GL.GetNamedBufferSubData(ID, (IntPtr)(size * x), size * data.Length, data);
+                    GL.GetNamedBufferSubData(ID, (IntPtr)(Marshal.SizeOf<T>() * x), p.Size(), p);
+                // is a normal texture
                 else
                 {
-                    GL.GetTextureLevelParameter(ID, lod, GetTextureParameter.TextureHeight, out h);
-                    GL.GetTextureLevelParameter(ID, lod, GetTextureParameter.TextureDepth, out d);
+                    // get rest of the texture size
+                    GL.GetTextureLevelParameter(ID, lod, Parameter.TextureHeight, out h);
+                    GL.GetTextureLevelParameter(ID, lod, Parameter.TextureDepth, out d);
+                    // if valid texture coordinate
                     if (0 <= y && y < h && 0 <= z && z < d)
-                        GL.GetTextureSubImage(ID, lod, x, y, z, 1, 1, 1, PixelFormat.Rgba, type, size * data.Length, data);
+                        GL.GetTextureSubImage(ID, lod, x, y, z, 1, 1, 1, Rgba, type, p.Size(), p);
 
                     DebugGetError(new StackTrace(true));
                 }
             }
             
-            return data;
+            return p;
         }
 
         #endregion
