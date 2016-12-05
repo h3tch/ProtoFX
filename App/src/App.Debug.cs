@@ -197,12 +197,10 @@ namespace App
 
         private Glsl.TraceInfo[] DebugInfo;
         private int[] DebugLines;
-        private int[] BreakpointLines;
         private int CurrentDebugInfo;
-        private int CurrentDebugLine => DebugInfo[CurrentDebugInfo].Line;
 
         private void DebugStepBreakpoint_Click(object s = null, EventArgs e = null)
-            => DebugGotoNext(BreakpointLines);
+            => DebugGotoNext(CompiledEditor.GetBreakpoints().ToArray());
 
         private void DebugStepOver_Click(object s = null, EventArgs e = null)
             => DebugGotoNext(DebugLines);
@@ -217,21 +215,12 @@ namespace App
         {
             DebugInfo = Glsl.Debugger.DebugTrace.ToArray();
             Array.Sort(DebugLines = DebugInfo.Select(x => x.Line).Distinct().ToArray());
-            BreakpointLines = CompiledEditor.GetBreakpoints().ToArray();
-            CurrentDebugInfo = 0;
+            CurrentDebugInfo = -1;
             DebugStepBreakpoint_Click();
         }
         
         private void DebugGotoNext(int[] validLines)
         {
-            CompiledEditor.RemoveExecutionMarker(CurrentDebugLine);
-            var nextDebugLine = validLines.FirstOr(l => CurrentDebugLine < l, -1);
-            if (nextDebugLine < 0)
-                return;
-            while (CurrentDebugInfo < DebugInfo.Length && CurrentDebugLine == nextDebugLine)
-                DebugStepInto_Click();
-            if (CurrentDebugInfo < DebugInfo.Length)
-                CompiledEditor.AddExecutionMarker(CurrentDebugLine);
         }
         
         /// <summary>

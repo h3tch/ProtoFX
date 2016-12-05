@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using static OpenTK.Graphics.OpenGL4.GetProgramParameterName;
 using static OpenTK.Graphics.OpenGL4.ProgramStageMask;
 using static OpenTK.Graphics.OpenGL4.TransformFeedbackMode;
 using static System.Reflection.BindingFlags;
@@ -162,7 +161,7 @@ namespace App
         /// <param name="width">Width of the OpenGL control.</param>
         /// <param name="height">Height of the OpenGL control.</param>
         /// <param name="frame">The ID of the current frame.</param>
-        public void Exec(int width, int height, int frame)
+        public void Exec(int width, int height, int frame, bool debugTrage)
         {
             // in debug mode check if the
             // OpenGL sate is valid
@@ -232,7 +231,7 @@ namespace App
 
             /// BIND DEBUGGER
 
-            if (debug && drawcalls.Count > 0)
+            if (debugTrage && debug && drawcalls.Count > 0)
             {
                 try
                 {

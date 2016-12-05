@@ -61,7 +61,7 @@ namespace OpenTK
         /// <summary>
         /// Render scene.
         /// </summary>
-        public void Render()
+        public void Render(bool debugTrace = false)
         {
             // clear existing render exceptions
             if (renderExceptions > 0)
@@ -87,7 +87,7 @@ namespace OpenTK
 
                 // render the scene
                 foreach (var x in from o in scene where o.Value is GLTech select o.Value as GLTech)
-                    x.Exec(ClientSize.Width, ClientSize.Height, Frame);
+                    x.Exec(ClientSize.Width, ClientSize.Height, Frame, debugTrace);
 
                 // end timer query
                 perf.EndTimer();
@@ -171,7 +171,12 @@ namespace OpenTK
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleMouseUp(object s, MouseEventArgs e) => render = false;
+        private void HandleMouseUp(object s, MouseEventArgs e)
+        {
+            if (render)
+                Render(true);
+            render = false;
+        }
 
         /// <summary>
         /// When the mouse is moving over the control, render the scene.
@@ -189,7 +194,7 @@ namespace OpenTK
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleKeyUp(object s, KeyEventArgs e) => Render();
+        private void HandleKeyUp(object s, KeyEventArgs e) => Render(true);
 
         #endregion
     }

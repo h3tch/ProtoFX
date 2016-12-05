@@ -39,7 +39,7 @@ namespace App
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <param name="frame"></param>
-        public void Exec(int width, int height, int frame)
+        public void Exec(int width, int height, int frame, bool debugTrace)
         {
             // begin timer query
             MeasureTime();
@@ -48,12 +48,12 @@ namespace App
             // when executed the first time, execute initialization passes
             if (init != null)
             {
-                init.ForEach(x => x.Exec(width, height, frame));
+                init.ForEach(x => x.Exec(width, height, frame, debugTrace));
                 init = null;
             }
 
             // execute all passes
-            passes.ForEach(x => x.Exec(width, height, frame));
+            passes.ForEach(x => x.Exec(width, height, frame, debugTrace));
 
             // end timer query
             EndTimer();
@@ -65,7 +65,7 @@ namespace App
         public override void Delete()
         {
             base.Delete();
-            uninit.ForEach(x => x.Exec(0, 0, -1));
+            uninit.ForEach(x => x.Exec(0, 0, -1, false));
         }
 
         /// <summary>

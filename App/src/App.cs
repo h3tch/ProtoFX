@@ -511,7 +511,7 @@ namespace App
             CompiledEditor.AddIndicators(CodeEditor.DebugIndicatorIndex, ranges);
 
             // SHOW SCENE
-            glControl.Render();
+            glControl.Render(debugging);
 
             // add externally created textures to the scene
             var existing = glControl.Scene.Values.ToArray();

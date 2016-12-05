@@ -57,9 +57,9 @@ namespace ScintillaNET
             {
                 if (HasBreakpoint(l))
                 {
-                    while (iter.Current[1] < l)
+                    while (iter.Current != null && iter.Current[0] + iter.Current[1] < l)
                         iter.MoveNext();
-                    if (l < iter.Current[0] || iter.Current[1] <= l)
+                    if (iter.Current != null && (l < iter.Current[0] || iter.Current[0] + iter.Current[1] <= l))
                         RemoveBreakpoint(l);
                 }
             }

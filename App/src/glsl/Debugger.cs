@@ -11,7 +11,7 @@ namespace App.Glsl
         Function,
         Exception
     }
-
+    
     public class Debugger
     {
         internal static int ShaderLineOffset = 0;
