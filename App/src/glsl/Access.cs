@@ -27,59 +27,59 @@ namespace App.Glsl
 
         #endregion
 
-        public static vec4 texture(sampler1D sampler, float P, float bias = 0)
+        public static vec4 texture(int column, int length, sampler1D sampler, float P, float bias = 0)
             => texturef(sampler.i, P, 0, 0, 0, GetPName.TextureBinding1D);
-        public static ivec4 texture(isampler1D sampler, float P, float bias = 0)
+        public static ivec4 texture(int column, int length, isampler1D sampler, float P, float bias = 0)
             => texturei(sampler.i, P, 0, 0, 0, GetPName.TextureBinding1D);
-        public static uvec4 texture(usampler1D sampler, float P, float bias = 0)
+        public static uvec4 texture(int column, int length, usampler1D sampler, float P, float bias = 0)
             => textureu(sampler.i, P, 0, 0, 0, GetPName.TextureBinding1D);
-        public static vec4 texture(sampler2D sampler, vec2 P, float bias = 0)
+        public static vec4 texture(int column, int length, sampler2D sampler, vec2 P, float bias = 0)
             => texturef(sampler.i, P.x, P.y, 0, 0, GetPName.TextureBinding2D);
-        public static ivec4 texture(isampler2D sampler, vec2 P, float bias = 0)
+        public static ivec4 texture(int column, int length, isampler2D sampler, vec2 P, float bias = 0)
             => texturei(sampler.i, P.x, P.y, 0, 0, GetPName.TextureBinding2D);
-        public static uvec4 texture(usampler2D sampler, vec2 P, float bias = 0)
+        public static uvec4 texture(int column, int length, usampler2D sampler, vec2 P, float bias = 0)
             => textureu(sampler.i, P.x, P.y, 0, 0, GetPName.TextureBinding2D);
-        public static vec4 texture(sampler3D sampler, vec3 P, float bias = 0)
+        public static vec4 texture(int column, int length, sampler3D sampler, vec3 P, float bias = 0)
             => texturef(sampler.i, P.x, P.y, P.z, 0, GetPName.TextureBinding3D);
-        public static ivec4 texture(isampler3D sampler, vec3 P, float bias = 0)
+        public static ivec4 texture(int column, int length, isampler3D sampler, vec3 P, float bias = 0)
             => texturei(sampler.i, P.x, P.y, P.z, 0, GetPName.TextureBinding3D);
-        public static uvec4 texture(usampler3D sampler, vec3 P, float bias = 0)
+        public static uvec4 texture(int column, int length, usampler3D sampler, vec3 P, float bias = 0)
             => textureu(sampler.i, P.x, P.y, P.z, 0, GetPName.TextureBinding3D);
-        public static vec4 texture(samplerCube sampler, vec3 P, float bias = 0) { return new vec4(0); }
-        public static ivec4 texture(isamplerCube sampler, vec3 P, float bias = 0) { return new ivec4(0); }
-        public static uvec4 texture(usamplerCube sampler, vec3 P, float bias = 0) { return new uvec4(0); }
-        public static vec4 texture(sampler1DShadow sampler, vec3 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(sampler2DShadow sampler, vec3 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(samplerCubeShadow sampler, vec3 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(sampler1DArray sampler, vec2 P, float bias = 0)
+        public static vec4 texture(int column, int length, samplerCube sampler, vec3 P, float bias = 0) { return new vec4(0); }
+        public static ivec4 texture(int column, int length, isamplerCube sampler, vec3 P, float bias = 0) { return new ivec4(0); }
+        public static uvec4 texture(int column, int length, usamplerCube sampler, vec3 P, float bias = 0) { return new uvec4(0); }
+        public static vec4 texture(int column, int length, sampler1DShadow sampler, vec3 P, float bias = 0) { return new vec4(0); }
+        public static vec4 texture(int column, int length, sampler2DShadow sampler, vec3 P, float bias = 0) { return new vec4(0); }
+        public static vec4 texture(int column, int length, samplerCubeShadow sampler, vec3 P, float bias = 0) { return new vec4(0); }
+        public static vec4 texture(int column, int length, sampler1DArray sampler, vec2 P, float bias = 0)
             => texturef(sampler.i, P.x, P.y, 0, 0, GetPName.TextureBinding1DArray);
-        public static ivec4 texture(isampler1DArray sampler, vec2 P, float bias = 0)
+        public static ivec4 texture(int column, int length, isampler1DArray sampler, vec2 P, float bias = 0)
             => texturei(sampler.i, P.x, P.y, 0, 0, GetPName.TextureBinding1DArray);
-        public static uvec4 texture(usampler1DArray sampler, vec2 P, float bias = 0)
+        public static uvec4 texture(int column, int length, usampler1DArray sampler, vec2 P, float bias = 0)
             => textureu(sampler.i, P.x, P.y, 0, 0, GetPName.TextureBinding1DArray);
-        public static vec4 texture(sampler2DArray sampler, vec3 P, float bias = 0)
+        public static vec4 texture(int column, int length, sampler2DArray sampler, vec3 P, float bias = 0)
             => texturef(sampler.i, P.x, P.y, P.z, 0, GetPName.TextureBinding2DArray);
-        public static ivec4 texture(isampler2DArray sampler, vec3 P, float bias = 0)
+        public static ivec4 texture(int column, int length, isampler2DArray sampler, vec3 P, float bias = 0)
             => texturei(sampler.i, P.x, P.y, P.z, 0, GetPName.TextureBinding2DArray);
-        public static uvec4 texture(usampler2DArray sampler, vec3 P, float bias = 0)
+        public static uvec4 texture(int column, int length, usampler2DArray sampler, vec3 P, float bias = 0)
             => textureu(sampler.i, P.x, P.y, P.z, 0, GetPName.TextureBinding2DArray);
-        public static vec4 texture(samplerCubeArray sampler, vec4 P, float bias = 0) { return new vec4(0); }
-        public static ivec4 texture(isamplerCubeArray sampler, vec4 P, float bias = 0) { return new ivec4(0); }
-        public static uvec4 texture(usamplerCubeArray sampler, vec4 P, float bias = 0) { return new uvec4(0); }
-        public static vec4 texture(sampler1DArrayShadow sampler, vec3 P, float bias = 0) { return new vec4(0); }
-        public static vec4 texture(sampler2DArrayShadow sampler, vec4 P, float bias = 0) { return new vec4(0); }
-        public static ivec4 texture(isampler2DArrayShadow sampler, vec4 P, float bias = 0) { return new ivec4(0); }
-        public static uvec4 texture(usampler2DArrayShadow sampler, vec4 P, float bias = 0) { return new uvec4(0); }
-        public static vec4 texture(sampler2DRect sampler, vec2 P)
+        public static vec4 texture(int column, int length, samplerCubeArray sampler, vec4 P, float bias = 0) { return new vec4(0); }
+        public static ivec4 texture(int column, int length, isamplerCubeArray sampler, vec4 P, float bias = 0) { return new ivec4(0); }
+        public static uvec4 texture(int column, int length, usamplerCubeArray sampler, vec4 P, float bias = 0) { return new uvec4(0); }
+        public static vec4 texture(int column, int length, sampler1DArrayShadow sampler, vec3 P, float bias = 0) { return new vec4(0); }
+        public static vec4 texture(int column, int length, sampler2DArrayShadow sampler, vec4 P, float bias = 0) { return new vec4(0); }
+        public static ivec4 texture(int column, int length, isampler2DArrayShadow sampler, vec4 P, float bias = 0) { return new ivec4(0); }
+        public static uvec4 texture(int column, int length, usampler2DArrayShadow sampler, vec4 P, float bias = 0) { return new uvec4(0); }
+        public static vec4 texture(int column, int length, sampler2DRect sampler, vec2 P)
             => texturef(sampler.i, P.x, P.y, 0, 0, GetPName.TextureBindingRectangle);
-        public static ivec4 texture(isampler2DRect sampler, vec2 P)
+        public static ivec4 texture(int column, int length, isampler2DRect sampler, vec2 P)
             => texturei(sampler.i, P.x, P.y, 0, 0, GetPName.TextureBindingRectangle);
-        public static uvec4 texture(usampler2DRect sampler, vec2 P)
+        public static uvec4 texture(int column, int length, usampler2DRect sampler, vec2 P)
             => textureu(sampler.i, P.x, P.y, 0, 0, GetPName.TextureBindingRectangle);
-        public static vec4 texture(sampler2DRectShadow sampler, vec3 P) { return new vec4(0); }
-        public static vec4 texture(samplerCubeArrayShadow sampler, vec4 P, float compare) { return new vec4(0); }
-        public static ivec4 texture(isamplerCubeArrayShadow sampler, vec4 P, float compare) { return new ivec4(0); }
-        public static uvec4 texture(usamplerCubeArrayShadow sampler, vec4 P, float compare) { return new uvec4(0); }
+        public static vec4 texture(int column, int length, sampler2DRectShadow sampler, vec3 P) { return new vec4(0); }
+        public static vec4 texture(int column, int length, samplerCubeArrayShadow sampler, vec4 P, float compare) { return new vec4(0); }
+        public static ivec4 texture(int column, int length, isamplerCubeArrayShadow sampler, vec4 P, float compare) { return new ivec4(0); }
+        public static uvec4 texture(int column, int length, usamplerCubeArrayShadow sampler, vec4 P, float compare) { return new uvec4(0); }
 
         private static vec4 texturef(int sampler, float x, float y, float z, int lod, GetPName binding)
             => new vec4(texture<float>(sampler, x, y, z, lod, binding, PixelType.Float));
@@ -184,79 +184,79 @@ namespace App.Glsl
 
         #region Texel Fetch
 
-        public static vec4 texelFetch(sampler1D sampler, int P, int lod)
+        public static vec4 texelFetch(int column, int length, sampler1D sampler, int P, int lod)
             => new vec4(texelFetch<float>(sampler.i, P, 0, 0, lod,
                 GetPName.TextureBinding1D, PixelType.Float));
-        public static vec4 texelFetch(sampler2D sampler, ivec2 P, int lod)
+        public static vec4 texelFetch(int column, int length, sampler2D sampler, ivec2 P, int lod)
             => new vec4(texelFetch<float>(sampler.i, P.x, P.y, 0, lod,
                 GetPName.TextureBinding2D, PixelType.Float));
-        public static vec4 texelFetch(sampler3D sampler, ivec3 P, int lod)
+        public static vec4 texelFetch(int column, int length, sampler3D sampler, ivec3 P, int lod)
             => new vec4(texelFetch<float>(sampler.i, P.x, P.y, P.z, lod,
                 GetPName.TextureBinding3D, PixelType.Float));
-        public static vec4 texelFetch(sampler2DRect sampler, ivec2 P)
+        public static vec4 texelFetch(int column, int length, sampler2DRect sampler, ivec2 P)
             => new vec4(texelFetch<float>(sampler.i, P.x, P.y, 0, 0,
                 GetPName.TextureBindingRectangle, PixelType.Float));
-        public static vec4 texelFetch(sampler1DArray sampler, ivec2 P, int lod)
+        public static vec4 texelFetch(int column, int length, sampler1DArray sampler, ivec2 P, int lod)
             => new vec4(texelFetch<float>(sampler.i, P.x, P.y, 0, lod,
                 GetPName.TextureBinding1DArray, PixelType.Float));
-        public static vec4 texelFetch(sampler2DArray sampler, ivec3 P, int lod)
+        public static vec4 texelFetch(int column, int length, sampler2DArray sampler, ivec3 P, int lod)
             => new vec4(texelFetch<float>(sampler.i, P.x, P.y, P.z, lod,
                 GetPName.TextureBinding2DArray, PixelType.Float));
-        public static vec4 texelFetch(samplerBuffer sampler, int P)
+        public static vec4 texelFetch(int column, int length, samplerBuffer sampler, int P)
             => new vec4(texelFetch<float>(sampler.i, P, 0, 0, 0,
                 GetPName.TextureBindingBuffer, PixelType.Float));
-        public static vec4 texelFetch(sampler2DMS sampler, ivec2 P, int sample) { return new vec4(0); }
-        public static vec4 texelFetch(sampler2DMSArray sampler, ivec3 P, int sample) { return new vec4(0); }
+        public static vec4 texelFetch(int column, int length, sampler2DMS sampler, ivec2 P, int sample) { return new vec4(0); }
+        public static vec4 texelFetch(int column, int length, sampler2DMSArray sampler, ivec3 P, int sample) { return new vec4(0); }
 
 
-        public static ivec4 texelFetch(isampler1D sampler, int P, int lod)
+        public static ivec4 texelFetch(int column, int length, isampler1D sampler, int P, int lod)
             => new ivec4(texelFetch<int>(sampler.i, P, 0, 0, lod,
                 GetPName.TextureBinding1D, PixelType.Int));
-        public static ivec4 texelFetch(isampler2D sampler, ivec2 P, int lod)
+        public static ivec4 texelFetch(int column, int length, isampler2D sampler, ivec2 P, int lod)
             => new ivec4(texelFetch<int>(sampler.i, P.x, P.y, 0, lod,
                 GetPName.TextureBinding2D, PixelType.Int));
-        public static ivec4 texelFetch(isampler3D sampler, ivec3 P, int lod)
+        public static ivec4 texelFetch(int column, int length, isampler3D sampler, ivec3 P, int lod)
             => new ivec4(texelFetch<int>(sampler.i, P.x, P.y, P.z, lod,
                 GetPName.TextureBinding3D, PixelType.Int));
-        public static ivec4 texelFetch(isampler2DRect sampler, ivec2 P)
+        public static ivec4 texelFetch(int column, int length, isampler2DRect sampler, ivec2 P)
             => new ivec4(texelFetch<int>(sampler.i, P.x, P.y, 0, 0,
                 GetPName.TextureBindingRectangle, PixelType.Int));
-        public static ivec4 texelFetch(isampler1DArray sampler, ivec2 P, int lod)
+        public static ivec4 texelFetch(int column, int length, isampler1DArray sampler, ivec2 P, int lod)
             => new ivec4(texelFetch<int>(sampler.i, P.x, P.y, 0, lod,
                 GetPName.TextureBinding1DArray, PixelType.Int));
-        public static ivec4 texelFetch(isampler2DArray sampler, ivec3 P, int lod)
+        public static ivec4 texelFetch(int column, int length, isampler2DArray sampler, ivec3 P, int lod)
             => new ivec4(texelFetch<int>(sampler.i, P.x, P.y, P.z, lod,
                 GetPName.TextureBinding2DArray, PixelType.Int));
-        public static ivec4 texelFetch(isamplerBuffer sampler, int P)
+        public static ivec4 texelFetch(int column, int length, isamplerBuffer sampler, int P)
             => new ivec4(texelFetch<int>(sampler.i, P, 0, 0, 0,
                 GetPName.TextureBindingBuffer, PixelType.Int));
-        public static ivec4 texelFetch(isampler2DMS sampler, ivec2 P, int sample) { return new ivec4(0); }
-        public static ivec4 texelFetch(isampler2DMSArray sampler, ivec3 P, int sample) { return new ivec4(0); }
+        public static ivec4 texelFetch(int column, int length, isampler2DMS sampler, ivec2 P, int sample) { return new ivec4(0); }
+        public static ivec4 texelFetch(int column, int length, isampler2DMSArray sampler, ivec3 P, int sample) { return new ivec4(0); }
 
 
-        public static uvec4 texelFetch(usampler1D sampler, int P, int lod)
+        public static uvec4 texelFetch(int column, int length, usampler1D sampler, int P, int lod)
             => new uvec4(texelFetch<uint>(sampler.i, P, 0, 0, lod,
                 GetPName.TextureBinding1D, PixelType.UnsignedInt));
-        public static uvec4 texelFetch(usampler2D sampler, ivec2 P, int lod)
+        public static uvec4 texelFetch(int column, int length, usampler2D sampler, ivec2 P, int lod)
             => new uvec4(texelFetch<uint>(sampler.i, P.x, P.y, 0, lod,
                 GetPName.TextureBinding2D, PixelType.UnsignedInt));
-        public static uvec4 texelFetch(usampler3D sampler, ivec3 P, int lod)
+        public static uvec4 texelFetch(int column, int length, usampler3D sampler, ivec3 P, int lod)
             => new uvec4(texelFetch<uint>(sampler.i, P.x, P.y, P.z, lod,
                 GetPName.TextureBinding3D, PixelType.UnsignedInt));
-        public static uvec4 texelFetch(usampler2DRect sampler, ivec2 P)
+        public static uvec4 texelFetch(int column, int length, usampler2DRect sampler, ivec2 P)
             => new uvec4(texelFetch<uint>(sampler.i, P.x, P.y, 0, 0,
                 GetPName.TextureBindingRectangle, PixelType.UnsignedInt));
-        public static uvec4 texelFetch(usampler1DArray sampler, ivec2 P, int lod)
+        public static uvec4 texelFetch(int column, int length, usampler1DArray sampler, ivec2 P, int lod)
             => new uvec4(texelFetch<uint>(sampler.i, P.x, P.y, 0, lod,
                 GetPName.TextureBinding1DArray, PixelType.UnsignedInt));
-        public static uvec4 texelFetch(usampler2DArray sampler, ivec3 P, int lod)
+        public static uvec4 texelFetch(int column, int length, usampler2DArray sampler, ivec3 P, int lod)
             => new uvec4(texelFetch<uint>(sampler.i, P.x, P.y, P.z, lod,
                 GetPName.TextureBinding2DArray, PixelType.UnsignedInt));
-        public static uvec4 texelFetch(usamplerBuffer sampler, int P)
+        public static uvec4 texelFetch(int column, int length, usamplerBuffer sampler, int P)
             => new uvec4(texelFetch<uint>(sampler.i, P, 0, 0, 0,
                 GetPName.TextureBindingBuffer, PixelType.UnsignedInt));
-        public static uvec4 texelFetch(usampler2DMS sampler, ivec2 P, int sample) { return new uvec4(0); }
-        public static uvec4 texelFetch(usampler2DMSArray sampler, ivec3 P, int sample) { return new uvec4(0); }
+        public static uvec4 texelFetch(int column, int length, usampler2DMS sampler, ivec2 P, int sample) { return new uvec4(0); }
+        public static uvec4 texelFetch(int column, int length, usampler2DMSArray sampler, ivec3 P, int sample) { return new uvec4(0); }
 
         private static T[] texelFetch<T>(int sampler, int x, int y, int z, int lod, GetPName binding, PixelType type)
             where T : struct

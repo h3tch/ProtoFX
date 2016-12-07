@@ -102,6 +102,18 @@ namespace System
         /// <returns></returns>
         public static string Subrange(this string s, int start, int end)
             => s.Substring(start, end - start);
+
+        public static int LastIndexOfAny(this string s, string[] strings, int startIndex)
+        {
+            int index = int.MaxValue;
+            foreach (var str in strings)
+            {
+                int i = s.LastIndexOf(str, startIndex);
+                if (i >= 0)
+                    index = Math.Min(index, i);
+            }
+            return index != int.MaxValue ? index : -1;
+        }
     }
 
 }
