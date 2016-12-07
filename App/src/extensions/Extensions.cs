@@ -179,36 +179,17 @@ namespace App
             }
         }
 
-
+        /// <summary>
+        /// Convert MatchCollection to an array.
+        /// </summary>
+        /// <param name="matches"></param>
+        /// <returns></returns>
         public static IEnumerable<Match> ToArray(this MatchCollection matches)
         {
             foreach (Match match in matches)
                 yield return match;
         }
-
-        public static IEnumerable<Match> NextSortedMatch(this IEnumerable<IEnumerator<Match>> matches, bool leftToRight = false)
-        {
-            matches.Select(x => x.MoveNext());
-            matches = matches.Where(x => x.Current != null);
-
-            for (matches = matches.Where(x => x.Current != null); 
-                matches.Count() > 0;
-                matches = matches.Where(x => x.Current != null))
-            {
-                IEnumerator<Match> best = null;
-                foreach (var match in matches)
-                {
-                    var bestInx = best == null ? 0 : best.Current.Index;
-                    if (leftToRight ? bestInx < match.Current.Index : match.Current.Index < bestInx)
-                        best = match;
-                }
-                yield return best.Current;
-                best.MoveNext();
-            }
-        }
-
-        public static bool IsNull(this IEnumerator iter) => iter.Current != null;
-
+        
         public static Dictionary<string, Type> str2type = new Dictionary<string, Type>
         {
             {"bool"    , typeof(bool)   },

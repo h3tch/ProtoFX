@@ -451,10 +451,21 @@ namespace App.Glsl
                 }
             }
 
+            /// <summary>
+            /// Find all function calls.
+            /// </summary>
+            /// <param name="text"></param>
+            /// <param name="funcNames"></param>
+            /// <returns></returns>
             public static IEnumerable<Match> FindFunctionCalls(string text, string[] funcNames)
-                => SortMatches(funcNames.Select(x => RegEx.FuncCall(x).Matches(text).ToArray()));
+                => SortMatches(funcNames.Select(x => RegEx.FuncCall(x).Matches(text).ToArray()), true);
 
-            public static IEnumerable<Match> SortMatches(IEnumerable<IEnumerable<Match>> collections)
+            /// <summary>
+            /// Sort regex matches.
+            /// </summary>
+            /// <param name="collections"></param>
+            /// <returns></returns>
+            public static IEnumerable<Match> SortMatches(IEnumerable<IEnumerable<Match>> collections, bool rightToLeft = false)
             {
                 int best;
                 var matches = collections.Where(x => x.Count() > 0).Select(x => x.ToArray()).ToArray();
@@ -464,7 +475,7 @@ namespace App.Glsl
                 {
                     for (int j = 0; j < matches.Length; j++)
                     {
-                        if (i[j] < c[j] && matches[best][i[best]].Index < matches[j][i[j]].Index)
+                        if (i[j] < c[j] && (matches[best][i[best]].Index < matches[j][i[j]].Index) == rightToLeft)
                             best = j;
                     }
                     yield return matches[best][i[best]];
