@@ -48,18 +48,18 @@ namespace App.Glsl
 
         public static vec4 operator +(vec4 a) => new vec4(a.x, a.y, a.z, a.w);
         public static vec4 operator -(vec4 a) => new vec4(-a.x, -a.y, -a.z, -a.w);
-        public static vec4 operator +(vec4 a, vec4 b) => Shader.TraceFunction(new vec4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w), a, b);
-        public static vec4 operator +(vec4 a, float b) => Shader.TraceFunction(new vec4(a.x + b, a.y + b, a.z + b, a.w + b), a, b);
-        public static vec4 operator +(float a, vec4 b) => Shader.TraceFunction(new vec4(a + b.x, a + b.y, a + b.z, a + b.w), a, b);
-        public static vec4 operator -(vec4 a, vec4 b) => Shader.TraceFunction(new vec4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w), a, b);
-        public static vec4 operator -(vec4 a, float b) => Shader.TraceFunction(new vec4(a.x - b, a.y - b, a.z - b, a.w - b), a, b);
-        public static vec4 operator -(float a, vec4 b) => Shader.TraceFunction(new vec4(a - b.x, a - b.y, a - b.z, a - b.w), a, b);
-        public static vec4 operator *(vec4 a, vec4 b) => Shader.TraceFunction(new vec4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w), a, b);
-        public static vec4 operator *(vec4 a, float b) => Shader.TraceFunction(new vec4(a.x * b, a.y * b, a.z * b, a.w * b), a, b);
-        public static vec4 operator *(float a, vec4 b) => Shader.TraceFunction(new vec4(a * b.x, a * b.y, a * b.z, a * b.w), a, b);
-        public static vec4 operator /(vec4 a, vec4 b) => Shader.TraceFunction(new vec4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w), a, b);
-        public static vec4 operator /(vec4 a, float b) => Shader.TraceFunction(new vec4(a.x / b, a.y / b, a.z / b, a.w / b), a, b);
-        public static vec4 operator /(float a, vec4 b) => Shader.TraceFunction(new vec4(a / b.x, a / b.y, a / b.z, a / b.w), a, b);
+        public static vec4 operator +(vec4 a, vec4 b) => new vec4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+        public static vec4 operator +(vec4 a, float b) => new vec4(a.x + b, a.y + b, a.z + b, a.w + b);
+        public static vec4 operator +(float a, vec4 b) => new vec4(a + b.x, a + b.y, a + b.z, a + b.w);
+        public static vec4 operator -(vec4 a, vec4 b) => new vec4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+        public static vec4 operator -(vec4 a, float b) => new vec4(a.x - b, a.y - b, a.z - b, a.w - b);
+        public static vec4 operator -(float a, vec4 b) => new vec4(a - b.x, a - b.y, a - b.z, a - b.w);
+        public static vec4 operator *(vec4 a, vec4 b) => new vec4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
+        public static vec4 operator *(vec4 a, float b) => new vec4(a.x * b, a.y * b, a.z * b, a.w * b);
+        public static vec4 operator *(float a, vec4 b) => new vec4(a * b.x, a * b.y, a * b.z, a * b.w);
+        public static vec4 operator /(vec4 a, vec4 b) => new vec4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w);
+        public static vec4 operator /(vec4 a, float b) => new vec4(a.x / b, a.y / b, a.z / b, a.w / b);
+        public static vec4 operator /(float a, vec4 b) => new vec4(a / b.x, a / b.y, a / b.z, a / b.w);
 
         #endregion
 
@@ -451,18 +451,18 @@ namespace App.Glsl
 
         public static dvec4 operator +(dvec4 a) => new dvec4(a.x, a.y, a.z, a.w);
         public static dvec4 operator -(dvec4 a) => new dvec4(-a.x, -a.y, -a.z, -a.w);
-        public static dvec4 operator +(dvec4 a, dvec4 b) => Shader.TraceFunction(new dvec4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w), a, b);
-        public static dvec4 operator +(dvec4 a, double b) => Shader.TraceFunction(new dvec4(a.x + b, a.y + b, a.z + b, a.w + b), a, b);
-        public static dvec4 operator +(double a, dvec4 b) => Shader.TraceFunction(new dvec4(a + b.x, a + b.y, a + b.z, a + b.w), a, b);
-        public static dvec4 operator -(dvec4 a, dvec4 b) => Shader.TraceFunction(new dvec4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w), a, b);
-        public static dvec4 operator -(dvec4 a, double b) => Shader.TraceFunction(new dvec4(a.x - b, a.y - b, a.z - b, a.w - b), a, b);
-        public static dvec4 operator -(double a, dvec4 b) => Shader.TraceFunction(new dvec4(a - b.x, a - b.y, a - b.z, a - b.w), a, b);
-        public static dvec4 operator *(dvec4 a, dvec4 b) => Shader.TraceFunction(new dvec4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w), a, b);
-        public static dvec4 operator *(dvec4 a, double b) => Shader.TraceFunction(new dvec4(a.x * b, a.y * b, a.z * b, a.w * b), a, b);
-        public static dvec4 operator *(double a, dvec4 b) => Shader.TraceFunction(new dvec4(a * b.x, a * b.y, a * b.z, a * b.w), a, b);
-        public static dvec4 operator /(dvec4 a, dvec4 b) => Shader.TraceFunction(new dvec4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w), a, b);
-        public static dvec4 operator /(dvec4 a, double b) => Shader.TraceFunction(new dvec4(a.x / b, a.y / b, a.z / b, a.w / b), a, b);
-        public static dvec4 operator /(double a, dvec4 b) => Shader.TraceFunction(new dvec4(a / b.x, a / b.y, a / b.z, a / b.w), a, b);
+        public static dvec4 operator +(dvec4 a, dvec4 b) => new dvec4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+        public static dvec4 operator +(dvec4 a, double b) => new dvec4(a.x + b, a.y + b, a.z + b, a.w + b);
+        public static dvec4 operator +(double a, dvec4 b) => new dvec4(a + b.x, a + b.y, a + b.z, a + b.w);
+        public static dvec4 operator -(dvec4 a, dvec4 b) => new dvec4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+        public static dvec4 operator -(dvec4 a, double b) => new dvec4(a.x - b, a.y - b, a.z - b, a.w - b);
+        public static dvec4 operator -(double a, dvec4 b) => new dvec4(a - b.x, a - b.y, a - b.z, a - b.w);
+        public static dvec4 operator *(dvec4 a, dvec4 b) => new dvec4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
+        public static dvec4 operator *(dvec4 a, double b) => new dvec4(a.x * b, a.y * b, a.z * b, a.w * b);
+        public static dvec4 operator *(double a, dvec4 b) => new dvec4(a * b.x, a * b.y, a * b.z, a * b.w);
+        public static dvec4 operator /(dvec4 a, dvec4 b) => new dvec4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w);
+        public static dvec4 operator /(dvec4 a, double b) => new dvec4(a.x / b, a.y / b, a.z / b, a.w / b);
+        public static dvec4 operator /(double a, dvec4 b) => new dvec4(a / b.x, a / b.y, a / b.z, a / b.w);
 
         #endregion
 

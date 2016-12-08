@@ -130,30 +130,6 @@ namespace App.Glsl
 
         #endregion
 
-        #region Debug Trace
-        
-        /// <summary>
-        /// Generate debug trace for a variable.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="value"></param>
-        /// <param name="valueName"></param>
-        /// <returns></returns>
-        public static T TraceVariable<T>(int column, int length, T value, string valueName)
-            => Debugger.Trace(TraceInfoType.Variable, column, length, valueName, value, null);
-
-        /// <summary>
-        /// Generate debug trace for a function.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="output"></param>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static T TraceFunction<T>(T output, params object[] input)
-            => Debugger.Trace(TraceInfoType.Function, -1, 0, null, output, input);
-        
-        #endregion
-
         #region Process Shader Fields
 
         private delegate void ProcessField(object obj, FieldInfo field, string prefix);
@@ -346,6 +322,26 @@ namespace App.Glsl
             => GetType().GetField(field, Instance | Public | NonPublic)?.GetCustomAttribute<T>();
 
         #endregion
+
+        /// <summary>
+        /// Generate debug trace for a variable.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="valueName"></param>
+        /// <returns></returns>
+        public static T TraceVariable<T>(Location location, T value, string valueName)
+            => Debugger.Trace(TraceInfoType.Variable, location, valueName, value);
+
+        /// <summary>
+        /// Generate debug trace for a function.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="output"></param>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static T TraceFunction<T>(Location location, T value, string funcName)
+            => Debugger.Trace(TraceInfoType.Function, location, funcName, value);
 
         public abstract void main();
 

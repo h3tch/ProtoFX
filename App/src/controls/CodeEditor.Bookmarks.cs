@@ -75,6 +75,12 @@ namespace ScintillaNET
         public void AddExecutionMarker(int line)
             => Lines[line].MarkerAdd(EXE_LINE_MARKER);
 
+        public void RemoveExecutionMarker()
+        {
+            for (int i = 0; i < Lines.Count; i++)
+                Lines[i].MarkerDelete(EXE_LINE_MARKER);
+        }
+
         public void RemoveExecutionMarker(int line)
             => Lines[line].MarkerDelete(EXE_LINE_MARKER);
 

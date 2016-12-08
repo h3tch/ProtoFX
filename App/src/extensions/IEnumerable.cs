@@ -14,7 +14,7 @@ namespace System.Collections.Generic
         /// <returns></returns>
         public static int IndexOf<T>(this IEnumerable<T> ie, Func<T, bool> func, int startIndex = 0)
         {
-            int i = 0;
+            int i = startIndex;
             foreach (var e in ie.Skip(startIndex))
             {
                 if (func(e))

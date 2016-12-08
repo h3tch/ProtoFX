@@ -47,25 +47,25 @@ namespace App.Glsl
 
         public static mat2 operator *(mat2 a, mat2 b)
         {
-            return Shader.TraceFunction(new mat2(
+            return new mat2(
                 a[0][0] * b[0][0] + a[1][0] * b[0][1],
                 a[0][0] * b[1][0] + a[1][0] * b[1][1],
                 a[0][1] * b[0][0] + a[1][1] * b[0][1],
-                a[0][1] * b[1][0] + a[1][1] * b[1][1]), a, b);
+                a[0][1] * b[1][0] + a[1][1] * b[1][1]);
         }
 
         public static vec2 operator *(mat2 a, vec2 b)
         {
-            return Shader.TraceFunction(new vec2(
+            return new vec2(
                 a[0][0] * b[0] + a[1][0] * b[1],
-                a[0][1] * b[0] + a[1][1] * b[1]), a, b);
+                a[0][1] * b[0] + a[1][1] * b[1]);
         }
 
         public static vec2 operator *(vec2 a, mat2 b)
         {
-            return Shader.TraceFunction(new vec2(
+            return new vec2(
                 a[0] * b[0][0] + a[1] * b[0][1],
-                a[0] * b[1][0] + a[1] * b[1][1]), a, b);
+                a[0] * b[1][0] + a[1] * b[1][1]);
         }
 
         #endregion
@@ -116,25 +116,25 @@ namespace App.Glsl
 
         public static dmat2 operator *(dmat2 a, dmat2 b)
         {
-            return Shader.TraceFunction(new dmat2(
+            return new dmat2(
                 a[0][0] * b[0][0] + a[1][0] * b[0][1],
                 a[0][0] * b[1][0] + a[1][0] * b[1][1],
                 a[0][1] * b[0][0] + a[1][1] * b[0][1],
-                a[0][1] * b[1][0] + a[1][1] * b[1][1]), a, b);
+                a[0][1] * b[1][0] + a[1][1] * b[1][1]);
         }
 
         public static dvec2 operator *(dmat2 a, dvec2 b)
         {
-            return Shader.TraceFunction(new dvec2(
+            return new dvec2(
                 a[0][0] * b[0] + a[1][0] * b[1],
-                a[0][1] * b[0] + a[1][1] * b[1]), a, b);
+                a[0][1] * b[0] + a[1][1] * b[1]);
         }
 
         public static dvec2 operator *(dvec2 a, dmat2 b)
         {
-            return Shader.TraceFunction(new dvec2(
+            return new dvec2(
                 a[0] * b[0][0] + a[1] * b[0][1],
-                a[0] * b[1][0] + a[1] * b[1][1]), a, b);
+                a[0] * b[1][0] + a[1] * b[1][1]);
         }
 
         #endregion

@@ -18,14 +18,20 @@ namespace App.Glsl
         {
             public static readonly string Word = @"\b[\w\d_]+\b";
             public static readonly string InOut = "(in|out)";
-            public static readonly string ArrayBraces = Helpers.RegexMatchingBrace(@"\[",@"\]");
-            public static readonly string FunctionBraces = Helpers.RegexMatchingBrace(@"\(",@"\)");
-            public static readonly string BodyBraces = Helpers.RegexMatchingBrace(@"\{",@"\}");
+            public static readonly string ArrayBraces = MatchingBrace(@"\[",@"\]");
+            public static readonly string FunctionBraces = MatchingBrace(@"\(",@"\)");
+            public static readonly string BodyBraces = MatchingBrace(@"\{",@"\}");
             public static readonly string Array = $"{Word}\\s*{ArrayBraces}";
             public static readonly string WordOrArray = $"{Word}\\s*({ArrayBraces})?";
             public static readonly string Layout = $"\\blayout\\s*{FunctionBraces}";
             public static readonly string InOutLayout = $"\\blayout\\s*\\(.*\\)\\s*{InOut}\\s*;";
             public static readonly string Const = @"\bconst\s+\w+\s+[\w\d]+\s*=\s*[\w\d.]+;";
+            public static string MatchingBrace(string open, string close)
+            {
+                var oc = $"{open}{close}";
+                return $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
+                    $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}";
+            }
         }
         
         private static class RegEx
@@ -95,8 +101,7 @@ namespace App.Glsl
                 + $"{body}}}}}";
             return code;
         }
-
-
+        
         #region Methods to Process Shaders
 
         /// <summary>
@@ -323,11 +328,11 @@ namespace App.Glsl
                     {
                         // variable
                         var varname = variable.Value.Trim();
-                        var column = variable.Index - body.LastIndexOf('\n', variable.Index);
+                        var column = variable.Index - body.LastIndexOf('\n', variable.Index) - 1;
                         // add debug trace function
                         body = body
                             .Insert(variable.Index + varname.Length, $", \"{varname}\")")
-                            .Insert(variable.Index, $"TraceVariable({column}, {varname.Length}, ");
+                            .Insert(variable.Index, $"TraceVariable(new Location({column}, {varname.Length}), ");
                         if (!variables.MoveNext())
                             variables = null;
                     }
@@ -335,10 +340,10 @@ namespace App.Glsl
                     {
                         // function
                         var braceIdx = function.Value.IndexOf('(') + 1;
-                        var column = function.Index - body.LastIndexOf('\n', function.Index);
+                        var column = function.Index - body.LastIndexOf('\n', function.Index) - 1;
                         // add debug trace function
                         body = body
-                            .Insert(function.Index + braceIdx, $"{column}, {function.Length}, ");
+                            .Insert(function.Index + braceIdx, $"new Location({column}, {function.Length}), ");
                         if (!functions.MoveNext())
                             functions = null;
                     }
@@ -412,13 +417,9 @@ namespace App.Glsl
 
         static class Helpers
         {
-            public static string RegexMatchingBrace(string open, string close)
-            {
-                var oc = $"{open}{close}";
-                return  $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
-                    $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}";
-            }
-            
+            /// <summary>
+            /// Create typecast delegate function.
+            /// </summary>
             public static Func<string, string, string> typecast = delegate(string text, string type)
             {
                 var match = Regex.Matches(text, @"\b" + type + @"\(.*\)");
@@ -467,19 +468,22 @@ namespace App.Glsl
             /// <returns></returns>
             public static IEnumerable<Match> SortMatches(IEnumerable<IEnumerable<Match>> collections, bool rightToLeft = false)
             {
-                int best;
-                var matches = collections.Where(x => x.Count() > 0).Select(x => x.ToArray()).ToArray();
-                int[] i = new int[matches.Length], c = matches.Select(x => x.Length).ToArray();
+                // convert match collection to arrays
+                var matches = (from x in collections where x.Count() > 0 select x.ToArray()).ToArray();
+                var i = new int[matches.Length];
+                var count = matches.Select(x => x.Length).ToArray();
 
-                while ((best = i.Zip(c, (x, y) => x < y).IndexOf(x => x)) >= 0)
+                // helper to access the matches
+                Func<int, Match> match = delegate(int a) { return matches[a][i[a]]; };
+                
+                // while there is any match left
+                for (int best = 0; (best = i.Zip(count, (x, y) => x < y).IndexOf(x => x)) >= 0; i[best]++)
                 {
+                    // for all match collections find the next best match
                     for (int j = 0; j < matches.Length; j++)
-                    {
-                        if (i[j] < c[j] && (matches[best][i[best]].Index < matches[j][i[j]].Index) == rightToLeft)
+                        if (i[j] < count[j] && (match(best).Index < match(j).Index) == rightToLeft)
                             best = j;
-                    }
-                    yield return matches[best][i[best]];
-                    i[best]++;
+                    yield return match(best);
                 }
             }
         }

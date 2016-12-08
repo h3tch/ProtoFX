@@ -196,31 +196,64 @@ namespace App
         #region Debug Shader
 
         private Glsl.TraceInfo[] DebugInfo;
-        private int[] DebugLines;
         private int CurrentDebugInfo;
 
         private void DebugStepBreakpoint_Click(object s = null, EventArgs e = null)
-            => DebugGotoNext(CompiledEditor.GetBreakpoints().ToArray());
+        {
+            CurrentDebugInfo = ++CurrentDebugInfo % DebugInfo.Length;
+            var lines = DebugInfo.Skip(CurrentDebugInfo).Select(x => x.Location.Line);
+            var points = CompiledEditor.GetBreakpoints();
+            var union = from line in lines
+                        join point in points on line equals point
+                        select line;
+            if (union.Count() > 0)
+            {
+                var line = union.First();
+                CurrentDebugInfo = DebugInfo.IndexOf(x => x.Location.Line == line, CurrentDebugInfo);
+            }
+            else
+                CurrentDebugInfo = -1;
+            MarkDebugCode();
+        }
 
         private void DebugStepOver_Click(object s = null, EventArgs e = null)
-            => DebugGotoNext(DebugLines);
+        {
+            if (CurrentDebugInfo < 0)
+                CurrentDebugInfo = 0;
+            else
+            {
+                var level = DebugInfo[CurrentDebugInfo].Location.Level;
+                CurrentDebugInfo = ++CurrentDebugInfo % DebugInfo.Length;
+                CurrentDebugInfo = DebugInfo.IndexOf(x => x.Location.Level == level, CurrentDebugInfo);
+            }
+            MarkDebugCode();
+        }
 
         private void DebugStepInto_Click(object s = null, EventArgs e = null)
         {
-            if (CurrentDebugInfo + 1 < DebugInfo.Length)
-                CurrentDebugInfo++;
+            CurrentDebugInfo = ++CurrentDebugInfo % DebugInfo.Length;
+            MarkDebugCode();
         }
 
         private void DebugStart()
         {
             DebugInfo = Glsl.Debugger.DebugTrace.ToArray();
-            Array.Sort(DebugLines = DebugInfo.Select(x => x.Line).Distinct().ToArray());
             CurrentDebugInfo = -1;
             DebugStepBreakpoint_Click();
         }
-        
-        private void DebugGotoNext(int[] validLines)
+
+        private void MarkDebugCode()
         {
+            if (CurrentDebugInfo < 0)
+                return;
+            var trace = DebugInfo[CurrentDebugInfo];
+            var range = new int[2];
+            range[0] = CompiledEditor.Lines[trace.Location.Line].Position + trace.Location.Column;
+            range[1] = range[0] + trace.Location.Length;
+            CompiledEditor.ClearIndicators(CodeEditor.DebugHighlight);
+            CompiledEditor.AddIndicators(CodeEditor.DebugHighlight, new[] { range });
+            CompiledEditor.RemoveExecutionMarker();
+            CompiledEditor.AddExecutionMarker(trace.Location.Line);
         }
         
         /// <summary>

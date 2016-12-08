@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace App.Glsl
 {
@@ -57,15 +56,15 @@ namespace App.Glsl
             if (!CollectDebugData)
                 return;
 
-            var trace = new StackTrace(ex, true);
+            var location = new Location(-1, 0, ex);
+            location.Line += ShaderLineOffset;
+
             var info = new TraceInfo
             {
-                Line = trace.GetFrame(0).GetFileLineNumber() + ShaderLineOffset,
-                Column = trace.GetFrame(0).GetFileColumnNumber(),
+                Location = location,
                 Type = TraceInfoType.Exception,
                 Name = ex.GetType().Name,
                 Output = ex.Message,
-                Input = null,
             };
 
             TraceLog.Add(info);
@@ -83,25 +82,18 @@ namespace App.Glsl
         /// <param name="output"></param>
         /// <param name="input"></param>
         /// <returns></returns>
-        internal static T Trace<T>(TraceInfoType type, int column, int length, string name, T output, params object[] input)
+        internal static T Trace<T>(TraceInfoType type, Location location, string name, T output)
         {
             if (!CollectDebugData)
                 return output;
 
-            var trace = new StackTrace(true);
-            var traceFunc = "Trace" + type.ToString();
-            var idx = trace.GetFrames().IndexOf(x => x.GetMethod()?.Name == traceFunc);
-            var frame = trace.GetFrame(idx + (name == null ? 2 : 1));
+            location.Line += ShaderLineOffset;
 
-            TraceLog.Add(new TraceInfo
-            {
-                Line = frame.GetFileLineNumber() + ShaderLineOffset,
-                Column = column,
-                Length = length,
+            TraceLog.Add(new TraceInfo {
+                Location = location,
                 Type = type,
-                Name = name == null ? trace.GetFrame(idx + 1).GetMethod().Name : name,
+                Name = name,
                 Output = output,
-                Input = input,
             });
 
             return output;
@@ -110,51 +102,33 @@ namespace App.Glsl
         #endregion
     }
 
-    public struct TraceInfo
+    public struct Location
     {
         public int Line;
         public int Column;
         public int Length;
+        public int Level;
+        public Location(int column, int length, Exception ex = null)
+        {
+            var delta = ex != null ? 0 : 1;
+            var trace = ex != null ? new StackTrace(ex, true) : new StackTrace(true);
+            var frame = trace.GetFrame(delta);
+            Column = column < 0 ? frame.GetFileColumnNumber() : column;
+            Length = length;
+            Level = trace.FrameCount - delta;
+            Line = frame.GetFileLineNumber() - 1;
+        }
+    }
+
+    public struct TraceInfo
+    {
+        public Location Location;
         public TraceInfoType Type;
         public string Name;
         public object Output;
-        public object[] Input;
-
         public override string ToString()
-        {
-            switch (Type)
-            {
-                case TraceInfoType.Variable:
-                case TraceInfoType.Exception:
-                    return "[L" + Line + ", C" + Column + "] " + Name + ": " + Output.ToString();
-                case TraceInfoType.Function:
-                    return "[L" + Line + ", C" + Column + "] " + FunctionName;
-            }
-            return "[L" + Line + ", C" + Column + "] " + Name + ": "
-                + Output?.ToString() ?? string.Empty + " = ("
-                + Input?.Select(x => x?.ToString() ?? string.Empty).Cat(", ") ?? string.Empty
-                + ")";
-        }
-
-        private string FunctionName
-        {
-            get
-            {
-                var Out = Output.ToString() + " = ";
-                switch (Name)
-                {
-                    case "op_Addition":
-                        return Out + Input[0].ToString() + " + " + Input[1].ToString();
-                    case "op_Substraction":
-                        return Out + Input[0].ToString() + " + " + Input[1].ToString();
-                    case "op_Multiply":
-                        return Out + Input[0].ToString() + " / " + Input[1].ToString();
-                    case "op_Division":
-                        return Out + Input[0].ToString() + " / " + Input[1].ToString();
-                }
-                return Out + Name + "(" + Input.Select(x => x.ToString()).Cat(", ") + ")";
-            }
-        }
+            => "[L" + Location.Line + ", C" + Location.Column + "] " + Name + ": "
+                + Output.ToString();
     }
 
 }

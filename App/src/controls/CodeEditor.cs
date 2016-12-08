@@ -13,6 +13,7 @@ namespace ScintillaNET
         public bool EnableCodeHints = true;
         private static int HighlightIndicatorIndex = 8;
         public static int DebugIndicatorIndex = 9;
+        public static int DebugHighlight = 10;
         private List<int[]>[] IndicatorRanges;
         private static string HiddenLines = $"{(char)177}";
         private string filename;
