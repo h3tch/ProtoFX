@@ -63,7 +63,7 @@ namespace App.Glsl
                 "bvec3", "ivec3", "uvec3", "vec3", "dvec3",
                 "bvec4", "ivec4", "uvec4", "vec4", "dvec4",
                 "mat2", "dmat2", "mat3", "dmat3", "mat4", "dmat4",
-                "return", "continue", "new", "."
+                "return", "continue", "new", ".", "const"
             };
             DataTypes = datatypes.Concat(datatypes.Select(x => x + "[]")).ToArray();
         }
@@ -71,9 +71,9 @@ namespace App.Glsl
         /// <summary>
         /// Convert GLSL shader to C# code.
         /// </summary>
-        /// <param name="body">GLSL shader.</param>
+        /// <param name="text">GLSL shader.</param>
         /// <returns>Return C# code.</returns>
-        public static string Shader2Class(ShaderType shaderType, string className, string body)
+        public static string Shader2Class(ShaderType shaderType, string className, string text, List<int> indices)
         {
             // get shader class name from shader type
             string shaderClass;
@@ -88,18 +88,91 @@ namespace App.Glsl
                 default: return null;
             }
 
+            // add debug information
+            text = DebugTrace(text, indices);
+
             // invoke all private static methods of this class to convert the body of the shader
             foreach (var method in typeof(Converter).GetMethods(NonPublic | Static))
-                body = (string)method.Invoke(null, new[] { body });
+                if (method.IsDefined(typeof(ExecuteMethod), false))
+                    text = (string)method.Invoke(null, new object[] { text });
 
             // surround by C# class code block
-            var code = "using System; using App.Glsl.SamplerTypes; "
+            var code = "using System; "
+                + "using App.Glsl.SamplerTypes; "
                 + "namespace App.Glsl { "
                 + $"class {className} : {shaderClass} {{ "
                 + $"public {className}() : this(0) {{ }} "
                 + $"public {className}(int l) : base(l) {{ }} "
-                + $"{body}}}}}";
+                + $"{text}}}}}";
             return code;
+        }
+
+        /// <summary>
+        /// Add debug trace methods.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        private static string DebugTrace(string text, List<int> indices)
+        {
+            var debugFunctions = new[] { "texture", "texelFetch" };
+
+            // for all functions in the text, find all variable
+            // accesses and add the respective debug trace function
+            var funcs = Compiler.RegexFunction.Matches(text);
+
+            // process the string from the back to the front
+            for (var i_func = funcs.Count - 1; i_func >= 0; i_func--)
+            {
+                // get the body of the function
+                var func = funcs[i_func];
+                var start = func.Value.IndexOf('{');
+                var body = func.Value.Subrange(start, func.Value.LastIndexOf('}'));
+                var offset = func.Index + start;
+                var length = body.Length;
+
+                // find all variable accesses in the function
+                var variables = FindVariables(body).ToArray().GetEnumerator();
+                // find all function calls in the function
+                var functions = FindFunctionCalls(body, debugFunctions).ToArray().GetEnumerator();
+
+                if (!variables.MoveNext())
+                    variables = null;
+                if (!functions.MoveNext())
+                    functions = null;
+
+                while (variables?.Current != null || functions?.Current != null)
+                {
+                    var variable = (Match)variables?.Current;
+                    var function = (Match)functions?.Current;
+                    if ((variable?.Index ?? int.MinValue) > (function?.Index ?? int.MinValue))
+                    {
+                        // variable
+                        var varname = variable.Value.Trim();
+                        var location = LocatoinCtr(text, indices, offset + variable.Index, variable.Length);
+                        // add debug trace function
+                        body = body
+                            .Insert(variable.Index + varname.Length, $", \"{varname}\")")
+                            .Insert(variable.Index, $"TraceVariable({location}, ");
+                        if (!variables.MoveNext())
+                            variables = null;
+                    }
+                    else if (function != null)
+                    {
+                        // function
+                        var braceIdx = function.Value.IndexOf('(') + 1;
+                        var location = LocatoinCtr(text, indices, offset + function.Index, function.Length);
+                        // add debug trace function
+                        body = body.Insert(function.Index + braceIdx, $"{location}, ");
+                        if (!functions.MoveNext())
+                            functions = null;
+                    }
+                }
+
+                // replace old function body with the new debug code
+                text = text.Remove(offset, length).Insert(offset, body);
+            }
+
+            return text;
         }
         
         #region Methods to Process Shaders
@@ -109,6 +182,7 @@ namespace App.Glsl
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string Version(string text) => Regex.Replace(text, @"#version [0-9]{3}", string.Empty);
 
         /// <summary>
@@ -116,6 +190,7 @@ namespace App.Glsl
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string PredefinedOutputs(string text)
         {
             foreach (Match match in RegEx.PreDefOut.Matches(text))
@@ -132,13 +207,14 @@ namespace App.Glsl
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string TypeCasts(string text)
         {
-            text = Helpers.typecast(text, "bool");
-            text = Helpers.typecast(text, "int");
-            text = Helpers.typecast(text, "uint");
-            text = Helpers.typecast(text, "float");
-            return Helpers.typecast(text, "double");
+            text = typecast(text, "bool");
+            text = typecast(text, "int");
+            text = typecast(text, "uint");
+            text = typecast(text, "float");
+            return typecast(text, "double");
         }
 
         /// <summary>
@@ -146,6 +222,7 @@ namespace App.Glsl
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string InOutLayouts(string text)
         {
             foreach (Match match in RegEx.InOutLayout.Matches(text))
@@ -165,6 +242,7 @@ namespace App.Glsl
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string Constants(string text)
         {
             foreach (Match match in RegEx.Const.Matches(text))
@@ -186,6 +264,7 @@ namespace App.Glsl
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string Buffers(string text)
         {
             // process buffers
@@ -230,6 +309,7 @@ namespace App.Glsl
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string Layouts(string text)
         {
             foreach (Match match in RegEx.Layout.Matches(text))
@@ -242,6 +322,7 @@ namespace App.Glsl
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string Arrays(string text)
         {
             // type name [ . ] ;
@@ -279,88 +360,23 @@ namespace App.Glsl
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string Uniforms(string text) => Regex.Replace(text, @"\buniform\b", "[__uniform]");
-        
+
         /// <summary>
         /// Replace discard keyword with return keyword.
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string Discard(string text) => Regex.Replace(text, @"\bdiscard\b", "return");
-
-        /// <summary>
-        /// Add debug trace methods.
-        /// </summary>
-        /// <param name="text"></param>
-        /// <returns></returns>
-        private static string DebugTrace(string text)
-        {
-            var debugFunctions = new[] { "texture", "texelFetch" };
-
-            // for all functions in the text, find all variable
-            // accesses and add the respective debug trace function
-            var funcs = Compiler.RegexFunction.Matches(text);
-
-            // process the string from the back to the front
-            for (var i_func = funcs.Count - 1; i_func >= 0; i_func--)
-            {
-                // get the body of the function
-                var func = funcs[i_func];
-                var start = func.Value.IndexOf('{');
-                var body = func.Value.Substring(start);
-                var length = body.Length;
-
-                // find all variable accesses in the function
-                var variables = Helpers.FindVariables(body).ToArray().GetEnumerator();
-                // find all function calls in the function
-                var functions = Helpers.FindFunctionCalls(body, debugFunctions).ToArray().GetEnumerator();
-
-                if (!variables.MoveNext())
-                    variables = null;
-                if (!functions.MoveNext())
-                    functions = null;
-
-                while (variables?.Current != null || functions?.Current != null)
-                {
-                    var variable = (Match)variables?.Current;
-                    var function = (Match)functions?.Current;
-                    if ((variable?.Index ?? int.MinValue) > (function?.Index ?? int.MinValue))
-                    {
-                        // variable
-                        var varname = variable.Value.Trim();
-                        var column = variable.Index - body.LastIndexOf('\n', variable.Index) - 1;
-                        // add debug trace function
-                        body = body
-                            .Insert(variable.Index + varname.Length, $", \"{varname}\")")
-                            .Insert(variable.Index, $"TraceVariable(new Location({column}, {varname.Length}), ");
-                        if (!variables.MoveNext())
-                            variables = null;
-                    }
-                    else if (function != null)
-                    {
-                        // function
-                        var braceIdx = function.Value.IndexOf('(') + 1;
-                        var column = function.Index - body.LastIndexOf('\n', function.Index) - 1;
-                        // add debug trace function
-                        body = body
-                            .Insert(function.Index + braceIdx, $"new Location({column}, {function.Length}), ");
-                        if (!functions.MoveNext())
-                            functions = null;
-                    }
-                }
-                
-                // replace old function body with the new debug code
-                text = text.Remove(func.Index + start, length).Insert(func.Index + start, body);
-            }
-
-            return text;
-        }
 
         /// <summary>
         /// Convert GLSL floating point number to C# float.
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string Floats(string text)
         {
             foreach (Match match in RegEx.Float.Matches(text))
@@ -373,6 +389,7 @@ namespace App.Glsl
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string Inputs(string text)
         {
             foreach (Match match in RegEx.InVarying.Matches(text))
@@ -390,6 +407,7 @@ namespace App.Glsl
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string Outputs(string text) => Regex.Replace(text, @"\bout\b", "[__out]");
 
         /// <summary>
@@ -397,6 +415,7 @@ namespace App.Glsl
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string Flat(string text) => Regex.Replace(text, @"\bflat\b", "[__flat]");
 
         /// <summary>
@@ -404,6 +423,7 @@ namespace App.Glsl
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string Smooth(string text) => Regex.Replace(text, @"\bsmooth\b", "[__smooth]");
 
         /// <summary>
@@ -411,81 +431,105 @@ namespace App.Glsl
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
+        [ExecuteMethod]
         private static string MainFunc(string text) => Regex.Replace(text, @"\bvoid\s+main\b", "public override void main");
 
         #endregion
 
-        static class Helpers
+        #region Helpers
+
+        /// <summary>
+        /// Create Location structure constructor string.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="indices"></param>
+        /// <param name="index"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        private static string LocatoinCtr(string text, List<int> indices, int index, int length)
         {
-            /// <summary>
-            /// Create typecast delegate function.
-            /// </summary>
-            public static Func<string, string, string> typecast = delegate(string text, string type)
+            var id = text.LastIndexOf('\n', index);
+            var line = text.LineFromPosition(index);
+            var column = id >= 0 ? indices[index] - indices[id] - 1 : 0;
+            return $"new Location({line}, {column}, {length})";
+        }
+
+        /// <summary>
+        /// Create typecast delegate function.
+        /// </summary>
+        private static Func<string, string, string> typecast = delegate(string text, string type)
+        {
+            var match = Regex.Matches(text, @"\b" + type + @"\(.*\)");
+            for (int i = match.Count - 1; i >= 0; i--)
+                text = text.Insert(match[i].Index + type.Length, ")").Insert(match[i].Index, "(");
+            return text;
+        };
+
+        /// <summary>
+        /// Find all variable accesses.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        private static IEnumerable<Match> FindVariables(string text)
+        {
+            double tmp;
+
+            // for each accessed variable
+            foreach (Match variable in RegEx.Variable.Matches(text))
             {
-                var match = Regex.Matches(text, @"\b" + type + @"\(.*\)");
-                for (int i = match.Count - 1; i >= 0; i--)
-                    text = text.Insert(match[i].Index + type.Length, ")").Insert(match[i].Index, "(");
-                return text;
-            };
-            
-            /// <summary>
-            /// Find all variable accesses.
-            /// </summary>
-            /// <param name="text"></param>
-            /// <returns></returns>
-            public static IEnumerable<Match> FindVariables(string text)
-            {
-                double tmp;
-
-                // for each accessed variable
-                foreach (Match variable in RegEx.Variable.Matches(text))
-                {
-                    // get variable information
-                    var varname = variable.Value.Trim();
-                    var vartype = text.Word(text.IndexOfWord(variable.Index, -1));
-                    var invalidChar = RegEx.Operation.Match(text, variable.Index + variable.Length);
-                    // make sure this is a variable and not a function, type or number
-                    if (!DataTypes.Any(x => x == varname || x == vartype)
-                        && !double.TryParse(varname, out tmp)
-                        && !(invalidChar.Success && invalidChar.Index == variable.Index + variable.Length))
-                        yield return variable;
-                }
-            }
-
-            /// <summary>
-            /// Find all function calls.
-            /// </summary>
-            /// <param name="text"></param>
-            /// <param name="funcNames"></param>
-            /// <returns></returns>
-            public static IEnumerable<Match> FindFunctionCalls(string text, string[] funcNames)
-                => SortMatches(funcNames.Select(x => RegEx.FuncCall(x).Matches(text).ToArray()), true);
-
-            /// <summary>
-            /// Sort regex matches.
-            /// </summary>
-            /// <param name="collections"></param>
-            /// <returns></returns>
-            public static IEnumerable<Match> SortMatches(IEnumerable<IEnumerable<Match>> collections, bool rightToLeft = false)
-            {
-                // convert match collection to arrays
-                var matches = (from x in collections where x.Count() > 0 select x.ToArray()).ToArray();
-                var i = new int[matches.Length];
-                var count = matches.Select(x => x.Length).ToArray();
-
-                // helper to access the matches
-                Func<int, Match> match = delegate(int a) { return matches[a][i[a]]; };
-                
-                // while there is any match left
-                for (int best = 0; (best = i.Zip(count, (x, y) => x < y).IndexOf(x => x)) >= 0; i[best]++)
-                {
-                    // for all match collections find the next best match
-                    for (int j = 0; j < matches.Length; j++)
-                        if (i[j] < count[j] && (match(best).Index < match(j).Index) == rightToLeft)
-                            best = j;
-                    yield return match(best);
-                }
+                // get variable information
+                var varname = variable.Value.Trim();
+                var vartype = text.Word(text.IndexOfWord(variable.Index, -1));
+                var invalidChar = RegEx.Operation.Match(text, variable.Index + variable.Length);
+                // make sure this is a variable and not a function, type or number
+                if (!DataTypes.Any(x => x == varname || x == vartype)
+                    && !double.TryParse(varname, out tmp)
+                    && !(invalidChar.Success && invalidChar.Index == variable.Index + variable.Length))
+                    yield return variable;
             }
         }
+
+        /// <summary>
+        /// Find all function calls.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="funcNames"></param>
+        /// <returns></returns>
+        private static IEnumerable<Match> FindFunctionCalls(string text, string[] funcNames)
+            => SortMatches(funcNames.Select(x => RegEx.FuncCall(x).Matches(text).ToArray()), true);
+
+        /// <summary>
+        /// Sort regex matches.
+        /// </summary>
+        /// <param name="collections"></param>
+        /// <returns></returns>
+        private static IEnumerable<Match> SortMatches(IEnumerable<IEnumerable<Match>> collections, bool rightToLeft = false)
+        {
+            // convert match collection to arrays
+            var matches = (from x in collections where x.Count() > 0 select x.ToArray()).ToArray();
+            var i = new int[matches.Length];
+            var count = matches.Select(x => x.Length).ToArray();
+
+            // helper to access the matches
+            Func<int, Match> match = delegate (int a) { return matches[a][i[a]]; };
+
+            // while there is any match left
+            for (int best = 0; (best = i.Zip(count, (x, y) => x < y).IndexOf(x => x)) >= 0; i[best]++)
+            {
+                // for all match collections find the next best match
+                for (int j = 0; j < matches.Length; j++)
+                    if (i[j] < count[j] && (match(best).Index < match(j).Index) == rightToLeft)
+                        best = j;
+                yield return match(best);
+            }
+        }
+
+        /// <summary>
+        /// Marks a method to be executed by the GLSL to C# converter.
+        /// </summary>
+        [AttributeUsage(AttributeTargets.Method)]
+        private class ExecuteMethod : Attribute { }
+
+        #endregion
     }
 }

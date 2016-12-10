@@ -54,7 +54,7 @@ namespace App
 
             if (debugging)
             {
-                var code = Converter.Shader2Class(ShaderType, name, block.Body);
+                var code = Converter.Shader2Class(ShaderType, name, block.Body, block.BodyIndex);
                 var rs = GLCsharp.CompileFilesOrSource(new[] { code }, null, block, err, new[] { name });
                 if (rs.Errors.Count == 0)
                     DebugShader = (Shader)rs.CompiledAssembly.CreateInstance(

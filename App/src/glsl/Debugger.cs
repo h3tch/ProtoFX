@@ -56,7 +56,7 @@ namespace App.Glsl
             if (!CollectDebugData)
                 return;
 
-            var location = new Location(-1, 0, ex);
+            var location = new Location(-1, -1, 0, ex);
             location.Line += ShaderLineOffset;
 
             var info = new TraceInfo
@@ -108,7 +108,7 @@ namespace App.Glsl
         public int Column;
         public int Length;
         public int Level;
-        public Location(int column, int length, Exception ex = null)
+        public Location(int line, int column, int length, Exception ex = null)
         {
             var delta = ex != null ? 0 : 1;
             var trace = ex != null ? new StackTrace(ex, true) : new StackTrace(true);
@@ -116,7 +116,7 @@ namespace App.Glsl
             Column = column < 0 ? frame.GetFileColumnNumber() : column;
             Length = length;
             Level = trace.FrameCount - delta;
-            Line = frame.GetFileLineNumber() - 1;
+            Line = line < 0 ? frame.GetFileLineNumber() : line;
         }
     }
 
