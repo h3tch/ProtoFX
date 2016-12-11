@@ -12,10 +12,9 @@ namespace ScintillaNET
         #region FIELDS
 
         private bool DisableEditing = false;
-        private Pen grayPen;
-        private Pen dashedPen;
-        private Size lineSize;
-        public static int NewLineHelper = 100;
+        private Pen FoldingPen;
+        private int LineHeight;
+        public static int DefaultEdgeColumn = 80;
 
         #endregion
 
@@ -39,16 +38,16 @@ namespace ScintillaNET
             KeyDown += HandleKeyDown;
             InsertCheck += HandleInsertCheck;
             CharAdded += HandleCharAdded;
-            
             Painted += HandlePainted;
 
-            // create default pens
-            grayPen = new Pen(Brushes.Gray);
-            dashedPen = new Pen(Brushes.LightGray);
-            dashedPen.DashPattern = new[] { 3f, 6f };
+            //// create default pens
+            FoldingPen = new Pen(Theme.ForeColor);
 
             // measure default line size
-            lineSize = TextRenderer.MeasureText(new string('/', NewLineHelper), Font);
+            EdgeColumn = DefaultEdgeColumn;
+            EdgeMode = EdgeMode.Line;
+            EdgeColor = Theme.WorkspaceHighlight;
+            LineHeight = TextRenderer.MeasureText("/", Font).Height;
         }
 
         #endregion
@@ -300,9 +299,9 @@ namespace ScintillaNET
         private void HandlePainted(object s, EventArgs e)
         {
             var g = CreateGraphics();
-
+            
             // draw indicator lines where code has been folded
-            g.DrawLine(dashedPen, new Point(lineSize.Width, 0), new Point(lineSize.Width, Height));
+            //g.DrawLine(dashedPen, new Point(lineSize.Width, 0), new Point(lineSize.Width, Height));
 
             // for all visible lines
             for (int from = FirstVisibleLine, to = LastVisibleLine, i = from; i < to; i++)
@@ -318,8 +317,8 @@ namespace ScintillaNET
                 // draw indicator line below the current line
                 var x1 = PointXFromPosition(Lines[i].Position + Math.Max(0, wsStart));
                 var x2 = PointXFromPosition(Lines[i].EndPosition - wsEnd);
-                var y = PointYFromPosition(Lines[i].Position) + lineSize.Height - 1;
-                g.DrawLine(grayPen, x1, y, x2, y);
+                var y = PointYFromPosition(Lines[i].Position) + LineHeight - 1;
+                g.DrawLine(FoldingPen, x1, y, x2, y);
             }
         }
 

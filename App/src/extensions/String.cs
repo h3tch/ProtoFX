@@ -5,20 +5,6 @@ namespace System
     public static class StringExtensions
     {
         /// <summary>
-        /// Find first match of two matching braces.
-        /// </summary>
-        /// <param name="s">extend string class</param>
-        /// <param name="open">opening brace character</param>
-        /// <param name="close">closing brace character</param>
-        /// <returns>Returns the first brace match.</returns>
-        public static Match BraceMatch(this string s, char open, char close)
-        {
-            string oc = $"{open}{close}";
-            return Regex.Match(s, $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
-                $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
-        }
-
-        /// <summary>
         /// Get zero based line index from the zero based character position.
         /// </summary>
         /// <param name="s">extend string class</param>
@@ -44,54 +30,23 @@ namespace System
 
             return lineCount;
         }
-
+        
         /// <summary>
-        /// Get the start position of the word before or after the current position.
+        /// Get index of the next non whitespace character.
         /// </summary>
         /// <param name="s"></param>
-        /// <param name="startIndex">Start searching from this position.</param>
-        /// <param name="ignoreWordCount">The number of words to ignore before
-        /// returning the word position. If positive, the next words will be
-        /// processed. If negative, the preceding words will be processed. If
-        /// zero, the start position of the current word will be returned.</param>
-        /// <returns>Returns the start position of the indicated word.</returns>
-        public static int IndexOfWord(this string s, int startIndex, int ignoreWordCount = 1)
+        /// <param name="startIndex"></param>
+        /// <param name="step"></param>
+        /// <returns></returns>
+        public static int NextNonWhitespace(this string s, int startIndex = 0, int step = 1)
         {
-            var step = ignoreWordCount <= 0 ? -1 : 1;
-
-            // skip specified number of words
-            for (var count = Math.Abs(ignoreWordCount); count != 0; count--)
-            {
-                // while inside the word
-                for (; 0 <= startIndex && startIndex < s.Length; startIndex += step)
-                    if (char.IsWhiteSpace(s[startIndex]))
-                        break;
-                // while a whitespace
-                for (; 0 <= startIndex && startIndex < s.Length; startIndex += step)
-                    if (!char.IsWhiteSpace(s[startIndex]))
-                        break;
-            }
-
-            // goto the start index of the word
-            for (int next = startIndex - 1; 0 <= next && next < s.Length; startIndex = next, next--)
-                if (char.IsWhiteSpace(s[next]))
-                    break;
-
-            return startIndex;
+            step = Math.Sign(step);
+            for (int i = startIndex; step > 0 ? i < s.Length : i >= 0; i += step)
+                if (!char.IsWhiteSpace(s[i]))
+                    return i;
+            return -1;
         }
-
-        public static string Word(this string s, int position)
-        {
-            int start = position;
-            while (start > 0 && !char.IsWhiteSpace(s[start - 1]))
-                start--;
-            int end = start;
-            while (end < s.Length && !char.IsWhiteSpace(s[end]))
-                end++;
-
-            return s.Subrange(Math.Max(0, start), Math.Min(s.Length, end));
-        }
-
+        
         /// <summary>
         /// The sub range of the string beginning at the zero based start index
         /// and ending at the zero based end index.
@@ -102,18 +57,6 @@ namespace System
         /// <returns></returns>
         public static string Subrange(this string s, int start, int end)
             => s.Substring(start, end - start);
-
-        public static int LastIndexOfAny(this string s, string[] strings, int startIndex)
-        {
-            int index = int.MaxValue;
-            foreach (var str in strings)
-            {
-                int i = s.LastIndexOf(str, startIndex);
-                if (i >= 0)
-                    index = Math.Min(index, i);
-            }
-            return index != int.MaxValue ? index : -1;
-        }
     }
 
 }

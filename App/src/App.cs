@@ -873,7 +873,7 @@ namespace App
                     SplitRenderOutput = (float)app.splitRenderOutput.SplitterDistance / app.splitRenderOutput.Height,
                     SplitDebugPerf = (float)app.splitDebugPerf.SplitterDistance / app.splitDebugPerf.Width,
                     SplitDebug = (float)app.splitDebug.SplitterDistance / app.splitDebug.Width,
-                    NewLineHelper = CodeEditor.NewLineHelper,
+                    NewLineHelper = CodeEditor.DefaultEdgeColumn,
                     ThemeXml = Theme.Name + ".xml",
                 };
             }
@@ -943,7 +943,7 @@ namespace App
                 // select 'float' as the default buffer value type
                 app.comboBufType.SelectedIndex = 8;
                 // change new line helper position
-                CodeEditor.NewLineHelper = NewLineHelper;
+                CodeEditor.DefaultEdgeColumn = NewLineHelper;
             }
         }
 

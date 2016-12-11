@@ -12,7 +12,7 @@ namespace App.Glsl
     {
         #region Regex
 
-        private static readonly string[] DataTypes;
+        private static readonly string[] InvalidVariableNames;
 
         private static class Pattern
         {
@@ -36,8 +36,8 @@ namespace App.Glsl
         
         private static class RegEx
         {
-            public static Regex Operation = new Regex(@"\s*(=|\*=|/=|\+=|\-=|\+\+|\-\-|\(|\))");
-            public static Regex Variable = new Regex($"(?<!\\.){Pattern.WordOrArray}(\\s*\\.\\s*{Pattern.WordOrArray})*", RegexOptions.RightToLeft);
+            public static Regex Operator = new Regex(@"\s*(=|\*=|/=|\+=|\-=|\+\+|\-\-|\(|\))");
+            public static Regex Variable = new Regex($"((\\+\\+|\\-\\-)\\s*)?(?<!\\.){Pattern.WordOrArray}(\\s*\\.\\s*{Pattern.WordOrArray})*(\\+\\+|\\-\\-)?", RegexOptions.RightToLeft);
             public static Regex Buffer = new Regex($"({Pattern.Layout}\\s*)?{Pattern.Word}\\s+{Pattern.Word}\\s*{Pattern.BodyBraces}\\s*{Pattern.Word}({Pattern.ArrayBraces})?;", RegexOptions.Singleline | RegexOptions.RightToLeft);
             public static Regex Layout = new Regex(Pattern.Layout, RegexOptions.RightToLeft);
             public static Regex Word = new Regex(Pattern.Word);
@@ -57,15 +57,9 @@ namespace App.Glsl
         static Converter()
         {
             // initialize the list of GLSL data types
-            var datatypes = new[] {
-                "bool", "int", "uint", "float", "double",
-                "bvec2", "ivec2", "uvec2", "vec2", "dvec2",
-                "bvec3", "ivec3", "uvec3", "vec3", "dvec3",
-                "bvec4", "ivec4", "uvec4", "vec4", "dvec4",
-                "mat2", "dmat2", "mat3", "dmat3", "mat4", "dmat4",
-                "return", "continue", "new", ".", "const"
+            InvalidVariableNames = new[] {
+                "return", "discard", "continue"
             };
-            DataTypes = datatypes.Concat(datatypes.Select(x => x + "[]")).ToArray();
         }
 
         /// <summary>
@@ -148,7 +142,7 @@ namespace App.Glsl
                     {
                         // variable
                         var varname = variable.Value.Trim();
-                        var location = LocatoinCtr(text, indices, offset + variable.Index, variable.Length);
+                        var location = LocatoinCtr(text, indices, offset + variable.Index, varname.Length);
                         // add debug trace function
                         body = body
                             .Insert(variable.Index + varname.Length, $", \"{varname}\")")
@@ -473,19 +467,35 @@ namespace App.Glsl
         private static IEnumerable<Match> FindVariables(string text)
         {
             double tmp;
+            text += '\0';
 
             // for each accessed variable
             foreach (Match variable in RegEx.Variable.Matches(text))
             {
-                // get variable information
-                var varname = variable.Value.Trim();
-                var vartype = text.Word(text.IndexOfWord(variable.Index, -1));
-                var invalidChar = RegEx.Operation.Match(text, variable.Index + variable.Length);
-                // make sure this is a variable and not a function, type or number
-                if (!DataTypes.Any(x => x == varname || x == vartype)
-                    && !double.TryParse(varname, out tmp)
-                    && !(invalidChar.Success && invalidChar.Index == variable.Index + variable.Length))
-                    yield return variable;
+                // do not trace numbers
+                if (double.TryParse(variable.Value, out tmp))
+                    continue;
+
+                // get preceding and next char
+                var name = variable.Value.Trim();
+                int preci = text.NextNonWhitespace(variable.Index - 1, -1);
+                var prec = preci < 0 ? (char)0 : text[preci];
+                int nexti = text.NextNonWhitespace(variable.Index + variable.Length);
+                var next = nexti < 0 ? "\0\0" : text.Substring(nexti, 2);
+
+                // If there is a space between two words this is a
+                // variable definition which we do not want to trace.
+                if (char.IsLetterOrDigit(prec) || char.IsLetterOrDigit(next[0]) ||
+                    // is a function name
+                    next[0] == '(' ||
+                    // is an invalid operator
+                    (next[0] == '=' && next[1] != '=') || (next[1] == '=' && next[0] != '=') ||
+                    // is an invalid name
+                    InvalidVariableNames.Any(x => x == name))
+                    // do not return this variable
+                    continue;
+
+                yield return variable;
             }
         }
 
