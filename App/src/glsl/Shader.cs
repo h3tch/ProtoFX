@@ -230,8 +230,17 @@ namespace App.Glsl
         {
             // If this is a input-stream or uniform-buffer structure or class 
             if (field.FieldType.IsClass)
-                // process fields of the object
-                ProcessFields(field.GetValue(obj), ProcessInField, null, $"{prefix}{field.Name}.");
+            {
+                if (field.FieldType.IsArray)
+                {
+                    var array = (Array)field.GetValue(obj);
+                    for (int i = 0; i < array.Length; i++)
+                        ProcessFields(array.GetValue(i), ProcessInField, null, $"{prefix}{field.Name}[{i}].");
+                }
+                else
+                    // process fields of the object
+                    ProcessFields(field.GetValue(obj), ProcessInField, null, $"{prefix}{field.Name}.");
+            }
             else
                 // else load input stream data
                 field.SetValue(obj, GetInputVarying(prefix + field.Name, field.FieldType));
@@ -299,7 +308,7 @@ namespace App.Glsl
             foreach (var prop in props)
             {
                 // has out qualifier and the respective name
-                if (prop.GetCustomAttribute(typeof(__out)) != null && prop.Name == varyingName)
+                if (prop.IsDefined(typeof(__out)) && prop.Name == varyingName)
                     return prop.GetValue(this);
             }
 
@@ -308,7 +317,7 @@ namespace App.Glsl
             foreach (var field in fields)
             {
                 // has out qualifier and the respective name
-                if (field.GetCustomAttribute(typeof(__out)) != null && field.Name == varyingName)
+                if (field.IsDefined(typeof(__out)) && field.Name == varyingName)
                     return field.GetValue(this);
             }
 

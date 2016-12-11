@@ -248,12 +248,19 @@ namespace App
                 return;
             var trace = DebugInfo[CurrentDebugInfo];
             var range = new int[2];
+
+            // highlight current debug variable
             range[0] = CompiledEditor.Lines[trace.Location.Line].Position + trace.Location.Column;
             range[1] = range[0] + trace.Location.Length;
             CompiledEditor.ClearIndicators(CodeEditor.DebugHighlight);
             CompiledEditor.AddIndicators(CodeEditor.DebugHighlight, new[] { range });
+
+            // place execution marker
             CompiledEditor.RemoveExecutionMarker();
             CompiledEditor.AddExecutionMarker(trace.Location.Line);
+
+            // scroll debug variable into view
+            CompiledEditor.ScrollRange(range[0], range[1]);
         }
         
         /// <summary>
