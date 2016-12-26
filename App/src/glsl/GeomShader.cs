@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace App.Glsl
 {
@@ -25,7 +26,6 @@ namespace App.Glsl
         [__out] protected vec4 gl_Position;
         [__out] protected float gl_PointSize;
         [__out] protected float[] gl_ClipDistance;
-        private VertShader VertShader => (VertShader)Prev.Prev.Prev;
 
 #pragma warning restore 0649
 #pragma warning restore 0169
@@ -42,6 +42,17 @@ namespace App.Glsl
         }
 
         #endregion
+
+        private VertShader VertexShader
+        {
+            get
+            {
+                for (var prev = Prev; prev != null; prev = Prev)
+                    if (prev is VertShader)
+                        return (VertShader)prev;
+                return null;
+            }
+        }
 
         /// <summary>
         /// Execute shader and generate debug trace
@@ -72,8 +83,8 @@ namespace App.Glsl
             DebugGetError(new StackTrace(true));
 
             // set shader input
-            GetVertexShaderOutput(primitiveID, instanceID);
             ProcessFields(this);
+            GetVertexShaderOutput(primitiveID, instanceID);
 
             // get input qualifier
             var layout = GetQualifier<__layout>("__in__");
@@ -105,6 +116,7 @@ namespace App.Glsl
         {
             if (DrawCall?.cmd?.Count == 0)
                 return;
+            var vertexShader = VertexShader;
 
             // set shader input
             gl_PrimitiveIDIn = primitiveID;
@@ -117,14 +129,33 @@ namespace App.Glsl
             {
                 // compute vertex shader output
                 var vertexID = Convert.ToInt32(patch.GetValue(i));
-                VertShader.Execute(vertexID, instanceID);
-                // set geometry shader input varyings
-                gl_in[i].gl_Position = VertShader.GetOutputVarying<vec4>("gl_Position");
-                gl_in[i].gl_PointSize = VertShader.GetOutputVarying<float>("gl_PointSize");
-                var clipDistance = VertShader.GetOutputVarying<float[]>("gl_ClipDistance");
+                vertexShader.Execute(vertexID, instanceID);
+                // set geometry shader built in input varyings
+                gl_in[i].gl_Position = vertexShader.GetOutputVarying<vec4>("gl_Position");
+                gl_in[i].gl_PointSize = vertexShader.GetOutputVarying<float>("gl_PointSize");
+                var clipDistance = vertexShader.GetOutputVarying<float[]>("gl_ClipDistance");
                 for (int j = 0; j < clipDistance.Length; j++)
                     gl_in[i].gl_ClipDistance[j] = clipDistance[j];
+                // set geometry shader user input varyings
+                ProcessFields(this, ProcessInField, new[] { typeof(__in) }, i);
             }
+        }
+
+        private void ProcessInField(object obj, FieldInfo field, object index)
+        {
+            // get input varying type
+            var type = field.FieldType;
+
+            // if this is an array, get the respective output varying
+            // and place in at the current index of the array
+            if (type.IsArray)
+            {
+                type = type.GetElementType();
+                var array = field.GetValue(obj) as Array;
+                array.SetValue(GetInputVarying(type, type.IsClass ? null : field.Name), (int)index);
+            }
+            else
+                field.SetValue(obj, GetInputVarying(type, type.IsClass ? null : field.Name));
         }
 
         /// <summary>

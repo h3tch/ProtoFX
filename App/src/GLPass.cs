@@ -122,12 +122,27 @@ namespace App
                     }
                     else
                     {
+                        Shader prev =
                         dbgvert = (VertShader)glvert.DebugShader;
-                        dbgtess = (TessShader)gltess?.DebugShader ?? new TessShader();
-                        dbgeval = (EvalShader)gleval?.DebugShader ?? new EvalShader();
-                        dbggeom = (GeomShader)glgeom?.DebugShader ?? new GeomShader();
-                        dbgfrag = (FragShader)glfrag?.DebugShader ?? new FragShader();
-                        (((dbgfrag.Prev = dbggeom).Prev = dbgeval).Prev = dbgtess).Prev = dbgvert;
+                        dbgtess = (TessShader)gltess?.DebugShader;
+                        dbgeval = (EvalShader)gleval?.DebugShader;
+                        dbggeom = (GeomShader)glgeom?.DebugShader;
+                        dbgfrag = (FragShader)glfrag?.DebugShader;
+                        if (dbgtess != null)
+                        {
+                            dbgtess.Prev = prev;
+                            prev = dbgtess;
+                        }
+                        if (dbgeval != null)
+                        {
+                            dbgeval.Prev = prev;
+                            prev = dbgeval;
+                        }
+                        if (dbggeom != null)
+                        {
+                            dbggeom.Prev = prev;
+                            prev = dbggeom;
+                        }
                     }
                 }
             }
@@ -243,10 +258,10 @@ namespace App
                     else if (dbgvert != null)
                     {
                         dbgvert.Debug();
-                        dbgtess.Debug();
-                        dbgeval.Debug();
-                        dbggeom.Debug();
-                        dbgfrag.Debug();
+                        dbgtess?.Debug();
+                        dbgeval?.Debug();
+                        dbggeom?.Debug();
+                        dbgfrag?.Debug();
                     }
                 }
                 catch (Exception e)

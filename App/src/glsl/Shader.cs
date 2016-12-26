@@ -132,7 +132,7 @@ namespace App.Glsl
 
         #region Process Shader Fields
 
-        private delegate void ProcessField(object obj, FieldInfo field, string prefix);
+        protected delegate void ProcessField(object obj, FieldInfo field, object user);
 
         /// <summary>
         /// Process all fields of the shader.
@@ -143,23 +143,21 @@ namespace App.Glsl
         {
             // allocate field data
             ProcessFields(obj, AllocField, new[] { typeof(__in), typeof(__out), typeof(__uniform) });
-            // load input fields
-            ProcessFields(obj, ProcessInField, new[] { typeof(__in) });
             // load uniform fields
             ProcessFields(obj, ProcessUniformField, new[] { typeof(__uniform) });
         }
 
-        private void ProcessFields(object obj, ProcessField func, Type[] attrType = null, string prefix = "")
+        protected void ProcessFields(object obj, ProcessField func, Type[] attrType = null, object user = null)
         {
             // for all non static fields of the object
             foreach (var field in obj.GetType().GetFields(Public | NonPublic | Instance))
                 // check if a valid attribute is defined for the field
                 if (attrType?.Any(x => field.IsDefined(x)) ?? true)
                     // process field
-                    func(obj, field, prefix);
+                    func(obj, field, user);
         }
 
-        private void AllocField(object obj, FieldInfo field, string unused = null)
+        private void AllocField(object obj, FieldInfo field, object unused = null)
         {
             // if the field is a primitive, there
             // is nothing to be allocated
@@ -226,29 +224,10 @@ namespace App.Glsl
                 ProcessFields(value, AllocField);
         }
 
-        private void ProcessInField(object obj, FieldInfo field, string prefix)
-        {
-            // If this is a input-stream or uniform-buffer structure or class 
-            if (field.FieldType.IsClass)
-            {
-                if (field.FieldType.IsArray)
-                {
-                    var array = (Array)field.GetValue(obj);
-                    for (int i = 0; i < array.Length; i++)
-                        ProcessFields(array.GetValue(i), ProcessInField, null, $"{prefix}{field.Name}[{i}].");
-                }
-                else
-                    // process fields of the object
-                    ProcessFields(field.GetValue(obj), ProcessInField, null, $"{prefix}{field.Name}.");
-            }
-            else
-                // else load input stream data
-                field.SetValue(obj, GetInputVarying(prefix + field.Name, field.FieldType));
-        }
-
-        private void ProcessUniformField(object obj, FieldInfo field, string prefix)
+        private void ProcessUniformField(object obj, FieldInfo field, object user)
         {
             var type = field.FieldType;
+            var prefix = user as string;
             // If this is a input-stream or uniform-buffer structure or class 
             if (type.IsClass)
             {
@@ -287,12 +266,8 @@ namespace App.Glsl
         /// <typeparam name="T"></typeparam>
         /// <param name="varyingName"></param>
         /// <returns></returns>
-        public virtual object GetInputVarying(string varyingName, Type type)
-        {
-            return Prev != null ? Prev?.GetOutputVarying(varyingName, type) : Activator.CreateInstance(type);
-        }
-
-        public T GetInputVarying<T>(string varyingName) => (T)GetInputVarying(varyingName, typeof(T));
+        public virtual object GetInputVarying(Type type, string varyingName = null)
+            => Prev?.GetOutputVarying(type, varyingName) ?? Activator.CreateInstance(type);
 
         /// <summary>
         /// Get the output varying of the shader stage or
@@ -301,31 +276,27 @@ namespace App.Glsl
         /// <typeparam name="T"></typeparam>
         /// <param name="varyingName"></param>
         /// <returns></returns>
-        internal virtual object GetOutputVarying(string varyingName, Type type)
+        internal virtual object GetOutputVarying(Type type, string varyingName)
         {
-            // search properties
-            var props = GetType().GetProperties(NonPublic | Instance);
-            foreach (var prop in props)
-            {
-                // has out qualifier and the respective name
-                if (prop.IsDefined(typeof(__out)) && prop.Name == varyingName)
-                    return prop.GetValue(this);
-            }
-
             // search fields
             var fields = GetType().GetFields(NonPublic | Instance);
             foreach (var field in fields)
             {
                 // has out qualifier and the respective name
-                if (field.IsDefined(typeof(__out)) && field.Name == varyingName)
-                    return field.GetValue(this);
+                if (field.IsDefined(typeof(__out)) && field.FieldType.Name == type.Name)
+                {
+                    if (varyingName != null && field.Name != varyingName)
+                        continue;
+                    return field.GetValue(this).DeepCopy(type);
+                }
             }
 
             // varying could not be found
             return Activator.CreateInstance(type);
         }
 
-        internal T GetOutputVarying<T>(string varyingName) => (T)GetOutputVarying(varyingName, typeof(T));
+        internal T GetOutputVarying<T>(string varyingName = null)
+            => (T)GetOutputVarying(typeof(T), varyingName);
 
         protected T GetQualifier<T>(string field) where T: Attribute
             => GetType().GetField(field, Instance | Public | NonPublic)?.GetCustomAttribute<T>();

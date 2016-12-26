@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 
 namespace App.Glsl
 {
@@ -74,13 +75,19 @@ namespace App.Glsl
             gl_VertexID = vertexID;
             gl_InstanceID = instanceID;
             ProcessFields(this);
+            // load input fields
+            ProcessFields(this, ProcessInField, new[] { typeof(__in) });
             // execute shader
             main();
 
             DebugGetError(new StackTrace(true));
         }
 
-        public override object GetInputVarying(string varyingName, Type type)
+        private void ProcessInField(object obj, FieldInfo field, object unused)
+            // get input varying
+            => field.SetValue(obj, GetInputVarying(field.FieldType, field.Name));
+
+        public override object GetInputVarying(Type type, string varyingName)
         {
             DebugGetError(new StackTrace(true));
 

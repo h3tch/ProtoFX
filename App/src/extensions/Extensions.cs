@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
@@ -10,6 +11,73 @@ namespace App
 {
     public static class ConvertExtensions
     {
+        public static object DeepCopy(this object obj, Type outType = null)
+        {
+            if (obj == null)
+                return null;
+
+            var inType = obj.GetType();
+            if (outType == null)
+                outType = inType;
+
+            // If the type of object is the value type, we will always get a new object when  
+            // the original object is assigned to another variable. So if the type of the  
+            // object is primitive or enum, we just return the object. We will process the  
+            // struct type subsequently because the struct type may contain the reference  
+            // fields. 
+            // If the string variables contain the same chars, they always refer to the same  
+            // string in the heap. So if the type of the object is string, we also return the  
+            // object. 
+            if (inType.IsPrimitive || inType.IsEnum || inType == typeof(string))
+                return inType == outType ? obj : null;
+
+            // If the type of the object is the Array, we use the CreateInstance method to get 
+            // a new instance of the array. We also process recursively this method in the  
+            // elements of the original array because the type of the element may be the reference  
+            // type. 
+            else if (inType.IsArray)
+            {
+                var array = obj as Array;
+                outType = outType.GetElementType();
+                var copy = Array.CreateInstance(outType, array.Length);
+
+                for (int i = 0; i < array.Length; i++)
+                    // Get the deep clone of the element in the original
+                    // array and assign the   clone to the new array. 
+                    copy.SetValue(array.GetValue(i).DeepCopy(outType), i);
+                
+                return copy;
+            }
+
+            // If the type of the object is class or struct, it may contain the reference fields,  
+            // so we use reflection and process recursively this method in the fields of the object  
+            // to get the deep clone of the object.  
+            // We use Type.IsValueType method here because there is no way to indicate directly 
+            // whether  the Type is a struct type. 
+            else if (inType.IsClass || inType.IsValueType)
+            {
+                var copy = Activator.CreateInstance(outType);
+                var flags =
+                    BindingFlags.Public |
+                    BindingFlags.NonPublic |
+                    BindingFlags.Instance;
+
+                // Copy all fields. 
+                var inFields = inType.GetFields(flags);
+                var outFields = outType.GetFields(flags);
+                for (int i = 0; i < inFields.Length; i++)
+                {
+                    var inField = inFields[i];
+                    var outField = outFields[i];
+                    var value = inField.GetValue(obj).DeepCopy(outField.FieldType);
+                    outField.SetValue(copy, value);
+                }
+
+                return copy;
+            }
+            else
+                throw new ArgumentException("The object has an unknown type");
+        }
         /// <summary>
         /// Convert array to byte array.
         /// </summary>
