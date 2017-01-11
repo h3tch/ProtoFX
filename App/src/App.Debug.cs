@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -287,33 +288,7 @@ namespace App
         /// <param name="e"></param>
         private void editor_MouseMove(object s, MouseEventArgs e)
         {
-            // get class references
-            var editor = s as CodeEditor;
-
-            // only update debug information for the compiled editor
-            if (CompiledEditor != editor)
-                return;
-
-            // convert cursor position to text position
-            int pos = editor.CharPositionFromPoint(e.X, e.Y);
-
-            //// get debug variable information from position
-            //var dbgVar = FxDebugger.GetDebugVariableFromPosition(editor, pos);
-            //// no debug variable found
-            //if (dbgVar != null)
-            //{
-            //    // get debug variable value
-            //    var dbgVal = FxDebugger.GetDebugVariableValue(dbgVar.ID, glControl.Frame - 1);
-            //    if (dbgVal != null)
-            //    {
-            //        pos = editor.WordStartPosition(pos, true);
-            //        editor.CallTipShow(pos, FxDebugger.DebugVariableToString(dbgVal));
-            //        editor.EnableCodeHints = false;
-            //        return;
-            //    }
-            //}
-
-            editor.EnableCodeHints = true;
+            //editor_MouseHover(s, e);
         }
 
         /// <summary>
@@ -342,6 +317,33 @@ namespace App
         /// <param name="e"></param>
         private void editor_CancleCallTip(object s, CancleTipEventHandlerArgs e)
             => (s as CodeEditor).PerfTipCancel();
+        
+        private void editor_MouseHover(object s, EventArgs e)
+        {
+            // get class references
+            var editor = s as CodeEditor;
+
+            // only update debug information for the compiled editor
+            if (CompiledEditor != editor)
+                return;
+
+            // convert cursor position to text position
+            var mouse = editor.PointToClient(Cursor.Position);
+            var pos = editor.CharPositionFromPoint(mouse.X, mouse.Y);
+            var line = editor.LineFromPosition(pos);
+            var column = pos - editor.Lines[line].Position;
+            
+            // get debug info for the position
+            var info = editor.GetWordFromPosition(pos)?.Length > 0
+                ? Glsl.Debugger.GetTraceInfo(line, column)
+                : null;
+            
+            if (!(editor.EnableCodeHints = info == null))
+            {
+                editor.CallTipShow(editor.WordStartPosition(pos, true), info?.Output.ToString());
+                Debug.WriteLine("Show call tip");
+            }
+        }
 
         /// <summary>
         /// Show variables of the currently selected line in the editor.

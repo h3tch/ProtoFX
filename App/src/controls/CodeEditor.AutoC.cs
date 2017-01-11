@@ -13,6 +13,7 @@ namespace ScintillaNET
 
         private static CallTip callTip;
         private static CallTip perfTip;
+        private Point LastMouseMovePosition;
 
         #endregion
 
@@ -26,6 +27,9 @@ namespace ScintillaNET
         public event ShowTipEventHandler ShowPerfTip;
         [Category("Behavior"), Description("Occurs when CallTipCancel is called.")]
         public event CancleTipEventHandler CanclePerfTip;
+        public event MouseEventHandler CustomMouseMove;
+        public event EventHandler CustomMouseHover;
+        private Timer HoverTimer = new Timer();
 
         #endregion
 
@@ -37,6 +41,10 @@ namespace ScintillaNET
             AutoCSeparator = '|';
             AutoCMaxHeight = 9;
             MouseMove += HandleMouseMove;
+            MouseLeave += HandleMouseLeave;
+            
+            HoverTimer.Interval = 100;
+            HoverTimer.Tick += HandleMouseHover;
         }
 
         #endregion
@@ -66,12 +74,51 @@ namespace ScintillaNET
         /// <param name="e"></param>
         private void HandleMouseMove(object sender, MouseEventArgs e)
         {
+            // only call custom mouse move events
+            // if the mouse position changes
+            if (LastMouseMovePosition == Cursor.Position)
+                return;
+
+            // call custom mouse move event
+            LastMouseMovePosition = Cursor.Position;
+            CustomMouseMove?.Invoke(this, e);
+
+            // hide call tip on mouse move
+            if (CallTipActive)
+                CallTipCancel();
+
+            // restart hover timer
+            HoverTimer.Stop();
+            HoverTimer.Start();
+        }
+
+        /// <summary>
+        /// On mouse leave restart the hover timer.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleMouseLeave(object sender, EventArgs e) => HoverTimer.Stop();
+        
+        /// <summary>
+        /// Handle mouse hover events.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleMouseHover(object sender, EventArgs e)
+        {
+            // stop hover timer
+            HoverTimer.Stop();
+
+            // call custom hover events
+            CustomMouseHover?.Invoke(this, e);
+
             // check if code hints are enabled
             if (EnableCodeHints == false)
                 return;
 
             // convert cursor position to text position
-            int pos = CharPositionFromPoint(e.X, e.Y);
+            var mouse = PointToClient(Cursor.Position);
+            var pos = CharPositionFromPoint(mouse.X, mouse.Y);
 
             // select keywords using the current text position
             // is the style at that position a valid hint style
@@ -85,14 +132,9 @@ namespace ScintillaNET
                     // get hint for keyword
                     var hint = FxLexer.GetKeywordHint(GetStyleAt(pos), word);
                     if (hint != null)
-                    {
                         CallTipShow(WordStartPosition(pos, true), hint);
-                        return;
-                    }
                 }
             }
-
-            CallTipCancel();
         }
 
         #endregion
@@ -111,6 +153,11 @@ namespace ScintillaNET
         /// Hide call tip.
         /// </summary>
         public new void CallTipCancel() => TipCancel(callTip, CancleCallTip);
+
+        /// <summary>
+        /// Is the call tip tool tip visible.
+        /// </summary>
+        public new bool CallTipActive => callTip?.Visible ?? false;
 
         /// <summary>
         /// Show a performance call tip at the specified text position.
@@ -198,6 +245,7 @@ namespace ScintillaNET
                 return;
 
             tip.Hide();
+            OnMouseLeave(null);
         }
 
         /// <summary>

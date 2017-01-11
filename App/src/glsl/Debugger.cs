@@ -46,7 +46,19 @@ namespace App.Glsl
             CollectDebugData = false;
             ShaderLineOffset = 0;
         }
-        
+
+        public static TraceInfo? GetTraceInfo(int line, int column)
+        {
+            foreach (var info in TraceLog)
+            {
+                if (info.Location.Line == line
+                    && info.Location.Column <= column
+                    && column <= info.Location.EndColumn)
+                    return info;
+            }
+            return null;
+        }
+
         /// <summary>
         /// Generate debug trace for an exception.
         /// </summary>
@@ -108,6 +120,7 @@ namespace App.Glsl
         public int Column;
         public int Length;
         public int Level;
+        public int EndColumn => Column + Length;
         public Location(int line, int column, int length, Exception ex = null)
         {
             var delta = ex != null ? 0 : 1;

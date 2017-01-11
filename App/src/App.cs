@@ -742,10 +742,11 @@ namespace App
             tabSourcePage.UserData = path;
             var editor = new CodeEditor(Properties.Resources.keywordsXML, text);
             editor.Filename = path;
-            editor.UpdateUI += new EventHandler<UpdateUIEventArgs>(editor_UpdateUI);
-            editor.MouseMove += new MouseEventHandler(editor_MouseMove);
-            editor.ShowCallTip += new ShowTipEventHandler(editor_ShowCallTip);
-            editor.CancleCallTip += new CancleTipEventHandler(editor_CancleCallTip);
+            editor.UpdateUI += editor_UpdateUI;
+            editor.MouseMove += editor_MouseMove;
+            editor.ShowCallTip += editor_ShowCallTip;
+            editor.CancleCallTip += editor_CancleCallTip;
+            editor.CustomMouseHover += editor_MouseHover;
 
             // tabSourcePage
             Theme.Apply(tabSourcePage);
