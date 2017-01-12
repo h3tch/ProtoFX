@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -14,7 +15,20 @@ namespace ScintillaNET
         private bool DisableEditing = false;
         private Pen FoldingPen;
         private int LineHeight;
+        private Point LastMouseMovePosition;
+        private Timer HoverTimer = new Timer();
         public static int DefaultEdgeColumn = 80;
+
+        #endregion
+
+        #region ADDITIONAL EVENTS
+
+        [Category("Behavior"), Description("Only occurs when the MouseMove event is raised and the mouse position changed.")]
+        public event MouseEventHandler CustomMouseMove;
+        [Category("Behavior"), Description("Occurs when CallTipCancel is called.")]
+        public event EventHandler CustomMouseHover;
+        [Category("Behavior"), Description("Occurs when the mouse scrolls the editor.")]
+        public event EventHandler MouseScroll;
 
         #endregion
 
@@ -39,6 +53,14 @@ namespace ScintillaNET
             InsertCheck += HandleInsertCheck;
             CharAdded += HandleCharAdded;
             Painted += HandlePainted;
+
+            // handle some events internally to support custom events
+            MouseMove += HandleMouseMove;
+            MouseLeave += HandleMouseLeave;
+
+            // initialize hover timer
+            HoverTimer.Interval = 100;
+            HoverTimer.Tick += HoverTimerEvent;
 
             //// create default pens
             FoldingPen = new Pen(Theme.ForeColor);
@@ -95,10 +117,6 @@ namespace ScintillaNET
                 if (Lines[curLine].Text.Trim() == "}")
                     SetIndent(curLine, GetIndent(curLine) - 4);
             }
-
-            // auto complete
-            if (char.IsLetter((char)e.Char))
-                AutoCShow(CurrentPosition);
         }
 
         /// <summary>
@@ -150,7 +168,8 @@ namespace ScintillaNET
                     break;
                 case UpdateChange.HScroll:
                 case UpdateChange.VScroll:
-                    CallTipCancel();
+                    // call mouse scroll events
+                    MouseScroll?.Invoke(this, e);
                     // update code folding
                     UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
                     break;
@@ -287,8 +306,50 @@ namespace ScintillaNET
             }
         }
 
+        /// <summary>
+        /// Handle mouse move event.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleMouseMove(object sender, MouseEventArgs e)
+        {
+            // only call custom mouse move events
+            // if the mouse position changes
+            if (LastMouseMovePosition == Cursor.Position)
+                return;
+
+            // call custom mouse move event
+            LastMouseMovePosition = Cursor.Position;
+            CustomMouseMove?.Invoke(this, e);
+
+            // restart hover timer
+            HoverTimer.Stop();
+            HoverTimer.Start();
+        }
+
+        /// <summary>
+        /// On mouse leave restart the hover timer.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleMouseLeave(object sender, EventArgs e) => HoverTimer.Stop();
+
+        /// <summary>
+        /// Handle mouse hover events.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HoverTimerEvent(object sender, EventArgs e)
+        {
+            // stop hover timer
+            HoverTimer.Stop();
+
+            // call custom hover events
+            CustomMouseHover?.Invoke(this, e);
+        }
+
         #endregion
-        
+
         #region RENDER EVENTS
 
         /// <summary>
@@ -300,9 +361,6 @@ namespace ScintillaNET
         {
             var g = CreateGraphics();
             
-            // draw indicator lines where code has been folded
-            //g.DrawLine(dashedPen, new Point(lineSize.Width, 0), new Point(lineSize.Width, Height));
-
             // for all visible lines
             for (int from = FirstVisibleLine, to = LastVisibleLine, i = from; i < to; i++)
             {

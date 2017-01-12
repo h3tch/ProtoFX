@@ -13,7 +13,6 @@ namespace ScintillaNET
 
         private static CallTip callTip;
         private static CallTip perfTip;
-        private Point LastMouseMovePosition;
 
         #endregion
 
@@ -27,29 +26,29 @@ namespace ScintillaNET
         public event ShowTipEventHandler ShowPerfTip;
         [Category("Behavior"), Description("Occurs when CallTipCancel is called.")]
         public event CancleTipEventHandler CanclePerfTip;
-        public event MouseEventHandler CustomMouseMove;
-        public event EventHandler CustomMouseHover;
-        private Timer HoverTimer = new Timer();
 
         #endregion
 
         #region CONSTRUCTION
 
+        /// <summary>
+        /// Initialize auto complete functionality.
+        /// </summary>
         public void InitializeAutoC()
         {
             // auto completion settings
             AutoCSeparator = '|';
             AutoCMaxHeight = 9;
-            MouseMove += HandleMouseMove;
-            MouseLeave += HandleMouseLeave;
-            
-            HoverTimer.Interval = 100;
-            HoverTimer.Tick += HandleMouseHover;
+            // handle some events to support call tip functionality
+            CharAdded += AutoCHandleCharAdded;
+            CustomMouseMove += AutoCHandleCustomMouseMove;
+            CustomMouseHover += AutoCMouseHover;
+            MouseScroll += AutoCMouseScroll;
         }
 
         #endregion
 
-        #region SHOW CALLTIP OR AUTOC
+        #region SHOW AND HIDE CALLTIP OR AUTOC
 
         /// <summary>
         /// Show auto complete menu for the specified text position.
@@ -68,50 +67,36 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Wait for char add event to handle auto intent and auto complete.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void AutoCHandleCharAdded(object s, CharAddedEventArgs e)
+        {
+            // auto complete
+            if (char.IsLetter((char)e.Char))
+                AutoCShow(CurrentPosition);
+        }
+
+        /// <summary>
         /// Handle mouse move event.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void HandleMouseMove(object sender, MouseEventArgs e)
+        private void AutoCHandleCustomMouseMove(object sender, MouseEventArgs e)
         {
-            // only call custom mouse move events
-            // if the mouse position changes
-            if (LastMouseMovePosition == Cursor.Position)
-                return;
-
-            // call custom mouse move event
-            LastMouseMovePosition = Cursor.Position;
-            CustomMouseMove?.Invoke(this, e);
-
             // hide call tip on mouse move
             if (CallTipActive)
                 CallTipCancel();
-
-            // restart hover timer
-            HoverTimer.Stop();
-            HoverTimer.Start();
         }
 
-        /// <summary>
-        /// On mouse leave restart the hover timer.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void HandleMouseLeave(object sender, EventArgs e) => HoverTimer.Stop();
-        
         /// <summary>
         /// Handle mouse hover events.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void HandleMouseHover(object sender, EventArgs e)
+        private void AutoCMouseHover(object sender, EventArgs e)
         {
-            // stop hover timer
-            HoverTimer.Stop();
-
-            // call custom hover events
-            CustomMouseHover?.Invoke(this, e);
-
             // check if code hints are enabled
             if (EnableCodeHints == false)
                 return;
@@ -136,6 +121,13 @@ namespace ScintillaNET
                 }
             }
         }
+
+        /// <summary>
+        /// Hide the call tip when the mouse scroll event occurs.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AutoCMouseScroll(object sender, EventArgs e) => CallTipCancel();
 
         #endregion
 

@@ -281,17 +281,6 @@ namespace App
         }
 
         /// <summary>
-        /// On mouse move check whether the mouse hovers over a debug variable.
-        /// If so, show a popup with the variables value (if possible).
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="e"></param>
-        private void editor_MouseMove(object s, MouseEventArgs e)
-        {
-            //editor_MouseHover(s, e);
-        }
-
-        /// <summary>
         /// When the call tip is shown, check whether there
         /// are some performance statistics we can show.
         /// </summary>
@@ -318,6 +307,11 @@ namespace App
         private void editor_CancleCallTip(object s, CancleTipEventHandlerArgs e)
             => (s as CodeEditor).PerfTipCancel();
         
+        /// <summary>
+        /// Show debug information on mouse hover.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
         private void editor_MouseHover(object s, EventArgs e)
         {
             // get class references
@@ -335,14 +329,11 @@ namespace App
             
             // get debug info for the position
             var info = editor.GetWordFromPosition(pos)?.Length > 0
-                ? Glsl.Debugger.GetTraceInfo(line, column)
-                : null;
+                ? Glsl.Debugger.GetTraceInfo(line, column) : null;
             
+            // disable code hints if debug information is shown
             if (!(editor.EnableCodeHints = info == null))
-            {
                 editor.CallTipShow(editor.WordStartPosition(pos, true), info?.Output.ToString());
-                Debug.WriteLine("Show call tip");
-            }
         }
 
         /// <summary>

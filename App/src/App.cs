@@ -743,7 +743,6 @@ namespace App
             var editor = new CodeEditor(Properties.Resources.keywordsXML, text);
             editor.Filename = path;
             editor.UpdateUI += editor_UpdateUI;
-            editor.MouseMove += editor_MouseMove;
             editor.ShowCallTip += editor_ShowCallTip;
             editor.CancleCallTip += editor_CancleCallTip;
             editor.CustomMouseHover += editor_MouseHover;
