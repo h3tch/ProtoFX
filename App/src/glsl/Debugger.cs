@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace App.Glsl
 {
@@ -47,15 +48,32 @@ namespace App.Glsl
             ShaderLineOffset = 0;
         }
 
-        public static TraceInfo? GetTraceInfo(int line, int column)
+        /// <summary>
+        /// Get debug information for the specified position (if there is any).
+        /// </summary>
+        /// <param name="line"></param>
+        /// <param name="column"></param>
+        /// <param name="startInfo"></param>
+        /// <returns></returns>
+        public static TraceInfo? GetTraceInfo(int line, int column, int startInfo = 0)
         {
-            foreach (var info in TraceLog)
+            if (TraceLog.Count == 0)
+                return null;
+
+            int i = Math.Min(Math.Max(0, startInfo), TraceLog.Count);
+
+            var log = line < TraceLog[i].Location.Line
+                || (line == TraceLog[i].Location.Line && column < TraceLog[i].Location.Column)
+                ? TraceLog.Take(i).Reverse()
+                : TraceLog.Skip(Math.Max(i - 1, 0));
+            
+            foreach (var info in log)
             {
-                if (info.Location.Line == line
-                    && info.Location.Column <= column
-                    && column <= info.Location.EndColumn)
+                var l = info.Location;
+                if (l.Line == line && l.Column <= column && column <= l.EndColumn)
                     return info;
             }
+
             return null;
         }
 

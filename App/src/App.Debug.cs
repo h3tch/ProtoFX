@@ -329,7 +329,7 @@ namespace App
             
             // get debug info for the position
             var info = editor.GetWordFromPosition(pos)?.Length > 0
-                ? Glsl.Debugger.GetTraceInfo(line, column) : null;
+                ? Glsl.Debugger.GetTraceInfo(line, column, CurrentDebugInfo) : null;
             
             // disable code hints if debug information is shown
             if (!(editor.EnableCodeHints = info == null))
