@@ -531,7 +531,7 @@ namespace App
             // UPDATE DEBUG INFORMATION IF NECESSARY
             if (debugging)
             {
-                DebugStart();
+                DebugResetInterface();
                 UpdateDebugListView(CompiledEditor);
             }
 

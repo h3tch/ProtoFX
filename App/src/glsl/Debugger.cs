@@ -12,7 +12,11 @@ namespace App.Glsl
         Exception
     }
     
-    public class Debugger
+    /// <summary>
+    /// GLSL debug helper class for tracing
+    /// and retrieving debug information.
+    /// </summary>
+    public static class Debugger
     {
         internal static int ShaderLineOffset = 0;
         internal static bool CollectDebugData = false;
@@ -132,6 +136,9 @@ namespace App.Glsl
         #endregion
     }
 
+    /// <summary>
+    /// Structure to identify a region in the code.
+    /// </summary>
     public struct Location
     {
         public int Line;
@@ -139,6 +146,7 @@ namespace App.Glsl
         public int Length;
         public int Level;
         public int EndColumn => Column + Length;
+
         public Location(int line, int column, int length, Exception ex = null)
         {
             var delta = ex != null ? 0 : 1;
@@ -151,15 +159,40 @@ namespace App.Glsl
         }
     }
 
+    /// <summary>
+    /// Structure to trace debug information.
+    /// </summary>
     public struct TraceInfo
     {
         public Location Location;
         public TraceInfoType Type;
         public string Name;
         public object Output;
-        public override string ToString()
-            => "[L" + Location.Line + ", C" + Location.Column + "] " + Name + ": "
-                + Output.ToString();
+
+        #region Format Output
+
+        private static Func<object, string> FuncFormatMat = 
+            (obj) => '\n' + obj.ToString().Replace("; "," \n");
+
+        private static Dictionary<Type,Func<object, string>> FormatSwitch =
+            new Dictionary<Type,Func<object, string>>
+            {
+                { typeof(mat2), FuncFormatMat },
+                { typeof(mat3), FuncFormatMat },
+                { typeof(mat4), FuncFormatMat },
+            };
+
+        /// <summary>
+        /// Format output to a human readable format.
+        /// </summary>
+        private string FormatedOutput
+            => FormatSwitch.ContainsKey(Output.GetType())
+                ? FormatSwitch[Output.GetType()](Output)
+                : Output.ToString();
+
+        #endregion
+
+        public override string ToString() => $"{Name}: {FormatedOutput}";
     }
 
 }

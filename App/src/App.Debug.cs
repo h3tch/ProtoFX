@@ -199,51 +199,93 @@ namespace App
         private Glsl.TraceInfo[] DebugInfo;
         private int CurrentDebugInfo;
 
+        /// <summary>
+        /// Step to next breakpoint.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
         private void DebugStepBreakpoint_Click(object s = null, EventArgs e = null)
         {
+            // goto next debug info
             CurrentDebugInfo = ++CurrentDebugInfo % DebugInfo.Length;
+
+            // select all debug information after the current line
             var lines = DebugInfo.Skip(CurrentDebugInfo).Select(x => x.Location.Line);
+
+            // get all breakpoints
             var points = CompiledEditor.GetBreakpoints();
+
+            // find all debug information that contains a breakpoint
             var union = from line in lines
                         join point in points on line equals point
                         select line;
+
+            // next debug line found
             if (union.Count() > 0)
             {
                 var line = union.First();
                 CurrentDebugInfo = DebugInfo.IndexOf(x => x.Location.Line == line, CurrentDebugInfo);
             }
+            // no breakpoint found
             else
                 CurrentDebugInfo = -1;
-            MarkDebugCode();
+
+            // update debug interface
+            DebugUpdateInterface();
         }
 
+        /// <summary>
+        /// Step over the function.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
         private void DebugStepOver_Click(object s = null, EventArgs e = null)
         {
             if (CurrentDebugInfo < 0)
+                // goto first debug info (e.g. first press or begin anew)
                 CurrentDebugInfo = 0;
             else
             {
+                // get the current debug level (to prevent stepping into a lover level)
                 var level = DebugInfo[CurrentDebugInfo].Location.Level;
+                // goto next debug info
                 CurrentDebugInfo = ++CurrentDebugInfo % DebugInfo.Length;
+                // goto next debug info in the same level
                 CurrentDebugInfo = DebugInfo.IndexOf(x => x.Location.Level == level, CurrentDebugInfo);
             }
-            MarkDebugCode();
+
+            // update debug interface
+            DebugUpdateInterface();
         }
 
+        /// <summary>
+        /// Step into the function.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
         private void DebugStepInto_Click(object s = null, EventArgs e = null)
         {
+            // goto next debug info
             CurrentDebugInfo = ++CurrentDebugInfo % DebugInfo.Length;
-            MarkDebugCode();
+
+            // update debug interface
+            DebugUpdateInterface();
         }
 
-        private void DebugStart()
+        /// <summary>
+        /// Reset debugging interface.
+        /// </summary>
+        private void DebugResetInterface()
         {
             DebugInfo = Glsl.Debugger.DebugTrace.ToArray();
             CurrentDebugInfo = -1;
             DebugStepBreakpoint_Click();
         }
 
-        private void MarkDebugCode()
+        /// <summary>
+        /// Update debug interface.
+        /// </summary>
+        private void DebugUpdateInterface()
         {
             if (CurrentDebugInfo < 0)
                 return;
@@ -333,7 +375,7 @@ namespace App
             
             // disable code hints if debug information is shown
             if (!(editor.EnableCodeHints = info == null))
-                editor.CallTipShow(editor.WordStartPosition(pos, true), info?.Output.ToString());
+                editor.CallTipShow(editor.WordStartPosition(pos, true), info?.ToString());
         }
 
         /// <summary>
