@@ -536,6 +536,7 @@ namespace App
             toolBtnDbgStepBreakpoint.Enabled = debugging;
             toolBtnDbgStepInto.Enabled = debugging;
             toolBtnDbgStepOver.Enabled = debugging;
+            toolBtnDbgStepBack.Enabled = debugging;
             debugListView.Visible = debugging;
         }
 

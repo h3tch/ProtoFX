@@ -274,6 +274,20 @@ namespace App
         }
 
         /// <summary>
+        /// Undo one step.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void DebugStepBack_Click(object s = null, EventArgs e = null)
+        {
+            // goto previous debug info
+            CurrentDebugInfo = Math.Max(0, --CurrentDebugInfo);
+
+            // update debug interface
+            DebugInterfaceUpdate();
+        }
+
+        /// <summary>
         /// Reset debugging interface.
         /// </summary>
         private void DebugResetInterface()
@@ -397,8 +411,7 @@ namespace App
                 startIdx++;
             }
 
-            debugListView.Update();
-            debugListView.Visible = true;
+            debugListView.Refresh();
         }
 
         /// <summary>

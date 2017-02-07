@@ -75,6 +75,7 @@
             this.toolBtnDbgStepBreakpoint = new System.Windows.Forms.ToolStripButton();
             this.toolBtnDbgStepOver = new System.Windows.Forms.ToolStripButton();
             this.toolBtnDbgStepInto = new System.Windows.Forms.ToolStripButton();
+            this.toolBtnDbgStepBack = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolBtnPick = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -416,6 +417,7 @@
             // 
             // debugListView
             // 
+            this.debugListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.debugListView.GroupForeColor = System.Drawing.SystemColors.ActiveCaption;
             this.debugListView.HeaderBackColor = System.Drawing.SystemColors.ButtonFace;
             this.debugListView.HeaderBorderColor = System.Drawing.SystemColors.ControlLight;
@@ -610,6 +612,7 @@
             this.toolBtnDbgStepBreakpoint,
             this.toolBtnDbgStepOver,
             this.toolBtnDbgStepInto,
+            this.toolBtnDbgStepBack,
             this.toolStripSeparator2,
             this.toolBtnPick,
             this.toolStripSeparator1,
@@ -736,6 +739,17 @@
             this.toolBtnDbgStepInto.Size = new System.Drawing.Size(36, 36);
             this.toolBtnDbgStepInto.Text = "Step Into (F11)";
             this.toolBtnDbgStepInto.Click += new System.EventHandler(this.DebugStepInto_Click);
+            // 
+            // toolBtnDbgStepInto
+            // 
+            this.toolBtnDbgStepBack.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnDbgStepBack.Enabled = false;
+            this.toolBtnDbgStepBack.Image = global::App.Properties.Resources.ImgDbgStepBack;
+            this.toolBtnDbgStepBack.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnDbgStepBack.Name = "toolBtnDbgStepBack";
+            this.toolBtnDbgStepBack.Size = new System.Drawing.Size(36, 36);
+            this.toolBtnDbgStepBack.Text = "Step Back (SHIFT+F11)";
+            this.toolBtnDbgStepBack.Click += new System.EventHandler(this.DebugStepBack_Click);
             // 
             // toolStripSeparator2
             // 
@@ -1483,6 +1497,7 @@
         private System.Windows.Forms.ToolStripButton toolBtnDbgStepBreakpoint;
         private System.Windows.Forms.ToolStripButton toolBtnDbgStepOver;
         private System.Windows.Forms.ToolStripButton toolBtnDbgStepInto;
+        private System.Windows.Forms.ToolStripButton toolBtnDbgStepBack;
         private System.Windows.Forms.ToolStripButton toolBtnPick;
         private System.Windows.Forms.ToolStripButton toolBtnComment;
         private System.Windows.Forms.ToolStripButton toolBtnUncomment;

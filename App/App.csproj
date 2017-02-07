@@ -252,6 +252,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="resources\ImgDbgStepBack.png" />
     <Content Include="resources\ImgDbgStepBreakpoint.png" />
     <Content Include="resources\ImgDbgStepBreakpoint.svg" />
     <Content Include="resources\ImgDbgStepInto.png" />
