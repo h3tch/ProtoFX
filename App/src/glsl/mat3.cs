@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace App.Glsl
 {
@@ -33,7 +31,11 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "[" + C0 + "; " + C1 + "; " + C2 + "]";
-        
+        public Array ToArray() => new [,] {
+            { C0.x, C1.x, C2.x },
+            { C0.y, C1.y, C2.y },
+            { C0.z, C1.z, C2.z } };
+
         public mat3(float a) : this(new vec3(a), new vec3(a), new vec3(a)) { }
         public mat3(float[] v) : this(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]) { }
         public mat3(byte[] data) : this((float[])data.To(typeof(float))) { }
@@ -112,6 +114,10 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "[" + C0 + "; " + C1 + "; " + C2 + "]";
+        public Array ToArray() => new [,] {
+            { C0.x, C1.x, C2.x },
+            { C0.y, C1.y, C2.y },
+            { C0.z, C1.z, C2.z } };
 
         public dmat3(double a) : this(new dvec3(a), new dvec3(a), new dvec3(a)) { }
         public dmat3(double[] v) : this(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]) { }

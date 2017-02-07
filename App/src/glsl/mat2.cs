@@ -40,6 +40,7 @@ namespace App.Glsl
                 new vec2(_01, _11))
         { }
         public override string ToString() => "[" + C0 + "; " + C1 + "]";
+        public Array ToArray() =>  new [,] { { C0.x, C1.x }, { C0.y, C1.y } };
 
         #endregion
 
@@ -109,6 +110,7 @@ namespace App.Glsl
                 new dvec2(_01, _11))
         { }
         public override string ToString() => "[" + C0 + "; " + C1 + "]";
+        public Array ToArray() => new [,] { { C0.x, C1.x }, { C0.y, C1.y } };
 
         #endregion
 

@@ -28,9 +28,10 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "(" + x + ", " + y + ", " + z + ", " + w + ")";
+        public Array ToArray() => new[] { x, y, z, w };
 
         #region vec4
-        
+
         public vec4(float a) : this(a, a, a, a) { }
         public vec4(float[] v) : this(v[0], v[1], v[2], v[3]) { }
         public vec4(float X, float Y, float Z, float W) { x = X; y = Y; z = Z; w = W; }
@@ -431,9 +432,10 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "(" + x + ", " + y + ", " + z + ", " + w + ")";
+        public Array ToArray() => new [] { x, y, z, w };
 
         #region vec4
-        
+
         public dvec4(double a) : this(a, a, a, a) { }
         public dvec4(double[] v) : this(v[0], v[1], v[2], v[3]) { }
         public dvec4(double X, double Y, double Z, double W) { x = X; y = Y; z = Z; w = W; }
@@ -834,9 +836,10 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "(" + x + ", " + y + ", " + z + ", " + w + ")";
+        public Array ToArray() => new[] { x, y, z, w };
 
         #region vec4
-        
+
         public bvec4(bool a) : this(a, a, a, a) { }
         public bvec4(bool[] v) : this(v[0], v[1], v[2], v[3]) { }
         public bvec4(bool X, bool Y, bool Z, bool W) { x = X; y = Y; z = Z; w = W; }
@@ -1218,9 +1221,10 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "(" + x + ", " + y + ", " + z + ", " + w + ")";
+        public Array ToArray() => new[] { x, y, z, w };
 
         #region vec4
-        
+
         public ivec4(int a) : this(a, a, a, a) { }
         public ivec4(int[] v) : this(v[0], v[1], v[2], v[3]) { }
         public ivec4(int X, int Y, int Z, int W) { x = X; y = Y; z = Z; w = W; }
@@ -1602,9 +1606,10 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "(" + x + ", " + y + ", " + z + ", " + w + ")";
+        public Array ToArray() => new[] { x, y, z, w };
 
         #region vec4
-        
+
         public uvec4(uint a) : this(a, a, a, a) { }
         public uvec4(uint[] v) : this(v[0], v[1], v[2], v[3]) { }
         public uvec4(uint X, uint Y, uint Z, uint W) { x = X; y = Y; z = Z; w = W; }

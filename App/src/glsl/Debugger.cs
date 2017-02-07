@@ -168,6 +168,21 @@ namespace App.Glsl
         public TraceInfoType Type;
         public string Name;
         public object Output;
+        public Array OutputArray
+        {
+            get
+            {
+                if (Output == null)
+                    return null;
+                var toArray = Output.GetType().GetMethod("ToArray");
+                if (toArray != null)
+                    return (Array)toArray.Invoke(Output, null);
+                var array = Array.CreateInstance(Output.GetType(), 1);
+                array.SetValue(Output, 0);
+                return array;
+            }
+        }
+            
 
         #region Format Output
 

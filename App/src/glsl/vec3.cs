@@ -26,9 +26,10 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "(" + x + ", " + y + ", " + z + ")";
+        public Array ToArray() => new[] { x, y, z };
 
         #region vec3
-        
+
         public vec3(float a = 0f) : this(a, a, a) { }
         public vec3(float[] v) : this(v[0], v[1], v[2]) { }
         public vec3(float x, float y, float z) { this.x = x; this.y = y; this.z = z; }
@@ -204,9 +205,10 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "(" + x + ", " + y + ", " + z + ")";
+        public Array ToArray() => new[] { x, y, z };
 
         #region vec3
-        
+
         public dvec3(double a) : this(a, a, a) { }
         public dvec3(double[] v) : this(v[0], v[1], v[2]) { }
         public dvec3(double x, double y, double z) { this.x = x; this.y = y; this.z = z; }
@@ -382,9 +384,10 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "(" + x + ", " + y + ", " + z + ")";
+        public Array ToArray() => new[] { x, y, z };
 
         #region vec3
-        
+
         public bvec3(bool a) : this(a, a, a) { }
         public bvec3(bool[] v) : this(v[0], v[1], v[2]) { }
         public bvec3(bool x, bool y, bool z) { this.x = x; this.y = y; this.z = z; }
@@ -541,9 +544,10 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "(" + x + ", " + y + ", " + z + ")";
+        public Array ToArray() => new[] { x, y, z };
 
         #region vec3
-        
+
         public ivec3(int a) : this(a, a, a) { }
         public ivec3(int[] v) : this(v[0], v[1], v[2]) { }
         public ivec3(int x, int y, int z) { this.x = x; this.y = y; this.z = z; }
@@ -700,9 +704,10 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "(" + x + ", " + y + ", " + z + ")";
+        public Array ToArray() => new[] { x, y, z };
 
         #region vec3
-        
+
         public uvec3(uint a) : this(a, a, a) { }
         public uvec3(uint[] v) : this(v[0], v[1], v[2]) { }
         public uvec3(uint x, uint y, uint z) { this.x = x; this.y = y; this.z = z; }

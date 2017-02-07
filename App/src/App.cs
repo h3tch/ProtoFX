@@ -530,15 +530,13 @@ namespace App
 
             // UPDATE DEBUG INFORMATION IF NECESSARY
             if (debugging)
-            {
                 DebugResetInterface();
-                UpdateDebugListView(CompiledEditor);
-            }
 
             // SHOW DEBUG BUTTONS IF NECESSARY
             toolBtnDbgStepBreakpoint.Enabled = debugging;
             toolBtnDbgStepInto.Enabled = debugging;
             toolBtnDbgStepOver.Enabled = debugging;
+            debugListView.Visible = debugging;
         }
 
         /// <summary>
@@ -742,7 +740,6 @@ namespace App
             tabSourcePage.UserData = path;
             var editor = new CodeEditor(Properties.Resources.keywordsXML, text);
             editor.Filename = path;
-            editor.UpdateUI += editor_UpdateUI;
             editor.ShowCallTip += editor_ShowCallTip;
             editor.CancleCallTip += editor_CancleCallTip;
             editor.CustomMouseHover += editor_MouseHover;

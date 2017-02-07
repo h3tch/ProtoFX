@@ -27,6 +27,7 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "(" + x + ", " + y + ")";
+        public Array ToArray() => new[] { x, y };
 
         #region vec2
 
@@ -115,6 +116,7 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "(" + x + ", " + y + ")";
+        public Array ToArray() => new[] { x, y };
 
         #region dvec2
 
@@ -203,6 +205,7 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "(" + x + ", " + y + ")";
+        public Array ToArray() => new[] { x, y };
 
         #region vec2
 
@@ -272,6 +275,7 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "(" + x + ", " + y + ")";
+        public Array ToArray() => new[] { x, y };
 
         #region vec2
 
@@ -341,6 +345,7 @@ namespace App.Glsl
             }
         }
         public override string ToString() => "(" + x + ", " + y + ")";
+        public Array ToArray() => new[] { x, y };
 
         #region vec2
 

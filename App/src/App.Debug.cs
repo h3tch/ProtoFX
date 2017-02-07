@@ -1,5 +1,6 @@
 ﻿using ScintillaNET;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -231,7 +232,7 @@ namespace App
                 CurrentDebugInfo = -1;
 
             // update debug interface
-            DebugUpdateInterface();
+            DebugInterfaceUpdate();
         }
 
         /// <summary>
@@ -255,7 +256,7 @@ namespace App
             }
 
             // update debug interface
-            DebugUpdateInterface();
+            DebugInterfaceUpdate();
         }
 
         /// <summary>
@@ -269,7 +270,7 @@ namespace App
             CurrentDebugInfo = ++CurrentDebugInfo % DebugInfo.Length;
 
             // update debug interface
-            DebugUpdateInterface();
+            DebugInterfaceUpdate();
         }
 
         /// <summary>
@@ -285,7 +286,7 @@ namespace App
         /// <summary>
         /// Update debug interface.
         /// </summary>
-        private void DebugUpdateInterface()
+        private void DebugInterfaceUpdate()
         {
             if (CurrentDebugInfo < 0)
                 return;
@@ -304,22 +305,9 @@ namespace App
 
             // scroll debug variable into view
             CompiledEditor.ScrollRange(range[0], range[1]);
-        }
-        
-        /// <summary>
-        /// When the selection (caret) changed update the debug tab.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="e"></param>
-        private void editor_UpdateUI(object s, UpdateUIEventArgs e)
-        {
-            // get class references
-            var editor = s as CodeEditor;
 
-            // handle selection changed event, but only
-            // update debug information for the compiled editor
-            if (e.Change == UpdateChange.Selection && CompiledEditor == editor)
-                UpdateDebugListView(editor);
+            // show debug information for the line
+            UpdateDebugListView();
         }
 
         /// <summary>
@@ -382,7 +370,7 @@ namespace App
         /// Show variables of the currently selected line in the editor.
         /// </summary>
         /// <param name="editor"></param>
-        private void UpdateDebugListView(CodeEditor editor)
+        private void UpdateDebugListView()
         {
             // RESET DEBUG LIST VIEW
             debugListView.Clear();
@@ -391,23 +379,26 @@ namespace App
             debugListView.AddColumn("Z", 80);
             debugListView.AddColumn("W", 80);
 
-            // if the code has been edited no debug information can
-            // be shown, because debug variables might have been
-            // added or removed, which leads to invalid debug output
-            if ((editor.Parent as TabPage).Text.EndsWith("*"))
+            // get debug variables of the line where the caret is placed
+            var line = DebugInfo[CurrentDebugInfo].Location.Line;
+
+            var startIdx = CurrentDebugInfo;
+            while (startIdx > 0 && DebugInfo[startIdx - 1].Location.Line == line)
+                startIdx--;
+
+            var endIdx = CurrentDebugInfo;
+            while (endIdx < DebugInfo.Length && DebugInfo[endIdx].Location.Line == line)
+                endIdx++;
+
+            // get debug info for the line
+            while (startIdx < endIdx)
             {
-                debugListView.Visible = false;
-                return;
+                NewVariableItem(DebugInfo[startIdx].Name, DebugInfo[startIdx].OutputArray);
+                startIdx++;
             }
 
-            //// get debug variables of the line where the caret is placed
-            //var first = editor.LineFromPosition(editor.SelectionStart);
-            //var last = editor.LineFromPosition(editor.SelectionEnd);
-            //var dbgVars = FxDebugger.GetDebugVariablesFromLine(editor, first, last - first + 1);
-            //debugListView.Visible = dbgVars.Count() > 0;
-            //dbgVars.Select(Var => FxDebugger.GetDebugVariableValue(Var.ID, glControl.Frame - 1))
-            //       .ForEach(dbgVars, (Val, Var) => NewVariableItem(Var.Name, Val));
             debugListView.Update();
+            debugListView.Visible = true;
         }
 
         /// <summary>
@@ -420,24 +411,35 @@ namespace App
             if (val == null)
                 return;
 
-            // get matrix size
-            int rows = val.GetLength(0);
-            int cols = val.GetLength(1);
-
             // add list group for this debug variable
             var dbgVarGroup = new ListViewGroup(groupName);
             debugListView.AddGroup(dbgVarGroup);
 
-            for (int r = 0; r < rows; r++)
+            // is matrix
+            if (val.Rank > 1)
             {
-                // convert row of debug variable to string array
-                var row = from c in Enumerable.Range(0, cols)
-                          select string.Format(CultureInfo.CurrentCulture, "{0:0.000}", val.GetValue(r, c));
-                // add row to list view
-                var item = new ListViewItem(row.ToArray());
-                item.Group = dbgVarGroup;
-                debugListView.AddItem(item);
+                // get matrix size
+                int rows = val.GetLength(0);
+                int cols = val.GetLength(1);
+
+                for (int r = 0; r < rows; r++)
+                    NewVariableRow(Enumerable.Range(0, cols).Select(c => val.GetValue(r, c)), dbgVarGroup);
             }
+            // is vector or scalar
+            else
+                NewVariableRow(Enumerable.Range(0, val.Length).Select(c => val.GetValue(c)), dbgVarGroup);
+
+        }
+
+        private void NewVariableRow(IEnumerable<object> val, ListViewGroup dbgVarGroup)
+        {
+            // convert row of debug variable to string array
+            var row = from v in val
+                      select string.Format(CultureInfo.CurrentCulture, "{0:0.000}", v);
+            // add row to list view
+            var item = new ListViewItem(row.ToArray());
+            item.Group = dbgVarGroup;
+            debugListView.AddItem(item);
         }
 
         #endregion
@@ -522,7 +524,7 @@ namespace App
             // only use debugging if the selected editor
             // was used to generate the debug information
             if (CompiledEditor == SelectedEditor && CompiledEditor != null)
-                UpdateDebugListView(CompiledEditor);
+                UpdateDebugListView();
         }
     }
 }
