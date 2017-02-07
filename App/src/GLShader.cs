@@ -1,9 +1,20 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using App.Glsl;
+using OpenTK.Graphics.OpenGL4;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
 
 namespace App
 {
     class GLShader : GLObject
     {
+        #region Fields
+
+        internal Shader DebugShader { get; private set; }
+        internal ShaderType ShaderType;
+
+        #endregion
+
         /// <summary>
         /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
@@ -14,38 +25,45 @@ namespace App
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"shader '{name}'");
+            
+            // COMPILE AND LINK SHADER INTO A SHADER PROGRAM
 
-            // CREATE OPENGL OBJECT
-            ShaderType type;
             switch (anno)
             {
-                case "vert": type = ShaderType.VertexShader; break;
-                case "tess": type = ShaderType.TessControlShader; break;
-                case "eval": type = ShaderType.TessEvaluationShader; break;
-                case "geom": type = ShaderType.GeometryShader; break;
-                case "frag": type = ShaderType.FragmentShader; break;
-                case "comp": type = ShaderType.ComputeShader; break;
-                default:
-                    throw err.Add($"Shader type '{anno}' is not supported.", block);
+                case "vert": ShaderType = ShaderType.VertexShader; break;
+                case "tess": ShaderType = ShaderType.TessControlShader; break;
+                case "eval": ShaderType = ShaderType.TessEvaluationShader; break;
+                case "geom": ShaderType = ShaderType.GeometryShader; break;
+                case "frag": ShaderType = ShaderType.FragmentShader; break;
+                case "comp": ShaderType = ShaderType.ComputeShader; break;
+                default: throw err.Add($"Shader type '{anno}' is not supported.", block);
             }
 
-            // ADD OR REMOVE DEBUG INFORMATION
-            var text = FxDebugger.AddDebugCode(block, type, debugging, err);
+            glname = GL.CreateShaderProgram(ShaderType, 1, new[] { block.Body });
 
-            // CREATE OPENGL OBJECT
-            glname = GL.CreateShader(type);
-            GL.ShaderSource(glname, text);
-            GL.CompileShader(glname);
+            // check for errors
 
-            // CHECK FOR ERRORS
             int status;
-            GL.GetShader(glname, ShaderParameter.CompileStatus, out status);
+            GL.GetProgram(glname, GetProgramParameterName.LinkStatus, out status);
             if (status != 1)
-            {
-                var compilerErrors = GL.GetShaderInfoLog(glname);
-                throw err.Add("\n" + compilerErrors, block);
-            }
+                err.Add($"\n{GL.GetProgramInfoLog(glname)}", block);
             if (HasErrorOrGlError(err, block))
+                throw err;
+            
+            // CREATE CSHARP DEBUG CODE
+
+            if (debugging)
+            {
+                var code = Converter.Shader2Class(ShaderType, name, block.Body, block.BodyIndex);
+                var rs = GLCsharp.CompileFilesOrSource(new[] { code }, null, block, err, new[] { name });
+                if (rs.Errors.Count == 0)
+                    DebugShader = (Shader)rs.CompiledAssembly.CreateInstance(
+                        $"App.Glsl.{name}", false, BindingFlags.Default, null,
+                        new object[] { block.LineInFile }, CultureInfo.CurrentCulture, null);
+            }
+
+            // check for errors
+            if (err.HasErrors())
                 throw err;
         }
 
@@ -54,9 +72,10 @@ namespace App
         /// </summary>
         public override void Delete()
         {
+            base.Delete();
             if (glname > 0)
             {
-                GL.DeleteShader(glname);
+                GL.DeleteProgram(glname);
                 glname = 0;
             }
         }

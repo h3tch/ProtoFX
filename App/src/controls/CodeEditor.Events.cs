@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -8,42 +10,71 @@ namespace ScintillaNET
 {
     public partial class CodeEditor
     {
+        #region FIELDS
+
         private bool DisableEditing = false;
-        private Pen grayPen;
-        private Pen dashedPen;
-        private Size lineSize;
-        public static int NewLineHelper = 100;
+        private Pen FoldingPen;
+        private int LineHeight;
+        private Point LastMouseMovePosition;
+        private Timer HoverTimer = new Timer();
+        public static int DefaultEdgeColumn = 80;
+
+        #endregion
+
+        #region ADDITIONAL EVENTS
+
+        [Category("Behavior"), Description("Only occurs when the MouseMove event is raised and the mouse position changed.")]
+        public event MouseEventHandler CustomMouseMove;
+        [Category("Behavior"), Description("Occurs when CallTipCancel is called.")]
+        public event EventHandler CustomMouseHover;
+        [Category("Behavior"), Description("Occurs when the mouse scrolls the editor.")]
+        public event EventHandler MouseScroll;
+
+        #endregion
+
+        #region CONSTRUCTION
 
         /// <summary>
         /// Initialize class events.
         /// </summary>
         private void InitializeEvents()
         {
-            TextChanged += new EventHandler(HandleTextChanged);
-            UpdateUI += new EventHandler<UpdateUIEventArgs>(HandleUpdateUI);
+            TextChanged += HandleTextChanged;
+            UpdateUI += HandleUpdateUI;
 
             // enable drag & drop
             AllowDrop = true;
-            DragOver += new DragEventHandler(HandleDragOver);
-            DragDrop += new DragEventHandler(HandleDragDrop);
+            DragOver += HandleDragOver;
+            DragDrop += HandleDragDrop;
 
             // search & replace
-            KeyUp += new KeyEventHandler(HandleKeyUp);
-            KeyDown += new KeyEventHandler(HandleKeyDown);
-            InsertCheck += new EventHandler<InsertCheckEventArgs>(HandleInsertCheck);
-            CharAdded += new EventHandler<CharAddedEventArgs>(HandleCharAdded);
-            
-            MouseWheel += new MouseEventHandler(HandleMouseWheel);
-            Painted += new EventHandler<EventArgs>(HandlePainted);
+            KeyUp += HandleKeyUp;
+            KeyDown += HandleKeyDown;
+            InsertCheck += HandleInsertCheck;
+            CharAdded += HandleCharAdded;
+            Painted += HandlePainted;
 
-            // create default pens
-            grayPen = new Pen(Brushes.Gray);
-            dashedPen = new Pen(Brushes.LightGray);
-            dashedPen.DashPattern = new[] { 3f, 6f };
+            // handle some events internally to support custom events
+            MouseMove += HandleMouseMove;
+            MouseLeave += HandleMouseLeave;
+
+            // initialize hover timer
+            HoverTimer.Interval = 100;
+            HoverTimer.Tick += HoverTimerEvent;
+
+            //// create default pens
+            FoldingPen = new Pen(Theme.ForeColor);
 
             // measure default line size
-            lineSize = TextRenderer.MeasureText(new string('/', NewLineHelper), Font);
+            EdgeColumn = DefaultEdgeColumn;
+            EdgeMode = EdgeMode.Line;
+            EdgeColor = Theme.WorkspaceHighlight;
+            LineHeight = TextRenderer.MeasureText("/", Font).Height;
         }
+
+        #endregion
+
+        #region TEXT CHANGE EVENTS
 
         /// <summary>
         /// On insert text event, auto format the text.
@@ -86,10 +117,6 @@ namespace ScintillaNET
                 if (Lines[curLine].Text.Trim() == "}")
                     SetIndent(curLine, GetIndent(curLine) - 4);
             }
-
-            // auto complete
-            if (char.IsLetter((char)e.Char))
-                AutoCShow(CurrentPosition);
         }
 
         /// <summary>
@@ -103,7 +130,7 @@ namespace ScintillaNET
             var tab = Parent as TabPage;
 
             // add file changed indicator '*'
-            if (!tab?.Text.EndsWith("*") ?? false)
+            if (watchChanges && (!tab?.Text.EndsWith("*") ?? false))
                 tab.Text = tab.Text + '*';
 
             // update line number margins
@@ -112,6 +139,10 @@ namespace ScintillaNET
             // update code folding
             UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
         }
+
+        #endregion
+
+        #region UI UPDATE EVENTS
 
         /// <summary>
         /// Handle selection change events (when the caret changes the position).
@@ -137,21 +168,12 @@ namespace ScintillaNET
                     break;
                 case UpdateChange.HScroll:
                 case UpdateChange.VScroll:
+                    // call mouse scroll events
+                    MouseScroll?.Invoke(this, e);
                     // update code folding
                     UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
                     break;
             }
-        }
-
-        /// <summary>
-        /// Handle mouse wheel events.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="e"></param>
-        private void HandleMouseWheel(object s, MouseEventArgs e)
-        {
-            CallTipCancel();
-            UpdateCodeFolding(FirstVisibleLine, LastVisibleLine);
         }
 
         /// <summary>
@@ -285,6 +307,52 @@ namespace ScintillaNET
         }
 
         /// <summary>
+        /// Handle mouse move event.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleMouseMove(object sender, MouseEventArgs e)
+        {
+            // only call custom mouse move events
+            // if the mouse position changes
+            if (LastMouseMovePosition == Cursor.Position)
+                return;
+
+            // call custom mouse move event
+            LastMouseMovePosition = Cursor.Position;
+            CustomMouseMove?.Invoke(this, e);
+
+            // restart hover timer
+            HoverTimer.Stop();
+            HoverTimer.Start();
+        }
+
+        /// <summary>
+        /// On mouse leave restart the hover timer.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleMouseLeave(object sender, EventArgs e) => HoverTimer.Stop();
+
+        /// <summary>
+        /// Handle mouse hover events.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HoverTimerEvent(object sender, EventArgs e)
+        {
+            // stop hover timer
+            HoverTimer.Stop();
+
+            // call custom hover events
+            CustomMouseHover?.Invoke(this, e);
+        }
+
+        #endregion
+
+        #region RENDER EVENTS
+
+        /// <summary>
         /// Do additional painting after the control has been drawn.
         /// </summary>
         /// <param name="s"></param>
@@ -292,10 +360,7 @@ namespace ScintillaNET
         private void HandlePainted(object s, EventArgs e)
         {
             var g = CreateGraphics();
-
-            // draw indicator lines where code has been folded
-            g.DrawLine(dashedPen, new Point(lineSize.Width, 0), new Point(lineSize.Width, Height));
-
+            
             // for all visible lines
             for (int from = FirstVisibleLine, to = LastVisibleLine, i = from; i < to; i++)
             {
@@ -310,20 +375,106 @@ namespace ScintillaNET
                 // draw indicator line below the current line
                 var x1 = PointXFromPosition(Lines[i].Position + Math.Max(0, wsStart));
                 var x2 = PointXFromPosition(Lines[i].EndPosition - wsEnd);
-                var y = PointYFromPosition(Lines[i].Position) + lineSize.Height - 1;
-                g.DrawLine(grayPen, x1, y, x2, y);
+                var y = PointYFromPosition(Lines[i].Position) + LineHeight - 1;
+                g.DrawLine(FoldingPen, x1, y, x2, y);
             }
         }
 
-        //Codes for the handling the Indention of the lines.
-        //They are manually added here until they get officially added to the Scintilla control.
+        #endregion
+
+        #region FILE EVENTS
+
+        /// <summary>
+        /// Watch the linked file and handle events.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void HandleFileEvent(object s, FileSystemEventArgs e)
+        {
+            // only handle change events
+            switch (e.ChangeType)
+            {
+                /// HANDLE EXTERNAL EDITS
+                case WatcherChangeTypes.Changed:
+                    // update the text
+                    Invoke(new Action(() => {
+                        // if the file no longer exists
+                        if (!File.Exists(Filename))
+                        {
+                            Filename = null;
+                            return;
+                        }
+
+                        // load file
+                        var newText = File.ReadAllText(Filename);
+                        if (newText == Text)
+                            return;
+
+                        // file was edited externally
+                        // ask the user whether he/she wants to reload it
+                        var rs = MessageBox.Show(
+                            $"The file '{e.Name}' was edited outside the program.\nShould it be reloaded?",
+                            "File Edited", MessageBoxButtons.YesNo);
+                        if (rs != DialogResult.Yes)
+                            return;
+
+                        // change text
+                        PauseWatchChanges();
+                        ClearAll();
+                        Text = newText;
+                        ResumeWatchChanges();
+                    }));
+                    break;
+
+                /// HANDLE RENAMING OF THE FILE
+                case WatcherChangeTypes.Renamed:
+                    // if the file no longer exists
+                    if (!File.Exists(e.FullPath))
+                        return;
+
+                    // get class references
+                    var tab = Parent as TabPage;
+                    var name = tab.Text;
+                    if (name.EndsWith("*"))
+                        name = name.Substring(0, name.Length - 1);
+
+                    // file was edited externally
+                    // ask the user whether he/she wants to reload it
+                    var result = MessageBox.Show(
+                        $"The file name '{name}' change to '{e.Name}'.\nShould the file be reloaded?",
+                        "File Edited", MessageBoxButtons.YesNo);
+                    if (result != DialogResult.Yes)
+                        return;
+                    
+                    // update the text
+                    Invoke(new Action(() => {
+                        // change text
+                        ClearAll();
+                        Text = File.ReadAllText(e.FullPath);
+                        tab.Text = e.Name;
+                    }));
+
+                    // update the file watcher
+                    Filename = e.FullPath;
+                    break;
+            }
+        }
+
+        #endregion
+
         #region CodeIndent Handlers
+
+        // Codes for the handling the Indention of the lines.
+        // They are manually added here until they get
+        // officially added to the Scintilla control.
+
         const int SCI_SETLINEINDENTATION = 2126;
         const int SCI_GETLINEINDENTATION = 2127;
         private void SetIndent(int line, int indent)
             => DirectMessage(SCI_SETLINEINDENTATION, (IntPtr)line, new IntPtr(indent));
         private int GetIndent(int line)
             => (int)DirectMessage(SCI_GETLINEINDENTATION, (IntPtr)line, IntPtr.Zero);
+
         #endregion
     }
 }

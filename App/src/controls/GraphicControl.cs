@@ -9,6 +9,7 @@ namespace OpenTK
     class GraphicControl : GLControl
     {
         #region FIELDS
+
         public static string nullname = "__control__";
         // indicates if rendering should be enabled
         private bool render = false;
@@ -18,10 +19,19 @@ namespace OpenTK
         private DataGridView output;
         // a collection of all objects making up the scene
         private Dict scene = new Dict();
-        // returns scene as a dictionary
+        // performance measurement class
+        private FXPerf perf;
+
+        #endregion
+
+        #region PROPERTIES
+        
         public Dict Scene { get { return scene; } }
-        // get the current render frame
         public int Frame { get; private set; } = 0;
+        public int TimingsCount => perf?.TimingsCount ?? 0;
+        public IEnumerable<float> Timings => perf?.Timings ?? Enumerable.Empty<float>();
+        public IEnumerable<int> Frames => perf?.Frames ?? Enumerable.Empty<int>();
+
         #endregion
 
         /// <summary>
@@ -32,14 +42,15 @@ namespace OpenTK
         /// <summary>
         /// Setup all internal events of the class.
         /// </summary>
-        public void AddEvents()
+        public void AddEvents(DataGridView output)
         {
-            Paint += new PaintEventHandler(HandlePaint);
-            MouseDown += new MouseEventHandler(HandleMouseDown);
-            MouseMove += new MouseEventHandler(HandleMouseMove);
-            MouseUp += new MouseEventHandler(HandleMouseUp);
-            Resize += new EventHandler(HandleResize);
-            KeyUp += new KeyEventHandler(HandleKeyUp);
+            Paint += HandlePaint;
+            MouseDown += HandleMouseDown;
+            MouseMove += HandleMouseMove;
+            MouseUp += HandleMouseUp;
+            Resize += HandleResize;
+            KeyUp += HandleKeyUp;
+            this.output = output;
         }
 
         /// <summary>
@@ -50,7 +61,7 @@ namespace OpenTK
         /// <summary>
         /// Render scene.
         /// </summary>
-        public void Render()
+        public void Render(bool debugTrace = false)
         {
             // clear existing render exceptions
             if (renderExceptions > 0)
@@ -63,10 +74,24 @@ namespace OpenTK
 
             try
             {
-                // render the scene
                 MakeCurrent();
+
+                // clear debug trace
+                App.Glsl.Debugger.ClearDebugTrace();
+
+                // begin timer query
+                if (perf == null)
+                    perf = new FXPerf(nullname, null, 309, false);
+                perf.MeasureTime();
+                perf.StartTimer(Frame);
+
+                // render the scene
                 foreach (var x in from o in scene where o.Value is GLTech select o.Value as GLTech)
-                    x.Exec(ClientSize.Width, ClientSize.Height, Frame);
+                    x.Exec(ClientSize.Width, ClientSize.Height, Frame, debugTrace);
+
+                // end timer query
+                perf.EndTimer();
+
                 SwapBuffers();
             }
             catch (Exception ex)
@@ -116,19 +141,10 @@ namespace OpenTK
             scene.Clear();
             // add default OpenTK glControl
             scene.Add(nullname, new GLReference(nullname, "internal", this));
-            // (re)initialize OpenGL/GLSL debugger
-            FxDebugger.Initilize(scene);
         }
         
         #region EVENTS
-        /// <summary>
-        /// On load get the compiler error output control.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="e"></param>
-        private void HandleLoad(object s, EventArgs e)
-            => output = (DataGridView)FindForm()?.Controls.Find("output", true).FirstOrDefault();
-
+        
         /// <summary>
         /// On resize, redraw the scene.
         /// </summary>
@@ -155,7 +171,12 @@ namespace OpenTK
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleMouseUp(object s, MouseEventArgs e) => render = false;
+        private void HandleMouseUp(object s, MouseEventArgs e)
+        {
+            if (render)
+                Render(true);
+            render = false;
+        }
 
         /// <summary>
         /// When the mouse is moving over the control, render the scene.
@@ -173,7 +194,8 @@ namespace OpenTK
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        public void HandleKeyUp(object s, KeyEventArgs e) => Render();
+        private void HandleKeyUp(object s, KeyEventArgs e) => Render(true);
+
         #endregion
     }
 }

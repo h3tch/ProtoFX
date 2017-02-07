@@ -56,6 +56,8 @@ namespace App
             public string Path { get; private set; }
             public int Line { get; private set; }
             public string Text { get; private set; }
+            public int TextLength => Text?.Length ?? 0;
+            public List<int> TextIndex { get; private set; }
             public File[] Include { get; private set; }
             public Block[] Block { get; private set; }
             #endregion
@@ -84,8 +86,10 @@ namespace App
                 incpath.Add(path);
 
                 // remove comments
-                Text = RemoveComments(System.IO.File.ReadAllText(path));
-                Text = ResolvePreprocessorDefinitions(Text);
+                Text = System.IO.File.ReadAllText(path);
+                TextIndex = Enumerable.Range(0, Text.Length).ToList();
+                Text = RemoveComments(Text);
+                Text = ResolvePreprocessorDefinitions(Text, TextIndex);
 
                 // process all include files in the file
                 Include = ProcessIncludes().ToArray();
@@ -160,7 +164,9 @@ namespace App
             {
                 // process found block strings
                 foreach (Match match in RegexBlock.Matches(Text))
-                    yield return new Block(this, Text.LineFromPosition(match.Index), match.Value);
+                    yield return new Block(this,
+                        TextIndex.Skip(match.Index).Take(match.Length).ToList(), 
+                        Text.LineFromPosition(match.Index), match.Value);
             }
 
             #region IEnumerable Interface
@@ -177,9 +183,19 @@ namespace App
             #region FIELD
             public File Owner { get; private set; }
             public int Line { get; private set; }
+            public int LineCount { get; private set; }
             public int LineInFile => Line;
             public string Text { get; private set; }
+            public int TextLength => Text?.Length ?? 0;
+            public List<int> TextIndex { get; private set; }
             public string Body => Text.Subrange(Text.IndexOf('{') + 1, Text.LastIndexOf('}') - 1);
+            public List<int> BodyIndex {
+                get {
+                    var i = Text.IndexOf('{') + 1;
+                    return TextIndex.GetRange(i, Text.LastIndexOf('}') - 1 - i);
+                }
+            }
+            public int BodyLength => Body.Length;
             public string Type { get; private set; }
             public string Name { get; private set; }
             public string Anno { get; private set; }
@@ -195,11 +211,13 @@ namespace App
             /// <param name="owner">File which owns the block string.</param>
             /// <param name="line">Line in the owner file where the block string is located.</param>
             /// <param name="text">The block string to be parsed.</param>
-            public Block(File owner, int line, string text)
+            public Block(File owner, List<int> textIndex, int line, string text)
             {
                 Owner = owner;
                 Line = line;
+                LineCount = text.Count(c => c == '\n');
                 Text = text.Trim();
+                TextIndex = textIndex.Take(Text.Length).ToList();
 
                 // find all words before the brace
                 var matches = Regex.Matches(text.Substring(0, text.IndexOf('{')), @"\w+");
@@ -447,19 +465,11 @@ namespace App
             var lineComments = @"//(.*?)\r?\n";
             var strings = @"""((\\[^\n]|[^""\n])*)""";
             var verbatimStrings = @"@(""[^""]*"")+";
-            var newLineLen = Environment.NewLine.Length;
             return Regex.Replace(text,
                 $"{blockComments}|{lineComments}|{strings}|{verbatimStrings}",
-                x =>
-                {
-                    // replace comments with spaces
-                    if (x.Value.StartsWith("/*"))
-                        return new string(' ', x.Length);
-                    if (x.Value.StartsWith("//"))
-                        return new string(' ', x.Length - newLineLen) + Environment.NewLine;
-                    // Keep the literal strings
-                    return x.Value;
-                },
+                x => x.Value.StartsWith("\"")
+                    ? x.Value
+                    : new string(x.Value.Select(c => (c != '\n' && c != '\r') ? ' ' : c).ToArray()),
                 RegexOptions.Singleline);
         }
         
@@ -468,12 +478,10 @@ namespace App
         /// </summary>
         /// <param name="text">String to resolve.</param>
         /// <returns>String with resolved #global definitions.</returns>
-        public static string ResolvePreprocessorDefinitions(string text)
+        public static string ResolvePreprocessorDefinitions(string text, List<int> index)
         {
-            var offset = 0;
-
             // find global definition matches
-            var matches = Regex.Matches(text, @"#global(\s+\w+){2}");
+            var matches = Regex.Matches(text, @"#global(\s+\w+){2}", RegexOptions.RightToLeft);
 
             // remove global definitions and store them in a dictionary
             var definitions = new Dictionary<string, string>(matches.Count);
@@ -481,14 +489,21 @@ namespace App
             {
                 var definition = Regex.Split(match.Value, @"[ ]+");
                 definitions.Add(definition[1], definition[2]);
-                text = text.Substring(0, offset + match.Index)
-                     + text.Substring(offset + match.Index + match.Length);
-                offset -= match.Length;
+                text = text.Remove(match.Index, match.Length);
+                index.RemoveRange(match.Index, match.Length);
             }
 
             // replace all definitions
             foreach (var definition in definitions)
-                text = Regex.Replace(text, $"\\b{definition.Key}\\b", definition.Value);
+            {
+                matches = Regex.Matches(text, $"\\b{definition.Key}\\b", RegexOptions.RightToLeft);
+                foreach (Match match in matches)
+                {
+                    text = text.Remove(match.Index, match.Length).Insert(match.Index, definition.Value);
+                    index.RemoveRange(match.Index, match.Length);
+                    index.InsertRange(match.Index, Enumerable.Repeat(-1, definition.Value.Length));
+                }
+            }
 
             return text;
         }

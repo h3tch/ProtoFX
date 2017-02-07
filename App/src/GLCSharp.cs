@@ -45,20 +45,13 @@ namespace App
             {
                 foreach (var assemblypath in Assembly)
                 {
-                    try
-                    {
+                    try {
                         System.Reflection.Assembly.LoadFrom(assemblypath);
-                    }
-                    catch (FileNotFoundException)
-                    {
+                    } catch (FileNotFoundException) {
                         err.Add($"Assembly file '{assemblypath}' cound not be found.", block);
-                    }
-                    catch (FileLoadException)
-                    {
+                    } catch (FileLoadException) {
                         err.Add($"Assembly '{assemblypath}' cound not be loaded.", block);
-                    }
-                    catch
-                    {
+                    } catch {
                         err.Add($"Unknown exception when loading assembly '{assemblypath}'.", block);
                     }
                 }
@@ -69,10 +62,28 @@ namespace App
             var filepath = ProcessPaths(dir, File);
 
             // COMPILE FILES
+            CompilerResults = CompileFilesOrSource(filepath.ToArray(), Version, block, err);
+
+            // check for errors
+            if (err.HasErrors())
+                throw err;
+        }
+        
+        /// <summary>
+        /// Compile a list of files or a list of source code.
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="block"></param>
+        /// <param name="err"></param>
+        /// <returns></returns>
+        internal static CompilerResults CompileFilesOrSource(string[] code, string version,
+            Compiler.Block block, CompileException err, string[] tmpNames = null)
+        {
+            CompilerResults rs = null;
             try
             {
                 // set compiler parameters and assemblies
-                CompilerParameters compilerParams = new CompilerParameters();
+                var compilerParams = new CompilerParameters();
                 compilerParams.GenerateInMemory = true;
                 compilerParams.GenerateExecutable = false;
 #if DEBUG
@@ -87,10 +98,39 @@ namespace App
                              .Select(a => a.Location).ToArray());
 
                 // select compiler version
-                var provider = Version != null ?
-                    new CSharpCodeProvider(new Dictionary<string, string> { { "CompilerVersion", Version } }) :
+                var provider = version != null ?
+                    new CSharpCodeProvider(new Dictionary<string, string> { { "CompilerVersion", version } }) :
                     new CSharpCodeProvider();
-                CompilerResults = provider.CompileAssemblyFromFile(compilerParams, filepath.ToArray());
+                var check = code.Count(x => IsFilename(x));
+                if (check == code.Length)
+                {
+                    rs = provider.CompileAssemblyFromFile(compilerParams, code);
+                }
+                else if (check == 0)
+                {
+#if DEBUG
+                    Directory.CreateDirectory("tmp");
+                    var filenames = new string[code.Length];
+                    for (int i = 0; i < filenames.Length; i++)
+                    {
+                        filenames[i] = $"tmp{Path.DirectorySeparatorChar}tmp_{tmpNames[i]}.cs";
+                        if (System.IO.File.Exists(filenames[i]))
+                        {
+                            var tmp = System.IO.File.ReadAllText(filenames[i]);
+                            if (tmp != code[i])
+                                System.IO.File.WriteAllText(filenames[i], code[i]);
+                        }
+                        else
+                            System.IO.File.WriteAllText(filenames[i], code[i]);
+                    }
+                    rs = provider.CompileAssemblyFromFile(compilerParams, filenames);
+#else
+                    rs = provider.CompileAssemblyFromSource(compilerParams, code);
+#endif
+                }
+                else
+                    throw err.Add("Cannot mix filenames and source code"
+                        + "strings when compiling C# code.", block);
             }
             catch (DirectoryNotFoundException ex)
             {
@@ -100,15 +140,18 @@ namespace App
             {
                 throw err.Add(ex.Message, block);
             }
-
-            // check for compiler errors
-            if (CompilerResults.Errors.Count != 0)
+            finally
             {
-                string msg = "";
-                foreach (var message in CompilerResults.Errors)
-                    msg += $"\n{message}";
-                throw err.Add(msg, block);
+                // check for compiler errors
+                if (rs?.Errors.Count != 0)
+                {
+                    string msg = "";
+                    foreach (var message in rs.Errors)
+                        msg += $"\n{message}";
+                    err.Add(msg, block);
+                }
             }
+            return rs;
         }
 
         /// <summary>
@@ -142,7 +185,7 @@ namespace App
         /// <param name="cmd"></param>
         /// <param name="err"></param>
         /// <returns></returns>
-        public static MethodInfo GetMethod(Compiler.Command cmd, Dict scene, CompileException err)
+        internal static MethodInfo GetMethod(Compiler.Command cmd, Dict scene, CompileException err)
         {
             // check command
             if (cmd.ArgCount < 1)
@@ -170,7 +213,7 @@ namespace App
         /// <param name="scene"></param>
         /// <param name="err"></param>
         /// <returns></returns>
-        public static object CreateInstance(Compiler.Block block, Dict scene, CompileException err)
+        internal static object CreateInstance(Compiler.Block block, Dict scene, CompileException err)
         {
             // GET CLASS COMMAND
             var cmds = block["class"].ToList();
@@ -293,5 +336,12 @@ namespace App
             // the required type, return the default value
             return value.GetType() == typeof(T) ? (T)value : default(T);
         }
+
+        /// <summary>
+        /// Check if the string is a filename.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        private static bool IsFilename(string str) => str.IndexOf('\n') < 0 && System.IO.File.Exists(str);
     }
 }

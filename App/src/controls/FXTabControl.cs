@@ -9,16 +9,149 @@ namespace System.Windows.Forms
     [ToolboxBitmap(typeof(TabControl))]
     public class FXTabControl : TabControl
     {
-        #region Private variables
+        #region Fields
         
         private int oldValue;
-        private Drawing.Point _dragStartPosition = Drawing.Point.Empty;
+        private Drawing.Point dragStartPosition = Drawing.Point.Empty;
         private TabStyle style;
         private TabStyleProvider styleProvider;
         private List<TabPage> tabPages;
 
         #endregion
-        
+
+        #region Properties
+
+        [Category("Appearance"), DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public TabStyleProvider DisplayStyleProvider
+        {
+            get
+            {
+                if (styleProvider == null)
+                    DisplayStyle = TabStyle.Default;
+                return styleProvider;
+            }
+            set { styleProvider = value; }
+        }
+
+        [Category("Appearance"), DefaultValue(typeof(TabStyle), "Default"), RefreshProperties(RefreshProperties.All)]
+        public TabStyle DisplayStyle
+        {
+            get { return style; }
+            set
+            {
+                if (style != value)
+                {
+                    style = value;
+                    styleProvider = TabStyleProvider.CreateProvider(this);
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
+        public new bool Multiline
+        {
+            get { return base.Multiline; }
+            set { base.Multiline = value; Invalidate(); }
+        }
+
+        // Hide the Padding attribute so it can not be changed
+        // We are handling this on the Style Provider
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+        public new Drawing.Point Padding
+        {
+            get { return DisplayStyleProvider.Padding; }
+            set { DisplayStyleProvider.Padding = value; }
+        }
+
+        public override bool RightToLeftLayout
+        {
+            get { return base.RightToLeftLayout; }
+            set { base.RightToLeftLayout = value; UpdateStyles(); }
+        }
+
+        // Hide the HotTrack attribute so it can not be changed
+        // We are handling this on the Style Provider
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+        public new bool HotTrack
+        {
+            get { return DisplayStyleProvider.HotTrack; }
+            set { DisplayStyleProvider.HotTrack = value; }
+        }
+
+        [Category("Appearance")]
+        public new TabAlignment Alignment
+        {
+            get { return base.Alignment; }
+            set { base.Alignment = value; Multiline = value > TabAlignment.Bottom; }
+        }
+
+        // Hide the Appearance attribute so it can not be changed
+        // We don't want it as we are doing all the painting.
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "value")]
+        public new TabAppearance Appearance
+        {
+            get { return base.Appearance; }
+            // Don't permit setting to other appearances as we are doing all the painting
+            set { base.Appearance = TabAppearance.Normal; }
+        }
+
+        public override Rectangle DisplayRectangle
+        {
+            get
+            {
+                // Special processing to hide tabs
+                if (style == TabStyle.None)
+                    return new Rectangle(0, 0, Width, Height);
+
+                int itemHeight = Alignment <= TabAlignment.Bottom ? ItemSize.Height : ItemSize.Width;
+                int tabStripHeight = 5 + (itemHeight * RowCount);
+
+                var rect = new Rectangle(4, tabStripHeight, Width - 8, Height - tabStripHeight - 4);
+                switch (Alignment)
+                {
+                    case TabAlignment.Top:
+                        rect = new Rectangle(4, tabStripHeight, Width - 8, Height - tabStripHeight - 4);
+                        break;
+                    case TabAlignment.Bottom:
+                        rect = new Rectangle(4, 4, Width - 8, Height - tabStripHeight - 4);
+                        break;
+                    case TabAlignment.Left:
+                        rect = new Rectangle(tabStripHeight, 4, Width - tabStripHeight - 4, Height - 8);
+                        break;
+                    case TabAlignment.Right:
+                        rect = new Rectangle(4, 4, Width - tabStripHeight - 4, Height - 8);
+                        break;
+                }
+                return rect;
+            }
+        }
+
+        [Browsable(false)]
+        public int ActiveIndex
+        {
+            get
+            {
+                var hitTestInfo = new NativeMethods.TCHITTESTINFO(PointToClient(Control.MousePosition));
+                int index = NativeMethods.SendMessage(Handle, NativeMethods.TCM_HITTEST, IntPtr.Zero,
+                    NativeMethods.ToIntPtr(hitTestInfo)).ToInt32();
+                return index == -1 ? -1 : (TabPages[index].Enabled ? index : -1);
+            }
+        }
+
+        [Browsable(false)]
+        public TabPage ActiveTab
+        {
+            get
+            {
+                int activeIndex = ActiveIndex;
+                return activeIndex > -1 ? TabPages[activeIndex] : null;
+            }
+        }
+
+        #endregion
+
         #region	Construction
 
         public FXTabControl()
@@ -59,128 +192,6 @@ namespace System.Windows.Forms
 
         #endregion
         
-        #region Public properties
-
-        [Category("Appearance"),  DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public TabStyleProvider DisplayStyleProvider {
-            get {
-                if (styleProvider == null)
-                    DisplayStyle = TabStyle.Default;
-                return styleProvider;
-            }
-            set { styleProvider = value; }
-        }
-
-        [Category("Appearance"), DefaultValue(typeof(TabStyle), "Default"), RefreshProperties(RefreshProperties.All)]
-        public TabStyle DisplayStyle {
-            get { return style; }
-            set {
-                if (style != value)
-                {
-                    style = value;
-                    styleProvider = TabStyleProvider.CreateProvider(this);
-                    Invalidate();
-                }
-            }
-        }
-
-        [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
-        public new bool Multiline {
-            get { return base.Multiline; }
-            set {
-                base.Multiline = value;
-                Invalidate();
-            }
-        }
-        
-        // Hide the Padding attribute so it can not be changed
-        // We are handling this on the Style Provider
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public new Drawing.Point Padding {
-            get { return DisplayStyleProvider.Padding; }
-            set { DisplayStyleProvider.Padding = value; }
-        }
-        
-        public override bool RightToLeftLayout {
-            get { return base.RightToLeftLayout; }
-            set { base.RightToLeftLayout = value; UpdateStyles(); }
-        }
-                
-        // Hide the HotTrack attribute so it can not be changed
-        // We are handling this on the Style Provider
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public new bool HotTrack {
-            get { return DisplayStyleProvider.HotTrack; }
-            set { DisplayStyleProvider.HotTrack = value; }
-        }
-
-        [Category("Appearance")]
-        public new TabAlignment Alignment {
-            get { return base.Alignment; }
-            set {
-                base.Alignment = value;
-                Multiline = value > TabAlignment.Bottom;
-            }
-        }
-        
-        // Hide the Appearance attribute so it can not be changed
-        // We don't want it as we are doing all the painting.
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "value")]
-        public new TabAppearance Appearance {
-            get { return base.Appearance; }
-            // Don't permit setting to other appearances as we are doing all the painting
-            set { base.Appearance = TabAppearance.Normal; }
-        }
-        
-        public override Rectangle DisplayRectangle {
-            get {
-                // Special processing to hide tabs
-                if (style == TabStyle.None)
-                    return new Rectangle(0, 0, Width, Height);
-                
-                int itemHeight = Alignment <= TabAlignment.Bottom ? ItemSize.Height : ItemSize.Width;
-                int tabStripHeight = 5 + (itemHeight * RowCount);
-                    
-                var rect = new Rectangle(4, tabStripHeight, Width - 8, Height - tabStripHeight - 4);
-                switch (Alignment) {
-                    case TabAlignment.Top:
-                        rect = new Rectangle(4, tabStripHeight, Width - 8, Height - tabStripHeight - 4);
-                        break;
-                    case TabAlignment.Bottom:
-                        rect = new Rectangle(4, 4, Width - 8, Height - tabStripHeight - 4);
-                        break;
-                    case TabAlignment.Left:
-                        rect = new Rectangle(tabStripHeight, 4, Width - tabStripHeight - 4, Height - 8);
-                        break;
-                    case TabAlignment.Right:
-                        rect = new Rectangle(4, 4, Width - tabStripHeight - 4, Height - 8);
-                        break;
-                }
-                return rect;
-            }
-        }
-
-        [Browsable(false)]
-        public int ActiveIndex {
-            get {
-                var hitTestInfo = new NativeMethods.TCHITTESTINFO(PointToClient(Control.MousePosition));
-                int index = NativeMethods.SendMessage(Handle, NativeMethods.TCM_HITTEST, IntPtr.Zero,
-                    NativeMethods.ToIntPtr(hitTestInfo)).ToInt32();
-                return index == -1 ? -1 : (TabPages[index].Enabled ? index : -1);
-            }
-        }
-        
-        [Browsable(false)]
-        public TabPage ActiveTab {
-            get{
-                int activeIndex = ActiveIndex;
-                return activeIndex > -1 ? TabPages[activeIndex] : null;
-            }
-        }
-        
-        #endregion
-
         #region	Extension methods
 
         public void HideTab(TabPage page)
@@ -276,13 +287,13 @@ namespace System.Windows.Forms
         
         #endregion
 
-        #region Drag 'n' Drop
+        #region Drag & Drop
         
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
             if (AllowDrop)
-                _dragStartPosition = new Drawing.Point(e.X, e.Y);
+                dragStartPosition = new Drawing.Point(e.X, e.Y);
             Invalidate();
         }
         
@@ -290,7 +301,7 @@ namespace System.Windows.Forms
         {
             base.OnMouseUp(e);
             if (AllowDrop)
-                _dragStartPosition = Drawing.Point.Empty;
+                dragStartPosition = Drawing.Point.Empty;
             Invalidate();
         }
         
@@ -335,19 +346,19 @@ namespace System.Windows.Forms
         
         private void StartDragDrop()
         {
-            if (_dragStartPosition.IsEmpty)
+            if (dragStartPosition.IsEmpty)
                 return;
             
             var dragTab = SelectedTab;
             if (dragTab != null){
                 // Test for movement greater than the drag activation trigger area
-                var dragTestRect = new Rectangle(_dragStartPosition, Drawing.Size.Empty);
+                var dragTestRect = new Rectangle(dragStartPosition, Drawing.Size.Empty);
                 dragTestRect.Inflate(SystemInformation.DragSize);
                 var pt = PointToClient(Control.MousePosition);
                 if (!dragTestRect.Contains(pt))
                 {
                     DoDragDrop(dragTab, DragDropEffects.All);
-                    _dragStartPosition = Drawing.Point.Empty;
+                    dragStartPosition = Drawing.Point.Empty;
                 }
             }
         }
@@ -356,9 +367,12 @@ namespace System.Windows.Forms
         
         #region Events
 
-        [Category("Action")] public event ScrollEventHandler HScroll;
-        [Category("Action")] public event EventHandler<TabControlEventArgs> TabImageClick;
-        [Category("Action")] public event EventHandler<TabControlCancelEventArgs> TabClosing;
+        [Category("Action")]
+        public event ScrollEventHandler HScroll;
+        [Category("Action")]
+        public event EventHandler<TabControlEventArgs> TabImageClick;
+        [Category("Action")]
+        public event EventHandler<TabControlCancelEventArgs> TabClosing;
         
         #endregion
 
@@ -602,13 +616,9 @@ namespace System.Windows.Forms
             else
             {
                 if (TabPages[index].Enabled)
-                {
                     g.DrawString(TabPages[index].Text, Font, styleProvider.TextColorBrush, tabBounds, GetStringFormat());
-                }
                 else
-                {
                     g.DrawString(TabPages[index].Text, Font, styleProvider.TextColorDisabledBrush, tabBounds, GetStringFormat());
-                }
             }
         }
 
@@ -622,7 +632,6 @@ namespace System.Windows.Forms
             {
                 tabImage = ImageList.Images[TabPages[index].ImageIndex];
             }
-
             else if (!string.IsNullOrEmpty(TabPages[index].ImageKey)
                 && !TabPages[index].ImageKey.Equals("(none)", StringComparison.OrdinalIgnoreCase)
                 && (ImageList?.Images.ContainsKey(TabPages[index].ImageKey) ?? false))

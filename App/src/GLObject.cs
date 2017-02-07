@@ -19,7 +19,7 @@ namespace App
     
     abstract class GLObject
     {
-        public int glname { get; protected set; }
+        internal int glname;
         [FxField] public string name { get; protected set; }
         public string anno { get; protected set; }
 

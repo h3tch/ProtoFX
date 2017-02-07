@@ -1,19 +1,20 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using App.Glsl;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using static OpenTK.Graphics.OpenGL4.ProgramStageMask;
+using static OpenTK.Graphics.OpenGL4.TransformFeedbackMode;
+using static System.Reflection.BindingFlags;
+using ElementType = OpenTK.Graphics.OpenGL4.DrawElementsType;
 using PrimType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 using VertoutPrimType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
-using ElementType = OpenTK.Graphics.OpenGL4.DrawElementsType;
-using static System.Reflection.BindingFlags;
-using static OpenTK.Graphics.OpenGL4.GetProgramParameterName;
-using static OpenTK.Graphics.OpenGL4.TransformFeedbackMode;
-using System.Globalization;
 
 namespace App
 {
-    class GLPass : GLObject
+    class GLPass : FXPerf
     {
         #region FIELDS
 
@@ -23,16 +24,18 @@ namespace App
         [FxField] private string Geom = null;
         [FxField] private string Frag = null;
         [FxField] private string Comp = null;
-        private GLObject glvert;
-        private GLObject gltess;
-        private GLObject gleval;
-        private GLObject glgeom;
-        private GLObject glfrag;
-        private GLObject glcomp;
-        private int[] glqueries;
-        private bool timerStarted;
-        private long timerStart;
-        private long timerEnd;
+        private GLShader glvert;
+        private GLShader gltess;
+        private GLShader gleval;
+        private GLShader glgeom;
+        private GLShader glfrag;
+        private GLShader glcomp;
+        private VertShader dbgvert;
+        private TessShader dbgtess;
+        private EvalShader dbgeval;
+        private GeomShader dbggeom;
+        private FragShader dbgfrag;
+        private CompShader dbgcomp;
         private Vertoutput vertoutput;
         private GLFragoutput fragoutput;
         private List<MultiDrawCall> drawcalls = new List<MultiDrawCall>();
@@ -42,15 +45,7 @@ namespace App
         private List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
         private List<GLMethod> glfunc = new List<GLMethod>();
         private List<GLInstance> csexec = new List<GLInstance>();
-        private DropOutStack<float> timings = new DropOutStack<float>(60 * 5);
-        private DropOutStack<int> frames = new DropOutStack<int>(60 * 5);
-
-        #endregion
-
-        #region PROPERTIES
-
-        public IEnumerable<float> Timings => timings;
-        public IEnumerable<int> Frames => frames;
+        private bool debug;
 
         #endregion
 
@@ -61,9 +56,10 @@ namespace App
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
         public GLPass(Compiler.Block block, Dict scene, bool debugging)
-            : base(block.Name, block.Anno)
+            : base(block.Name, block.Anno, 309, debugging)
         {
             var err = new CompileException($"pass '{name}'");
+            debug = debugging;
 
             /// PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
 
@@ -103,7 +99,7 @@ namespace App
 
             if (Vert != null || Comp != null)
             {
-                glname = GL.CreateProgram();
+                GL.CreateProgramPipelines(1, out glname);
 
                 // Attach shader objects.
                 // First try attaching a compute shader. If that
@@ -117,38 +113,39 @@ namespace App
                     glfrag = Attach(block, Frag, scene, err);
                 }
 
-                // specify vertex output varyings of the shader program
-                if (vertoutput != null)
-                    vertoutput.SetProgramVaryings(glname);
-
-                // link program
-                GL.LinkProgram(glname);
-
-                // detach shader objects
-                if (glcomp != null)
-                    GL.DetachShader(glname, glcomp.glname);
-                else
+                // get debug shaders
+                if (debug)
                 {
-                    if (glvert != null) GL.DetachShader(glname, glvert.glname);
-                    if (gltess != null) GL.DetachShader(glname, gltess.glname);
-                    if (gleval != null) GL.DetachShader(glname, gleval.glname);
-                    if (glgeom != null) GL.DetachShader(glname, glgeom.glname);
-                    if (glfrag != null) GL.DetachShader(glname, glfrag.glname);
+                    if (glcomp != null)
+                    {
+                        dbgcomp = (CompShader)glcomp.DebugShader;
+                    }
+                    else
+                    {
+                        Shader prev =
+                        dbgvert = (VertShader)glvert.DebugShader;
+                        dbgtess = (TessShader)gltess?.DebugShader;
+                        dbgeval = (EvalShader)gleval?.DebugShader;
+                        dbggeom = (GeomShader)glgeom?.DebugShader;
+                        dbgfrag = (FragShader)glfrag?.DebugShader;
+                        if (dbgtess != null)
+                        {
+                            dbgtess.Prev = prev;
+                            prev = dbgtess;
+                        }
+                        if (dbgeval != null)
+                        {
+                            dbgeval.Prev = prev;
+                            prev = dbgeval;
+                        }
+                        if (dbggeom != null)
+                        {
+                            dbggeom.Prev = prev;
+                            prev = dbggeom;
+                        }
+                    }
                 }
-
-                // check for link errors
-                int status;
-                GL.GetProgram(glname, LinkStatus, out status);
-                if (status != 1)
-                    err.Add($"\n{GL.GetProgramInfoLog(glname)}", block);
             }
-
-            /// CREATE OPENGL TIMER QUERY
-
-            if (glqueries == null)
-                glqueries = new int[2];
-            GL.GenQueries(glqueries.Length, glqueries);
-            timerStarted = false;
 
             /// CHECK FOR ERRORS
 
@@ -160,12 +157,26 @@ namespace App
         }
 
         /// <summary>
+        /// Standard object destructor for ProtoFX.
+        /// </summary>
+        public override void Delete()
+        {
+            base.Delete();
+            if (glname > 0)
+            {
+                //GL.DeleteProgram(glname);
+                GL.DeleteProgramPipeline(glname);
+                glname = 0;
+            }
+        }
+
+        /// <summary>
         /// Execute pass.
         /// </summary>
         /// <param name="width">Width of the OpenGL control.</param>
         /// <param name="height">Height of the OpenGL control.</param>
         /// <param name="frame">The ID of the current frame.</param>
-        public void Exec(int width, int height, int frame)
+        public void Exec(int width, int height, int frame, bool debugTrage)
         {
             // in debug mode check if the
             // OpenGL sate is valid
@@ -199,7 +210,7 @@ namespace App
             /// BIND PROGRAM
 
             if (glname > 0)
-                GL.UseProgram(glname);
+                GL.BindProgramPipeline(glname);
 
             /// BIND VERTEX OUTPUT (transform feedback)
             /// must be done after glUseProgram
@@ -235,14 +246,35 @@ namespace App
 
             /// BIND DEBUGGER
 
-            if (glname > 0)
-                FxDebugger.Bind(this, frame);
+            if (debugTrage && debug && drawcalls.Count > 0)
+            {
+                try
+                {
+                    Shader.DrawCall = drawcalls.First();
+                    if (dbgcomp != null)
+                    {
+                        dbgcomp.Debug();
+                    }
+                    else if (dbgvert != null)
+                    {
+                        dbgvert.Debug();
+                        dbgtess?.Debug();
+                        dbgeval?.Debug();
+                        dbggeom?.Debug();
+                        dbgfrag?.Debug();
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($"Debugger crashed with the following message: {e.Message}", e);
+                }
+            }
 
             /// EXECUTE DRAW AND COMPUTE CALLS
 
             // begin timer query
-            MeasureTime(frame);
-            StartTimer();
+            MeasureTime();
+            StartTimer(frame);
 
             // execute draw calls
             drawcalls.ForEach(call => call.draw());
@@ -250,11 +282,6 @@ namespace App
 
             // end timer query
             EndTimer();
-
-            /// UNBIND DEBUGGER
-
-                if (glname > 0)
-                FxDebugger.Unbind(this);
 
             /// UNBIND OPENGL OBJECTS
 
@@ -267,7 +294,7 @@ namespace App
 
             /// UNBIND OPENGL RESOURCES
 
-            GL.UseProgram(0);
+            GL.BindProgramPipeline(0);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindBuffer(BufferTarget.DrawIndirectBuffer, 0);
             GL.BindBuffer(BufferTarget.DispatchIndirectBuffer, 0);
@@ -277,24 +304,7 @@ namespace App
             // left a valid OpenGL sate
             ThrowOnGLError($"OpenGL error at the end of pass '{name}'.");
         }
-
-        /// <summary>
-        /// Standard object destructor for ProtoFX.
-        /// </summary>
-        public override void Delete()
-        {
-            if (glname > 0)
-            {
-                GL.DeleteProgram(glname);
-                glname = 0;
-            }
-            if (glqueries != null)
-            {
-                GL.DeleteQueries(glqueries.Length, glqueries);
-                glqueries.Initialize();
-            }
-        }
-
+        
         #region PARSE COMMANDS
 
         private void ParseDrawCall(Compiler.Command cmd, Dict classes, CompileException err)
@@ -528,42 +538,6 @@ namespace App
 
         #endregion
 
-        #region TIMING
-
-        private void StartTimer()
-        {
-            // begin timer query
-            if (!timerStarted)
-                GL.QueryCounter(glqueries[0], QueryCounterTarget.Timestamp);
-        }
-
-        private void EndTimer()
-        {
-            // end timer query
-            if (!timerStarted)
-            {
-                GL.QueryCounter(glqueries[1], QueryCounterTarget.Timestamp);
-                timerStarted = true;
-            }
-        }
-
-        private void MeasureTime(int frame)
-        {
-            if (!timerStarted)
-                return;
-            GL.GetQueryObject(glqueries[0], GetQueryObjectParam.QueryResultNoWait, out timerStart);
-            GL.GetQueryObject(glqueries[1], GetQueryObjectParam.QueryResultNoWait, out timerEnd);
-            var t = (timerEnd - timerStart) / 1000000f;
-            if (t > 0)
-            {
-                timings.Push(t);
-                frames.Push(frame);
-                timerStarted = false;
-            }
-        }
-
-        #endregion
-
         #region UTIL METHODS
 
         private MethodInfo FindMethod(string name, int nparam)
@@ -571,15 +545,30 @@ namespace App
                 where method.Name == name && method.GetParameters().Length == nparam
                 select method).FirstOrDefault();
 
-        private GLShader Attach(Compiler.Block block, string sh, Dict classes, CompileException err)
+        private GLShader Attach(Compiler.Block block, string shadername, Dict classes,
+            CompileException err)
         {
-            GLShader glsh = null;
+            GLShader obj = null;
 
             // get shader from class list
-            if (sh != null && classes.TryGetValue(sh, out glsh, block, err))
-                GL.AttachShader(glname, glsh.glname);
+            if (shadername != null && classes.TryGetValue(shadername, out obj, block, err))
+                GL.UseProgramStages(glname, ShaderType2ShaderBit(obj.ShaderType), obj.glname);
 
-            return glsh;
+            return obj;
+        }
+
+        private static ProgramStageMask ShaderType2ShaderBit(ShaderType type)
+        {
+            switch (type)
+            {
+                case ShaderType.VertexShader: return VertexShaderBit;
+                case ShaderType.TessControlShader: return TessControlShaderBit;
+                case ShaderType.TessEvaluationShader: return TessEvaluationShaderBit;
+                case ShaderType.GeometryShader: return GeometryShaderBit;
+                case ShaderType.FragmentShader: return FragmentShaderBit;
+                case ShaderType.ComputeShader: return ComputeShaderBit;
+            }
+            return 0;
         }
 
         private static void ThrowOnGLError(string message)
@@ -595,7 +584,7 @@ namespace App
 
         #region HELP STRUCT
 
-        private enum DrawFunc
+        internal enum DrawFunc
         {
             ArraysIndirect = 0 | 2 | 0 | 0,
             ArraysInstanced = 0 | 0 | 0 | 0,
@@ -604,8 +593,10 @@ namespace App
             TransformFeedback = 1 | 2 | 0 | 0,
         }
 
-        private class MultiDrawCall
+        internal class MultiDrawCall
         {
+            public GLVertinput vertin;
+            public GLBuffer indbuf;
             public DrawFunc drawfunc;
             public int vertexin;
             public int indexbuf;
@@ -620,6 +611,8 @@ namespace App
                 GLBuffer indexbuf,
                 GLBuffer indirect)
             {
+                vertin = vertexin;
+                indbuf = indexbuf;
                 this.cmd = new List<DrawCall>();
                 this.drawfunc = drawfunc;
                 this.vertexin = vertexin != null ? vertexin.glname : 0;
@@ -630,6 +623,37 @@ namespace App
                 {
                     this.indirect = this.indexbuf;
                     this.indexbuf = 0;
+                }
+            }
+
+            public Array GetPatch(int primitiveID)
+            {
+                // get patch size
+                var inum = GL.GetInteger(GetPName.PatchVertices);
+
+                // no vertex element array bound
+                // return the respective primitive
+                if (indbuf == null)
+                    return Enumerable.Range(inum * primitiveID, inum).ToArray();
+
+                // get index type size
+                var isize = 4;
+                switch (cmd[0].indextype)
+                {
+                    case ElementType.UByte: isize = 1; break;
+                    case ElementType.UShort: isize = 2; break;
+                }
+
+                // get data from the index buffer
+                var data = new byte[isize * inum];
+                indbuf.Read(ref data, data.Length * primitiveID);
+
+                // convert data to index array
+                switch (cmd[0].indextype)
+                {
+                    case ElementType.UByte: return data;
+                    case ElementType.UShort: return data.To(typeof(ushort));
+                    default: return data.To(typeof(uint));
                 }
             }
 
@@ -680,7 +704,7 @@ namespace App
             }
         }
 
-        private struct DrawCall
+        internal struct DrawCall
         {
             public PrimType mode;
             public ElementType indextype;
@@ -861,8 +885,8 @@ namespace App
                 vertoutMode = (TransformFeedbackMode)(values[3] ?? InterleavedAttribs);
             }
 
-            public void SetProgramVaryings(int glname)
-                => GL.TransformFeedbackVaryings(glname, outputVaryings.Length, outputVaryings, vertoutMode);
+            //public void SetProgramVaryings(int glname)
+            //    => GL.TransformFeedbackVaryings(glname, outputVaryings.Length, outputVaryings, vertoutMode);
 
             public void Bind() => glvertout.Bind(vertoutPrim, resume);
 

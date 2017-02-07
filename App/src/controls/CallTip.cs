@@ -1,5 +1,5 @@
 ﻿using System.Drawing;
-using System.Windows.Forms.DataVisualization.Charting;
+using static System.Drawing.ContentAlignment;
 
 namespace System.Windows.Forms
 {
@@ -73,13 +73,19 @@ namespace System.Windows.Forms
 
         #region METHODS
 
+        public void SetChartIntervals(double x, double y)
+        {
+            chart.ChartAreas[0].AxisX.Interval = x;
+            chart.ChartAreas[0].AxisY.Interval = y;
+        }
+
         /// <summary>
         /// Show the call tip at the specified screen position.
         /// </summary>
         /// <param name="rect"></param>
         /// <param name="tip"></param>
         /// <param name="align"></param>
-        public void Show(Rectangle rect, string tip, ContentAlignment align = ContentAlignment.BottomLeft)
+        public void Show(Rectangle rect, string tip, ContentAlignment align = BottomCenter)
         {
             /// SET NEW TEXT
 
@@ -92,8 +98,7 @@ namespace System.Windows.Forms
 
             /// SHOW CALL TIP
 
-            text.Visible = true;
-            chart.Visible = false;
+            text.Visible = !(chart.Visible = false);
             Show();
         }
 
@@ -104,68 +109,57 @@ namespace System.Windows.Forms
         /// <param name="X"></param>
         /// <param name="Y"></param>
         /// <param name="align"></param>
-        public void Show(Rectangle rect, Array X, Array Y, ContentAlignment align = ContentAlignment.TopLeft)
+        public void Show(Rectangle rect, Array X, Array Y, double width, double height,
+            ContentAlignment align = TopLeft, double widthFactor = 0, double heightFactor = 0)
         {
             /// SET NEW CHART
 
-            chart.Series.Clear();
-            var series = new Series {
-                Name = "Series",
-                IsVisibleInLegend = false,
-                IsXValueIndexed = true,
-                ChartType = SeriesChartType.Line
-            };
-            Theme.Apply(series);
-            
-            chart.Series.Add(series);
+            var points = chart.Series[0].Points;
+            points.Clear();
             for (int i = 0; i < X.Length; i++)
-                series.Points.AddXY(X.GetValue(i), Y.GetValue(i));
-            chart.ResetAutoValues();
+                points.AddXY(X.GetValue(i), Y.GetValue(i));
             chart.Update();
 
             /// ADJUST CALL TIP POSITION AND SIZE
 
-            var size = new Drawing.Size(
-                Math.Max(300, (int)(X.Length * 1.9f)),
-                Math.Max(200, (int)(Y.Length * 1.3f)));
-            Reposition(rect, size, align);
+            var w = (int)(width + widthFactor * (X.Length - width));
+            var h = (int)(height + heightFactor * (X.Length - height));
+            Reposition(rect, new Drawing.Size(w, h), align);
 
             /// SHOW CALL TIP
 
-            text.Visible = false;
-            chart.Visible = true;
+            text.Visible = !(chart.Visible = true);
             Show();
         }
 
         /// <summary>
-        /// Reposition the form.
+        /// Reposition the form and adjust size.
         /// </summary>
         /// <param name="rect"></param>
         /// <param name="size"></param>
         /// <param name="align"></param>
         private void Reposition(Rectangle rect, Drawing.Size size, ContentAlignment align)
         {
+            // add padding
             size.Width += Padding.Left + Padding.Right;
             size.Height += Padding.Top + Padding.Bottom;
 
             // move the call tip in case it is placed outside the screen
-            var screen = Screen.FromPoint(new Drawing.Point(rect.X, rect.Y));
+            var screen = Screen.FromPoint(new Drawing.Point(rect.X, rect.Y)).Bounds;
 
-            if (align >= ContentAlignment.BottomLeft)
-            {
-                if (rect.Y + rect.Height + size.Height >= screen.Bounds.Bottom)
-                    rect.Y -= size.Height;
-                else
-                    rect.Y += rect.Height + 5;
-            }
-            else if (align <= ContentAlignment.TopRight)
-            {
-                if (rect.Y - size.Height <= screen.Bounds.Top)
-                    rect.Y += rect.Height + 5;
-                else
-                    rect.Y -= size.Height;
-            }
+            // fix x-axis based coordinates
+            if (((int)align & (int)(TopLeft | MiddleLeft | BottomLeft)) != 0)
+                rect.X += rect.X - size.Width <= screen.Left ? rect.Width : -size.Width;
+            else if (((int)align & (int)(TopRight | MiddleRight | BottomRight)) != 0)
+                rect.X += rect.Width + size.Width >= screen.Right ? -size.Width : rect.Width;
 
+            // fix y-axis based coordinates
+            if (align >= BottomLeft)
+                rect.Y += rect.Y + rect.Height + size.Height >= screen.Bottom ? -size.Height : rect.Height;
+            else
+                rect.Y += rect.Y - size.Height <= screen.Top ? rect.Height : -size.Height;
+
+            // adjust form location and size
             Location = rect.Location;
             Size = size;
         }

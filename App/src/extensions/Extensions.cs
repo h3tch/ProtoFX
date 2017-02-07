@@ -1,16 +1,83 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace App
 {
     public static class ConvertExtensions
     {
+        public static object DeepCopy(this object obj, Type outType = null)
+        {
+            if (obj == null)
+                return null;
+
+            var inType = obj.GetType();
+            if (outType == null)
+                outType = inType;
+
+            // If the type of object is the value type, we will always get a new object when  
+            // the original object is assigned to another variable. So if the type of the  
+            // object is primitive or enum, we just return the object. We will process the  
+            // struct type subsequently because the struct type may contain the reference  
+            // fields. 
+            // If the string variables contain the same chars, they always refer to the same  
+            // string in the heap. So if the type of the object is string, we also return the  
+            // object. 
+            if (inType.IsPrimitive || inType.IsEnum || inType == typeof(string))
+                return inType == outType ? obj : null;
+
+            // If the type of the object is the Array, we use the CreateInstance method to get 
+            // a new instance of the array. We also process recursively this method in the  
+            // elements of the original array because the type of the element may be the reference  
+            // type. 
+            else if (inType.IsArray)
+            {
+                var array = obj as Array;
+                outType = outType.GetElementType();
+                var copy = Array.CreateInstance(outType, array.Length);
+
+                for (int i = 0; i < array.Length; i++)
+                    // Get the deep clone of the element in the original
+                    // array and assign the   clone to the new array. 
+                    copy.SetValue(array.GetValue(i).DeepCopy(outType), i);
+                
+                return copy;
+            }
+
+            // If the type of the object is class or struct, it may contain the reference fields,  
+            // so we use reflection and process recursively this method in the fields of the object  
+            // to get the deep clone of the object.  
+            // We use Type.IsValueType method here because there is no way to indicate directly 
+            // whether  the Type is a struct type. 
+            else if (inType.IsClass || inType.IsValueType)
+            {
+                var copy = Activator.CreateInstance(outType);
+                var flags =
+                    BindingFlags.Public |
+                    BindingFlags.NonPublic |
+                    BindingFlags.Instance;
+
+                // Copy all fields. 
+                var inFields = inType.GetFields(flags);
+                var outFields = outType.GetFields(flags);
+                for (int i = 0; i < inFields.Length; i++)
+                {
+                    var inField = inFields[i];
+                    var outField = outFields[i];
+                    var value = inField.GetValue(obj).DeepCopy(outField.FieldType);
+                    outField.SetValue(copy, value);
+                }
+
+                return copy;
+            }
+            else
+                throw new ArgumentException("The object has an unknown type");
+        }
         /// <summary>
         /// Convert array to byte array.
         /// </summary>
@@ -27,6 +94,9 @@ namespace App
             Buffer.BlockCopy(src, 0, dst, 0, dst.Length);
             return dst;
         }
+
+        public static int Size(this Array array)
+            => Marshal.SizeOf(array.GetType().GetElementType()) * array.Length;
 
         /// <summary>
         /// Convert string into the specified type.
@@ -64,6 +134,20 @@ namespace App
             // copy data to output array
             Buffer.BlockCopy(data, 0, rs, 0, data.Length);
             return rs;
+        }
+
+        /// <summary>
+        /// Convert all array values to the specified return type.
+        /// </summary>
+        /// <typeparam name="TResult">The return type all values should be converted to.</typeparam>
+        /// <param name="array"></param>
+        /// <returns>Returns an array for converted values.</returns>
+        public static TResult[] To<TResult>(this Array array)
+        {
+            TResult[] result = new TResult[array.Length];
+            for (int i = 0; i < array.Length; i++)
+                result[i] = (TResult)array.GetValue(i);
+            return result;
         }
 
         /// <summary>
@@ -163,6 +247,17 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Convert MatchCollection to an array.
+        /// </summary>
+        /// <param name="matches"></param>
+        /// <returns></returns>
+        public static IEnumerable<Match> ToArray(this MatchCollection matches)
+        {
+            foreach (Match match in matches)
+                yield return match;
+        }
+        
         public static Dictionary<string, Type> str2type = new Dictionary<string, Type>
         {
             {"bool"    , typeof(bool)   },

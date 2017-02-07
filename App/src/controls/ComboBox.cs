@@ -6,15 +6,15 @@ namespace System.Windows.Forms
 {
     public class ComboBoxEx : ListControl
     {
-        #region Delegates
+        #region Delegate Definitions
 
-        public delegate void BNDroppedDownEventHandler(object sender, EventArgs e);
-        public delegate void BNDrawItemEventHandler(object sender, DrawItemEventArgs e);
-        public delegate void BNMeasureItemEventHandler(object sender, MeasureItemEventArgs e);
+        public delegate void DroppedDownEventHandler(object sender, EventArgs e);
+        public delegate void DrawItemEventHandler(object sender, DrawItemEventArgs e);
+        public delegate void MeasureItemEventHandler(object sender, MeasureItemEventArgs e);
 
         #endregion
 
-        #region Variables
+        #region Fields
 
         #pragma warning disable 0414
         private bool hovered = false;
@@ -26,7 +26,7 @@ namespace System.Windows.Forms
         private Color _backcolor = SystemColors.Control;
         private Color _bordercolor = SystemColors.ActiveBorder;
         private Color _transparent = Color.FromArgb(0, 0, 0, 0);
-        private Radius _radius = new Radius();
+        private Corners _radius = new Corners();
 
         private int _dropDownHeight = 200;
         private int _dropDownWidth = 0;
@@ -49,16 +49,13 @@ namespace System.Windows.Forms
         #region Delegates
 
         [Category("Behavior"), Description("Occurs when IsDroppedDown changed to True.")]
-        public event BNDroppedDownEventHandler DroppedDown;
-
+        public event DroppedDownEventHandler DroppedDown;
         [Category("Behavior"), Description("Occurs when the SelectedIndex property changes.")]
         public event EventHandler SelectedIndexChanged;
-
         [Category("Behavior"), Description("Occurs whenever a particular item/area needs to be painted.")]
-        public event BNDrawItemEventHandler DrawItem;
-
+        public event DrawItemEventHandler DrawItem;
         [Category("Behavior"), Description("Occurs whenever a particular item's height needs to be calculated.")]
-        public event BNMeasureItemEventHandler MeasureItem;
+        public event MeasureItemEventHandler MeasureItem;
 
         #endregion
         
@@ -222,10 +219,7 @@ namespace System.Windows.Forms
             }
         }
 
-        public Radius Radius
-        {
-            get { return _radius; }
-        }
+        public Corners CornerRadius => _radius;
 
         #endregion
         
@@ -248,10 +242,10 @@ namespace System.Windows.Forms
             _radius.TopLeft = 0;
             _radius.TopRight = 0;
 
-            this.Height = 21;
-            this.Width = 95;
+            Height = 21;
+            Width = 95;
 
-            this.SuspendLayout();
+            SuspendLayout();
             _textBox = new TextBox();
             _textBox.BorderStyle = BorderStyle.None;
             _textBox.Location = new Drawing.Point(3, 4);
@@ -263,8 +257,8 @@ namespace System.Windows.Forms
             _textBox.TextAlign = HorizontalAlignment.Left;
             _textBox.ForeColor = _forecolor;
             _textBox.BackColor = _backcolor;
-            this.Controls.Add(_textBox);
-            this.ResumeLayout(false);
+            Controls.Add(_textBox);
+            ResumeLayout(false);
 
             AdjustControls();
 
@@ -288,17 +282,17 @@ namespace System.Windows.Forms
             _popupControl.DropShadowEnabled = false;
             _popupControl.Items.Add(_controlHost);
 
-            _dropDownWidth = this.Width;
+            _dropDownWidth = Width;
 
-            _listBox.MeasureItem += new MeasureItemEventHandler(_listBox_MeasureItem);
-            _listBox.DrawItem += new DrawItemEventHandler(_listBox_DrawItem);
-            _listBox.MouseClick += new MouseEventHandler(_listBox_MouseClick);
-            _listBox.MouseMove += new MouseEventHandler(_listBox_MouseMove);
+            _listBox.MeasureItem += listBox_MeasureItem;
+            _listBox.DrawItem += listBox_DrawItem;
+            _listBox.MouseClick += listBox_MouseClick;
+            _listBox.MouseMove += listBox_MouseMove;
 
-            _popupControl.Closed += new ToolStripDropDownClosedEventHandler(_popupControl_Closed);
+            _popupControl.Closed += popupControl_Closed;
 
-            _textBox.Resize += new EventHandler(_textBox_Resize);
-            _textBox.TextChanged += new EventHandler(_textBox_TextChanged);
+            _textBox.Resize += textBox_Resize;
+            _textBox.TextChanged += textBox_TextChanged;
 
             base.BackColor = BackColor = _backcolor;
             ForeColor = _forecolor;
@@ -482,7 +476,7 @@ namespace System.Windows.Forms
             rectCont.Width -= 2;
             rectCont.Height -= 2;
             GraphicsPath pathContentBorder = CreateRoundRectangle(rectCont,
-                Radius.TopLeft, Radius.TopRight, Radius.BottomRight, Radius.BottomLeft);
+                CornerRadius.TopLeft, CornerRadius.TopRight, CornerRadius.BottomRight, CornerRadius.BottomLeft);
 
             //button border
             Rectangle rectButton = rectBtn;
@@ -491,14 +485,14 @@ namespace System.Windows.Forms
             rectButton.Width -= 2;
             rectButton.Height -= 2;
             GraphicsPath pathBtnBorder = CreateRoundRectangle(rectButton,
-                0, Radius.TopRight, Radius.BottomRight, 0);
+                0, CornerRadius.TopRight, CornerRadius.BottomRight, 0);
 
             //outer border
             Rectangle rectOuter = rectContent;
             rectOuter.Width -= 1;
             rectOuter.Height -= 1;
             GraphicsPath pathOuterBorder = CreateRoundRectangle(rectOuter,
-                Radius.TopLeft, Radius.TopRight, Radius.BottomRight, Radius.BottomLeft);
+                CornerRadius.TopLeft, CornerRadius.TopRight, CornerRadius.BottomRight, CornerRadius.BottomLeft);
 
             //inner border
             Rectangle rectInner = rectContent;
@@ -658,7 +652,7 @@ namespace System.Windows.Forms
 
         void Control_MouseDown(object sender, MouseEventArgs e) => OnMouseDown(e);
         
-        void _listBox_MouseMove(object sender, MouseEventArgs e)
+        void listBox_MouseMove(object sender, MouseEventArgs e)
         {
             int i;
             for (i = 0; i < (_listBox.Items.Count); i++)
@@ -671,7 +665,7 @@ namespace System.Windows.Forms
             }
         }
 
-        void _listBox_MouseClick(object sender, MouseEventArgs e)
+        void listBox_MouseClick(object sender, MouseEventArgs e)
         {
             if (_listBox.Items.Count == 0 || _listBox.SelectedItems.Count != 1)
                 return;
@@ -684,19 +678,18 @@ namespace System.Windows.Forms
             IsDroppedDown = false;
         }
 
-        void _listBox_DrawItem(object sender, DrawItemEventArgs e)
+        void listBox_DrawItem(object sender, DrawItemEventArgs e)
         {
             if (e.Index >= 0)
                 DrawItem?.Invoke(this, e);
         }
 
-        void _listBox_MeasureItem(object sender, MeasureItemEventArgs e)
+        void listBox_MeasureItem(object sender, MeasureItemEventArgs e)
         {
             MeasureItem?.Invoke(this, e);
         }
-
-
-        void _popupControl_Closed(object sender, ToolStripDropDownClosedEventArgs e)
+        
+        void popupControl_Closed(object sender, ToolStripDropDownClosedEventArgs e)
         {
             _isDroppedDown = false;
             pressed = false;
@@ -705,9 +698,9 @@ namespace System.Windows.Forms
             Invalidate(true);
         }
         
-        void _textBox_Resize(object sender, EventArgs e) => AdjustControls();
+        void textBox_Resize(object sender, EventArgs e) => AdjustControls();
 
-        void _textBox_TextChanged(object sender, EventArgs e) => OnTextChanged(e);
+        void textBox_TextChanged(object sender, EventArgs e) => OnTextChanged(e);
 
         #endregion
 
@@ -797,40 +790,41 @@ namespace System.Windows.Forms
         }
 
         #endregion
-    }
-    
-    public class Radius
-    {
-        private int _topLeft = 0;
 
-        public int TopLeft
+        #region Inner Classes
+        
+        public class Corners
         {
-            get { return _topLeft; }
-            set { _topLeft = value; }
+            private int _topLeft = 0;
+            private int _topRight = 0;
+            private int _bottomLeft = 0;
+            private int _bottomRight = 0;
+
+            public int TopLeft
+            {
+                get { return _topLeft; }
+                set { _topLeft = value; }
+            }
+            
+            public int TopRight
+            {
+                get { return _topRight; }
+                set { _topRight = value; }
+            }
+            
+            public int BottomLeft
+            {
+                get { return _bottomLeft; }
+                set { _bottomLeft = value; }
+            }
+            
+            public int BottomRight
+            {
+                get { return _bottomRight; }
+                set { _bottomRight = value; }
+            }
         }
 
-        private int _topRight = 0;
-
-        public int TopRight
-        {
-            get { return _topRight; }
-            set { _topRight = value; }
-        }
-
-        private int _bottomLeft = 0;
-
-        public int BottomLeft
-        {
-            get { return _bottomLeft; }
-            set { _bottomLeft = value; }
-        }
-
-        private int _bottomRight = 0;
-
-        public int BottomRight
-        {
-            get { return _bottomRight; }
-            set { _bottomRight = value; }
-        }
+        #endregion
     }
 }

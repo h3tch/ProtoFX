@@ -66,18 +66,18 @@ namespace csharp
             Convert(cmds, "radius", ref radius);
         }
 
-        public void Update(int program, int width, int height, int widthTex, int heightTex)
+        public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
-            Matrix4 view = Matrix4.CreateTranslation(-pos[0], -pos[1], -pos[2])
+            var view = Matrix4.CreateTranslation(-pos[0], -pos[1], -pos[2])
                  * Matrix4.CreateRotationY(-rot[1] * rad2deg)
                  * Matrix4.CreateRotationX(-rot[0] * rad2deg);
-            float aspect = (float)width / height;
-            Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(fov * rad2deg, aspect, near, far);
+            var aspect = (float)width / height;
+            var proj = Matrix4.CreatePerspectiveFieldOfView(fov * rad2deg, aspect, near, far);
 
             // GET OR CREATE CAMERA UNIFORMS FOR program
             UniformBlock<Names> unif;
-            if (uniform.TryGetValue(program, out unif) == false)
-                uniform.Add(program, unif = new UniformBlock<Names>(program, name));
+            if (uniform.TryGetValue(pipeline, out unif) == false)
+                uniform.Add(pipeline, unif = new UniformBlock<Names>(pipeline, name));
 
             // SET UNIFORM VALUES
             unif.Set(Names.view, view.AsInt32());

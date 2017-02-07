@@ -2,11 +2,15 @@
 
 namespace App
 {
-    class GLTech : GLObject
+    class GLTech : FXPerf
     {
+        #region FIELDS
+
         private List<GLPass> init = new List<GLPass>();
         private List<GLPass> passes = new List<GLPass>();
         private List<GLPass> uninit = new List<GLPass>();
+
+        #endregion
 
         /// <summary>
         /// Create OpenGL object. Standard object constructor for ProtoFX.
@@ -15,7 +19,7 @@ namespace App
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
         public GLTech(Compiler.Block block, Dict scene, bool debugging)
-            : base(block.Name, block.Anno)
+            : base(block.Name, block.Anno, 309, debugging)
         {
             var err = new CompileException($"tech '{name}'");
 
@@ -35,22 +39,34 @@ namespace App
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <param name="frame"></param>
-        public void Exec(int width, int height, int frame)
+        public void Exec(int width, int height, int frame, bool debugTrace)
         {
+            // begin timer query
+            MeasureTime();
+            StartTimer(frame);
+
             // when executed the first time, execute initialization passes
             if (init != null)
             {
-                init.ForEach(x => x.Exec(width, height, frame));
+                init.ForEach(x => x.Exec(width, height, frame, debugTrace));
                 init = null;
             }
+
             // execute all passes
-            passes.ForEach(x => x.Exec(width, height, frame));
+            passes.ForEach(x => x.Exec(width, height, frame, debugTrace));
+
+            // end timer query
+            EndTimer();
         }
 
         /// <summary>
         /// Standard object destructor for ProtoFX.
         /// </summary>
-        public override void Delete() => uninit.ForEach(x => x.Exec(0, 0, -1));
+        public override void Delete()
+        {
+            base.Delete();
+            uninit.ForEach(x => x.Exec(0, 0, -1, false));
+        }
 
         /// <summary>
         /// Parse commands in block.

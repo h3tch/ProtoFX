@@ -20,6 +20,11 @@ namespace ScintillaNET
             Indicators[HighlightIndicatorIndex].Alpha = 50;
             Indicators[DebugIndicatorIndex].ForeColor = Color.Red;
             Indicators[DebugIndicatorIndex].Style = IndicatorStyle.Squiggle;
+            Indicators[DebugHighlight].Style = IndicatorStyle.StraightBox;
+            Indicators[DebugHighlight].Under = true;
+            Indicators[DebugHighlight].ForeColor = Color.Yellow;
+            Indicators[DebugHighlight].OutlineAlpha = 100;
+            Indicators[DebugHighlight].Alpha = 50;
 
             SetSelectionBackColor(true, Theme.SelectBackColor);
 
@@ -90,10 +95,10 @@ namespace ScintillaNET
                 AddSelection(range[0], range[1]);
 
             // ClearSelections adds a default selection
-            // at postion 0 which we need to remove
+            // at position 0 which we need to remove
             DropSelection(0);
 
-            // rotate through all selections until we arive at the original caret position
+            // rotate through all selections until we arrive at the original caret position
             for (int i = 0; (cur < CurrentPosition || AnchorPosition < cur) && i < count; i++)
                 RotateSelection();
         }
@@ -105,7 +110,7 @@ namespace ScintillaNET
         /// </summary>
         /// <returns>Returns a dictionary of all found words
         /// where the keys are the words or partial words
-        /// found and the value indicates wheather the word is
+        /// found and the value indicates whether the word is
         /// a whole word.</returns>
         private Dictionary<string, bool> GetWordsFromSelections()
         {
@@ -148,8 +153,8 @@ namespace ScintillaNET
         /// <summary>
         /// Get the bounding box of the word.
         /// </summary>
-        /// <param name="position"></param>
-        /// <returns></returns>
+        /// <param name="position">Text position</param>
+        /// <returns>Returns the bounding box of the word in control coordinates.</returns>
         public Rectangle GetWordBounds(int position)
         {
             var start = WordStartPosition(position, true);

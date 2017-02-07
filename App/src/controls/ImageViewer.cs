@@ -11,12 +11,10 @@
             Image.SizeMode = PictureBoxSizeMode.AutoSize;
             Image.TabIndex = 0;
             Image.TabStop = false;
-            Image.Click += new EventHandler(HandleClick);
+            Image.Click += (s,e) => OnClick(e);
             Controls.Add(Image);
         }
 
         public PictureBox Image { get; private set; }
-
-        private void HandleClick(object s, EventArgs e) => OnClick(e);
     }
 }

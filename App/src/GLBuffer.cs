@@ -113,7 +113,7 @@ namespace App
         }
 
         /// <summary>
-        /// Read whole GPU buffer data.
+        /// Read GPU buffer data.
         /// </summary>
         /// <returns>Return GPU buffer data as byte array.</returns>
         public void Read(ref byte[] data, int offset = 0)
@@ -141,8 +141,9 @@ namespace App
                 data = new byte[Size];
 
             // map buffer and copy data to CPU memory
-            var dataPtr = GL.MapNamedBuffer(glname, BufferAccess.ReadOnly);
-            Marshal.Copy(dataPtr, data, offset, Math.Min(Size, data.Length));
+            var mapSize = Math.Min(Size, data.Length);
+            var dataPtr = GL.MapNamedBufferRange(glname, (IntPtr)offset, mapSize, BufferAccessMask.MapReadBit);
+            Marshal.Copy(dataPtr, data, 0, mapSize);
             GL.UnmapNamedBuffer(glname);
         }
 
@@ -151,6 +152,7 @@ namespace App
         /// </summary>
         public override void Delete()
         {
+            base.Delete();
             if (glname > 0)
             {
                 GL.DeleteBuffer(glname);

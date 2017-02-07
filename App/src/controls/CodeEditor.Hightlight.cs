@@ -13,7 +13,7 @@ namespace ScintillaNET
         /// </summary>
         private void InitializeHighlighting(string keywordsXml)
         {
-            StyleNeeded += new EventHandler<StyleNeededEventArgs>(HandleStyleNeeded);
+            StyleNeeded += HandleStyleNeeded;
 
             CaretLineBackColor = Theme.WorkspaceHighlight;
             CaretLineVisible = true;

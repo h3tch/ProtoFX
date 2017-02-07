@@ -5,20 +5,6 @@ namespace System
     public static class StringExtensions
     {
         /// <summary>
-        /// Find first match of two matching braces.
-        /// </summary>
-        /// <param name="s">extend string class</param>
-        /// <param name="open">opening brace character</param>
-        /// <param name="close">closing brace character</param>
-        /// <returns>Returns the first brace match.</returns>
-        public static Match BraceMatch(this string s, char open, char close)
-        {
-            string oc = $"{open}{close}";
-            return Regex.Match(s, $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
-                $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}");
-        }
-
-        /// <summary>
         /// Get zero based line index from the zero based character position.
         /// </summary>
         /// <param name="s">extend string class</param>
@@ -44,7 +30,23 @@ namespace System
 
             return lineCount;
         }
-
+        
+        /// <summary>
+        /// Get index of the next non whitespace character.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="startIndex"></param>
+        /// <param name="step"></param>
+        /// <returns></returns>
+        public static int NextNonWhitespace(this string s, int startIndex = 0, int step = 1)
+        {
+            step = Math.Sign(step);
+            for (int i = startIndex; step > 0 ? i < s.Length : i >= 0; i += step)
+                if (!char.IsWhiteSpace(s[i]))
+                    return i;
+            return -1;
+        }
+        
         /// <summary>
         /// The sub range of the string beginning at the zero based start index
         /// and ending at the zero based end index.

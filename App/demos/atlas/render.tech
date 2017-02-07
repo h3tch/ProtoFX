@@ -204,6 +204,10 @@ shader gs_shadowmap geom {
 	} IN[];
 	
 	layout(triangle_strip, max_vertices = 3*MAX_CAMS) out;
+	out gl_PerVertex {
+		vec4 gl_Position;
+		float gl_ClipDistance[4];
+	};
 	
 	void main ()
 	{
@@ -260,6 +264,9 @@ shader vs_render vert {
 	layout(location = 6) in ivec4 camera;
 
 	// vertex shader output
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
 	layout(location = 0) out Block {
 		vec4 normal;
 		vec4 color;

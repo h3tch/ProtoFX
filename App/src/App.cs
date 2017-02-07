@@ -32,7 +32,7 @@ namespace App
         /// <summary>
         /// Get the currently selected code tab.
         /// </summary>
-        private TabPageEx SelectedTab => (TabPageEx)tabSource.SelectedTab;
+        private FXTabPage SelectedTab => (FXTabPage)tabSource.SelectedTab;
         /// <summary>
         /// Get the currently selected editor.
         /// </summary>
@@ -43,6 +43,7 @@ namespace App
         private bool IsMaximized => FormBorderStyle == FormBorderStyle.None;
 
         #region Window resize buttons
+
         const int HANDLE_SIZE = 10;
         const uint HTLEFT = 10u;
         const uint HTRIGHT = 11u;
@@ -52,7 +53,9 @@ namespace App
         const uint HTBOTTOM = 15u;
         const uint HTBOTTOMLEFT = 16u;
         const uint HTBOTTOMRIGHT = 17u;
+
         private int TitleBarClickX, TitleBarClickY;
+
         private Rectangle[] ResizeBoxes = new[] {
             /* HTLEFT       */new Rectangle(0, HANDLE_SIZE, HANDLE_SIZE, 0),
             /* HTRIGHT      */new Rectangle(0, HANDLE_SIZE, HANDLE_SIZE, 0),
@@ -63,6 +66,7 @@ namespace App
             /* HTBOTTOMLEFT */new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
             /* HTBOTTOMRIGHT*/new Rectangle(0, 0, HANDLE_SIZE, HANDLE_SIZE),
         };
+
         #endregion
 
         #endregion
@@ -108,9 +112,8 @@ namespace App
             comboBufType.SelectedIndex = ConvertExtensions.str2type.Keys.IndexOf(x => x == "float");
 
             /// LINK PROPERTY VIEWER TO DEBUG SETTINGS
-
-            FxDebugger.Instantiate();
-            debugProperty.SelectedObject = FxDebugger.Settings;
+            
+            debugProperty.SelectedObject = Glsl.Shader.Settings;
             debugProperty.CollapseAllGridItems();
 
             /// PROCESS COMMAND LINE ARGUMENTS
@@ -119,7 +122,7 @@ namespace App
 
             /// CLEAR OPENGL CONTROL
 
-            glControl.AddEvents();
+            glControl.AddEvents(output);
             glControl.Render();
         }
 
@@ -172,6 +175,16 @@ namespace App
                 // Compile and run
                 case Keys.F6:
                     toolBtnRunDebug_Click(toolBtnDbg, null);
+                    break;
+                // Debug stepping
+                case Keys.F9:
+                    DebugStepBreakpoint_Click();
+                    break;
+                case Keys.F10:
+                    DebugStepOver_Click();
+                    break;
+                case Keys.F11:
+                    DebugStepInto_Click();
                     break;
                 // Save
                 case Keys.S:
@@ -266,6 +279,9 @@ namespace App
             toolBtnSaveAs.Enabled = enable;
             toolBtnComment.Enabled = enable;
             toolBtnUncomment.Enabled = enable;
+            toolBtnDbgStepBreakpoint.Enabled = enable;
+            toolBtnDbgStepInto.Enabled = enable;
+            toolBtnDbgStepOver.Enabled = enable;
         }
 
         /// <summary>
@@ -372,11 +388,24 @@ namespace App
             // the fragment debug position to that pixel
             if (toolBtnPick.Checked)
             {
-                FxDebugger.Settings.fs_FragCoord[0] = e.X;
-                FxDebugger.Settings.fs_FragCoord[1] = glControl.Height - e.Y;
+                Glsl.Shader.Settings.fs_FragCoord[0] = e.X;
+                Glsl.Shader.Settings.fs_FragCoord[1] = glControl.Height - e.Y;
                 debugProperty.Refresh();
                 toolBtnPick.Checked = false;
                 glControl.Cursor = Cursors.Default;
+            }
+
+            // if there are performance timings, show them
+            if (glControl.TimingsCount > 0)
+            {
+                IEnumerable<int> frames;
+                IEnumerable<float> times;
+                PostProcessPerfData(glControl.Frames, glControl.Timings, out frames, out times, 10, true);
+
+                var points = chartPerf.Series[0].Points;
+                points.Clear();
+                frames.ForEach(times, (f, t) => points.AddXY(f, t));
+                chartPerf.Update();
             }
 
             // on mouse up, render and debug the
@@ -436,7 +465,7 @@ namespace App
             if (SelectedTab == null)
                 return;
             CompiledEditor = (CodeEditor)SelectedTab.Controls[0];
-            
+
             // save code
             toolBtnSave_Click(s, null);
 
@@ -446,8 +475,8 @@ namespace App
             glControl.RemoveEvents();
 
             // get include directory
-            var includeDir = (SelectedTab.FilePath != null
-                ? Path.GetDirectoryName(SelectedTab.FilePath)
+            var includeDir = (SelectedTab.UserData != null
+                ? Path.GetDirectoryName(SelectedTab.UserData as string)
                 : Directory.GetCurrentDirectory()) + Path.DirectorySeparatorChar;
 
             // get code text form tab page
@@ -455,12 +484,14 @@ namespace App
             var debugging = s == toolBtnDbg;
 
             // COMPILE THE CURRENTLY SELECTED FILE
-            var root = Compiler.Compile(SelectedTab.FilePath);
-
+            var root = Compiler.Compile(SelectedTab.UserData as string);
+            var shaderLines = from x in root where x.Type == "shader" select new[] { x.Line, x.LineCount };
+            CompiledEditor.RemoveInvalidBreakpoints(shaderLines);
+            
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
             var ex = root.Catch(x => glControl.AddObject(x, debugging)).ToArray();
             // add events to the end of the event list
-            glControl.AddEvents();
+            glControl.AddEvents(output);
             glControl.MouseUp += new MouseEventHandler(glControl_MouseUp);
 
             // show errors
@@ -480,7 +511,7 @@ namespace App
             CompiledEditor.AddIndicators(CodeEditor.DebugIndicatorIndex, ranges);
 
             // SHOW SCENE
-            glControl.Render();
+            glControl.Render(debugging);
 
             // add externally created textures to the scene
             var existing = glControl.Scene.Values.ToArray();
@@ -499,7 +530,14 @@ namespace App
 
             // UPDATE DEBUG INFORMATION IF NECESSARY
             if (debugging)
-                UpdateDebugListView(CompiledEditor);
+                DebugResetInterface();
+
+            // SHOW DEBUG BUTTONS IF NECESSARY
+            toolBtnDbgStepBreakpoint.Enabled = debugging;
+            toolBtnDbgStepInto.Enabled = debugging;
+            toolBtnDbgStepOver.Enabled = debugging;
+            toolBtnDbgStepBack.Enabled = debugging;
+            debugListView.Visible = debugging;
         }
 
         /// <summary>
@@ -522,7 +560,7 @@ namespace App
         /// <param name="e"></param>
         private void toolBtnSaveAll_Click(object s, EventArgs e)
         {
-            foreach (TabPageEx tab in tabSource.TabPages)
+            foreach (FXTabPage tab in tabSource.TabPages)
             {
                 if (!tab.Text.EndsWith("*"))
                     continue;
@@ -546,7 +584,7 @@ namespace App
         /// <param name="e"></param>
         private void tabSource_TabClose(object s, TabControlCancelEventArgs e)
         {
-            var tab = (TabPageEx)e.TabPage;
+            var tab = (FXTabPage)e.TabPage;
             if (tab.Text.EndsWith("*"))
             {
                 var answer = MessageBox.Show(
@@ -643,7 +681,9 @@ namespace App
         }
 
         #region TOOL BUTTON FIELDS
+
         private Regex RegexLineComment = new Regex(@"\s*//");
+
         #endregion
 
         #endregion
@@ -655,28 +695,35 @@ namespace App
         /// </summary>
         /// <param name="tabPage"></param>
         /// <param name="newfile"></param>
-        private void SaveTabPage(TabPageEx tabPage, bool newfile)
+        private void SaveTabPage(FXTabPage tabPage, bool newfile)
         {
             if (tabPage == null)
                 return;
 
             var editor = (CodeEditor)tabPage.Controls[0];
 
-            if (tabPage.FilePath == null || newfile)
+            // Open a save dialog if the tabPage is not liked
+            // to a file or a new file should be created.
+            if (tabPage.UserData == null || newfile)
             {
                 var saveDlg = new SaveFileDialog();
                 saveDlg.Filter = "Text Files (.tech)|*.tech|All Files (*.*)|*.*";
                 saveDlg.FilterIndex = 1;
 
-                var result = saveDlg.ShowDialog();
-                if (result != DialogResult.OK)
+                // if the dialog did not return a valid state
+                if (saveDlg.ShowDialog() != DialogResult.OK)
                     return;
 
-                tabPage.FilePath = saveDlg.FileName;
+                tabPage.UserData = saveDlg.FileName;
                 tabPage.Text = Path.GetFileName(saveDlg.FileName);
             }
 
-            System.IO.File.WriteAllText(tabPage.FilePath, editor.Text);
+            // save the file
+            var filename = tabPage.UserData as string;
+            editor.PauseFileWatch();
+            System.IO.File.WriteAllText(filename, editor.Text);
+            editor.ResumeFileWatch();
+            editor.Filename = filename;
         }
 
         /// <summary>
@@ -690,12 +737,13 @@ namespace App
             var text = path != null ? System.IO.File.ReadAllText(path) : "// Unnamed file";
 
             // create new tab objects
-            var tabSourcePage = new TabPageEx(path);
+            var tabSourcePage = new FXTabPage();
+            tabSourcePage.UserData = path;
             var editor = new CodeEditor(Properties.Resources.keywordsXML, text);
-            editor.UpdateUI += new EventHandler<UpdateUIEventArgs>(editor_UpdateUI);
-            editor.MouseMove += new MouseEventHandler(editor_MouseMove);
-            editor.ShowCallTip += new ShowTipEventHandler(editor_ShowCallTip);
-            editor.CancleCallTip += new CancleTipEventHandler(editor_CancleCallTip);
+            editor.Filename = path;
+            editor.ShowCallTip += editor_ShowCallTip;
+            editor.CancleCallTip += editor_CancleCallTip;
+            editor.CustomMouseHover += editor_MouseHover;
 
             // tabSourcePage
             Theme.Apply(tabSourcePage);
@@ -773,6 +821,7 @@ namespace App
         #endregion
 
         #region Inner Classes
+
         public class FormSettings
         {
             public FormBorderStyle BorderStyle;
@@ -780,6 +829,7 @@ namespace App
             public Size NormalSize;
             public float SplitRenderCoding;
             public float SplitRenderOutput;
+            public float SplitDebugPerf;
             public float SplitDebug;
             public int NewLineHelper;
             public string ThemeXml;
@@ -796,8 +846,9 @@ namespace App
                     NormalSize = S,
                     NormalLocation = new Point((W - S.Width) / 2, (H - S.Height) / 2),
                     BorderStyle = FormBorderStyle.FixedSingle,
-                    SplitRenderCoding = 0.4f,
+                    SplitRenderCoding = 0.5f,
                     SplitRenderOutput = 0.7f,
+                    SplitDebugPerf = 0.52f,
                     SplitDebug = 0.55f,
                     NewLineHelper = 100,
                     ThemeXml = Theme.Name + ".xml",
@@ -818,8 +869,9 @@ namespace App
                     NormalSize = app.IsMaximized ? app.NormalSize : app.Size,
                     SplitRenderCoding = (float)app.splitRenderCoding.SplitterDistance / app.splitRenderCoding.Width,
                     SplitRenderOutput = (float)app.splitRenderOutput.SplitterDistance / app.splitRenderOutput.Height,
+                    SplitDebugPerf = (float)app.splitDebugPerf.SplitterDistance / app.splitDebugPerf.Width,
                     SplitDebug = (float)app.splitDebug.SplitterDistance / app.splitDebug.Width,
-                    NewLineHelper = CodeEditor.NewLineHelper,
+                    NewLineHelper = CodeEditor.DefaultEdgeColumn,
                     ThemeXml = Theme.Name + ".xml",
                 };
             }
@@ -882,14 +934,17 @@ namespace App
                     (int)(SplitRenderCoding * app.splitRenderCoding.Width);
                 app.splitRenderOutput.SplitterDistance =
                     (int)(SplitRenderOutput * app.splitRenderOutput.Height);
+                app.splitDebugPerf.SplitterDistance =
+                    (int)(SplitDebugPerf * app.splitDebugPerf.Width);
                 app.splitDebug.SplitterDistance =
                     (int)(SplitDebug * app.splitDebug.Width);
                 // select 'float' as the default buffer value type
                 app.comboBufType.SelectedIndex = 8;
                 // change new line helper position
-                CodeEditor.NewLineHelper = NewLineHelper;
+                CodeEditor.DefaultEdgeColumn = NewLineHelper;
             }
         }
+
         #endregion
     }
 }

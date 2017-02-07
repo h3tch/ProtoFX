@@ -67,10 +67,15 @@ shader vs_shadowmap vert {
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
 	
+	// vertex shader output
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
+	
 	void main ()
 	{
 		// transform vertex to light projection space
-		<<gl_Position>> = <<light.viewProj>> * <<in_pos>>;
+		gl_Position = light.viewProj * in_pos;
 	}
 }
 
@@ -94,13 +99,16 @@ shader vs_render vert {
 	// vertex shader output
 	layout(location = 0) out vec4 out_lpos;
 	layout(location = 1) out vec4 out_col;
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
 	
 	void main ()
 	{
 		// transform vertex to camera projection space
-		<<gl_Position>> = camera.viewProj * in_pos;
+		gl_Position = camera.viewProj * in_pos;
 		// transform vertex to light projection space
-		<<out_lpos>> = light.viewProj * in_pos;
+		out_lpos = light.viewProj * in_pos;
 		// pass vertex color
 		out_col = in_col;
 	}
@@ -108,7 +116,6 @@ shader vs_render vert {
 
 shader fs_render frag {
 	#version 440
-	#define PI 3.1415926535897932384626433832795
 	
 	layout(binding = 0) uniform SpotLight {
 		mat4 viewProj;
@@ -127,13 +134,14 @@ shader fs_render frag {
 	layout(location = 1) in vec4 in_col;
 	out vec4 color;
 
+	const float PI = 3.14159265358979;
 	const float lightR = light.light.y;
 	const float zNear = light.camera.z;
 	const float zFar = light.camera.w;
 	const vec2 fovVec = light.light.zw;
 	
 	float rand(vec2 xy) {
-		return fract(sin(dot(xy ,vec2(12.9898,78.233))) * 43758.5453);
+		return fract(sin(dot(xy, vec2(12.9898,78.233))) * 43758.5453);
 	}
 
 	mat2 randRot(float angle) {
@@ -223,11 +231,7 @@ shader fs_render frag {
 	
 	void main () {
 		// pass color
-		<<color>> = in_col;
-		
-		//vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
-		//color.rgb = normalize(cross(dFdx(lpos),dFdy(lpos)));
-		//return;
+		color = in_col;
 		
 		// if pixel outside light frustum clip space, do nothing
 		if (any(greaterThan(abs(in_lpos), in_lpos.wwww)))
@@ -240,20 +244,17 @@ shader fs_render frag {
 		vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
 		
 		vec3 normal = cross(dFdx(lpos),dFdy(lpos));
-		if (normal.z < 0) {
+		if (normal.z < 0)
 			return;
-		}
 			
 		vec2 surfBias = -normal.xy / normal.z;
 		
-		//const vec2 r = 10.0 / textureSize(shadowmap, 0);
-		//float shadow = PCF((r.x + r.y) * 0.5, lpos, zChange);
-		float <<shadow>> = PCSS(surfBias, lpos);
+		float shadow = PCSS(surfBias, lpos);
 			
 		if (shadow == 0.0)
 			return;
 		
-		color.rgb *= (1.0 - shadow) * 0.5 + 0.5;
+		color.xyz *= (1.0 - shadow) * 0.5 + 0.5;
 	}
 }
 

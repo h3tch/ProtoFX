@@ -20,6 +20,7 @@ namespace csharp
         }
 
         #region FIELDS
+
         public float[] pos = new float[] { 0f, 0f, 0f };
         public float[] rot = new float[] { 0f, 0f, 0f };
         public float fov = 60f;
@@ -30,15 +31,18 @@ namespace csharp
         protected Matrix4 view;
         protected Dictionary<int, UniformBlock<Names>> uniform =
             new Dictionary<int, UniformBlock<Names>>();
+
         #endregion
 
         #region PROPERTIES
+
         public string Name { get { return name; } }
         public float[] Position { get { return pos; } set { pos = value; } }
         public float[] Rotation { get { return rot; } set { rot = value; } }
         public float FieldOfViewY { get { return fov; } set { fov = value; } }
         public float NearPlane { get { return near; } set { near = value; } }
         public float FarPlane { get { return far; } set { far = value; } }
+
         #endregion
 
         public StaticCamera(string name, Commands cmds, GLNames glNames)
@@ -64,7 +68,7 @@ namespace csharp
             Convert(cmds, "far", ref far);
         }
 
-        public void Update(int program, int width, int height, int widthTex, int heightTex)
+        public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
             // This function is executed every frame at the beginning of a pass.
             view = Matrix4.CreateTranslation(-pos[0], -pos[1], -pos[2])
@@ -75,8 +79,8 @@ namespace csharp
 
             // GET OR CREATE CAMERA UNIFORMS FOR program
             UniformBlock<Names> unif;
-            if (uniform.TryGetValue(program, out unif) == false)
-                uniform.Add(program, unif = new UniformBlock<Names>(program, name));
+            if (uniform.TryGetValue(pipeline, out unif) == false)
+                uniform.Add(pipeline, unif = new UniformBlock<Names>(pipeline, name));
 
             // SET UNIFORM VALUES
             if (unif.Has(Names.view))
