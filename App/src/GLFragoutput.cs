@@ -136,10 +136,9 @@ namespace App
             int layer = cmd.ArgCount > 2 ? int.Parse(cmd[2].Text) : 0;
 
             // get attachment point
-            FramebufferAttachment attachment;
             if (!Enum.TryParse(
                 $"{cmd.Name}attachment{(cmd.Name.Equals("color") ? "" + numAttachments++ : "")}",
-                true, out attachment))
+                true, out FramebufferAttachment attachment))
             {
                 err.Add($"Invalid attachment point '{cmd.Name}'.", cmd);
                 return;

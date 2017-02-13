@@ -398,9 +398,8 @@ namespace App
             // if there are performance timings, show them
             if (glControl.TimingsCount > 0)
             {
-                IEnumerable<int> frames;
-                IEnumerable<float> times;
-                PostProcessPerfData(glControl.Frames, glControl.Timings, out frames, out times, 10, true);
+                (var frames, var times) = PostProcessPerfData(
+                    glControl.Frames, glControl.Timings, 10, true);
 
                 var points = chartPerf.Series[0].Points;
                 points.Clear();

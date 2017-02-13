@@ -157,12 +157,14 @@ namespace App
         /// <param name="typeName"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static Array To(this Array data, string typeName, out Type type)
+        public static (Array, Type) To(this Array data, string typeName)
         {
             // convert input type to bytes
             var bytes = data.GetType().GetElementType() == typeof(byte) ? (byte[])data : data.ToBytes();
             // convert bytes to output type
-            return bytes.To(type = str2type[typeName]);
+            var type = str2type[typeName];
+            var array = bytes.To(type);
+            return (array, type);
         }
 
         /// <summary>

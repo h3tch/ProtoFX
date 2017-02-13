@@ -74,8 +74,7 @@ namespace App
             var data = buf.Read();
 
             // convert data to specified type
-            Type colType;
-            Array da = data.To(type, out colType);
+            (Array da, Type colType) = data.To(type);
 
             // CREATE TABLE
             var dt = new DataTable(buf.name);
@@ -165,9 +164,8 @@ namespace App
                 return;
 
             // get line from selected item
-            int line;
             var text = view.SelectedRows[0].Cells[1].Value as string;
-            if (!int.TryParse(text, NumberStyles.Integer, CultureInfo.CurrentCulture, out line))
+            if (!int.TryParse(text, NumberStyles.Integer, CultureInfo.CurrentCulture, out int line))
                 return;
 
             // scroll to line
@@ -496,9 +494,7 @@ namespace App
             // if there are performance timings, show them
             if (obj.TimingsCount > 0)
             {
-                IEnumerable<int> frames;
-                IEnumerable<float> times;
-                PostProcessPerfData(obj.Frames, obj.Timings, out frames, out times, 10);
+                (var frames, var times) = PostProcessPerfData(obj.Frames, obj.Timings, 10);
                 editor.PerfTipShow(position, frames.ToArray(), times.ToArray());
             }
         }
@@ -512,10 +508,13 @@ namespace App
         /// <param name="Y"></param>
         /// <param name="multipleOf"></param>
         /// <param name="removeOutliers"></param>
-        private void PostProcessPerfData(IEnumerable<int> frames, IEnumerable<float> times,
-            out IEnumerable<int> X, out IEnumerable<float> Y,
+        private (IEnumerable<int>, IEnumerable<float>) PostProcessPerfData(
+            IEnumerable<int> frames, IEnumerable<float> times,
             int multipleOf = 10, bool removeOutliers = false)
         {
+            IEnumerable<int> X;
+            IEnumerable<float> Y;
+
             // remove statistical outliers
             if (removeOutliers)
             {
@@ -538,6 +537,8 @@ namespace App
             int lastIdx = X.LastIndexOf(a => ((a - fistFrame) % multipleOf) == 0) + 1;
             X = X.Take(lastIdx).Select(a => a - fistFrame);
             Y = Y.Take(lastIdx);
+
+            return (X, Y);
         }
 
         #endregion

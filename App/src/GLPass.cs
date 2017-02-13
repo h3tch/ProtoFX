@@ -323,7 +323,6 @@ namespace App
             bool typeIsSet = false;
             PrimType primitive = 0;
             ElementType indextype = 0;
-            int val;
 
             // parse draw call arguments
             foreach (var arg in cmd)
@@ -336,7 +335,7 @@ namespace App
                     continue;
                 if (classes.TryGetValue(arg.Text, ref indirect))
                     continue;
-                if (int.TryParse(arg.Text, out val))
+                if (int.TryParse(arg.Text, out int val))
                     args.Add(val);
                 else if (typeIsSet == false && Enum.TryParse(arg.Text, true, out indextype))
                     typeIsSet = true;
@@ -442,7 +441,7 @@ namespace App
             // specify mandatory arguments
             var mandatory = new[] { new[] { true, true, false }, new[] { false, true, false } };
             // parse command arguments
-            var values = cmd.Parse(types, mandatory, classes, err);
+            (var values, var unused) = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
             if (!err.HasErrors())
                 textures.Add(new Res<GLTexture>(values));
@@ -471,7 +470,7 @@ namespace App
                 new[] { false, true, false, false, false, false, false },
             };
             // parse command arguments
-            var values = cmd.Parse(types, mandatory, classes, err);
+            (var values, var unused) = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
             if (!err.HasErrors())
                 texImages.Add(new ResTexImg(values));
@@ -489,7 +488,7 @@ namespace App
             // specify mandatory arguments
             var mandatory = new[] { new[] { true, true, false }, new[] { false, true, false } };
             // parse command arguments
-            var values = cmd.Parse(types, mandatory, classes, err);
+            (var values, var unused) = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
             if (!err.HasErrors())
                 sampler.Add(new Res<GLSampler>(values));
@@ -534,8 +533,7 @@ namespace App
             }
 
             // get instance
-            GLInstance instance;
-            if (!classes.TryGetValue(cmd[0].Text, out instance, cmd, err))
+            if (!classes.TryGetValue(cmd[0].Text, out GLInstance instance, cmd, err))
                 return;
 
             csexec.Add(instance);
@@ -868,7 +866,7 @@ namespace App
                     new[] { false, false, false, false },
                 };
                 // parse command arguments
-                var values = cmd.Parse(types, mandatory, out outputVaryings, scene, err);
+                (var values, var outputVaryings) = cmd.Parse(types, mandatory, scene, err);
                 if (err.HasErrors())
                     return;
 

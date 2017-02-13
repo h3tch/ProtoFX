@@ -78,12 +78,15 @@ namespace App
         private void ParsePasses(ref List<GLPass> list, Compiler.Block block, Dict scene,
             CompileException err)
         {
-            GLPass pass;
             var cmdName = ReferenceEquals(list, init)
-                ? "init" : ReferenceEquals(list, passes) ? "pass" : "uninit";
+                ? "init"
+                : ReferenceEquals(list, passes) ? "pass" : "uninit";
             foreach (var cmd in block[cmdName])
-                if (scene.TryGetValue(cmd[0].Text, out pass, block, err | $"command '{cmd.Text}'"))
+            {
+                if (scene.TryGetValue(cmd[0].Text, out GLPass pass, block,
+                        err | $"command '{cmd.Text}'"))
                     list.Add(pass);
+            }
         }
     }
 }

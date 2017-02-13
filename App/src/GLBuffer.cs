@@ -49,10 +49,9 @@ namespace App
         /// <param name="glname">OpenGL object to like to.</param>
         public GLBuffer(string name, string anno, int glname) : base(name, anno)
         {
-            int s, u;
             this.glname = glname;
-            GL.GetNamedBufferParameter(glname, ParameterName.BufferSize, out s);
-            GL.GetNamedBufferParameter(glname, ParameterName.BufferUsage, out u);
+            GL.GetNamedBufferParameter(glname, ParameterName.BufferSize, out int s);
+            GL.GetNamedBufferParameter(glname, ParameterName.BufferUsage, out int u);
             Size = s;
             Usage = (UsageHint)u;
         }
@@ -127,8 +126,7 @@ namespace App
             }
 
             // check read flag of the buffer
-            int flags;
-            GL.GetNamedBufferParameter(glname, ParameterName.BufferStorageFlags, out flags);
+            GL.GetNamedBufferParameter(glname, ParameterName.BufferStorageFlags, out int flags);
             if ((flags & (int)BufferStorageFlags.MapReadBit) == 0)
             {
                 var rs = "Buffer cannot be read".ToCharArray().ToBytes();

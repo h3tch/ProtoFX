@@ -63,9 +63,8 @@ namespace App
             int stride = cmd.ArgCount > 3 ? int.Parse(cmd[3].Text) : 0;
             int offset = cmd.ArgCount > 4 ? int.Parse(cmd[4].Text) : 0;
             int divisor = cmd.ArgCount > 5 ? int.Parse(cmd[5].Text) : 0;
-
-            GLBuffer buff;
-            if (scene.TryGetValue(buffname, out buff, cmd, err) == false)
+            
+            if (scene.TryGetValue(buffname, out GLBuffer buff, cmd, err) == false)
             {
                 err.Add($"Buffer '{buffname}' could not be found.", cmd);
                 return;
@@ -76,12 +75,10 @@ namespace App
             GL.EnableVertexAttribArray(unit);
 
             // bind buffer to vertex array attribute
-            VertAttrIntType typei;
-            VertAttrType typef;
             int type = 0;
-            if (Enum.TryParse(typename, true, out typei))
+            if (Enum.TryParse(typename, true, out VertAttrIntType typei))
                 GL.VertexAttribIPointer(unit, length, (IntType)(type = (int)typei), stride, (IntPtr)offset);
-            else if (Enum.TryParse(typename, true, out typef))
+            else if (Enum.TryParse(typename, true, out VertAttrType typef))
                 GL.VertexAttribPointer(unit, length, (PointerType)(type = (int)typef), false, stride, offset);
             else
                 err.Add($"Type '{typename}' is not supported.", cmd);
