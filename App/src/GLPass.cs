@@ -45,7 +45,8 @@ namespace App
         private List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
         private List<GLMethod> glfunc = new List<GLMethod>();
         private List<GLInstance> csexec = new List<GLInstance>();
-        private bool debug;
+        private bool GenDebugInfo;
+        public bool TraceDebugInfo { get; set; } = false;
 
         #endregion
 
@@ -54,12 +55,12 @@ namespace App
         /// </summary>
         /// <param name="block"></param>
         /// <param name="scene"></param>
-        /// <param name="debugging"></param>
-        public GLPass(Compiler.Block block, Dict scene, bool debugging)
-            : base(block.Name, block.Anno, 309, debugging)
+        /// <param name="genDebugInfo"></param>
+        public GLPass(Compiler.Block block, Dict scene, bool genDebugInfo)
+            : base(block.Name, block.Anno, 309, genDebugInfo)
         {
             var err = new CompileException($"pass '{name}'");
-            debug = debugging;
+            GenDebugInfo = genDebugInfo;
 
             /// PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
 
@@ -114,7 +115,7 @@ namespace App
                 }
 
                 // get debug shaders
-                if (debug)
+                if (GenDebugInfo)
                 {
                     if (glcomp != null)
                     {
@@ -176,7 +177,7 @@ namespace App
         /// <param name="width">Width of the OpenGL control.</param>
         /// <param name="height">Height of the OpenGL control.</param>
         /// <param name="frame">The ID of the current frame.</param>
-        public void Exec(int width, int height, int frame, bool debugTrage)
+        public void Exec(int width, int height, int frame)
         {
             // in debug mode check if the
             // OpenGL sate is valid
@@ -246,7 +247,7 @@ namespace App
 
             /// BIND DEBUGGER
 
-            if (debugTrage && debug && drawcalls.Count > 0)
+            if (TraceDebugInfo && GenDebugInfo && drawcalls.Count > 0)
             {
                 try
                 {
@@ -267,6 +268,10 @@ namespace App
                 catch (Exception e)
                 {
                     throw new Exception($"Debugger crashed with the following message: {e.Message}", e);
+                }
+                finally
+                {
+                    TraceDebugInfo = false;
                 }
             }
 

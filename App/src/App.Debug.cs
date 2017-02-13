@@ -1,9 +1,7 @@
 ﻿using ScintillaNET;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
@@ -148,7 +146,7 @@ namespace App
         /// <param name="s"></param>
         /// <param name="e"></param>
         private void propertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
-            => DebugRender();
+            => DebugRender(true);
 
         #endregion
 
@@ -207,6 +205,9 @@ namespace App
         /// <param name="e"></param>
         private void DebugStepBreakpoint_Click(object s = null, EventArgs e = null)
         {
+            if (DebugInfo.Length == 0)
+                return;
+
             // goto next debug info
             CurrentDebugInfo = ++CurrentDebugInfo % DebugInfo.Length;
 
@@ -242,10 +243,10 @@ namespace App
         /// <param name="e"></param>
         private void DebugStepOver_Click(object s = null, EventArgs e = null)
         {
-            if (CurrentDebugInfo < 0)
-                // goto first debug info (e.g. first press or begin anew)
-                CurrentDebugInfo = 0;
-            else
+            if (DebugInfo.Length == 0)
+                return;
+
+            if (CurrentDebugInfo >= 0)
             {
                 // get the current debug level (to prevent stepping into a lover level)
                 var level = DebugInfo[CurrentDebugInfo].Location.Level;
@@ -254,6 +255,9 @@ namespace App
                 // goto next debug info in the same level
                 CurrentDebugInfo = DebugInfo.IndexOf(x => x.Location.Level == level, CurrentDebugInfo);
             }
+            else
+                // goto first debug info (e.g. first press or begin anew)
+                CurrentDebugInfo = 0;
 
             // update debug interface
             DebugInterfaceUpdate();
@@ -266,6 +270,9 @@ namespace App
         /// <param name="e"></param>
         private void DebugStepInto_Click(object s = null, EventArgs e = null)
         {
+            if (DebugInfo.Length == 0)
+                return;
+
             // goto next debug info
             CurrentDebugInfo = ++CurrentDebugInfo % DebugInfo.Length;
 
@@ -280,6 +287,9 @@ namespace App
         /// <param name="e"></param>
         private void DebugStepBack_Click(object s = null, EventArgs e = null)
         {
+            if (DebugInfo.Length == 0)
+                return;
+
             // goto previous debug info
             CurrentDebugInfo = Math.Max(0, --CurrentDebugInfo);
 
@@ -366,6 +376,7 @@ namespace App
                 return;
 
             // convert cursor position to text position
+            Point location = editor.PointToScreen(Point.Empty);
             var mouse = editor.PointToClient(Cursor.Position);
             var pos = editor.CharPositionFromPoint(mouse.X, mouse.Y);
             var line = editor.LineFromPosition(pos);
@@ -393,22 +404,25 @@ namespace App
             debugListView.AddColumn("Z", 80);
             debugListView.AddColumn("W", 80);
 
-            // get debug variables of the line where the caret is placed
-            var line = DebugInfo[CurrentDebugInfo].Location.Line;
-
-            var startIdx = CurrentDebugInfo;
-            while (startIdx > 0 && DebugInfo[startIdx - 1].Location.Line == line)
-                startIdx--;
-
-            var endIdx = CurrentDebugInfo;
-            while (endIdx < DebugInfo.Length && DebugInfo[endIdx].Location.Line == line)
-                endIdx++;
-
-            // get debug info for the line
-            while (startIdx < endIdx)
+            if (0 <= CurrentDebugInfo && CurrentDebugInfo < DebugInfo.Length)
             {
-                NewVariableItem(DebugInfo[startIdx].Name, DebugInfo[startIdx].OutputArray);
-                startIdx++;
+                // get debug variables of the line where the caret is placed
+                var line = DebugInfo[CurrentDebugInfo].Location.Line;
+
+                var startIdx = CurrentDebugInfo;
+                while (startIdx > 0 && DebugInfo[startIdx - 1].Location.Line == line)
+                    startIdx--;
+
+                var endIdx = CurrentDebugInfo;
+                while (endIdx < DebugInfo.Length && DebugInfo[endIdx].Location.Line == line)
+                    endIdx++;
+
+                // get debug info for the line
+                while (startIdx < endIdx)
+                {
+                    NewVariableItem(DebugInfo[startIdx].Name, DebugInfo[startIdx].OutputArray);
+                    startIdx++;
+                }
             }
 
             debugListView.Refresh();
@@ -436,11 +450,13 @@ namespace App
                 int cols = val.GetLength(1);
 
                 for (int r = 0; r < rows; r++)
-                    NewVariableRow(Enumerable.Range(0, cols).Select(c => val.GetValue(r, c)), dbgVarGroup);
+                    NewVariableRow(Enumerable.Range(0, cols)
+                        .Select(c => val.GetValue(r, c)), dbgVarGroup);
             }
             // is vector or scalar
             else
-                NewVariableRow(Enumerable.Range(0, val.Length).Select(c => val.GetValue(c)), dbgVarGroup);
+                NewVariableRow(Enumerable.Range(0, val.Length)
+                    .Select(c => val.GetValue(c)), dbgVarGroup);
 
         }
 
@@ -529,10 +545,20 @@ namespace App
         /// <summary>
         /// Render and get debug variables.
         /// </summary>
-        private void DebugRender()
+        private void DebugRender(bool traceDebugInfo)
         {
+            // enable or disable traceing debug information
+            if (traceDebugInfo)
+                glControl.Scene
+                    .Where(x => x.Value is GLPass)
+                    .ForEach(x => ((GLPass)x.Value).TraceDebugInfo = true);
+
             // render the scene
             glControl.Render();
+
+            // UPDATE DEBUG INFORMATION IF NECESSARY
+            if (traceDebugInfo)
+                DebugResetInterface();
 
             // only use debugging if the selected editor
             // was used to generate the debug information

@@ -123,7 +123,7 @@ namespace App
             /// CLEAR OPENGL CONTROL
 
             glControl.AddEvents(output);
-            glControl.Render();
+            DebugRender(false);
         }
 
         /// <summary>
@@ -410,7 +410,7 @@ namespace App
 
             // on mouse up, render and debug the
             // program, because there could be changes
-            DebugRender();
+            DebugRender(true);
         }
 
         #endregion
@@ -511,7 +511,7 @@ namespace App
             CompiledEditor.AddIndicators(CodeEditor.DebugIndicatorIndex, ranges);
 
             // SHOW SCENE
-            glControl.Render(debugging);
+            DebugRender(debugging);
 
             // add externally created textures to the scene
             var existing = glControl.Scene.Values.ToArray();
@@ -527,10 +527,6 @@ namespace App
             glControl.Scene.Where(x => x.Value is GLBuffer).ForEach(x => comboBuf.Items.Add(x.Value));
             glControl.Scene.Where(x => x.Value is GLImage).ForEach(x => comboImg.Items.Add(x.Value));
             glControl.Scene.Where(x => x.Value is GLInstance).ForEach(x => comboProp.Items.Add(x.Value));
-
-            // UPDATE DEBUG INFORMATION IF NECESSARY
-            if (debugging)
-                DebugResetInterface();
 
             // SHOW DEBUG BUTTONS IF NECESSARY
             toolBtnDbgStepBreakpoint.Enabled = debugging;
