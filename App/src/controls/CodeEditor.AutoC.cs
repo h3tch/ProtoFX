@@ -202,10 +202,6 @@ namespace ScintillaNET
                 if (e.Cancle)
                     return;
 
-                // make sure the calltip window
-                // is in front of all others
-                tip.BringToFront();
-
                 // show calltip
                 if (hint is string)
                 {
@@ -218,6 +214,10 @@ namespace ScintillaNET
                     var Y = (Array)((Array)hint).GetValue(1);
                     tip.Show(rect, X, Y, w, w * 0.6, ContentAlignment.TopLeft, 0.3, 0.3);
                 }
+
+                // make sure the calltip window
+                // is in front of all others
+                tip.BringToFront();
             }
         }
 

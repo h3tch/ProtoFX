@@ -18,7 +18,7 @@ namespace ScintillaNET
         private static string HiddenLines = $"{(char)177}";
         private string filename;
         private FileSystemWatcher FileWatcher;
-        private bool watchChanges = true;
+        private bool WatchChanges = true;
         private const int LINE_NUMBER_MARGIN = 0;
         private const int BREAKPOINT_MARGIN = 1;
         private const int FOLDING_MARGIN = 2;
@@ -218,13 +218,21 @@ namespace ScintillaNET
             if (FileWatcher != null)
                 FileWatcher.EnableRaisingEvents = true;
         }
+
+        public bool IsDifferentFromFile()
+        {
+            if (FileWatcher == null)
+                return true;
+            var fileText = File.ReadAllText(Filename);
+            return fileText != Text;
+        }
         
         /// <summary>
         /// Pause watching for text changes.
         /// </summary>
         public void PauseWatchChanges()
         {
-            watchChanges = false;
+            WatchChanges = false;
         }
         
         /// <summary>
@@ -232,7 +240,7 @@ namespace ScintillaNET
         /// </summary>
         public void ResumeWatchChanges()
         {
-            watchChanges = true;
+            WatchChanges = true;
         }
 
         #endregion

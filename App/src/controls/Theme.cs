@@ -219,13 +219,6 @@ namespace System.Windows.Forms
             return true;
         }
 
-        private static bool ApplyTo(FXTabPage c)
-        {
-            c.BackColor = BackColor;
-            c.ForeColor = ForeColor;
-            return true;
-        }
-
         private static bool ApplyTo(AutoSizeListView c)
         {
             c.BackColor = Workspace;

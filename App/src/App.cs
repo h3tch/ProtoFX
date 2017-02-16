@@ -32,7 +32,7 @@ namespace App
         /// <summary>
         /// Get the currently selected code tab.
         /// </summary>
-        private FXTabPage SelectedTab => (FXTabPage)tabSource.SelectedTab;
+        private TabPage SelectedTab => tabSource.SelectedTab;
         /// <summary>
         /// Get the currently selected editor.
         /// </summary>
@@ -137,16 +137,7 @@ namespace App
             // check if there are any files with changes
             foreach (TabPage tab in tabSource.TabPages)
             {
-                if (!tab.Text.EndsWith("*"))
-                    continue;
-                // ask user whether he/she wants to save those files
-                var answer = MessageBox.Show(
-                    "Do you want to save files with changes before closing them?",
-                    "Save file changes", MessageBoxButtons.YesNoCancel);
-                // if so, save all files with changes
-                if (answer == DialogResult.Yes)
-                    toolBtnSaveAll_Click(sender, null);
-                else if (answer == DialogResult.Cancel)
+                if (!CloseTab(tab))
                     e.Cancel = true;
             }
 
@@ -474,8 +465,8 @@ namespace App
             glControl.RemoveEvents();
 
             // get include directory
-            var includeDir = (SelectedTab.UserData != null
-                ? Path.GetDirectoryName(SelectedTab.UserData as string)
+            var includeDir = (CompiledEditor.Filename != null
+                ? Path.GetDirectoryName(CompiledEditor.Filename)
                 : Directory.GetCurrentDirectory()) + Path.DirectorySeparatorChar;
 
             // get code text form tab page
@@ -483,7 +474,7 @@ namespace App
             var debugging = s == toolBtnDbg;
 
             // COMPILE THE CURRENTLY SELECTED FILE
-            var root = Compiler.Compile(SelectedTab.UserData as string);
+            var root = Compiler.Compile(CompiledEditor.Filename);
             var shaderLines = from x in root where x.Type == "shader" select new[] { x.Line, x.LineCount };
             CompiledEditor.RemoveInvalidBreakpoints(shaderLines);
             
@@ -544,7 +535,7 @@ namespace App
         {
             if (!(SelectedTab?.Text.EndsWith("*") ?? false))
                 return;
-            SaveTabPage(SelectedTab, false);
+            SaveTab(SelectedTab, false);
             SelectedTab.Text = SelectedTab.Text.Substring(0, SelectedTab.Text.Length - 1);
         }
 
@@ -555,13 +546,8 @@ namespace App
         /// <param name="e"></param>
         private void toolBtnSaveAll_Click(object s, EventArgs e)
         {
-            foreach (FXTabPage tab in tabSource.TabPages)
-            {
-                if (!tab.Text.EndsWith("*"))
-                    continue;
-                SaveTabPage(tab, false);
-                tab.Text = tab.Text.Substring(0, tab.Text.Length - 1);
-            }
+            foreach (TabPage tab in tabSource.TabPages)
+                SaveTab(tab, false);
         }
 
         /// <summary>
@@ -570,7 +556,7 @@ namespace App
         /// <param name="s"></param>
         /// <param name="e"></param>
         private void toolBtnSaveAs_Click(object s, EventArgs e)
-            => SaveTabPage(SelectedTab, true);
+            => SaveTab(SelectedTab, true);
 
         /// <summary>
         /// Close the currently active tab, but open the save dialog if there have been changes.
@@ -579,17 +565,8 @@ namespace App
         /// <param name="e"></param>
         private void tabSource_TabClose(object s, TabControlCancelEventArgs e)
         {
-            var tab = (FXTabPage)e.TabPage;
-            if (tab.Text.EndsWith("*"))
-            {
-                var answer = MessageBox.Show(
-                    "Do you want to save the file before closing it?",
-                    "File changed", MessageBoxButtons.YesNoCancel);
-                if (answer == DialogResult.Yes)
-                    SaveTabPage(tab, false);
-                else if (answer == DialogResult.Cancel)
-                    e.Cancel = true;
-            }
+            if (!CloseTab(e.TabPage))
+                e.Cancel = true;
         }
 
         /// <summary>
@@ -688,18 +665,18 @@ namespace App
         /// <summary>
         /// Save tab.
         /// </summary>
-        /// <param name="tabPage"></param>
+        /// <param name="tab"></param>
         /// <param name="newfile"></param>
-        private void SaveTabPage(FXTabPage tabPage, bool newfile)
+        private void SaveTab(TabPage tab, bool newfile)
         {
-            if (tabPage == null)
+            if (tab == null)
                 return;
 
-            var editor = (CodeEditor)tabPage.Controls[0];
+            var editor = (CodeEditor)tab.Controls[0];
 
             // Open a save dialog if the tabPage is not liked
             // to a file or a new file should be created.
-            if (tabPage.UserData == null || newfile)
+            if (editor.Filename == null || newfile)
             {
                 var saveDlg = new SaveFileDialog();
                 saveDlg.Filter = "Text Files (.tech)|*.tech|All Files (*.*)|*.*";
@@ -709,16 +686,21 @@ namespace App
                 if (saveDlg.ShowDialog() != DialogResult.OK)
                     return;
 
-                tabPage.UserData = saveDlg.FileName;
-                tabPage.Text = Path.GetFileName(saveDlg.FileName);
+                editor.Filename = saveDlg.FileName;
+                tab.Text = Path.GetFileName(saveDlg.FileName);
             }
 
             // save the file
-            var filename = tabPage.UserData as string;
-            editor.PauseFileWatch();
-            System.IO.File.WriteAllText(filename, editor.Text);
-            editor.ResumeFileWatch();
-            editor.Filename = filename;
+            if (editor.IsDifferentFromFile())
+            {
+                editor.PauseFileWatch();
+                System.IO.File.WriteAllText(editor.Filename, editor.Text);
+                editor.ResumeFileWatch();
+            }
+
+            // remove change indicator
+            if (tab.Text.EndsWith("*"))
+                tab.Text = tab.Text.Substring(0, tab.Text.Length - 1);
         }
 
         /// <summary>
@@ -732,13 +714,14 @@ namespace App
             var text = path != null ? System.IO.File.ReadAllText(path) : "// Unnamed file";
 
             // create new tab objects
-            var tabSourcePage = new FXTabPage();
-            tabSourcePage.UserData = path;
-            var editor = new CodeEditor(Properties.Resources.keywordsXML, text);
+            var tabSourcePage = new TabPage();
+            var editor = new CodeEditor(Properties.Resources.keywordsXML);
             editor.Filename = path;
             editor.ShowCallTip += editor_ShowCallTip;
             editor.CancleCallTip += editor_CancleCallTip;
             editor.CustomMouseHover += editor_MouseHover;
+            editor.VScrollBar = false;
+            editor.HScrollBar = false;
 
             // tabSourcePage
             Theme.Apply(tabSourcePage);
@@ -750,7 +733,35 @@ namespace App
 
             // add tab
             tabSource.Controls.Add(tabSourcePage);
+            tabSource.Refresh();
+            editor.PauseWatchChanges();
+            editor.Text = text;
+            editor.ResumeWatchChanges();
+            editor.VScrollBar = true;
+            editor.HScrollBar = true;
             return tabSource.TabPages.Count - 1;
+        }
+
+        /// <summary>
+        /// Close tab page.
+        /// </summary>
+        /// <param name="tab"></param>
+        /// <returns>Returns <code>ture</code> if tab should be closed.</returns>
+        private bool CloseTab(TabPage tab)
+        {
+            if (tab.Controls.Count == 0
+                || !(tab.Controls[0] is CodeEditor editor)
+                || !editor.IsDifferentFromFile())
+                return true;
+
+            var answer = MessageBox.Show(
+                "Do you want to save the file before closing it?",
+                "File changed", MessageBoxButtons.YesNoCancel);
+            if (answer == DialogResult.Yes)
+                SaveTab(tab, false);
+            else if (answer == DialogResult.Cancel)
+                return false;
+            return true;
         }
 
         /// <summary>

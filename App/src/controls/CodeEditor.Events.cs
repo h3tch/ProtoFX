@@ -130,7 +130,7 @@ namespace ScintillaNET
             var tab = Parent as TabPage;
 
             // add file changed indicator '*'
-            if (watchChanges && (!tab?.Text.EndsWith("*") ?? false))
+            if (WatchChanges && (!tab?.Text.EndsWith("*") ?? false))
                 tab.Text = tab.Text + '*';
 
             // update line number margins

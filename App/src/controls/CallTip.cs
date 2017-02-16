@@ -138,7 +138,7 @@ namespace System.Windows.Forms
         /// <param name="rect"></param>
         /// <param name="size"></param>
         /// <param name="align"></param>
-        private void Reposition(Rectangle rect, Drawing.Size size, ContentAlignment align)
+        public void Reposition(Rectangle rect, Drawing.Size size, ContentAlignment align = BottomCenter)
         {
             // add padding
             size.Width += Padding.Left + Padding.Right;

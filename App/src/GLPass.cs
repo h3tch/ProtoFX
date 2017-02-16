@@ -850,7 +850,7 @@ namespace App
             public TransformFeedbackMode vertoutMode;
             public bool pause;
             public bool resume;
-            public string[] outputVaryings;
+            //public string[] outputVaryings;
 
             public Vertoutput(Compiler.Command cmd, Dict scene, CompileException err)
             {
