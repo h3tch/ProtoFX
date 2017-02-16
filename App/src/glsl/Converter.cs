@@ -1,6 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -13,6 +12,8 @@ namespace App.Glsl
         #region Regex
 
         private static readonly string[] InvalidVariableNames;
+        private static readonly string[] DebugFunctions;
+        private static readonly Regex[] DebugFuncRegex;
 
         private static class Pattern
         {
@@ -49,7 +50,11 @@ namespace App.Glsl
             public static Regex InOut = new Regex(Pattern.InOut, RegexOptions.RightToLeft);
             public static Regex InOutLayout = new Regex(Pattern.InOutLayout, RegexOptions.RightToLeft);
             public static Regex Const = new Regex(Pattern.Const, RegexOptions.RightToLeft);
+            public static Regex FuncHead = new Regex($"\\b[\\w\\d]+\\s*{Pattern.FunctionBraces}");
+            public static Regex LoopHead = FuncCall("(for|while)");
+            public static Regex ShortLoops = ShortLoop("(for|while)");
             public static Regex FuncCall(string funcName) => new Regex($"\\b{funcName}\\s*{Pattern.FunctionBraces}", RegexOptions.RightToLeft);
+            public static Regex ShortLoop(string loopName) => new Regex($"\\b{loopName}\\s*{Pattern.FunctionBraces}[^\\{{\\}};]*;", RegexOptions.RightToLeft);
         }
 
         #endregion
@@ -57,9 +62,9 @@ namespace App.Glsl
         static Converter()
         {
             // initialize the list of GLSL data types
-            InvalidVariableNames = new[] {
-                "return", "discard", "continue"
-            };
+            InvalidVariableNames = new[] { "return", "discard", "continue" };
+            DebugFunctions = new[] { "texture", "texelFetch" };
+            DebugFuncRegex = DebugFunctions.Select(x => RegEx.FuncCall(x)).ToArray();
         }
 
         /// <summary>
@@ -108,7 +113,18 @@ namespace App.Glsl
         /// <returns></returns>
         private static string DebugTrace(string text, List<int> indices)
         {
-            var debugFunctions = new[] { "texture", "texelFetch" };
+            const int VAR_USE = 0;
+            const int VAR_ASSIGN = 1;
+            const int FUNCTION = 2;
+
+            // add body to short loops (e.g., for (...) ...; to for (...) { ...; })
+            foreach (Match match in RegEx.ShortLoops.Matches(text))
+            {
+                var head = RegEx.LoopHead.Match(match.Value);
+                var i0 = match.Index + head.Index + head.Length;
+                var i1 = match.Index + match.Length;
+                text = text.Insert(i1, "}").Insert(i0, "{");
+            }
 
             // for all functions in the text, find all variable
             // accesses and add the respective debug trace function
@@ -122,15 +138,19 @@ namespace App.Glsl
                 var start = func.Value.IndexOf('{');
                 var body = func.Value.Subrange(start, func.Value.LastIndexOf('}'));
                 var offset = func.Index + start;
-                var length = body.Length;
+                var length = body.Length; // store original length
+                var funcHeads = RegEx.FuncHead.Matches(body);
+                var heads = funcHeads.ToArray()
+                    .SelectMany(x => new[] { x.Index, x.Index + x.Length })
+                    .ToArray(0, 2);
 
                 // find all variable accesses in the function
-                var variables = FindVariables(body).ToArray().GetEnumerator();
-                // find all function calls in the function
-                var functions = FindFunctionCalls(body, debugFunctions).ToArray().GetEnumerator();
-
+                var variables = FindVariables2(body).ToArray().GetEnumerator();
                 if (!variables.MoveNext())
                     variables = null;
+
+                // find all function calls in the function
+                var functions = FindFunctionCalls(body, DebugFuncRegex).ToArray().GetEnumerator();
                 if (!functions.MoveNext())
                     functions = null;
 
@@ -138,27 +158,64 @@ namespace App.Glsl
                 {
                     var variable = (Match)variables?.Current;
                     var function = (Match)functions?.Current;
-                    if ((variable?.Index ?? int.MinValue) > (function?.Index ?? int.MinValue))
+
+                    // if variable is before function
+                    var @switch = (variable?.Index ?? int.MinValue) > (function?.Index ?? int.MinValue)
+                        // if variable is an assignment (e.g., var = ...)
+                        ? MatchIsVariableAssignment(body, variable, heads)
+                            ? VAR_ASSIGN // is variable assignment
+                            // if variable is used as a variable (e.g., ... var * ...)
+                            : MatchIsVariableUse(body, variable)
+                                ? VAR_USE // is used as variable
+                                : -1 // is not a variable
+                        // function is before variable
+                        : FUNCTION;
+
+                    switch (@switch)
                     {
-                        // variable
-                        var varname = variable.Value.Trim();
-                        var location = LocatoinCtr(text, indices, offset + variable.Index, varname.Length);
-                        // add debug trace function
-                        body = body
-                            .Insert(variable.Index + varname.Length, $", \"{varname}\")")
-                            .Insert(variable.Index, $"TraceVariable({location}, ");
-                        if (!variables.MoveNext())
-                            variables = null;
-                    }
-                    else if (function != null)
-                    {
-                        // function
-                        var braceIdx = function.Value.IndexOf('(') + 1;
-                        var location = LocatoinCtr(text, indices, offset + function.Index, function.Length);
-                        // add debug trace function
-                        body = body.Insert(function.Index + braceIdx, $"{location}, ");
-                        if (!functions.MoveNext())
-                            functions = null;
+                        case VAR_USE:
+                            {
+                                // variable
+                                var varname = variable.Value.Trim();
+                                var location = LocatoinCtr(text, indices, offset + variable.Index, varname.Length);
+                                // add debug trace function
+                                body = body
+                                    .Insert(variable.Index + varname.Length, $", \"{varname}\")")
+                                    .Insert(variable.Index, $"TraceVariable({location}, ");
+                                if (!variables.MoveNext())
+                                    variables = null;
+                                break;
+                            }
+                        case VAR_ASSIGN:
+                            {
+                                // variable
+                                int insertIdx = body.IndexOf(';', variable.Index + variable.Length);
+                                if (insertIdx < 0)
+                                    break;
+                                var varname = variable.Value.Trim();
+                                var location = LocatoinCtr(text, indices, offset + variable.Index, varname.Length);
+                                // add debug trace function
+                                body = body.Insert(insertIdx + 1,
+                                    $"TraceVariable({location}, {varname}, \"{varname}\");");
+                                if (!variables.MoveNext())
+                                    variables = null;
+                                break;
+                            }
+                        case FUNCTION:
+                            {
+                                // function
+                                var braceIdx = function.Value.IndexOf('(') + 1;
+                                var location = LocatoinCtr(text, indices, offset + function.Index, function.Length);
+                                // add debug trace function
+                                body = body.Insert(function.Index + braceIdx, $"{location}, ");
+                                if (!functions.MoveNext())
+                                    functions = null;
+                                break;
+                            }
+                        case -1: // SKIP VARIABLE
+                            if (!variables.MoveNext())
+                                variables = null;
+                            break;
                     }
                 }
 
@@ -499,21 +556,87 @@ namespace App.Glsl
             }
         }
 
+        private static IEnumerable<Match> FindVariables2(string text)
+        {
+            double tmp;
+
+            // for each accessed variable
+            foreach (Match variable in RegEx.Variable.Matches(text))
+            {
+                // do not trace numbers
+                if (double.TryParse(variable.Value, out tmp))
+                    continue;
+
+                // get preceding and next char
+                var name = variable.Value.Trim();
+                //int preci = text.NextNonWhitespace(variable.Index - 1, -1);
+                int nexti = text.NextNonWhitespace(variable.Index + variable.Length);
+                //var prec = preci < 0 ? (char)0 : text[preci];
+                var next = nexti < 0 ? '\0' : text[nexti];
+
+                // If there is a space between two words this is a
+                // variable definition which we do not want to trace.
+                if (!char.IsLetterOrDigit(next) &&
+                    // is not a function name
+                    next != '(' &&
+                    // is not an invalid name
+                    !InvalidVariableNames.Any(x => x == name))
+                    // return variable
+                    yield return variable;
+            }
+        }
+
+        private static bool MatchIsVariableUse(string text, Match match)
+        {
+            // get preceding and next char
+            int preci = text.NextNonWhitespace(match.Index - 1, -1);
+            int nexti = text.NextNonWhitespace(match.Index + match.Length);
+            var prec = preci < 0 ? '\0' : text[preci];
+            var next = nexti < 0 ? "\0\0" : text.Substring(nexti, 2);
+
+            // is not =, +=, -=, *= or /= assignment
+            return !IsAssignmentOperator(next)
+                // is not a variable definition
+                && !char.IsLetterOrDigit(prec);
+        }
+
+        private static bool MatchIsVariableAssignment(string text, Match match, int[,] funcHeads)
+        {
+            // assignment cannot be handled within function headers
+            for (int i = 0; i < funcHeads.GetLength(0); i++)
+            {
+                if (match.Index < funcHeads[i, 0])
+                    break;
+                if (funcHeads[i, 0] <= match.Index && match.Index < funcHeads[i, 1])
+                    return false;
+            }
+            // get preceding and next char
+            int nexti = text.NextNonWhitespace(match.Index + match.Length);
+            var next = nexti < 0 ? "\0\0" : text.Substring(nexti, 2);
+            // is =, +=, -=, *= or /= assignment
+            return IsAssignmentOperator(next);
+        }
+
+        private static bool IsAssignmentOperator(string c)
+            => (c[0] == '=' && c[1] != '=')
+            || (c[1] == '=' && (c[0] == '+' || c[0] == '-' || c[0] == '*' || c[0] == '/'));
+
         /// <summary>
         /// Find all function calls.
         /// </summary>
         /// <param name="text"></param>
         /// <param name="funcNames"></param>
         /// <returns></returns>
-        private static IEnumerable<Match> FindFunctionCalls(string text, string[] funcNames)
-            => SortMatches(funcNames.Select(x => RegEx.FuncCall(x).Matches(text).ToArray()), true);
+        private static IEnumerable<Match> FindFunctionCalls(string text, Regex[] funcRegex)
+            => SortMatches(funcRegex.Select(x => x.Matches(text).ToArray()), true);
 
         /// <summary>
         /// Sort regex matches.
         /// </summary>
         /// <param name="collections"></param>
         /// <returns></returns>
-        private static IEnumerable<Match> SortMatches(IEnumerable<IEnumerable<Match>> collections, bool rightToLeft = false)
+        private static IEnumerable<Match> SortMatches(IEnumerable<IEnumerable<Match>> collections,
+            bool rightToLeft = false)
         {
             // convert match collection to arrays
             var matches = (from x in collections where x.Count() > 0 select x.ToArray()).ToArray();

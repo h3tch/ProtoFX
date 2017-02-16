@@ -348,23 +348,7 @@ namespace App
                     yield return new Argument(this, arg.Substring(s, arg.Length - s * 2));
                 }
             }
-
-            /// <summary>
-            /// Parse the command and extract arguments as values.
-            /// </summary>
-            /// <param name="types">List of argument types.</param>
-            /// <param name="mandatory">Specifies which of this arguments are mandatory.</param>
-            /// <param name="scene">Dictionary of scene objects.</param>
-            /// <param name="err"></param>
-            /// <returns>List of objects values. If a value could not be
-            /// parsed, the returned value will be null.</returns>
-            public object[] Parse(Type[] types, bool[][] mandatory, Dict scene,
-                CompileException err = null)
-            {
-                string[] unused;
-                return Parse(types, mandatory, out unused, scene, err);
-            }
-
+            
             /// <summary>
             /// Parse the command and extract arguments as values.
             /// </summary>
@@ -375,7 +359,7 @@ namespace App
             /// <param name="err"></param>
             /// <returns>List of objects values. If a value could not be
             /// parsed, the returned value will be null.</returns>
-            public object[] Parse(Type[] types, bool[][] mandatory, out string[] unusedArgs, Dict scene,
+            public (object[], string[]) Parse(Type[] types, bool[][] mandatory, Dict scene,
                 CompileException err = null)
             {
                 object[] values = new object[types.Length];
@@ -408,16 +392,16 @@ namespace App
                 }
 
                 // return list of unused arguments
-                unusedArgs = this.Skip(lastArgUsed + 1).Select(x => x.Text).ToArray();
+                var unusedArgs = this.Skip(lastArgUsed + 1).Select(x => x.Text).ToArray();
 
                 // check for errors
                 var valid = values.Select(x => x != null);
                 for (int i = 0; i < mandatory.Length; i++)
                     if (mandatory[i].Zip(valid, (m, v) => !m | v).All(x => x))
-                        return values;
+                        return (values, unusedArgs);
 
                 err?.Add("Command has one or more invalid arguments.", this);
-                return values;
+                return (values, unusedArgs);
             }
 
             #region IEnumerable Interface

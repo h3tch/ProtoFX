@@ -45,11 +45,10 @@ namespace App
         /// <param name="glname">OpenGL object to like to.</param>
         public GLImage(string name, string anno, int glname) : base(name, anno)
         {
-            int f, t;
             this.glname = glname;
             this.Size = Enumerable.Repeat(1, 4).ToArray();
-            GL.GetTextureParameter(glname, TexParameter.TextureTarget, out t);
-            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureInternalFormat, out f);
+            GL.GetTextureParameter(glname, TexParameter.TextureTarget, out int t);
+            GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureInternalFormat, out int f);
             GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureWidth, out Size[0]);
             GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureHeight, out Size[1]);
             GL.GetTextureLevelParameter(glname, 0, TexParameter.TextureDepth, out Size[2]);
@@ -173,11 +172,10 @@ namespace App
         public static Bitmap ReadBmp(int ID, int level, int index)
         {
             // get texture format, width, height and depth on the GPU
-            int w, h, d, f;
-            GL.GetTextureLevelParameter(ID, level, TexParameter.TextureInternalFormat, out f);
-            GL.GetTextureLevelParameter(ID, level, TexParameter.TextureWidth, out w);
-            GL.GetTextureLevelParameter(ID, level, TexParameter.TextureHeight, out h);
-            GL.GetTextureLevelParameter(ID, level, TexParameter.TextureDepth, out d);
+            GL.GetTextureLevelParameter(ID, level, TexParameter.TextureInternalFormat, out int f);
+            GL.GetTextureLevelParameter(ID, level, TexParameter.TextureWidth, out int w);
+            GL.GetTextureLevelParameter(ID, level, TexParameter.TextureHeight, out int h);
+            GL.GetTextureLevelParameter(ID, level, TexParameter.TextureDepth, out int d);
 
             // convert to actual types
             var format = (GpuColorFormat)f;
@@ -185,10 +183,9 @@ namespace App
             index = Math.Min(index, d);
 
             // allocate memory
-            int size;
-            var data = ReadSubImage(ID, level, 0, 0, index, w, h, 1,
+            (var data, var size) = ReadSubImage(ID, level, 0, 0, index, w, h, 1,
                 isdepth ? PixelFormat.DepthComponent : PixelFormat.Bgra,
-                isdepth ? PixelType.Float : PixelType.UnsignedByte, out size);
+                isdepth ? PixelType.Float : PixelType.UnsignedByte);
 
             // create bitmap from data
             var bmp = new Bitmap(w, h, CpuFormat.Format32bppArgb);
@@ -216,16 +213,17 @@ namespace App
         /// <param name="type">pixel type (UnsignedByte, Short, UnsignedInt, ...)</param>
         /// <param name="size">returns the buffer size in bytes</param>
         /// <returns>Returns a buffer containing the specified sub-image region.</returns>
-        private static IntPtr ReadSubImage(int ID, int level, int x, int y, int z, int w, int h, int d,
-            PixelFormat format, PixelType type, out int size)
+        private static (IntPtr,int) ReadSubImage(int ID, int level,
+            int x, int y, int z, int w, int h, int d,
+            PixelFormat format, PixelType type)
         {
             // compute size of the sub-image
-            size = w * h * d * ColorChannels(format) * ColorBits(type) / 8;
+            int size = w * h * d * ColorChannels(format) * ColorBits(type) / 8;
 
             // read image data from GPU
             var data = Marshal.AllocHGlobal(size);
             GL.GetTextureSubImage(ID, level, x, y, z, w, h, d, format, type, size, data);
-            return data;
+            return (data, size);
         }
 
         /// <summary>

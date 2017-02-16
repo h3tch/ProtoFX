@@ -45,7 +45,8 @@ namespace App
         private List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
         private List<GLMethod> glfunc = new List<GLMethod>();
         private List<GLInstance> csexec = new List<GLInstance>();
-        private bool debug;
+        private bool GenDebugInfo;
+        public bool TraceDebugInfo { get; set; } = false;
 
         #endregion
 
@@ -54,12 +55,12 @@ namespace App
         /// </summary>
         /// <param name="block"></param>
         /// <param name="scene"></param>
-        /// <param name="debugging"></param>
-        public GLPass(Compiler.Block block, Dict scene, bool debugging)
-            : base(block.Name, block.Anno, 309, debugging)
+        /// <param name="genDebugInfo"></param>
+        public GLPass(Compiler.Block block, Dict scene, bool genDebugInfo)
+            : base(block.Name, block.Anno, 309, genDebugInfo)
         {
             var err = new CompileException($"pass '{name}'");
-            debug = debugging;
+            GenDebugInfo = genDebugInfo;
 
             /// PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
 
@@ -114,7 +115,7 @@ namespace App
                 }
 
                 // get debug shaders
-                if (debug)
+                if (GenDebugInfo)
                 {
                     if (glcomp != null)
                     {
@@ -176,7 +177,7 @@ namespace App
         /// <param name="width">Width of the OpenGL control.</param>
         /// <param name="height">Height of the OpenGL control.</param>
         /// <param name="frame">The ID of the current frame.</param>
-        public void Exec(int width, int height, int frame, bool debugTrage)
+        public void Exec(int width, int height, int frame)
         {
             // in debug mode check if the
             // OpenGL sate is valid
@@ -246,7 +247,7 @@ namespace App
 
             /// BIND DEBUGGER
 
-            if (debugTrage && debug && drawcalls.Count > 0)
+            if (TraceDebugInfo && GenDebugInfo && drawcalls.Count > 0)
             {
                 try
                 {
@@ -267,6 +268,10 @@ namespace App
                 catch (Exception e)
                 {
                     throw new Exception($"Debugger crashed with the following message: {e.Message}", e);
+                }
+                finally
+                {
+                    TraceDebugInfo = false;
                 }
             }
 
@@ -318,7 +323,6 @@ namespace App
             bool typeIsSet = false;
             PrimType primitive = 0;
             ElementType indextype = 0;
-            int val;
 
             // parse draw call arguments
             foreach (var arg in cmd)
@@ -331,7 +335,7 @@ namespace App
                     continue;
                 if (classes.TryGetValue(arg.Text, ref indirect))
                     continue;
-                if (int.TryParse(arg.Text, out val))
+                if (int.TryParse(arg.Text, out int val))
                     args.Add(val);
                 else if (typeIsSet == false && Enum.TryParse(arg.Text, true, out indextype))
                     typeIsSet = true;
@@ -437,7 +441,7 @@ namespace App
             // specify mandatory arguments
             var mandatory = new[] { new[] { true, true, false }, new[] { false, true, false } };
             // parse command arguments
-            var values = cmd.Parse(types, mandatory, classes, err);
+            (var values, var unused) = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
             if (!err.HasErrors())
                 textures.Add(new Res<GLTexture>(values));
@@ -466,7 +470,7 @@ namespace App
                 new[] { false, true, false, false, false, false, false },
             };
             // parse command arguments
-            var values = cmd.Parse(types, mandatory, classes, err);
+            (var values, var unused) = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
             if (!err.HasErrors())
                 texImages.Add(new ResTexImg(values));
@@ -484,7 +488,7 @@ namespace App
             // specify mandatory arguments
             var mandatory = new[] { new[] { true, true, false }, new[] { false, true, false } };
             // parse command arguments
-            var values = cmd.Parse(types, mandatory, classes, err);
+            (var values, var unused) = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
             if (!err.HasErrors())
                 sampler.Add(new Res<GLSampler>(values));
@@ -529,8 +533,7 @@ namespace App
             }
 
             // get instance
-            GLInstance instance;
-            if (!classes.TryGetValue(cmd[0].Text, out instance, cmd, err))
+            if (!classes.TryGetValue(cmd[0].Text, out GLInstance instance, cmd, err))
                 return;
 
             csexec.Add(instance);
@@ -847,7 +850,7 @@ namespace App
             public TransformFeedbackMode vertoutMode;
             public bool pause;
             public bool resume;
-            public string[] outputVaryings;
+            //public string[] outputVaryings;
 
             public Vertoutput(Compiler.Command cmd, Dict scene, CompileException err)
             {
@@ -863,7 +866,7 @@ namespace App
                     new[] { false, false, false, false },
                 };
                 // parse command arguments
-                var values = cmd.Parse(types, mandatory, out outputVaryings, scene, err);
+                (var values, var outputVaryings) = cmd.Parse(types, mandatory, scene, err);
                 if (err.HasErrors())
                     return;
 

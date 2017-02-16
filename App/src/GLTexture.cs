@@ -141,8 +141,7 @@ namespace App
             {
                 glname = glImg.glname;
                 // get internal format
-                int f;
-                GL.GetTextureLevelParameter(glname, 0, GetTextureParameter.TextureInternalFormat, out f);
+                GL.GetTextureLevelParameter(glname, 0, GetTextureParameter.TextureInternalFormat, out int f);
                 Format = (GpuFormat)f;
             }
             // IN CASE THIS IS A BUFFER OBJECT

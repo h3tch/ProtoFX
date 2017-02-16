@@ -39,7 +39,7 @@ namespace App
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <param name="frame"></param>
-        public void Exec(int width, int height, int frame, bool debugTrace)
+        public void Exec(int width, int height, int frame)
         {
             // begin timer query
             MeasureTime();
@@ -48,12 +48,12 @@ namespace App
             // when executed the first time, execute initialization passes
             if (init != null)
             {
-                init.ForEach(x => x.Exec(width, height, frame, debugTrace));
+                init.ForEach(x => x.Exec(width, height, frame));
                 init = null;
             }
 
             // execute all passes
-            passes.ForEach(x => x.Exec(width, height, frame, debugTrace));
+            passes.ForEach(x => x.Exec(width, height, frame));
 
             // end timer query
             EndTimer();
@@ -65,7 +65,7 @@ namespace App
         public override void Delete()
         {
             base.Delete();
-            uninit.ForEach(x => x.Exec(0, 0, -1, false));
+            uninit.ForEach(x => x.Exec(0, 0, -1));
         }
 
         /// <summary>
@@ -78,12 +78,15 @@ namespace App
         private void ParsePasses(ref List<GLPass> list, Compiler.Block block, Dict scene,
             CompileException err)
         {
-            GLPass pass;
             var cmdName = ReferenceEquals(list, init)
-                ? "init" : ReferenceEquals(list, passes) ? "pass" : "uninit";
+                ? "init"
+                : ReferenceEquals(list, passes) ? "pass" : "uninit";
             foreach (var cmd in block[cmdName])
-                if (scene.TryGetValue(cmd[0].Text, out pass, block, err | $"command '{cmd.Text}'"))
+            {
+                if (scene.TryGetValue(cmd[0].Text, out GLPass pass, block,
+                        err | $"command '{cmd.Text}'"))
                     list.Add(pass);
+            }
         }
     }
 }

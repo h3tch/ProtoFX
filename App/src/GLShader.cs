@@ -1,5 +1,6 @@
 ﻿using App.Glsl;
 using OpenTK.Graphics.OpenGL4;
+using System.CodeDom.Compiler;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -49,13 +50,15 @@ namespace App
                 err.Add($"\n{GL.GetProgramInfoLog(glname)}", block);
             if (HasErrorOrGlError(err, block))
                 throw err;
-            
+
             // CREATE CSHARP DEBUG CODE
 
+            string code;
+            CompilerResults rs;
             if (debugging)
             {
-                var code = Converter.Shader2Class(ShaderType, name, block.Body, block.BodyIndex);
-                var rs = GLCsharp.CompileFilesOrSource(new[] { code }, null, block, err, new[] { name });
+                code = Converter.Shader2Class(ShaderType, name, block.Body, block.BodyIndex);
+                rs = GLCsharp.CompileFilesOrSource(new[] { code }, null, block, err, new[] { name });
                 if (rs.Errors.Count == 0)
                     DebugShader = (Shader)rs.CompiledAssembly.CreateInstance(
                         $"App.Glsl.{name}", false, BindingFlags.Default, null,

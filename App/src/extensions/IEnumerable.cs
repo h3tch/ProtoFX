@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace System.Collections.Generic
@@ -164,6 +165,30 @@ namespace System.Collections.Generic
                 if (ex != null)
                     yield return ex;
             }
+        }
+
+        public static T[,] ToArray<T>(this IEnumerable<T> ie, int h, int w, bool rowList = true)
+        {
+            if (h <= 0)
+                h = ie.Count() / w;
+            if (w <= 0)
+                w = ie.Count() / h;
+
+            var array = new T[h, w];
+
+            int i = 0;
+            if (rowList)
+            {
+                foreach (var e in ie)
+                    array[i / w, i++ % w] = e;
+            }
+            else
+            {
+                foreach (var e in ie)
+                    array[i % h, i++ / h] = e;
+            }
+
+            return array;
         }
     }
 
