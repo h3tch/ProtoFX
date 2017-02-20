@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using OpenTK;
-using OpenTK.Graphics.OpenGL4;
 using System.Globalization;
 
 namespace App
@@ -82,25 +80,31 @@ namespace App
             CompilerResults rs = null;
             try
             {
-                // set compiler parameters and assemblies
                 var compilerParams = new CompilerParameters();
+
+                // set compicompiler parameters
                 compilerParams.GenerateInMemory = true;
                 compilerParams.GenerateExecutable = false;
+                compilerParams.TempFiles = new TempFileCollection("tmp", false);
 #if DEBUG
                 compilerParams.IncludeDebugInformation = true;
                 compilerParams.CompilerOptions = "/define:DEBUG";
 #else
                 compilerParams.IncludeDebugInformation = false;
 #endif
+                // add assemblies
+                compilerParams.ReferencedAssemblies.Add(
+                    System.Reflection.Assembly.GetExecutingAssembly().Location);
                 compilerParams.ReferencedAssemblies.AddRange(
-                    AppDomain.CurrentDomain.GetAssemblies()
-                             .Where(a => !a.IsDynamic)
-                             .Select(a => a.Location).ToArray());
+                    Properties.Resources.CSHARP_REFERENCES.Split('\n')
+                    .Select(s => s.Trim()).ToArray());
 
                 // select compiler version
-                var provider = version != null ?
-                    new CSharpCodeProvider(new Dictionary<string, string> { { "CompilerVersion", version } }) :
-                    new CSharpCodeProvider();
+                var provider = version != null
+                    ? new CSharpCodeProvider(new Dictionary<string, string> {
+                        { "CompilerVersion", version }
+                    })
+                    : new CSharpCodeProvider();
                 var check = code.Count(x => IsFilename(x));
                 if (check == code.Length)
                 {

@@ -1,7 +1,5 @@
-﻿using OpenTK;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Commands = System.Collections.Generic.Dictionary<string, string[]>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
