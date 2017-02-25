@@ -1,0 +1,51 @@
+﻿shader vs_shadowmap vert {
+	#version 450
+	
+	layout(binding = 0) uniform samplerBuffer camTransform;
+	layout(binding = 1) uniform samplerBuffer camViewport;
+	
+	// per vertex input
+	layout(location = 0) in vec4 position;
+	// per instance input
+	layout(location = 3) in vec4 axisx;
+	layout(location = 4) in vec4 axisy;
+	layout(location = 5) in vec4 axisz;
+	layout(location = 6) in ivec4 camera;
+
+	// vertex shader output
+	layout(location = 0) out Block {
+		vec4 position[MAX_CAMS];
+		vec4 viewport[MAX_CAMS];
+	} OUT;
+	
+	void main ()
+	{
+		int count;
+		mat4 viewProj[MAX_CAMS];
+		
+		// create model matrix
+		mat4 model = mat4(axisx, axisy, axisz, vec4(0,0,0,1));
+		
+		// create view matrix for every camera
+		for (count = 0; count < MAX_CAMS && camera[count] >= 0; count++)
+		{
+			int ptr = camera[count];
+			OUT.viewport[count] = texelFetch(camViewport, ptr);
+			ptr *= 4;
+			viewProj[count] = mat4(
+				texelFetch(camTransform, ptr + 0),
+				texelFetch(camTransform, ptr + 1),
+				texelFetch(camTransform, ptr + 2),
+				texelFetch(camTransform, ptr + 3));
+		}
+		
+		// pass varyings on to next shader
+		for (int i = count; i < MAX_CAMS; i++)
+			OUT.position[i] = OUT.viewport[i] = vec4(0);
+		
+		// compute model view projection position
+		vec4 world = position * model;
+		for (int i = 0; i < count; i++)
+			OUT.position[i] = viewProj[i] * world;
+	}
+}

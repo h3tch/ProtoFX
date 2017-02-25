@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -26,6 +27,7 @@ namespace ScintillaNET
         private const int EXE_LINE_MARKER = 2;
         private const int BREAKPOINT_MARKER_MASK = 1 << BREAKPOINT_MARKER;
         private const int EXE_LINE_MARKER_MASK = 1 << EXE_LINE_MARKER;
+        private bool IsActiveEditor => Parent != null && ((FXTabControl)Parent?.Parent)?.SelectedTab == Parent;
 
         #endregion
 
@@ -106,11 +108,22 @@ namespace ScintillaNET
         /// <summary>
         /// Instantiate and initialize ScintillaNET based code editor for ProtoFX.
         /// </summary>
+        /// <param name="keywordsXml">Path to keyword XML file or an XML string.</param>
         /// <param name="text">[OPTIONAL] Initialize code editor with text.</param>
         public CodeEditor(string keywordsXml, string text = null)
+            : this(FxLexer ?? new FxLexer(keywordsXml), text)
+        {
+        }
+
+        /// <summary>
+        /// Instantiate and initialize ScintillaNET based code editor for ProtoFX.
+        /// </summary>
+        /// <param name="lexer">The keyword lexer.</param>
+        /// <param name="text">[OPTIONAL] Initialize code editor with text.</param>
+        public CodeEditor(Lexing.ILexer lexer, string text = null)
         {
             InitializeFindAndReplace();
-            InitializeHighlighting(keywordsXml);
+            InitializeHighlighting(lexer);
             InitializeSelection();
             InitializeAutoC();
             InitializeCodeFolding();

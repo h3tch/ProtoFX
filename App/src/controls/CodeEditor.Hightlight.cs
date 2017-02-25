@@ -1,5 +1,6 @@
 ﻿using ScintillaNET.Lexing;
 using System;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace ScintillaNET
@@ -11,14 +12,14 @@ namespace ScintillaNET
         /// <summary>
         /// Initialize code highlighting.
         /// </summary>
-        private void InitializeHighlighting(string keywordsXml)
+        private void InitializeHighlighting(ILexer lexer)
         {
             StyleNeeded += HandleStyleNeeded;
 
             CaretLineBackColor = Theme.WorkspaceHighlight;
             CaretLineVisible = true;
             CaretForeColor = Theme.HighlightForeColor;
-            
+
             StyleResetDefault();
             Styles[Style.Default].Font = "Consolas";
             Styles[Style.Default].Size = 11;
@@ -32,8 +33,7 @@ namespace ScintillaNET
             Styles[Style.CallTip].ForeColor = Theme.HighlightBackColor;
             Styles[Style.CallTip].BackColor = Theme.BackColor;
 
-            if (FxLexer == null)
-                FxLexer = new FxLexer(keywordsXml);
+            FxLexer = lexer;
 
             // set styles as defined in the keyword file
             foreach (var style in FxLexer.Styles)
@@ -42,7 +42,7 @@ namespace ScintillaNET
                 Styles[style.id].BackColor = style.back;
             }
 
-            Lexer = ScintillaNET.Lexer.Container;
+            Lexer = Lexer.Container;
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace ScintillaNET
         {
             try
             {
-                FxLexer.Style(this, GetEndStyled(), TextLength);
+                FxLexer.Style(this, Math.Min(e.Position, GetEndStyled()), TextLength);
             }
             catch (Exception ex)
             {

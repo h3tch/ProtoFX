@@ -1,9 +1,9 @@
-﻿using App;
-using App.Lexer;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ScintillaNET;
 using System;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace UnitTests
 {
@@ -19,9 +19,16 @@ namespace UnitTests
         [ClassInitialize]
         public static void ClassInitialize(TestContext a)
         {
-            code = File.ReadAllText("../../../App/demos/simple.tech");
-            lexer = new FxLexer();
-            editor = new CodeEditor(code);
+            Theme.DarkTheme();
+            code = File.ReadAllText("../../../UnitTests/data/test.tech");
+            lexer = new FxLexer("../../../App/resources/keywordsXML.xml");
+            editor = new CodeEditor(lexer, code);
+        }
+
+        [TestMethod]
+        public void TestLexing()
+        {
+            lexer.Style(editor, 0, editor.TextLength);
         }
 
         [TestMethod]

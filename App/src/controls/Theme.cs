@@ -6,7 +6,7 @@ using System.Xml;
 
 namespace System.Windows.Forms
 {
-    public class Theme
+    public static class Theme
     {
         #region FIELDS
 
