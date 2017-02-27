@@ -19,25 +19,44 @@ namespace ScintillaNET
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
-            ILexer lex = null;
-            
+            BaseLexer lex = null;
+            int end;
+
             // Find a lexer that can continue lexing.
             // Use the previous state to select the right lexer.
             // As long as no lexer can be found, move the start position backward.
-            while (pos >= 0 && lex == null)
-                lex = FindLexerForStyle(editor.GetStyleAt(pos--));
+            for (end = Math.Min(pos + 1, endPos); pos >= 0; pos--)
+                if ((lex = FindLexerForStyle(editor.GetStyleAt(pos))) != null)
+                    break;
+            if (lex == null)
+                lex = lexer.First();
 
-            var end = pos + 1;
-            for (var style = editor.GetStyleAt(end); pos >= 0 && editor.GetStyleAt(pos) == style; )
-                pos--;
+            // Because there might be changes to the preceding characters of
+            // that state, we go to the beginning of that (state) region and ...
+            for (var style = editor.GetStyleAt(pos); pos >= 0; pos--)
+                if (editor.GetStyleAt(pos) != style)
+                    break;
+
+            // ... to the end of that (state) region and ...
+            for (var style = editor.GetStyleAt(end); end < endPos; end++)
+                if (editor.GetStyleAt(end) != style)
+                    break;
+
+            // ... invalidate it. This is necessary,
+            // because of changes within indicators.
             editor.StartStyling(++pos);
-            editor.SetStyling(end - pos + 1, 0);
+            editor.SetStyling(end - pos, 0);
 
             // start lexing from the newly determined start position
-            return (lex ?? lexer.First()).Style(editor, pos, endPos);
+            while (pos < endPos && lex != null)
+            {
+                pos = lex.Style(editor, pos, endPos);
+                lex = lex.ParentLexer;
+            }
+            return pos;
         }
         
-        private new ILexer FindLexerForStyle(int style)
+        private new BaseLexer FindLexerForStyle(int style)
             => lexer.Select(x => x.FindLexerForStyle(style)).FirstOr(x => x != null, null);
 
         private static XmlNode LoadFxLexerFromXml(string file)
@@ -72,16 +91,16 @@ namespace ScintillaNET
         public static int lastBaseStyle { get; private set; }
         protected virtual Type StateType => null;
         public int MaxStyle => Math.Max(lastStyle, lexer.Select(x => x.MaxStyle).MaxOr(0));
-        protected BaseLexer parentLexer;
-        protected BaseLexer defaultLexer;
+        public BaseLexer ParentLexer;
+        protected BaseLexer DefaultLexer;
         private static Regex regexHint = new Regex(@"\n.*\\");
 
         #endregion
 
         public BaseLexer(int firstFreeStyle, XmlNode lexerNode, BaseLexer parent)
         {
-            parentLexer = parent;
-            defaultLexer = GetType().Name == "DefaultLexer" ? null
+            ParentLexer = parent;
+            DefaultLexer = GetType().Name == "DefaultLexer" ? null
                 : new DefaultLexer(firstFreeStyle, null, this);
 
             // get style and state ranges
@@ -170,31 +189,42 @@ namespace ScintillaNET
         {
             editor.StartStyling(pos);
             endPos = Math.Min(endPos, editor.TextLength);
-            int numOfChanges;
 
             // instantiate region class
             var c = new Region(editor, pos);
 
             // continue processing from the last state
-            for (var state = GetPrevState(c); c.Pos < endPos; c.Pos++)
+            for (int oldLeftState = GetPrevState(c),
+                     oldLeftStyle = c.GetStyleAt(-1);
+                // while
+                c.Pos < endPos;
+                c.Pos++)
             {
                 // process current state
-                state = ProcessState(editor, state, c, endPos, out numOfChanges);
-                var oldStyle = editor.GetStyleAt(c.Pos);
-                if (c.Pos >= endPos || (numOfChanges == 0 && oldStyle > 0))
+                var state = ProcessState(editor, oldLeftState, c, endPos);
+                if (state < 0)
+                    return c.Pos;
+                if (c.Pos >= endPos)
                     break;
 
-                var newStyle = StateToStyle(state);
-                if (1 < state && state < firstBaseState && oldStyle == newStyle)
-                    break;
+                var leftStyle = c.GetStyleAt(-1);
+                var oldStyle = c.GetStyleAt(0);
+                var style = StateToStyle(state);
 
+                // if the old style was reproduced
+                if (style == oldStyle)
+                    break;
                 // style the current character
-                editor.SetStyling(1, newStyle);
+                else
+                    editor.SetStyling(1, style);
+
+                oldLeftStyle = oldStyle;
+                oldLeftState = state;
             }
 
             return endPos;
         }
-
+        
         public void Fold(CodeEditor editor, int pos, int endPos)
         {
             // setup state machine
@@ -318,10 +348,8 @@ namespace ScintillaNET
         /// <param name="c">unused</param>
         /// <param name="p">unused</param>
         /// <returns>The new state after processing the current state.</returns>
-        public virtual int ProcessState(CodeEditor e, int state, Region c, int p,
-            out int numChanges)
+        public virtual int ProcessState(CodeEditor e, int state, Region c, int p)
         {
-            numChanges = -1;
             return state;
         }
 
@@ -383,16 +411,14 @@ namespace ScintillaNET
         /// <param name="c"></param>
         /// <param name="IndicatorState"></param>
         /// <returns>The new state after processing the current state.</returns>
-        protected int ProcessIndicatorState(
-            CodeEditor editor, Region c, int IndicatorState, out int numChanges)
+        protected int ProcessIndicatorState(CodeEditor editor, Region c, int IndicatorState)
         {
-            numChanges = -1;
             // position still inside the word range
             if (char.IsLetterOrDigit(c.c) || c.c == '_')
                 return IndicatorState;
 
             // relex last word
-            numChanges = RelexPreviousWord(editor, c.Pos);
+            RelexPreviousWord(editor, c.Pos);
 
             // continue from default state
             return ProcessDefaultState(editor, c);
@@ -421,7 +447,7 @@ namespace ScintillaNET
         /// <param name="pos"></param>
         /// <returns>Returns <code>true</code> if the previous word changed its style,
         /// otherwise <code>false</code> if the style did not change.</returns>
-        protected int RelexPreviousWord(CodeEditor editor, int pos)
+        protected void RelexPreviousWord(CodeEditor editor, int pos)
         {
             // get previous word and start position
             var start = editor.SyncFunc(x => x.WordStartPosition(pos, false));
@@ -433,18 +459,11 @@ namespace ScintillaNET
                 // reset the style of the word if it is a keyword
                 if (keywords[i]?[word].Any(x => x.word == word) ?? false)
                 {
-                    var changes = 0;
-                    var newStyle = StateToStyle(i);
-                    for (int j = start; j < pos; j++)
-                        if (newStyle != editor.GetStyleAt(j))
-                            changes++;
                     editor.StartStyling(start);
-                    editor.SetStyling(pos - start, newStyle);
-                    return changes;
+                    editor.SetStyling(pos - start, StateToStyle(i));
+                    break;
                 }
             }
-
-            return -1;
         }
 
         /// <summary>
@@ -453,7 +472,7 @@ namespace ScintillaNET
         /// </summary>
         /// <param name="style"></param>
         /// <returns>A lexer that can handle the style or <code>null</code></returns>
-        public ILexer FindLexerForStyle(int style)
+        public BaseLexer FindLexerForStyle(int style)
         {
             return firstStyle <= style && style <= lastStyle
                 ? this
@@ -466,7 +485,7 @@ namespace ScintillaNET
         /// <param name="state"></param>
         /// <returns></returns>
         protected int StateToStyle(int state)
-            => state + (state < firstBaseState ? firstStyle : -firstBaseState);
+            => state + (state < FirstBaseState ? firstStyle : -FirstBaseState);
 
         /// <summary>
         /// Is this lexer designated for the specified type (of a tech object).
@@ -511,6 +530,16 @@ namespace ScintillaNET
             return state;
         }
 
+        protected static bool IsHelperState(int state)
+        {
+            return DefaultState <= state && state <= IndicatorState;
+        }
+
+        protected static bool IsKeywordState(int state)
+        {
+            return IndicatorState < state && state < FirstBaseState;
+        }
+
         protected int FindClosingBrace(CodeEditor editor, int openIndex, char open, char close)
         {
             // go to matching brace
@@ -541,9 +570,12 @@ namespace ScintillaNET
 
         #region STATE
 
-        protected const int firstBaseState = (int)BaseState.Invalid;
+        protected static int DefaultState = 0;
+        protected static int IndicatorState = 1;
+        protected const int FirstBaseState = (int)BaseState.Invalid;
         protected const int StringStyle = BaseState.String - BaseState.Invalid;
         protected const int BraceStyle = BaseState.Braces - BaseState.Invalid;
+
         private enum FoldState : int
         {
             Unknown,
@@ -567,10 +599,8 @@ namespace ScintillaNET
 
         #region PROCESS STATE
 
-        public override int ProcessState(CodeEditor editor, int state, Region c, int endPos,
-            out int numChanges)
+        public override int ProcessState(CodeEditor editor, int state, Region c, int endPos)
         {
-            numChanges = -1;
             switch (state)
             {
                 case (int)BaseState.LineComment:
@@ -582,7 +612,7 @@ namespace ScintillaNET
                 case (int)State.PreprocessorBody:
                     return ProcessPreprocessorBodyState(editor, c);
                 case (int)State.Indicator:
-                    return ProcessIndicatorState(editor, c, (int)State.Indicator, out numChanges);
+                    return ProcessIndicatorState(editor, c, (int)State.Indicator);
                 case (int)BaseState.Braces:
                     return ProcessBraceState(editor, c, endPos);
             }
@@ -632,7 +662,7 @@ namespace ScintillaNET
                     return (int)(c.c == '}' ? BaseState.Braces : BaseState.Default);
                 }
 
-                // re-lex code block
+                // lex code block
                 c.Pos = lex.Style(editor, c.Pos, newEndPos);
             }
             return ProcessDefaultState(editor, c);
@@ -658,7 +688,7 @@ namespace ScintillaNET
             // get code region of the block
             var start = FindLastStyleOf(editor, StateToStyle((int)State.Preprocessor), c.Pos);
             // re-lex code block
-            defaultLexer.Style(editor, start + 1, c.Pos);
+            DefaultLexer.Style(editor, start + 1, c.Pos);
             // continue styling from the last position
             editor.StartStyling(c.Pos);
             return (int)State.Default;
@@ -683,10 +713,8 @@ namespace ScintillaNET
 
         #region PROCESS STATE
 
-        public override int ProcessState(CodeEditor editor, int state, Region c, int endPos,
-            out int numChanges)
+        public override int ProcessState(CodeEditor editor, int state, Region c, int endPos)
         {
-            numChanges = -1;
             switch (state)
             {
                 case (int)BaseState.Braces:
@@ -696,7 +724,7 @@ namespace ScintillaNET
                 case (int)BaseState.BlockComment:
                     return ProcessBlockCommentState(editor, c);
                 case (int)State.Indicator:
-                    return ProcessIndicatorState(editor, c, endPos, out numChanges);
+                    return ProcessIndicatorState(editor, c, endPos);
             }
             return ProcessDefaultState(editor, c);
         }
@@ -721,22 +749,20 @@ namespace ScintillaNET
             return (int)State.Default;
         }
 
-        private new int ProcessIndicatorState(
-            CodeEditor editor, Region c, int endPos, out int numChanges)
+        private new int ProcessIndicatorState(CodeEditor editor, Region c, int endPos)
         {
-            numChanges = -1;
             // is still part of the command
             if (!char.IsWhiteSpace(c.c))
                 return (int)State.Indicator;
 
             // relex last word
-            numChanges = RelexPreviousWord(editor, c.Pos);
+            RelexPreviousWord(editor, c.Pos);
 
             // get header string from block position
             var cmd = editor.GetWordFromPosition(c.Pos - 1);
 
             // find lexer that can lex this code block
-            var lex = lexer.Where(x => x.IsLexerForType(cmd)).FirstOr(defaultLexer);
+            var lex = lexer.Where(x => x.IsLexerForType(cmd)).FirstOr(DefaultLexer);
 
             // go to matching new line
             int newEndPos = FindClosingBrace(editor, c.Pos, "...", '\n');
@@ -769,14 +795,12 @@ namespace ScintillaNET
 
         #region PROCESS STATE
 
-        public override int ProcessState(CodeEditor editor, int state, Region c, int p,
-            out int numChanges)
+        public override int ProcessState(CodeEditor editor, int state, Region c, int p)
         {
-            numChanges = -1;
             switch (state)
             {
                 case (int)State.Indicator:
-                    return ProcessIndicatorState(editor, c, (int)State.Indicator, out numChanges);
+                    return ProcessIndicatorState(editor, c, (int)State.Indicator);
                 case (int)BaseState.Number:
                     return ProcessNumberState(editor, c);
                 case (int)BaseState.String:
@@ -828,10 +852,8 @@ namespace ScintillaNET
 
         #region PROCESS STATE
 
-        public override int ProcessState(CodeEditor editor, int state, Region c, int endPos,
-            out int numChanges)
+        public override int ProcessState(CodeEditor editor, int state, Region c, int endPos)
         {
-            numChanges = -1;
             switch (state)
             {
                 case (int)BaseState.Number:
@@ -922,10 +944,8 @@ namespace ScintillaNET
 
         #region METHODS
 
-        public override int ProcessState(CodeEditor editor, int state, Region c, int endPos,
-            out int numChanges)
+        public override int ProcessState(CodeEditor editor, int state, Region c, int endPos)
         {
-            numChanges = -1;
             switch (state)
             {
                 case (int)BaseState.Braces:
@@ -937,7 +957,7 @@ namespace ScintillaNET
                 case (int)State.Preprocessor:
                     return ProcessPreprocessorState(editor, c, endPos);
                 case (int)State.Indicator:
-                    return ProcessIndicatorState(editor, c, (int)State.Indicator, out numChanges);
+                    return ProcessIndicatorState(editor, c, (int)State.Indicator);
             }
             return ProcessDefaultState(editor, c);
         }
@@ -975,7 +995,7 @@ namespace ScintillaNET
             if (char.IsWhiteSpace(c.c))
             {
                 var newEndPos = editor.SyncFunc(x => x.Text.IndexOf('\n', c.Pos, endPos - c.Pos));
-                c.Pos = defaultLexer.Style(editor, c.Pos, newEndPos < 0 ? endPos : newEndPos);
+                c.Pos = DefaultLexer.Style(editor, c.Pos, newEndPos < 0 ? endPos : newEndPos);
                 return ProcessDefaultState(editor, c);
             }
             return (int)State.Preprocessor;
@@ -1046,16 +1066,14 @@ namespace ScintillaNET
 
         #region METHODS
 
-        public override int ProcessState(CodeEditor editor, int state, Region c, int endPos,
-            out int numChanges)
+        public override int ProcessState(CodeEditor editor, int state, Region c, int endPos)
         {
-            numChanges = -1;
             switch (state)
             {
                 case (int)BaseState.Braces:
                     return -1; // exit lexer
                 case (int)State.Indicator:
-                    return ProcessIndicatorState(editor, c, (int)State.Indicator, out numChanges);
+                    return ProcessIndicatorState(editor, c, (int)State.Indicator);
                 case (int)BaseState.Number:
                     return ProcessNumberState(editor, c);
             }
@@ -1128,16 +1146,14 @@ namespace ScintillaNET
 
         #region METHODS
 
-        public override int ProcessState(CodeEditor editor, int state, Region c, int endPos,
-            out int numChanges)
+        public override int ProcessState(CodeEditor editor, int state, Region c, int endPos)
         {
-            numChanges = -1;
             switch (state)
             {
                 case (int)BaseState.Braces:
                     return ProcessBraceState(editor, c, endPos);
                 case (int)State.Indicator:
-                    return ProcessIndicatorState(editor, c, (int)State.Indicator, out numChanges);
+                    return ProcessIndicatorState(editor, c, (int)State.Indicator);
                 case (int)BaseState.Number:
                     return ProcessNumberState(editor, c);
             }
@@ -1221,10 +1237,8 @@ namespace ScintillaNET
 
         #region METHODS
 
-        public override int ProcessState(CodeEditor editor, int state, Region c, int endPos,
-            out int numChanges)
+        public override int ProcessState(CodeEditor editor, int state, Region c, int endPos)
         {
-            numChanges = -1;
             switch (state)
             {
                 case (int)BaseState.Number:
@@ -1238,7 +1252,7 @@ namespace ScintillaNET
                 case (int)BaseState.BlockComment:
                     return ProcessBlockCommentState(editor, c);
                 case (int)State.Indicator:
-                    return ProcessIndicatorState(editor, c, (int)State.Indicator, out numChanges);
+                    return ProcessIndicatorState(editor, c, (int)State.Indicator);
             }
             return ProcessDefaultState(editor, c);
         }

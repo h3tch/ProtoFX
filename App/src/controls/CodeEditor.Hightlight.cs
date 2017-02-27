@@ -14,8 +14,6 @@ namespace ScintillaNET
         /// </summary>
         private void InitializeHighlighting(ILexer lexer)
         {
-            StyleNeeded += HandleStyleNeeded;
-
             CaretLineBackColor = Theme.WorkspaceHighlight;
             CaretLineVisible = true;
             CaretForeColor = Theme.HighlightForeColor;
@@ -43,23 +41,6 @@ namespace ScintillaNET
             }
 
             Lexer = Lexer.Container;
-        }
-
-        /// <summary>
-        /// Handle style needed event.
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="e"></param>
-        private void HandleStyleNeeded(object s, StyleNeededEventArgs e)
-        {
-            try
-            {
-                FxLexer.Style(this, Math.Min(e.Position, GetEndStyled()), TextLength);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.Print(ex.StackTrace);
-            }
         }
         
         /// <summary>

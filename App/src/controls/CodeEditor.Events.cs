@@ -52,6 +52,8 @@ namespace ScintillaNET
             KeyDown += HandleKeyDown;
             InsertCheck += HandleInsertCheck;
             CharAdded += HandleCharAdded;
+            Insert += HandleInsertAndDelete;
+            Delete += HandleInsertAndDelete;
             Painted += HandlePainted;
 
             // handle some events internally to support custom events
@@ -100,7 +102,35 @@ namespace ScintillaNET
                     e.Text += '\t';
             }
         }
-        
+
+        /// <summary>
+        /// Handle text insert and delete events.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void HandleInsertAndDelete(object s, ModificationEventArgs e)
+        {
+            // internal function
+            void HandleModificationEvent(ModificationEventArgs ev)
+            {
+                var first = LineFromPosition(ev.Position);
+                var last = first + ev.LinesAdded;
+                UpdateCodeFolding(Math.Min(first, last), Math.Max(first, last));
+            }
+
+            FxLexer.Style(this, e.Position, TextLength);
+
+            // update line number margins
+            if (e.LinesAdded != 0)
+            {
+                UpdateLineNumbers();
+                HandleModificationEvent(e);
+            }
+            // update code folding
+            else if (e.Text.LastIndexOfAny(new[] { '{', '}'}) >= 0)
+                HandleModificationEvent(e);
+        }
+
         /// <summary>
         /// Wait for char add event to handle auto intent and auto complete.
         /// </summary>
@@ -260,8 +290,8 @@ namespace ScintillaNET
                     }
                     break;
                 case Keys.Z:
-                    if (e.Control)
-                        FxLexer.Style(this, 0, TextLength);
+                    //if (e.Control)
+                    //    FxLexer.Style(this, 0, TextLength);
                     break;
             }
         }
@@ -397,6 +427,7 @@ namespace ScintillaNET
                 /// HANDLE EXTERNAL EDITS
                 case WatcherChangeTypes.Changed:
                     // update the text
+                    if (IsHandleCreated)
                     Invoke(new Action(() => {
                         // if the file no longer exists
                         if (!File.Exists(Filename))
@@ -445,8 +476,9 @@ namespace ScintillaNET
                         "File Edited", MessageBoxButtons.YesNo);
                     if (result != DialogResult.Yes)
                         return;
-                    
+
                     // update the text
+                    if (IsHandleCreated)
                     Invoke(new Action(() => {
                         // change text
                         ClearAll();
