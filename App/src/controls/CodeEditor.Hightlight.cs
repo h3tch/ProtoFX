@@ -1,6 +1,4 @@
 ﻿using ScintillaNET.Lexing;
-using System;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace ScintillaNET
