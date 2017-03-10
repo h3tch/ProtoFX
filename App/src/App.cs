@@ -432,10 +432,12 @@ namespace App
         private void ToolBtnOpen_Click(object s, EventArgs e)
         {
             // create file dialog
-            var openDlg = new OpenFileDialog();
-            openDlg.Filter = "Text Files (.tech)|*.tech|All Files (*.*)|*.*";
-            openDlg.FilterIndex = 1;
-            openDlg.Multiselect = true;
+            var openDlg = new OpenFileDialog()
+            {
+                Filter = "Text Files (.tech)|*.tech|All Files (*.*)|*.*",
+                FilterIndex = 1,
+                Multiselect = true
+            };
 
             // open file dialog
             if (openDlg.ShowDialog() != DialogResult.OK)
@@ -688,9 +690,11 @@ namespace App
             // to a file or a new file should be created.
             if (editor.Filename == null || newfile)
             {
-                var saveDlg = new SaveFileDialog();
-                saveDlg.Filter = "Text Files (.tech)|*.tech|All Files (*.*)|*.*";
-                saveDlg.FilterIndex = 1;
+                var saveDlg = new SaveFileDialog()
+                {
+                    Filter = "Text Files (.tech)|*.tech|All Files (*.*)|*.*",
+                    FilterIndex = 1
+                };
 
                 // if the dialog did not return a valid state
                 if (saveDlg.ShowDialog() != DialogResult.OK)
@@ -725,8 +729,10 @@ namespace App
 
             // create new tab objects
             var tabSourcePage = new TabPage();
-            var editor = new CodeEditor(Properties.Resources.keywordsXML);
-            editor.Filename = path;
+            var editor = new CodeEditor(Properties.Resources.keywordsXML)
+            {
+                Filename = path
+            };
             editor.ShowCallTip += Editor_ShowCallTip;
             editor.CancleCallTip += Editor_CancleCallTip;
             editor.CustomMouseHover += Editor_MouseHover;
