@@ -7,7 +7,7 @@
         private T[] items;
         private int next;
         private int depth;
-        private int current => Dec(next);
+        private int Current => Dec(next);
 
         #endregion
 
@@ -69,7 +69,7 @@
         {
             if (depth == 0)
                 throw new InvalidOperationException("The stack is empty.");
-            return items[current];
+            return items[Current];
         }
 
         /// <summary>
@@ -87,7 +87,7 @@
 
         public IEnumerator<T> GetEnumerator()
         {
-            for (int i = items.Length + current, I = i - depth; i > I; i--)
+            for (int i = items.Length + Current, I = i - depth; i > I; i--)
                 yield return items[i % items.Length];
         }
 

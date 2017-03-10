@@ -28,10 +28,9 @@ namespace System
         /// <returns></returns>
         public static TResult SyncFunc<T, TResult>(this T @this, Func<T, TResult> func) where T : ISynchronizeInvoke
         {
-            if (@this.InvokeRequired)
-                return (TResult)@this.Invoke(func, new object[] { @this });
-            else
-                return func(@this);
+            return @this.InvokeRequired
+                ? (TResult)@this.Invoke(func, new object[] { @this })
+                : func(@this);
         }
     }
 }
