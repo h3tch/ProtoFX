@@ -53,8 +53,15 @@ namespace App.Glsl
             public static Regex FuncHead = new Regex($"\\b[\\w\\d]+\\s*{Pattern.FunctionBraces}");
             public static Regex LoopHead = FuncCall("(for|while)");
             public static Regex ShortLoops = ShortLoop("(for|while)");
-            public static Regex FuncCall(string funcName) => new Regex($"\\b{funcName}\\s*{Pattern.FunctionBraces}", RegexOptions.RightToLeft);
-            public static Regex ShortLoop(string loopName) => new Regex($"\\b{loopName}\\s*{Pattern.FunctionBraces}[^\\{{\\}};]*;", RegexOptions.RightToLeft);
+            public static Regex FuncCall(string funcName)
+            {
+                return new Regex($"\\b{funcName}\\s*{Pattern.FunctionBraces}", RegexOptions.RightToLeft);
+            }
+
+            public static Regex ShortLoop(string loopName)
+            {
+                return new Regex($"\\b{loopName}\\s*{Pattern.FunctionBraces}[^\\{{\\}};]*;", RegexOptions.RightToLeft);
+            }
         }
 
         #endregion
@@ -225,7 +232,7 @@ namespace App.Glsl
 
             return text;
         }
-        
+
         #region Methods to Process Shaders
 
         /// <summary>
@@ -234,7 +241,10 @@ namespace App.Glsl
         /// <param name="text"></param>
         /// <returns></returns>
         [ExecuteMethod]
-        private static string Version(string text) => Regex.Replace(text, @"#version [0-9]{3}", string.Empty);
+        private static string Version(string text)
+        {
+            return Regex.Replace(text, @"#version [0-9]{3}", string.Empty);
+        }
 
         /// <summary>
         /// Remove predefined built in output varyings.
@@ -412,7 +422,10 @@ namespace App.Glsl
         /// <param name="text"></param>
         /// <returns></returns>
         [ExecuteMethod]
-        private static string Uniforms(string text) => Regex.Replace(text, @"\buniform\b", "[__uniform]");
+        private static string Uniforms(string text)
+        {
+            return Regex.Replace(text, @"\buniform\b", "[__uniform]");
+        }
 
         /// <summary>
         /// Replace discard keyword with return keyword.
@@ -420,7 +433,10 @@ namespace App.Glsl
         /// <param name="text"></param>
         /// <returns></returns>
         [ExecuteMethod]
-        private static string Discard(string text) => Regex.Replace(text, @"\bdiscard\b", "return");
+        private static string Discard(string text)
+        {
+            return Regex.Replace(text, @"\bdiscard\b", "return");
+        }
 
         /// <summary>
         /// Convert GLSL floating point number to C# float.
@@ -459,7 +475,10 @@ namespace App.Glsl
         /// <param name="text"></param>
         /// <returns></returns>
         [ExecuteMethod]
-        private static string Outputs(string text) => Regex.Replace(text, @"\bout\b", "[__out]");
+        private static string Outputs(string text)
+        {
+            return Regex.Replace(text, @"\bout\b", "[__out]");
+        }
 
         /// <summary>
         /// Convert GLSL flat qualifier to C# attribute.
@@ -467,7 +486,10 @@ namespace App.Glsl
         /// <param name="text"></param>
         /// <returns></returns>
         [ExecuteMethod]
-        private static string Flat(string text) => Regex.Replace(text, @"\bflat\b", "[__flat]");
+        private static string Flat(string text)
+        {
+            return Regex.Replace(text, @"\bflat\b", "[__flat]");
+        }
 
         /// <summary>
         /// Convert GLSL smooth qualifier to C# attribute.
@@ -475,7 +497,10 @@ namespace App.Glsl
         /// <param name="text"></param>
         /// <returns></returns>
         [ExecuteMethod]
-        private static string Smooth(string text) => Regex.Replace(text, @"\bsmooth\b", "[__smooth]");
+        private static string Smooth(string text)
+        {
+            return Regex.Replace(text, @"\bsmooth\b", "[__smooth]");
+        }
 
         /// <summary>
         /// Convert GLSL main function to C# method.
@@ -483,7 +508,10 @@ namespace App.Glsl
         /// <param name="text"></param>
         /// <returns></returns>
         [ExecuteMethod]
-        private static string MainFunc(string text) => Regex.Replace(text, @"\bvoid\s+main\b", "public override void main");
+        private static string MainFunc(string text)
+        {
+            return Regex.Replace(text, @"\bvoid\s+main\b", "public override void main");
+        }
 
         #endregion
 
@@ -523,14 +551,13 @@ namespace App.Glsl
         /// <returns></returns>
         private static IEnumerable<Match> FindVariables(string text)
         {
-            double tmp;
             text += '\0';
 
             // for each accessed variable
             foreach (Match variable in RegEx.Variable.Matches(text))
             {
                 // do not trace numbers
-                if (double.TryParse(variable.Value, out tmp))
+                if (double.TryParse(variable.Value, out double tmp))
                     continue;
 
                 // get preceding and next char
@@ -558,13 +585,12 @@ namespace App.Glsl
 
         private static IEnumerable<Match> FindVariables2(string text)
         {
-            double tmp;
 
             // for each accessed variable
             foreach (Match variable in RegEx.Variable.Matches(text))
             {
                 // do not trace numbers
-                if (double.TryParse(variable.Value, out tmp))
+                if (double.TryParse(variable.Value, out double tmp))
                     continue;
 
                 // get preceding and next char
@@ -618,8 +644,10 @@ namespace App.Glsl
         }
 
         private static bool IsAssignmentOperator(string c)
-            => (c[0] == '=' && c[1] != '=')
-            || (c[1] == '=' && (c[0] == '+' || c[0] == '-' || c[0] == '*' || c[0] == '/'));
+        {
+            return (c[0] == '=' && c[1] != '=')
+                       || (c[1] == '=' && (c[0] == '+' || c[0] == '-' || c[0] == '*' || c[0] == '/'));
+        }
 
         /// <summary>
         /// Find all function calls.
@@ -628,7 +656,9 @@ namespace App.Glsl
         /// <param name="funcNames"></param>
         /// <returns></returns>
         private static IEnumerable<Match> FindFunctionCalls(string text, Regex[] funcRegex)
-            => SortMatches(funcRegex.Select(x => x.Matches(text).ToArray()), true);
+        {
+            return SortMatches(funcRegex.Select(x => x.Matches(text).ToArray()), true);
+        }
 
         /// <summary>
         /// Sort regex matches.

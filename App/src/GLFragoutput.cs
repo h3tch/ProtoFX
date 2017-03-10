@@ -6,12 +6,15 @@ namespace App
     class GLFragoutput : GLObject
     {
         #region PROPERTIES
+
         [FxField] public int[] Size = new int[2];
-        [FxField] public int Width { get { return Size[0]; } protected set { Size[0] = value; } }
-        [FxField] public int Height { get { return Size[1]; } protected set { Size[1] = value; } }
+        [FxField] public int Width { get => Size[0]; protected set => Size[0] = value; }
+        [FxField] public int Height { get => Size[1]; protected set => Size[1] = value; }
+
         #endregion
 
         #region FIELDS
+
         private int numAttachments = 0;
         private DrawBuffersEnum[] attachmentPoints = new DrawBuffersEnum[]
         {
@@ -32,6 +35,7 @@ namespace App
             DrawBuffersEnum.ColorAttachment14,
             DrawBuffersEnum.ColorAttachment15,
         };
+
         #endregion
 
         /// <summary>
@@ -43,7 +47,7 @@ namespace App
         public GLFragoutput(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"fragoutput '{name}'");
+            var err = new CompileException($"fragoutput '{Name}'");
 
             // PARSE ARGUMENTS
             Cmds2Fields(block, err);
@@ -57,7 +61,7 @@ namespace App
                 Attach(cmd, scene, err | $"command '{cmd.Name}'");
 
             // if any errors occurred throw exception
-            if (err.HasErrors())
+            if (err.HasErrors)
                 throw err;
 
             // CHECK FOR OPENGL ERRORS
@@ -117,7 +121,7 @@ namespace App
         private void Attach(Compiler.Command cmd, Dict scene, CompileException err)
         {
             // get OpenGL image
-            GLImage glimg = scene.GetValueOrDefault<GLImage>(cmd[0].Text);
+            var glimg = scene.GetValueOrDefault<GLImage>(cmd[0].Text);
             if (glimg == null)
             {
                 err.Add($"The name '{cmd[0].Text}' does not reference an object of type 'image'.", cmd);

@@ -20,8 +20,8 @@ namespace App
     abstract class GLObject
     {
         internal int glname;
-        [FxField] public string name { get; protected set; }
-        public string anno { get; protected set; }
+        [FxField] public string Name { get; protected set; }
+        public string Anno { get; protected set; }
 
         /// <summary>
         /// Default constructor.
@@ -30,9 +30,9 @@ namespace App
         /// <param name="anno"></param>
         public GLObject(string name, string anno)
         {
-            this.glname = 0;
-            this.name = name;
-            this.anno = anno;
+            glname = 0;
+            Name = name;
+            Anno = anno;
         }
         
         /// <summary>
@@ -58,7 +58,10 @@ namespace App
         /// Readable identifier of the class.
         /// </summary>
         /// <returns></returns>
-        public override string ToString() => name;
+        public override string ToString()
+        {
+            return Name;
+        }
 
         /// <summary>
         /// Find all external OpenGL objects of the specified type.
@@ -102,7 +105,7 @@ namespace App
                 err.Add($"OpenGL error '{errcode}' occurred.", block);
                 return true;
             }
-            return err.HasErrors();
+            return err.HasErrors;
         }
 
         /// <summary>
@@ -120,7 +123,7 @@ namespace App
                 err.Add($"OpenGL error '{errcode}' occurred.", file, line);
                 return true;
             }
-            return err.HasErrors();
+            return err.HasErrors;
         }
         #endregion
 
@@ -181,7 +184,7 @@ namespace App
                 err?.Add($"Command '{cmd.Text}' has no arguments (must have at least one).", cmd);
             if (!fieldType.IsArray && cmd.ArgCount > 1)
                 err?.Add($"Command '{cmd.Text}' has too many arguments (more than one).", cmd);
-            if (err != null && err.HasErrors())
+            if (err != null && err.HasErrors)
                 return;
 
             object val = null;

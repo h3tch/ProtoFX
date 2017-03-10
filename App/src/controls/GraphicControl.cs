@@ -56,7 +56,10 @@ namespace OpenTK
         /// <summary>
         /// Remove all events from the class.
         /// </summary>
-        public void RemoveEvents() => Events.Dispose();
+        public void RemoveEvents()
+        {
+            Events.Dispose();
+        }
 
         /// <summary>
         /// Render scene.
@@ -126,7 +129,7 @@ namespace OpenTK
 
             // instantiate class
             var instance = (GLObject)Activator.CreateInstance(type, block, scene, debugging);
-            scene.Add(instance.name, instance);
+            scene.Add(instance.Name, instance);
         }
         
         /// <summary>
@@ -142,29 +145,38 @@ namespace OpenTK
             // add default OpenTK glControl
             scene.Add(nullname, new GLReference(nullname, "internal", this));
         }
-        
+
         #region EVENTS
-        
+
         /// <summary>
         /// On resize, redraw the scene.
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleResize(object s, EventArgs e) => Render();
+        private void HandleResize(object s, EventArgs e)
+        {
+            Render();
+        }
 
         /// <summary>
         /// On paint event, redraw the scene.
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandlePaint(object s, PaintEventArgs e) => Render();
+        private void HandlePaint(object s, PaintEventArgs e)
+        {
+            Render();
+        }
 
         /// <summary>
         /// On mouse down, activate rendering.
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleMouseDown(object s, MouseEventArgs e) => render = true;
+        private void HandleMouseDown(object s, MouseEventArgs e)
+        {
+            render = true;
+        }
 
         /// <summary>
         /// On mouse up, stop rendering.
@@ -194,7 +206,10 @@ namespace OpenTK
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void HandleKeyUp(object s, KeyEventArgs e) => Render();
+        private void HandleKeyUp(object s, KeyEventArgs e)
+        {
+            Render();
+        }
 
         #endregion
     }

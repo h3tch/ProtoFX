@@ -96,7 +96,9 @@ namespace App
         }
 
         public static int Size(this Array array)
-            => Marshal.SizeOf(array.GetType().GetElementType()) * array.Length;
+        {
+            return Marshal.SizeOf(array.GetType().GetElementType()) * array.Length;
+        }
 
         /// <summary>
         /// Convert string into the specified type.
@@ -144,7 +146,7 @@ namespace App
         /// <returns>Returns an array for converted values.</returns>
         public static TResult[] To<TResult>(this Array array)
         {
-            TResult[] result = new TResult[array.Length];
+            var result = new TResult[array.Length];
             for (int i = 0; i < array.Length; i++)
                 result[i] = (TResult)array.GetValue(i);
             return result;
@@ -174,7 +176,10 @@ namespace App
         /// <param name="a"></param>
         /// <param name="func"></param>
         /// <returns></returns>
-        public static IEnumerable<object> ToEnumerable(this Array a) => ForEach(a, new int[a.Rank]);
+        public static IEnumerable<object> ToEnumerable(this Array a)
+        {
+            return ForEach(a, new int[a.Rank]);
+        }
 
         /// <summary>
         /// Enumerate the elements of a multidimensional array.
@@ -288,7 +293,9 @@ namespace App
         /// <param name="dst"></param>
         /// <param name="size"></param>
         public static void CopyTo(this IntPtr src, IntPtr dst, int size)
-            => NativeMethods.CopyMemory(dst, src, (uint)size);
+        {
+            NativeMethods.CopyMemory(dst, src, (uint)size);
+        }
 
         internal static class NativeMethods
         {

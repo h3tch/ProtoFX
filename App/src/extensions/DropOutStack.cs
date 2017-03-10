@@ -91,7 +91,10 @@
                 yield return items[i % items.Length];
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
         #endregion
 
@@ -102,14 +105,20 @@
         /// </summary>
         /// <param name="i"></param>
         /// <returns></returns>
-        private int Inc(int i) => (i + 1) % items.Length;
+        private int Inc(int i)
+        {
+            return (i + 1) % items.Length;
+        }
 
         /// <summary>
         /// Decrease i by shifting the index to the previous position.
         /// </summary>
         /// <param name="i"></param>
         /// <returns></returns>
-        private int Dec(int i) => (items.Length + i - 1) % items.Length;
+        private int Dec(int i)
+        {
+            return (items.Length + i - 1) % items.Length;
+        }
 
         #endregion
     }

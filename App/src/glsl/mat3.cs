@@ -1,5 +1,7 @@
 ﻿using System;
 
+#pragma warning disable IDE1006
+
 namespace App.Glsl
 {
     public struct mat3
@@ -30,11 +32,18 @@ namespace App.Glsl
                 throw new IndexOutOfRangeException();
             }
         }
-        public override string ToString() => "[" + C0 + "; " + C1 + "; " + C2 + "]";
-        public Array ToArray() => new [,] {
+        public override string ToString()
+        {
+            return "[" + C0 + "; " + C1 + "; " + C2 + "]";
+        }
+
+        public Array ToArray()
+        {
+            return new[,] {
             { C0.x, C1.x, C2.x },
             { C0.y, C1.y, C2.y },
             { C0.z, C1.z, C2.z } };
+        }
 
         public mat3(float a) : this(new vec3(a), new vec3(a), new vec3(a)) { }
         public mat3(float[] v) : this(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]) { }
@@ -113,11 +122,18 @@ namespace App.Glsl
                 throw new IndexOutOfRangeException();
             }
         }
-        public override string ToString() => "[" + C0 + "; " + C1 + "; " + C2 + "]";
-        public Array ToArray() => new [,] {
+        public override string ToString()
+        {
+            return "[" + C0 + "; " + C1 + "; " + C2 + "]";
+        }
+
+        public Array ToArray()
+        {
+            return new[,] {
             { C0.x, C1.x, C2.x },
             { C0.y, C1.y, C2.y },
             { C0.z, C1.z, C2.z } };
+        }
 
         public dmat3(double a) : this(new dvec3(a), new dvec3(a), new dvec3(a)) { }
         public dmat3(double[] v) : this(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]) { }

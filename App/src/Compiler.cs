@@ -52,6 +52,7 @@ namespace App
         public class File : IEnumerable<Block>
         {
             #region FIELDS
+
             public File Owner { get; private set; }
             public string Path { get; private set; }
             public int Line { get; private set; }
@@ -60,6 +61,7 @@ namespace App
             public List<int> TextIndex { get; private set; }
             public File[] Include { get; private set; }
             public Block[] Block { get; private set; }
+
             #endregion
 
             /// <summary>
@@ -170,17 +172,29 @@ namespace App
             }
 
             #region IEnumerable Interface
-            public IEnumerator<Block> GetEnumerator() => GetBlocks().GetEnumerator();
 
-            IEnumerator<Block> IEnumerable<Block>.GetEnumerator() => GetBlocks().GetEnumerator();
+            public IEnumerator<Block> GetEnumerator()
+            {
+                return GetBlocks().GetEnumerator();
+            }
 
-            IEnumerator IEnumerable.GetEnumerator() => GetBlocks().GetEnumerator();
+            IEnumerator<Block> IEnumerable<Block>.GetEnumerator()
+            {
+                return GetBlocks().GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetBlocks().GetEnumerator();
+            }
+
             #endregion
         }
 
         public class Block : IEnumerable<Command>
         {
             #region FIELD
+
             public File Owner { get; private set; }
             public int Line { get; private set; }
             public int LineCount { get; private set; }
@@ -203,6 +217,7 @@ namespace App
             public Command[] Cmds { get; private set; }
             public Command this[int i] { get { return Cmds[i]; } }
             public IEnumerable<Command> this[string name] { get { return GetCommands(name); } }
+
             #endregion
 
             /// <summary>
@@ -280,17 +295,29 @@ namespace App
             }
 
             #region IEnumerable Interface
-            public IEnumerator<Command> GetEnumerator() => GetCommands().GetEnumerator();
 
-            IEnumerator<Command> IEnumerable<Command>.GetEnumerator() => GetCommands().GetEnumerator();
+            public IEnumerator<Command> GetEnumerator()
+            {
+                return GetCommands().GetEnumerator();
+            }
 
-            IEnumerator IEnumerable.GetEnumerator() => GetCommands().GetEnumerator();
+            IEnumerator<Command> IEnumerable<Command>.GetEnumerator()
+            {
+                return GetCommands().GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetCommands().GetEnumerator();
+            }
+
             #endregion
         }
 
         public class Command : IEnumerable<Argument>
         {
             #region FIELD
+
             public Block Owner { get; private set; }
             public int Line { get; private set; }
             public int LineInFile => Owner.LineInFile + Line;
@@ -301,6 +328,7 @@ namespace App
             public string Name { get { return Args[0].Text; } }
             public int ArgCount { get { return Args.Length - 1; } }
             public Argument this[int i] { get { return Args[i + 1]; } }
+
             #endregion
 
             /// <summary>
@@ -326,7 +354,7 @@ namespace App
             private IEnumerable<Argument> ProcessArguments()
             {
                 // replace all non word characters with \n
-                char[] chars = Text.ToCharArray();
+                var chars = Text.ToCharArray();
                 bool inQuote = false;
                 for (int i = 0; i < chars.Length; i++)
                 {
@@ -362,7 +390,7 @@ namespace App
             public (object[], string[]) Parse(Type[] types, bool[][] mandatory, Dict scene,
                 CompileException err = null)
             {
-                object[] values = new object[types.Length];
+                var values = new object[types.Length];
 
                 // parse command arguments
                 var lastArgUsed = 0;
@@ -380,7 +408,8 @@ namespace App
                                 ? scene.GetValueOrDefault<GLObject>(arg.Text)
                                 : types[i].IsEnum
                                     ? Enum.Parse(types[i], arg.Text, true)
-                                    : Convert.ChangeType(arg.Text, types[i], CultureInfo.CurrentCulture);
+                                    : Convert.ChangeType(arg.Text, types[i],
+                                        CultureInfo.CurrentCulture);
                             if (values[i] != null)
                             {
                                 lastArgUsed = a;
@@ -405,11 +434,20 @@ namespace App
             }
 
             #region IEnumerable Interface
-            public IEnumerator<Argument> GetEnumerator() => Args.Skip(1).GetEnumerator();
+            public IEnumerator<Argument> GetEnumerator()
+            {
+                return Args.Skip(1).GetEnumerator();
+            }
 
-            IEnumerator<Argument> IEnumerable<Argument>.GetEnumerator() => Args.Skip(1).GetEnumerator();
+            IEnumerator<Argument> IEnumerable<Argument>.GetEnumerator()
+            {
+                return Args.Skip(1).GetEnumerator();
+            }
 
-            IEnumerator IEnumerable.GetEnumerator() => Args.Skip(1).GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return Args.Skip(1).GetEnumerator();
+            }
             #endregion
         }
 
@@ -453,7 +491,8 @@ namespace App
                 $"{blockComments}|{lineComments}|{strings}|{verbatimStrings}",
                 x => x.Value.StartsWith("\"")
                     ? x.Value
-                    : new string(x.Value.Select(c => (c != '\n' && c != '\r') ? ' ' : c).ToArray()),
+                    : new string(x.Value.Select(c => (c != '\n' && c != '\r') ? ' ' : c)
+                        .ToArray()),
                 RegexOptions.Singleline);
         }
         
@@ -465,7 +504,8 @@ namespace App
         public static string ResolvePreprocessorDefinitions(string text, List<int> index)
         {
             // find global definition matches
-            var matches = Regex.Matches(text, @"#global(\s+\w+){2}", RegexOptions.RightToLeft);
+            var matches = Regex.Matches(text, @"#global(\s+\w+){2}",
+                RegexOptions.RightToLeft);
 
             // remove global definitions and store them in a dictionary
             var definitions = new Dictionary<string, string>(matches.Count);
@@ -480,12 +520,15 @@ namespace App
             // replace all definitions
             foreach (var definition in definitions)
             {
-                matches = Regex.Matches(text, $"\\b{definition.Key}\\b", RegexOptions.RightToLeft);
+                matches = Regex.Matches(text, $"\\b{definition.Key}\\b",
+                    RegexOptions.RightToLeft);
                 foreach (Match match in matches)
                 {
-                    text = text.Remove(match.Index, match.Length).Insert(match.Index, definition.Value);
+                    text = text.Remove(match.Index, match.Length)
+                        .Insert(match.Index, definition.Value);
                     index.RemoveRange(match.Index, match.Length);
-                    index.InsertRange(match.Index, Enumerable.Repeat(-1, definition.Value.Length));
+                    index.InsertRange(match.Index, 
+                        Enumerable.Repeat(-1, definition.Value.Length));
                 }
             }
 
@@ -517,9 +560,11 @@ namespace App
         /// <param name="start"></param>
         /// <param name="end"></param>
         /// <returns></returns>
-        public static IEnumerable<Match> GetFunctionPositions(this CodeEditor editor, int start, int end)
+        public static IEnumerable<Match> GetFunctionPositions(this CodeEditor editor, 
+            int start, int end)
         {
-            foreach (Match match in Compiler.RegexFunction.Matches(editor.Text.Substring(0, end), start))
+            foreach (Match match in Compiler.RegexFunction
+                .Matches(editor.Text.Substring(0, end), start))
                 yield return match;
         }
 
@@ -530,9 +575,11 @@ namespace App
         /// <param name="start"></param>
         /// <param name="end"></param>
         /// <returns></returns>
-        public static IEnumerable<Match> GetLayoutPositions(this CodeEditor editor, int start, int end)
+        public static IEnumerable<Match> GetLayoutPositions(this CodeEditor editor, 
+            int start, int end)
         {
-            foreach (Match match in Compiler.RegexLayout.Matches(editor.Text.Substring(0, end), start))
+            foreach (Match match in Compiler.RegexLayout
+                .Matches(editor.Text.Substring(0, end), start))
                 yield return match;
         }
     }
@@ -543,21 +590,31 @@ namespace App
         public static bool TryGetValue<T>(this Dict dict, string key, out T obj,
             Compiler.Command cmd, CompileException err)
             where T : GLObject
-            => dict.TryGetValue(key, out obj, cmd.LineInFile, cmd.File, err);
+        {
+            return dict.TryGetValue(key, out obj, cmd.LineInFile, cmd.File, err);
+        }
 
         public static bool TryGetValue<T>(this Dict dict, string key, out T obj,
             Compiler.Block block, CompileException err)
             where T : GLObject
-            => dict.TryGetValue(key, out obj, block.LineInFile, block.Filename, err);
+        {
+            return dict.TryGetValue(key, out obj, block.LineInFile, block.Filename, err);
+        }
     }
 
     // convenience extensions to the compiler exception class
     static class CompilerExeptionExtensions
     {
-        public static CompileException Add(this CompileException err, string message, Compiler.Block block)
-            => err.Add(message, block.Filename, block.LineInFile);
+        public static CompileException Add(this CompileException err, string message,
+            Compiler.Block block)
+        {
+            return err.Add(message, block.Filename, block.LineInFile);
+        }
 
-        public static CompileException Add(this CompileException err, string message, Compiler.Command cmd)
-            => err.Add(message, cmd.File, cmd.LineInFile);
+        public static CompileException Add(this CompileException err, string message,
+            Compiler.Command cmd)
+        {
+            return err.Add(message, cmd.File, cmd.LineInFile);
+        }
     }
 }

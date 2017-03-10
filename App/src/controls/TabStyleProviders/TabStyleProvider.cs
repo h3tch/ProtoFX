@@ -280,15 +280,13 @@ namespace System.Windows.Forms
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public TabStyle DisplayStyle
         {
-            get { return style; }
-            set { style = value; }
+            get => style; set => style = value;
         }
 
         [Category("Appearance")]
         public ContentAlignment ImageAlign
         {
-            get { return imageAlign; }
-            set {
+            get => imageAlign; set {
                 imageAlign = value;
                 tabControl.Invalidate();
             }
@@ -297,8 +295,7 @@ namespace System.Windows.Forms
         [Category("Appearance")]
         public Drawing.Point Padding
         {
-            get { return padding; }
-            set {
+            get => padding; set {
                 padding = value;
                 // This line will trigger the handle to recreate,
                 // therefore invalidating the control
@@ -315,8 +312,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), DefaultValue(1), Browsable(true)]
         public int Radius
         {
-            get { return radius; }
-            set {
+            get => radius; set {
                 radius = Math.Max(1, value);
                 Padding = padding;
             }
@@ -325,15 +321,13 @@ namespace System.Windows.Forms
         [Category("Appearance")]
         public int Overlap
         {
-            get { return overlap; }
-            set { overlap = Math.Max(0, value); }
+            get => overlap; set => overlap = Math.Max(0, value);
         }
         
         [Category("Appearance")]
         public bool FocusTrack
         {
-            get { return focusTrack; }
-            set {
+            get => focusTrack; set {
                 focusTrack = value;
                 tabControl.Invalidate();
             }
@@ -342,8 +336,7 @@ namespace System.Windows.Forms
         [Category("Appearance")]
         public bool HotTrack
         {
-            get { return hotTrack; }
-            set {
+            get => hotTrack; set {
                 hotTrack = value;
                 ((TabControl)tabControl).HotTrack = value;
             }
@@ -352,8 +345,7 @@ namespace System.Windows.Forms
         [Category("Appearance")]
         public bool ShowTabCloser
         {
-            get { return showTabCloser; }
-            set {
+            get => showTabCloser; set {
                 showTabCloser = value;
                 Padding = padding;
             }
@@ -362,8 +354,7 @@ namespace System.Windows.Forms
         [Category("Appearance")]
         public float Opacity
         {
-            get { return opacity; }
-            set {
+            get => opacity; set {
                 opacity = Math.Min(1, Math.Max(0, value));
                 tabControl.Invalidate();
             }
@@ -372,8 +363,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), DefaultValue(typeof(Color), "")]
         public Color BorderColorSelected
         {
-            get { return borderColorSelected; }
-            set {
+            get => borderColorSelected; set {
                 borderColorSelected = value;
                 BorderColorSelectedPen?.Dispose();
                 BorderColorSelectedPen = new Pen(borderColorSelected);
@@ -386,8 +376,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), DefaultValue(typeof(Color), "")]
         public Color BorderColorHot
         {
-            get { return borderColorHot; }
-            set {
+            get => borderColorHot; set {
                 borderColorHot = value;
                 BorderColorHotPen?.Dispose();
                 BorderColorHotPen = new Pen(borderColorHot);
@@ -400,8 +389,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), DefaultValue(typeof(Color), "")]
         public Color BorderColor
         {
-            get { return borderColor; }
-            set {
+            get => borderColor; set {
                 borderColor = value;
                 BorderColorPen?.Dispose();
                 BorderColorPen = new Pen(borderColor);
@@ -414,8 +402,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), DefaultValue(typeof(Color), "")]
         public Color TextColor
         {
-            get { return textColor; }
-            set {
+            get => textColor; set {
                 textColor = value;
                 TextColorBrush?.Dispose();
                 TextColorBrush = new SolidBrush(textColor);
@@ -428,8 +415,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), DefaultValue(typeof(Color), "")]
         public Color TextColorSelected
         {
-            get { return textColorSelected; }
-            set {
+            get => textColorSelected; set {
                 textColorSelected = value;
                 TextColorSelectedBrush?.Dispose();
                 TextColorSelectedBrush = new SolidBrush(textColorSelected);
@@ -442,8 +428,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), DefaultValue(typeof(Color), "")]
         public Color TextColorDisabled
         {
-            get { return textColor; }
-            set {
+            get => textColor; set {
                 textColorDisabled = value;
                 TextColorDisabledBrush?.Dispose();
                 TextColorDisabledBrush = new SolidBrush(textColorDisabled);
@@ -456,8 +441,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), DefaultValue(typeof(Color), "Orange")]
         public Color FocusColor
         {
-            get { return focusColor; }
-            set {
+            get => focusColor; set {
                 focusColor = value;
                 FocusColorBrush?.Dispose();
                 FocusColorBrush = new SolidBrush(focusColor);
@@ -470,8 +454,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), DefaultValue(typeof(Color), "Black")]
         public Color CloserColorActive
         {
-            get { return closerColorActive; }
-            set {
+            get => closerColorActive; set {
                 closerColorActive = value;
                 CloserColorActivePen?.Dispose();
                 CloserColorActivePen = new Pen(closerColorActive);
@@ -484,8 +467,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), DefaultValue(typeof(Color), "DarkGrey")]
         public Color CloserColor
         {
-            get { return closerColor; }
-            set {
+            get => closerColor; set {
                 closerColor = value;
                 CloserColorPen?.Dispose();
                 CloserColorPen = new Pen(closerColor);
@@ -501,8 +483,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), DefaultValue(typeof(Color), "")]
         public Color BackColor
         {
-            get { return backColor; }
-            set
+            get => backColor; set
             {
                 backColor = value;
                 BackColorBrush?.Dispose();
@@ -516,8 +497,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), DefaultValue(typeof(Color), "")]
         public Color BackColorSelected
         {
-            get { return backColorSelected; }
-            set
+            get => backColorSelected; set
             {
                 backColorSelected = value;
                 BackColorSelectedBrush?.Dispose();
@@ -531,8 +511,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), DefaultValue(typeof(Color), "")]
         public Color BackColorHot
         {
-            get { return backColorHot; }
-            set
+            get => backColorHot; set
             {
                 backColorHot = value;
                 BackColorHotBrush?.Dispose();
@@ -598,8 +577,8 @@ namespace System.Windows.Forms
             if (focusTrack && tabControl.Focused && index == tabControl.SelectedIndex)
             {
                 Brush focusBrush = null;
-                RectangleF pathRect = tabpath.GetBounds();
-                Rectangle focusRect = Rectangle.Empty;
+                var pathRect = tabpath.GetBounds();
+                var focusRect = Rectangle.Empty;
                 switch (tabControl.Alignment)
                 {
                     case TabAlignment.Top:
@@ -621,7 +600,7 @@ namespace System.Windows.Forms
                 }
                 
                 // Ensure the focus stip does not go outside the tab
-                Region focusRegion = new Region(focusRect);
+                var focusRegion = new Region(focusRect);
                 focusRegion.Intersect(tabpath);
                 graphics.FillRegion(focusBrush, focusRegion);
                 focusRegion.Dispose();
@@ -635,8 +614,8 @@ namespace System.Windows.Forms
 
         private Blend GetBackgroundBlend()
         {
-            float[] relativeIntensities = new float[]{0f, 0.7f, 1f};
-            float[] relativePositions = new float[]{0f, 0.6f, 1f};
+            var relativeIntensities = new float[]{0f, 0.7f, 1f};
+            var relativePositions = new float[]{0f, 0.6f, 1f};
 
             // Glass look to top aligned tabs
             if (tabControl.Alignment == TabAlignment.Top)
@@ -645,15 +624,17 @@ namespace System.Windows.Forms
                 relativePositions = new float[]{0f, 0.5f, 0.51f, 1f};
             }
             
-            Blend blend = new Blend();
+            var blend = new Blend();
             blend.Factors = relativeIntensities;
             blend.Positions = relativePositions;
             
             return blend;
         }
-        
+
         public virtual Brush GetPageBackgroundBrush(int index)
-            => tabControl.SelectedIndex == index ? BackColorBrush : Brushes.Transparent;
+        {
+            return tabControl.SelectedIndex == index ? BackColorBrush : Brushes.Transparent;
+        }
 
         #endregion
 

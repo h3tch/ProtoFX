@@ -161,11 +161,11 @@ namespace App
             {
                 // Compile and run
                 case Keys.F5:
-                    toolBtnRunDebug_Click(s, null);
+                    ToolBtnRunDebug_Click(s, null);
                     break;
                 // Compile and run
                 case Keys.F6:
-                    toolBtnRunDebug_Click(toolBtnDbg, null);
+                    ToolBtnRunDebug_Click(toolBtnDbg, null);
                     break;
                 // Debug stepping
                 case Keys.F9:
@@ -181,19 +181,19 @@ namespace App
                 case Keys.S:
                     if (e.Control && e.Shift)
                         // Save all tabs
-                        toolBtnSaveAll_Click(s, null);
+                        ToolBtnSaveAll_Click(s, null);
                     else if (e.Control)
                         // Save active tab
-                        toolBtnSave_Click(s, null);
+                        ToolBtnSave_Click(s, null);
                     else if (e.Alt)
                         // Save active tab as
-                        toolBtnSaveAs_Click(s, null);
+                        ToolBtnSaveAs_Click(s, null);
                     break;
                 // Open
                 case Keys.O:
                     if (e.Control)
                         // Open tech files
-                        toolBtnOpen_Click(s, null);
+                        ToolBtnOpen_Click(s, null);
                     break;
                 // Fold all code
                 case Keys.Left:
@@ -213,21 +213,27 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void btnWindowClose_Click(object s, EventArgs e) => Close();
+        private void BtnWindowClose_Click(object s, EventArgs e)
+        {
+            Close();
+        }
 
         /// <summary>
         /// After clicking the window minimize button, minimize the form.
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void btnWindowMinimize_Click(object s, EventArgs e) => WindowState = Minimized;
+        private void BtnWindowMinimize_Click(object s, EventArgs e)
+        {
+            WindowState = Minimized;
+        }
 
         /// <summary>
         /// Maximize or normalize the window based on its current state.
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void btnWindowMaximize_Click(object s, EventArgs e)
+        private void BtnWindowMaximize_Click(object s, EventArgs e)
         {
             if (IsMaximized)
                 NormalizeWindow();
@@ -262,7 +268,7 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void tabControl_SelectedIndexChanged(object s, EventArgs e)
+        private void TabControl_SelectedIndexChanged(object s, EventArgs e)
         {
             var enable = tabControl.SelectedIndex == 0;
             toolBtnSave.Enabled = enable;
@@ -366,14 +372,14 @@ namespace App
 
         #endregion
 
-        #region glControl Events
+        #region GlControl Events
 
         /// <summary>
         /// Handle mouse up events of the glCotrol.
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void glControl_MouseUp(object s, MouseEventArgs e)
+        private void GlControl_MouseUp(object s, MouseEventArgs e)
         {
             // if pick tool button is checked, set
             // the fragment debug position to that pixel
@@ -412,7 +418,7 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnNew_Click(object s, EventArgs e)
+        private void ToolBtnNew_Click(object s, EventArgs e)
         {
             tabSource.SelectedIndex = AddTab(null);
             tabControl.SelectedIndex = 0;
@@ -423,7 +429,7 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnOpen_Click(object s, EventArgs e)
+        private void ToolBtnOpen_Click(object s, EventArgs e)
         {
             // create file dialog
             var openDlg = new OpenFileDialog();
@@ -449,7 +455,7 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="ev"></param>
-        private void toolBtnRunDebug_Click(object s, EventArgs ev)
+        private void ToolBtnRunDebug_Click(object s, EventArgs ev)
         {
             // if no tab page is selected nothing needs to be compiled
             if (SelectedTab == null)
@@ -457,7 +463,7 @@ namespace App
             CompiledEditor = (CodeEditor)SelectedTab.Controls[0];
 
             // save code
-            toolBtnSave_Click(s, null);
+            ToolBtnSave_Click(s, null);
 
             // clear scene and output
             output.Rows.Clear();
@@ -482,7 +488,7 @@ namespace App
             var ex = root.Catch(x => glControl.AddObject(x, debugging)).ToArray();
             // add events to the end of the event list
             glControl.AddEvents(output);
-            glControl.MouseUp += new MouseEventHandler(glControl_MouseUp);
+            glControl.MouseUp += new MouseEventHandler(GlControl_MouseUp);
 
             // show errors
             var exc = from x in ex
@@ -505,10 +511,10 @@ namespace App
 
             // add externally created textures to the scene
             var existing = glControl.Scene.Values.ToArray();
-            GLImage.FindTextures(existing).ForEach(x => glControl.Scene.Add(x.name, x));
+            GLImage.FindTextures(existing).ForEach(x => glControl.Scene.Add(x.Name, x));
 
             // add externally created buffers to the scene
-            GLBuffer.FindBuffers(existing).ForEach(x => glControl.Scene.Add(x.name, x));
+            GLBuffer.FindBuffers(existing).ForEach(x => glControl.Scene.Add(x.Name, x));
 
             // UPDATE DEBUG DATA
             comboBuf.Items.Clear();
@@ -531,7 +537,7 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnSave_Click(object s, EventArgs e)
+        private void ToolBtnSave_Click(object s, EventArgs e)
         {
             if (!(SelectedTab?.Text.EndsWith("*") ?? false))
                 return;
@@ -544,7 +550,7 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnSaveAll_Click(object s, EventArgs e)
+        private void ToolBtnSaveAll_Click(object s, EventArgs e)
         {
             foreach (TabPage tab in tabSource.TabPages)
                 SaveTab(tab, false);
@@ -555,15 +561,17 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnSaveAs_Click(object s, EventArgs e)
-            => SaveTab(SelectedTab, true);
+        private void ToolBtnSaveAs_Click(object s, EventArgs e)
+        {
+            SaveTab(SelectedTab, true);
+        }
 
         /// <summary>
         /// Close the currently active tab, but open the save dialog if there have been changes.
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void tabSource_TabClose(object s, TabControlCancelEventArgs e)
+        private void TabSource_TabClose(object s, TabControlCancelEventArgs e)
         {
             if (!CloseTab(e.TabPage))
                 e.Cancel = true;
@@ -574,15 +582,17 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnPick_CheckedChanged(object s, EventArgs e)
-            => glControl.Cursor = toolBtnPick.Checked ? Cursors.Cross : Cursors.Default;
+        private void ToolBtnPick_CheckedChanged(object s, EventArgs e)
+        {
+            glControl.Cursor = toolBtnPick.Checked ? Cursors.Cross : Cursors.Default;
+        }
 
         /// <summary>
         /// Insert comment in all selected lines.
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnComment_Click(object s, EventArgs e)
+        private void ToolBtnComment_Click(object s, EventArgs e)
         {
             var editor = SelectedEditor;
             if (editor == null)
@@ -628,7 +638,7 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void toolBtnUncomment_Click(object s, EventArgs e)
+        private void ToolBtnUncomment_Click(object s, EventArgs e)
         {
             var editor = SelectedEditor;
             if (editor == null)
@@ -717,9 +727,9 @@ namespace App
             var tabSourcePage = new TabPage();
             var editor = new CodeEditor(Properties.Resources.keywordsXML);
             editor.Filename = path;
-            editor.ShowCallTip += editor_ShowCallTip;
-            editor.CancleCallTip += editor_CancleCallTip;
-            editor.CustomMouseHover += editor_MouseHover;
+            editor.ShowCallTip += Editor_ShowCallTip;
+            editor.CancleCallTip += Editor_CancleCallTip;
+            editor.CustomMouseHover += Editor_MouseHover;
             editor.VScrollBar = false;
             editor.HScrollBar = false;
 
@@ -783,7 +793,7 @@ namespace App
                 {
                     case "-HideDevGui": HideDeveloperGui(true); break;
                     case "-HideAllGui": HideAllGui(true); break;
-                    case "-Compile": toolBtnRunDebug_Click(null, null); break;
+                    case "-Compile": ToolBtnRunDebug_Click(null, null); break;
                     case "-Title": if (a.Length > 1) labelTitle.Text = a[1]; break;
                     case "-Fullscreen": FullscreenWindow(); break;
                 }
@@ -796,19 +806,19 @@ namespace App
         /// <param name="hide"></param>
         private void HideDeveloperGui(bool hide)
         {
-            splitRenderCoding.Panel2Collapsed = hide;
+            SplitRenderCoding.Panel2Collapsed = hide;
             splitRenderOutput.Panel2Collapsed = hide;
             btnWindowMinimize2.Visible = hide;
             btnWindowMaximize2.Visible = hide;
             btnWindowClose2.Visible = hide;
             if (hide)
             {
-                splitRenderCoding.Panel2.Hide();
+                SplitRenderCoding.Panel2.Hide();
                 splitRenderOutput.Panel2.Hide();
             }
             else
             {
-                splitRenderCoding.Panel2.Show();
+                SplitRenderCoding.Panel2.Show();
                 splitRenderOutput.Panel2.Show();
             }
         }
@@ -873,7 +883,7 @@ namespace App
                     BorderStyle = app.FormBorderStyle,
                     NormalLocation = app.IsMaximized ? app.NormalLocation : app.Location,
                     NormalSize = app.IsMaximized ? app.NormalSize : app.Size,
-                    SplitRenderCoding = (float)app.splitRenderCoding.SplitterDistance / app.splitRenderCoding.Width,
+                    SplitRenderCoding = (float)app.SplitRenderCoding.SplitterDistance / app.SplitRenderCoding.Width,
                     SplitRenderOutput = (float)app.splitRenderOutput.SplitterDistance / app.splitRenderOutput.Height,
                     SplitDebugPerf = (float)app.splitDebugPerf.SplitterDistance / app.splitDebugPerf.Width,
                     SplitDebug = (float)app.splitDebug.SplitterDistance / app.splitDebug.Width,
@@ -936,8 +946,8 @@ namespace App
             public void AdjustGUI(App app)
             {
                 // place splitters by percentage
-                app.splitRenderCoding.SplitterDistance =
-                    (int)(SplitRenderCoding * app.splitRenderCoding.Width);
+                app.SplitRenderCoding.SplitterDistance =
+                    (int)(SplitRenderCoding * app.SplitRenderCoding.Width);
                 app.splitRenderOutput.SplitterDistance =
                     (int)(SplitRenderOutput * app.splitRenderOutput.Height);
                 app.splitDebugPerf.SplitterDistance =

@@ -18,11 +18,11 @@ namespace App
         public GLInstance(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"instance '{name}'");
+            var err = new CompileException($"instance '{Name}'");
             
             // INSTANTIATE CSHARP CLASS FROM CODE BLOCK
             Instance = GLCsharp.CreateInstance(block, scene, err);
-            if (err.HasErrors())
+            if (err.HasErrors)
                 throw err;
 
             // get Bind method from main class instance
@@ -39,7 +39,7 @@ namespace App
             // get all public methods and check whether
             // they can be used as event handlers for glControl
             var reference = scene.GetValueOrDefault<GLReference>(GraphicControl.nullname);
-            var glControl = (GraphicControl)reference.reference;
+            var glControl = (GraphicControl)reference.Reference;
             var methods = Instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
             foreach (var method in methods)
             {
@@ -61,14 +61,18 @@ namespace App
         /// <param name="widthTex">Width of the render target.</param>
         /// <param name="heightTex">Height of the render target.</param>
         public void Update(int program, int width, int height, int widthTex, int heightTex)
-            => update?.Invoke(Instance, new object[] { program, width, height, widthTex, heightTex });
+        {
+            update?.Invoke(Instance, new object[] { program, width, height, widthTex, heightTex });
+        }
 
         /// <summary>
         /// Call end-pass method of the external class instance.
         /// </summary>
         /// <param name="program">Program/pass calling the method.</param>
         public void EndPass(int program)
-            => endpass?.Invoke(Instance, new object[] { program });
+        {
+            endpass?.Invoke(Instance, new object[] { program });
+        }
 
         /// <summary>
         /// Standard object destructor for ProtoFX.

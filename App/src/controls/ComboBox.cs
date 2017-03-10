@@ -63,20 +63,17 @@ namespace System.Windows.Forms
 
         public Color Transparent
         {
-            get { return _transparent; }
-            set { _transparent = value; Invalidate(true); }
+            get => _transparent; set { _transparent = value; Invalidate(true); }
         }
 
         public Color BorderColor
         {
-            get { return _bordercolor; }
-            set { _bordercolor = value; Invalidate(true); }
+            get => _bordercolor; set { _bordercolor = value; Invalidate(true); }
         }
 
         public int DropDownHeight
         {
-            get { return _dropDownHeight; }
-            set { _dropDownHeight = value; }
+            get => _dropDownHeight; set => _dropDownHeight = value;
         }
 
         public ListBox.ObjectCollection Items
@@ -86,20 +83,17 @@ namespace System.Windows.Forms
 
         public int DropDownWidth
         {
-            get { return _dropDownWidth; }
-            set { _dropDownWidth = value; }
+            get => _dropDownWidth; set => _dropDownWidth = value;
         }
 
         public int MaxDropDownItems
         {
-            get { return _maxDropDownItems; }
-            set { _maxDropDownItems = value; }
+            get => _maxDropDownItems; set => _maxDropDownItems = value;
         }
 
         public new object DataSource
         {
-            get { return base.DataSource; }
-            set 
+            get => base.DataSource; set 
             { 
                 _listBox.DataSource = value;
                 base.DataSource = value;
@@ -109,21 +103,18 @@ namespace System.Windows.Forms
 
         public bool Soreted
         {
-            get { return _listBox.Sorted; }
-            set { _listBox.Sorted = value; }
+            get => _listBox.Sorted; set => _listBox.Sorted = value;
         }
 
         [Category("Behavior"), Description("Indicates whether the code or the OS will handle the drawing of elements in the list.")]
         public DrawMode DrawMode
         {
-            get { return _listBox.DrawMode; }
-            set { _listBox.DrawMode = value; }
+            get => _listBox.DrawMode; set => _listBox.DrawMode = value;
         }
         
         public ComboBoxStyle DropDownStyle
         {
-            get { return _dropDownStyle; }
-            set 
+            get => _dropDownStyle; set 
             { 
                 _dropDownStyle = value;
                 _textBox.Visible = _dropDownStyle != ComboBoxStyle.DropDownList;
@@ -133,8 +124,7 @@ namespace System.Windows.Forms
 
         public new Color BackColor
         {
-            get { return _backcolor; }
-            set 
+            get => _backcolor; set 
             { 
                 _backcolor = value;
                 _textBox.BackColor = value;
@@ -145,8 +135,7 @@ namespace System.Windows.Forms
 
         public new Color ForeColor
         {
-            get { return _forecolor; }
-            set
+            get => _forecolor; set
             {
                 _forecolor = value;
                 _textBox.ForeColor = value;
@@ -157,8 +146,7 @@ namespace System.Windows.Forms
 
         public bool IsDroppedDown
         {
-            get { return _isDroppedDown; }
-            set 
+            get => _isDroppedDown; set 
             {
                 if (_isDroppedDown == true && value == false )
                 {
@@ -347,8 +335,7 @@ namespace System.Windows.Forms
 
         public override Font Font
         {
-            get { return base.Font; }
-            set
+            get => base.Font; set
             {
                 resize = true;
                 _textBox.Font = value;
@@ -456,8 +443,7 @@ namespace System.Windows.Forms
 
         public override string Text
         {
-            get { return _textBox.Text; }
-            set
+            get => _textBox.Text; set
             {
                 _textBox.Text = value;
                 base.Text = _textBox.Text;
@@ -470,32 +456,32 @@ namespace System.Windows.Forms
             //e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             //content border
-            Rectangle rectCont = rectContent;
+            var rectCont = rectContent;
             rectCont.X += 1;
             rectCont.Y += 1;
             rectCont.Width -= 2;
             rectCont.Height -= 2;
-            GraphicsPath pathContentBorder = CreateRoundRectangle(rectCont,
+            var pathContentBorder = CreateRoundRectangle(rectCont,
                 CornerRadius.TopLeft, CornerRadius.TopRight, CornerRadius.BottomRight, CornerRadius.BottomLeft);
 
             //button border
-            Rectangle rectButton = rectBtn;
+            var rectButton = rectBtn;
             rectButton.X += 1;
             rectButton.Y += 1;
             rectButton.Width -= 2;
             rectButton.Height -= 2;
-            GraphicsPath pathBtnBorder = CreateRoundRectangle(rectButton,
+            var pathBtnBorder = CreateRoundRectangle(rectButton,
                 0, CornerRadius.TopRight, CornerRadius.BottomRight, 0);
 
             //outer border
-            Rectangle rectOuter = rectContent;
+            var rectOuter = rectContent;
             rectOuter.Width -= 1;
             rectOuter.Height -= 1;
-            GraphicsPath pathOuterBorder = CreateRoundRectangle(rectOuter,
+            var pathOuterBorder = CreateRoundRectangle(rectOuter,
                 CornerRadius.TopLeft, CornerRadius.TopRight, CornerRadius.BottomRight, CornerRadius.BottomLeft);
 
             //inner border
-            Rectangle rectInner = rectContent;
+            var rectInner = rectContent;
             rectInner.X += 1;
             rectInner.Y += 1;
             rectInner.Width -= 2;
@@ -524,11 +510,11 @@ namespace System.Windows.Forms
             e.Graphics.DrawLine(penLeftButton, rectBtn.Left + 1, rectInner.Top+1, rectBtn.Left + 1, rectInner.Bottom-1);
 
             //Glimph
-            Rectangle rectGlimph = rectButton;
+            var rectGlimph = rectButton;
             rectButton.Width -= 4;
             e.Graphics.TranslateTransform(rectGlimph.Left + rectGlimph.Width / 2.0f, rectGlimph.Top + rectGlimph.Height / 2.0f);
-            GraphicsPath path = new GraphicsPath();
-            PointF[] points = new PointF[3];
+            var path = new GraphicsPath();
+            var points = new PointF[3];
             points[0] = new PointF(-6 / 2.0f, -3 / 2.0f);
             points[1] = new PointF(6 / 2.0f, -3 / 2.0f);
             points[2] = new PointF(0, 6 / 2.0f);
@@ -537,7 +523,7 @@ namespace System.Windows.Forms
             path.CloseFigure();
             e.Graphics.RotateTransform(0);
 
-            SolidBrush br = new SolidBrush(Enabled ? ForeColor : BackColor);
+            var br = new SolidBrush(Enabled ? ForeColor : BackColor);
             e.Graphics.FillPath(br, path);
             e.Graphics.ResetTransform();
             br.Dispose();
@@ -580,8 +566,7 @@ namespace System.Windows.Forms
 
         public override int SelectedIndex
         {
-            get { return _selectedIndex; }
-            set 
+            get => _selectedIndex; set 
             { 
                 if(_listBox != null)
                 {
@@ -604,8 +589,7 @@ namespace System.Windows.Forms
 
         public object SelectedItem
         {
-            get { return _listBox.SelectedItem;  }
-            set 
+            get => _listBox.SelectedItem; set 
             { 
                 _listBox.SelectedItem = value;
                 SelectedIndex = _listBox.SelectedIndex;
@@ -614,8 +598,7 @@ namespace System.Windows.Forms
 
         public new object SelectedValue
         {
-            get { return base.SelectedValue; }
-            set { base.SelectedValue = value; }
+            get => base.SelectedValue; set => base.SelectedValue = value;
         }
 
         protected override void RefreshItem(int index)
@@ -639,19 +622,34 @@ namespace System.Windows.Forms
         }
 
         #endregion
-        
+
         #region Nested Controls Events
 
-        void Control_LostFocus(object sender, EventArgs e) => OnLostFocus(e);
+        void Control_LostFocus(object sender, EventArgs e)
+        {
+            OnLostFocus(e);
+        }
 
-        void Control_GotFocus(object sender, EventArgs e) => OnGotFocus(e);
+        void Control_GotFocus(object sender, EventArgs e)
+        {
+            OnGotFocus(e);
+        }
 
-        void Control_MouseLeave(object sender, EventArgs e) => OnMouseLeave(e);
+        void Control_MouseLeave(object sender, EventArgs e)
+        {
+            OnMouseLeave(e);
+        }
 
-        void Control_MouseEnter(object sender, EventArgs e) => OnMouseEnter(e);
+        void Control_MouseEnter(object sender, EventArgs e)
+        {
+            OnMouseEnter(e);
+        }
 
-        void Control_MouseDown(object sender, MouseEventArgs e) => OnMouseDown(e);
-        
+        void Control_MouseDown(object sender, MouseEventArgs e)
+        {
+            OnMouseDown(e);
+        }
+
         void listBox_MouseMove(object sender, MouseEventArgs e)
         {
             int i;
@@ -697,10 +695,16 @@ namespace System.Windows.Forms
                 hovered = false;
             Invalidate(true);
         }
-        
-        void textBox_Resize(object sender, EventArgs e) => AdjustControls();
 
-        void textBox_TextChanged(object sender, EventArgs e) => OnTextChanged(e);
+        void textBox_Resize(object sender, EventArgs e)
+        {
+            AdjustControls();
+        }
+
+        void textBox_TextChanged(object sender, EventArgs e)
+        {
+            OnTextChanged(e);
+        }
 
         #endregion
 
@@ -730,7 +734,7 @@ namespace System.Windows.Forms
 
         private System.Drawing.Point CalculateDropPosition()
         {
-            System.Drawing.Point point = new System.Drawing.Point(0, Height);
+            var point = new System.Drawing.Point(0, Height);
             if ((PointToScreen(new System.Drawing.Point(0, 0)).Y + Height + _controlHost.Height) > Screen.PrimaryScreen.WorkingArea.Height)
                 point.Y = -_controlHost.Height - 7;
             return point;
@@ -738,17 +742,20 @@ namespace System.Windows.Forms
 
         private System.Drawing.Point CalculateDropPosition(int myHeight, int controlHostHeight)
         {
-            System.Drawing.Point point = new System.Drawing.Point(0, myHeight);
+            var point = new System.Drawing.Point(0, myHeight);
             if ((PointToScreen(new System.Drawing.Point(0, 0)).Y + Height + controlHostHeight) > Screen.PrimaryScreen.WorkingArea.Height)
                 point.Y = -controlHostHeight - 7;
             return point;
         }
 
-        #endregion      
-        
+        #endregion
+
         #region Virtual Methods
 
-        public virtual void OnDroppedDown(object sender, EventArgs e) => DroppedDown?.Invoke(this, e);
+        public virtual void OnDroppedDown(object sender, EventArgs e)
+        {
+            DroppedDown?.Invoke(this, e);
+        }
 
         #endregion
 
@@ -802,26 +809,22 @@ namespace System.Windows.Forms
 
             public int TopLeft
             {
-                get { return _topLeft; }
-                set { _topLeft = value; }
+                get => _topLeft; set => _topLeft = value;
             }
             
             public int TopRight
             {
-                get { return _topRight; }
-                set { _topRight = value; }
+                get => _topRight; set => _topRight = value;
             }
             
             public int BottomLeft
             {
-                get { return _bottomLeft; }
-                set { _bottomLeft = value; }
+                get => _bottomLeft; set => _bottomLeft = value;
             }
             
             public int BottomRight
             {
-                get { return _bottomRight; }
-                set { _bottomRight = value; }
+                get => _bottomRight; set => _bottomRight = value;
             }
         }
 

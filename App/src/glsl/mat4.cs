@@ -1,5 +1,7 @@
 ﻿using System;
 
+#pragma warning disable IDE1006
+
 namespace App.Glsl
 {
     public struct mat4
@@ -33,12 +35,19 @@ namespace App.Glsl
             }
         }
         public static mat4 Identity = new mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-        public override string ToString() => "[" + C0 + "; " + C1 + "; " + C2 + "; " + C3 + "]";
-        public Array ToArray() => new [,] {
+        public override string ToString()
+        {
+            return "[" + C0 + "; " + C1 + "; " + C2 + "; " + C3 + "]";
+        }
+
+        public Array ToArray()
+        {
+            return new[,] {
             { C0.x, C1.x, C2.x, C3.x },
             { C0.y, C1.y, C2.y, C3.y },
             { C0.z, C1.z, C2.z, C3.z },
             { C0.w, C1.w, C2.w, C3.w } };
+        }
 
         public mat4(float a) : this(new vec4(a), new vec4(a), new vec4(a), new vec4(a)) { }
         public mat4(float[] v) : this(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]) { }
@@ -132,12 +141,19 @@ namespace App.Glsl
             }
         }
         public static mat4 Identity = new mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-        public override string ToString() => "[" + C0 + "; " + C1 + "; " + C2 + "; " + C3 + "]";
-        public Array ToArray() => new [,] {
+        public override string ToString()
+        {
+            return "[" + C0 + "; " + C1 + "; " + C2 + "; " + C3 + "]";
+        }
+
+        public Array ToArray()
+        {
+            return new[,] {
             { C0.x, C1.x, C2.x, C3.x },
             { C0.y, C1.y, C2.y, C3.y },
             { C0.z, C1.z, C2.z, C3.z },
             { C0.w, C1.w, C2.w, C3.w } };
+        }
 
         public dmat4(double a = 0) : this(new dvec4(a), new dvec4(a), new dvec4(a), new dvec4(a)) { }
         public dmat4(double[] v) : this(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]) { }

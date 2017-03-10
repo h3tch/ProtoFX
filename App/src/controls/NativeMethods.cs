@@ -80,7 +80,10 @@ namespace System.Windows.Forms
 
         #region Misc Functions
 
-        public static int LoWord(IntPtr dWord) => dWord.ToInt32() & 0xffff;
+        public static int LoWord(IntPtr dWord)
+        {
+            return dWord.ToInt32() & 0xffff;
+        }
 
         public static int HiWord(IntPtr dWord)
         {
@@ -92,7 +95,7 @@ namespace System.Windows.Forms
         [Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2122:DoNotIndirectlyExposeMethodsWithLinkDemands")]
         public static IntPtr ToIntPtr(object structure)
         {
-            IntPtr lparam = IntPtr.Zero;
+            var lparam = IntPtr.Zero;
             lparam = Marshal.AllocCoTaskMem(Marshal.SizeOf(structure));
             Marshal.StructureToPtr(structure, lparam, false);
             return lparam;

@@ -6,13 +6,18 @@ using System.Reflection;
 using static System.Reflection.BindingFlags;
 using OpenTK.Graphics.OpenGL4;
 
+#pragma warning disable IDE1006
+
 namespace App.Glsl
 {
     #region Necessary Extension
 
     public static class ArrayExtention
     {
-        public static int length(this Array data) => data.Length;
+        public static int length(this Array data)
+        {
+            return data.Length;
+        }
     }
 
     #endregion
@@ -267,7 +272,9 @@ namespace App.Glsl
         /// <param name="varyingName"></param>
         /// <returns></returns>
         public virtual object GetInputVarying(Type type, string varyingName = null)
-            => Prev?.GetOutputVarying(type, varyingName) ?? Activator.CreateInstance(type);
+        {
+            return Prev?.GetOutputVarying(type, varyingName) ?? Activator.CreateInstance(type);
+        }
 
         /// <summary>
         /// Get the output varying of the shader stage or
@@ -296,10 +303,14 @@ namespace App.Glsl
         }
 
         internal T GetOutputVarying<T>(string varyingName = null)
-            => (T)GetOutputVarying(typeof(T), varyingName);
+        {
+            return (T)GetOutputVarying(typeof(T), varyingName);
+        }
 
-        protected T GetQualifier<T>(string field) where T: Attribute
-            => GetType().GetField(field, Instance | Public | NonPublic)?.GetCustomAttribute<T>();
+        protected T GetQualifier<T>(string field) where T : Attribute
+        {
+            return GetType().GetField(field, Instance | Public | NonPublic)?.GetCustomAttribute<T>();
+        }
 
         #endregion
 
@@ -311,7 +322,9 @@ namespace App.Glsl
         /// <param name="valueName"></param>
         /// <returns></returns>
         public static T TraceVariable<T>(Location location, T value, string valueName)
-            => Debugger.Trace(TraceInfoType.Variable, location, valueName, value);
+        {
+            return Debugger.Trace(TraceInfoType.Variable, location, valueName, value);
+        }
 
         /// <summary>
         /// Generate debug trace for a function.
@@ -321,7 +334,9 @@ namespace App.Glsl
         /// <param name="input"></param>
         /// <returns></returns>
         public static T TraceFunction<T>(Location location, T value, string funcName)
-            => Debugger.Trace(TraceInfoType.Function, location, funcName, value);
+        {
+            return Debugger.Trace(TraceInfoType.Function, location, funcName, value);
+        }
 
         public abstract void main();
 
@@ -395,7 +410,10 @@ namespace App.Glsl
                 gl_PointSize = 0f;
                 gl_ClipDistance = new float[GL.GetInteger(GetPName.MaxClipDistances)];
             }
-            public static __InOut[] Create(int n) => Enumerable.Repeat(new __InOut(), n).ToArray();
+            public static __InOut[] Create(int n)
+            {
+                return Enumerable.Repeat(new __InOut(), n).ToArray();
+            }
         }
 
         #endregion

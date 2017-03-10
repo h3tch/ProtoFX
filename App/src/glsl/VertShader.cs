@@ -84,8 +84,9 @@ namespace App.Glsl
         }
 
         private void ProcessInField(object obj, FieldInfo field, object unused)
-            // get input varying
-            => field.SetValue(obj, GetInputVarying(field.FieldType, field.Name));
+        {
+            field.SetValue(obj, GetInputVarying(field.FieldType, field.Name));
+        }
 
         public override object GetInputVarying(Type type, string varyingName)
         {
@@ -100,8 +101,7 @@ namespace App.Glsl
                 return DebugGetError(type, new StackTrace(true));
 
             // get vertex shader
-            int program;
-            GL.GetProgramPipeline(pipeline, ProgramPipelineParameter.VertexShader, out program);
+            GL.GetProgramPipeline(pipeline, ProgramPipelineParameter.VertexShader, out int program);
             if (program <= 0)
                 return DebugGetError(type, new StackTrace(true));
 

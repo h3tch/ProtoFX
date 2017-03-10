@@ -20,20 +20,24 @@ namespace App
     class GLImage : GLObject
     {
         #region FIELDS
+
         [FxField] private string[] File = null;
         [FxField] public int[] Size = null;
         [FxField] public int Mipmaps = 0;
         [FxField] private TexTarget Type = 0;
         [FxField] private GpuFormat Format = GpuFormat.Rgba8;
+
         #endregion
 
         #region PROPERTIES
-        public int Width { get { return Size[0]; } set { Size[0] = value; } }
-        public int Height { get { return Size[1]; } set { Size[1] = value; } }
-        public int Depth { get { return Size[2]; } set { Size[2] = value; } }
-        public int Length { get { return Size[3]; } set { Size[3] = value; } }
-        public TexTarget Target { get { return Type; } private set { Type = value; } }
-        public GpuFormat GpuFormat { get { return Format; } private set { Format = value; } }
+
+        public int Width { get => Size[0]; set => Size[0] = value; }
+        public int Height { get => Size[1]; set => Size[1] = value; }
+        public int Depth { get => Size[2]; set => Size[2] = value; }
+        public int Length { get => Size[3]; set => Size[3] = value; }
+        public TexTarget Target { get => Type; private set => Type = value; }
+        public GpuFormat GpuFormat { get => Format; private set => Format = value; }
+
         #endregion
 
         /// <summary>
@@ -68,7 +72,7 @@ namespace App
         public GLImage(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"image '{name}'");
+            var err = new CompileException($"image '{Name}'");
 
             // PARSE ARGUMENTS
             Cmds2Fields(block, err);
@@ -78,7 +82,7 @@ namespace App
                     "(e.g., size <width> <height> <depth> <length>).", block);
 
             // on errors throw an exception
-            if (err.HasErrors())
+            if (err.HasErrors)
                 throw err;
 
             // complete size array
@@ -126,7 +130,8 @@ namespace App
             {
                 var dataPtr = Marshal.AllocHGlobal(data.Length);
                 Marshal.Copy(data, 0, dataPtr, data.Length);
-                TexImage(Target, Width, Height, Depth, Length, PixelFormat.Bgra, PixelType.UnsignedByte, dataPtr);
+                TexImage(Target, Width, Height, Depth, Length,
+                    PixelFormat.Bgra, PixelType.UnsignedByte, dataPtr);
                 Marshal.FreeHGlobal(dataPtr);
             }
             else
@@ -160,7 +165,10 @@ namespace App
         /// <param name="level">Mipmap level.</param>
         /// <param name="index">Array index or texture depth index.</param>
         /// <returns>Return GPU image data as bitmap.</returns>
-        public Bitmap Read(int level, int index) => ReadBmp(glname, level, index);
+        public Bitmap Read(int level, int index)
+        {
+            return ReadBmp(glname, level, index);
+        }
 
         /// <summary>
         /// Read whole GPU image data.
@@ -189,7 +197,8 @@ namespace App
 
             // create bitmap from data
             var bmp = new Bitmap(w, h, CpuFormat.Format32bppArgb);
-            var px = bmp.LockBits(new Rectangle(0, 0, w, h), LockMode.WriteOnly, CpuFormat.Format32bppRgb);
+            var px = bmp.LockBits(new Rectangle(0, 0, w, h),
+                LockMode.WriteOnly, CpuFormat.Format32bppRgb);
             data.CopyTo(px.Scan0, size);
             bmp.UnlockBits(px);
 
@@ -291,13 +300,16 @@ namespace App
                     return 4;
             }
         }
-        
+
         /// <summary>
         /// Get the OpenGL object label of the image object.
         /// </summary>
         /// <param name="glname"></param>
         /// <returns></returns>
-        public static string GetLabel(int glname) => GetLabel(ObjectLabelIdentifier.Texture, glname);
+        public static string GetLabel(int glname)
+        {
+            return GetLabel(ObjectLabelIdentifier.Texture, glname);
+        }
 
         /// <summary>
         /// Find OpenGL textures.
@@ -306,11 +318,15 @@ namespace App
         /// <param name="range">Range in which to search for external objects (starting with 0).</param>
         /// <returns></returns>
         public static IEnumerable<GLObject> FindTextures(GLObject[] existing, int range = 64)
-            => FindObjects(existing, new[] { typeof(GLImage), typeof(GLTexture) }, GLIsTexMethod, GLTexLabel, range);
+        {
+            return FindObjects(existing, new[] { typeof(GLImage), typeof(GLTexture) }, GLIsTexMethod, GLTexLabel, range);
+        }
+
         private static MethodInfo GLIsTexMethod = typeof(GL).GetMethod("IsTexture", new[] { typeof(int) });
         private static MethodInfo GLTexLabel = typeof(GLImage).GetMethod("GetLabel", new[] { typeof(int) });
 
         #region UTIL METHODS
+
         /// <summary>
         /// Load a list of image files and return them as a single byte array.
         /// </summary>
@@ -465,6 +481,7 @@ namespace App
             }
             return n;
         }
+
         #endregion
     }
     

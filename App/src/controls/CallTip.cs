@@ -25,8 +25,7 @@ namespace System.Windows.Forms
         /// </summary>
         public string Tip
         {
-            get { return text.Text; }
-            set
+            get => text.Text; set
             {
                 if (unformatedText != null && unformatedText == value)
                     return;
@@ -174,7 +173,10 @@ namespace System.Windows.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void MouseEnterHandler(object sender, EventArgs e) => OnEnter(e);
+        private void MouseEnterHandler(object sender, EventArgs e)
+        {
+            OnEnter(e);
+        }
 
         /// <summary>
         /// Update the TextSize property.

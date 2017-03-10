@@ -1,5 +1,7 @@
 ﻿using System;
 
+#pragma warning disable IDE1006
+
 namespace App.Glsl
 {
     public struct vec2
@@ -26,8 +28,15 @@ namespace App.Glsl
                 throw new IndexOutOfRangeException();
             }
         }
-        public override string ToString() => "(" + x + ", " + y + ")";
-        public Array ToArray() => new[] { x, y };
+        public override string ToString()
+        {
+            return "(" + x + ", " + y + ")";
+        }
+
+        public Array ToArray()
+        {
+            return new[] { x, y };
+        }
 
         #region vec2
 
@@ -59,34 +68,34 @@ namespace App.Glsl
 
         #region Generated
         
-        public vec2 xx { get { return new vec2(x, x); } set { x = value.x; x = value.y; } }
-        public vec2 xy { get { return new vec2(x, y); } set { x = value.x; y = value.y; } }
-        public vec2 yx { get { return new vec2(y, x); } set { y = value.x; x = value.y; } }
-        public vec2 yy { get { return new vec2(y, y); } set { y = value.x; y = value.y; } }
-        public vec3 xxx { get { return new vec3(x, x, x); } set { x = value.x; x = value.y; x = value.z; } }
-        public vec3 xxy { get { return new vec3(x, x, y); } set { x = value.x; x = value.y; y = value.z; } }
-        public vec3 xyx { get { return new vec3(x, y, x); } set { x = value.x; y = value.y; x = value.z; } }
-        public vec3 xyy { get { return new vec3(x, y, y); } set { x = value.x; y = value.y; y = value.z; } }
-        public vec3 yxx { get { return new vec3(y, x, x); } set { y = value.x; x = value.y; x = value.z; } }
-        public vec3 yxy { get { return new vec3(y, x, y); } set { y = value.x; x = value.y; y = value.z; } }
-        public vec3 yyx { get { return new vec3(y, y, x); } set { y = value.x; y = value.y; x = value.z; } }
-        public vec3 yyy { get { return new vec3(y, y, y); } set { y = value.x; y = value.y; y = value.z; } }
-        public vec4 xxxx { get { return new vec4(x, x, x, x); } set { x = value.x; x = value.y; x = value.z; x = value.w; } }
-        public vec4 xxxy { get { return new vec4(x, x, x, y); } set { x = value.x; x = value.y; x = value.z; y = value.w; } }
-        public vec4 xxyx { get { return new vec4(x, x, y, x); } set { x = value.x; x = value.y; y = value.z; x = value.w; } }
-        public vec4 xxyy { get { return new vec4(x, x, y, y); } set { x = value.x; x = value.y; y = value.z; y = value.w; } }
-        public vec4 xyxx { get { return new vec4(x, y, x, x); } set { x = value.x; y = value.y; x = value.z; x = value.w; } }
-        public vec4 xyxy { get { return new vec4(x, y, x, y); } set { x = value.x; y = value.y; x = value.z; y = value.w; } }
-        public vec4 xyyx { get { return new vec4(x, y, y, x); } set { x = value.x; y = value.y; y = value.z; x = value.w; } }
-        public vec4 xyyy { get { return new vec4(x, y, y, y); } set { x = value.x; y = value.y; y = value.z; y = value.w; } }
-        public vec4 yxxx { get { return new vec4(y, x, x, x); } set { y = value.x; x = value.y; x = value.z; x = value.w; } }
-        public vec4 yxxy { get { return new vec4(y, x, x, y); } set { y = value.x; x = value.y; x = value.z; y = value.w; } }
-        public vec4 yxyx { get { return new vec4(y, x, y, x); } set { y = value.x; x = value.y; y = value.z; x = value.w; } }
-        public vec4 yxyy { get { return new vec4(y, x, y, y); } set { y = value.x; x = value.y; y = value.z; y = value.w; } }
-        public vec4 yyxx { get { return new vec4(y, y, x, x); } set { y = value.x; y = value.y; x = value.z; x = value.w; } }
-        public vec4 yyxy { get { return new vec4(y, y, x, y); } set { y = value.x; y = value.y; x = value.z; y = value.w; } }
-        public vec4 yyyx { get { return new vec4(y, y, y, x); } set { y = value.x; y = value.y; y = value.z; x = value.w; } }
-        public vec4 yyyy { get { return new vec4(y, y, y, y); } set { y = value.x; y = value.y; y = value.z; y = value.w; } }
+        public vec2 xx { get => new vec2(x, x); set { x = value.x; x = value.y; } }
+        public vec2 xy { get => new vec2(x, y); set { x = value.x; y = value.y; } }
+        public vec2 yx { get => new vec2(y, x); set { y = value.x; x = value.y; } }
+        public vec2 yy { get => new vec2(y, y); set { y = value.x; y = value.y; } }
+        public vec3 xxx { get => new vec3(x, x, x); set { x = value.x; x = value.y; x = value.z; } }
+        public vec3 xxy { get => new vec3(x, x, y); set { x = value.x; x = value.y; y = value.z; } }
+        public vec3 xyx { get => new vec3(x, y, x); set { x = value.x; y = value.y; x = value.z; } }
+        public vec3 xyy { get => new vec3(x, y, y); set { x = value.x; y = value.y; y = value.z; } }
+        public vec3 yxx { get => new vec3(y, x, x); set { y = value.x; x = value.y; x = value.z; } }
+        public vec3 yxy { get => new vec3(y, x, y); set { y = value.x; x = value.y; y = value.z; } }
+        public vec3 yyx { get => new vec3(y, y, x); set { y = value.x; y = value.y; x = value.z; } }
+        public vec3 yyy { get => new vec3(y, y, y); set { y = value.x; y = value.y; y = value.z; } }
+        public vec4 xxxx { get => new vec4(x, x, x, x); set { x = value.x; x = value.y; x = value.z; x = value.w; } }
+        public vec4 xxxy { get => new vec4(x, x, x, y); set { x = value.x; x = value.y; x = value.z; y = value.w; } }
+        public vec4 xxyx { get => new vec4(x, x, y, x); set { x = value.x; x = value.y; y = value.z; x = value.w; } }
+        public vec4 xxyy { get => new vec4(x, x, y, y); set { x = value.x; x = value.y; y = value.z; y = value.w; } }
+        public vec4 xyxx { get => new vec4(x, y, x, x); set { x = value.x; y = value.y; x = value.z; x = value.w; } }
+        public vec4 xyxy { get => new vec4(x, y, x, y); set { x = value.x; y = value.y; x = value.z; y = value.w; } }
+        public vec4 xyyx { get => new vec4(x, y, y, x); set { x = value.x; y = value.y; y = value.z; x = value.w; } }
+        public vec4 xyyy { get => new vec4(x, y, y, y); set { x = value.x; y = value.y; y = value.z; y = value.w; } }
+        public vec4 yxxx { get => new vec4(y, x, x, x); set { y = value.x; x = value.y; x = value.z; x = value.w; } }
+        public vec4 yxxy { get => new vec4(y, x, x, y); set { y = value.x; x = value.y; x = value.z; y = value.w; } }
+        public vec4 yxyx { get => new vec4(y, x, y, x); set { y = value.x; x = value.y; y = value.z; x = value.w; } }
+        public vec4 yxyy { get => new vec4(y, x, y, y); set { y = value.x; x = value.y; y = value.z; y = value.w; } }
+        public vec4 yyxx { get => new vec4(y, y, x, x); set { y = value.x; y = value.y; x = value.z; x = value.w; } }
+        public vec4 yyxy { get => new vec4(y, y, x, y); set { y = value.x; y = value.y; x = value.z; y = value.w; } }
+        public vec4 yyyx { get => new vec4(y, y, y, x); set { y = value.x; y = value.y; y = value.z; x = value.w; } }
+        public vec4 yyyy { get => new vec4(y, y, y, y); set { y = value.x; y = value.y; y = value.z; y = value.w; } }
 
         #endregion
     }
@@ -115,8 +124,15 @@ namespace App.Glsl
                 throw new IndexOutOfRangeException();
             }
         }
-        public override string ToString() => "(" + x + ", " + y + ")";
-        public Array ToArray() => new[] { x, y };
+        public override string ToString()
+        {
+            return "(" + x + ", " + y + ")";
+        }
+
+        public Array ToArray()
+        {
+            return new[] { x, y };
+        }
 
         #region dvec2
 
@@ -148,34 +164,34 @@ namespace App.Glsl
 
         #region Generated
         
-        public dvec2 xx { get { return new dvec2(x, x); } set { x = value.x; x = value.y; } }
-        public dvec2 xy { get { return new dvec2(x, y); } set { x = value.x; y = value.y; } }
-        public dvec2 yx { get { return new dvec2(y, x); } set { y = value.x; x = value.y; } }
-        public dvec2 yy { get { return new dvec2(y, y); } set { y = value.x; y = value.y; } }
-        public dvec3 xxx { get { return new dvec3(x, x, x); } set { x = value.x; x = value.y; x = value.z; } }
-        public dvec3 xxy { get { return new dvec3(x, x, y); } set { x = value.x; x = value.y; y = value.z; } }
-        public dvec3 xyx { get { return new dvec3(x, y, x); } set { x = value.x; y = value.y; x = value.z; } }
-        public dvec3 xyy { get { return new dvec3(x, y, y); } set { x = value.x; y = value.y; y = value.z; } }
-        public dvec3 yxx { get { return new dvec3(y, x, x); } set { y = value.x; x = value.y; x = value.z; } }
-        public dvec3 yxy { get { return new dvec3(y, x, y); } set { y = value.x; x = value.y; y = value.z; } }
-        public dvec3 yyx { get { return new dvec3(y, y, x); } set { y = value.x; y = value.y; x = value.z; } }
-        public dvec3 yyy { get { return new dvec3(y, y, y); } set { y = value.x; y = value.y; y = value.z; } }
-        public dvec4 xxxx { get { return new dvec4(x, x, x, x); } set { x = value.x; x = value.y; x = value.z; x = value.w; } }
-        public dvec4 xxxy { get { return new dvec4(x, x, x, y); } set { x = value.x; x = value.y; x = value.z; y = value.w; } }
-        public dvec4 xxyx { get { return new dvec4(x, x, y, x); } set { x = value.x; x = value.y; y = value.z; x = value.w; } }
-        public dvec4 xxyy { get { return new dvec4(x, x, y, y); } set { x = value.x; x = value.y; y = value.z; y = value.w; } }
-        public dvec4 xyxx { get { return new dvec4(x, y, x, x); } set { x = value.x; y = value.y; x = value.z; x = value.w; } }
-        public dvec4 xyxy { get { return new dvec4(x, y, x, y); } set { x = value.x; y = value.y; x = value.z; y = value.w; } }
-        public dvec4 xyyx { get { return new dvec4(x, y, y, x); } set { x = value.x; y = value.y; y = value.z; x = value.w; } }
-        public dvec4 xyyy { get { return new dvec4(x, y, y, y); } set { x = value.x; y = value.y; y = value.z; y = value.w; } }
-        public dvec4 yxxx { get { return new dvec4(y, x, x, x); } set { y = value.x; x = value.y; x = value.z; x = value.w; } }
-        public dvec4 yxxy { get { return new dvec4(y, x, x, y); } set { y = value.x; x = value.y; x = value.z; y = value.w; } }
-        public dvec4 yxyx { get { return new dvec4(y, x, y, x); } set { y = value.x; x = value.y; y = value.z; x = value.w; } }
-        public dvec4 yxyy { get { return new dvec4(y, x, y, y); } set { y = value.x; x = value.y; y = value.z; y = value.w; } }
-        public dvec4 yyxx { get { return new dvec4(y, y, x, x); } set { y = value.x; y = value.y; x = value.z; x = value.w; } }
-        public dvec4 yyxy { get { return new dvec4(y, y, x, y); } set { y = value.x; y = value.y; x = value.z; y = value.w; } }
-        public dvec4 yyyx { get { return new dvec4(y, y, y, x); } set { y = value.x; y = value.y; y = value.z; x = value.w; } }
-        public dvec4 yyyy { get { return new dvec4(y, y, y, y); } set { y = value.x; y = value.y; y = value.z; y = value.w; } }
+        public dvec2 xx { get => new dvec2(x, x); set { x = value.x; x = value.y; } }
+        public dvec2 xy { get => new dvec2(x, y); set { x = value.x; y = value.y; } }
+        public dvec2 yx { get => new dvec2(y, x); set { y = value.x; x = value.y; } }
+        public dvec2 yy { get => new dvec2(y, y); set { y = value.x; y = value.y; } }
+        public dvec3 xxx { get => new dvec3(x, x, x); set { x = value.x; x = value.y; x = value.z; } }
+        public dvec3 xxy { get => new dvec3(x, x, y); set { x = value.x; x = value.y; y = value.z; } }
+        public dvec3 xyx { get => new dvec3(x, y, x); set { x = value.x; y = value.y; x = value.z; } }
+        public dvec3 xyy { get => new dvec3(x, y, y); set { x = value.x; y = value.y; y = value.z; } }
+        public dvec3 yxx { get => new dvec3(y, x, x); set { y = value.x; x = value.y; x = value.z; } }
+        public dvec3 yxy { get => new dvec3(y, x, y); set { y = value.x; x = value.y; y = value.z; } }
+        public dvec3 yyx { get => new dvec3(y, y, x); set { y = value.x; y = value.y; x = value.z; } }
+        public dvec3 yyy { get => new dvec3(y, y, y); set { y = value.x; y = value.y; y = value.z; } }
+        public dvec4 xxxx { get => new dvec4(x, x, x, x); set { x = value.x; x = value.y; x = value.z; x = value.w; } }
+        public dvec4 xxxy { get => new dvec4(x, x, x, y); set { x = value.x; x = value.y; x = value.z; y = value.w; } }
+        public dvec4 xxyx { get => new dvec4(x, x, y, x); set { x = value.x; x = value.y; y = value.z; x = value.w; } }
+        public dvec4 xxyy { get => new dvec4(x, x, y, y); set { x = value.x; x = value.y; y = value.z; y = value.w; } }
+        public dvec4 xyxx { get => new dvec4(x, y, x, x); set { x = value.x; y = value.y; x = value.z; x = value.w; } }
+        public dvec4 xyxy { get => new dvec4(x, y, x, y); set { x = value.x; y = value.y; x = value.z; y = value.w; } }
+        public dvec4 xyyx { get => new dvec4(x, y, y, x); set { x = value.x; y = value.y; y = value.z; x = value.w; } }
+        public dvec4 xyyy { get => new dvec4(x, y, y, y); set { x = value.x; y = value.y; y = value.z; y = value.w; } }
+        public dvec4 yxxx { get => new dvec4(y, x, x, x); set { y = value.x; x = value.y; x = value.z; x = value.w; } }
+        public dvec4 yxxy { get => new dvec4(y, x, x, y); set { y = value.x; x = value.y; x = value.z; y = value.w; } }
+        public dvec4 yxyx { get => new dvec4(y, x, y, x); set { y = value.x; x = value.y; y = value.z; x = value.w; } }
+        public dvec4 yxyy { get => new dvec4(y, x, y, y); set { y = value.x; x = value.y; y = value.z; y = value.w; } }
+        public dvec4 yyxx { get => new dvec4(y, y, x, x); set { y = value.x; y = value.y; x = value.z; x = value.w; } }
+        public dvec4 yyxy { get => new dvec4(y, y, x, y); set { y = value.x; y = value.y; x = value.z; y = value.w; } }
+        public dvec4 yyyx { get => new dvec4(y, y, y, x); set { y = value.x; y = value.y; y = value.z; x = value.w; } }
+        public dvec4 yyyy { get => new dvec4(y, y, y, y); set { y = value.x; y = value.y; y = value.z; y = value.w; } }
 
         #endregion
     }
@@ -204,8 +220,15 @@ namespace App.Glsl
                 throw new IndexOutOfRangeException();
             }
         }
-        public override string ToString() => "(" + x + ", " + y + ")";
-        public Array ToArray() => new[] { x, y };
+        public override string ToString()
+        {
+            return "(" + x + ", " + y + ")";
+        }
+
+        public Array ToArray()
+        {
+            return new[] { x, y };
+        }
 
         #region vec2
 
@@ -218,34 +241,34 @@ namespace App.Glsl
 
         #region Generated
 
-        public bvec2 xx { get { return new bvec2(x, x); } set { x = value.x; x = value.y; } }
-        public bvec2 xy { get { return new bvec2(x, y); } set { x = value.x; y = value.y; } }
-        public bvec2 yx { get { return new bvec2(y, x); } set { y = value.x; x = value.y; } }
-        public bvec2 yy { get { return new bvec2(y, y); } set { y = value.x; y = value.y; } }
-        public bvec3 xxx { get { return new bvec3(x, x, x); } set { x = value.x; x = value.y; x = value.z; } }
-        public bvec3 xxy { get { return new bvec3(x, x, y); } set { x = value.x; x = value.y; y = value.z; } }
-        public bvec3 xyx { get { return new bvec3(x, y, x); } set { x = value.x; y = value.y; x = value.z; } }
-        public bvec3 xyy { get { return new bvec3(x, y, y); } set { x = value.x; y = value.y; y = value.z; } }
-        public bvec3 yxx { get { return new bvec3(y, x, x); } set { y = value.x; x = value.y; x = value.z; } }
-        public bvec3 yxy { get { return new bvec3(y, x, y); } set { y = value.x; x = value.y; y = value.z; } }
-        public bvec3 yyx { get { return new bvec3(y, y, x); } set { y = value.x; y = value.y; x = value.z; } }
-        public bvec3 yyy { get { return new bvec3(y, y, y); } set { y = value.x; y = value.y; y = value.z; } }
-        public bvec4 xxxx { get { return new bvec4(x, x, x, x); } set { x = value.x; x = value.y; x = value.z; x = value.w; } }
-        public bvec4 xxxy { get { return new bvec4(x, x, x, y); } set { x = value.x; x = value.y; x = value.z; y = value.w; } }
-        public bvec4 xxyx { get { return new bvec4(x, x, y, x); } set { x = value.x; x = value.y; y = value.z; x = value.w; } }
-        public bvec4 xxyy { get { return new bvec4(x, x, y, y); } set { x = value.x; x = value.y; y = value.z; y = value.w; } }
-        public bvec4 xyxx { get { return new bvec4(x, y, x, x); } set { x = value.x; y = value.y; x = value.z; x = value.w; } }
-        public bvec4 xyxy { get { return new bvec4(x, y, x, y); } set { x = value.x; y = value.y; x = value.z; y = value.w; } }
-        public bvec4 xyyx { get { return new bvec4(x, y, y, x); } set { x = value.x; y = value.y; y = value.z; x = value.w; } }
-        public bvec4 xyyy { get { return new bvec4(x, y, y, y); } set { x = value.x; y = value.y; y = value.z; y = value.w; } }
-        public bvec4 yxxx { get { return new bvec4(y, x, x, x); } set { y = value.x; x = value.y; x = value.z; x = value.w; } }
-        public bvec4 yxxy { get { return new bvec4(y, x, x, y); } set { y = value.x; x = value.y; x = value.z; y = value.w; } }
-        public bvec4 yxyx { get { return new bvec4(y, x, y, x); } set { y = value.x; x = value.y; y = value.z; x = value.w; } }
-        public bvec4 yxyy { get { return new bvec4(y, x, y, y); } set { y = value.x; x = value.y; y = value.z; y = value.w; } }
-        public bvec4 yyxx { get { return new bvec4(y, y, x, x); } set { y = value.x; y = value.y; x = value.z; x = value.w; } }
-        public bvec4 yyxy { get { return new bvec4(y, y, x, y); } set { y = value.x; y = value.y; x = value.z; y = value.w; } }
-        public bvec4 yyyx { get { return new bvec4(y, y, y, x); } set { y = value.x; y = value.y; y = value.z; x = value.w; } }
-        public bvec4 yyyy { get { return new bvec4(y, y, y, y); } set { y = value.x; y = value.y; y = value.z; y = value.w; } }
+        public bvec2 xx { get => new bvec2(x, x); set { x = value.x; x = value.y; } }
+        public bvec2 xy { get => new bvec2(x, y); set { x = value.x; y = value.y; } }
+        public bvec2 yx { get => new bvec2(y, x); set { y = value.x; x = value.y; } }
+        public bvec2 yy { get => new bvec2(y, y); set { y = value.x; y = value.y; } }
+        public bvec3 xxx { get => new bvec3(x, x, x); set { x = value.x; x = value.y; x = value.z; } }
+        public bvec3 xxy { get => new bvec3(x, x, y); set { x = value.x; x = value.y; y = value.z; } }
+        public bvec3 xyx { get => new bvec3(x, y, x); set { x = value.x; y = value.y; x = value.z; } }
+        public bvec3 xyy { get => new bvec3(x, y, y); set { x = value.x; y = value.y; y = value.z; } }
+        public bvec3 yxx { get => new bvec3(y, x, x); set { y = value.x; x = value.y; x = value.z; } }
+        public bvec3 yxy { get => new bvec3(y, x, y); set { y = value.x; x = value.y; y = value.z; } }
+        public bvec3 yyx { get => new bvec3(y, y, x); set { y = value.x; y = value.y; x = value.z; } }
+        public bvec3 yyy { get => new bvec3(y, y, y); set { y = value.x; y = value.y; y = value.z; } }
+        public bvec4 xxxx { get => new bvec4(x, x, x, x); set { x = value.x; x = value.y; x = value.z; x = value.w; } }
+        public bvec4 xxxy { get => new bvec4(x, x, x, y); set { x = value.x; x = value.y; x = value.z; y = value.w; } }
+        public bvec4 xxyx { get => new bvec4(x, x, y, x); set { x = value.x; x = value.y; y = value.z; x = value.w; } }
+        public bvec4 xxyy { get => new bvec4(x, x, y, y); set { x = value.x; x = value.y; y = value.z; y = value.w; } }
+        public bvec4 xyxx { get => new bvec4(x, y, x, x); set { x = value.x; y = value.y; x = value.z; x = value.w; } }
+        public bvec4 xyxy { get => new bvec4(x, y, x, y); set { x = value.x; y = value.y; x = value.z; y = value.w; } }
+        public bvec4 xyyx { get => new bvec4(x, y, y, x); set { x = value.x; y = value.y; y = value.z; x = value.w; } }
+        public bvec4 xyyy { get => new bvec4(x, y, y, y); set { x = value.x; y = value.y; y = value.z; y = value.w; } }
+        public bvec4 yxxx { get => new bvec4(y, x, x, x); set { y = value.x; x = value.y; x = value.z; x = value.w; } }
+        public bvec4 yxxy { get => new bvec4(y, x, x, y); set { y = value.x; x = value.y; x = value.z; y = value.w; } }
+        public bvec4 yxyx { get => new bvec4(y, x, y, x); set { y = value.x; x = value.y; y = value.z; x = value.w; } }
+        public bvec4 yxyy { get => new bvec4(y, x, y, y); set { y = value.x; x = value.y; y = value.z; y = value.w; } }
+        public bvec4 yyxx { get => new bvec4(y, y, x, x); set { y = value.x; y = value.y; x = value.z; x = value.w; } }
+        public bvec4 yyxy { get => new bvec4(y, y, x, y); set { y = value.x; y = value.y; x = value.z; y = value.w; } }
+        public bvec4 yyyx { get => new bvec4(y, y, y, x); set { y = value.x; y = value.y; y = value.z; x = value.w; } }
+        public bvec4 yyyy { get => new bvec4(y, y, y, y); set { y = value.x; y = value.y; y = value.z; y = value.w; } }
 
         #endregion
     }
@@ -274,8 +297,15 @@ namespace App.Glsl
                 throw new IndexOutOfRangeException();
             }
         }
-        public override string ToString() => "(" + x + ", " + y + ")";
-        public Array ToArray() => new[] { x, y };
+        public override string ToString()
+        {
+            return "(" + x + ", " + y + ")";
+        }
+
+        public Array ToArray()
+        {
+            return new[] { x, y };
+        }
 
         #region vec2
 
@@ -288,34 +318,34 @@ namespace App.Glsl
 
         #region Generated
         
-        public ivec2 xx { get { return new ivec2(x, x); } set { x = value.x; x = value.y; } }
-        public ivec2 xy { get { return new ivec2(x, y); } set { x = value.x; y = value.y; } }
-        public ivec2 yx { get { return new ivec2(y, x); } set { y = value.x; x = value.y; } }
-        public ivec2 yy { get { return new ivec2(y, y); } set { y = value.x; y = value.y; } }
-        public ivec3 xxx { get { return new ivec3(x, x, x); } set { x = value.x; x = value.y; x = value.z; } }
-        public ivec3 xxy { get { return new ivec3(x, x, y); } set { x = value.x; x = value.y; y = value.z; } }
-        public ivec3 xyx { get { return new ivec3(x, y, x); } set { x = value.x; y = value.y; x = value.z; } }
-        public ivec3 xyy { get { return new ivec3(x, y, y); } set { x = value.x; y = value.y; y = value.z; } }
-        public ivec3 yxx { get { return new ivec3(y, x, x); } set { y = value.x; x = value.y; x = value.z; } }
-        public ivec3 yxy { get { return new ivec3(y, x, y); } set { y = value.x; x = value.y; y = value.z; } }
-        public ivec3 yyx { get { return new ivec3(y, y, x); } set { y = value.x; y = value.y; x = value.z; } }
-        public ivec3 yyy { get { return new ivec3(y, y, y); } set { y = value.x; y = value.y; y = value.z; } }
-        public ivec4 xxxx { get { return new ivec4(x, x, x, x); } set { x = value.x; x = value.y; x = value.z; x = value.w; } }
-        public ivec4 xxxy { get { return new ivec4(x, x, x, y); } set { x = value.x; x = value.y; x = value.z; y = value.w; } }
-        public ivec4 xxyx { get { return new ivec4(x, x, y, x); } set { x = value.x; x = value.y; y = value.z; x = value.w; } }
-        public ivec4 xxyy { get { return new ivec4(x, x, y, y); } set { x = value.x; x = value.y; y = value.z; y = value.w; } }
-        public ivec4 xyxx { get { return new ivec4(x, y, x, x); } set { x = value.x; y = value.y; x = value.z; x = value.w; } }
-        public ivec4 xyxy { get { return new ivec4(x, y, x, y); } set { x = value.x; y = value.y; x = value.z; y = value.w; } }
-        public ivec4 xyyx { get { return new ivec4(x, y, y, x); } set { x = value.x; y = value.y; y = value.z; x = value.w; } }
-        public ivec4 xyyy { get { return new ivec4(x, y, y, y); } set { x = value.x; y = value.y; y = value.z; y = value.w; } }
-        public ivec4 yxxx { get { return new ivec4(y, x, x, x); } set { y = value.x; x = value.y; x = value.z; x = value.w; } }
-        public ivec4 yxxy { get { return new ivec4(y, x, x, y); } set { y = value.x; x = value.y; x = value.z; y = value.w; } }
-        public ivec4 yxyx { get { return new ivec4(y, x, y, x); } set { y = value.x; x = value.y; y = value.z; x = value.w; } }
-        public ivec4 yxyy { get { return new ivec4(y, x, y, y); } set { y = value.x; x = value.y; y = value.z; y = value.w; } }
-        public ivec4 yyxx { get { return new ivec4(y, y, x, x); } set { y = value.x; y = value.y; x = value.z; x = value.w; } }
-        public ivec4 yyxy { get { return new ivec4(y, y, x, y); } set { y = value.x; y = value.y; x = value.z; y = value.w; } }
-        public ivec4 yyyx { get { return new ivec4(y, y, y, x); } set { y = value.x; y = value.y; y = value.z; x = value.w; } }
-        public ivec4 yyyy { get { return new ivec4(y, y, y, y); } set { y = value.x; y = value.y; y = value.z; y = value.w; } }
+        public ivec2 xx { get => new ivec2(x, x); set { x = value.x; x = value.y; } }
+        public ivec2 xy { get => new ivec2(x, y); set { x = value.x; y = value.y; } }
+        public ivec2 yx { get => new ivec2(y, x); set { y = value.x; x = value.y; } }
+        public ivec2 yy { get => new ivec2(y, y); set { y = value.x; y = value.y; } }
+        public ivec3 xxx { get => new ivec3(x, x, x); set { x = value.x; x = value.y; x = value.z; } }
+        public ivec3 xxy { get => new ivec3(x, x, y); set { x = value.x; x = value.y; y = value.z; } }
+        public ivec3 xyx { get => new ivec3(x, y, x); set { x = value.x; y = value.y; x = value.z; } }
+        public ivec3 xyy { get => new ivec3(x, y, y); set { x = value.x; y = value.y; y = value.z; } }
+        public ivec3 yxx { get => new ivec3(y, x, x); set { y = value.x; x = value.y; x = value.z; } }
+        public ivec3 yxy { get => new ivec3(y, x, y); set { y = value.x; x = value.y; y = value.z; } }
+        public ivec3 yyx { get => new ivec3(y, y, x); set { y = value.x; y = value.y; x = value.z; } }
+        public ivec3 yyy { get => new ivec3(y, y, y); set { y = value.x; y = value.y; y = value.z; } }
+        public ivec4 xxxx { get => new ivec4(x, x, x, x); set { x = value.x; x = value.y; x = value.z; x = value.w; } }
+        public ivec4 xxxy { get => new ivec4(x, x, x, y); set { x = value.x; x = value.y; x = value.z; y = value.w; } }
+        public ivec4 xxyx { get => new ivec4(x, x, y, x); set { x = value.x; x = value.y; y = value.z; x = value.w; } }
+        public ivec4 xxyy { get => new ivec4(x, x, y, y); set { x = value.x; x = value.y; y = value.z; y = value.w; } }
+        public ivec4 xyxx { get => new ivec4(x, y, x, x); set { x = value.x; y = value.y; x = value.z; x = value.w; } }
+        public ivec4 xyxy { get => new ivec4(x, y, x, y); set { x = value.x; y = value.y; x = value.z; y = value.w; } }
+        public ivec4 xyyx { get => new ivec4(x, y, y, x); set { x = value.x; y = value.y; y = value.z; x = value.w; } }
+        public ivec4 xyyy { get => new ivec4(x, y, y, y); set { x = value.x; y = value.y; y = value.z; y = value.w; } }
+        public ivec4 yxxx { get => new ivec4(y, x, x, x); set { y = value.x; x = value.y; x = value.z; x = value.w; } }
+        public ivec4 yxxy { get => new ivec4(y, x, x, y); set { y = value.x; x = value.y; x = value.z; y = value.w; } }
+        public ivec4 yxyx { get => new ivec4(y, x, y, x); set { y = value.x; x = value.y; y = value.z; x = value.w; } }
+        public ivec4 yxyy { get => new ivec4(y, x, y, y); set { y = value.x; x = value.y; y = value.z; y = value.w; } }
+        public ivec4 yyxx { get => new ivec4(y, y, x, x); set { y = value.x; y = value.y; x = value.z; x = value.w; } }
+        public ivec4 yyxy { get => new ivec4(y, y, x, y); set { y = value.x; y = value.y; x = value.z; y = value.w; } }
+        public ivec4 yyyx { get => new ivec4(y, y, y, x); set { y = value.x; y = value.y; y = value.z; x = value.w; } }
+        public ivec4 yyyy { get => new ivec4(y, y, y, y); set { y = value.x; y = value.y; y = value.z; y = value.w; } }
 
         #endregion
     }
@@ -344,8 +374,15 @@ namespace App.Glsl
                 throw new IndexOutOfRangeException();
             }
         }
-        public override string ToString() => "(" + x + ", " + y + ")";
-        public Array ToArray() => new[] { x, y };
+        public override string ToString()
+        {
+            return "(" + x + ", " + y + ")";
+        }
+
+        public Array ToArray()
+        {
+            return new[] { x, y };
+        }
 
         #region vec2
 
@@ -358,34 +395,34 @@ namespace App.Glsl
 
         #region Generated
         
-        public uvec2 xx { get { return new uvec2(x, x); } set { x = value.x; x = value.y; } }
-        public uvec2 xy { get { return new uvec2(x, y); } set { x = value.x; y = value.y; } }
-        public uvec2 yx { get { return new uvec2(y, x); } set { y = value.x; x = value.y; } }
-        public uvec2 yy { get { return new uvec2(y, y); } set { y = value.x; y = value.y; } }
-        public uvec3 xxx { get { return new uvec3(x, x, x); } set { x = value.x; x = value.y; x = value.z; } }
-        public uvec3 xxy { get { return new uvec3(x, x, y); } set { x = value.x; x = value.y; y = value.z; } }
-        public uvec3 xyx { get { return new uvec3(x, y, x); } set { x = value.x; y = value.y; x = value.z; } }
-        public uvec3 xyy { get { return new uvec3(x, y, y); } set { x = value.x; y = value.y; y = value.z; } }
-        public uvec3 yxx { get { return new uvec3(y, x, x); } set { y = value.x; x = value.y; x = value.z; } }
-        public uvec3 yxy { get { return new uvec3(y, x, y); } set { y = value.x; x = value.y; y = value.z; } }
-        public uvec3 yyx { get { return new uvec3(y, y, x); } set { y = value.x; y = value.y; x = value.z; } }
-        public uvec3 yyy { get { return new uvec3(y, y, y); } set { y = value.x; y = value.y; y = value.z; } }
-        public uvec4 xxxx { get { return new uvec4(x, x, x, x); } set { x = value.x; x = value.y; x = value.z; x = value.w; } }
-        public uvec4 xxxy { get { return new uvec4(x, x, x, y); } set { x = value.x; x = value.y; x = value.z; y = value.w; } }
-        public uvec4 xxyx { get { return new uvec4(x, x, y, x); } set { x = value.x; x = value.y; y = value.z; x = value.w; } }
-        public uvec4 xxyy { get { return new uvec4(x, x, y, y); } set { x = value.x; x = value.y; y = value.z; y = value.w; } }
-        public uvec4 xyxx { get { return new uvec4(x, y, x, x); } set { x = value.x; y = value.y; x = value.z; x = value.w; } }
-        public uvec4 xyxy { get { return new uvec4(x, y, x, y); } set { x = value.x; y = value.y; x = value.z; y = value.w; } }
-        public uvec4 xyyx { get { return new uvec4(x, y, y, x); } set { x = value.x; y = value.y; y = value.z; x = value.w; } }
-        public uvec4 xyyy { get { return new uvec4(x, y, y, y); } set { x = value.x; y = value.y; y = value.z; y = value.w; } }
-        public uvec4 yxxx { get { return new uvec4(y, x, x, x); } set { y = value.x; x = value.y; x = value.z; x = value.w; } }
-        public uvec4 yxxy { get { return new uvec4(y, x, x, y); } set { y = value.x; x = value.y; x = value.z; y = value.w; } }
-        public uvec4 yxyx { get { return new uvec4(y, x, y, x); } set { y = value.x; x = value.y; y = value.z; x = value.w; } }
-        public uvec4 yxyy { get { return new uvec4(y, x, y, y); } set { y = value.x; x = value.y; y = value.z; y = value.w; } }
-        public uvec4 yyxx { get { return new uvec4(y, y, x, x); } set { y = value.x; y = value.y; x = value.z; x = value.w; } }
-        public uvec4 yyxy { get { return new uvec4(y, y, x, y); } set { y = value.x; y = value.y; x = value.z; y = value.w; } }
-        public uvec4 yyyx { get { return new uvec4(y, y, y, x); } set { y = value.x; y = value.y; y = value.z; x = value.w; } }
-        public uvec4 yyyy { get { return new uvec4(y, y, y, y); } set { y = value.x; y = value.y; y = value.z; y = value.w; } }
+        public uvec2 xx { get => new uvec2(x, x); set { x = value.x; x = value.y; } }
+        public uvec2 xy { get => new uvec2(x, y); set { x = value.x; y = value.y; } }
+        public uvec2 yx { get => new uvec2(y, x); set { y = value.x; x = value.y; } }
+        public uvec2 yy { get => new uvec2(y, y); set { y = value.x; y = value.y; } }
+        public uvec3 xxx { get => new uvec3(x, x, x); set { x = value.x; x = value.y; x = value.z; } }
+        public uvec3 xxy { get => new uvec3(x, x, y); set { x = value.x; x = value.y; y = value.z; } }
+        public uvec3 xyx { get => new uvec3(x, y, x); set { x = value.x; y = value.y; x = value.z; } }
+        public uvec3 xyy { get => new uvec3(x, y, y); set { x = value.x; y = value.y; y = value.z; } }
+        public uvec3 yxx { get => new uvec3(y, x, x); set { y = value.x; x = value.y; x = value.z; } }
+        public uvec3 yxy { get => new uvec3(y, x, y); set { y = value.x; x = value.y; y = value.z; } }
+        public uvec3 yyx { get => new uvec3(y, y, x); set { y = value.x; y = value.y; x = value.z; } }
+        public uvec3 yyy { get => new uvec3(y, y, y); set { y = value.x; y = value.y; y = value.z; } }
+        public uvec4 xxxx { get => new uvec4(x, x, x, x); set { x = value.x; x = value.y; x = value.z; x = value.w; } }
+        public uvec4 xxxy { get => new uvec4(x, x, x, y); set { x = value.x; x = value.y; x = value.z; y = value.w; } }
+        public uvec4 xxyx { get => new uvec4(x, x, y, x); set { x = value.x; x = value.y; y = value.z; x = value.w; } }
+        public uvec4 xxyy { get => new uvec4(x, x, y, y); set { x = value.x; x = value.y; y = value.z; y = value.w; } }
+        public uvec4 xyxx { get => new uvec4(x, y, x, x); set { x = value.x; y = value.y; x = value.z; x = value.w; } }
+        public uvec4 xyxy { get => new uvec4(x, y, x, y); set { x = value.x; y = value.y; x = value.z; y = value.w; } }
+        public uvec4 xyyx { get => new uvec4(x, y, y, x); set { x = value.x; y = value.y; y = value.z; x = value.w; } }
+        public uvec4 xyyy { get => new uvec4(x, y, y, y); set { x = value.x; y = value.y; y = value.z; y = value.w; } }
+        public uvec4 yxxx { get => new uvec4(y, x, x, x); set { y = value.x; x = value.y; x = value.z; x = value.w; } }
+        public uvec4 yxxy { get => new uvec4(y, x, x, y); set { y = value.x; x = value.y; x = value.z; y = value.w; } }
+        public uvec4 yxyx { get => new uvec4(y, x, y, x); set { y = value.x; x = value.y; y = value.z; x = value.w; } }
+        public uvec4 yxyy { get => new uvec4(y, x, y, y); set { y = value.x; x = value.y; y = value.z; y = value.w; } }
+        public uvec4 yyxx { get => new uvec4(y, y, x, x); set { y = value.x; y = value.y; x = value.z; x = value.w; } }
+        public uvec4 yyxy { get => new uvec4(y, y, x, y); set { y = value.x; y = value.y; x = value.z; y = value.w; } }
+        public uvec4 yyyx { get => new uvec4(y, y, y, x); set { y = value.x; y = value.y; y = value.z; x = value.w; } }
+        public uvec4 yyyy { get => new uvec4(y, y, y, y); set { y = value.x; y = value.y; y = value.z; y = value.w; } }
 
         #endregion
     }

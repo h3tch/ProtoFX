@@ -127,7 +127,10 @@ namespace ScintillaNET
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void AutoCMouseScroll(object sender, EventArgs e) => CallTipCancel();
+        private void AutoCMouseScroll(object sender, EventArgs e)
+        {
+            CallTipCancel();
+        }
 
         #endregion
 
@@ -139,12 +142,17 @@ namespace ScintillaNET
         /// <param name="position"></param>
         /// <param name="definition"></param>
         public new void CallTipShow(int position, string definition)
-            => TipShow(ref callTip, ShowCallTip, position, definition);
+        {
+            TipShow(ref callTip, ShowCallTip, position, definition);
+        }
 
         /// <summary>
         /// Hide call tip.
         /// </summary>
-        public new void CallTipCancel() => TipCancel(callTip, CancleCallTip);
+        public new void CallTipCancel()
+        {
+            TipCancel(callTip, CancleCallTip);
+        }
 
         /// <summary>
         /// Is the call tip tool tip visible.
@@ -158,12 +166,17 @@ namespace ScintillaNET
         /// <param name="X"></param>
         /// <param name="Y"></param>
         public void PerfTipShow(int position, Array X, Array Y)
-            => TipShow(ref perfTip, ShowPerfTip, position, new[] { X, Y });
+        {
+            TipShow(ref perfTip, ShowPerfTip, position, new[] { X, Y });
+        }
 
         /// <summary>
         /// Hide performance call tip.
         /// </summary>
-        public void PerfTipCancel() => TipCancel(perfTip, CanclePerfTip);
+        public void PerfTipCancel()
+        {
+            TipCancel(perfTip, CanclePerfTip);
+        }
 
         /// <summary>
         /// Show the call tip.
@@ -246,7 +259,9 @@ namespace ScintillaNET
         /// <param name="s"></param>
         /// <param name="e"></param>
         private void tip_MouseEnter(object s, EventArgs e)
-            => TipCancel(s as CallTip, s == callTip ? CancleCallTip : CanclePerfTip);
+        {
+            TipCancel(s as CallTip, s == callTip ? CancleCallTip : CanclePerfTip);
+        }
 
         #endregion
     }

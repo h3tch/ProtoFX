@@ -2,7 +2,7 @@
 {
     class GLText : GLObject
     {
-        public string text { get; private set; }
+        public string Text { get; private set; }
 
         /// <summary>
         /// Create OpenGL object. Standard object constructor for ProtoFX.
@@ -13,7 +13,7 @@
         public GLText(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
-            text = block.Body;
+            Text = block.Body;
         }
     }
 }

@@ -19,8 +19,7 @@ namespace App
         /// <returns>Returns the value to the respective string.</returns>
         public T GetValue<T>(string key, string info = "Value not found.") where T : GLObject
         {
-            GLObject tmp = default(GLObject);
-            if (TryGetValue(key, out tmp) && tmp is T)
+            if (TryGetValue(key, out var tmp) && tmp is T)
                 return (T)tmp;
             throw new CompileException(info);
         }
@@ -35,8 +34,7 @@ namespace App
         /// string or the default value of the type.</returns>
         public T GetValueOrDefault<T>(string key) where T : GLObject
         {
-            var obj = default(GLObject);
-            return key != null && TryGetValue(key, out obj) && obj is T ? (T)obj : default(T);
+            return key != null && TryGetValue(key, out var obj) && obj is T ? (T)obj : default(T);
         }
 
         /// <summary>
@@ -48,8 +46,7 @@ namespace App
         /// <returns>Returns true if the value could be found.</returns>
         public bool TryGetValue<T>(string key, ref T obj) where T : GLObject
         {
-            GLObject tmp;
-            if (obj != null || !TryGetValue(key, out tmp) || !(tmp is T))
+            if (obj != null || !TryGetValue(key, out var tmp) || !(tmp is T))
                 return false;
             obj = (T)tmp;
             return true;

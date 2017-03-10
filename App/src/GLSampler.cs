@@ -5,9 +5,11 @@ namespace App
     class GLSampler : GLObject
     {
         #region FIELDS
+
         [FxField] private TextureMinFilter Minfilter = TextureMinFilter.Nearest;
         [FxField] private TextureMagFilter Magfilter = TextureMagFilter.Nearest;
         [FxField] private TextureWrapMode Wrap = TextureWrapMode.ClampToEdge;
+
         #endregion
 
         /// <summary>
@@ -19,7 +21,7 @@ namespace App
         public GLSampler(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"sampler '{name}'");
+            var err = new CompileException($"sampler '{Name}'");
 
             // PARSE ARGUMENTS
             Cmds2Fields(block, err);
@@ -36,7 +38,7 @@ namespace App
             GL.SamplerParameterI(glname, SamplerParameterName.TextureWrapT, ref wrapi);
 
             HasErrorOrGlError(err, block);
-            if (err.HasErrors())
+            if (err.HasErrors)
                 throw err;
         }
 

@@ -1,4 +1,6 @@
-﻿namespace App
+﻿using System.Windows.Forms;
+
+namespace App
 {
     partial class App
     {
@@ -37,7 +39,7 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(App));
-            this.splitRenderCoding = new System.Windows.Forms.SplitContainer();
+            this.SplitRenderCoding = new System.Windows.Forms.SplitContainer();
             this.tableLayoutRenderOutput = new System.Windows.Forms.TableLayoutPanel();
             this.labelTitle = new System.Windows.Forms.Label();
             this.splitRenderOutput = new System.Windows.Forms.SplitContainer();
@@ -91,7 +93,7 @@
             this.tabSource = new System.Windows.Forms.FXTabControl();
             this.tabResources = new System.Windows.Forms.TabPage();
             this.tabData = new System.Windows.Forms.FXTabControl();
-            this.tabDataImg = new System.Windows.Forms.TabPage();
+            this.TabDataImg = new System.Windows.Forms.TabPage();
             this.tableLayoutImages = new System.Windows.Forms.TableLayoutPanel();
             this.numImgLayer = new System.Windows.Forms.NumericUpDown();
             this.comboImg = new System.Windows.Forms.ComboBoxEx();
@@ -108,10 +110,10 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.comboProp = new System.Windows.Forms.ComboBoxEx();
-            ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
-            this.splitRenderCoding.Panel1.SuspendLayout();
-            this.splitRenderCoding.Panel2.SuspendLayout();
-            this.splitRenderCoding.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.SplitRenderCoding)).BeginInit();
+            this.SplitRenderCoding.Panel1.SuspendLayout();
+            this.SplitRenderCoding.Panel2.SuspendLayout();
+            this.SplitRenderCoding.SuspendLayout();
             this.tableLayoutRenderOutput.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderOutput)).BeginInit();
             this.splitRenderOutput.Panel1.SuspendLayout();
@@ -145,7 +147,7 @@
             this.toolStripContainerCoding.SuspendLayout();
             this.tabResources.SuspendLayout();
             this.tabData.SuspendLayout();
-            this.tabDataImg.SuspendLayout();
+            this.TabDataImg.SuspendLayout();
             this.tableLayoutImages.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numImgLayer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numImgLevel)).BeginInit();
@@ -160,22 +162,22 @@
             // 
             // splitRenderCoding
             // 
-            this.splitRenderCoding.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitRenderCoding.Location = new System.Drawing.Point(4, 5);
-            this.splitRenderCoding.Margin = new System.Windows.Forms.Padding(0);
-            this.splitRenderCoding.Name = "splitRenderCoding";
+            this.SplitRenderCoding.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.SplitRenderCoding.Location = new System.Drawing.Point(4, 5);
+            this.SplitRenderCoding.Margin = new System.Windows.Forms.Padding(0);
+            this.SplitRenderCoding.Name = "splitRenderCoding";
             // 
             // splitRenderCoding.Panel1
             // 
-            this.splitRenderCoding.Panel1.Controls.Add(this.tableLayoutRenderOutput);
+            this.SplitRenderCoding.Panel1.Controls.Add(this.tableLayoutRenderOutput);
             // 
             // splitRenderCoding.Panel2
             // 
-            this.splitRenderCoding.Panel2.Controls.Add(this.panelCoding);
-            this.splitRenderCoding.Size = new System.Drawing.Size(1466, 790);
-            this.splitRenderCoding.SplitterDistance = 597;
-            this.splitRenderCoding.SplitterWidth = 6;
-            this.splitRenderCoding.TabIndex = 0;
+            this.SplitRenderCoding.Panel2.Controls.Add(this.panelCoding);
+            this.SplitRenderCoding.Size = new System.Drawing.Size(1466, 790);
+            this.SplitRenderCoding.SplitterDistance = 597;
+            this.SplitRenderCoding.SplitterWidth = 6;
+            this.SplitRenderCoding.TabIndex = 0;
             // 
             // tableLayoutRenderOutput
             // 
@@ -245,7 +247,7 @@
             this.glControl.Size = new System.Drawing.Size(597, 494);
             this.glControl.TabIndex = 0;
             this.glControl.VSync = false;
-            this.glControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.glControl_MouseUp);
+            this.glControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.GlControl_MouseUp);
             // 
             // tabOutput
             // 
@@ -335,7 +337,7 @@
             this.output.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.output.Size = new System.Drawing.Size(583, 220);
             this.output.TabIndex = 1;
-            this.output.DoubleClick += new System.EventHandler(this.output_DoubleClick);
+            this.output.DoubleClick += new System.EventHandler(this.Output_DoubleClick);
             // 
             // File
             // 
@@ -444,18 +446,18 @@
             this.debugProperty.Size = new System.Drawing.Size(150, 220);
             this.debugProperty.TabIndex = 1;
             this.debugProperty.ToolbarVisible = false;
-            this.debugProperty.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid_PropertyValueChanged);
+            this.debugProperty.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.PropertyGrid_PropertyValueChanged);
             // 
             // chartPerf
             // 
             chartArea1.AxisX.IsMarginVisible = false;
             chartArea1.AxisX.LabelAutoFitMaxFontSize = 8;
-            chartArea1.AxisX.LabelAutoFitStyle = ((System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles)((((System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.IncreaseFont | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont) 
-            | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.LabelsAngleStep30) 
+            chartArea1.AxisX.LabelAutoFitStyle = ((System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles)((((System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.IncreaseFont | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont)
+            | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.LabelsAngleStep30)
             | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.WordWrap)));
             chartArea1.AxisY.LabelAutoFitMaxFontSize = 8;
-            chartArea1.AxisY.LabelAutoFitStyle = ((System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles)((((System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.IncreaseFont | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont) 
-            | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.LabelsAngleStep30) 
+            chartArea1.AxisY.LabelAutoFitStyle = ((System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles)((((System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.IncreaseFont | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.DecreaseFont)
+            | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.LabelsAngleStep30)
             | System.Windows.Forms.DataVisualization.Charting.LabelAutoFitStyles.WordWrap)));
             chartArea1.Name = "ChartArea";
             this.chartPerf.ChartAreas.Add(chartArea1);
@@ -496,7 +498,7 @@
             this.btnWindowMinimize2.TabIndex = 4;
             this.btnWindowMinimize2.UseVisualStyleBackColor = true;
             this.btnWindowMinimize2.Visible = false;
-            this.btnWindowMinimize2.Click += new System.EventHandler(this.btnWindowMinimize_Click);
+            this.btnWindowMinimize2.Click += new System.EventHandler(this.BtnWindowMinimize_Click);
             // 
             // btnWindowMaximize2
             // 
@@ -512,7 +514,7 @@
             this.btnWindowMaximize2.TabIndex = 5;
             this.btnWindowMaximize2.UseVisualStyleBackColor = true;
             this.btnWindowMaximize2.Visible = false;
-            this.btnWindowMaximize2.Click += new System.EventHandler(this.btnWindowMaximize_Click);
+            this.btnWindowMaximize2.Click += new System.EventHandler(this.BtnWindowMaximize_Click);
             // 
             // btnWindowClose2
             // 
@@ -528,7 +530,7 @@
             this.btnWindowClose2.TabIndex = 6;
             this.btnWindowClose2.UseVisualStyleBackColor = true;
             this.btnWindowClose2.Visible = false;
-            this.btnWindowClose2.Click += new System.EventHandler(this.btnWindowClose_Click);
+            this.btnWindowClose2.Click += new System.EventHandler(this.BtnWindowClose_Click);
             // 
             // panelCoding
             // 
@@ -634,7 +636,7 @@
             this.toolBtnNew.Padding = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.toolBtnNew.Size = new System.Drawing.Size(36, 39);
             this.toolBtnNew.Text = "New";
-            this.toolBtnNew.Click += new System.EventHandler(this.toolBtnNew_Click);
+            this.toolBtnNew.Click += new System.EventHandler(this.ToolBtnNew_Click);
             // 
             // toolBtnOpen
             // 
@@ -645,7 +647,7 @@
             this.toolBtnOpen.Name = "toolBtnOpen";
             this.toolBtnOpen.Size = new System.Drawing.Size(36, 39);
             this.toolBtnOpen.Text = "Open (Ctrl + O)";
-            this.toolBtnOpen.Click += new System.EventHandler(this.toolBtnOpen_Click);
+            this.toolBtnOpen.Click += new System.EventHandler(this.ToolBtnOpen_Click);
             // 
             // toolBtnSave
             // 
@@ -656,7 +658,7 @@
             this.toolBtnSave.Name = "toolBtnSave";
             this.toolBtnSave.Size = new System.Drawing.Size(36, 39);
             this.toolBtnSave.Text = "Save (Ctrl + S)";
-            this.toolBtnSave.Click += new System.EventHandler(this.toolBtnSave_Click);
+            this.toolBtnSave.Click += new System.EventHandler(this.ToolBtnSave_Click);
             // 
             // toolBtnSaveAll
             // 
@@ -667,7 +669,7 @@
             this.toolBtnSaveAll.Name = "toolBtnSaveAll";
             this.toolBtnSaveAll.Size = new System.Drawing.Size(36, 39);
             this.toolBtnSaveAll.Text = "Save all (Ctrl + Shift + S)";
-            this.toolBtnSaveAll.Click += new System.EventHandler(this.toolBtnSaveAll_Click);
+            this.toolBtnSaveAll.Click += new System.EventHandler(this.ToolBtnSaveAll_Click);
             // 
             // toolBtnSaveAs
             // 
@@ -678,7 +680,7 @@
             this.toolBtnSaveAs.Name = "toolBtnSaveAs";
             this.toolBtnSaveAs.Size = new System.Drawing.Size(36, 39);
             this.toolBtnSaveAs.Text = "Save as (Alt + S)";
-            this.toolBtnSaveAs.Click += new System.EventHandler(this.toolBtnSaveAs_Click);
+            this.toolBtnSaveAs.Click += new System.EventHandler(this.ToolBtnSaveAs_Click);
             // 
             // toolStripSeparator3
             // 
@@ -694,7 +696,7 @@
             this.toolBtnRun.Name = "toolBtnRun";
             this.toolBtnRun.Size = new System.Drawing.Size(36, 39);
             this.toolBtnRun.Text = "Run (F5)";
-            this.toolBtnRun.Click += new System.EventHandler(this.toolBtnRunDebug_Click);
+            this.toolBtnRun.Click += new System.EventHandler(this.ToolBtnRunDebug_Click);
             // 
             // toolBtnDbg
             // 
@@ -705,7 +707,7 @@
             this.toolBtnDbg.Name = "toolBtnDbg";
             this.toolBtnDbg.Size = new System.Drawing.Size(36, 39);
             this.toolBtnDbg.Text = "Debug (F6)";
-            this.toolBtnDbg.Click += new System.EventHandler(this.toolBtnRunDebug_Click);
+            this.toolBtnDbg.Click += new System.EventHandler(this.ToolBtnRunDebug_Click);
             // 
             // toolBtnDbgStepBreakpoint
             // 
@@ -766,7 +768,7 @@
             this.toolBtnPick.Name = "toolBtnPick";
             this.toolBtnPick.Size = new System.Drawing.Size(36, 36);
             this.toolBtnPick.Text = "Debug Fragment";
-            this.toolBtnPick.CheckedChanged += new System.EventHandler(this.toolBtnPick_CheckedChanged);
+            this.toolBtnPick.CheckedChanged += new System.EventHandler(this.ToolBtnPick_CheckedChanged);
             // 
             // toolStripSeparator1
             // 
@@ -783,7 +785,7 @@
             this.toolBtnComment.Size = new System.Drawing.Size(36, 36);
             this.toolBtnComment.Text = "Comment Selected Lines";
             this.toolBtnComment.ToolTipText = "Comment selected text";
-            this.toolBtnComment.Click += new System.EventHandler(this.toolBtnComment_Click);
+            this.toolBtnComment.Click += new System.EventHandler(this.ToolBtnComment_Click);
             // 
             // toolBtnUncomment
             // 
@@ -795,7 +797,7 @@
             this.toolBtnUncomment.Size = new System.Drawing.Size(36, 36);
             this.toolBtnUncomment.Text = "Uncomment Selected Lines";
             this.toolBtnUncomment.ToolTipText = "Uncomment selected text";
-            this.toolBtnUncomment.Click += new System.EventHandler(this.toolBtnUncomment_Click);
+            this.toolBtnUncomment.Click += new System.EventHandler(this.ToolBtnUncomment_Click);
             // 
             // btnWindowMinimize
             // 
@@ -811,7 +813,7 @@
             this.btnWindowMinimize.Size = new System.Drawing.Size(51, 38);
             this.btnWindowMinimize.TabIndex = 1;
             this.btnWindowMinimize.UseVisualStyleBackColor = true;
-            this.btnWindowMinimize.Click += new System.EventHandler(this.btnWindowMinimize_Click);
+            this.btnWindowMinimize.Click += new System.EventHandler(this.BtnWindowMinimize_Click);
             // 
             // btnWindowMaximize
             // 
@@ -827,7 +829,7 @@
             this.btnWindowMaximize.Size = new System.Drawing.Size(51, 38);
             this.btnWindowMaximize.TabIndex = 2;
             this.btnWindowMaximize.UseVisualStyleBackColor = true;
-            this.btnWindowMaximize.Click += new System.EventHandler(this.btnWindowMaximize_Click);
+            this.btnWindowMaximize.Click += new System.EventHandler(this.BtnWindowMaximize_Click);
             // 
             // btnWindowClose
             // 
@@ -843,7 +845,7 @@
             this.btnWindowClose.Size = new System.Drawing.Size(51, 38);
             this.btnWindowClose.TabIndex = 3;
             this.btnWindowClose.UseVisualStyleBackColor = true;
-            this.btnWindowClose.Click += new System.EventHandler(this.btnWindowClose_Click);
+            this.btnWindowClose.Click += new System.EventHandler(this.BtnWindowClose_Click);
             // 
             // tabControl
             // 
@@ -882,7 +884,7 @@
             this.tabControl.SelectedIndex = 0;
             this.tabControl.Size = new System.Drawing.Size(863, 770);
             this.tabControl.TabIndex = 1;
-            this.tabControl.SelectedIndexChanged += new System.EventHandler(this.tabControl_SelectedIndexChanged);
+            this.tabControl.SelectedIndexChanged += new System.EventHandler(this.TabControl_SelectedIndexChanged);
             // 
             // tabCode
             // 
@@ -966,7 +968,7 @@
             this.tabSource.SelectedIndex = 0;
             this.tabSource.Size = new System.Drawing.Size(855, 696);
             this.tabSource.TabIndex = 0;
-            this.tabSource.TabClosing += new System.EventHandler<System.Windows.Forms.TabControlCancelEventArgs>(this.tabSource_TabClose);
+            this.tabSource.TabClosing += new System.EventHandler<System.Windows.Forms.TabControlCancelEventArgs>(this.TabSource_TabClose);
             // 
             // tabResources
             // 
@@ -979,7 +981,7 @@
             // 
             // tabData
             // 
-            this.tabData.Controls.Add(this.tabDataImg);
+            this.tabData.Controls.Add(this.TabDataImg);
             this.tabData.Controls.Add(this.tabDataBuf);
             this.tabData.DisplayStyle = System.Windows.Forms.TabStyle.FX;
             // 
@@ -1015,13 +1017,13 @@
             // 
             // tabDataImg
             // 
-            this.tabDataImg.Controls.Add(this.tableLayoutImages);
-            this.tabDataImg.Location = new System.Drawing.Point(4, 30);
-            this.tabDataImg.Name = "tabDataImg";
-            this.tabDataImg.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.tabDataImg.Size = new System.Drawing.Size(846, 701);
-            this.tabDataImg.TabIndex = 0;
-            this.tabDataImg.Text = "Images";
+            this.TabDataImg.Controls.Add(this.tableLayoutImages);
+            this.TabDataImg.Location = new System.Drawing.Point(4, 30);
+            this.TabDataImg.Name = "tabDataImg";
+            this.TabDataImg.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.TabDataImg.Size = new System.Drawing.Size(846, 701);
+            this.TabDataImg.TabIndex = 0;
+            this.TabDataImg.Text = "Images";
             // 
             // tableLayoutImages
             // 
@@ -1076,7 +1078,7 @@
             this.comboImg.Soreted = false;
             this.comboImg.TabIndex = 1;
             this.comboImg.Transparent = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.comboImg.SelectedIndexChanged += new System.EventHandler(this.comboImg_SelectedIndexChanged);
+            this.comboImg.SelectedIndexChanged += new System.EventHandler(this.ComboImg_SelectedIndexChanged);
             // 
             // panelImg
             // 
@@ -1088,7 +1090,7 @@
             this.panelImg.Name = "panelImg";
             this.panelImg.Size = new System.Drawing.Size(840, 655);
             this.panelImg.TabIndex = 2;
-            this.panelImg.Click += new System.EventHandler(this.pictureImg_Click);
+            this.panelImg.Click += new System.EventHandler(this.PictureImg_Click);
             // 
             // numImgLevel
             // 
@@ -1197,7 +1199,7 @@
             this.comboBuf.Soreted = false;
             this.comboBuf.TabIndex = 0;
             this.comboBuf.Transparent = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.comboBuf.SelectedIndexChanged += new System.EventHandler(this.comboBuf_SelectedIndexChanged);
+            this.comboBuf.SelectedIndexChanged += new System.EventHandler(this.ComboBuf_SelectedIndexChanged);
             // 
             // comboBufType
             // 
@@ -1219,7 +1221,7 @@
             this.comboBufType.Soreted = false;
             this.comboBufType.TabIndex = 1;
             this.comboBufType.Transparent = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.comboBufType.SelectedIndexChanged += new System.EventHandler(this.comboBufType_SelectedIndexChanged);
+            this.comboBufType.SelectedIndexChanged += new System.EventHandler(this.ComboBufType_SelectedIndexChanged);
             // 
             // numBufDim
             // 
@@ -1244,7 +1246,7 @@
             0,
             0,
             0});
-            this.numBufDim.ValueChanged += new System.EventHandler(this.numBufDim_ValueChanged);
+            this.numBufDim.ValueChanged += new System.EventHandler(this.NumBufDim_ValueChanged);
             // 
             // tabProperties
             // 
@@ -1279,8 +1281,8 @@
             this.propertyGrid.Size = new System.Drawing.Size(842, 683);
             this.propertyGrid.TabIndex = 0;
             this.propertyGrid.ToolbarVisible = false;
-            this.propertyGrid.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid_PropertyValueChanged);
-            this.propertyGrid.Click += new System.EventHandler(this.propertyGrid_Click);
+            this.propertyGrid.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.PropertyGrid_PropertyValueChanged);
+            this.propertyGrid.Click += new System.EventHandler(this.PropertyGrid_Click);
             // 
             // comboProp
             // 
@@ -1302,7 +1304,7 @@
             this.comboProp.Soreted = false;
             this.comboProp.TabIndex = 0;
             this.comboProp.Transparent = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.comboProp.SelectedIndexChanged += new System.EventHandler(this.comboProp_SelectedIndexChanged);
+            this.comboProp.SelectedIndexChanged += new System.EventHandler(this.ComboProp_SelectedIndexChanged);
             // 
             // App
             // 
@@ -1310,7 +1312,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1474, 800);
             this.ControlBox = false;
-            this.Controls.Add(this.splitRenderCoding);
+            this.Controls.Add(this.SplitRenderCoding);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -1322,10 +1324,10 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.App_FormClosing);
             this.Load += new System.EventHandler(this.App_Load);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.App_KeyUp);
-            this.splitRenderCoding.Panel1.ResumeLayout(false);
-            this.splitRenderCoding.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).EndInit();
-            this.splitRenderCoding.ResumeLayout(false);
+            this.SplitRenderCoding.Panel1.ResumeLayout(false);
+            this.SplitRenderCoding.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.SplitRenderCoding)).EndInit();
+            this.SplitRenderCoding.ResumeLayout(false);
             this.tableLayoutRenderOutput.ResumeLayout(false);
             this.tableLayoutRenderOutput.PerformLayout();
             this.splitRenderOutput.Panel1.ResumeLayout(false);
@@ -1364,7 +1366,7 @@
             this.toolStripContainerCoding.PerformLayout();
             this.tabResources.ResumeLayout(false);
             this.tabData.ResumeLayout(false);
-            this.tabDataImg.ResumeLayout(false);
+            this.TabDataImg.ResumeLayout(false);
             this.tableLayoutImages.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.numImgLayer)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numImgLevel)).EndInit();
@@ -1401,7 +1403,7 @@
                 System.Drawing.GraphicsUnit.Pixel, 0);
 
             // ADJUST WINDOW BUTTONS
-            
+
             tableLayoutMenu.ColumnStyles[1].Width = btnWindowClose.Image.Width + 9;
             tableLayoutMenu.ColumnStyles[2].Width = btnWindowMaximize.Image.Width + 9;
             tableLayoutMenu.ColumnStyles[3].Width = btnWindowMinimize.Image.Width + 9;
@@ -1440,7 +1442,7 @@
             tableLayoutMenu.ColumnStyles[0].Width = w + 30;
 
             panelCoding.Padding = new System.Windows.Forms.Padding(0, img.Height + 10 - tabControl.GetTabRect(0).Height, 0, 0);
-            
+
             panelMenu.Width = w + 30 + (btnWindowClose.Width + 2) * 3;
             panelMenu.Height = h + 4;
             panelMenu.Location = new System.Drawing.Point(panelCoding.Width - panelMenu.Width, 0);
@@ -1522,5 +1524,8 @@
         private System.Windows.Forms.Button btnWindowClose2;
         private System.Windows.Forms.SplitContainer splitDebugPerf;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartPerf;
+
+        public TabPage TabDataImg { get => tabDataImg; set => tabDataImg = value; }
+        public SplitContainer SplitRenderCoding { get => splitRenderCoding; set => splitRenderCoding = value; }
     }
 }

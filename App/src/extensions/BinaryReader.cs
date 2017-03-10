@@ -12,7 +12,9 @@ namespace System.IO
         /// <param name="origin"></param>
         /// <returns></returns>
         public static long Seek(this BinaryReader reader, int offset, SeekOrigin origin = SeekOrigin.Current)
-            => reader.BaseStream.Seek(offset, origin);
+        {
+            return reader.BaseStream.Seek(offset, origin);
+        }
 
         /// <summary>
         /// Read a 2D array from a binary stream.

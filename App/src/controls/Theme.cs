@@ -115,7 +115,7 @@ namespace System.Windows.Forms
             // call ApplyTo for all sub controls
             if (control.GetType().IsSubclassOf(typeof(Control)))
             {
-                foreach (Control c in ((Control)control).Controls)
+                foreach (var c in ((Control)control).Controls)
                     Apply(c);
             }
         }
@@ -355,8 +355,7 @@ namespace System.Windows.Forms
             [Xml.Serialization.XmlAttribute]
             public string hex
             {
-                get { return ColorTranslator.ToHtml(color); }
-                set { color = ColorTranslator.FromHtml(value); }
+                get => ColorTranslator.ToHtml(color); set => color = ColorTranslator.FromHtml(value);
             }
         }
 

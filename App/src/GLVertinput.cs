@@ -19,7 +19,7 @@ namespace App
         public GLVertinput(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"vertinput '{name}'");
+            var err = new CompileException($"vertinput '{Name}'");
 
             // CREATE OPENGL OBJECT
             glname = GL.GenVertexArray();
@@ -30,7 +30,7 @@ namespace App
                 Attach(numAttr++, cmd, scene, err | $"command '{cmd.Text}'");
 
             // if errors occurred throw exception
-            if (err.HasErrors())
+            if (err.HasErrors)
                 throw err;
 
             // unbind object and check for errors
@@ -139,7 +139,7 @@ namespace App
                     case (int)VertAttrType.UInt_2_10_10_10: typesize = 1; break;
                     case (int)VertAttrType.Int_2_10_10_10: typesize = 1; break;
                 }
-                byte[] data = new byte[typesize * attr.length];
+                var data = new byte[typesize * attr.length];
                 int offset = attr.offset + attr.stride * (attr.divisor == 0 ? vertexID : instanceID / attr.divisor);
                 attr.buffer.Read(ref data, offset);
                 yield return data;

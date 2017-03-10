@@ -59,7 +59,7 @@ namespace App
         public GLPass(Compiler.Block block, Dict scene, bool genDebugInfo)
             : base(block.Name, block.Anno, 309, genDebugInfo)
         {
-            var err = new CompileException($"pass '{name}'");
+            var err = new CompileException($"pass '{Name}'");
             GenDebugInfo = genDebugInfo;
 
             /// PARSE COMMANDS AND CONVERT THEM TO CLASS FIELDS
@@ -93,7 +93,7 @@ namespace App
                 }
             }
 
-            if (err.HasErrors())
+            if (err.HasErrors)
                 throw err;
 
             /// CREATE OPENGL OBJECT
@@ -153,7 +153,7 @@ namespace App
             if (GL.GetError() != ErrorCode.NoError)
                 err.Add($"OpenGL error '{GL.GetError()}' occurred " +
                     "during shader program creation.", block);
-            if (err.HasErrors())
+            if (err.HasErrors)
                 throw err;
         }
 
@@ -181,7 +181,7 @@ namespace App
         {
             // in debug mode check if the
             // OpenGL sate is valid
-            ThrowOnGLError($"OpenGL error at the beginning of pass '{name}'.");
+            ThrowOnGLError($"OpenGL error at the beginning of pass '{Name}'.");
 
             int fbWidth = width, fbHeight = height;
 
@@ -205,7 +205,7 @@ namespace App
             foreach (var x in glfunc)
             {
                 x.mtype.Invoke(null, x.inval);
-                ThrowOnGLError($"OpenGL error in OpenGL function '{x.mtype.Name}' of pass '{name}'.");
+                ThrowOnGLError($"OpenGL error in OpenGL function '{x.mtype.Name}' of pass '{Name}'.");
             }
 
             /// BIND PROGRAM
@@ -217,24 +217,24 @@ namespace App
             /// must be done after glUseProgram
 
             vertoutput?.Bind();
-            ThrowOnGLError($"OpenGL error vertex output binding of pass '{name}'.");
+            ThrowOnGLError($"OpenGL error vertex output binding of pass '{Name}'.");
 
             /// BIND TEXTURES
 
             foreach (var x in textures)
             {
                 GLTexture.BindTex(x.unit, x.obj);
-                ThrowOnGLError($"OpenGL error in texture '{x.obj?.name}' of pass '{name}'.");
+                ThrowOnGLError($"OpenGL error in texture '{x.obj?.Name}' of pass '{Name}'.");
             }
             foreach (var x in texImages)
             {
                 GLTexture.BindImg(x.unit, x.obj, x.level, x.layer, x.access, x.format);
-                ThrowOnGLError($"OpenGL error in image '{x.obj?.name}' of pass '{name}'.");
+                ThrowOnGLError($"OpenGL error in image '{x.obj?.Name}' of pass '{Name}'.");
             }
             foreach (var x in sampler)
             {
                 GL.BindSampler(x.unit, x.obj?.glname ?? 0);
-                ThrowOnGLError($"OpenGL error in sampler '{x.obj?.name}' of pass '{name}'.");
+                ThrowOnGLError($"OpenGL error in sampler '{x.obj?.Name}' of pass '{Name}'.");
             }
 
             /// EXECUTE EXTERNAL CODE
@@ -242,7 +242,7 @@ namespace App
             foreach (var x in csexec)
             {
                 x.Update(glname, width, height, fbWidth, fbHeight);
-                ThrowOnGLError($"OpenGL error in C# execution '{x.name}' of pass '{name}'.");
+                ThrowOnGLError($"OpenGL error in C# execution '{x.Name}' of pass '{Name}'.");
             }
 
             /// BIND DEBUGGER
@@ -282,8 +282,8 @@ namespace App
             StartTimer(frame);
 
             // execute draw calls
-            drawcalls.ForEach(call => call.draw());
-            compcalls.ForEach(call => call.compute());
+            drawcalls.ForEach(call => call.Draw());
+            compcalls.ForEach(call => call.Compute());
 
             // end timer query
             EndTimer();
@@ -307,14 +307,14 @@ namespace App
             
             // in debug mode check if the pass
             // left a valid OpenGL sate
-            ThrowOnGLError($"OpenGL error at the end of pass '{name}'.");
+            ThrowOnGLError($"OpenGL error at the end of pass '{Name}'.");
         }
         
         #region PARSE COMMANDS
 
         private void ParseDrawCall(Compiler.Command cmd, Dict classes, CompileException err)
         {
-            List<int> args = new List<int>();
+            var args = new List<int>();
             GLVertinput vertexin = null;
             GLVertoutput vertout = null;
             GLBuffer indexbuf = null;
@@ -345,7 +345,7 @@ namespace App
                     err.Add($"Unable to process argument '{arg.Text}'.", cmd);
             }
 
-            if (err.HasErrors())
+            if (err.HasErrors)
                 return;
             
             // a draw call must specify a primitive type
@@ -368,7 +368,7 @@ namespace App
                 return;
             }
 
-            DrawFunc drawfunc = (DrawFunc)bits;
+            var drawfunc = (DrawFunc)bits;
 
             // get index buffer object (if present) and find existing MultiDraw class
             var multidrawcall = drawcalls.Find(
@@ -397,7 +397,7 @@ namespace App
 
             try
             {
-                CompCall call = new CompCall();
+                var call = new CompCall();
 
                 // this is an indirect compute call
                 if (cmd.ArgCount == 2)
@@ -443,7 +443,7 @@ namespace App
             // parse command arguments
             (var values, var unused) = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
-            if (!err.HasErrors())
+            if (!err.HasErrors)
                 textures.Add(new Res<GLTexture>(values));
         }
 
@@ -472,7 +472,7 @@ namespace App
             // parse command arguments
             (var values, var unused) = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
-            if (!err.HasErrors())
+            if (!err.HasErrors)
                 texImages.Add(new ResTexImg(values));
         }
 
@@ -490,7 +490,7 @@ namespace App
             // parse command arguments
             (var values, var unused) = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
-            if (!err.HasErrors())
+            if (!err.HasErrors)
                 sampler.Add(new Res<GLSampler>(values));
         }
         
@@ -508,7 +508,7 @@ namespace App
 
             // get method parameter types
             var param = mtype.GetParameters();
-            object[] inval = new object[param.Length];
+            var inval = new object[param.Length];
             // convert strings to parameter types
             for (int i = 0; i < param.Length; i++)
             {
@@ -544,9 +544,11 @@ namespace App
         #region UTIL METHODS
 
         private MethodInfo FindMethod(string name, int nparam)
-            => (from method in typeof(GL).GetMethods()
-                where method.Name == name && method.GetParameters().Length == nparam
-                select method).FirstOrDefault();
+        {
+            return (from method in typeof(GL).GetMethods()
+                    where method.Name == name && method.GetParameters().Length == nparam
+                    select method).FirstOrDefault();
+        }
 
         private GLShader Attach(Compiler.Block block, string shadername, Dict classes,
             CompileException err)
@@ -577,7 +579,7 @@ namespace App
         private static void ThrowOnGLError(string message)
         {
 #if DEBUG
-            ErrorCode errcode = GL.GetError();
+            var errcode = GL.GetError();
             if (errcode != ErrorCode.NoError)
                 throw new Exception($"{errcode}: {message}");
 #endif
@@ -660,7 +662,7 @@ namespace App
                 }
             }
 
-            public void draw()
+            public void Draw()
             {
                 // bind vertex buffer to input stream
                 // (needs to be done before binding an ElementArrayBuffer)
@@ -671,14 +673,14 @@ namespace App
                     case DrawFunc.ArraysIndirect:
                         GL.BindBuffer(BufferTarget.DrawIndirectBuffer, indirect);
                         foreach (var draw in cmd)
-                            GL.DrawArraysIndirect(draw.mode, draw.indirectPtr);
+                            GL.DrawArraysIndirect(draw.mode, draw.IndirectPtr);
                         break;
 
                     case DrawFunc.ArraysInstanced:
                         foreach (var draw in cmd)
                             GL.DrawArraysInstancedBaseInstance(
-                                draw.mode, draw.vBaseVertex, draw.vVertexCount,
-                                draw.vInstanceCount, draw.vBaseInstance);
+                                draw.mode, draw.VBaseVertex, draw.VVertexCount,
+                                draw.VInstanceCount, draw.VBaseInstance);
                         break;
 
                     case DrawFunc.ElementsIndirect:
@@ -686,22 +688,22 @@ namespace App
                         GL.BindBuffer(BufferTarget.DrawIndirectBuffer, indirect);
                         foreach (var draw in cmd)
                             GL.MultiDrawElementsIndirect((All)draw.mode, (All)draw.indextype,
-                                draw.indirectPtr, draw.indirectCount, draw.indirectStride);
+                                draw.IndirectPtr, draw.IndirectCount, draw.IndirectStride);
                         break;
 
                     case DrawFunc.ElementsInstanced:
                         GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexbuf);
                         foreach (var draw in cmd)
                             GL.DrawElementsInstancedBaseVertexBaseInstance(
-                                draw.mode, draw.iIndexCount, draw.indextype,
-                                draw.iBaseIndex, draw.iInstanceCount,
-                                draw.iBaseVertex, draw.iBaseInstance);
+                                draw.mode, draw.IIndexCount, draw.indextype,
+                                draw.IBaseIndex, draw.IInstanceCount,
+                                draw.IBaseVertex, draw.IBaseInstance);
                         break;
 
                     case DrawFunc.TransformFeedback:
                         foreach (var draw in cmd)
                             GL.DrawTransformFeedbackStreamInstanced(draw.mode,
-                                vertout, draw.voStream, draw.voInstanceCount);
+                                vertout, draw.VoStream, draw.VoInstanceCount);
                         break;
                 }
             }
@@ -748,27 +750,27 @@ namespace App
             }
 
             // arguments for indexed buffer drawing
-            public int iBaseVertex { get { return arg0; } set { arg0 = value; } }
-            public IntPtr iBaseIndex
+            public int IBaseVertex { get => arg0; set => arg0 = value; }
+            public IntPtr IBaseIndex
             {
-                get { return (IntPtr)(arg1 * Math.Max(1, (int)indextype - (int)ElementType.UByte)); }
-                set { arg1 = (int)value; }
+                get => (IntPtr)(arg1 * Math.Max(1, (int)indextype - (int)ElementType.UByte));
+                set => arg1 = (int)value;
             }
-            public int iIndexCount { get { return arg2; } set { arg2 = value; } }
-            public int iBaseInstance { get { return arg3; } set { arg3 = value; } }
-            public int iInstanceCount { get { return arg4; } set { arg4 = value; } }
+            public int IIndexCount { get => arg2; set => arg2 = value; }
+            public int IBaseInstance { get => arg3; set => arg3 = value; }
+            public int IInstanceCount { get => arg4; set => arg4 = value; }
             // get arguments for vertex buffer drawing
-            public int vBaseVertex { get { return arg0; } set { arg0 = value; } }
-            public int vVertexCount { get { return arg1; } set { arg1 = value; } }
-            public int vBaseInstance { get { return arg2; } set { arg2 = value; } }
-            public int vInstanceCount { get { return arg3; } set { arg3 = value; } }
+            public int VBaseVertex { get => arg0; set => arg0 = value; }
+            public int VVertexCount { get => arg1; set => arg1 = value; }
+            public int VBaseInstance { get => arg2; set => arg2 = value; }
+            public int VInstanceCount { get => arg3; set => arg3 = value; }
             // get arguments for vertex output drawing
-            public int voStream { get { return arg0; } set { arg0 = value; } }
-            public int voInstanceCount { get { return arg1; } set { arg1 = value; } }
+            public int VoStream { get => arg0; set => arg0 = value; }
+            public int VoInstanceCount { get => arg1; set => arg1 = value; }
             // get arguments for indirect drawing
-            public IntPtr indirectPtr { get { return (IntPtr)arg0; } set { arg0 = (int)value; } }
-            public int indirectCount { get { return arg1; } set { arg1 = value; } }
-            public int indirectStride { get { return arg2; } set { arg2 = value; } }
+            public IntPtr IndirectPtr { get => (IntPtr)arg0; set => arg0 = (int)value; }
+            public int IndirectCount { get => arg1; set => arg1 = value; }
+            public int IndirectStride { get => arg2; set => arg2 = value; }
         }
 
         private struct CompCall
@@ -776,10 +778,10 @@ namespace App
             public uint numGroupsX;
             public uint numGroupsY;
             public uint numGroupsZ;
-            public int indirect { get { return (int)numGroupsX; } }
-            public IntPtr indirectPtr { get { return (IntPtr)numGroupsY; } }
+            public int Indirect => (int)numGroupsX;
+            public IntPtr IndirectPtr => (IntPtr)numGroupsY;
 
-            public void compute()
+            public void Compute()
             {
                 if (numGroupsZ > 0)
                 {
@@ -789,9 +791,9 @@ namespace App
                 else
                 {
                     // bind indirect compute call buffer
-                    GL.BindBuffer(BufferTarget.DispatchIndirectBuffer, indirect);
+                    GL.BindBuffer(BufferTarget.DispatchIndirectBuffer, Indirect);
                     // execute compute shader
-                    GL.DispatchComputeIndirect(indirectPtr);
+                    GL.DispatchComputeIndirect(IndirectPtr);
                 }
             }
         }
@@ -867,14 +869,14 @@ namespace App
                 };
                 // parse command arguments
                 (var values, var outputVaryings) = cmd.Parse(types, mandatory, scene, err);
-                if (err.HasErrors())
+                if (err.HasErrors)
                     return;
 
                 // set transform feedback varyings in the shader program
                 if (outputVaryings.Length == 0)
                     err.Add("vertout command does not specify shader output varying names "
                         + "(e.g. vertout vertout_name points [pause resume] varying_name).", cmd);
-                if (err.HasErrors())
+                if (err.HasErrors)
                     return;
 
                 // set fields
@@ -891,9 +893,15 @@ namespace App
             //public void SetProgramVaryings(int glname)
             //    => GL.TransformFeedbackVaryings(glname, outputVaryings.Length, outputVaryings, vertoutMode);
 
-            public void Bind() => glvertout.Bind(vertoutPrim, resume);
+            public void Bind()
+            {
+                glvertout.Bind(vertoutPrim, resume);
+            }
 
-            public void Unbind() => GLVertoutput.Unbind(pause);
+            public void Unbind()
+            {
+                GLVertoutput.Unbind(pause);
+            }
         }
 
         #endregion

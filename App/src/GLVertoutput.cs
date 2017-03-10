@@ -15,7 +15,7 @@ namespace App
         public GLVertoutput(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"vertoutput '{name}'");
+            var err = new CompileException($"vertoutput '{Name}'");
 
             // PARSE ARGUMENTS
             Cmds2Fields(block, err);
@@ -30,7 +30,7 @@ namespace App
                 Attach(numbindings++, cmd, scene, err | $"command '{cmd.Text}'");
 
             // if errors occurred throw exception
-            if (err.HasErrors())
+            if (err.HasErrors)
                 throw err;
 
             // unbind object and check for errors
@@ -98,7 +98,7 @@ namespace App
             }
 
             // get buffer
-            GLBuffer buf = scene.GetValueOrDefault<GLBuffer>(cmd[0].Text);
+            var buf = scene.GetValueOrDefault<GLBuffer>(cmd[0].Text);
             if (buf == null)
             {
                 err.Add($"The name '{cmd[0]}' does not reference an object of type 'buffer'.", cmd);

@@ -52,7 +52,9 @@ namespace System.Collections.Generic
         /// <param name="defaultValue"></param>
         /// <returns></returns>
         public static T FirstOr<T>(this IEnumerable<T> ie, T defaultValue)
-            => ie.Any() ? ie.First() : defaultValue;
+        {
+            return ie.Any() ? ie.First() : defaultValue;
+        }
 
         /// <summary>
         /// Return the first element matching the specified predicate or a default value.
@@ -139,7 +141,9 @@ namespace System.Collections.Generic
         /// <param name="defaultValue"></param>
         /// <returns></returns>
         public static T MaxOr<T>(this IEnumerable<T> ie, T defaultValue)
-            => ie.Count() > 0 ? ie.Max() : defaultValue;
+        {
+            return ie.Count() > 0 ? ie.Max() : defaultValue;
+        }
 
         /// <summary>
         /// Process each object of the list using the specified

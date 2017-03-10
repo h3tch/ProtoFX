@@ -26,13 +26,13 @@ namespace App
         public GLCsharp(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"csharp '{name}'");
+            var err = new CompileException($"csharp '{Name}'");
 
             // PARSE ARGUMENTS
             Cmds2Fields(block, err);
 
             // check for errors
-            if (err.HasErrors())
+            if (err.HasErrors)
                 throw err;
             if (File == null || File.Length == 0)
                 return;
@@ -62,7 +62,7 @@ namespace App
             CompilerResults = CompileFilesOrSource(filepath.ToArray(), Version, block, err);
 
             // check for errors
-            if (err.HasErrors())
+            if (err.HasErrors)
                 throw err;
         }
         
@@ -345,6 +345,9 @@ namespace App
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        private static bool IsFilename(string str) => str.IndexOf('\n') < 0 && System.IO.File.Exists(str);
+        private static bool IsFilename(string str)
+        {
+            return str.IndexOf('\n') < 0 && System.IO.File.Exists(str);
+        }
     }
 }

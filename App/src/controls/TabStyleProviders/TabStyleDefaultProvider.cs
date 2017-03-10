@@ -43,7 +43,7 @@ namespace System.Windows.Forms
             if (index < 0)
                 return new Rectangle();
 
-            Rectangle tabBounds = base.GetTabRect(index);
+            var tabBounds = base.GetTabRect(index);
             bool firstTabinRow = tabControl.IsFirstTabInRow(index);
 
             //	Make non-SelectedTabs smaller and selected tab bigger

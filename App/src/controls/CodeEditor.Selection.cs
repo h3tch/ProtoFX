@@ -74,7 +74,9 @@ namespace ScintillaNET
         /// <param name="index">Indicator index.</param>
         /// <param name="skip">Number of indicator positions to skip.</param>
         public void GotoNextIndicator(int index, int skip = 0)
-            => GotoNextRange(IndicatorRanges[index], skip);
+        {
+            GotoNextRange(IndicatorRanges[index], skip);
+        }
 
         /// <summary>
         /// Select (as in select text) all indicators.

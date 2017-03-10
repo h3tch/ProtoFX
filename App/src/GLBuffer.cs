@@ -14,8 +14,10 @@ namespace App
     class GLBuffer : GLObject
     {
         #region FIELDS
+
         [FxField] public int Size { get; private set; } = 0;
         [FxField] public UsageHint Usage { get; private set; } = UsageHint.StaticDraw;
+
         #endregion
 
         /// <summary>
@@ -71,7 +73,7 @@ namespace App
             Cmds2Fields(block, err);
 
             // PARSE COMMANDS
-            List<byte[]> datalist = new List<byte[]>();
+            var datalist = new List<byte[]>();
 
             foreach (var cmd in block["txt"])
                 datalist.Add(LoadText(cmd, scene, err | $"command {cmd.Name} 'txt'"));
@@ -163,7 +165,10 @@ namespace App
         /// </summary>
         /// <param name="glname"></param>
         /// <returns></returns>
-        public static string GetLabel(int glname) => GetLabel(ObjectLabelIdentifier.Buffer, glname);
+        public static string GetLabel(int glname)
+        {
+            return GetLabel(ObjectLabelIdentifier.Buffer, glname);
+        }
 
         /// <summary>
         /// Find OpenGL buffers.
@@ -172,7 +177,10 @@ namespace App
         /// <param name="range">Range in which to search for external objects (starting with 0).</param>
         /// <returns></returns>
         public static IEnumerable<GLObject> FindBuffers(GLObject[] existing, int range = 64)
-            => FindObjects(existing, new[] { typeof(GLBuffer) }, GLIsBufMethod, GLBufLabel, range);
+        {
+            return FindObjects(existing, new[] { typeof(GLBuffer) }, GLIsBufMethod, GLBufLabel, range);
+        }
+
         private static MethodInfo GLIsBufMethod = typeof(GL).GetMethod("IsBuffer", new[] { typeof(int) });
         private static MethodInfo GLBufLabel = typeof(GLBuffer).GetMethod("GetLabel", new[] { typeof(int) });
 
@@ -244,7 +252,7 @@ namespace App
                 }
 
                 // Merge data
-                if (!err.HasErrors())
+                if (!err.HasErrors)
                     return filedata.Cat().ToArray();
             }
             catch (Exception ex)
@@ -288,7 +296,7 @@ namespace App
             GLText text = null;
             string dir = Path.GetDirectoryName(cmd.File) + Path.DirectorySeparatorChar;
             if (scene.TryGetValue(cmd[0].Text, ref text))
-                return text.text.Trim();
+                return text.Text.Trim();
             else if (File.Exists(cmd[0].Text))
                 return File.ReadAllText(cmd[0].Text);
             else if (File.Exists(dir + cmd[0].Text))

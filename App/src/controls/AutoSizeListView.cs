@@ -38,8 +38,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public StringAlignment HeaderHAllign
         {
-            get { return HeaderFormat.Alignment; }
-            set { HeaderFormat.Alignment = value; }
+            get => HeaderFormat.Alignment; set => HeaderFormat.Alignment = value;
         }
         /// <summary>
         /// Vertical alignment of the column title.
@@ -47,8 +46,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public StringAlignment HeaderVAllign
         {
-            get { return HeaderFormat.LineAlignment; }
-            set { HeaderFormat.LineAlignment = value; }
+            get => HeaderFormat.LineAlignment; set => HeaderFormat.LineAlignment = value;
         }
         /// <summary>
         /// Horizontal alignment of the cell text.
@@ -56,8 +54,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public StringAlignment ItemHAllign
         {
-            get { return ItemFormat.Alignment; }
-            set { ItemFormat.Alignment = value; }
+            get => ItemFormat.Alignment; set => ItemFormat.Alignment = value;
         }
         /// <summary>
         /// Vertical alignment of the cell text.
@@ -65,8 +62,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public StringAlignment ItemVAllign
         {
-            get { return ItemFormat.LineAlignment; }
-            set { ItemFormat.LineAlignment = value; }
+            get => ItemFormat.LineAlignment; set => ItemFormat.LineAlignment = value;
         }
         /// <summary>
         /// Back color of the column header.
@@ -74,8 +70,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public Color HeaderBackColor
         {
-            get { return headerBackColor; }
-            set
+            get => headerBackColor; set
             {
                 headerBackBrush?.Dispose();
                 headerBackBrush = new SolidBrush(value);
@@ -88,8 +83,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public Color HeaderForeColor
         {
-            get { return headerForeColor; }
-            set
+            get => headerForeColor; set
             {
                 headerForeBrush?.Dispose();
                 headerForeBrush = new SolidBrush(value);
@@ -102,8 +96,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public Color HeaderBorderColor
         {
-            get { return headerBorderColor; }
-            set {
+            get => headerBorderColor; set {
                 headerBorderPen?.Dispose();
                 headerBorderPen = new Pen(value);
                 headerBorderColor = value;
@@ -115,8 +108,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public Color GroupForeColor
         {
-            get { return groupForeColor; }
-            set
+            get => groupForeColor; set
             {
                 groupForeBrush?.Dispose();
                 groupBorderPen?.Dispose();
@@ -172,19 +164,28 @@ namespace System.Windows.Forms
         /// </summary>
         /// <param name="text">Header text</param>
         /// <param name="width">Column width</param>
-        public void AddColumn(string text, int width) => View.Columns.Add(text, width);
+        public void AddColumn(string text, int width)
+        {
+            View.Columns.Add(text, width);
+        }
 
         /// <summary>
         /// Add a new group to the list view.
         /// </summary>
         /// <param name="group"></param>
-        public void AddGroup(ListViewGroup group) => View.Groups.Add(group);
+        public void AddGroup(ListViewGroup group)
+        {
+            View.Groups.Add(group);
+        }
 
         /// <summary>
         /// Add a new item to the list view.
         /// </summary>
         /// <param name="item"></param>
-        public void AddItem(ListViewItem item) => View.Items.Add(item);
+        public void AddItem(ListViewItem item)
+        {
+            View.Items.Add(item);
+        }
 
         /// <summary>
         /// Auto size and update the control.
@@ -201,7 +202,10 @@ namespace System.Windows.Forms
 
         #region RENDER
 
-        protected override void OnPaint(PaintEventArgs e) => Draw(e.Graphics);
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            Draw(e.Graphics);
+        }
 
         /// <summary>
         /// Draw the control on the specified GDI+ surface and

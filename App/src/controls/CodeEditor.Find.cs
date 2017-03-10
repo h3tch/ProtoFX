@@ -36,7 +36,9 @@ namespace ScintillaNET
         /// whether these strings represent whole words (true or false value).</param>
         /// <returns></returns>
         private IEnumerable<int[]> FindWordRanges(Dictionary<string, bool> words)
-            => words.SelectMany(word => FindWordRanges(word.Key, word.Value));
+        {
+            return words.SelectMany(word => FindWordRanges(word.Key, word.Value));
+        }
 
         /// <summary>
         /// Find all ranges of the specified string.

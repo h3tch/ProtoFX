@@ -21,7 +21,7 @@ namespace App
         public GLTech(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno, 309, debugging)
         {
-            var err = new CompileException($"tech '{name}'");
+            var err = new CompileException($"tech '{Name}'");
 
             // PARSE COMMANDS
             ParsePasses(ref init, block, scene, err);
@@ -29,7 +29,7 @@ namespace App
             ParsePasses(ref uninit, block, scene, err);
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION
-            if (err.HasErrors())
+            if (err.HasErrors)
                 throw err;
         }
         

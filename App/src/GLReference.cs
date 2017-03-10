@@ -2,7 +2,7 @@
 {
     class GLReference : GLObject
     {
-        public object reference { get; }
+        public object Reference { get; }
         
         /// <summary>
         /// Create a reference to another object.
@@ -12,7 +12,7 @@
         /// <param name="reference">Object to be referenced.</param>
         public GLReference(string name, string anno, object reference) : base(name, anno)
         {
-            this.reference = reference;
+            Reference = reference;
         }
     }
 }

@@ -362,7 +362,10 @@ namespace ScintillaNET
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void HandleMouseLeave(object sender, EventArgs e) => HoverTimer.Stop();
+        private void HandleMouseLeave(object sender, EventArgs e)
+        {
+            HoverTimer.Stop();
+        }
 
         /// <summary>
         /// Handle mouse hover events.
@@ -503,9 +506,14 @@ namespace ScintillaNET
         const int SCI_SETLINEINDENTATION = 2126;
         const int SCI_GETLINEINDENTATION = 2127;
         private void SetIndent(int line, int indent)
-            => DirectMessage(SCI_SETLINEINDENTATION, (IntPtr)line, new IntPtr(indent));
+        {
+            DirectMessage(SCI_SETLINEINDENTATION, (IntPtr)line, new IntPtr(indent));
+        }
+
         private int GetIndent(int line)
-            => (int)DirectMessage(SCI_GETLINEINDENTATION, (IntPtr)line, IntPtr.Zero);
+        {
+            return (int)DirectMessage(SCI_GETLINEINDENTATION, (IntPtr)line, IntPtr.Zero);
+        }
 
         #endregion
     }

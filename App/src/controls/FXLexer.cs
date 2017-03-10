@@ -55,9 +55,11 @@ namespace ScintillaNET
             }
             return pos;
         }
-        
+
         private new BaseLexer FindLexerForStyle(int style)
-            => lexer.Select(x => x.FindLexerForStyle(style)).FirstOr(x => x != null, null);
+        {
+            return lexer.Select(x => x.FindLexerForStyle(style)).FirstOr(x => x != null, null);
+        }
 
         private static XmlNode LoadFxLexerFromXml(string file)
         {
@@ -313,12 +315,16 @@ namespace ScintillaNET
                 }
             }
         }
-        
+
         public string GetKeywordHint(int style, string word)
-            => SelectKeywordInfo(style, word).FirstOrDefault().hint;
+        {
+            return SelectKeywordInfo(style, word).FirstOrDefault().hint;
+        }
 
         public IEnumerable<string> SelectKeywords(int style, string word)
-            => SelectKeywordInfo(style, word).Select(x => x.word);
+        {
+            return SelectKeywordInfo(style, word).Select(x => x.word);
+        }
 
         public IEnumerable<Keyword> SelectKeywordInfo(int style, string word)
         {
@@ -359,7 +365,10 @@ namespace ScintillaNET
         /// <param name="e">unused</param>
         /// <param name="c">unused</param>
         /// <returns>The new state after processing the current state.</returns>
-        public virtual int ProcessDefaultState(CodeEditor e, Region c) => 0;
+        public virtual int ProcessDefaultState(CodeEditor e, Region c)
+        {
+            return 0;
+        }
 
         /// <summary>
         /// Default process string state method.
@@ -368,9 +377,11 @@ namespace ScintillaNET
         /// <param name="c"></param>
         /// <returns>The new state after processing the current state.</returns>
         protected int ProcessStringState(CodeEditor editor, Region c)
-            => (c.c == '\n' || (c[-1] == '"' && c[-2] != '\\' && c.GetStyleAt(-2) == StringStyle))
-                ? ProcessDefaultState(editor, c)
-                : (int)BaseState.String;
+        {
+            return (c.c == '\n' || (c[-1] == '"' && c[-2] != '\\' && c.GetStyleAt(-2) == StringStyle))
+                           ? ProcessDefaultState(editor, c)
+                           : (int)BaseState.String;
+        }
 
         /// <summary>
         /// Default process number state method.
@@ -379,12 +390,14 @@ namespace ScintillaNET
         /// <param name="c"></param>
         /// <returns>The new state after processing the current state.</returns>
         protected int ProcessNumberState(CodeEditor editor, Region c)
-            => char.IsNumber(c.c)
-                || c.c == '.' || c.c == 'x'
-                || ('a' <= c.c && c.c <= 'f')
-                || ('A' <= c.c && c.c <= 'F')
-                ? (int)BaseState.Number
-                : ProcessDefaultState(editor, c);
+        {
+            return char.IsNumber(c.c)
+                           || c.c == '.' || c.c == 'x'
+                           || ('a' <= c.c && c.c <= 'f')
+                           || ('A' <= c.c && c.c <= 'F')
+                           ? (int)BaseState.Number
+                           : ProcessDefaultState(editor, c);
+        }
 
         /// <summary>
         /// Default process line comment state.
@@ -393,7 +406,9 @@ namespace ScintillaNET
         /// <param name="c"></param>
         /// <returns>The new state after processing the current state.</returns>
         protected int ProcessLineCommentState(CodeEditor editor, Region c)
-            => c.c == '\n' ? ProcessDefaultState(editor, c) : (int)BaseState.LineComment;
+        {
+            return c.c == '\n' ? ProcessDefaultState(editor, c) : (int)BaseState.LineComment;
+        }
 
         /// <summary>
         /// Default process block comment state.
@@ -402,7 +417,9 @@ namespace ScintillaNET
         /// <param name="c"></param>
         /// <returns>The new state after processing the current state.</returns>
         protected int ProcessBlockCommentState(CodeEditor editor, Region c)
-            => c[-2] == '*' && c[-1] == '/' ? ProcessDefaultState(editor, c) : (int)BaseState.BlockComment;
+        {
+            return c[-2] == '*' && c[-1] == '/' ? ProcessDefaultState(editor, c) : (int)BaseState.BlockComment;
+        }
 
         /// <summary>
         /// Default process indicator state.
@@ -485,14 +502,19 @@ namespace ScintillaNET
         /// <param name="state"></param>
         /// <returns></returns>
         protected int StateToStyle(int state)
-            => state + (state < FirstBaseState ? firstStyle : -FirstBaseState);
+        {
+            return state + (state < FirstBaseState ? firstStyle : -FirstBaseState);
+        }
 
         /// <summary>
         /// Is this lexer designated for the specified type (of a tech object).
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public virtual bool IsLexerForType(string type) => lexerType == type;
+        public virtual bool IsLexerForType(string type)
+        {
+            return lexerType == type;
+        }
 
         #endregion
 
@@ -1378,8 +1400,7 @@ namespace ScintillaNET
         public char c { get; private set; }
         public int Pos
         {
-            get { return pos; }
-            set { c = (char)editor.GetCharAt(pos = value); }
+            get => pos; set => c = (char)editor.GetCharAt(pos = value);
         }
 
         public Region(CodeEditor editor, int pos)
@@ -1407,15 +1428,23 @@ namespace ScintillaNET
             return editor.GetTextRange(startIndex, length);
         }
 
-        public override string ToString() => $"{Substring(pos-9, 9)}`{(char)editor.GetCharAt(pos)}´{Substring(pos + 1, 9)}";
+        public override string ToString()
+        {
+            return $"{Substring(pos - 9, 9)}`{(char)editor.GetCharAt(pos)}´{Substring(pos + 1, 9)}";
+        }
     }
 
     public static class XmlNodeExtensions
     {
         public static string GetAttributeValue(this XmlNode node, string name)
-            => node.Attributes.GetNamedItem(name)?.Value;
+        {
+            return node.Attributes.GetNamedItem(name)?.Value;
+        }
+
         public static bool HasAttributeValue(this XmlNode node, string name)
-            => node.Attributes.GetNamedItem(name) != null;
+        {
+            return node.Attributes.GetNamedItem(name) != null;
+        }
     }
 
     #endregion

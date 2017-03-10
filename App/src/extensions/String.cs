@@ -46,7 +46,7 @@ namespace System
                     return i;
             return -1;
         }
-        
+
         /// <summary>
         /// The sub range of the string beginning at the zero based start index
         /// and ending at the zero based end index.
@@ -56,7 +56,9 @@ namespace System
         /// <param name="end">Zero based end index.</param>
         /// <returns></returns>
         public static string Subrange(this string s, int start, int end)
-            => s.Substring(start, end - start);
+        {
+            return s.Substring(start, end - start);
+        }
     }
 
 }

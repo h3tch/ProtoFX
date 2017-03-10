@@ -6,11 +6,13 @@ namespace App
     class GLTexture : GLObject
     {
         #region FIELDS
+
         [FxField] private string Buff = null;
         [FxField] private string Img = null;
         [FxField] private GpuFormat Format = 0;
         private GLBuffer glBuff = null;
         private GLImage glImg = null;
+
         #endregion
 
         /// <summary>
@@ -48,7 +50,7 @@ namespace App
         public GLTexture(Compiler.Block block, Dict scene, GLBuffer glbuff, GLImage glimg)
             : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"texture '{name}'");
+            var err = new CompileException($"texture '{Name}'");
 
             // PARSE ARGUMENTS
             Cmds2Fields(block, err);
@@ -68,7 +70,7 @@ namespace App
                 err.Add("Ether an image or a buffer has to be bound to a texture object.", block);
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION
-            if (err.HasErrors())
+            if (err.HasErrors)
                 throw err;
 
             // INCASE THIS IS A TEXTURE OBJECT
@@ -125,9 +127,11 @@ namespace App
         /// <param name="format">Pixel format of texture pixels.</param>
         public static void BindImg(int unit, GLTexture tex, int level = 0, int layer = 0,
             TextureAccess access = TextureAccess.ReadOnly, GpuFormat format = GpuFormat.Rgba8)
-            => GL.BindImageTexture(unit, tex?.glname ?? 0, level, tex?.glImg?.Length > 0,
-                Math.Max(layer, 0), access, (SizedInternalFormat)format);
-        
+        {
+            GL.BindImageTexture(unit, tex?.glname ?? 0, level, tex?.glImg?.Length > 0,
+                           Math.Max(layer, 0), access, (SizedInternalFormat)format);
+        }
+
         /// <summary>
         /// Link image or buffer object to the texture.
         /// </summary>

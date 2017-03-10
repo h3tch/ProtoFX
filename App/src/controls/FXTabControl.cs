@@ -30,14 +30,13 @@ namespace System.Windows.Forms
                     DisplayStyle = TabStyle.Default;
                 return styleProvider;
             }
-            set { styleProvider = value; }
+            set => styleProvider = value;
         }
 
         [Category("Appearance"), DefaultValue(typeof(TabStyle), "Default"), RefreshProperties(RefreshProperties.All)]
         public TabStyle DisplayStyle
         {
-            get { return style; }
-            set
+            get => style; set
             {
                 if (style != value)
                 {
@@ -51,8 +50,7 @@ namespace System.Windows.Forms
         [Category("Appearance"), RefreshProperties(RefreshProperties.All)]
         public new bool Multiline
         {
-            get { return base.Multiline; }
-            set { base.Multiline = value; Invalidate(); }
+            get => base.Multiline; set { base.Multiline = value; Invalidate(); }
         }
 
         // Hide the Padding attribute so it can not be changed
@@ -60,14 +58,12 @@ namespace System.Windows.Forms
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public new Drawing.Point Padding
         {
-            get { return DisplayStyleProvider.Padding; }
-            set { DisplayStyleProvider.Padding = value; }
+            get => DisplayStyleProvider.Padding; set => DisplayStyleProvider.Padding = value;
         }
 
         public override bool RightToLeftLayout
         {
-            get { return base.RightToLeftLayout; }
-            set { base.RightToLeftLayout = value; UpdateStyles(); }
+            get => base.RightToLeftLayout; set { base.RightToLeftLayout = value; UpdateStyles(); }
         }
 
         // Hide the HotTrack attribute so it can not be changed
@@ -75,15 +71,13 @@ namespace System.Windows.Forms
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public new bool HotTrack
         {
-            get { return DisplayStyleProvider.HotTrack; }
-            set { DisplayStyleProvider.HotTrack = value; }
+            get => DisplayStyleProvider.HotTrack; set => DisplayStyleProvider.HotTrack = value;
         }
 
         [Category("Appearance")]
         public new TabAlignment Alignment
         {
-            get { return base.Alignment; }
-            set { base.Alignment = value; Multiline = value > TabAlignment.Bottom; }
+            get => base.Alignment; set { base.Alignment = value; Multiline = value > TabAlignment.Bottom; }
         }
 
         // Hide the Appearance attribute so it can not be changed
@@ -92,9 +86,8 @@ namespace System.Windows.Forms
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "value")]
         public new TabAppearance Appearance
         {
-            get { return base.Appearance; }
-            // Don't permit setting to other appearances as we are doing all the painting
-            set { base.Appearance = TabAppearance.Normal; }
+            get => base.Appearance;             // Don't permit setting to other appearances as we are doing all the painting
+            set => base.Appearance = TabAppearance.Normal;
         }
 
         public override Rectangle DisplayRectangle
@@ -380,7 +373,7 @@ namespace System.Windows.Forms
 
         protected override void OnFontChanged(EventArgs e)
         {
-            IntPtr hFont = Font.ToHfont();
+            var hFont = Font.ToHfont();
             NativeMethods.SendMessage(Handle, NativeMethods.WM_SETFONT, hFont, (IntPtr)(-1));
             NativeMethods.SendMessage(Handle, NativeMethods.WM_FONTCHANGE, IntPtr.Zero, IntPtr.Zero);
             UpdateStyles();
@@ -483,8 +476,8 @@ namespace System.Windows.Forms
             {
                 // If we are clicking on a closer then remove the tab instead of raising the standard mouse click event
                 // But raise the tab closing event first
-                TabPage tab = ActiveTab;
-                TabControlCancelEventArgs args = new TabControlCancelEventArgs(tab, index, false,
+                var tab = ActiveTab;
+                var args = new TabControlCancelEventArgs(tab, index, false,
                     TabControlAction.Deselecting);
                 OnTabClosing(args);
                 
@@ -498,10 +491,16 @@ namespace System.Windows.Forms
                 base.OnMouseClick(e);
         }
 
-        protected virtual void OnTabImageClick(TabControlEventArgs e) => TabImageClick?.Invoke(this, e);
+        protected virtual void OnTabImageClick(TabControlEventArgs e)
+        {
+            TabImageClick?.Invoke(this, e);
+        }
 
-        protected virtual void OnTabClosing(TabControlCancelEventArgs e) => TabClosing?.Invoke(this, e);
-        
+        protected virtual void OnTabClosing(TabControlCancelEventArgs e)
+        {
+            TabClosing?.Invoke(this, e);
+        }
+
         protected virtual void OnHScroll(ScrollEventArgs e)
         {
             // repaint the moved tabs
@@ -532,9 +531,12 @@ namespace System.Windows.Forms
         #endregion
 
         #region	Basic drawing methods
-        
-        protected override void OnPaint(PaintEventArgs e) => CustomPaint(e.Graphics);
-        
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            CustomPaint(e.Graphics);
+        }
+
         private void CustomPaint(Graphics g)
         {
             if (Width <= 0 && Height <= 0)
@@ -769,7 +771,7 @@ namespace System.Windows.Forms
                         // If there is a closer allow for it
                         if (styleProvider.ShowTabCloser)
                         {
-                            Rectangle closerRect = GetTabCloserRect(index);
+                            var closerRect = GetTabCloserRect(index);
                             if (Alignment <= TabAlignment.Bottom)
                             {
                                 if (RightToLeftLayout)
@@ -863,7 +865,7 @@ namespace System.Windows.Forms
                     // If there is a closer allow for it
                     if (styleProvider.ShowTabCloser)
                     {
-                        Rectangle closerRect = GetTabCloserRect(index);
+                        var closerRect = GetTabCloserRect(index);
                         if (Alignment <= TabAlignment.Bottom)
                         {
                             if (RightToLeftLayout)
@@ -1047,8 +1049,8 @@ namespace System.Windows.Forms
 
         private Rectangle GetTabImageRect(GraphicsPath tabBorderPath)
         {
-            Rectangle imageRect = new Rectangle();
-            RectangleF rect = tabBorderPath.GetBounds();
+            var imageRect = new Rectangle();
+            var rect = tabBorderPath.GetBounds();
             
             // Make it shorter or thinner to fit the height or width because of the padding added to the tab for painting
             switch (Alignment)

@@ -32,7 +32,10 @@ namespace App.Glsl
         /// <summary>
         /// Clear debug trace.
         /// </summary>
-        public static void ClearDebugTrace() => TraceLog.Clear();
+        public static void ClearDebugTrace()
+        {
+            TraceLog.Clear();
+        }
 
         /// <summary>
         /// Begin tracing debug information.
@@ -207,7 +210,10 @@ namespace App.Glsl
 
         #endregion
 
-        public override string ToString() => $"{Name}: {FormatedOutput}";
+        public override string ToString()
+        {
+            return $"{Name}: {FormatedOutput}";
+        }
     }
 
 }

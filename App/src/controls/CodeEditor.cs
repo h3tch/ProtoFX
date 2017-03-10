@@ -61,8 +61,7 @@ namespace ScintillaNET
         }
         public string Filename
         {
-            get { return filename; }
-            set
+            get => filename; set
             {
                 // stop watching
                 if (value == null)

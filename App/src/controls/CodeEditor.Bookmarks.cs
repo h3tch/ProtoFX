@@ -73,7 +73,9 @@ namespace ScintillaNET
         }
 
         public void AddExecutionMarker(int line)
-            => Lines[line].MarkerAdd(EXE_LINE_MARKER);
+        {
+            Lines[line].MarkerAdd(EXE_LINE_MARKER);
+        }
 
         public void RemoveExecutionMarker()
         {
@@ -82,21 +84,33 @@ namespace ScintillaNET
         }
 
         public void RemoveExecutionMarker(int line)
-            => Lines[line].MarkerDelete(EXE_LINE_MARKER);
+        {
+            Lines[line].MarkerDelete(EXE_LINE_MARKER);
+        }
 
         public void AddBreakpoint(int line)
-            => Lines[line].MarkerAdd(BREAKPOINT_MARKER);
+        {
+            Lines[line].MarkerAdd(BREAKPOINT_MARKER);
+        }
 
         public void RemoveBreakpoint(int line)
-            => Lines[line].MarkerDelete(BREAKPOINT_MARKER);
+        {
+            Lines[line].MarkerDelete(BREAKPOINT_MARKER);
+        }
 
         public bool HasBreakpoint(int line)
-            => (Lines[line].MarkerGet() & BREAKPOINT_MARKER_MASK) > 0;
-        
+        {
+            return (Lines[line].MarkerGet() & BREAKPOINT_MARKER_MASK) > 0;
+        }
+
         public int PrevBreakpoint(int line)
-            => Lines[line].MarkerPrevious(1 << BREAKPOINT_MARKER);
+        {
+            return Lines[line].MarkerPrevious(1 << BREAKPOINT_MARKER);
+        }
 
         public int NextBreakpoint(int line)
-            => Lines[line].MarkerNext(1 << BREAKPOINT_MARKER);
+        {
+            return Lines[line].MarkerNext(1 << BREAKPOINT_MARKER);
+        }
     }
 }

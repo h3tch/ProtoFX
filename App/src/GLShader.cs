@@ -2,7 +2,6 @@
 using OpenTK.Graphics.OpenGL4;
 using System.CodeDom.Compiler;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 
 namespace App
@@ -25,11 +24,11 @@ namespace App
         public GLShader(Compiler.Block block, Dict scene, bool debugging)
             : base(block.Name, block.Anno)
         {
-            var err = new CompileException($"shader '{name}'");
+            var err = new CompileException($"shader '{Name}'");
             
             // COMPILE AND LINK SHADER INTO A SHADER PROGRAM
 
-            switch (anno)
+            switch (Anno)
             {
                 case "vert": ShaderType = ShaderType.VertexShader; break;
                 case "tess": ShaderType = ShaderType.TessControlShader; break;
@@ -37,15 +36,14 @@ namespace App
                 case "geom": ShaderType = ShaderType.GeometryShader; break;
                 case "frag": ShaderType = ShaderType.FragmentShader; break;
                 case "comp": ShaderType = ShaderType.ComputeShader; break;
-                default: throw err.Add($"Shader type '{anno}' is not supported.", block);
+                default: throw err.Add($"Shader type '{Anno}' is not supported.", block);
             }
 
             glname = GL.CreateShaderProgram(ShaderType, 1, new[] { block.Body });
 
             // check for errors
 
-            int status;
-            GL.GetProgram(glname, GetProgramParameterName.LinkStatus, out status);
+            GL.GetProgram(glname, GetProgramParameterName.LinkStatus, out int status);
             if (status != 1)
                 err.Add($"\n{GL.GetProgramInfoLog(glname)}", block);
             if (HasErrorOrGlError(err, block))
@@ -57,16 +55,16 @@ namespace App
             CompilerResults rs;
             if (debugging)
             {
-                code = Converter.Shader2Class(ShaderType, name, block.Body, block.BodyIndex);
-                rs = GLCsharp.CompileFilesOrSource(new[] { code }, null, block, err, new[] { name });
+                code = Converter.Shader2Class(ShaderType, Name, block.Body, block.BodyIndex);
+                rs = GLCsharp.CompileFilesOrSource(new[] { code }, null, block, err, new[] { Name });
                 if (rs.Errors.Count == 0)
                     DebugShader = (Shader)rs.CompiledAssembly.CreateInstance(
-                        $"App.Glsl.{name}", false, BindingFlags.Default, null,
+                        $"App.Glsl.{Name}", false, BindingFlags.Default, null,
                         new object[] { block.LineInFile }, CultureInfo.CurrentCulture, null);
             }
 
             // check for errors
-            if (err.HasErrors())
+            if (err.HasErrors)
                 throw err;
         }
 

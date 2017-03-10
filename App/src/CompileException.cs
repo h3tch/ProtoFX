@@ -11,13 +11,13 @@ namespace App
         private List<Error> messages;
 
         // compile call stack into a single string
-        private string callstackstring => callstack.Cat(": ");
+        private string Callstackstring => callstack.Cat(": ");
 
         /// <summary>
         /// Returns true if there are any errors messages in the class.
         /// </summary>
         /// <returns></returns>
-        public bool HasErrors() => messages.Count > 0;
+        public bool HasErrors => messages.Count > 0;
 
         /// <summary>
         /// Create new compiler exception.
@@ -25,8 +25,10 @@ namespace App
         /// <param name="callstackstring">Indicates the current position in the call stack.</param>
         public CompileException(string callstackstring)
         {
-            callstack = new List<string>();
-            callstack.Add(callstackstring);
+            callstack = new List<string>
+            {
+                callstackstring
+            };
             messages = new List<Error>();
         }
         
@@ -51,7 +53,7 @@ namespace App
         /// <returns></returns>
         public CompileException Add(string message, string file, int line)
         {
-            messages.Add(new Error(file, line, callstackstring + message));
+            messages.Add(new Error(file, line, Callstackstring + message));
             return this;
         }
         
@@ -65,20 +67,32 @@ namespace App
             => new CompileException(err, callLevel);
 
         #region Interfaces
-        public IEnumerator<Error> GetEnumerator() => messages.GetEnumerator();
 
-        IEnumerator<Error> IEnumerable<Error>.GetEnumerator() => messages.GetEnumerator();
+        public IEnumerator<Error> GetEnumerator()
+        {
+            return messages.GetEnumerator();
+        }
 
-        IEnumerator IEnumerable.GetEnumerator() => messages.GetEnumerator();
+        IEnumerator<Error> IEnumerable<Error>.GetEnumerator()
+        {
+            return messages.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return messages.GetEnumerator();
+        }
 
         public void Dispose()
         {
             if (callstack.Count > 0)
                 callstack.RemoveAt(callstack.Count - 1);
         }
+
         #endregion
 
         #region INNER CLASSES
+
         public struct Error
         {
             public Error(string file, int line, string msg)
@@ -91,6 +105,7 @@ namespace App
             public int Line;
             public string Msg;
         }
+
         #endregion
     }
 }

@@ -18,15 +18,17 @@ namespace App
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void comboImg_SelectedIndexChanged(object sender, EventArgs e)
-            => pictureImg_Click(sender, e);
+        private void ComboImg_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            PictureImg_Click(sender, e);
+        }
 
         /// <summary>
         /// Raised when another layer of the image is selected for inspection.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void numImgLayer_ValueChanged(object sender, EventArgs e)
+        private void NumImgLayer_ValueChanged(object sender, EventArgs e)
         {
             if (comboImg.SelectedItem == null || !(comboImg.SelectedItem is GLImage))
                 return;
@@ -47,8 +49,10 @@ namespace App
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void pictureImg_Click(object sender, EventArgs e)
-            => numImgLayer_ValueChanged(sender, e);
+        private void PictureImg_Click(object sender, EventArgs e)
+        {
+            NumImgLayer_ValueChanged(sender, e);
+        }
 
         #endregion
 
@@ -59,7 +63,7 @@ namespace App
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void comboBuf_SelectedIndexChanged(object sender, EventArgs e)
+        private void ComboBuf_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (comboBuf.SelectedItem == null || !(comboBuf.SelectedItem is GLBuffer))
                 return;
@@ -77,7 +81,7 @@ namespace App
             (Array da, Type colType) = data.To(type);
 
             // CREATE TABLE
-            var dt = new DataTable(buf.name);
+            var dt = new DataTable(buf.Name);
             var col = dt.Columns.Add("#", typeof(string));
             // create columns
             for (int i = 0; i < dim; i++)
@@ -93,10 +97,10 @@ namespace App
             }
 
             // update GUI
-            var ds = new DataSet(buf.name);
+            var ds = new DataSet(buf.Name);
             ds.Tables.Add(dt);
             tableBuf.DataSource = ds;
-            tableBuf.DataMember = buf.name;
+            tableBuf.DataMember = buf.Name;
         }
 
         /// <summary>
@@ -104,16 +108,20 @@ namespace App
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void comboBufType_SelectedIndexChanged(object sender, EventArgs e)
-            => comboBuf_SelectedIndexChanged(sender, e);
+        private void ComboBufType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ComboBuf_SelectedIndexChanged(sender, e);
+        }
 
         /// <summary>
         /// Update the buffer if the dimension is changed.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void numBufDim_ValueChanged(object sender, EventArgs e)
-            => comboBuf_SelectedIndexChanged(sender, null);
+        private void NumBufDim_ValueChanged(object sender, EventArgs e)
+        {
+            ComboBuf_SelectedIndexChanged(sender, null);
+        }
 
         #endregion
 
@@ -124,7 +132,7 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void comboProp_SelectedIndexChanged(object s, EventArgs e)
+        private void ComboProp_SelectedIndexChanged(object s, EventArgs e)
         {
             // gather needed info
             if (comboProp.SelectedItem is GLInstance)
@@ -136,16 +144,20 @@ namespace App
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void propertyGrid_Click(object s, EventArgs e)
-            => propertyGrid.SelectedObject = propertyGrid.SelectedObject;
+        private void PropertyGrid_Click(object s, EventArgs e)
+        {
+            propertyGrid.SelectedObject = propertyGrid.SelectedObject;
+        }
 
         /// <summary>
         /// Rerender the scene when a value in the property grid changed.
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void propertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
-            => DebugRender(true);
+        private void PropertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
+        {
+            DebugRender(true);
+        }
 
         #endregion
 
@@ -156,7 +168,7 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void output_DoubleClick(object s, EventArgs e)
+        private void Output_DoubleClick(object s, EventArgs e)
         {
             // if no item is selected and no code compiled, return
             var view = s as DataGridView;
@@ -338,7 +350,7 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void editor_ShowCallTip(object s, ShowTipEventHandlerArgs e)
+        private void Editor_ShowCallTip(object s, ShowTipEventHandlerArgs e)
         {
             var editor = s as CodeEditor;
 
@@ -356,15 +368,17 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void editor_CancleCallTip(object s, CancleTipEventHandlerArgs e)
-            => (s as CodeEditor).PerfTipCancel();
-        
+        private void Editor_CancleCallTip(object s, CancleTipEventHandlerArgs e)
+        {
+            (s as CodeEditor).PerfTipCancel();
+        }
+
         /// <summary>
         /// Show debug information on mouse hover.
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void editor_MouseHover(object s, EventArgs e)
+        private void Editor_MouseHover(object s, EventArgs e)
         {
             // get class references
             var editor = s as CodeEditor;
@@ -374,7 +388,7 @@ namespace App
                 return;
 
             // convert cursor position to text position
-            Point location = editor.PointToScreen(Point.Empty);
+            var location = editor.PointToScreen(Point.Empty);
             var mouse = editor.PointToClient(Cursor.Position);
             var pos = editor.CharPositionFromPoint(mouse.X, mouse.Y);
             var line = editor.LineFromPosition(pos);
