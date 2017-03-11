@@ -37,6 +37,27 @@ namespace App.Glsl
             return type;
         }
 
+        private static float Wrap(float a, TextureWrapMode mode)
+        {
+            switch (mode)
+            {
+                case TextureWrapMode.Repeat:
+                    a = (int)Math.Floor(a);
+                    if (a < 0)
+                        a = 1 - a;
+                    break;
+                case TextureWrapMode.MirroredRepeat:
+                    a = (int)Math.Floor(Math.Abs(a));
+                    if ((int)a % 2 == 1)
+                        a = 1 - a;
+                    break;
+                default:
+                    a = Math.Min(Math.Max(a, 0), 1);
+                    break;
+            }
+            return a;
+        }
+
         private static vec4 texturef(Location location, int sampler, float x, float y, float z, int lod, GetPName binding)
         {
             return new vec4(texture<float>(location, sampler, x, y, z, lod, binding));
@@ -124,27 +145,6 @@ namespace App.Glsl
             Shader.TraceFunction(location, p[0, 0, 0], "texture");
 
             return p[0, 0, 0];
-        }
-
-        private static float Wrap(float a, TextureWrapMode mode)
-        {
-            switch (mode)
-            {
-                case TextureWrapMode.Repeat:
-                    a = (int)Math.Floor(a);
-                    if (a < 0)
-                        a = 1 - a;
-                    break;
-                case TextureWrapMode.MirroredRepeat:
-                    a = (int)Math.Floor(Math.Abs(a));
-                    if ((int)a % 2 == 1)
-                        a = 1 - a;
-                    break;
-                default:
-                    a = Math.Min(Math.Max(a, 0), 1);
-                    break;
-            }
-            return a;
         }
 
         #endregion
@@ -256,37 +256,37 @@ namespace App.Glsl
 
         public static vec4 texture(Location location, samplerCubeArray sampler, vec4 P, float bias = 0)
         {
-            return new vec4(0);
+            throw new NotImplementedException();
         }
 
         public static ivec4 texture(Location location, isamplerCubeArray sampler, vec4 P, float bias = 0)
         {
-            return new ivec4(0);
+            throw new NotImplementedException();
         }
 
         public static uvec4 texture(Location location, usamplerCubeArray sampler, vec4 P, float bias = 0)
         {
-            return new uvec4(0);
+            throw new NotImplementedException();
         }
 
         public static vec4 texture(Location location, sampler1DArrayShadow sampler, vec3 P, float bias = 0)
         {
-            return new vec4(0);
+            throw new NotImplementedException();
         }
 
         public static vec4 texture(Location location, sampler2DArrayShadow sampler, vec4 P, float bias = 0)
         {
-            return new vec4(0);
+            throw new NotImplementedException();
         }
 
         public static ivec4 texture(Location location, isampler2DArrayShadow sampler, vec4 P, float bias = 0)
         {
-            return new ivec4(0);
+            throw new NotImplementedException();
         }
 
         public static uvec4 texture(Location location, usampler2DArrayShadow sampler, vec4 P, float bias = 0)
         {
-            return new uvec4(0);
+            throw new NotImplementedException();
         }
 
         public static vec4 texture(Location location, sampler2DRect sampler, vec2 P)
@@ -306,22 +306,22 @@ namespace App.Glsl
 
         public static vec4 texture(Location location, sampler2DRectShadow sampler, vec3 P)
         {
-            return new vec4(0);
+            throw new NotImplementedException();
         }
 
         public static vec4 texture(Location location, samplerCubeArrayShadow sampler, vec4 P, float compare)
         {
-            return new vec4(0);
+            throw new NotImplementedException();
         }
 
         public static ivec4 texture(Location location, isamplerCubeArrayShadow sampler, vec4 P, float compare)
         {
-            return new ivec4(0);
+            throw new NotImplementedException();
         }
 
         public static uvec4 texture(Location location, usamplerCubeArrayShadow sampler, vec4 P, float compare)
         {
-            return new uvec4(0);
+            throw new NotImplementedException();
         }
 
         #endregion
