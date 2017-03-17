@@ -133,6 +133,8 @@ namespace App.Glsl
             gl_MaxClipDistances = GL.GetInteger(GetPName.MaxClipDistances);
         }
 
+        public virtual void Delete() { }
+
         #endregion
 
         #region Process Shader Fields

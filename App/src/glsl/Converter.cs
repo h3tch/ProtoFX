@@ -17,7 +17,7 @@ namespace App.Glsl
 
         private static class Pattern
         {
-            public static readonly string Word = @"\b[\w\d_]+\b";
+            public static readonly string Word = @"\b[\w_][\w\d_]*\b";
             public static readonly string InOut = "(in|out)";
             public static readonly string ArrayBraces = MatchingBrace(@"\[",@"\]");
             public static readonly string FunctionBraces = MatchingBrace(@"\(",@"\)");
@@ -42,17 +42,19 @@ namespace App.Glsl
             public static Regex Buffer = new Regex($"({Pattern.Layout}\\s*)?{Pattern.Word}\\s+{Pattern.Word}\\s*{Pattern.BodyBraces}\\s*{Pattern.Word}({Pattern.ArrayBraces})?;", RegexOptions.Singleline | RegexOptions.RightToLeft);
             public static Regex Layout = new Regex(Pattern.Layout, RegexOptions.RightToLeft);
             public static Regex Word = new Regex(Pattern.Word);
-            public static Regex VariableDef = new Regex($"{Pattern.Word}\\s+{Pattern.WordOrArray};", RegexOptions.RightToLeft);
+            public static Regex VariableDef = new Regex($"{Pattern.Word}\\s+{Pattern.WordOrArray}\\s*;", RegexOptions.RightToLeft);
             public static Regex Float = new Regex(@"\b[0-9]*\.[0-9]+\b", RegexOptions.RightToLeft);
-            public static Regex InVarying = new Regex(@"\bin\s+[\w\d]+\s+[\w\d]+\s*;", RegexOptions.RightToLeft);
+            public static Regex InVarying = new Regex($"\\bin\\s+{Pattern.Word}\\s+{Pattern.WordOrArray}\\s*;", RegexOptions.RightToLeft);
+            public static Regex InVaryingBlock = new Regex($"\\bin\\s+{Pattern.Word}\\s*{Pattern.BodyBraces}\\s*{Pattern.Word}\\s*;", RegexOptions.RightToLeft);
             public static Regex ArrayBraces = new Regex($"{Pattern.ArrayBraces}\\s*;", RegexOptions.Singleline);
             public static Regex PreDefOut = new Regex(@"\bout\s+gl_PerVertex\s*\{.*};", RegexOptions.Singleline | RegexOptions.RightToLeft);
             public static Regex InOut = new Regex(Pattern.InOut, RegexOptions.RightToLeft);
             public static Regex InOutLayout = new Regex(Pattern.InOutLayout, RegexOptions.RightToLeft);
             public static Regex Const = new Regex(Pattern.Const, RegexOptions.RightToLeft);
-            public static Regex FuncHead = new Regex($"\\b[\\w\\d]+\\s*{Pattern.FunctionBraces}");
+            public static Regex FuncHead = new Regex($"\\b{Pattern.Word}\\s*{Pattern.FunctionBraces}");
             public static Regex LoopHead = FuncCall("(for|while)");
             public static Regex ShortLoops = ShortLoop("(for|while)");
+            public static Regex MainFunc = new Regex($"void\\s+main\\s*{Pattern.FunctionBraces}\\s*{Pattern.BodyBraces}");
             public static Regex FuncCall(string funcName)
             {
                 return new Regex($"\\b{funcName}\\s*{Pattern.FunctionBraces}", RegexOptions.RightToLeft);
@@ -107,10 +109,61 @@ namespace App.Glsl
                 + "using App.Glsl.SamplerTypes; "
                 + "namespace App.Glsl { "
                 + $"class {className} : {shaderClass} {{ "
-                + $"public {className}() : this(0) {{ }} "
-                + $"public {className}(int l) : base(l) {{ }} "
+                + $"public {className}() : this(0, null) {{ }} "
+                + $"public {className}(int l, string shaderString) : base(l, shaderString) {{ }} "
                 + $"{text}}}}}";
             return code;
+        }
+
+        public static string InputVaryingDebugShader(string text)
+        {
+            int ID = 0;
+            var dict = new Dictionary<string, int>();
+
+            // get input varyings
+            var list = new List<string> { "// INPUT VARYINGS" };
+            foreach (Match varying in RegEx.InVarying.Matches(text))
+                AddDebugVar(varying.Value, false);
+
+            // get input varying blocks
+            list.Add("// INPUT BLOCK VARYINGS");
+            foreach (Match block in RegEx.InVaryingBlock.Matches(text))
+            {
+                var name = Regex.Match(block.Value, Pattern.Word, RegexOptions.RightToLeft);
+                foreach (Match varying in RegEx.VariableDef.Matches(block.Value))
+                    AddDebugVar(varying.Value, true, $"{name.Value}.");
+            }
+
+            // compile debug shader string
+            var main = RegEx.MainFunc.Match(text);
+
+            var head = Properties.Resources.dbg;
+            var body = Regex.Replace(Properties.Resources.dbgBody,
+                                     "<<store_input_varyings>>",
+                                     list.Cat("\n"));
+
+            return text.Substring(0, main.Index) + head + body +
+                   text.Substring(main.Index + main.Length);
+
+            /// LOCAL FUNCTIONS
+            /// 
+            void AddDebugVar(string varying, bool isblockvarying, string prefix = "")
+            {
+                var words = RegEx.Word.Matches(varying);
+                var name = words[isblockvarying ? 1 : 2].Value;
+                var array = RegEx.ArrayBraces.Match(varying);
+                dict.Add(name, ID);
+                if (array.Success)
+                {
+                    var narray = array.Value.Subrange(array.Value.IndexOf('[') + 1,
+                                                      array.Value.LastIndexOf(']'));
+                    list.Add($"for (int _dbgI = 0; _dbgI < {narray}; _dbgI++)");
+                    list.Add($"    _dbgOffset = _dbgStoreVar(_dbgOffset, {prefix}{name}[_dbgI], {ID});");
+                }
+                else
+                    list.Add($"_dbgOffset = _dbgStoreVar(_dbgOffset, {prefix}{name}, {ID});");
+                ID++;
+            }
         }
 
         /// <summary>

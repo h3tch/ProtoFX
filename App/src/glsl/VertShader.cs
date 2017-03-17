@@ -29,9 +29,10 @@ namespace App.Glsl
         
         #region Constructors
 
-        public VertShader() : this(-1) { }
+        public VertShader() : this(-1, null) { }
 
-        public VertShader(int startLine) : base(startLine, ProgramPipelineParameter.VertexShader)
+        public VertShader(int startLine, string shaderString)
+            : base(startLine, ProgramPipelineParameter.VertexShader)
         {
             gl_ClipDistance = new float[gl_MaxClipDistances];
         }

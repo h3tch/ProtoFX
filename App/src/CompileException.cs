@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace App
 {
     [Serializable]
-    class CompileException : Exception, IEnumerable<CompileException.Error>, IDisposable
+    class CompileException : Exception, IEnumerable<CompileException.MessageInfo>, IDisposable
     {
         private List<string> callstack;
-        private List<Error> messages;
+        private List<MessageInfo> messages;
 
         // compile call stack into a single string
         private string Callstackstring => callstack.Cat(": ");
@@ -17,7 +18,7 @@ namespace App
         /// Returns true if there are any errors messages in the class.
         /// </summary>
         /// <returns></returns>
-        public bool HasErrors => messages.Count > 0;
+        public bool HasErrors => messages.Any(m => m.Category == MessageCategory.Error);
 
         /// <summary>
         /// Create new compiler exception.
@@ -25,11 +26,8 @@ namespace App
         /// <param name="callstackstring">Indicates the current position in the call stack.</param>
         public CompileException(string callstackstring)
         {
-            callstack = new List<string>
-            {
-                callstackstring
-            };
-            messages = new List<Error>();
+            callstack = new List<string> { callstackstring };
+            messages = new List<MessageInfo>();
         }
         
         /// <summary>
@@ -51,12 +49,25 @@ namespace App
         /// <param name="file"></param>
         /// <param name="line"></param>
         /// <returns></returns>
-        public CompileException Add(string message, string file, int line)
+        public CompileException Error(string message, string file, int line)
         {
-            messages.Add(new Error(file, line, Callstackstring + message));
+            messages.Add(new MessageInfo(MessageCategory.Error, file, line, Callstackstring + message));
             return this;
         }
-        
+
+        /// <summary>
+        /// Add a compiler info message to the exception.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="file"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public CompileException Info(string message, string file, int line)
+        {
+            messages.Add(new MessageInfo(MessageCategory.Info, file, line, Callstackstring + message));
+            return this;
+        }
+
         /// <summary>
         /// Add another level to the call stack.
         /// </summary>
@@ -68,12 +79,12 @@ namespace App
 
         #region Interfaces
 
-        public IEnumerator<Error> GetEnumerator()
+        public IEnumerator<MessageInfo> GetEnumerator()
         {
             return messages.GetEnumerator();
         }
 
-        IEnumerator<Error> IEnumerable<Error>.GetEnumerator()
+        IEnumerator<MessageInfo> IEnumerable<MessageInfo>.GetEnumerator()
         {
             return messages.GetEnumerator();
         }
@@ -93,14 +104,24 @@ namespace App
 
         #region INNER CLASSES
 
-        public struct Error
+        public enum MessageCategory
         {
-            public Error(string file, int line, string msg)
+            Error,
+            Warning,
+            Info,
+            Debug,
+        }
+
+        public struct MessageInfo
+        {
+            public MessageInfo(MessageCategory category, string file, int line, string msg)
             {
+                Category = category;
                 File = file;
                 Line = line;
                 Msg = msg;
             }
+            public MessageCategory Category;
             public string File;
             public int Line;
             public string Msg;

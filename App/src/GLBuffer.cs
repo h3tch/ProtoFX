@@ -226,7 +226,7 @@ namespace App
             string str = GetText(scene, cmd);
             if (str == null)
             {
-                err.Add("Could not process command. Second argument must "
+                err.Error("Could not process command. Second argument must "
                     + "be a name to a text object or a filename.", cmd);
                 return null;
             }
@@ -247,7 +247,7 @@ namespace App
                     }
                     catch (XmlException ex)
                     {
-                        err.Add(ex.Message, cmd);
+                        err.Error(ex.Message, cmd);
                     }
                 }
 
@@ -257,7 +257,7 @@ namespace App
             }
             catch (Exception ex)
             {
-                err.Add(ex.GetBaseException().Message, cmd);
+                err.Error(ex.GetBaseException().Message, cmd);
             }
 
             return null;
@@ -276,7 +276,7 @@ namespace App
             var str = GetText(scene, cmd);
             if (str == null)
             {
-                err.Add("Could not process command. Second argument must "
+                err.Error("Could not process command. Second argument must "
                     + "be a name to a text object or a filename.", cmd);
                 return null;
             }

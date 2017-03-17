@@ -11,6 +11,7 @@ namespace App
         #region Fields
 
         internal Shader DebugShader { get; private set; }
+        internal int GlDebugShader { get; private set; }
         internal ShaderType ShaderType;
 
         #endregion
@@ -36,7 +37,7 @@ namespace App
                 case "geom": ShaderType = ShaderType.GeometryShader; break;
                 case "frag": ShaderType = ShaderType.FragmentShader; break;
                 case "comp": ShaderType = ShaderType.ComputeShader; break;
-                default: throw err.Add($"Shader type '{Anno}' is not supported.", block);
+                default: throw err.Error($"Shader type '{Anno}' is not supported.", block);
             }
 
             glname = GL.CreateShaderProgram(ShaderType, 1, new[] { block.Body });
@@ -45,7 +46,7 @@ namespace App
 
             GL.GetProgram(glname, GetProgramParameterName.LinkStatus, out int status);
             if (status != 1)
-                err.Add($"\n{GL.GetProgramInfoLog(glname)}", block);
+                err.Error($"\n{GL.GetProgramInfoLog(glname)}", block);
             if (HasErrorOrGlError(err, block))
                 throw err;
 
@@ -60,7 +61,8 @@ namespace App
                 if (rs.Errors.Count == 0)
                     DebugShader = (Shader)rs.CompiledAssembly.CreateInstance(
                         $"App.Glsl.{Name}", false, BindingFlags.Default, null,
-                        new object[] { block.LineInFile }, CultureInfo.CurrentCulture, null);
+                        new object[] { block.LineInFile, block.Body },
+                        CultureInfo.CurrentCulture, null);
             }
 
             // check for errors
@@ -78,6 +80,11 @@ namespace App
             {
                 GL.DeleteProgram(glname);
                 glname = 0;
+            }
+            if (DebugShader != null)
+            {
+                DebugShader.Delete();
+                DebugShader = null;
             }
         }
     }

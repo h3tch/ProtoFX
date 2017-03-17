@@ -429,7 +429,7 @@ namespace App
                     if (mandatory[i].Zip(valid, (m, v) => !m | v).All(x => x))
                         return (values, unusedArgs);
 
-                err?.Add("Command has one or more invalid arguments.", this);
+                err?.Error("Command has one or more invalid arguments.", this);
                 return (values, unusedArgs);
             }
 
@@ -605,16 +605,22 @@ namespace App
     // convenience extensions to the compiler exception class
     static class CompilerExeptionExtensions
     {
-        public static CompileException Add(this CompileException err, string message,
+        public static CompileException Error(this CompileException err, string message,
             Compiler.Block block)
         {
-            return err.Add(message, block.Filename, block.LineInFile);
+            return err.Error(message, block.Filename, block.LineInFile);
         }
 
-        public static CompileException Add(this CompileException err, string message,
+        public static CompileException Info(this CompileException err, string message,
+            Compiler.Block block)
+        {
+            return err.Info(message, block.Filename, block.LineInFile);
+        }
+
+        public static CompileException Error(this CompileException err, string message,
             Compiler.Command cmd)
         {
-            return err.Add(message, cmd.File, cmd.LineInFile);
+            return err.Error(message, cmd.File, cmd.LineInFile);
         }
     }
 }

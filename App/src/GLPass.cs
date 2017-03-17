@@ -124,7 +124,7 @@ namespace App
                     else
                     {
                         Shader prev =
-                        dbgvert = (VertShader)glvert.DebugShader;
+                        dbgvert = (VertShader)glvert?.DebugShader;
                         dbgtess = (TessShader)gltess?.DebugShader;
                         dbgeval = (EvalShader)gleval?.DebugShader;
                         dbggeom = (GeomShader)glgeom?.DebugShader;
@@ -151,7 +151,7 @@ namespace App
             /// CHECK FOR ERRORS
 
             if (GL.GetError() != ErrorCode.NoError)
-                err.Add($"OpenGL error '{GL.GetError()}' occurred " +
+                err.Error($"OpenGL error '{GL.GetError()}' occurred " +
                     "during shader program creation.", block);
             if (err.HasErrors)
                 throw err;
@@ -262,7 +262,7 @@ namespace App
                         dbgtess?.Debug();
                         dbgeval?.Debug();
                         dbggeom?.Debug();
-                        dbgfrag?.Debug();
+                        dbgfrag?.Debug(glname, glfrag.glname);
                     }
                 }
                 catch (Exception e)
@@ -342,7 +342,7 @@ namespace App
                 else if (modeIsSet == false && Enum.TryParse(arg.Text, true, out primitive))
                     modeIsSet = true;
                 else
-                    err.Add($"Unable to process argument '{arg.Text}'.", cmd);
+                    err.Error($"Unable to process argument '{arg.Text}'.", cmd);
             }
 
             if (err.HasErrors)
@@ -351,7 +351,7 @@ namespace App
             // a draw call must specify a primitive type
             if (modeIsSet == false)
             {
-                err.Add("Draw call must specify a primitive type (e.g. triangles, "
+                err.Error("Draw call must specify a primitive type (e.g. triangles, "
                     + "trianglefan, lines, points, ...).", cmd);
                 return;
             }
@@ -364,7 +364,7 @@ namespace App
 
             if (!Enum.IsDefined(typeof(DrawFunc), bits))
             {
-                err.Add("Draw call function not recognized or ambiguous.", cmd);
+                err.Error("Draw call function not recognized or ambiguous.", cmd);
                 return;
             }
 
@@ -389,7 +389,7 @@ namespace App
             // check for errors
             if (cmd.ArgCount < 2 || cmd.ArgCount > 3)
             {
-                err.Add("Compute command does not provide enough arguments "
+                err.Error("Compute command does not provide enough arguments "
                     + "(e.g., 'compute num_groups_X num_groups_y num_groups_z' or "
                     + "'compute buffer_name indirect_pointer').", cmd);
                 return;
@@ -425,7 +425,7 @@ namespace App
             }
             catch (CompileException ex)
             {
-                err.Add(ex.Message, cmd);
+                err.Error(ex.Message, cmd);
             }
         }
         
@@ -433,7 +433,7 @@ namespace App
         {
             if (cmd.ArgCount != 1 && cmd.ArgCount != 2)
             {
-                err.Add("Arguments of the 'tex' command are invalid.", cmd);
+                err.Error("Arguments of the 'tex' command are invalid.", cmd);
                 return;
             }
             // specify argument types
@@ -451,7 +451,7 @@ namespace App
         {
             if (cmd.ArgCount != 1 && cmd.ArgCount != 6)
             {
-                err.Add("Arguments of the 'img' command are invalid.", cmd);
+                err.Error("Arguments of the 'img' command are invalid.", cmd);
                 return;
             }
             // specify argument types
@@ -480,7 +480,7 @@ namespace App
         {
             if (cmd.ArgCount != 1 && cmd.ArgCount != 2)
             {
-                err.Add("Arguments of the 'samp' command are invalid.", cmd);
+                err.Error("Arguments of the 'samp' command are invalid.", cmd);
                 return;
             }
             // specify argument types
@@ -502,7 +502,7 @@ namespace App
             if (mtype == null)
             {
                 if (GetFxField(mname) == null)
-                    err.Add("Unknown command '" + cmd.Text + "'", cmd);
+                    err.Error("Unknown command '" + cmd.Text + "'", cmd);
                 return;
             }
 
@@ -528,7 +528,7 @@ namespace App
             // check if command provides the correct amount of parameters
             if (cmd.ArgCount == 0)
             {
-                err.Add("Not enough arguments for exec command.", cmd);
+                err.Error("Not enough arguments for exec command.", cmd);
                 return;
             }
 
@@ -874,7 +874,7 @@ namespace App
 
                 // set transform feedback varyings in the shader program
                 if (outputVaryings.Length == 0)
-                    err.Add("vertout command does not specify shader output varying names "
+                    err.Error("vertout command does not specify shader output varying names "
                         + "(e.g. vertout vertout_name points [pause resume] varying_name).", cmd);
                 if (err.HasErrors)
                     return;

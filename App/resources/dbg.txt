@@ -4,12 +4,11 @@
 #define _DBG_FLOAT 4
 #define _i2f intBitsToFloat
 #define _u2f uintBitsToFloat
-const int _dbgStageOffset = <<stage offset>>;
 
 layout(rgba32f) uniform writeonly imageBuffer _dbgOut;
 
 int _dbgStore(int idx, vec4 val) {
-	imageStore(_dbgOut, _dbgStageOffset + idx, val);
+	imageStore(_dbgOut, idx, val);
 	return ++idx;
 }
 int _dbgStore(int idx, ivec4 val) {
@@ -66,6 +65,7 @@ int _dbgStoreVar(int idx, float val, int ID) {
 	return _dbgStore(_dbgStore(idx, _DBG_FLOAT, 1, 1, ID), val);
 }
 
+// VEC
 int _dbgStoreVar(int idx, vec2 val, int ID) {
 	return _dbgStore(_dbgStore(idx, _DBG_FLOAT, 1, 2, ID), val);
 }
@@ -76,6 +76,7 @@ int _dbgStoreVar(int idx, vec4 val, int ID) {
 	return _dbgStore(_dbgStore(idx, _DBG_FLOAT, 1, 4, ID), val);
 }
 
+// MAT2
 int _dbgStoreVar(int idx, mat2 val, int ID) {
 	val = transpose(val);
 	idx = _dbgStore(idx, _DBG_FLOAT, 2, 2, ID);
@@ -95,6 +96,7 @@ int _dbgStoreVar(int idx, mat2x4 val, int ID) {
 	return idx;
 }
 
+// MAT3
 int _dbgStoreVar(int idx, mat3 val, int ID) {
 	val = transpose(val);
 	idx = _dbgStore(idx, _DBG_FLOAT, 3, 3, ID);
@@ -114,6 +116,7 @@ int _dbgStoreVar(int idx, mat3x4 val, int ID) {
 	return idx;
 }
 
+// MAT4
 int _dbgStoreVar(int idx, mat4 val, int ID) {
 	val = transpose(val);
 	idx = _dbgStore(idx, _DBG_FLOAT, 4, 4, ID);

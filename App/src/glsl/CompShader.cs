@@ -24,9 +24,9 @@ namespace App.Glsl
 
         #region Constructors
 
-        public CompShader() : this(-1) { }
+        public CompShader() : this(-1, null) { }
 
-        public CompShader(int startLine)
+        public CompShader(int startLine, string shaderString)
             : base(startLine, ProgramPipelineParameter.ComputeShader) { }
 
         #endregion

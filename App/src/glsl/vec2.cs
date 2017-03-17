@@ -42,7 +42,7 @@ namespace App.Glsl
 
         public vec2(float a) : this(a, a) { }
         public vec2(float x, float y) { this.x = x; this.y = y; }
-        public vec2(float[] v) : this(v[0], v[1]) { }
+        public vec2(float[] v) : this(v.Fetch(0), v.Fetch(1)) { }
         public vec2(byte[] data) : this((float[])data.To(typeof(float))) { }
 
         #endregion
@@ -138,7 +138,7 @@ namespace App.Glsl
 
         public dvec2(double a = 0) : this(a, a) { }
         public dvec2(double x, double y) { this.x = x; this.y = y; }
-        public dvec2(double[] v) : this(v[0], v[1]) { }
+        public dvec2(double[] v) : this(v.Fetch(0), v.Fetch(1)) { }
         public dvec2(byte[] data) : this((double[])data.To(typeof(double))) { }
 
         #endregion
@@ -234,7 +234,7 @@ namespace App.Glsl
 
         public bvec2(bool a) : this(a, a) { }
         public bvec2(bool x, bool y) { this.x = x; this.y = y; }
-        public bvec2(bool[] v) : this(v[0], v[1]) { }
+        public bvec2(bool[] v) : this(v.Fetch(0), v.Fetch(1)) { }
         public bvec2(byte[] data) : this((bool[])data.To(typeof(bool))) { }
 
         #endregion
@@ -311,7 +311,7 @@ namespace App.Glsl
 
         public ivec2(int a) : this(a, a) { }
         public ivec2(int x, int y) { this.x = x; this.y = y; }
-        public ivec2(int[] v) : this(v[0], v[1]) { }
+        public ivec2(int[] v) : this(v.Fetch(0), v.Fetch(1)) { }
         public ivec2(byte[] data) : this((int[])data.To(typeof(int))) { }
 
         #endregion
@@ -388,7 +388,7 @@ namespace App.Glsl
 
         public uvec2(uint a) : this(a, a) { }
         public uvec2(uint x, uint y) { this.x = x; this.y = y; }
-        public uvec2(uint[] v) : this(v[0], v[1]) { }
+        public uvec2(uint[] v) : this(v.Fetch(0), v.Fetch(1)) { }
         public uvec2(byte[] data) : this((uint[])data.To(typeof(uint))) { }
 
         #endregion

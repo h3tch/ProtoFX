@@ -122,10 +122,10 @@ namespace OpenTK
             // check for errors
             if (type == null)
                 throw new CompileException($"{block.Type} '{block.Name}'")
-                    .Add($"Class type '{block.Type}' not known.", block);
+                    .Error($"Class type '{block.Type}' not known.", block);
             if (scene.ContainsKey(block.Name))
                 throw new CompileException($"{block.Type} '{block.Name}'")
-                    .Add($"Class name '{block.Name}' already exists.", block);
+                    .Error($"Class name '{block.Name}' already exists.", block);
 
             // instantiate class
             var instance = (GLObject)Activator.CreateInstance(type, block, scene, debugging);

@@ -65,9 +65,9 @@ namespace App
             if (Img != null)
                 scene.TryGetValue(Img, out glImg, block, err);
             if (glBuff != null && glImg != null)
-                err.Add("Only an image or a buffer can be bound to a texture object.", block);
+                err.Error("Only an image or a buffer can be bound to a texture object.", block);
             if (glBuff == null && glImg == null)
-                err.Add("Ether an image or a buffer has to be bound to a texture object.", block);
+                err.Error("Ether an image or a buffer has to be bound to a texture object.", block);
 
             // IF THERE ARE ERRORS THROW AND EXCEPTION
             if (err.HasErrors)
@@ -152,7 +152,7 @@ namespace App
             else if (glBuff != null)
             {
                 if (Format == 0)
-                    throw err.Add($"No texture buffer format defined for " +
+                    throw err.Error($"No texture buffer format defined for " +
                         "buffer '{buff}' (e.g. format RGBA8).", file, line);
                 // CREATE OPENGL OBJECT
                 glname = GL.GenTexture();

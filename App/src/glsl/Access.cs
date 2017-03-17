@@ -30,9 +30,9 @@ namespace App.Glsl
         private static PixelType Type2PixelType<T>() where T: struct
         {
             var type = PixelType.Float;
-            if (typeof(T) == typeof(int))
+            if (new[] { typeof(int), typeof(ivec2), typeof(ivec3), typeof(ivec4) }.Any(x => x == typeof(T)))
                 type = PixelType.Int;
-            else if (typeof(T) == typeof(uint))
+            else if (new[] { typeof(uint), typeof(uvec2), typeof(uvec3), typeof(uvec4) }.Any(x => x == typeof(T)))
                 type = PixelType.UnsignedInt;
             return type;
         }
@@ -58,22 +58,84 @@ namespace App.Glsl
             return a;
         }
 
-        private static vec4 texturef(Location location, int sampler, float x, float y, float z, int lod, GetPName binding)
+        public static (int layer, vec2 uv) Vector2Cubemap(vec3 P)
         {
-            return new vec4(texture<float>(location, sampler, x, y, z, lod, binding));
+            var absP = abs(P);
+            const int XFACE = 0;
+            const int YFACE = 1;
+            const int ZFACE = 2;
+
+            const int POSITIVE_X = 0;
+            const int NEGATIVE_X = 1;
+            const int POSITIVE_Y = 2;
+            const int NEGATIVE_Y = 3;
+            const int POSITIVE_Z = 4;
+            const int NEGATIVE_Z = 5;
+
+            switch (absP.x > absP.y
+                ? absP.x > absP.z ? XFACE : ZFACE
+                : absP.y > absP.z ? YFACE : ZFACE)
+            {
+                case XFACE:
+                    if (P.x < 0)
+                    {
+                        var u = (absP.x - P.z) / (2 * absP.x);
+                        var v = (absP.x + P.y) / (2 * absP.x);
+                        return (NEGATIVE_X, vec2(u, v));
+                    }
+                    else
+                    {
+                        var u = (absP.x + P.z) / (2 * absP.x);
+                        var v = (absP.x + P.y) / (2 * absP.x);
+                        return (POSITIVE_X, vec2(u, v));
+                    }
+                case YFACE:
+                    if (P.y < 0)
+                    {
+                        var u = (absP.y + P.x) / (2 * absP.y);
+                        var v = (absP.y - P.z) / (2 * absP.y);
+                        return (NEGATIVE_Y, vec2(u, v));
+                    }
+                    else
+                    {
+                        var u = (absP.y + P.x) / (2 * absP.y);
+                        var v = (absP.y + P.z) / (2 * absP.y);
+                        return (POSITIVE_Y, vec2(u, v));
+                    }
+                case ZFACE:
+                    if (P.z < 0)
+                    {
+                        var u = (absP.z + P.x) / (2 * absP.z);
+                        var v = (absP.z + P.y) / (2 * absP.z);
+                        return (NEGATIVE_Z, vec2(u, v));
+                    }
+                    else
+                    {
+                        var u = (absP.z - P.x) / (2 * absP.z);
+                        var v = (absP.z + P.y) / (2 * absP.z);
+                        return (POSITIVE_Z, vec2(u, v));
+                    }
+            }
+
+            return (POSITIVE_Z, vec2(0, 0));
         }
 
-        private static ivec4 texturei(Location location, int sampler, float x, float y, float z, int lod, GetPName binding)
+        private static vec4 texturef(Location location, int sampler, float x, float y, object z, int lod, GetPName binding)
         {
-            return new ivec4(texture<int>(location, sampler, x, y, z, lod, binding));
+            return texture<vec4>(location, sampler, x, y, z, lod, binding);
         }
 
-        private static uvec4 textureu(Location location, int sampler, float x, float y, float z, int lod, GetPName binding)
+        private static ivec4 texturei(Location location, int sampler, float x, float y, object z, int lod, GetPName binding)
         {
-            return new uvec4(texture<uint>(location, sampler, x, y, z, lod, binding));
+            return texture<ivec4>(location, sampler, x, y, z, lod, binding);
         }
 
-        private static T texture<T>(Location location, int sampler, float x, float y, float z, int lod, GetPName binding)
+        private static uvec4 textureu(Location location, int sampler, float x, float y, object z, int lod, GetPName binding)
+        {
+            return texture<uvec4>(location, sampler, x, y, z, lod, binding);
+        }
+
+        private static T texture<T>(Location location, int sampler, float x, float y, object _z, int lod, GetPName binding)
             where T : struct
         {
             // get return type
@@ -99,16 +161,25 @@ namespace App.Glsl
                 x = Wrap(x, (TextureWrapMode)wrapR);
             if (y < 0 || 1 < y)
                 y = Wrap(y, (TextureWrapMode)wrapS);
-            if (z < 0 || 1 < z)
-                z = Wrap(z, (TextureWrapMode)wrapT);
 
             // convert from [0,1] to [0,pixels]
             x *= w - 1;
             y *= h - 1;
-            z *= d - 1;
+            float z = (float)_z;
+
+            // how much pixel should be reserved for interpolation
             w = (int)x + 2 >= w ? 1 : 2;
             h = (int)y + 2 >= h ? 1 : 2;
-            d = (int)z + 2 >= d ? 1 : 2;
+            d = 1;
+
+            // if z is not the layer (not int but float)
+            if (_z is float f)
+            {
+                if (f < 0 || 1 < f)
+                    f = Wrap(f, (TextureWrapMode)wrapT);
+                z = f * (d - 1);
+                d = (int)f + 2 >= d ? 1 : 2;
+            }
 
             // get texture data
             var p = new T[w, h, d];
@@ -147,126 +218,134 @@ namespace App.Glsl
             return p[0, 0, 0];
         }
 
+        public static T textureCube<T>(Location location, int sampler, vec3 P, int index, int lod, GetPName binding)
+            where T : struct
+        {
+            var (layer, uv) = Vector2Cubemap(P);
+            if ((All)binding == All.TextureCubeMapArray)
+                layer += index * 6;
+            return texture<T>(location, sampler, uv.x, uv.y, layer, lod, binding);
+        }
         #endregion
 
         public static vec4 texture(Location location, sampler1D sampler, float P, float bias = 0)
         {
-            return texturef(location, sampler.i, P, 0, 0, 0, GetPName.TextureBinding1D);
+            return texturef(location, sampler, P, 0, 0, 0, GetPName.TextureBinding1D);
         }
 
         public static ivec4 texture(Location location, isampler1D sampler, float P, float bias = 0)
         {
-            return texturei(location, sampler.i, P, 0, 0, 0, GetPName.TextureBinding1D);
+            return texturei(location, sampler, P, 0, 0, 0, GetPName.TextureBinding1D);
         }
 
         public static uvec4 texture(Location location, usampler1D sampler, float P, float bias = 0)
         {
-            return textureu(location, sampler.i, P, 0, 0, 0, GetPName.TextureBinding1D);
+            return textureu(location, sampler, P, 0, 0, 0, GetPName.TextureBinding1D);
         }
 
         public static vec4 texture(Location location, sampler2D sampler, vec2 P, float bias = 0)
         {
-            return texturef(location, sampler.i, P.x, P.y, 0, 0, GetPName.TextureBinding2D);
+            return texturef(location, sampler, P.x, P.y, 0, 0, GetPName.TextureBinding2D);
         }
 
         public static ivec4 texture(Location location, isampler2D sampler, vec2 P, float bias = 0)
         {
-            return texturei(location, sampler.i, P.x, P.y, 0, 0, GetPName.TextureBinding2D);
+            return texturei(location, sampler, P.x, P.y, 0, 0, GetPName.TextureBinding2D);
         }
 
         public static uvec4 texture(Location location, usampler2D sampler, vec2 P, float bias = 0)
         {
-            return textureu(location, sampler.i, P.x, P.y, 0, 0, GetPName.TextureBinding2D);
+            return textureu(location, sampler, P.x, P.y, 0, 0, GetPName.TextureBinding2D);
         }
 
         public static vec4 texture(Location location, sampler3D sampler, vec3 P, float bias = 0)
         {
-            return texturef(location, sampler.i, P.x, P.y, P.z, 0, GetPName.TextureBinding3D);
+            return texturef(location, sampler, P.x, P.y, P.z, 0, GetPName.TextureBinding3D);
         }
 
         public static ivec4 texture(Location location, isampler3D sampler, vec3 P, float bias = 0)
         {
-            return texturei(location, sampler.i, P.x, P.y, P.z, 0, GetPName.TextureBinding3D);
+            return texturei(location, sampler, P.x, P.y, P.z, 0, GetPName.TextureBinding3D);
         }
 
         public static uvec4 texture(Location location, usampler3D sampler, vec3 P, float bias = 0)
         {
-            return textureu(location, sampler.i, P.x, P.y, P.z, 0, GetPName.TextureBinding3D);
+            return textureu(location, sampler, P.x, P.y, P.z, 0, GetPName.TextureBinding3D);
         }
 
         public static vec4 texture(Location location, samplerCube sampler, vec3 P, float bias = 0)
         {
-            return new vec4(0);
+            return textureCube<vec4>(location, sampler, P, 0, 0, GetPName.TextureCubeMap);
         }
 
         public static ivec4 texture(Location location, isamplerCube sampler, vec3 P, float bias = 0)
         {
-            return new ivec4(0);
+            return textureCube<ivec4>(location, sampler, P, 0, 0, GetPName.TextureCubeMap);
         }
 
         public static uvec4 texture(Location location, usamplerCube sampler, vec3 P, float bias = 0)
         {
-            return new uvec4(0);
+            return textureCube<uvec4>(location, sampler, P, 0, 0, GetPName.TextureCubeMap);
         }
 
         public static vec4 texture(Location location, sampler1DShadow sampler, vec3 P, float bias = 0)
         {
-            return new vec4(0);
+            throw new NotImplementedException();
         }
 
         public static vec4 texture(Location location, sampler2DShadow sampler, vec3 P, float bias = 0)
         {
-            return new vec4(0);
+            throw new NotImplementedException();
         }
 
         public static vec4 texture(Location location, samplerCubeShadow sampler, vec3 P, float bias = 0)
         {
-            return new vec4(0);
+            throw new NotImplementedException();
         }
 
         public static vec4 texture(Location location, sampler1DArray sampler, vec2 P, float bias = 0)
         {
-            return texturef(location, sampler.i, P.x, P.y, 0, 0, GetPName.TextureBinding1DArray);
+            return texturef(location, sampler, P.x, P.y, 0, 0, GetPName.TextureBinding1DArray);
         }
 
         public static ivec4 texture(Location location, isampler1DArray sampler, vec2 P, float bias = 0)
         {
-            return texturei(location, sampler.i, P.x, P.y, 0, 0, GetPName.TextureBinding1DArray);
+            return texturei(location, sampler, P.x, P.y, 0, 0, GetPName.TextureBinding1DArray);
         }
 
         public static uvec4 texture(Location location, usampler1DArray sampler, vec2 P, float bias = 0)
         {
-            return textureu(location, sampler.i, P.x, P.y, 0, 0, GetPName.TextureBinding1DArray);
+            return textureu(location, sampler, P.x, P.y, 0, 0, GetPName.TextureBinding1DArray);
         }
 
         public static vec4 texture(Location location, sampler2DArray sampler, vec3 P, float bias = 0)
         {
-            return texturef(location, sampler.i, P.x, P.y, P.z, 0, GetPName.TextureBinding2DArray);
+            return texturef(location, sampler, P.x, P.y, P.z, 0, GetPName.TextureBinding2DArray);
         }
 
         public static ivec4 texture(Location location, isampler2DArray sampler, vec3 P, float bias = 0)
         {
-            return texturei(location, sampler.i, P.x, P.y, P.z, 0, GetPName.TextureBinding2DArray);
+            return texturei(location, sampler, P.x, P.y, P.z, 0, GetPName.TextureBinding2DArray);
         }
 
         public static uvec4 texture(Location location, usampler2DArray sampler, vec3 P, float bias = 0)
         {
-            return textureu(location, sampler.i, P.x, P.y, P.z, 0, GetPName.TextureBinding2DArray);
+            return textureu(location, sampler, P.x, P.y, P.z, 0, GetPName.TextureBinding2DArray);
         }
 
         public static vec4 texture(Location location, samplerCubeArray sampler, vec4 P, float bias = 0)
         {
-            throw new NotImplementedException();
+            return textureCube<vec4>(location, sampler, P.xyz, (int)P.w, 0, (GetPName)All.TextureCubeMapArray);
         }
 
         public static ivec4 texture(Location location, isamplerCubeArray sampler, vec4 P, float bias = 0)
         {
-            throw new NotImplementedException();
+            return textureCube<ivec4>(location, sampler, P.xyz, (int)P.w, 0, (GetPName)All.TextureCubeMapArray);
         }
 
         public static uvec4 texture(Location location, usamplerCubeArray sampler, vec4 P, float bias = 0)
         {
-            throw new NotImplementedException();
+            return textureCube<uvec4>(location, sampler, P.xyz, (int)P.w, 0, (GetPName)All.TextureCubeMapArray);
         }
 
         public static vec4 texture(Location location, sampler1DArrayShadow sampler, vec3 P, float bias = 0)
@@ -291,17 +370,17 @@ namespace App.Glsl
 
         public static vec4 texture(Location location, sampler2DRect sampler, vec2 P)
         {
-            return texturef(location, sampler.i, P.x, P.y, 0, 0, GetPName.TextureBindingRectangle);
+            return texturef(location, sampler, P.x, P.y, 0, 0, GetPName.TextureBindingRectangle);
         }
 
         public static ivec4 texture(Location location, isampler2DRect sampler, vec2 P)
         {
-            return texturei(location, sampler.i, P.x, P.y, 0, 0, GetPName.TextureBindingRectangle);
+            return texturei(location, sampler, P.x, P.y, 0, 0, GetPName.TextureBindingRectangle);
         }
 
         public static uvec4 texture(Location location, usampler2DRect sampler, vec2 P)
         {
-            return textureu(location, sampler.i, P.x, P.y, 0, 0, GetPName.TextureBindingRectangle);
+            return textureu(location, sampler, P.x, P.y, 0, 0, GetPName.TextureBindingRectangle);
         }
 
         public static vec4 texture(Location location, sampler2DRectShadow sampler, vec3 P)
@@ -372,127 +451,127 @@ namespace App.Glsl
 
         public static vec4 texelFetch(Location location, sampler1D sampler, int P, int lod)
         {
-            return Shader.TraceFunction(location, new vec4(texelFetch<float>(location, sampler.i, P, 0, 0, lod, GetPName.TextureBinding1D)), "texelFetch");
+            return Shader.TraceFunction(location, new vec4(texelFetch<float>(location, sampler, P, 0, 0, lod, GetPName.TextureBinding1D)), "texelFetch");
         }
 
         public static vec4 texelFetch(Location location, sampler2D sampler, ivec2 P, int lod)
         {
-            return Shader.TraceFunction(location, new vec4(texelFetch<float>(location, sampler.i, P.x, P.y, 0, lod, GetPName.TextureBinding2D)), "texelFetch");
+            return Shader.TraceFunction(location, new vec4(texelFetch<float>(location, sampler, P.x, P.y, 0, lod, GetPName.TextureBinding2D)), "texelFetch");
         }
 
         public static vec4 texelFetch(Location location, sampler3D sampler, ivec3 P, int lod)
         {
-            return Shader.TraceFunction(location, new vec4(texelFetch<float>(location, sampler.i, P.x, P.y, P.z, lod, GetPName.TextureBinding3D)), "texelFetch");
+            return Shader.TraceFunction(location, new vec4(texelFetch<float>(location, sampler, P.x, P.y, P.z, lod, GetPName.TextureBinding3D)), "texelFetch");
         }
 
         public static vec4 texelFetch(Location location, sampler2DRect sampler, ivec2 P)
         {
-            return Shader.TraceFunction(location, new vec4(texelFetch<float>(location, sampler.i, P.x, P.y, 0, 0, GetPName.TextureBindingRectangle)), "texelFetch");
+            return Shader.TraceFunction(location, new vec4(texelFetch<float>(location, sampler, P.x, P.y, 0, 0, GetPName.TextureBindingRectangle)), "texelFetch");
         }
 
         public static vec4 texelFetch(Location location, sampler1DArray sampler, ivec2 P, int lod)
         {
-            return Shader.TraceFunction(location, new vec4(texelFetch<float>(location, sampler.i, P.x, P.y, 0, lod, GetPName.TextureBinding1DArray)), "texelFetch");
+            return Shader.TraceFunction(location, new vec4(texelFetch<float>(location, sampler, P.x, P.y, 0, lod, GetPName.TextureBinding1DArray)), "texelFetch");
         }
 
         public static vec4 texelFetch(Location location, sampler2DArray sampler, ivec3 P, int lod)
         {
-            return Shader.TraceFunction(location, new vec4(texelFetch<float>(location, sampler.i, P.x, P.y, P.z, lod, GetPName.TextureBinding2DArray)), "texelFetch");
+            return Shader.TraceFunction(location, new vec4(texelFetch<float>(location, sampler, P.x, P.y, P.z, lod, GetPName.TextureBinding2DArray)), "texelFetch");
         }
 
         public static vec4 texelFetch(Location location, samplerBuffer sampler, int P)
         {
-            return Shader.TraceFunction(location, new vec4(texelFetch<float>(location, sampler.i, P, 0, 0, 0, GetPName.TextureBindingBuffer)), "texelFetch");
+            return Shader.TraceFunction(location, new vec4(texelFetch<float>(location, sampler, P, 0, 0, 0, GetPName.TextureBindingBuffer)), "texelFetch");
         }
 
         public static vec4 texelFetch(Location location, sampler2DMS sampler, ivec2 P, int sample)
         {
-            return new vec4(0);
+            throw new NotImplementedException();
         }
 
         public static vec4 texelFetch(Location location, sampler2DMSArray sampler, ivec3 P, int sample)
         {
-            return new vec4(0);
+            throw new NotImplementedException();
         }
 
         public static ivec4 texelFetch(Location location, isampler1D sampler, int P, int lod)
         {
-            return Shader.TraceFunction(location, new ivec4(texelFetch<int>(location, sampler.i, P, 0, 0, lod, GetPName.TextureBinding1D)), "texelFetch");
+            return Shader.TraceFunction(location, new ivec4(texelFetch<int>(location, sampler, P, 0, 0, lod, GetPName.TextureBinding1D)), "texelFetch");
         }
 
         public static ivec4 texelFetch(Location location, isampler2D sampler, ivec2 P, int lod)
         {
-            return Shader.TraceFunction(location, new ivec4(texelFetch<int>(location, sampler.i, P.x, P.y, 0, lod, GetPName.TextureBinding2D)), "texelFetch");
+            return Shader.TraceFunction(location, new ivec4(texelFetch<int>(location, sampler, P.x, P.y, 0, lod, GetPName.TextureBinding2D)), "texelFetch");
         }
 
         public static ivec4 texelFetch(Location location, isampler3D sampler, ivec3 P, int lod)
         {
-            return Shader.TraceFunction(location, new ivec4(texelFetch<int>(location, sampler.i, P.x, P.y, P.z, lod, GetPName.TextureBinding3D)), "texelFetch");
+            return Shader.TraceFunction(location, new ivec4(texelFetch<int>(location, sampler, P.x, P.y, P.z, lod, GetPName.TextureBinding3D)), "texelFetch");
         }
 
         public static ivec4 texelFetch(Location location, isampler2DRect sampler, ivec2 P)
         {
-            return Shader.TraceFunction(location, new ivec4(texelFetch<int>(location, sampler.i, P.x, P.y, 0, 0, GetPName.TextureBindingRectangle)), "texelFetch");
+            return Shader.TraceFunction(location, new ivec4(texelFetch<int>(location, sampler, P.x, P.y, 0, 0, GetPName.TextureBindingRectangle)), "texelFetch");
         }
 
         public static ivec4 texelFetch(Location location, isampler1DArray sampler, ivec2 P, int lod)
         {
-            return Shader.TraceFunction(location, new ivec4(texelFetch<int>(location, sampler.i, P.x, P.y, 0, lod, GetPName.TextureBinding1DArray)), "texelFetch");
+            return Shader.TraceFunction(location, new ivec4(texelFetch<int>(location, sampler, P.x, P.y, 0, lod, GetPName.TextureBinding1DArray)), "texelFetch");
         }
 
         public static ivec4 texelFetch(Location location, isampler2DArray sampler, ivec3 P, int lod)
         {
-            return Shader.TraceFunction(location, new ivec4(texelFetch<int>(location, sampler.i, P.x, P.y, P.z, lod, GetPName.TextureBinding2DArray)), "texelFetch");
+            return Shader.TraceFunction(location, new ivec4(texelFetch<int>(location, sampler, P.x, P.y, P.z, lod, GetPName.TextureBinding2DArray)), "texelFetch");
         }
 
         public static ivec4 texelFetch(Location location, isamplerBuffer sampler, int P)
         {
-            return Shader.TraceFunction(location, new ivec4(texelFetch<int>(location, sampler.i, P, 0, 0, 0, GetPName.TextureBindingBuffer)), "texelFetch");
+            return Shader.TraceFunction(location, new ivec4(texelFetch<int>(location, sampler, P, 0, 0, 0, GetPName.TextureBindingBuffer)), "texelFetch");
         }
 
         public static ivec4 texelFetch(Location location, isampler2DMS sampler, ivec2 P, int sample)
         {
-            return new ivec4(0);
+            throw new NotImplementedException();
         }
 
         public static ivec4 texelFetch(Location location, isampler2DMSArray sampler, ivec3 P, int sample)
         {
-            return new ivec4(0);
+            throw new NotImplementedException();
         }
 
         public static uvec4 texelFetch(Location location, usampler1D sampler, int P, int lod)
         {
-            return Shader.TraceFunction(location, new uvec4(texelFetch<uint>(location, sampler.i, P, 0, 0, lod, GetPName.TextureBinding1D)), "texelFetch");
+            return Shader.TraceFunction(location, new uvec4(texelFetch<uint>(location, sampler, P, 0, 0, lod, GetPName.TextureBinding1D)), "texelFetch");
         }
 
         public static uvec4 texelFetch(Location location, usampler2D sampler, ivec2 P, int lod)
         {
-            return Shader.TraceFunction(location, new uvec4(texelFetch<uint>(location, sampler.i, P.x, P.y, 0, lod, GetPName.TextureBinding2D)), "texelFetch");
+            return Shader.TraceFunction(location, new uvec4(texelFetch<uint>(location, sampler, P.x, P.y, 0, lod, GetPName.TextureBinding2D)), "texelFetch");
         }
 
         public static uvec4 texelFetch(Location location, usampler3D sampler, ivec3 P, int lod)
         {
-            return Shader.TraceFunction(location, new uvec4(texelFetch<uint>(location, sampler.i, P.x, P.y, P.z, lod, GetPName.TextureBinding3D)), "texelFetch");
+            return Shader.TraceFunction(location, new uvec4(texelFetch<uint>(location, sampler, P.x, P.y, P.z, lod, GetPName.TextureBinding3D)), "texelFetch");
         }
 
         public static uvec4 texelFetch(Location location, usampler2DRect sampler, ivec2 P)
         {
-            return Shader.TraceFunction(location, new uvec4(texelFetch<uint>(location, sampler.i, P.x, P.y, 0, 0, GetPName.TextureBindingRectangle)), "texelFetch");
+            return Shader.TraceFunction(location, new uvec4(texelFetch<uint>(location, sampler, P.x, P.y, 0, 0, GetPName.TextureBindingRectangle)), "texelFetch");
         }
 
         public static uvec4 texelFetch(Location location, usampler1DArray sampler, ivec2 P, int lod)
         {
-            return Shader.TraceFunction(location, new uvec4(texelFetch<uint>(location, sampler.i, P.x, P.y, 0, lod, GetPName.TextureBinding1DArray)), "texelFetch");
+            return Shader.TraceFunction(location, new uvec4(texelFetch<uint>(location, sampler, P.x, P.y, 0, lod, GetPName.TextureBinding1DArray)), "texelFetch");
         }
 
         public static uvec4 texelFetch(Location location, usampler2DArray sampler, ivec3 P, int lod)
         {
-            return Shader.TraceFunction(location, new uvec4(texelFetch<uint>(location, sampler.i, P.x, P.y, P.z, lod, GetPName.TextureBinding2DArray)), "texelFetch");
+            return Shader.TraceFunction(location, new uvec4(texelFetch<uint>(location, sampler, P.x, P.y, P.z, lod, GetPName.TextureBinding2DArray)), "texelFetch");
         }
 
         public static uvec4 texelFetch(Location location, usamplerBuffer sampler, int P)
         {
-            return Shader.TraceFunction(location, new uvec4(texelFetch<uint>(location, sampler.i, P, 0, 0, 0, GetPName.TextureBindingBuffer)), "texelFetch");
+            return Shader.TraceFunction(location, new uvec4(texelFetch<uint>(location, sampler, P, 0, 0, 0, GetPName.TextureBindingBuffer)), "texelFetch");
         }
 
         public static uvec4 texelFetch(Location location, usampler2DMS sampler, ivec2 P, int sample)

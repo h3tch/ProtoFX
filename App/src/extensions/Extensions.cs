@@ -77,6 +77,13 @@ namespace App
             else
                 throw new ArgumentException("The object has an unknown type");
         }
+
+        public static TResult GetAttribute<TResult>(this Type type)
+            where TResult : Attribute
+        {
+            return ((TResult)Attribute.GetCustomAttribute(type, typeof(TResult)));
+        }
+
         /// <summary>
         /// Convert array to byte array.
         /// </summary>
@@ -97,6 +104,11 @@ namespace App
         public static int Size(this Array array)
         {
             return Marshal.SizeOf(array.GetType().GetElementType()) * array.Length;
+        }
+
+        public static T Fetch<T>(this T[] array, int index)
+        {
+            return index <= 0 && index < array.Length ? array[index] : default(T);
         }
 
         /// <summary>

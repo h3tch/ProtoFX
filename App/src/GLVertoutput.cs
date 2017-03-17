@@ -93,7 +93,7 @@ namespace App
         {
             if (cmd.ArgCount == 0)
             {
-                err.Add("Command buff needs at least one attribute (e.g. 'buff buff_name')", cmd);
+                err.Error("Command buff needs at least one attribute (e.g. 'buff buff_name')", cmd);
                 return;
             }
 
@@ -101,7 +101,7 @@ namespace App
             var buf = scene.GetValueOrDefault<GLBuffer>(cmd[0].Text);
             if (buf == null)
             {
-                err.Add($"The name '{cmd[0]}' does not reference an object of type 'buffer'.", cmd);
+                err.Error($"The name '{cmd[0]}' does not reference an object of type 'buffer'.", cmd);
                 return;
             }
 
@@ -109,7 +109,7 @@ namespace App
             int offset = 0;
             if (cmd.ArgCount > 1 && int.TryParse(cmd[1].Text, out offset) == false)
             {
-                err.Add($"The second parameter (offset) of buff {unit} is invalid.", cmd);
+                err.Error($"The second parameter (offset) of buff {unit} is invalid.", cmd);
                 return;
             }
 
@@ -117,7 +117,7 @@ namespace App
             int size = buf.Size;
             if (cmd.ArgCount > 2 && int.TryParse(cmd[2].Text, out size) == false)
             {
-                err.Add($"The third parameter (size) of buff {unit} is invalid.", cmd);
+                err.Error($"The third parameter (size) of buff {unit} is invalid.", cmd);
                 return;
             }
 

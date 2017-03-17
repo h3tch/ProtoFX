@@ -33,9 +33,10 @@ namespace App.Glsl
 
         #region Constructors
 
-        public TessShader() : this(-1) { }
+        public TessShader() : this(-1, null) { }
 
-        public TessShader(int startLine) : base(startLine, ProgramPipelineParameter.TessControlShader)
+        public TessShader(int startLine, string shaderString)
+            : base(startLine, ProgramPipelineParameter.TessControlShader)
         {
             gl_MaxPatchVertices = GL.GetInteger(GetPName.MaxPatchVertices);
             gl_TessLevelOuter = new float[4];

@@ -45,11 +45,11 @@ namespace App
                     try {
                         System.Reflection.Assembly.LoadFrom(assemblypath);
                     } catch (FileNotFoundException) {
-                        err.Add($"Assembly file '{assemblypath}' cound not be found.", block);
+                        err.Error($"Assembly file '{assemblypath}' cound not be found.", block);
                     } catch (FileLoadException) {
-                        err.Add($"Assembly '{assemblypath}' cound not be loaded.", block);
+                        err.Error($"Assembly '{assemblypath}' cound not be loaded.", block);
                     } catch {
-                        err.Add($"Unknown exception when loading assembly '{assemblypath}'.", block);
+                        err.Error($"Unknown exception when loading assembly '{assemblypath}'.", block);
                     }
                 }
             }
@@ -79,18 +79,20 @@ namespace App
             CompilerResults rs = null;
             try
             {
-                var compilerParams = new CompilerParameters();
-
                 // set compicompiler parameters
-                compilerParams.GenerateInMemory = true;
-                compilerParams.GenerateExecutable = false;
-                compilerParams.TempFiles = new TempFileCollection("tmp", false);
+                var compilerParams = new CompilerParameters()
+                {
+                    GenerateInMemory = true,
+                    GenerateExecutable = false,
+                    TempFiles = new TempFileCollection("tmp", false),
 #if DEBUG
-                compilerParams.IncludeDebugInformation = true;
-                compilerParams.CompilerOptions = "/define:DEBUG";
+                    IncludeDebugInformation = true,
+                    CompilerOptions = "/define:DEBUG",
 #else
-                compilerParams.IncludeDebugInformation = false;
+                    IncludeDebugInformation = false,
 #endif
+                };
+                
                 // add assemblies
                 compilerParams.ReferencedAssemblies.Add(
                     System.Reflection.Assembly.GetExecutingAssembly().Location);
@@ -132,16 +134,16 @@ namespace App
 #endif
                 }
                 else
-                    throw err.Add("Cannot mix filenames and source code"
+                    throw err.Error("Cannot mix filenames and source code"
                         + "strings when compiling C# code.", block);
             }
             catch (DirectoryNotFoundException ex)
             {
-                throw err.Add(ex.Message, block);
+                throw err.Error(ex.Message, block);
             }
             catch (FileNotFoundException ex)
             {
-                throw err.Add(ex.Message, block);
+                throw err.Error(ex.Message, block);
             }
             finally
             {
@@ -151,7 +153,7 @@ namespace App
                     string msg = "";
                     foreach (var message in rs.Errors)
                         msg += $"\n{message}";
-                    err.Add(msg, block);
+                    err.Error(msg, block);
                 }
             }
             return rs;
@@ -193,7 +195,7 @@ namespace App
             // check command
             if (cmd.ArgCount < 1)
             {
-                err.Add("'class' command must specify a csharp object name.", cmd);
+                err.Error("'class' command must specify a csharp object name.", cmd);
                 return null;
             }
 
@@ -201,7 +203,7 @@ namespace App
             var csharp = scene.GetValueOrDefault<GLCsharp>(cmd[0].Text);
             if (csharp == null)
             {
-                err.Add($"Could not find csharp code '{cmd[0].Text}' of command '{cmd.Text}' ", cmd);
+                err.Error($"Could not find csharp code '{cmd[0].Text}' of command '{cmd.Text}' ", cmd);
                 return null;
             }
 
@@ -222,7 +224,7 @@ namespace App
             var cmds = block["class"].ToList();
             if (cmds.Count == 0)
             {
-                err.Add("Instance must specify a 'class' command " +
+                err.Error("Instance must specify a 'class' command " +
                     "(e.g., class csharp_name class_name).", block);
                 return null;
             }
@@ -231,7 +233,7 @@ namespace App
             // check command
             if (cmd.ArgCount < 1)
             {
-                err.Add("'class' command must specify a csharp object name.", cmd);
+                err.Error("'class' command must specify a csharp object name.", cmd);
                 return null;
             }
 
@@ -239,7 +241,7 @@ namespace App
             var csharp = scene.GetValueOrDefault<GLCsharp>(cmd[0].Text);
             if (csharp == null)
             {
-                err.Add($"Could not find csharp code '{cmd[0].Text}' of command '{cmd.Text}' ", cmd);
+                err.Error($"Could not find csharp code '{cmd[0].Text}' of command '{cmd.Text}' ", cmd);
                 return null;
             }
 
@@ -259,7 +261,7 @@ namespace App
             // check if the command is valid
             if (cmd.ArgCount < 2)
             {
-                err.Add("'class' command must specify a class name.", block);
+                err.Error("'class' command must specify a class name.", block);
                 return null;
             }
             
@@ -274,9 +276,9 @@ namespace App
                 new object[] { block.Name, ToDict(block), glNames }, CultureInfo.CurrentCulture, null);
 
             if (instance == null)
-                throw err.Add($"Main class '{classname}' could not be found.", cmd);
+                throw err.Error($"Main class '{classname}' could not be found.", cmd);
             
-            InvokeMethod<List<string>>(instance, "GetErrors")?.ForEach(msg => err.Add(msg, cmd));
+            InvokeMethod<List<string>>(instance, "GetErrors")?.ForEach(msg => err.Error(msg, cmd));
 
             return instance;
         }
@@ -292,12 +294,12 @@ namespace App
             // check if the command is valid
             if (cmd.ArgCount < 2)
             {
-                err.Add("'class' command must specify a class name.", cmd);
+                err.Error("'class' command must specify a class name.", cmd);
                 return null;
             }
             if (cmd.ArgCount < 3)
             {
-                err.Add("'class' command must specify a method name.", cmd);
+                err.Error("'class' command must specify a method name.", cmd);
                 return null;
             }
 

@@ -1,19 +1,19 @@
-﻿uniform <<debug uniform>>;
-uniform <<debug frame>>;
+﻿
+uniform ivec2 _dbgFragment;
+uniform int _dbgLayer;
+uniform int _dbgViewport;
+	
+void main ()
+{
+	if (gl_FragCoord.x != _dbgFragment.x
+	|| gl_FragCoord.y != _dbgFragment.y
+	|| gl_Layer != _dbgLayer
+	|| gl_ViewportIndex != _dbgViewport)
+		return;
+			
+	int _dbgOffset = 1;
+		
+	<<store_input_varyings>>
 
-void _dbgMain() {
-	int _dbgIdx = 1;
-	<<debug code>>
-	_dbgStore(0, ivec2(_dbgIdx-1, _dbgFrame));
-}
-
-void _runMain() {
-	<<runtime code>>
-}
-
-void main() {
-	if (<<debug condition>>)
-		_dbgMain();
-	else
-		_runMain();
+	_dbgStore(0, _dbgOffset);
 }

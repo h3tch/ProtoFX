@@ -18,9 +18,9 @@ namespace App.Glsl
     /// </summary>
     public static class Debugger
     {
-        internal static int ShaderLineOffset = 0;
-        internal static bool CollectDebugData = false;
-        internal static List<TraceInfo> TraceLog = new List<TraceInfo>();
+        private static int ShaderLineOffset = 0;
+        private static bool CollectDebugData = false;
+        private static List<TraceInfo> TraceLog = new List<TraceInfo>();
         
         #region Debug Trace
 

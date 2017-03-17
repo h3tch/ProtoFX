@@ -73,7 +73,7 @@ namespace App
             if (HasErrorOrGlError(err, block))
                 throw err;
             if (status != FramebufferErrorCode.FramebufferComplete)
-                throw err.Add("Could not be created due to an unknown error.", block);
+                throw err.Error("Could not be created due to an unknown error.", block);
         }
         
         /// <summary>
@@ -124,7 +124,7 @@ namespace App
             var glimg = scene.GetValueOrDefault<GLImage>(cmd[0].Text);
             if (glimg == null)
             {
-                err.Add($"The name '{cmd[0].Text}' does not reference an object of type 'image'.", cmd);
+                err.Error($"The name '{cmd[0].Text}' does not reference an object of type 'image'.", cmd);
                 return;
             }
 
@@ -144,7 +144,7 @@ namespace App
                 $"{cmd.Name}attachment{(cmd.Name.Equals("color") ? "" + numAttachments++ : "")}",
                 true, out FramebufferAttachment attachment))
             {
-                err.Add($"Invalid attachment point '{cmd.Name}'.", cmd);
+                err.Error($"Invalid attachment point '{cmd.Name}'.", cmd);
                 return;
             }
 
@@ -166,7 +166,7 @@ namespace App
                         attachment, glimg.Target, glimg.glname, mipmap);
                     break;
                 default:
-                    err.Add($"The texture type '{glimg.Target}' of image " +
+                    err.Error($"The texture type '{glimg.Target}' of image " +
                         $"'{cmd[0].Text}' is not supported.", cmd);
                     break;
             }

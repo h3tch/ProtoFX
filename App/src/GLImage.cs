@@ -78,7 +78,7 @@ namespace App
             Cmds2Fields(block, err);
 
             if (Target == 0 && Size == null)
-                err.Add("Texture needs to specify a file or texture size " +
+                err.Error("Texture needs to specify a file or texture size " +
                     "(e.g., size <width> <height> <depth> <length>).", block);
 
             // on errors throw an exception
@@ -109,7 +109,7 @@ namespace App
                 else if (Width > 1 && Height > 1 && Depth > 1 && Length == 1)
                     Target = TexTarget.Texture3D;
                 else
-                    err.Add("Texture type could not be derived from 'width', 'height', "
+                    err.Error("Texture type could not be derived from 'width', 'height', "
                         + "'depth' and 'length'. Please check these parameters or specify "
                         + "the type directly (e.g. 'type = texture2D').", block);
             }

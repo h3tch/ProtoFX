@@ -52,7 +52,7 @@ namespace App
             // check commands for errors
             if (cmd.ArgCount < 3)
             {
-                err.Add("Command attr needs at least 3 attributes (e.g. 'attr buff_name float 4')", cmd);
+                err.Error("Command attr needs at least 3 attributes (e.g. 'attr buff_name float 4')", cmd);
                 return;
             }
 
@@ -66,7 +66,7 @@ namespace App
             
             if (scene.TryGetValue(buffname, out GLBuffer buff, cmd, err) == false)
             {
-                err.Add($"Buffer '{buffname}' could not be found.", cmd);
+                err.Error($"Buffer '{buffname}' could not be found.", cmd);
                 return;
             }
 
@@ -81,7 +81,7 @@ namespace App
             else if (Enum.TryParse(typename, true, out VertAttrType typef))
                 GL.VertexAttribPointer(unit, length, (PointerType)(type = (int)typef), false, stride, offset);
             else
-                err.Add($"Type '{typename}' is not supported.", cmd);
+                err.Error($"Type '{typename}' is not supported.", cmd);
 
             if (divisor > 0)
                 GL.VertexAttribDivisor(unit, divisor);

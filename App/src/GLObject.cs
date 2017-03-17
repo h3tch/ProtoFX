@@ -102,7 +102,7 @@ namespace App
             var errcode = GL.GetError();
             if (errcode != ErrorCode.NoError)
             {
-                err.Add($"OpenGL error '{errcode}' occurred.", block);
+                err.Error($"OpenGL error '{errcode}' occurred.", block);
                 return true;
             }
             return err.HasErrors;
@@ -120,7 +120,7 @@ namespace App
             var errcode = GL.GetError();
             if (errcode != ErrorCode.NoError)
             {
-                err.Add($"OpenGL error '{errcode}' occurred.", file, line);
+                err.Error($"OpenGL error '{errcode}' occurred.", file, line);
                 return true;
             }
             return err.HasErrors;
@@ -181,9 +181,9 @@ namespace App
         {
             // check for errors
             if (cmd.ArgCount == 0)
-                err?.Add($"Command '{cmd.Text}' has no arguments (must have at least one).", cmd);
+                err?.Error($"Command '{cmd.Text}' has no arguments (must have at least one).", cmd);
             if (!fieldType.IsArray && cmd.ArgCount > 1)
-                err?.Add($"Command '{cmd.Text}' has too many arguments (more than one).", cmd);
+                err?.Error($"Command '{cmd.Text}' has too many arguments (more than one).", cmd);
             if (err != null && err.HasErrors)
                 return;
 

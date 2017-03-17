@@ -42,7 +42,7 @@ namespace App.Glsl
         #region vec4
 
         public vec4(float a) : this(a, a, a, a) { }
-        public vec4(float[] v) : this(v[0], v[1], v[2], v[3]) { }
+        public vec4(float[] v) : this(v.Fetch(0), v.Fetch(1), v.Fetch(2), v.Fetch(3)) { }
         public vec4(float X, float Y, float Z, float W) { x = X; y = Y; z = Z; w = W; }
         public vec4(vec2 xy, float z, float w) : this(xy.x, xy.y, z, w) { }
         public vec4(float x, vec2 yz, float w) : this(x, yz.x, yz.y, w) { }
@@ -453,7 +453,7 @@ namespace App.Glsl
         #region vec4
 
         public dvec4(double a) : this(a, a, a, a) { }
-        public dvec4(double[] v) : this(v[0], v[1], v[2], v[3]) { }
+        public dvec4(double[] v) : this(v.Fetch(0), v.Fetch(1), v.Fetch(2), v.Fetch(3)) { }
         public dvec4(double X, double Y, double Z, double W) { x = X; y = Y; z = Z; w = W; }
         public dvec4(dvec2 xy, double z, double w) : this(xy.x, xy.y, z, w) { }
         public dvec4(double x, dvec2 yz, double w) : this(x, yz.x, yz.y, w) { }
@@ -864,7 +864,7 @@ namespace App.Glsl
         #region vec4
 
         public bvec4(bool a) : this(a, a, a, a) { }
-        public bvec4(bool[] v) : this(v[0], v[1], v[2], v[3]) { }
+        public bvec4(bool[] v) : this(v.Fetch(0), v.Fetch(1), v.Fetch(2), v.Fetch(3)) { }
         public bvec4(bool X, bool Y, bool Z, bool W) { x = X; y = Y; z = Z; w = W; }
         public bvec4(bvec2 xy, bool z, bool w) : this(xy.x, xy.y, z, w) { }
         public bvec4(bool x, bvec2 yz, bool w) : this(x, yz.x, yz.y, w) { }
@@ -1256,7 +1256,7 @@ namespace App.Glsl
         #region vec4
 
         public ivec4(int a) : this(a, a, a, a) { }
-        public ivec4(int[] v) : this(v[0], v[1], v[2], v[3]) { }
+        public ivec4(int[] v) : this(v.Fetch(0), v.Fetch(1), v.Fetch(2), v.Fetch(3)) { }
         public ivec4(int X, int Y, int Z, int W) { x = X; y = Y; z = Z; w = W; }
         public ivec4(ivec2 xy, int z, int w) : this(xy.x, xy.y, z, w) { }
         public ivec4(int x, ivec2 yz, int w) : this(x, yz.x, yz.y, w) { }
@@ -1648,7 +1648,7 @@ namespace App.Glsl
         #region vec4
 
         public uvec4(uint a) : this(a, a, a, a) { }
-        public uvec4(uint[] v) : this(v[0], v[1], v[2], v[3]) { }
+        public uvec4(uint[] v) : this(v.Fetch(0), v.Fetch(1), v.Fetch(2), v.Fetch(3)) { }
         public uvec4(uint X, uint Y, uint Z, uint W) { x = X; y = Y; z = Z; w = W; }
         public uvec4(uvec2 xy, uint z, uint w) : this(xy.x, xy.y, z, w) { }
         public uvec4(uint x, uvec2 yz, uint w) : this(x, yz.x, yz.y, w) { }
