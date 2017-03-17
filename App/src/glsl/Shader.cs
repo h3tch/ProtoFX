@@ -120,17 +120,23 @@ namespace App.Glsl
 
         #region GLSL Built In
 
-        protected int gl_MaxClipDistances;
+        protected static int gl_MaxClipDistances;
+        protected static int gl_MaxTextureImageUnits;
 
         #endregion
 
         #region Constructors
 
+        static Shader()
+        {
+            gl_MaxClipDistances = GL.GetInteger(GetPName.MaxClipDistances);
+            gl_MaxTextureImageUnits = GL.GetInteger(GetPName.MaxTextureImageUnits);
+        }
+
         public Shader(int startLine, ProgramPipelineParameter shaderType)
         {
             LineInFile = startLine;
             ShaderType = shaderType;
-            gl_MaxClipDistances = GL.GetInteger(GetPName.MaxClipDistances);
         }
 
         public virtual void Delete() { }

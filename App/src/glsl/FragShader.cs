@@ -1,11 +1,13 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Shadertype = OpenTK.Graphics.OpenGL4.ShaderType;
 
 namespace App.Glsl
 {
-    public class FragShader : Shader
+    public abstract class FragShader : Shader
     {
         #region Input
 
@@ -37,8 +39,7 @@ namespace App.Glsl
         private int DebugTexture;
 
         #endregion
-
-
+        
         #region Constructors
 
         public FragShader() : this(-1, null) { }
@@ -95,6 +96,7 @@ namespace App.Glsl
         internal void Debug(int glpipe, int glfrag)
         {
             DebugGetError(new StackTrace(true));
+
             try
             { 
                 // only generate debug trace if the shader is linked to a file
@@ -102,9 +104,26 @@ namespace App.Glsl
                     Debugger.BeginTracing(LineInFile);
 
                 GL.UseProgramStages(glpipe, ProgramStageMask.FragmentShaderBit, DebugFrag);
-                DebugGetError(new StackTrace(true));
 
-                //main();
+                var unit = GLTexture.FirstUnusedImgUnit(0, gl_MaxTextureImageUnits);
+                
+                if (unit >= 0)
+                {
+                    GL.BindImageTexture(unit, DebugTexture, 0, false, 0,
+                                        TextureAccess.WriteOnly,
+                                        SizedInternalFormat.Rgba32f);
+                    GL.ProgramUniform1(DebugFrag, DebugOutputBinding, unit);
+
+                    DrawCall.Draw();
+
+                    GL.BindImageTexture(unit, 0, 0, false, 0,
+                                        TextureAccess.WriteOnly,
+                                        SizedInternalFormat.Rgba32f);
+
+                    ProcessFields(this);
+                    GetFragmentInputVaryings();
+                    // main();
+                }
             }
             catch (Exception e)
             {
@@ -113,14 +132,16 @@ namespace App.Glsl
             finally
             {
                 // end debug trace generation
+                GL.UseProgramStages(glpipe, ProgramStageMask.FragmentShaderBit, glfrag);
                 Debugger.EndTracing();
             }
-            GL.UseProgramStages(glpipe, ProgramStageMask.FragmentShaderBit, glfrag);
+
             DebugGetError(new StackTrace(true));
         }
 
-        public override void main()
+        private void GetFragmentInputVaryings()
         {
+            // TODO
         }
     }
 }

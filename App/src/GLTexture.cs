@@ -1,5 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace App
 {
@@ -116,6 +118,14 @@ namespace App
                 GL.BindTexture(target, tex?.glname ?? 0);
         }
 
+        public static int FirstUnusedTexUnit(GetIndexedPName target, int start = 0, int count = 16)
+        {
+            return Enumerable.Range(start, count).FirstOr(i => {
+                GL.GetInteger(target, i, out int u);
+                return u == 0;
+            }, -1);
+        }
+
         /// <summary>
         /// Bind texture to compute-image unit.
         /// </summary>
@@ -129,7 +139,15 @@ namespace App
             TextureAccess access = TextureAccess.ReadOnly, GpuFormat format = GpuFormat.Rgba8)
         {
             GL.BindImageTexture(unit, tex?.glname ?? 0, level, tex?.glImg?.Length > 0,
-                           Math.Max(layer, 0), access, (SizedInternalFormat)format);
+                                Math.Max(layer, 0), access, (SizedInternalFormat)format);
+        }
+
+        public static int FirstUnusedImgUnit(int start = 0, int count = 16)
+        {
+            return Enumerable.Range(start, count).FirstOr(i => {
+                GL.GetInteger((GetIndexedPName)All.ImageBindingName, i, out int u);
+                return u == 0;
+            }, -1);
         }
 
         /// <summary>
