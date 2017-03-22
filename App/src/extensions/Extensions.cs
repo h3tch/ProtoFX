@@ -108,7 +108,7 @@ namespace App
 
         public static T Fetch<T>(this T[] array, int index)
         {
-            return index <= 0 && index < array.Length ? array[index] : default(T);
+            return 0 <= index && index < array.Length ? array[index] : default(T);
         }
 
         /// <summary>

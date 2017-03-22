@@ -157,6 +157,7 @@
     <Compile Include="src\extensions\Sync.cs" />
     <Compile Include="src\glsl\Access.cs" />
     <Compile Include="src\glsl\Debugger.cs" />
+    <Compile Include="src\glsl\GLU.cs" />
     <Compile Include="src\glsl\Qualifiers.cs" />
     <Compile Include="src\glsl\Typedef.cs" />
     <Compile Include="src\FXPerf.cs" />

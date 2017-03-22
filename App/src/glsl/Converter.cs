@@ -109,61 +109,67 @@ namespace App.Glsl
                 + "using App.Glsl.SamplerTypes; "
                 + "namespace App.Glsl { "
                 + $"class {className} : {shaderClass} {{ "
-                + $"public {className}() : this(0, null) {{ }} "
-                + $"public {className}(int l, string shaderString) : base(l, shaderString) {{ }} "
+                + $"public {className}() : this(0) {{ }} "
+                + $"public {className}(int l) : base(l) {{ }} "
                 + $"{text}}}}}";
             return code;
         }
 
-        public static string InputVaryingDebugShader(string text)
+        public static string FragmentDebugShader(string text, Dictionary<string, int> varyingLocation)
         {
-            int ID = 0;
-            var dict = new Dictionary<string, int>();
-
-            // get input varyings
-            var list = new List<string> { "// INPUT VARYINGS" };
-            foreach (Match varying in RegEx.InVarying.Matches(text))
-                AddDebugVar(varying.Value, false);
-
-            // get input varying blocks
-            list.Add("// INPUT BLOCK VARYINGS");
+            var dict = new Dictionary<string, string>();
             foreach (Match block in RegEx.InVaryingBlock.Matches(text))
             {
                 var name = Regex.Match(block.Value, Pattern.Word, RegexOptions.RightToLeft);
-                foreach (Match varying in RegEx.VariableDef.Matches(block.Value))
-                    AddDebugVar(varying.Value, true, $"{name.Value}.");
+                var blockname = Regex.Matches(block.Value, Pattern.Word)[1];
+                dict.Add(blockname.Value, name.Value);
             }
+
+            // get input varyings
+            var list = new List<string> { "// INPUT VARYINGS" };
+
+            // get input varying blocks
+            list.Add("\t\t// INPUT BLOCK VARYINGS");
+            list.Add("\t\tint _dbgOffset = 1;");
+            foreach (var pair in varyingLocation)
+            {
+                var point = pair.Key.IndexOf('.');
+                var varying = point >= 0
+                    ? dict[pair.Key.Substring(0, point)] + pair.Key.Substring(point)
+                    : pair.Key;
+                list.Add($"\t\t_dbgOffset = _dbgStoreVar(_dbgOffset, {varying}, {pair.Value});");
+            }
+            list.Add($"\t\t_dbgStore(0, _dbgOffset);");
 
             // compile debug shader string
             var main = RegEx.MainFunc.Match(text);
+            var shader = main.Value.Subrange(main.Value.IndexOf('{') + 1, main.Length - 1);
 
             var head = Properties.Resources.dbg;
-            var body = Regex.Replace(Properties.Resources.dbgBody,
-                                     "<<store_input_varyings>>",
-                                     list.Cat("\n"));
+            var body = Properties.Resources.dbgBody
+                .Replace("<<store_input_varyings>>", list.Cat("\n"))
+                .Replace("<<shader_code>>", shader);
 
             return text.Substring(0, main.Index) + head + body +
                    text.Substring(main.Index + main.Length);
 
             /// LOCAL FUNCTIONS
             /// 
-            void AddDebugVar(string varying, bool isblockvarying, string prefix = "")
-            {
-                var words = RegEx.Word.Matches(varying);
-                var name = words[isblockvarying ? 1 : 2].Value;
-                var array = RegEx.ArrayBraces.Match(varying);
-                dict.Add(name, ID);
-                if (array.Success)
-                {
-                    var narray = array.Value.Subrange(array.Value.IndexOf('[') + 1,
-                                                      array.Value.LastIndexOf(']'));
-                    list.Add($"for (int _dbgI = 0; _dbgI < {narray}; _dbgI++)");
-                    list.Add($"    _dbgOffset = _dbgStoreVar(_dbgOffset, {prefix}{name}[_dbgI], {ID});");
-                }
-                else
-                    list.Add($"_dbgOffset = _dbgStoreVar(_dbgOffset, {prefix}{name}, {ID});");
-                ID++;
-            }
+            //void AddDebugVar(string varying, string prefix = "", string blockname = null)
+            //{
+            //    var words = RegEx.Word.Matches(varying);
+            //    var name = words[blockname != null ? 1 : 2].Value;
+            //    var array = RegEx.ArrayBraces.Match(varying);
+            //    if (array.Success)
+            //    {
+            //        var narray = array.Value.Subrange(array.Value.IndexOf('[') + 1,
+            //                                          array.Value.LastIndexOf(']'));
+            //        list.Add($"\t\tfor (int _dbgI = 0; _dbgI < {narray}; _dbgI++)");
+            //        list.Add($"\t\t\t_dbgOffset = _dbgStoreVar(_dbgOffset, {prefix}{name}[_dbgI], {ID});");
+            //    }
+            //    else
+            //        list.Add($"\t\t_dbgOffset = _dbgStoreVar(_dbgOffset, {prefix}{name}, {ID});");
+            //}
         }
 
         /// <summary>

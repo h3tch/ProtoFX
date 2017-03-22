@@ -6,14 +6,10 @@ uniform int _dbgViewport;
 void main ()
 {
 	if (gl_FragCoord.x != _dbgFragment.x
-	|| gl_FragCoord.y != _dbgFragment.y
-	|| gl_Layer != _dbgLayer
-	|| gl_ViewportIndex != _dbgViewport)
-		return;
-			
-	int _dbgOffset = 1;
-		
-	<<store_input_varyings>>
+	|| gl_FragCoord.y != _dbgFragment.y)
+	{
+		<<store_input_varyings>>
+	}
 
-	_dbgStore(0, _dbgOffset);
+	<<shader_code>>
 }

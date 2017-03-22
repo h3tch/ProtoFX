@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using Shadertype = OpenTK.Graphics.OpenGL4.ShaderType;
 
 namespace App.Glsl
@@ -32,60 +33,19 @@ namespace App.Glsl
         #endregion
 
         #region Debug
-
-        private int DebugFrag;
-        private int DebugOutputBinding;
-        private int DebugBuffer;
-        private int DebugTexture;
+        
+        private int DbgOutUnit;
+        private Dictionary<int, string> DbgLoc2Input;
+        private static byte[] DebugData = new byte[1024];
 
         #endregion
-        
+
         #region Constructors
 
-        public FragShader() : this(-1, null) { }
+        public FragShader() : this(-1) { }
 
-        public FragShader(int startLine, string shaderString) 
-            : base(startLine, ProgramPipelineParameter.FragmentShader)
-        {
-            var debug = Converter.InputVaryingDebugShader(shaderString);
-            DebugFrag = GL.CreateShaderProgram(Shadertype.FragmentShader, 1, new[] { debug });
-            GL.GetProgram(DebugFrag, GetProgramParameterName.LinkStatus, out int status);
-            if (status != 1 || GL.GetError() != ErrorCode.NoError)
-                Delete();
-
-            DebugOutputBinding = GL.GetUniformLocation(DebugFrag, "_dbgOut");
-
-            DebugBuffer = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.TextureBuffer, DebugBuffer);
-            GL.NamedBufferData(DebugBuffer, 1024, IntPtr.Zero, BufferUsageHint.StaticRead);
-
-            DebugTexture = GL.GenTexture();
-            GL.BindTexture(TextureTarget.TextureBuffer, DebugTexture);
-            GL.TextureBuffer(DebugTexture, SizedInternalFormat.Rgba32f, DebugBuffer);
-
-            GL.BindTexture(TextureTarget.TextureBuffer, 0);
-            GL.BindBuffer(BufferTarget.TextureBuffer, 0);
-        }
-
-        public override void Delete()
-        {
-            base.Delete();
-            if (DebugFrag > 0)
-            {
-                GL.DeleteProgram(DebugFrag);
-                DebugFrag = 0;
-            }
-            if (DebugBuffer > 0)
-            {
-                GL.DeleteBuffer(DebugBuffer);
-                DebugBuffer = 0;
-            }
-            if (DebugTexture > 0)
-            {
-                GL.DeleteTexture(DebugTexture);
-                DebugTexture = 0;
-            }
-        }
+        public FragShader(int startLine)
+            : base(startLine, ProgramPipelineParameter.FragmentShader) { }
 
         #endregion
 
@@ -93,55 +53,123 @@ namespace App.Glsl
         /// Execute shader and generate debug trace
         /// if the shader is linked to a file.
         /// </summary>
-        internal void Debug(int glpipe, int glfrag)
+        internal void DebugBegin()
         {
-            DebugGetError(new StackTrace(true));
+            DbgOutUnit = -1;
 
-            try
-            { 
-                // only generate debug trace if the shader is linked to a file
-                if (LineInFile >= 0)
-                    Debugger.BeginTracing(LineInFile);
+            var program = GLU.ActiveProgram(ShaderType);
+            if (program == 0)
+                return;
 
-                GL.UseProgramStages(glpipe, ProgramStageMask.FragmentShaderBit, DebugFrag);
+            var _dbgOut = GL.GetUniformLocation(program, "_dbgOut");
+            if (_dbgOut < 0)
+                return;
+            
+            var _dbgFragment = GL.GetUniformLocation(program, "_dbgFragment");
+            if (_dbgFragment < 0)
+                return;
+            
+            (DbgLoc2Input, _) = GLU.InputLocationMappings(program);
 
-                var unit = GLTexture.FirstUnusedImgUnit(0, gl_MaxTextureImageUnits);
-                
-                if (unit >= 0)
-                {
-                    GL.BindImageTexture(unit, DebugTexture, 0, false, 0,
-                                        TextureAccess.WriteOnly,
-                                        SizedInternalFormat.Rgba32f);
-                    GL.ProgramUniform1(DebugFrag, DebugOutputBinding, unit);
+            DbgOutUnit = GLTexture.FirstUnusedImgUnit(0, gl_MaxTextureImageUnits);
+            if (DbgOutUnit < 0)
+                return;
 
-                    DrawCall.Draw();
+            GL.ProgramUniform1(program, _dbgOut, DbgOutUnit);
+            GL.ProgramUniform2(program, _dbgFragment, 0, 0);
+            GLTexture.BindImg(DbgOutUnit, Debugger.DebugTexture, 0, 0,
+                TextureAccess.WriteOnly, GpuFormat.Rgba32f);
+        }
 
-                    GL.BindImageTexture(unit, 0, 0, false, 0,
-                                        TextureAccess.WriteOnly,
-                                        SizedInternalFormat.Rgba32f);
-
-                    ProcessFields(this);
-                    GetFragmentInputVaryings();
-                    // main();
-                }
-            }
-            catch (Exception e)
-            {
-                Debugger.TraceExeption(e);
-            }
-            finally
-            {
-                // end debug trace generation
-                GL.UseProgramStages(glpipe, ProgramStageMask.FragmentShaderBit, glfrag);
-                Debugger.EndTracing();
-            }
-
-            DebugGetError(new StackTrace(true));
+        internal void DebugEnd()
+        {
+            if (DbgOutUnit < 0)
+                return;
+            GLTexture.BindImg(DbgOutUnit, null, 0, 0,
+                TextureAccess.WriteOnly, GpuFormat.Rgba32f);
+            ProcessFields(this);
+            GetFragmentInputVaryings();
         }
 
         private void GetFragmentInputVaryings()
         {
-            // TODO
+            Debugger.DebugBuffer.Read(ref DebugData);
+
+            var num = BitConverter.ToInt32(DebugData, 0);
+            for (int i = 1; i < num;)
+            {
+                var head = new Head(DebugVec(i++));
+                var array = head.AllocArray();
+                for (int y = 0, idx = 0; y < head.Heigth && i < num; y++, i++)
+                    for (int x = 0; x < head.Width; x++, idx++)
+                        array.SetValue(head.Byte2Type(DebugData, i, x), idx);
+
+                var varying = DbgLoc2Input[head.Location];
+                var blockpoint = varying.IndexOf('.');
+                if (blockpoint >= 0)
+                {
+                    var blockname = varying.Substring(0, blockpoint);
+                    var fields = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+                    var field = fields
+                        .Where(f => f.FieldType.Name == blockname)
+                        .FirstOrDefault();
+                    if (field != null)
+                        varying = field.Name + varying.Substring(blockpoint);
+                }
+
+                var varyingField = FindField(varying);
+            }
         }
+
+        private static byte[] DebugVec(int i)
+        {
+            return DebugData.Skip(16 * i).Take(16).ToArray();
+        }
+
+        private struct Head
+        {
+            const int BOOL = 1;
+            const int INT = 2;
+            const int UINT = 3;
+            const int FLOAT = 4;
+
+            private ivec4 Vec;
+            public int Type => Vec.x;
+            public int Heigth => Vec.y;
+            public int Width => Vec.z;
+            public int Location => Vec.w;
+
+            public Head(byte[] data)
+            {
+                Vec = new ivec4(data);
+            }
+
+            public Array AllocArray()
+            {
+
+                switch (Type)
+                {
+                    case BOOL:  return new bool [Heigth * Width];
+                    case INT:   return new int  [Heigth * Width];
+                    case UINT:  return new uint [Heigth * Width];
+                    case FLOAT: return new float[Heigth * Width];
+                }
+
+                return null;
+            }
+
+            public object Byte2Type(byte[] data, int vectorIdx, int dim)
+            {
+                int offset = 16 * vectorIdx + 4 * dim;
+                switch (Type)
+                {
+                    case BOOL: return BitConverter.ToInt32(DebugData, offset) != 0;
+                    case INT: return BitConverter.ToInt32(DebugData, offset);
+                    case UINT: return BitConverter.ToUInt32(DebugData, offset);
+                    case FLOAT: return BitConverter.ToSingle(DebugData, offset);
+                }
+                return null;
+            }
+        };
     }
 }

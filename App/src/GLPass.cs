@@ -247,7 +247,8 @@ namespace App
 
             /// BIND DEBUGGER
 
-            if (TraceDebugInfo && GenDebugInfo && drawcalls.Count > 0)
+            var debug = TraceDebugInfo && GenDebugInfo && drawcalls.Count > 0;
+            if (debug)
             {
                 try
                 {
@@ -262,7 +263,7 @@ namespace App
                         dbgtess?.Debug();
                         dbgeval?.Debug();
                         dbggeom?.Debug();
-                        dbgfrag?.Debug(glname, glfrag.glname);
+                        dbgfrag?.DebugBegin();
                     }
                 }
                 catch (Exception e)
@@ -287,6 +288,18 @@ namespace App
 
             // end timer query
             EndTimer();
+
+            if (debug)
+            {
+                try
+                {
+                    dbgfrag?.DebugEnd();
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($"Debugger crashed with the following message: {e.Message}", e);
+                }
+            }
 
             /// UNBIND OPENGL OBJECTS
 

@@ -34,9 +34,9 @@ namespace App.Glsl
 
         #region Constructors
 
-        public GeomShader() : this(-1, null) { }
+        public GeomShader() : this(-1) { }
 
-        public GeomShader(int startLine, string shaderString)
+        public GeomShader(int startLine)
             : base(startLine, ProgramPipelineParameter.GeometryShader)
         {
             gl_ClipDistance = new float[gl_MaxClipDistances];
