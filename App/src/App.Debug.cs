@@ -1,4 +1,5 @@
-﻿using ScintillaNET;
+﻿using App.Extensions;
+using ScintillaNET;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -78,7 +79,7 @@ namespace App
             var data = buf.Read();
 
             // convert data to specified type
-            (Array da, Type colType) = data.To(type);
+            var da = data.To(type, out Type colType);
 
             // CREATE TABLE
             var dt = new DataTable(buf.Name);

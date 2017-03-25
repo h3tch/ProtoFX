@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using App.Extensions;
+using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -98,32 +99,55 @@ namespace App.Glsl
             var num = BitConverter.ToInt32(DebugData, 0);
             for (int i = 1; i < num;)
             {
-                var head = new Head(DebugVec(i++));
-                var array = head.AllocArray();
-                for (int y = 0, idx = 0; y < head.Heigth && i < num; y++, i++)
-                    for (int x = 0; x < head.Width; x++, idx++)
-                        array.SetValue(head.Byte2Type(DebugData, i, x), idx);
+                var head = new Head(DebugData, i);
+                i += head.Heigth + 1;
 
                 var varying = DbgLoc2Input[head.Location];
                 var blockpoint = varying.IndexOf('.');
                 if (blockpoint >= 0)
                 {
                     var blockname = varying.Substring(0, blockpoint);
-                    var fields = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-                    var field = fields
-                        .Where(f => f.FieldType.Name == blockname)
-                        .FirstOrDefault();
+                    var (_, field, _) = this.FindMember(varying);
+
                     if (field != null)
-                        varying = field.Name + varying.Substring(blockpoint);
+                    {
+                        switch (field)
+                        {
+                            case FieldInfo f: varying = f.Name + varying.Substring(blockpoint); break;
+                            case PropertyInfo p: varying = p.Name + varying.Substring(blockpoint); break;
+                        }
+                    }
                 }
 
-                var varyingField = FindField(varying);
-            }
-        }
+                var (owner, info, index) = this.FindMember(varying);
 
-        private static byte[] DebugVec(int i)
-        {
-            return DebugData.Skip(16 * i).Take(16).ToArray();
+                switch (info)
+                {
+                    case FieldInfo f:
+                        var type = index >= 0 ? f.FieldType.GetElementType() : f.FieldType;
+                        var ctr = type.GetConstructor(new[] { head.Value.GetType() });
+                        if (ctr != null)
+                        {
+                            var value = head.Value;
+                            if (index < 0)
+                                f.SetValue(owner, ctr.Invoke(new[] { value }));
+                            else
+                                (f.GetValue(owner) as Array).SetValue(ctr.Invoke(new[] { value }), index);
+                        }
+                        ctr = type.GetConstructor(new[] { head.Value.GetElementType() });
+                        if (ctr != null)
+                        {
+                            var value = head.Value.GetValue(0);
+                            if (index < 0)
+                                f.SetValue(owner, ctr.Invoke(new[] { value }));
+                            else
+                                (f.GetValue(owner) as Array).SetValue(ctr.Invoke(new[] { value }), index);
+                        }
+                        break;
+                    case PropertyInfo p:
+                        break;
+                }
+            }
         }
 
         private struct Head
@@ -134,41 +158,29 @@ namespace App.Glsl
             const int FLOAT = 4;
 
             private ivec4 Vec;
+            public Array Value;
             public int Type => Vec.x;
             public int Heigth => Vec.y;
             public int Width => Vec.z;
             public int Location => Vec.w;
 
-            public Head(byte[] data)
+            public Head(byte[] data, int index)
             {
-                Vec = new ivec4(data);
-            }
+                Vec = data.Skip(16 * index++).Take(16).ToArray().To<ivec4>()[0];
+                Value = null;
 
-            public Array AllocArray()
-            {
+                var w = 4 * Width;
+                var bytes = Enumerable.Range(index, Heigth)
+                    .SelectMany(i => data.Skip(16 * i).Take(w)).ToArray();
 
                 switch (Type)
                 {
-                    case BOOL:  return new bool [Heigth * Width];
-                    case INT:   return new int  [Heigth * Width];
-                    case UINT:  return new uint [Heigth * Width];
-                    case FLOAT: return new float[Heigth * Width];
+                    case BOOL: Value = bytes.To<int>().Select(v => v != 0).ToArray(); break;
+                    case INT: Value = bytes.To<int>(); break;
+                    case UINT: Value = bytes.To<uint>(); break;
+                    case FLOAT: Value = bytes.To<float>(); break;
+                    default: throw new ArgumentException("");
                 }
-
-                return null;
-            }
-
-            public object Byte2Type(byte[] data, int vectorIdx, int dim)
-            {
-                int offset = 16 * vectorIdx + 4 * dim;
-                switch (Type)
-                {
-                    case BOOL: return BitConverter.ToInt32(DebugData, offset) != 0;
-                    case INT: return BitConverter.ToInt32(DebugData, offset);
-                    case UINT: return BitConverter.ToUInt32(DebugData, offset);
-                    case FLOAT: return BitConverter.ToSingle(DebugData, offset);
-                }
-                return null;
             }
         };
     }

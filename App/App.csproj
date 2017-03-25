@@ -147,12 +147,14 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\extensions\BinaryReader.cs" />
+    <Compile Include="src\extensions\Convert.cs" />
     <Compile Include="src\extensions\DropOutStack.cs" />
     <Compile Include="src\extensions\Extensions.cs" />
     <Compile Include="src\controls\CodeEditor.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\extensions\IEnumerable.cs" />
+    <Compile Include="src\extensions\Object.cs" />
     <Compile Include="src\extensions\String.cs" />
     <Compile Include="src\extensions\Sync.cs" />
     <Compile Include="src\glsl\Access.cs" />

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -84,112 +83,25 @@ namespace App
             return ((TResult)Attribute.GetCustomAttribute(type, typeof(TResult)));
         }
 
-        /// <summary>
-        /// Convert array to byte array.
-        /// </summary>
-        /// <param name="src"></param>
-        /// <returns></returns>
-        public static byte[] ToBytes(this Array src)
-        {
-            // get source type size
-            var ellType = src.GetType().GetElementType();
-            var ellSize = ellType == typeof(char) ? 2 : Marshal.SizeOf(ellType);
-            // allocate byte array
-            var dst = new byte[ellSize * src.Length];
-            // copy source data to output array
-            Buffer.BlockCopy(src, 0, dst, 0, dst.Length);
-            return dst;
-        }
-
         public static int Size(this Array array)
         {
-            return Marshal.SizeOf(array.GetType().GetElementType()) * array.Length;
+            return array.ElementSize() * array.Length;
+        }
+
+        public static Type GetElementType(this Array array)
+        {
+            return array.GetType().GetElementType();
+        }
+
+        public static int ElementSize(this Array array)
+        {
+            var type = array.GetElementType();
+            return type == typeof(char) ? 2 : Marshal.SizeOf(type);
         }
 
         public static T Fetch<T>(this T[] array, int index)
         {
             return 0 <= index && index < array.Length ? array[index] : default(T);
-        }
-
-        /// <summary>
-        /// Convert string into the specified type.
-        /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="str"></param>
-        /// <param name="exeptionMessage"></param>
-        /// <returns></returns>
-        public static TResult To<TResult>(this string str, string exeptionMessage = null)
-        {
-            try
-            {
-                return (TResult)Convert.ChangeType(str, typeof(TResult), CultureInfo.CurrentCulture);
-            }
-            catch
-            {
-                if (exeptionMessage == null)
-                    return default(TResult);
-                throw new CompileException(exeptionMessage);
-            }
-        }
-
-        /// <summary>
-        /// Convert byte array into an array of the specified type.
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public static Array To(this byte[] data, Type type)
-        {
-            // get the size of the output type
-            var ellSize = type == typeof(char) ? 2 : Marshal.SizeOf(type);
-            // allocate output array
-            var rs = Array.CreateInstance(type, (data.Length + ellSize - 1) / ellSize);
-            // copy data to output array
-            Buffer.BlockCopy(data, 0, rs, 0, data.Length);
-            return rs;
-        }
-
-        /// <summary>
-        /// Convert all array values to the specified return type.
-        /// </summary>
-        /// <typeparam name="TResult">The return type all values should be converted to.</typeparam>
-        /// <param name="array"></param>
-        /// <returns>Returns an array for converted values.</returns>
-        public static TResult[] To<TResult>(this Array array)
-        {
-            var result = new TResult[array.Length];
-            for (int i = 0; i < array.Length; i++)
-                result[i] = (TResult)array.GetValue(i);
-            return result;
-        }
-
-        /// <summary>
-        /// Cast an array to another type, not by element, but by memory.
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="typeName"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public static (Array, Type) To(this Array data, string typeName)
-        {
-            // convert input type to bytes
-            var bytes = data.GetType().GetElementType() == typeof(byte) ? (byte[])data : data.ToBytes();
-            // convert bytes to output type
-            var type = str2type[typeName];
-            var array = bytes.To(type);
-            return (array, type);
-        }
-
-        /// <summary>
-        /// Convert array to IEnumerable.
-        /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="a"></param>
-        /// <param name="func"></param>
-        /// <returns></returns>
-        public static IEnumerable<object> ToEnumerable(this Array a)
-        {
-            return ForEach(a, new int[a.Rank]);
         }
 
         /// <summary>
@@ -219,24 +131,7 @@ namespace App
                     yield return data.GetValue(tmpIdx);
             }
         }
-
-        /// <summary>
-        /// Covert the elements of an array into strings.
-        /// </summary>
-        /// <param name="src"></param>
-        /// <param name="format">How to format the type into a string.</param>
-        /// <returns></returns>
-        public static Array ToStringArray(this Array src, string format)
-        {
-            // get array size for each dimension
-            var size = Enumerable.Range(0, src.Rank).Select(x => src.GetLength(x)).ToArray();
-            // allocate string array
-            var dst = Array.CreateInstance(typeof(string), size);
-            // convert each element to a string
-            ToStringArray(src, dst, format, new int[src.Rank]);
-            return dst;
-        }
-
+        
         /// <summary>
         /// Covert the elements of an array of a specific type into and array of strings.
         /// </summary>

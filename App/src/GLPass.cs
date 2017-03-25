@@ -1,4 +1,5 @@
-﻿using App.Glsl;
+﻿using App.Extensions;
+using App.Glsl;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
@@ -407,6 +408,13 @@ namespace App
                     + "'compute buffer_name indirect_pointer').", cmd);
                 return;
             }
+            
+            del Arg2UInt = (arg, exceptionMessage) =>
+            {
+                if (!uint.TryParse(arg, out uint value))
+                    throw new CompileException(exceptionMessage);
+                return value;
+            };
 
             try
             {
@@ -419,18 +427,18 @@ namespace App
                     call.numGroupsX = (uint)classes.GetValue<GLBuffer>(cmd[0].Text,
                         "First argument of compute command must be a buffer name").glname;
                     // indirect compute call buffer pointer
-                    call.numGroupsY = cmd[1].Text.To<uint>("Argument must be an unsigned integer, "
+                    call.numGroupsY = Arg2UInt(cmd[1].Text, "Argument must be an unsigned integer, "
                         + "specifying a pointer into the indirect compute call buffer.");
                 }
                 // this is a normal compute call
                 else
                 {
                     // number of compute groups
-                    call.numGroupsX = cmd[0].Text.To<uint>("Argument must be an unsigned integer, "
+                    call.numGroupsX = Arg2UInt(cmd[0].Text, "Argument must be an unsigned integer, "
                         + "specifying the number of compute groups in X.");
-                    call.numGroupsY = cmd[1].Text.To<uint>("Argument must be an unsigned integer, "
+                    call.numGroupsY = Arg2UInt(cmd[1].Text, "Argument must be an unsigned integer, "
                         + "specifying the number of compute groups in Y.");
-                    call.numGroupsZ = cmd[2].Text.To<uint>("Argument must be an unsigned integer, "
+                    call.numGroupsZ = Arg2UInt(cmd[2].Text, "Argument must be an unsigned integer, "
                         + "specifying the number of compute groups in Z.");
                 }
 
@@ -530,7 +538,8 @@ namespace App
                         Enum.Parse(param[i].ParameterType, cmd[i].Text, true),
                         param[i].ParameterType);
                 else
-                    inval[i] = Convert.ChangeType(cmd[i].Text, param[i].ParameterType, CultureInfo.CurrentCulture);
+                    inval[i] = Convert.ChangeType(
+                        cmd[i].Text, param[i].ParameterType, CultureInfo.CurrentCulture);
             }
 
             glfunc.Add(new GLMethod(mtype, inval));
@@ -555,6 +564,8 @@ namespace App
         #endregion
 
         #region UTIL METHODS
+
+        delegate uint del(string arg, string exceptionMessage);
 
         private MethodInfo FindMethod(string name, int nparam)
         {

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using UsageHint = OpenTK.Graphics.OpenGL4.BufferUsageHint;
 using ParameterName = OpenTK.Graphics.OpenGL4.BufferParameterName;
+using App.Extensions;
 
 namespace App
 {
@@ -122,7 +123,8 @@ namespace App
             // check buffer size
             if (Size == 0)
             {
-                var rs = "Buffer is empty".ToCharArray().ToBytes();
+                //var rs = "Buffer is empty".ToCharArray().ToBytes();
+                var rs = "Buffer is empty".To<byte>();
                 if (data == null) data = rs; else rs.CopyTo(data, 0);
                 return;
             }
@@ -131,7 +133,7 @@ namespace App
             GL.GetNamedBufferParameter(glname, ParameterName.BufferStorageFlags, out int flags);
             if ((flags & (int)BufferStorageFlags.MapReadBit) == 0)
             {
-                var rs = "Buffer cannot be read".ToCharArray().ToBytes();
+                var rs = "Buffer cannot be read".To<byte>();
                 if (data == null) data = rs; else rs.CopyTo(data, 0);
                 return;
             }
@@ -282,7 +284,7 @@ namespace App
             }
 
             // Convert text to byte array
-            return str.ToCharArray().ToBytes();
+            return str.To<byte>();
         }
         
         /// <summary>
