@@ -1,5 +1,4 @@
-﻿using App.Extensions;
-using System;
+﻿using System;
 
 #pragma warning disable IDE1006
 

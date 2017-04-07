@@ -1,5 +1,4 @@
-﻿using App.Extensions;
-using ScintillaNET;
+﻿using ScintillaNET;
 using System;
 using System.Collections.Generic;
 using System.Data;

@@ -1,7 +1,6 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
-namespace App.Extensions
+namespace System
 {
     public static class MemoryExtensions
     {

@@ -10,7 +10,6 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml;
 using static System.Windows.Forms.FormWindowState;
-using App.Extensions;
 
 namespace App
 {
@@ -109,8 +108,8 @@ namespace App
         private void App_Load(object s, EventArgs e)
         {
             // select default item
-            ConvertExtensions.str2type.Keys.ForEach(x => comboBufType.Items.Add(x));
-            comboBufType.SelectedIndex = ConvertExtensions.str2type.Keys.IndexOf(x => x == "float");
+            TypeExtensions.Str2Type.Keys.ForEach(x => comboBufType.Items.Add(x));
+            comboBufType.SelectedIndex = TypeExtensions.Str2Type.Keys.IndexOf(x => x == "float");
 
             /// LINK PROPERTY VIEWER TO DEBUG SETTINGS
             

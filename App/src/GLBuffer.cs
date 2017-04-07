@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using UsageHint = OpenTK.Graphics.OpenGL4.BufferUsageHint;
 using ParameterName = OpenTK.Graphics.OpenGL4.BufferParameterName;
-using App.Extensions;
 
 namespace App
 {

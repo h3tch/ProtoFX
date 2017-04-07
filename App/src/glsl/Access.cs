@@ -1,5 +1,4 @@
-﻿using App.Extensions;
-using App.Glsl.SamplerTypes;
+﻿using App.Glsl.SamplerTypes;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;

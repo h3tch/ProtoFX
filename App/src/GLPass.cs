@@ -1,5 +1,4 @@
-﻿using App.Extensions;
-using App.Glsl;
+﻿using App.Glsl;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
