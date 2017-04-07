@@ -271,10 +271,6 @@ namespace App
                 {
                     throw new Exception($"Debugger crashed with the following message: {e.Message}", e);
                 }
-                finally
-                {
-                    TraceDebugInfo = false;
-                }
             }
 
             /// EXECUTE DRAW AND COMPUTE CALLS
@@ -299,6 +295,10 @@ namespace App
                 catch (Exception e)
                 {
                     throw new Exception($"Debugger crashed with the following message: {e.Message}", e);
+                }
+                finally
+                {
+                    TraceDebugInfo = false;
                 }
             }
 

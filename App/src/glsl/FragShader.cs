@@ -90,65 +90,27 @@ namespace App.Glsl
                 TextureAccess.WriteOnly, GpuFormat.Rgba32f);
             ProcessFields(this);
             GetFragmentInputVaryings();
+
+            Debugger.BeginTracing(LineInFile);
+            main();
+            Debugger.EndTracing();
         }
 
         private void GetFragmentInputVaryings()
         {
             Debugger.DebugBuffer.Read(ref DebugData);
-
-            var num = BitConverter.ToInt32(DebugData, 0);
-            for (int i = 1; i < num;)
+            
+            for (int i = 1, num = BitConverter.ToInt32(DebugData, 0); i < num;)
             {
                 var head = new Head(DebugData, i);
                 i += head.Heigth + 1;
 
                 var varying = DbgLoc2Input[head.Location];
-                var blockpoint = varying.IndexOf('.');
-                if (blockpoint >= 0)
-                {
-                    var blockname = varying.Substring(0, blockpoint);
-                    var (_, field, _) = this.FindMember(varying);
-
-                    if (field != null)
-                    {
-                        switch (field)
-                        {
-                            case FieldInfo f: varying = f.Name + varying.Substring(blockpoint); break;
-                            case PropertyInfo p: varying = p.Name + varying.Substring(blockpoint); break;
-                        }
-                    }
-                }
-
-                var (owner, info, index) = this.FindMember(varying);
-
-                switch (info)
-                {
-                    case FieldInfo f:
-                        var type = index >= 0 ? f.FieldType.GetElementType() : f.FieldType;
-                        var ctr = type.GetConstructor(new[] { head.Value.GetType() });
-                        if (ctr != null)
-                        {
-                            var value = head.Value;
-                            if (index < 0)
-                                f.SetValue(owner, ctr.Invoke(new[] { value }));
-                            else
-                                (f.GetValue(owner) as Array).SetValue(ctr.Invoke(new[] { value }), index);
-                        }
-                        ctr = type.GetConstructor(new[] { head.Value.GetElementType() });
-                        if (ctr != null)
-                        {
-                            var value = head.Value.GetValue(0);
-                            if (index < 0)
-                                f.SetValue(owner, ctr.Invoke(new[] { value }));
-                            else
-                                (f.GetValue(owner) as Array).SetValue(ctr.Invoke(new[] { value }), index);
-                        }
-                        break;
-                    case PropertyInfo p:
-                        break;
-                }
+                this.SetValue(varying, head.Value);
             }
         }
+
+
 
         private struct Head
         {

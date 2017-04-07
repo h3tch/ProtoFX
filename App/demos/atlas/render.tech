@@ -233,7 +233,7 @@ shader gs_shadowmap geom {
 				pos.xy = pos.xy * 2.0 - 1.0;
 				pos.xy *= pos.w;
 				
-				// geomitry shader output
+				// geometry shader output
 				gl_Position = pos;
 				EmitVertex();
 			}
