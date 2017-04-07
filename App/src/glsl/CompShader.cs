@@ -31,7 +31,7 @@ namespace App.Glsl
 
         #endregion
 
-        internal void Debug()
+        internal void ExecuteCpuDebugShader()
         {
             try
             { 

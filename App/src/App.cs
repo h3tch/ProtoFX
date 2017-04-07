@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Xml;
 using static System.Windows.Forms.FormWindowState;
+using App.Extensions;
 
 namespace App
 {

@@ -479,8 +479,10 @@ namespace App
             var row = from v in val
                       select string.Format(CultureInfo.CurrentCulture, "{0:0.000}", v);
             // add row to list view
-            var item = new ListViewItem(row.ToArray());
-            item.Group = dbgVarGroup;
+            var item = new ListViewItem(row.ToArray())
+            {
+                Group = dbgVarGroup
+            };
             debugListView.AddItem(item);
         }
 

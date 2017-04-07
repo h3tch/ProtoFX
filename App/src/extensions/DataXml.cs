@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Xml;
+using App.Extensions;
 
 namespace App
 {
@@ -51,7 +52,7 @@ namespace App
                                 + $" to be specified(e.g. <{itemname} type='float'>).");
                         
                         // convert type name to Type
-                        type = ConvertExtensions.str2type[attr["type"].Value];
+                        type = TypeExtensions.Str2Type[attr["type"].Value];
                         if (type == null)
                             throw new XmlException($"{errstr}Type '{attr["type"].Value}' not supported.");
 

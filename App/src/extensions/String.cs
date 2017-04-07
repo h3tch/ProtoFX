@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-
-namespace System
+﻿namespace System
 {
     public static class StringExtensions
     {
@@ -59,6 +57,16 @@ namespace System
         {
             return s.Substring(start, end - start);
         }
-    }
 
+        /// <summary>
+        /// Convert an array byte-wise from to the specified type.
+        /// </summary>
+        /// <typeparam name="U"></typeparam>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static U[] To<U>(this string str)
+        {
+            return str.ToCharArray().To<U>();
+        }
+    }
 }

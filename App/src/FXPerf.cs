@@ -29,7 +29,8 @@ namespace App
 
         #region CONSTRUCTORS
 
-        public FXPerf(string name, string anno, int capacity, bool debugging) : base(name, anno)
+        public FXPerf(string name, string anno, int capacity, bool debugging)
+            : base(name, anno)
         {
             /// INIT
             
@@ -69,6 +70,10 @@ namespace App
 
         #region TIMING
 
+        /// <summary>
+        /// Start measuring the execution time for the specified frame.
+        /// </summary>
+        /// <param name="frame"></param>
         internal void StartTimer(int frame)
         {
             // begin timer query
@@ -80,6 +85,9 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// End measuring the execution time from StartTimer until now.
+        /// </summary>
         internal void EndTimer()
         {
             // end timer query
@@ -90,6 +98,9 @@ namespace App
             }
         }
 
+        /// <summary>
+        /// Measure an store the elapsed time between StartTimer and EndTimer.
+        /// </summary>
         internal void MeasureTime()
         {
             if (timerStartFrame < 0)

@@ -51,7 +51,7 @@ namespace App.Glsl
         /// Execute shader and generate debug trace
         /// if the shader is linked to a file.
         /// </summary>
-        internal void Debug()
+        internal void ExecuteCpuDebugShader()
         {
             try
             {

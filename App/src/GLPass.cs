@@ -166,7 +166,6 @@ namespace App
             base.Delete();
             if (glname > 0)
             {
-                //GL.DeleteProgram(glname);
                 GL.DeleteProgramPipeline(glname);
                 glname = 0;
             }
@@ -256,21 +255,22 @@ namespace App
                     Shader.DrawCall = drawcalls.First();
                     if (dbgcomp != null)
                     {
-                        dbgcomp.Debug();
+                        dbgcomp.ExecuteCpuDebugShader();
                     }
                     else if (dbgvert != null)
                     {
-                        dbgvert.Debug();
-                        dbgtess?.Debug();
-                        dbgeval?.Debug();
-                        dbggeom?.Debug();
-                        dbgfrag?.DebugBegin();
+                        dbgvert.ExecuteCpuDebugShader();
+                        dbgtess?.ExecuteCpuDebugShader();
+                        dbgeval?.ExecuteCpuDebugShader();
+                        dbggeom?.ExecuteCpuDebugShader();
+                        dbgfrag?.BindDebugShaderResources();
                     }
                 }
                 catch (Exception e)
                 {
                     throw new Exception($"Debugger crashed with the following message: {e.Message}", e);
                 }
+                ThrowOnGLError($"OpenGL error while executing the debug code.");
             }
 
             /// EXECUTE DRAW AND COMPUTE CALLS
@@ -286,20 +286,18 @@ namespace App
             // end timer query
             EndTimer();
 
+            /// UNBIND DEBUGGER
+            
             if (debug)
             {
-                try
-                {
-                    dbgfrag?.DebugEnd();
-                }
-                catch (Exception e)
-                {
+                try {
+                    dbgfrag?.ExecuteCpuDebugShader();
+                } catch (Exception e) {
                     throw new Exception($"Debugger crashed with the following message: {e.Message}", e);
-                }
-                finally
-                {
+                } finally {
                     TraceDebugInfo = false;
                 }
+                ThrowOnGLError($"OpenGL error while gathering fragment shader debug data.");
             }
 
             /// UNBIND OPENGL OBJECTS
