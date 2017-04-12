@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace System
@@ -12,7 +13,7 @@ namespace System
         /// <returns></returns>
         public static int Size(this Array array)
         {
-            return array.ElementSize() * array.Length;
+            return array.GetElementSize() * array.Length;
         }
 
         /// <summary>
@@ -30,7 +31,7 @@ namespace System
         /// </summary>
         /// <param name="array"></param>
         /// <returns></returns>
-        public static int ElementSize(this Array array)
+        public static int GetElementSize(this Array array)
         {
             var type = array.GetElementType();
             return type == typeof(char) ? 2 : Marshal.SizeOf(type);
@@ -85,22 +86,65 @@ namespace System
         public static Array To(this Array src, Type dstType)
         {
             // get element type size of source and destination array
-            var srcSize = src.ElementSize();
+            var srcSize = src.GetElementSize();
             var dstSize = dstType == typeof(char) ? 2 : Marshal.SizeOf(dstType);
 
             // copy array to unmanaged memory
-            var ptr = Marshal.AllocHGlobal(src.Size());
+            var bufSize = src.Size();
+            var ptr = Marshal.AllocHGlobal(bufSize);
             for (int i = 0, offset = 0; i < src.Length; i++, offset += srcSize)
                 Marshal.StructureToPtr(src.GetValue(i), ptr + offset, false);
 
+            return ptr.To(bufSize, dstType);
+        }
+
+        public static Array To(this IntPtr src, int bufSize, Type dstType)
+        {
+            var dstSize = dstType == typeof(char) ? 2 : Marshal.SizeOf(dstType);
+
             // allocate destination array
-            var dst = Array.CreateInstance(dstType, (src.Size() + dstSize - 1) / dstSize);
+            var dst = Array.CreateInstance(dstType, (bufSize + dstSize - 1) / dstSize);
 
             // copy unmanaged data to the destination array
             for (int i = 0, offset = 0; i < dst.Length; i++, offset += dstSize)
-                dst.SetValue(Marshal.PtrToStructure(ptr + offset, dstType), i);
+                dst.SetValue(Marshal.PtrToStructure(src + offset, dstType), i);
 
             return dst;
+        }
+
+        public static Array Reshape(this Array src, params int[] lengths)
+        {
+            // allocate destination array
+            var dst = Array.CreateInstance(src.GetElementType(), lengths);
+
+            var srcidx = new int[src.Rank];
+            var dstidx = new int[dst.Rank];
+            for (int i = 0; i < dst.Length; i++)
+                dst.SetValueByIndex(src.GetValueByIndex(i, srcidx), i, dstidx);
+
+            return dst;
+        }
+
+        private static void SetValueByIndex(this Array me, object value, int index, int[] indices)
+        {
+            for (int d = me.Rank - 1; d >= 0; d--)
+            {
+                var l = me.GetLength(d);
+                indices[d] = index % l;
+                index /= l;
+            }
+            me.SetValue(value, indices);
+        }
+
+        private static object GetValueByIndex(this Array me, int index, int[] indices)
+        {
+            for (int d = me.Rank - 1; d >= 0; d--)
+            {
+                var l = me.GetLength(d);
+                indices[d] = index % l;
+                index /= l;
+            }
+            return me.GetValue(indices);
         }
 
         /// <summary>

@@ -840,6 +840,16 @@ namespace App.Glsl
             return new vec2(a);
         }
 
+        public static vec2 vec2(ivec2 a)
+        {
+            return new vec2(a.x, a.y);
+        }
+
+        public static vec2 vec2(uvec2 a)
+        {
+            return new vec2(a.x, a.y);
+        }
+
         public static vec2 vec2(float x, float y)
         {
             return new vec2(x, y);
@@ -848,6 +858,16 @@ namespace App.Glsl
         public static vec3 vec3(float a)
         {
             return new vec3(a);
+        }
+
+        public static vec3 vec3(ivec3 a)
+        {
+            return new vec3(a.x, a.y, a.z);
+        }
+
+        public static vec3 vec3(uvec3 a)
+        {
+            return new vec3(a.x, a.y, a.z);
         }
 
         public static vec3 vec3(float x, float y, float z)
@@ -868,6 +888,16 @@ namespace App.Glsl
         public static vec4 vec4(float a)
         {
             return new vec4(a);
+        }
+
+        public static vec4 vec4(ivec4 a)
+        {
+            return new vec4(a.x, a.y, a.z, a.w);
+        }
+
+        public static vec4 vec4(uvec4 a)
+        {
+            return new vec4(a.x, a.y, a.z, a.w);
         }
 
         public static vec4 vec4(float x, float y, float z, float w)
@@ -980,6 +1010,16 @@ namespace App.Glsl
             return new ivec2(a);
         }
 
+        public static ivec2 ivec2(vec2 a)
+        {
+            return new ivec2((int)a.x, (int)a.y);
+        }
+
+        public static ivec2 ivec2(uvec2 a)
+        {
+            return new ivec2((int)a.x, (int)a.y);
+        }
+
         public static ivec2 ivec2(int x, int y)
         {
             return new ivec2(x, y);
@@ -988,6 +1028,16 @@ namespace App.Glsl
         public static ivec3 ivec3(int a)
         {
             return new ivec3(a);
+        }
+
+        public static ivec3 ivec3(vec3 a)
+        {
+            return new ivec3((int)a.x, (int)a.y, (int)a.z);
+        }
+
+        public static ivec3 ivec3(uvec3 a)
+        {
+            return new ivec3((int)a.x, (int)a.y, (int)a.z);
         }
 
         public static ivec3 ivec3(int x, int y, int z)
@@ -1008,6 +1058,16 @@ namespace App.Glsl
         public static ivec4 ivec4(int a)
         {
             return new ivec4(a);
+        }
+
+        public static ivec4 ivec4(vec4 a)
+        {
+            return new ivec4((int)a.x, (int)a.y, (int)a.z, (int)a.w);
+        }
+
+        public static ivec4 ivec4(uvec4 a)
+        {
+            return new ivec4((int)a.x, (int)a.y, (int)a.z, (int)a.w);
         }
 
         public static ivec4 ivec4(int x, int y, int z, int w)
@@ -1050,6 +1110,16 @@ namespace App.Glsl
             return new uvec2(a);
         }
 
+        public static uvec2 uvec2(vec2 a)
+        {
+            return new uvec2((uint)a.x, (uint)a.y);
+        }
+
+        public static uvec2 uvec2(ivec2 a)
+        {
+            return new uvec2((uint)a.x, (uint)a.y);
+        }
+
         public static uvec2 uvec2(uint x, uint y)
         {
             return new uvec2(x, y);
@@ -1058,6 +1128,16 @@ namespace App.Glsl
         public static uvec3 uvec3(uint a)
         {
             return new uvec3(a);
+        }
+
+        public static uvec3 uvec3(vec3 a)
+        {
+            return new uvec3((uint)a.x, (uint)a.y, (uint)a.z);
+        }
+
+        public static uvec3 uvec3(ivec3 a)
+        {
+            return new uvec3((uint)a.x, (uint)a.y, (uint)a.z);
         }
 
         public static uvec3 uvec3(uint x, uint y, uint z)
@@ -1078,6 +1158,16 @@ namespace App.Glsl
         public static uvec4 uvec4(uint a)
         {
             return new uvec4(a);
+        }
+
+        public static uvec4 uvec4(vec4 a)
+        {
+            return new uvec4((uint)a.x, (uint)a.y, (uint)a.z, (uint)a.w);
+        }
+
+        public static uvec4 uvec4(ivec4 a)
+        {
+            return new uvec4((uint)a.x, (uint)a.y, (uint)a.z, (uint)a.w);
         }
 
         public static uvec4 uvec4(uint x, uint y, uint z, uint w)

@@ -1268,8 +1268,35 @@ namespace App.Glsl
 
         #endregion
 
+        #region Operators
+
+        public static ivec4 operator +(ivec4 a) => new ivec4(a.x, a.y, a.z, a.w);
+        public static ivec4 operator -(ivec4 a) => new ivec4(-a.x, -a.y, -a.z, -a.w);
+        public static ivec4 operator +(ivec4 a, ivec4 b) => new ivec4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+        public static ivec4 operator +(ivec4 a, int b) => new ivec4(a.x + b, a.y + b, a.z + b, a.w + b);
+        public static vec4 operator +(ivec4 a, float b) => new vec4(a.x + b, a.y + b, a.z + b, a.w + b);
+        public static ivec4 operator +(int a, ivec4 b) => new ivec4(a + b.x, a + b.y, a + b.z, a + b.w);
+        public static vec4 operator +(float a, ivec4 b) => new vec4(a + b.x, a + b.y, a + b.z, a + b.w);
+        public static ivec4 operator -(ivec4 a, ivec4 b) => new ivec4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+        public static ivec4 operator -(ivec4 a, int b) => new ivec4(a.x - b, a.y - b, a.z - b, a.w - b);
+        public static vec4 operator -(ivec4 a, float b) => new vec4(a.x - b, a.y - b, a.z - b, a.w - b);
+        public static ivec4 operator -(int a, ivec4 b) => new ivec4(a - b.x, a - b.y, a - b.z, a - b.w);
+        public static ivec4 operator -(float a, ivec4 b) => (int)a + b;
+        public static ivec4 operator *(ivec4 a, ivec4 b) => new ivec4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
+        public static ivec4 operator *(ivec4 a, int b) => new ivec4(a.x * b, a.y * b, a.z * b, a.w * b);
+        public static vec4 operator *(ivec4 a, float b) => new vec4(a.x * b, a.y * b, a.z * b, a.w * b);
+        public static ivec4 operator *(int a, ivec4 b) => new ivec4(a * b.x, a * b.y, a * b.z, a * b.w);
+        public static vec4 operator *(float a, ivec4 b) => new vec4(a * b.x, a * b.y, a * b.z, a * b.w);
+        public static ivec4 operator /(ivec4 a, ivec4 b) => new ivec4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w);
+        public static ivec4 operator /(ivec4 a, int b) => new ivec4(a.x / b, a.y / b, a.z / b, a.w / b);
+        public static ivec4 operator /(int a, ivec4 b) => new ivec4(a / b.x, a / b.y, a / b.z, a / b.w);
+        public static vec4 operator /(ivec4 a, float b) => new vec4(a.x / b, a.y / b, a.z / b, a.w / b);
+        public static vec4 operator /(float a, ivec4 b) => new vec4(a / b.x, a / b.y, a / b.z, a / b.w);
+
+        #endregion
+
         #region Generated
-        
+
         public ivec2 xx { get => new ivec2(x, x); set { x = value.x; x = value.y; } }
         public ivec2 xy { get => new ivec2(x, y); set { x = value.x; y = value.y; } }
         public ivec2 xz { get => new ivec2(x, z); set { x = value.x; z = value.y; } }
@@ -1660,8 +1687,34 @@ namespace App.Glsl
 
         #endregion
 
+        #region Operators
+
+        public static uvec4 operator +(uvec4 a) => new uvec4(a.x, a.y, a.z, a.w);
+        public static uvec4 operator +(uvec4 a, uvec4 b) => new uvec4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+        public static uvec4 operator +(uvec4 a, uint b) => new uvec4(a.x + b, a.y + b, a.z + b, a.w + b);
+        public static vec4 operator +(uvec4 a, float b) => new vec4(a.x + b, a.y + b, a.z + b, a.w + b);
+        public static uvec4 operator +(uint a, uvec4 b) => new uvec4(a + b.x, a + b.y, a + b.z, a + b.w);
+        public static vec4 operator +(float a, uvec4 b) => new vec4(a + b.x, a + b.y, a + b.z, a + b.w);
+        public static uvec4 operator -(uvec4 a, uvec4 b) => new uvec4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+        public static uvec4 operator -(uvec4 a, uint b) => new uvec4(a.x - b, a.y - b, a.z - b, a.w - b);
+        public static vec4 operator -(uvec4 a, float b) => new vec4(a.x - b, a.y - b, a.z - b, a.w - b);
+        public static uvec4 operator -(uint a, uvec4 b) => new uvec4(a - b.x, a - b.y, a - b.z, a - b.w);
+        public static uvec4 operator -(float a, uvec4 b) => (uint)a + b;
+        public static uvec4 operator *(uvec4 a, uvec4 b) => new uvec4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
+        public static uvec4 operator *(uvec4 a, uint b) => new uvec4(a.x * b, a.y * b, a.z * b, a.w * b);
+        public static vec4 operator *(uvec4 a, float b) => new vec4(a.x * b, a.y * b, a.z * b, a.w * b);
+        public static uvec4 operator *(uint a, uvec4 b) => new uvec4(a * b.x, a * b.y, a * b.z, a * b.w);
+        public static vec4 operator *(float a, uvec4 b) => new vec4(a * b.x, a * b.y, a * b.z, a * b.w);
+        public static uvec4 operator /(uvec4 a, uvec4 b) => new uvec4(a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w);
+        public static uvec4 operator /(uvec4 a, uint b) => new uvec4(a.x / b, a.y / b, a.z / b, a.w / b);
+        public static uvec4 operator /(uint a, uvec4 b) => new uvec4(a / b.x, a / b.y, a / b.z, a / b.w);
+        public static vec4 operator /(uvec4 a, float b) => new vec4(a.x / b, a.y / b, a.z / b, a.w / b);
+        public static vec4 operator /(float a, uvec4 b) => new vec4(a / b.x, a / b.y, a / b.z, a / b.w);
+
+        #endregion
+
         #region Generated
-        
+
         public uvec2 xx { get => new uvec2(x, x); set { x = value.x; x = value.y; } }
         public uvec2 xy { get => new uvec2(x, y); set { x = value.x; y = value.y; } }
         public uvec2 xz { get => new uvec2(x, z); set { x = value.x; z = value.y; } }

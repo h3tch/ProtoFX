@@ -38,7 +38,7 @@ namespace App
             numImgLayer.Maximum = Math.Max(Math.Max(img.Length, img.Depth) - 1, 0);
 
             // read image data from GPU
-            glControl.MakeCurrent();
+            //glControl.MakeCurrent();
             var bmp = img.Read((int)numImgLayer.Value, 0);
             bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
             panelImg.Image.Image = bmp;

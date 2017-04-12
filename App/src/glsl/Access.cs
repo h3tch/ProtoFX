@@ -24,7 +24,10 @@ namespace App.Glsl
         {
             { typeof(int), (MixFunc<int>)((int a, int b, float t) => { return (int)((1 - t) * a + t * b); }) },
             { typeof(uint), (MixFunc<uint>)((uint a, uint b, float t) => { return (uint)((1 - t) * a + t * b); }) },
-            { typeof(float), (MixFunc<float>)((float a, float b, float t) => { return (1 - t) * a + t * b; }) }
+            { typeof(float), (MixFunc<float>)((float a, float b, float t) => { return (1 - t) * a + t * b; }) },
+            { typeof(ivec4), (MixFunc<ivec4>)((ivec4 a, ivec4 b, float t) => { return ivec4((1 - t) * a + t * b); }) },
+            { typeof(uvec4), (MixFunc<uvec4>)((uvec4 a, uvec4 b, float t) => { return uvec4((1 - t) * a + t * b); }) },
+            { typeof(vec4), (MixFunc<vec4>)((vec4 a, vec4 b, float t) => { return (1 - t) * a + t * b; }) },
         };
 
         private static PixelType Type2PixelType<T>() where T: struct
@@ -141,20 +144,34 @@ namespace App.Glsl
             // get return type
             var type = Type2PixelType<T>();
 
+            var errcode = GL.GetError();
+
             // get texture info
             GL.ActiveTexture(TextureUnit.Texture0 + sampler);
             GL.GetInteger(binding, out int ID);
-            GL.GetTextureLevelParameter(ID, lod, Parameter.TextureWidth, out int w);
-            GL.GetTextureLevelParameter(ID, lod, Parameter.TextureHeight, out int h);
-            GL.GetTextureLevelParameter(ID, lod, Parameter.TextureDepth, out int d);
+            GL.GetTextureLevelParameter(ID, lod, Parameter.TextureWidth, out int texw);
+            GL.GetTextureLevelParameter(ID, lod, Parameter.TextureHeight, out int texh);
+            GL.GetTextureLevelParameter(ID, lod, Parameter.TextureDepth, out int texd);
+            GL.GetTextureParameter(ID, Parameter.TextureMinFilter, out int minFilter);
+            GL.GetTextureParameter(ID, Parameter.TextureMagFilter, out int magFilter);
+            GL.GetTextureParameter(ID, Parameter.TextureWrapR, out int wrapR);
+            GL.GetTextureParameter(ID, Parameter.TextureWrapS, out int wrapS);
+            GL.GetTextureParameter(ID, Parameter.TextureWrapT, out int wrapT);
+
+            errcode = GL.GetError();
 
             // get sampler info
             GL.GetInteger(GetPName.SamplerBinding, out int sID);
-            GL.GetSamplerParameter(ID, SamplerParameterName.TextureMinFilter, out int minFilter);
-            GL.GetSamplerParameter(ID, SamplerParameterName.TextureMagFilter, out int magFilter);
-            GL.GetSamplerParameter(ID, SamplerParameterName.TextureWrapR, out int wrapR);
-            GL.GetSamplerParameter(ID, SamplerParameterName.TextureWrapS, out int wrapS);
-            GL.GetSamplerParameter(ID, SamplerParameterName.TextureWrapT, out int wrapT);
+            if (sID > 0)
+            {
+                GL.GetSamplerParameter(sID, SamplerParameterName.TextureMinFilter, out minFilter);
+                GL.GetSamplerParameter(sID, SamplerParameterName.TextureMagFilter, out magFilter);
+                GL.GetSamplerParameter(sID, SamplerParameterName.TextureWrapR, out wrapR);
+                GL.GetSamplerParameter(sID, SamplerParameterName.TextureWrapS, out wrapS);
+                GL.GetSamplerParameter(sID, SamplerParameterName.TextureWrapT, out wrapT);
+            }
+
+            errcode = GL.GetError();
 
             // wrap texture coordinates
             if (x < 0 || 1 < x)
@@ -163,14 +180,21 @@ namespace App.Glsl
                 y = Wrap(y, (TextureWrapMode)wrapS);
 
             // convert from [0,1] to [0,pixels]
-            x *= w - 1;
-            y *= h - 1;
-            float z = (float)_z;
+            x *= texw - 1;
+            y *= texh - 1;
+            float z = 0;
+            switch (_z)
+            {
+                case int i: z = i; break;
+                case uint i: z = i; break;
+                case float i: z = i; break;
+                default: throw new NotImplementedException();
+            }
 
             // how much pixel should be reserved for interpolation
-            w = (int)x + 2 >= w ? 1 : 2;
-            h = (int)y + 2 >= h ? 1 : 2;
-            d = 1;
+            var w = (int)x + 2 >= texw ? 1 : 2;
+            var h = (int)y + 2 >= texh ? 1 : 2;
+            var d = 1;
 
             // if z is not the layer (not int but float)
             if (_z is float f)
@@ -182,11 +206,18 @@ namespace App.Glsl
             }
 
             // get texture data
-            var p = new T[w, h, d];
+            var bufSize = Marshal.SizeOf<T>() * w * h * d;
+            var ptr = Marshal.AllocHGlobal(bufSize);
+
+            errcode = GL.GetError();
             if (binding == GetPName.TextureBindingBuffer)
-                GL.GetNamedBufferSubData(ID, (IntPtr)(Marshal.SizeOf<T>() * x), p.Size(), p);
+                GL.GetNamedBufferSubData(ID, (IntPtr)(Marshal.SizeOf<T>() * x), bufSize, ptr);
             else
-                GL.GetTextureSubImage(ID, lod, (int)x, (int)y, (int)z, w, h, d, Rgba, type, p.Size(), p);
+                GL.GetTextureSubImage(ID, lod, (int)x, (int)y, (int)z, w, h, d, Rgba, type, bufSize, ptr);
+            errcode = GL.GetError();
+
+            var p = (T[,,])ptr.To(bufSize, typeof(T)).Reshape(d, h, w);
+            Marshal.FreeHGlobal(ptr);
 
             // interpolate between pixels
             var mix = (MixFunc<T>)Mixers[typeof(T)];
@@ -196,20 +227,20 @@ namespace App.Glsl
                 var Z = magFilter == (int)TextureMinFilter.Nearest ? (float)Math.Round(z) : z;
                 for (int i = 0; i < w; i++)
                     for (int j = 0; j < h; j++)
-                        p[i, j, 0] = mix(p[i, j, 0], p[i, j, 1], Z);
+                        p[0, j, i] = mix(p[0, j, i], p[1, j, i], Z);
             }
             if (h > 1)
             {
                 y -= (int)y;
                 var Y = minFilter == (int)TextureMinFilter.Nearest ? (float)Math.Round(y) : y;
                 for (int i = 0; i < w; i++)
-                    p[i, 0, 0] = mix(p[i, 0, 0], p[i, 1, 0], Y);
+                    p[0, 0, i] = mix(p[0, 0, i], p[0, 1, i], Y);
             }
             if (w > 1)
             {
                 x -= (int)x;
                 var X = minFilter == (int)TextureMinFilter.Nearest ? (float)Math.Round(x) : x;
-                p[0, 0, 0] = mix(p[0, 0, 0], p[1, 1, 0], X);
+                p[0, 0, 0] = mix(p[0, 0, 0], p[0, 1, 1], X);
             }
 
             // trace function
