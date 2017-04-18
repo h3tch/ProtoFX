@@ -13,7 +13,7 @@ namespace App
         [FxField] private string Img = null;
         [FxField] private GpuFormat Format = 0;
         private GLBuffer glBuff = null;
-        private GLImage glImg = null;
+        public GLImage glImg = null;
 
         #endregion
 

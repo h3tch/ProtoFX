@@ -299,7 +299,7 @@ namespace App
                 ThrowOnGLError($"OpenGL error while gathering fragment shader debug data.");
             }
 
-            /// UNBIND OPENGL OBJECTS
+            /// EXECUTE C# PLUGINS OBJECTS
 
             csexec.ForEach(e => e.EndPass(glname));
 
