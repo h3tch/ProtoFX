@@ -72,6 +72,10 @@ shader vs_shader vert {
 	#version 450
 	
 	layout(location = 0) in vec4 position;
+
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
 	
 	void main() {
 		gl_Position = position;
@@ -152,7 +156,7 @@ shader fs_artifact frag {
 	
 	void main() {
 		if (disc.nPoints == 0) {
-			float <<d>> = tan(setup.lineAngle);
+			float d = tan(setup.lineAngle);
 			vec2 C = (gl_FragCoord.xy - setup.rendertargetSize.xy / 2) / setup.artifactSize;
 			float r = setup.filterRadius / setup.artifactSize;
 			
@@ -160,7 +164,7 @@ shader fs_artifact frag {
 			
 			for (int a = int(C.x - r) - 1, b = int(C.x + r); a <= b; a++) {
 				vec2 x = vec2(float(a), float(a+1));
-				vec2 <<y>> = vec2(-setup.rendertargetSize.y, floor(x.x * d));
+				vec2 y = vec2(-setup.rendertargetSize.y, floor(x.x * d));
 				areaRect += areaRectCircle(x - C.xx, y - C.yy, r);
 			}
 			
@@ -169,19 +173,19 @@ shader fs_artifact frag {
 		}
 		else
 		{
-			vec2 <<lineN>> = vec2(-sin(setup.lineAngle), cos(setup.lineAngle));
-			vec2 <<C>> = (gl_FragCoord.xy - setup.rendertargetSize.xy / 2) / setup.artifactSize;
+			vec2 lineN = vec2(-sin(setup.lineAngle), cos(setup.lineAngle));
+			vec2 C = (gl_FragCoord.xy - setup.rendertargetSize.xy / 2) / setup.artifactSize;
 			float r = setup.filterRadius / setup.artifactSize;
 			mat2 R = randRot(2 * PI * rand(C.xy));
 			
 			int i;
 			float count = 0;
 			for (i = 0; i < disc.nPoints; i++) {
-				vec2 <<c>> = floor(C + R * disc.points[i] * r);
+				vec2 c = floor(C + R * disc.points[i] * r);
 				count += max(0, -sign(dot(lineN, c)));
 			}
 			
-			color = <<count>> / float(<<i>>);
+			color = count / float(i);
 		}
 	}
 }

@@ -636,6 +636,152 @@ namespace App.Glsl
 
         #endregion
 
+        public static ivec3 textureSize(int sampler, int lod, GetPName binding)
+        {
+            // get texture ID
+            GL.ActiveTexture(TextureUnit.Texture0 + sampler);
+            GL.GetInteger(binding, out int ID);
+            GL.GetTextureLevelParameter(ID, lod, Parameter.TextureWidth, out int width);
+            GL.GetTextureLevelParameter(ID, lod, Parameter.TextureHeight, out int height);
+            GL.GetTextureLevelParameter(ID, lod, Parameter.TextureDepth, out int depth);
+            return new ivec3(width, height, depth);
+        }
+
+        public static int textureSize(Location location, sampler1D sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBinding1D).x, "textureSize");
+        }
+
+        public static ivec2 textureSize(Location location, sampler2D sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBinding2D).xy, "textureSize");
+        }
+
+        public static ivec3 textureSize(Location location, sampler3D sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBinding3D), "textureSize");
+        }
+
+        public static ivec2 textureSize(Location location, sampler2DRect sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBindingRectangle).xy, "textureSize");
+        }
+
+        public static ivec2 textureSize(Location location, sampler1DArray sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBinding1DArray).xy, "textureSize");
+        }
+
+        public static ivec3 textureSize(Location location, sampler2DArray sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBinding2DArray), "textureSize");
+        }
+
+        public static int textureSize(Location location, samplerBuffer sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBindingBuffer).x, "textureSize");
+        }
+
+        public static ivec2 textureSize(Location location, sampler2DMS sampler, int sample)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static ivec3 textureSize(Location location, sampler2DMSArray sampler, int sample)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static int textureSize(Location location, isampler1D sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBinding1D).x, "textureSize");
+        }
+
+        public static ivec2 textureSize(Location location, isampler2D sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBinding2D).xy, "textureSize");
+        }
+
+        public static ivec3 textureSize(Location location, isampler3D sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBinding3D), "textureSize");
+        }
+
+        public static ivec2 textureSize(Location location, isampler2DRect sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBindingRectangle).xy, "textureSize");
+        }
+
+        public static ivec2 textureSize(Location location, isampler1DArray sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBinding1DArray).xy, "textureSize");
+        }
+
+        public static ivec3 textureSize(Location location, isampler2DArray sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBinding2DArray), "textureSize");
+        }
+
+        public static int textureSize(Location location, isamplerBuffer sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBindingBuffer).x, "textureSize");
+        }
+
+        public static ivec4 textureSize(Location location, isampler2DMS sampler, int lod)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static ivec4 textureSize(Location location, isampler2DMSArray sampler, int lod)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static int textureSize(Location location, usampler1D sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBinding1D).x, "textureSize");
+        }
+
+        public static ivec2 textureSize(Location location, usampler2D sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBinding2D).xy, "textureSize");
+        }
+
+        public static ivec3 textureSize(Location location, usampler3D sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBinding3D), "textureSize");
+        }
+
+        public static ivec2 textureSize(Location location, usampler2DRect sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBindingRectangle).xy, "textureSize");
+        }
+
+        public static ivec2 textureSize(Location location, usampler1DArray sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBinding1DArray).xy, "textureSize");
+        }
+
+        public static ivec3 textureSize(Location location, usampler2DArray sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBinding2DArray), "textureSize");
+        }
+
+        public static int textureSize(Location location, usamplerBuffer sampler, int lod)
+        {
+            return Shader.TraceFunction(location, textureSize(sampler, lod, GetPName.TextureBindingBuffer).x, "textureSize");
+        }
+
+        public static ivec2 textureSize(Location location, usampler2DMS sampler, int lod)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static ivec2 texelFetch(Location location, usampler2DMSArray sampler, int lod)
+        {
+            throw new NotImplementedException();
+        }
+
         #region Uniform Access
 
         internal static readonly Type[] BaseIntTypes = new[] { typeof(bool), typeof(int), typeof(uint) };

@@ -26,12 +26,16 @@ namespace App.Glsl
             public static readonly string WordOrArray = $"{Word}\\s*({ArrayBraces})?";
             public static readonly string Layout = $"\\blayout\\s*{FunctionBraces}";
             public static readonly string InOutLayout = $"\\blayout\\s*\\(.*\\)\\s*{InOut}\\s*;";
-            public static readonly string Const = @"\bconst\s+\w+\s+[\w\d]+\s*=\s*[\w\d.]+;";
+            public static readonly string Const = @"\bconst\s+\w+\s+[\w\d_]+\s*=\s*[\w\d_.]+;";
             public static string MatchingBrace(string open, string close)
             {
                 var oc = $"{open}{close}";
                 return $"{open}[^{oc}]*(((?<Open>{open})[^{oc}]*)+" +
                     $"((?<Close-Open>{close})[^{oc}]*)+)*(?(Open)(?!)){close}";
+            }
+            public static string FuncCall(string funcName)
+            {
+                return $"\\b{funcName}\\s*{Pattern.FunctionBraces}";
             }
         }
         
@@ -52,17 +56,29 @@ namespace App.Glsl
             public static Regex InOutLayout = new Regex(Pattern.InOutLayout, RegexOptions.RightToLeft);
             public static Regex Const = new Regex(Pattern.Const, RegexOptions.RightToLeft);
             public static Regex FuncHead = new Regex($"\\b{Pattern.Word}\\s*{Pattern.FunctionBraces}");
-            public static Regex LoopHead = FuncCall("(for|while)");
-            public static Regex ShortLoops = ShortLoop("(for|while)");
+            public static Regex LoopHead = FuncCall("(for|while|if)");
+            public static Regex BranchHead = BranchCall("(else)");
+            public static Regex ShortLoops = ShortLoop("(for|while|if)");
+            public static Regex ShortBranches = ShortBranch("(else)");
             public static Regex MainFunc = new Regex($"void\\s+main\\s*{Pattern.FunctionBraces}\\s*{Pattern.BodyBraces}");
             public static Regex FuncCall(string funcName)
             {
-                return new Regex($"\\b{funcName}\\s*{Pattern.FunctionBraces}", RegexOptions.RightToLeft);
+                return new Regex(Pattern.FuncCall(funcName), RegexOptions.RightToLeft);
+            }
+
+            public static Regex BranchCall(string branchName)
+            {
+                return new Regex($"\\b{branchName}", RegexOptions.RightToLeft);
             }
 
             public static Regex ShortLoop(string loopName)
             {
                 return new Regex($"\\b{loopName}\\s*{Pattern.FunctionBraces}[^\\{{\\}};]*;", RegexOptions.RightToLeft);
+            }
+
+            public static Regex ShortBranch(string branchName)
+            {
+                return new Regex($"\\b{branchName}\\s+[^\\{{\\}};]*;", RegexOptions.RightToLeft);
             }
         }
 
@@ -71,8 +87,8 @@ namespace App.Glsl
         static Converter()
         {
             // initialize the list of GLSL data types
-            InvalidVariableNames = new[] { "return", "discard", "continue" };
-            DebugFunctions = new[] { "texture", "texelFetch" };
+            InvalidVariableNames = new[] { "return", "discard", "continue", "else" };
+            DebugFunctions = new[] { "texture", "texelFetch", "textureSize" };
             DebugFuncRegex = DebugFunctions.Select(x => RegEx.FuncCall(x)).ToArray();
         }
 
@@ -115,6 +131,12 @@ namespace App.Glsl
             return code;
         }
 
+        /// <summary>
+        /// Convert fragment shader to debug shader.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="varyingLocation"></param>
+        /// <returns></returns>
         public static string FragmentDebugShader(string text, Dictionary<string, int> varyingLocation)
         {
             var dict = new Dictionary<string, string>();
@@ -183,10 +205,16 @@ namespace App.Glsl
             const int VAR_ASSIGN = 1;
             const int FUNCTION = 2;
 
-            // add body to short loops (e.g., for (...) ...; to for (...) { ...; })
-            foreach (Match match in RegEx.ShortLoops.Matches(text))
+            // Add body to short loops (e.g., "for (...) ... ;" to "for (...) { ... ; }")
+            // and short branches (e.g., "if (...) ... ;" and "else ... ;"). Note that
+            // "if" short branches are also found like short loops.
+            var regex = new[] { RegEx.ShortLoops, RegEx.ShortBranches };
+            var shorts = ZipMatches(text, regex).ToArray();
+            foreach (Match match in shorts)
             {
                 var head = RegEx.LoopHead.Match(match.Value);
+                if (!head.Success)
+                    head = RegEx.BranchHead.Match(match.Value);
                 var i0 = match.Index + head.Index + head.Length;
                 var i1 = match.Index + match.Length;
                 text = text.Insert(i1, "}").Insert(i0, "{");
@@ -211,12 +239,12 @@ namespace App.Glsl
                     .ToArray(0, 2);
 
                 // find all variable accesses in the function
-                var variables = FindVariables2(body).ToArray().GetEnumerator();
+                var variables = FindVariables(body).ToArray().GetEnumerator();
                 if (!variables.MoveNext())
                     variables = null;
 
                 // find all function calls in the function
-                var functions = FindFunctionCalls(body, DebugFuncRegex).ToArray().GetEnumerator();
+                var functions = ZipMatches(body, DebugFuncRegex).ToArray().GetEnumerator();
                 if (!functions.MoveNext())
                     functions = null;
 
@@ -394,7 +422,7 @@ namespace App.Glsl
                 var sub = bufMatch.Value;
                 var idx = sub.IndexOf('{');
                 var end = sub.IndexOf('}', idx);
-                var bufLayout = RegEx.Layout.Match(sub);
+                var bufLayout = RegEx.Layout.Match(sub, idx);
                 var bufDef = RegEx.Word.Matches(sub, bufLayout.Index + bufLayout.Length);
                 var bufType = bufDef[0];
                 var bufName = bufDef[1];
@@ -407,7 +435,8 @@ namespace App.Glsl
                 if (braces.Success)
                     sub = sub.Remove(braces.Index, braces.Length - 1);
                 // add class name before instance name
-                sub = sub.Insert(end + 1, $"[__{bufLayout.Value}] [__{bufType}] {clazz} ");
+                var formatedLayout = ReformatLayout(bufLayout.Value);
+                sub = sub.Insert(end + 1, $"{formatedLayout} [__{bufType}] {clazz} ");
 
                 // process variable names
                 foreach (Match varMatch in RegEx.VariableDef.Matches(sub.Substring(idx, end - idx)))
@@ -433,7 +462,12 @@ namespace App.Glsl
         private static string Layouts(string text)
         {
             foreach (Match match in RegEx.Layout.Matches(text))
-                text = text.Insert(match.Index + match.Length, "]").Insert(match.Index, "[__");
+            {
+                var layout = ReformatLayout(match.Value);
+                text = text
+                    .Remove(match.Index, match.Length)
+                    .Insert(match.Index, layout);
+            }
             return text;
         }
 
@@ -597,7 +631,8 @@ namespace App.Glsl
         /// </summary>
         private static Func<string, string, string> typecast = delegate(string text, string type)
         {
-            var match = Regex.Matches(text, @"\b" + type + @"\(.*\)");
+            // TODO: Figure out why a right to left search is not working here...
+            var match = Regex.Matches(text, Pattern.FuncCall(type));
             for (int i = match.Count - 1; i >= 0; i--)
                 text = text.Insert(match[i].Index + type.Length, ")").Insert(match[i].Index, "(");
             return text;
@@ -609,40 +644,6 @@ namespace App.Glsl
         /// <param name="text"></param>
         /// <returns></returns>
         private static IEnumerable<Match> FindVariables(string text)
-        {
-            text += '\0';
-
-            // for each accessed variable
-            foreach (Match variable in RegEx.Variable.Matches(text))
-            {
-                // do not trace numbers
-                if (double.TryParse(variable.Value, out double tmp))
-                    continue;
-
-                // get preceding and next char
-                var name = variable.Value.Trim();
-                int preci = text.NextNonWhitespace(variable.Index - 1, -1);
-                var prec = preci < 0 ? (char)0 : text[preci];
-                int nexti = text.NextNonWhitespace(variable.Index + variable.Length);
-                var next = nexti < 0 ? "\0\0" : text.Substring(nexti, 2);
-
-                // If there is a space between two words this is a
-                // variable definition which we do not want to trace.
-                if (char.IsLetterOrDigit(prec) || char.IsLetterOrDigit(next[0]) ||
-                    // is a function name
-                    next[0] == '(' ||
-                    // is an invalid operator
-                    (next[0] == '=' && next[1] != '=') || (next[1] == '=' && next[0] != '=') ||
-                    // is an invalid name
-                    InvalidVariableNames.Any(x => x == name))
-                    // do not return this variable
-                    continue;
-
-                yield return variable;
-            }
-        }
-
-        private static IEnumerable<Match> FindVariables2(string text)
         {
 
             // for each accessed variable
@@ -707,14 +708,23 @@ namespace App.Glsl
             return (c[0] == '=' && c[1] != '=')
                        || (c[1] == '=' && (c[0] == '+' || c[0] == '-' || c[0] == '*' || c[0] == '/'));
         }
-
+        
+        private static string ReformatLayout(string text)
+        {
+            var param = text.Subrange(text.IndexOf('(') + 1, text.IndexOf(')')).Split(',');
+            var named = param.Where(x => x.IndexOf('=') >= 0).Cat(", ");
+            var unnamed = param.Where(x => x.IndexOf('=') < 0).Cat(", ");
+            var seperator = unnamed.Length > 0 && named.Length > 0 ? ", " : "";
+            return $"[__layout({unnamed}{seperator}{named})]";
+        }
+        
         /// <summary>
         /// Find all function calls.
         /// </summary>
         /// <param name="text"></param>
         /// <param name="funcNames"></param>
         /// <returns></returns>
-        private static IEnumerable<Match> FindFunctionCalls(string text, Regex[] funcRegex)
+        private static IEnumerable<Match> ZipMatches(string text, Regex[] funcRegex)
         {
             return SortMatches(funcRegex.Select(x => x.Matches(text).ToArray()), true);
         }

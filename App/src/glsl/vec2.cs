@@ -55,14 +55,26 @@ namespace App.Glsl
         public static vec2 operator +(vec2 a, float b) => new vec2(a.x + b, a.y + b);
         public static vec2 operator +(float a, vec2 b) => new vec2(a + b.x, a + b.y);
         public static vec2 operator -(vec2 a, vec2 b) => new vec2(a.x - b.x, a.y - b.y);
+        public static vec2 operator -(vec2 a, ivec2 b) => new vec2(a.x - b.x, a.y - b.y);
+        public static vec2 operator -(ivec2 a, vec2 b) => new vec2(a.x - b.x, a.y - b.y);
         public static vec2 operator -(vec2 a, float b) => new vec2(a.x - b, a.y - b);
         public static vec2 operator -(float a, vec2 b) => new vec2(a - b.x, a - b.y);
+        public static vec2 operator -(vec2 a, int b) => new vec2(a.x - b, a.y - b);
+        public static vec2 operator -(int a, vec2 b) => new vec2(a - b.x, a - b.y);
         public static vec2 operator *(vec2 a, vec2 b) => new vec2(a.x * b.x, a.y * b.y);
+        public static vec2 operator *(vec2 a, ivec2 b) => new vec2(a.x * b.x, a.y * b.y);
+        public static vec2 operator *(ivec2 a, vec2 b) => new vec2(a.x * b.x, a.y * b.y);
         public static vec2 operator *(vec2 a, float b) => new vec2(a.x * b, a.y * b);
         public static vec2 operator *(float a, vec2 b) => new vec2(a * b.x, a * b.y);
+        public static vec2 operator *(vec2 a, int b) => new vec2(a.x * b, a.y * b);
+        public static vec2 operator *(int a, vec2 b) => new vec2(a * b.x, a * b.y);
         public static vec2 operator /(vec2 a, vec2 b) => new vec2(a.x / b.x, a.y / b.y);
+        public static vec2 operator /(vec2 a, ivec2 b) => new vec2(a.x / b.x, a.y / b.y);
+        public static vec2 operator /(ivec2 a, vec2 b) => new vec2(a.x / b.x, a.y / b.y);
         public static vec2 operator /(vec2 a, float b) => new vec2(a.x / b, a.y / b);
         public static vec2 operator /(float a, vec2 b) => new vec2(a / b.x, a / b.y);
+        public static vec2 operator /(vec2 a, int b) => new vec2(a.x / b, a.y / b);
+        public static vec2 operator /(int a, vec2 b) => new vec2(a / b.x, a / b.y);
 
         #endregion
 
@@ -316,8 +328,27 @@ namespace App.Glsl
 
         #endregion
 
+        #region Operators
+
+        public static ivec2 operator +(ivec2 a) => new ivec2(a.x, a.y);
+        public static ivec2 operator -(ivec2 a) => new ivec2(-a.x, -a.y);
+        public static ivec2 operator +(ivec2 a, ivec2 b) => new ivec2(a.x + b.x, a.y + b.y);
+        public static ivec2 operator +(ivec2 a, int b) => new ivec2(a.x + b, a.y + b);
+        public static ivec2 operator +(int a, ivec2 b) => new ivec2(a + b.x, a + b.y);
+        public static ivec2 operator -(ivec2 a, ivec2 b) => new ivec2(a.x - b.x, a.y - b.y);
+        public static ivec2 operator -(ivec2 a, int b) => new ivec2(a.x - b, a.y - b);
+        public static ivec2 operator -(int a, ivec2 b) => new ivec2(a - b.x, a - b.y);
+        public static ivec2 operator *(ivec2 a, ivec2 b) => new ivec2(a.x * b.x, a.y * b.y);
+        public static ivec2 operator *(ivec2 a, int b) => new ivec2(a.x * b, a.y * b);
+        public static ivec2 operator *(int a, ivec2 b) => new ivec2(a * b.x, a * b.y);
+        public static ivec2 operator /(ivec2 a, ivec2 b) => new ivec2(a.x / b.x, a.y / b.y);
+        public static ivec2 operator /(ivec2 a, int b) => new ivec2(a.x / b, a.y / b);
+        public static ivec2 operator /(int a, ivec2 b) => new ivec2(a / b.x, a / b.y);
+
+        #endregion
+
         #region Generated
-        
+
         public ivec2 xx { get => new ivec2(x, x); set { x = value.x; x = value.y; } }
         public ivec2 xy { get => new ivec2(x, y); set { x = value.x; y = value.y; } }
         public ivec2 yx { get => new ivec2(y, x); set { y = value.x; x = value.y; } }
@@ -393,8 +424,27 @@ namespace App.Glsl
 
         #endregion
 
+        #region Operators
+
+        public static uvec2 operator +(uvec2 a) => new uvec2(a.x, a.y);
+        public static ivec2 operator -(uvec2 a) => new ivec2((int)-a.x, (int)-a.y);
+        public static uvec2 operator +(uvec2 a, uvec2 b) => new uvec2(a.x + b.x, a.y + b.y);
+        public static uvec2 operator +(uvec2 a, uint b) => new uvec2(a.x + b, a.y + b);
+        public static uvec2 operator +(uint a, uvec2 b) => new uvec2(a + b.x, a + b.y);
+        public static uvec2 operator -(uvec2 a, uvec2 b) => new uvec2(a.x - b.x, a.y - b.y);
+        public static uvec2 operator -(uvec2 a, uint b) => new uvec2(a.x - b, a.y - b);
+        public static uvec2 operator -(uint a, uvec2 b) => new uvec2(a - b.x, a - b.y);
+        public static uvec2 operator *(uvec2 a, uvec2 b) => new uvec2(a.x * b.x, a.y * b.y);
+        public static uvec2 operator *(uvec2 a, uint b) => new uvec2(a.x * b, a.y * b);
+        public static uvec2 operator *(uint a, uvec2 b) => new uvec2(a * b.x, a * b.y);
+        public static uvec2 operator /(uvec2 a, uvec2 b) => new uvec2(a.x / b.x, a.y / b.y);
+        public static uvec2 operator /(uvec2 a, uint b) => new uvec2(a.x / b, a.y / b);
+        public static uvec2 operator /(uint a, uvec2 b) => new uvec2(a / b.x, a / b.y);
+
+        #endregion
+
         #region Generated
-        
+
         public uvec2 xx { get => new uvec2(x, x); set { x = value.x; x = value.y; } }
         public uvec2 xy { get => new uvec2(x, y); set { x = value.x; y = value.y; } }
         public uvec2 yx { get => new uvec2(y, x); set { y = value.x; x = value.y; } }
