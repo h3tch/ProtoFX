@@ -21,6 +21,7 @@ namespace System.Windows.Forms
             Workspace = SystemColors.AppWorkspace,
             WorkspaceHighlight = SystemColors.ControlDarkDark,
             TextColor = SystemColors.ControlText,
+            AppBorderColor = SystemColors.ActiveBorder,
         };
         public static string Name => palette.Name;
         public static Color BackColor => palette.BackColor;
@@ -32,11 +33,12 @@ namespace System.Windows.Forms
         public static Color Workspace => palette.Workspace;
         public static Color WorkspaceHighlight => palette.WorkspaceHighlight;
         public static Color TextColor => palette.TextColor;
+        public static Color AppBorderColor => palette.AppBorderColor;
 
         #endregion
 
         #region THEME COLORS
-        
+
         /// <summary>
         /// Initialize the dark theme.
         /// </summary>
@@ -52,6 +54,7 @@ namespace System.Windows.Forms
             palette.Workspace = Color.FromArgb(255, 30, 30, 30);
             palette.WorkspaceHighlight = Color.FromArgb(255, 60, 60, 60);
             palette.TextColor = Color.FromArgb(255, 220, 220, 220);
+            palette.AppBorderColor = Color.FromArgb(255, 0, 122, 204);
         }
 
         /// <summary>
@@ -69,6 +72,7 @@ namespace System.Windows.Forms
             palette.Workspace = Color.FromArgb(255, 245, 245, 245);
             palette.WorkspaceHighlight = Color.FromArgb(255, 220, 220, 220);
             palette.TextColor = Color.FromArgb(255, 30, 30, 30);
+            palette.AppBorderColor = Color.FromArgb(255, 0, 122, 204);
         }
 
         #endregion
@@ -149,32 +153,38 @@ namespace System.Windows.Forms
         
         private static bool ApplyTo(DataGridView c)
         {
-            var colHeader = new DataGridViewCellStyle();
-            colHeader.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            colHeader.Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            colHeader.WrapMode = DataGridViewTriState.False;
-            colHeader.BackColor = Workspace;
-            colHeader.ForeColor = ForeColor;
-            colHeader.SelectionBackColor = WorkspaceHighlight;
-            colHeader.SelectionForeColor = HighlightForeColor;
+            var colHeader = new DataGridViewCellStyle
+            {
+                Alignment = DataGridViewContentAlignment.MiddleLeft,
+                Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Regular, GraphicsUnit.Point, 0),
+                WrapMode = DataGridViewTriState.False,
+                BackColor = Workspace,
+                ForeColor = ForeColor,
+                SelectionBackColor = WorkspaceHighlight,
+                SelectionForeColor = HighlightForeColor
+            };
 
-            var rowHeader = new DataGridViewCellStyle();
-            rowHeader.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            rowHeader.Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            rowHeader.WrapMode = DataGridViewTriState.False;
-            rowHeader.BackColor = Workspace;
-            rowHeader.ForeColor = ForeColor;
-            rowHeader.SelectionBackColor = WorkspaceHighlight;
-            rowHeader.SelectionForeColor = HighlightForeColor;
+            var rowHeader = new DataGridViewCellStyle
+            {
+                Alignment = DataGridViewContentAlignment.MiddleLeft,
+                Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Regular, GraphicsUnit.Point, 0),
+                WrapMode = DataGridViewTriState.False,
+                BackColor = Workspace,
+                ForeColor = ForeColor,
+                SelectionBackColor = WorkspaceHighlight,
+                SelectionForeColor = HighlightForeColor
+            };
 
-            var cell = new DataGridViewCellStyle();
-            cell.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            cell.Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            cell.WrapMode = DataGridViewTriState.False;
-            cell.BackColor = Workspace;
-            cell.ForeColor = ForeColor;
-            cell.SelectionBackColor = WorkspaceHighlight;
-            cell.SelectionForeColor = HighlightForeColor;
+            var cell = new DataGridViewCellStyle
+            {
+                Alignment = DataGridViewContentAlignment.MiddleLeft,
+                Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Regular, GraphicsUnit.Point, 0),
+                WrapMode = DataGridViewTriState.False,
+                BackColor = Workspace,
+                ForeColor = ForeColor,
+                SelectionBackColor = WorkspaceHighlight,
+                SelectionForeColor = HighlightForeColor
+            };
 
             c.BackColor = Workspace;
             c.ForeColor = ForeColor;
@@ -296,6 +306,13 @@ namespace System.Windows.Forms
             return true;
         }
 
+        private static bool ApplyTo(App.App c)
+        {
+            c.BackColor = BackColor;
+            c.ForeColor = AppBorderColor;
+            return true;
+        }
+
         #endregion
 
         #region HELPERS
@@ -338,6 +355,7 @@ namespace System.Windows.Forms
             public XmlColor Workspace;
             public XmlColor WorkspaceHighlight;
             public XmlColor TextColor;
+            public XmlColor AppBorderColor;
         }
 
         public class XmlColor

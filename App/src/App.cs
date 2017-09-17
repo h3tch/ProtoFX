@@ -485,7 +485,8 @@ namespace App
             var root = Compiler.Compile(CompiledEditor.Filename);
             var shaderLines = from x in root where x.Type == "shader" select new[] { x.Line, x.LineCount };
             CompiledEditor.RemoveInvalidBreakpoints(shaderLines);
-            
+            CompiledEditor.RemoveExecutionMarker();
+
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
             var ex = root.Catch(x => glControl.AddObject(x, debugging)).ToArray();
             // add events to the end of the event list
@@ -810,19 +811,19 @@ namespace App
         /// <param name="hide"></param>
         private void HideDeveloperGui(bool hide)
         {
-            SplitRenderCoding.Panel2Collapsed = hide;
+            splitRenderCoding.Panel2Collapsed = hide;
             splitRenderOutput.Panel2Collapsed = hide;
             btnWindowMinimize2.Visible = hide;
             btnWindowMaximize2.Visible = hide;
             btnWindowClose2.Visible = hide;
             if (hide)
             {
-                SplitRenderCoding.Panel2.Hide();
+                splitRenderCoding.Panel2.Hide();
                 splitRenderOutput.Panel2.Hide();
             }
             else
             {
-                SplitRenderCoding.Panel2.Show();
+                splitRenderCoding.Panel2.Show();
                 splitRenderOutput.Panel2.Show();
             }
         }
@@ -887,7 +888,7 @@ namespace App
                     BorderStyle = app.FormBorderStyle,
                     NormalLocation = app.IsMaximized ? app.NormalLocation : app.Location,
                     NormalSize = app.IsMaximized ? app.NormalSize : app.Size,
-                    SplitRenderCoding = (float)app.SplitRenderCoding.SplitterDistance / app.SplitRenderCoding.Width,
+                    SplitRenderCoding = (float)app.splitRenderCoding.SplitterDistance / app.splitRenderCoding.Width,
                     SplitRenderOutput = (float)app.splitRenderOutput.SplitterDistance / app.splitRenderOutput.Height,
                     SplitDebugPerf = (float)app.splitDebugPerf.SplitterDistance / app.splitDebugPerf.Width,
                     SplitDebug = (float)app.splitDebug.SplitterDistance / app.splitDebug.Width,
@@ -950,8 +951,8 @@ namespace App
             public void AdjustGUI(App app)
             {
                 // place splitters by percentage
-                app.SplitRenderCoding.SplitterDistance =
-                    (int)(SplitRenderCoding * app.SplitRenderCoding.Width);
+                app.splitRenderCoding.SplitterDistance =
+                    (int)(SplitRenderCoding * app.splitRenderCoding.Width);
                 app.splitRenderOutput.SplitterDistance =
                     (int)(SplitRenderOutput * app.splitRenderOutput.Height);
                 app.splitDebugPerf.SplitterDistance =

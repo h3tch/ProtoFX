@@ -39,7 +39,7 @@ namespace App
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(App));
-            this.SplitRenderCoding = new System.Windows.Forms.SplitContainer();
+            this.splitRenderCoding = new System.Windows.Forms.SplitContainer();
             this.tableLayoutRenderOutput = new System.Windows.Forms.TableLayoutPanel();
             this.labelTitle = new System.Windows.Forms.Label();
             this.splitRenderOutput = new System.Windows.Forms.SplitContainer();
@@ -93,13 +93,13 @@ namespace App
             this.tabSource = new System.Windows.Forms.FXTabControl();
             this.tabResources = new System.Windows.Forms.TabPage();
             this.tabData = new System.Windows.Forms.FXTabControl();
-            this.TabDataImg = new System.Windows.Forms.TabPage();
+            this.tabDataBuf = new System.Windows.Forms.TabPage();
             this.tableLayoutImages = new System.Windows.Forms.TableLayoutPanel();
             this.numImgLayer = new System.Windows.Forms.NumericUpDown();
             this.comboImg = new System.Windows.Forms.ComboBoxEx();
             this.panelImg = new System.Windows.Forms.ImageViewer();
             this.numImgLevel = new System.Windows.Forms.NumericUpDown();
-            this.tabDataBuf = new System.Windows.Forms.TabPage();
+            this.tabDataImg = new System.Windows.Forms.TabPage();
             this.tableLayoutBufferDef = new System.Windows.Forms.TableLayoutPanel();
             this.tableBuf = new System.Windows.Forms.DataGridView();
             this.tableLayoutBuffers = new System.Windows.Forms.TableLayoutPanel();
@@ -110,10 +110,10 @@ namespace App
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.comboProp = new System.Windows.Forms.ComboBoxEx();
-            ((System.ComponentModel.ISupportInitialize)(this.SplitRenderCoding)).BeginInit();
-            this.SplitRenderCoding.Panel1.SuspendLayout();
-            this.SplitRenderCoding.Panel2.SuspendLayout();
-            this.SplitRenderCoding.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).BeginInit();
+            this.splitRenderCoding.Panel1.SuspendLayout();
+            this.splitRenderCoding.Panel2.SuspendLayout();
+            this.splitRenderCoding.SuspendLayout();
             this.tableLayoutRenderOutput.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitRenderOutput)).BeginInit();
             this.splitRenderOutput.Panel1.SuspendLayout();
@@ -147,7 +147,7 @@ namespace App
             this.toolStripContainerCoding.SuspendLayout();
             this.tabResources.SuspendLayout();
             this.tabData.SuspendLayout();
-            this.TabDataImg.SuspendLayout();
+            this.tabDataImg.SuspendLayout();
             this.tableLayoutImages.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numImgLayer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numImgLevel)).BeginInit();
@@ -162,22 +162,22 @@ namespace App
             // 
             // splitRenderCoding
             // 
-            this.SplitRenderCoding.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.SplitRenderCoding.Location = new System.Drawing.Point(4, 5);
-            this.SplitRenderCoding.Margin = new System.Windows.Forms.Padding(0);
-            this.SplitRenderCoding.Name = "splitRenderCoding";
+            this.splitRenderCoding.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitRenderCoding.Location = new System.Drawing.Point(4, 5);
+            this.splitRenderCoding.Margin = new System.Windows.Forms.Padding(0);
+            this.splitRenderCoding.Name = "splitRenderCoding";
             // 
             // splitRenderCoding.Panel1
             // 
-            this.SplitRenderCoding.Panel1.Controls.Add(this.tableLayoutRenderOutput);
+            this.splitRenderCoding.Panel1.Controls.Add(this.tableLayoutRenderOutput);
             // 
             // splitRenderCoding.Panel2
             // 
-            this.SplitRenderCoding.Panel2.Controls.Add(this.panelCoding);
-            this.SplitRenderCoding.Size = new System.Drawing.Size(1466, 790);
-            this.SplitRenderCoding.SplitterDistance = 597;
-            this.SplitRenderCoding.SplitterWidth = 6;
-            this.SplitRenderCoding.TabIndex = 0;
+            this.splitRenderCoding.Panel2.Controls.Add(this.panelCoding);
+            this.splitRenderCoding.Size = new System.Drawing.Size(1466, 790);
+            this.splitRenderCoding.SplitterDistance = 597;
+            this.splitRenderCoding.SplitterWidth = 6;
+            this.splitRenderCoding.TabIndex = 0;
             // 
             // tableLayoutRenderOutput
             // 
@@ -982,7 +982,7 @@ namespace App
             // 
             // tabData
             // 
-            this.tabData.Controls.Add(this.TabDataImg);
+            this.tabData.Controls.Add(this.tabDataImg);
             this.tabData.Controls.Add(this.tabDataBuf);
             this.tabData.DisplayStyle = System.Windows.Forms.TabStyle.FX;
             // 
@@ -1018,13 +1018,13 @@ namespace App
             // 
             // tabDataImg
             // 
-            this.TabDataImg.Controls.Add(this.tableLayoutImages);
-            this.TabDataImg.Location = new System.Drawing.Point(4, 30);
-            this.TabDataImg.Name = "tabDataImg";
-            this.TabDataImg.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.TabDataImg.Size = new System.Drawing.Size(846, 701);
-            this.TabDataImg.TabIndex = 0;
-            this.TabDataImg.Text = "Images";
+            this.tabDataImg.Controls.Add(this.tableLayoutImages);
+            this.tabDataImg.Location = new System.Drawing.Point(4, 30);
+            this.tabDataImg.Name = "tabDataImg";
+            this.tabDataImg.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabDataImg.Size = new System.Drawing.Size(846, 701);
+            this.tabDataImg.TabIndex = 0;
+            this.tabDataImg.Text = "Images";
             // 
             // tableLayoutImages
             // 
@@ -1313,7 +1313,7 @@ namespace App
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1474, 800);
             this.ControlBox = false;
-            this.Controls.Add(this.SplitRenderCoding);
+            this.Controls.Add(this.splitRenderCoding);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -1325,10 +1325,10 @@ namespace App
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.App_FormClosing);
             this.Load += new System.EventHandler(this.App_Load);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.App_KeyUp);
-            this.SplitRenderCoding.Panel1.ResumeLayout(false);
-            this.SplitRenderCoding.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.SplitRenderCoding)).EndInit();
-            this.SplitRenderCoding.ResumeLayout(false);
+            this.splitRenderCoding.Panel1.ResumeLayout(false);
+            this.splitRenderCoding.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitRenderCoding)).EndInit();
+            this.splitRenderCoding.ResumeLayout(false);
             this.tableLayoutRenderOutput.ResumeLayout(false);
             this.tableLayoutRenderOutput.PerformLayout();
             this.splitRenderOutput.Panel1.ResumeLayout(false);
@@ -1367,7 +1367,7 @@ namespace App
             this.toolStripContainerCoding.PerformLayout();
             this.tabResources.ResumeLayout(false);
             this.tabData.ResumeLayout(false);
-            this.TabDataImg.ResumeLayout(false);
+            this.tabDataImg.ResumeLayout(false);
             this.tableLayoutImages.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.numImgLayer)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numImgLevel)).EndInit();
@@ -1525,8 +1525,5 @@ namespace App
         private System.Windows.Forms.Button btnWindowClose2;
         private System.Windows.Forms.SplitContainer splitDebugPerf;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartPerf;
-
-        public TabPage TabDataImg { get => tabDataImg; set => tabDataImg = value; }
-        public SplitContainer SplitRenderCoding { get => splitRenderCoding; set => splitRenderCoding = value; }
     }
 }
