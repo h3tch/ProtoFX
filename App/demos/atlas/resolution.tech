@@ -17,25 +17,25 @@ buffer buff_pos {
 	usage staticDraw
 	// load <pos></pos> data from XML file
 	// these are vertex positions for each vertex
-	xml "geom/cube.xml" data/position
-	xml "geom/plane.xml" data/position
+	xml "../geom/cube.xml" data/position
+	xml "../geom/plane.xml" data/position
 }
 
 buffer buff_color {
 	usage staticDraw
-	xml "geom/cube.xml" data/color
-	xml "geom/plane.xml" data/color
+	xml "../geom/cube.xml" data/color
+	xml "../geom/plane.xml" data/color
 }
 
 buffer buf_idx {
 	usage staticDraw
-	xml "geom/cube.xml" data/index
-	xml "geom/plane.xml" data/index
+	xml "../geom/cube.xml" data/index
+	xml "../geom/plane.xml" data/index
 }
 
 image img_shadowmap {
 	// image size in pixels
-	size 1024 1024
+	size 128 128
 	// pixel format is a 32
 	// bit floating point depth
 	format depth32f
@@ -146,46 +146,6 @@ shader vs_simple vert {
 	}
 }
 
-shader gs_simple geom {
-	#version 450
-	
-	layout(triangles) in;
-	layout(location = 0) in Block {
-		vec3 in_wpos;
-		vec4 in_lpos;
-		vec4 in_col;
-	} IN[];
-	in gl_PerVertex {
-		vec4 gl_Position;
-	} gl_in[];
-	
-	layout(triangle_strip, max_vertices = 3) out;
-	layout(location = 0) out vec3 out_wpos;
-	layout(location = 1) out vec4 out_lpos;
-	layout(location = 2) out vec4 out_col;
-	out gl_PerVertex {
-		vec4 gl_Position;
-	};
-	
-	void main ()
-	{
-		vec3 dx = IN[1].in_wpos.xyz - IN[0].in_wpos.xyz;
-		vec3 dy = IN[2].in_wpos.xyz - IN[0].in_wpos.xyz;
-		vec3 nor = cross(dx, dy);
-		
-		// for each vertex in the triangle
-		for (int v = 0; v < gl_in.length(); v++)
-		{
-			gl_Position = gl_in[v].gl_Position;
-			out_wpos = IN[v].in_wpos;
-			out_lpos = IN[v].in_lpos;
-			out_col = IN[v].in_col;
-			EmitVertex();
-		}
-		EndPrimitive();
-	}
-}
-
 shader fs_simple frag {
 	#version 450
 	
@@ -200,7 +160,24 @@ shader fs_simple frag {
 	layout(location = 2) in vec4 in_col;
 	out vec4 color;
 	
-	layout(pixel_center_integer) in vec4 gl_FragCoord;
+	//layout(pixel_center_integer) in vec4 gl_FragCoord;
+	
+	vec2 depthGradient(vec3 lpos)
+	{
+		vec2 dz_duv;
+		vec3 duvdist_dx = dFdx(lpos);
+		vec3 duvdist_dy = dFdy(lpos);
+
+		dz_duv.x = duvdist_dy.y * duvdist_dx.z;
+		dz_duv.x -= duvdist_dx.y * duvdist_dy.z;
+
+		dz_duv.y = duvdist_dx.x * duvdist_dy.z;
+		dz_duv.y -= duvdist_dy.x * duvdist_dx.z;
+
+		dz_duv /= (duvdist_dx.x * duvdist_dy.y) - (duvdist_dx.y * duvdist_dy.x);
+
+		return dz_duv;
+	}
 	
 	void main ()
 	{
@@ -209,41 +186,53 @@ shader fs_simple frag {
 		// if pixel outside light frustum clip space, do nothing
 		if (any(greaterThan(abs(in_lpos), in_lpos.wwww)))
 			return;
-		
-		vec3 dx = dFdx(in_wpos);
-		vec3 dy = dFdy(in_wpos);
-		
-		vec3 p[4];
-		p[0] = in_wpos;
-		p[1] = p[0] + dx;
-		p[2] = p[0] + dy;
-		p[3] = p[1] + dy;
-		
-		for (int i = 0; i < 4; i++) 
-		{
-			vec4 v = light.viewProj * vec4(p[i], 1.0);
-			p[i] = (v.xyz / v.w) * 0.5 + 0.5;
-		}
-		
-		vec4 bbox;
-		bbox.xy = min(min(p[0], p[1]), min(p[2], p[3])).xy;
-		bbox.zw = max(max(p[0], p[1]), max(p[2], p[3])).xy;
-		
-		vec2 wh = bbox.zw - bbox.xy;
-		
-		// pass color
-		color = vec4(wh * 50, 0, 1);
 			
 		// SHADOW MAPPING
 		
 		// transform to normalized device coordinates [-1;+1]
 		// and then to shadow map texture coordinates [0;1]
 		vec3 lpos = (in_lpos.xyz / in_lpos.w) * 0.5 + 0.5;
+		vec2 grad = depthGradient(lpos);
 		
-		// if pixel distance from the light source is greader than
-		// the distance in the shadow map, the pixel is in shadow
-		if (lpos.z-0.0005 > texture(shadowmap, lpos.xy).x)
-			color.xyz *= 0.5;
+		int shadow = 0;
+		for (int u = -1; u <= 1; u++)
+		{
+			for (int v = -1; v <= 1; v++)
+			{
+				// if pixel distance from the light source is greader than
+				// the distance in the shadow map, the pixel is in shadow
+				ivec2 offset = ivec2(u, v);
+				vec2 uvoffset = vec2(offset) / textureSize(shadowmap, 0).xy;
+				float z = lpos.z + dot(grad, uvoffset);
+				shadow += int(z - 0.0003 > textureOffset(shadowmap, lpos.xy, offset).x);
+			}
+		}
+		
+		vec3 dx = dFdx(in_wpos);
+		vec3 dy = dFdy(in_wpos);
+		
+		if (shadow == 0 || shadow == 9) {
+			return;
+		} else {
+			vec3 p[4];
+			p[0] = in_wpos;
+			p[1] = p[0] + dx;
+			p[2] = p[0] + dy;
+			p[3] = p[1] + dy;
+			
+			for (int i = 0; i < 4; i++) 
+			{
+				vec4 v = light.viewProj * vec4(p[i], 1.0);
+				p[i] = (v.xyz / v.w) * 0.5 + 0.5;
+			}
+			
+			vec2 wh = max(max(p[0], p[1]), max(p[2], p[3])).xy;
+			wh -= min(min(p[0], p[1]), min(p[2], p[3])).xy;
+			
+			// pass color
+			//if (all(greaterThan(wh, vec2(0))))
+				color = vec4(wh * 100, 0, 1);
+		}
 	}
 }
 
@@ -259,8 +248,10 @@ pass pass_shadowmap {
 	fragout out_shadowmap
 	
 	// OpenGL calls
+	glCullFace Front
 	glClear depthBit
 	glEnable depthTest
+	glEnable CullFace
 
 	// execute camera code
 	exec cs_light
@@ -273,12 +264,12 @@ pass pass_shadowmap {
 pass pass_render {
 	// attach shaders
 	vert vs_simple
-	geom gs_simple
 	frag fs_simple
 	
 	tex tex_shadowmap 0
 	
 	// OpenGL calls
+	glCullFace Back
 	glClearColor 0.1 0.3 1.0 0.0
 	glClear colorDepthBit
 
@@ -295,6 +286,7 @@ pass pass_reset {
 	tex 0 // unbind
 	glClearColor 0.0 0.0 0.0 0.0
 	glDisable depthTest
+	glDisable CullFace
 }
 
 tech tech_simple {

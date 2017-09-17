@@ -419,6 +419,7 @@ namespace App
             // 
             // debugListView
             // 
+            this.debugListView.AutoScroll = true;
             this.debugListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.debugListView.GroupForeColor = System.Drawing.SystemColors.ActiveCaption;
             this.debugListView.HeaderBackColor = System.Drawing.SystemColors.ButtonFace;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -233,7 +232,7 @@ namespace ScintillaNET
 
         public bool IsDifferentFromFile()
         {
-            if (FileWatcher == null)
+            if (FileWatcher == null || Filename == null || !File.Exists(Filename))
                 return true;
             var fileText = File.ReadAllText(Filename);
             return fileText != Text;

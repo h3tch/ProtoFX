@@ -12,6 +12,12 @@
     0.0  0.0  1.0  1.0
     1.0  1.0  1.0  1.0
   </color>
+  <normal type='float' isbinary='false'>
+    0.0  1.0  0.0  1.0
+    0.0  1.0  0.0  1.0
+    0.0  1.0  0.0  1.0
+    0.0  1.0  0.0  1.0
+  </normal>
   <uv type='float' isbinary='false'>
     0.0  0.0
     1.0  0.0

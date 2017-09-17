@@ -159,6 +159,7 @@ namespace System.Windows.Forms
                 rect.Y += rect.Y - size.Height <= screen.Top ? rect.Height : -size.Height;
 
             // adjust form location and size
+            StartPosition = FormStartPosition.Manual;
             Location = rect.Location;
             Size = size;
         }

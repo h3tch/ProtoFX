@@ -14,9 +14,14 @@ namespace csharp
             view,
             proj,
             viewProj,
+            viewInv,
+            projInv,
+            viewProjInv,
             camera,
             position,
             rotation,
+            direction,
+            nearPlane,
         }
 
         #region FIELDS
@@ -92,14 +97,33 @@ namespace csharp
             if (unif.Has(Names.viewProj))
                 unif.Set(Names.viewProj, (view * proj).AsInt32());
 
+            if (unif.Has(Names.viewInv))
+                unif.Set(Names.viewInv, view.Inverted().AsInt32());
+
+            if (unif.Has(Names.projInv))
+                unif.Set(Names.projInv, proj.Inverted().AsInt32());
+
+            if (unif.Has(Names.viewProjInv))
+                unif.Set(Names.viewProjInv, (view * proj).Inverted().AsInt32());
+
             if (unif.Has(Names.camera))
-                unif.Set(Names.camera, new[] { fov * rad2deg, aspect, near, far }.AsInt32());
+                unif.Set(Names.camera, new[] { fov, aspect, near, far }.AsInt32());
 
             if (unif.Has(Names.position))
                 unif.Set(Names.position, pos.AsInt32());
 
             if (unif.Has(Names.rotation))
                 unif.Set(Names.rotation, rot.AsInt32());
+
+            if (unif.Has(Names.direction))
+                unif.Set(Names.direction, view.Row2.AsInt32());
+
+            if (unif.Has(Names.nearPlane))
+            {
+                var n = view.Row2.Xyz;
+                var w = n.X * pos[0] + n.Y * pos[1] + n.Z * pos[2];
+                unif.Set(Names.nearPlane, new[] { n.X, n.Y, n.Z, w }.AsInt32());
+            }
 
             // UPDATE UNIFORM BUFFER
             unif.Update();

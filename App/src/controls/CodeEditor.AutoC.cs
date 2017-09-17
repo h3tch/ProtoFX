@@ -188,49 +188,38 @@ namespace ScintillaNET
         private void TipShow(ref CallTip tip, ShowTipEventHandler handlers, int position, object hint)
         {
             // create calltip class
-            if (tip == null)
-            {
-                tip = new CallTip();
-                tip.Enter += new EventHandler(tip_MouseEnter);
-                tip.SetChartIntervals(10, 0);
-                Theme.Apply(tip);
-            }
+            tip = new CallTip();
+            tip.Enter += new EventHandler(TipMouseEnter);
+            tip.SetChartIntervals(10, 0);
+            Theme.Apply(tip);
 
             // get screen position
             var rect = GetWordBounds(position);
             rect.Location = PointToScreen(rect.Location);
             rect.Inflate(3, 3);
-
-            // Fore some reason PointToScreen can return
-            // different positions. In this case the call
-            // tip needs to be repositioned.
-            if (!tip.Visible || tip.Location != rect.Location)
+            
+            // invoke event hadlers
+            var e = new ShowTipEventHandlerArgs
             {
-                // invoke event hadlers
-                var e = new ShowTipEventHandlerArgs();
-                e.TextPosition = position;
-                e.Definition = hint;
-                e.ScreenPosition = rect.Location;
-                handlers?.Invoke(this, e);
-                if (e.Cancle)
-                    return;
+                TextPosition = position,
+                Definition = hint,
+                ScreenPosition = rect.Location
+            };
+            handlers?.Invoke(this, e);
+            if (e.Cancle)
+                return;
 
-                // show calltip
-                if (hint is string)
-                {
-                    tip.Show(rect, (string)hint);
-                }
-                else if (hint is Array)
-                {
-                    const int w = 500;
-                    var X = (Array)((Array)hint).GetValue(0);
-                    var Y = (Array)((Array)hint).GetValue(1);
-                    tip.Show(rect, X, Y, w, w * 0.6, ContentAlignment.TopLeft, 0.3, 0.3);
-                }
-
-                // make sure the calltip window
-                // is in front of all others
-                tip.BringToFront();
+            // show calltip
+            if (hint is string)
+            {
+                tip.Show(rect, (string)hint);
+            }
+            else if (hint is Array)
+            {
+                const int w = 500;
+                var X = (Array)((Array)hint).GetValue(0);
+                var Y = (Array)((Array)hint).GetValue(1);
+                tip.Show(rect, X, Y, w, w * 0.6, ContentAlignment.TopLeft, 0.3, 0.3);
             }
         }
 
@@ -249,7 +238,9 @@ namespace ScintillaNET
             if (e.Cancle)
                 return;
 
-            tip.Hide();
+            //tip.Hide();
+            tip.Close();
+            tip.Dispose();
             OnMouseLeave(null);
         }
 
@@ -258,7 +249,7 @@ namespace ScintillaNET
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void tip_MouseEnter(object s, EventArgs e)
+        private void TipMouseEnter(object s, EventArgs e)
         {
             TipCancel(s as CallTip, s == callTip ? CancleCallTip : CanclePerfTip);
         }

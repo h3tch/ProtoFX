@@ -685,10 +685,11 @@ namespace App
                 return;
 
             var editor = (CodeEditor)tab.Controls[0];
+            var filename = editor.Filename;
 
-            // Open a save dialog if the tabPage is not liked
+            // Open a save dialog if the tabPage is not linked
             // to a file or a new file should be created.
-            if (editor.Filename == null || newfile)
+            if (filename == null || newfile)
             {
                 var saveDlg = new SaveFileDialog()
                 {
@@ -699,22 +700,19 @@ namespace App
                 // if the dialog did not return a valid state
                 if (saveDlg.ShowDialog() != DialogResult.OK)
                     return;
-
-                editor.Filename = saveDlg.FileName;
-                tab.Text = Path.GetFileName(saveDlg.FileName);
             }
 
             // save the file
-            if (editor.IsDifferentFromFile())
+            if (editor.IsDifferentFromFile() || editor.Filename != filename)
             {
                 editor.PauseFileWatch();
-                System.IO.File.WriteAllText(editor.Filename, editor.Text);
+                System.IO.File.WriteAllText(filename, editor.Text);
                 editor.ResumeFileWatch();
             }
 
             // remove change indicator
-            if (tab.Text.EndsWith("*"))
-                tab.Text = tab.Text.Substring(0, tab.Text.Length - 1);
+            tab.Text = Path.GetFileName(filename);
+            editor.Filename = filename;
         }
 
         /// <summary>

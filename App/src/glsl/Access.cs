@@ -626,12 +626,12 @@ namespace App.Glsl
 
         public static uvec4 texelFetch(Location location, usampler2DMS sampler, ivec2 P, int sample)
         {
-            return new uvec4(0);
+            throw new NotImplementedException();
         }
 
         public static uvec4 texelFetch(Location location, usampler2DMSArray sampler, ivec3 P, int sample)
         {
-            return new uvec4(0);
+            throw new NotImplementedException();
         }
 
         #endregion
