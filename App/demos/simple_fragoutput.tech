@@ -83,7 +83,7 @@ texture tex_color {
 /////////////
 
 shader vs_simple vert {
-	#version 440
+	#version 450
 	
 	layout(location = 0) uniform SimpleCamera {
 		mat4 viewProj;
@@ -95,6 +95,9 @@ shader vs_simple vert {
 
 	// vertex shader output
 	layout(location = 0) out vec4 vs_col;
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
 	
 	void main ()
 	{
@@ -104,7 +107,7 @@ shader vs_simple vert {
 }
 
 shader fs_simple frag {
-	#version 440
+	#version 450
 	
 	layout(location = 0) in vec4 gs_col;
 	out vec4 color;
@@ -116,10 +119,13 @@ shader fs_simple frag {
 }
 
 shader vs_present vert {
-	#version 440
+	#version 450
 	
 	layout(location = 0) in vec4 in_pos;
 	layout(location = 0) out vec2 vs_uv;
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
 	
 	void main ()
 	{

@@ -11,6 +11,14 @@ csharp cs_util {
 // BUFFERS //
 /////////////
 
+memory mem_clear_min {
+	xml "scene.xml" data/number/uint_max
+}
+
+memory mem_clear_max {
+	xml "scene.xml" data/number/uint_zero
+}
+
 buffer buff_pos {
 	// buffer will only be used for reading
 	// and will not be updated during runtime
@@ -31,6 +39,18 @@ buffer buf_idx {
 	usage staticDraw
 	xml "../geom/cube.xml" data/index
 	xml "../geom/plane.xml" data/index
+}
+
+buffer buf_resolution_min {
+	target atomic
+	usage staticDraw
+	size 4
+}
+
+buffer buf_resolution_max {
+	target atomic
+	usage staticDraw
+	size 4
 }
 
 image img_shadowmap {
@@ -148,12 +168,15 @@ shader vs_simple vert {
 
 shader fs_simple frag {
 	#version 450
+	#extension GL_ARB_shader_atomic_counter_ops : require
 	
 	layout(binding = 0) uniform StaticCamera {
 		mat4 viewProj;
 	} light;
 	
 	layout(binding = 0) uniform sampler2D shadowmap;
+	layout(binding = 0) uniform atomic_uint resolution_min[2];
+	layout(binding = 2) uniform atomic_uint resolution_max[2];
 	
 	layout(location = 0) in vec3 in_wpos;
 	layout(location = 1) in vec4 in_lpos;
@@ -230,8 +253,12 @@ shader fs_simple frag {
 			wh -= min(min(p[0], p[1]), min(p[2], p[3])).xy;
 			
 			// pass color
-			//if (all(greaterThan(wh, vec2(0))))
-				color = vec4(wh * 100, 0, 1);
+			color = vec4(wh * 100, 0, 1);
+			wh *= textureSize(shadowmap, 0).xy;
+			atomicCounterMinARB(resolution_min[0], floatBitsToUint(wh.x));
+			atomicCounterMinARB(resolution_min[1], floatBitsToUint(wh.y));
+			atomicCounterMaxARB(resolution_max[0], floatBitsToUint(wh.x));
+			atomicCounterMaxARB(resolution_max[1], floatBitsToUint(wh.y));
 		}
 	}
 }
@@ -267,6 +294,8 @@ pass pass_render {
 	frag fs_simple
 	
 	tex tex_shadowmap 0
+	atomic buf_resolution_min 0 mem_clear_min
+	atomic buf_resolution_max 2 mem_clear_max
 	
 	// OpenGL calls
 	glCullFace Back
@@ -284,6 +313,7 @@ pass pass_render {
 
 pass pass_reset {
 	tex 0 // unbind
+	atomic 0
 	glClearColor 0.0 0.0 0.0 0.0
 	glDisable depthTest
 	glDisable CullFace

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using static OpenTK.Graphics.OpenGL4.ProgramStageMask;
 using static OpenTK.Graphics.OpenGL4.TransformFeedbackMode;
 using static System.Reflection.BindingFlags;
@@ -42,6 +43,7 @@ namespace App
         private List<CompCall> compcalls = new List<CompCall>();
         private List<ResTexImg> texImages = new List<ResTexImg>();
         private List<Res<GLTexture>> textures = new List<Res<GLTexture>>();
+        private List<ResBuffer> buffers = new List<ResBuffer>();
         private List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
         private List<GLMethod> glfunc = new List<GLMethod>();
         private List<GLInstance> csexec = new List<GLInstance>();
@@ -85,10 +87,11 @@ namespace App
                         case "tex": ParseTexCmd(cmd, scene, e); break;
                         case "img": ParseImgCmd(cmd, scene, e); break;
                         case "samp": ParseSampCmd(cmd, scene, e); break;
+                        case "atomic": ParseAtomicCmd(cmd, scene, e); break;
                         case "exec": ParseCsharpExec(cmd, scene, e); break;
                         case "vertout": vertoutput = new Vertoutput(cmd, scene, e);  break;
                         case "fragout": scene.TryGetValue(cmd[0].Text, out fragoutput, cmd, e); break;
-                        default: ParseOpenGLCall(cmd, e); break;
+                        default: ParseOpenGLCall(cmd, scene, e); break;
                     }
                 }
             }
@@ -234,6 +237,13 @@ namespace App
             {
                 GL.BindSampler(x.unit, x.obj?.glname ?? 0);
                 ThrowOnGLError($"OpenGL error in sampler '{x.obj?.Name}' of pass '{Name}'.");
+            }
+            foreach (var x in buffers)
+            {
+                GL.BindBufferBase(x.target, x.unit, x.obj?.glname ?? 0);
+                if (x.clearValuePtr != null && x.obj != null)
+                    GL.ClearNamedBufferData(x.obj.glname, PixelInternalFormat.R32ui, PixelFormat.Red, All.UnsignedInt, x.clearValuePtr);
+                ThrowOnGLError($"OpenGL error in texture '{x.obj?.Name}' of pass '{Name}'.");
             }
 
             /// EXECUTE EXTERNAL CODE
@@ -511,8 +521,27 @@ namespace App
             if (!err.HasErrors)
                 sampler.Add(new Res<GLSampler>(values));
         }
-        
-        private void ParseOpenGLCall(Compiler.Command cmd, CompileException err)
+
+        private void ParseAtomicCmd(Compiler.Command cmd, Dict classes, CompileException err)
+        {
+            if (cmd.ArgCount < 1 || 3 < cmd.ArgCount)
+            {
+                err.Error("Arguments of the 'atomic' command are invalid.", cmd);
+                return;
+            }
+            // specify argument types
+            var types = new[] { typeof(GLBuffer), typeof(int), typeof(GLMemory) };
+            // specify mandatory arguments
+            var mandatory = new[] { new[] { true, true, false },
+                                    new[] { false, true, false } };
+            // parse command arguments
+            (var values, _) = cmd.Parse(types, mandatory, classes, err);
+            // if there are no errors, add the object to the pass
+            if (!err.HasErrors)
+                buffers.Add(new ResBuffer(BufferRangeTarget.AtomicCounterBuffer, values));
+        }
+
+        private void ParseOpenGLCall(Compiler.Command cmd, Dict classes, CompileException err)
         {
             // find OpenGL method
             var mname = cmd.Name.StartsWith("gl") ? cmd.Name.Substring(2) : cmd.Name;
@@ -520,7 +549,7 @@ namespace App
             if (mtype == null)
             {
                 if (GetFxField(mname) == null)
-                    err.Error("Unknown command '" + cmd.Text + "'", cmd);
+                    err.Error($"Unknown command '{cmd.Text}'", cmd);
                 return;
             }
 
@@ -530,13 +559,26 @@ namespace App
             // convert strings to parameter types
             for (int i = 0; i < param.Length; i++)
             {
-                if (param[i].ParameterType.IsEnum)
-                    inval[i] = Convert.ChangeType(
-                        Enum.Parse(param[i].ParameterType, cmd[i].Text, true),
-                        param[i].ParameterType);
-                else
-                    inval[i] = Convert.ChangeType(
-                        cmd[i].Text, param[i].ParameterType, CultureInfo.CurrentCulture);
+                switch (param[i].ParameterType)
+                {
+                    case Type type when type.IsEnum:
+                        inval[i] = Convert.ChangeType(
+                            Enum.Parse(param[i].ParameterType, cmd[i].Text, true),
+                            param[i].ParameterType);
+                        break;
+                    case Type type when (type == typeof(IntPtr)):
+                        inval[i] = classes.GetValueOrDefault<GLMemory>(cmd[i].Text)?.DataIntPtr;
+                        break;
+                    case Type type when (type == typeof(int) || type == typeof(uint)):
+                        inval[i] = classes.GetValueOrDefault<GLObject>(cmd[i].Text)?.glname
+                            ?? Convert.ChangeType(cmd[i].Text, param[i].ParameterType,
+                                                  CultureInfo.CurrentCulture);
+                        break;
+                    default:
+                        inval[i] = Convert.ChangeType(cmd[i].Text, param[i].ParameterType,
+                                                      CultureInfo.CurrentCulture);
+                        break;
+                }
             }
 
             glfunc.Add(new GLMethod(mtype, inval));
@@ -850,6 +892,19 @@ namespace App
                     access = (TextureAccess)values[4];
                 if (values[5] != null)
                     format = (GpuFormat)values[5];
+            }
+        }
+
+        private class ResBuffer : Res<GLBuffer>
+        {
+            public BufferRangeTarget target;
+            public IntPtr clearValuePtr = (IntPtr)0;
+
+            public ResBuffer(BufferRangeTarget target, object[] values) : base(values)
+            {
+                this.target = target;
+                if (values[2] != null)
+                    clearValuePtr = ((GLMemory)values[2]).DataIntPtr;
             }
         }
 

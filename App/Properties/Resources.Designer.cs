@@ -19,7 +19,7 @@ namespace App.Properties {
     // -Klasse über ein Tool wie ResGen oder Visual Studio automatisch generiert.
     // Um einen Member hinzuzufügen oder zu entfernen, bearbeiten Sie die .ResX-Datei und führen dann ResGen
     // mit der /str-Option erneut aus, oder Sie erstellen Ihr VS-Projekt neu.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -75,7 +75,6 @@ namespace App.Properties {
         ///System.Core.dll
         ///System.Runtime.dll
         ///System.Drawing.dll
-        ///System.ValueTuple.dll
         ///System.Windows.Forms.dll
         ///OpenTK.dll ähnelt.
         /// </summary>
@@ -92,18 +91,18 @@ namespace App.Properties {
         ///#define _DBG_FLOAT 4
         ///#define _i2f intBitsToFloat
         ///#define _u2f uintBitsToFloat
-        ///const int _dbgStageOffset = &lt;&lt;stage offset&gt;&gt;;
         ///
         ///layout(rgba32f) uniform writeonly imageBuffer _dbgOut;
         ///
         ///int _dbgStore(int idx, vec4 val) {
-        ///	imageStore(_dbgOut, _dbgStageOffset + idx, val);
+        ///	imageStore(_dbgOut, idx, val);
         ///	return ++idx;
         ///}
         ///int _dbgStore(int idx, ivec4 val) {
         ///	return _dbgStore(idx, vec4(_i2f(val.x), _i2f(val.y), _i2f(val.z), _i2f(val.w)));
         ///}
-        ///int _dbgStore(int idx, uvec4 val) [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        ///int _dbgStore(int idx, uvec4 val) {
+        ///	return _dbgStore(idx, vec4(_u2f(val.x), _u2f(val.y), _u2f(va [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
         /// </summary>
         internal static string dbg {
             get {
@@ -158,25 +157,22 @@ namespace App.Properties {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die uniform &lt;&lt;debug uniform&gt;&gt;;
-        ///uniform &lt;&lt;debug frame&gt;&gt;;
+        ///   Sucht eine lokalisierte Zeichenfolge, die 
+        ///uniform ivec2 _dbgFragment;
+        ///uniform int _dbgLayer;
+        ///uniform int _dbgViewport;
+        ///	
+        ///void main ()
+        ///{
+        ///	if (gl_FragCoord.x != _dbgFragment.x
+        ///	|| gl_FragCoord.y != _dbgFragment.y)
+        ///	{
+        ///		&lt;&lt;store_input_varyings&gt;&gt;
+        ///	}
         ///
-        ///void _dbgMain() {
-        ///	int _dbgIdx = 1;
-        ///	&lt;&lt;debug code&gt;&gt;
-        ///	_dbgStore(0, ivec2(_dbgIdx-1, _dbgFrame));
+        ///	&lt;&lt;shader_code&gt;&gt;
         ///}
-        ///
-        ///void _runMain() {
-        ///	&lt;&lt;runtime code&gt;&gt;
-        ///}
-        ///
-        ///void main() {
-        ///	if (&lt;&lt;debug condition&gt;&gt;)
-        ///		_dbgMain();
-        ///	else
-        ///		_runMain();
-        ///} ähnelt.
+        /// ähnelt.
         /// </summary>
         internal static string dbgBody {
             get {

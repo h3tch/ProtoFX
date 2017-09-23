@@ -11,11 +11,11 @@ using ParameterName = OpenTK.Graphics.OpenGL4.BufferParameterName;
 
 namespace App
 {
-    class GLBuffer : GLObject
+    class GLBuffer : GLMemory
     {
         #region FIELDS
 
-        [FxField] public int Size { get; private set; } = 0;
+        [FxField] public BufferTarget Target { get; private set; } = BufferTarget.ArrayBuffer;
         [FxField] public UsageHint Usage { get; private set; } = UsageHint.StaticDraw;
 
         #endregion
@@ -28,16 +28,17 @@ namespace App
         /// <param name="usage">How the buffer should be used by the program.</param>
         /// <param name="size">The memory size to be allocated in bytes.</param>
         /// <param name="data">Optionally initialize the buffer object with the specified data.</param>
-        public GLBuffer(string name, string anno, UsageHint usage, int size, byte[] data = null)
-            : base(name, anno)
+        public GLBuffer(string name, string anno, BufferTarget target, UsageHint usage, int size, byte[] data = null)
+            : base(name, anno, size, data)
         {
             var err = new CompileException($"buffer '{name}'");
-
-            Size = size;
+            
             Usage = usage;
+            Target = target;
 
             // CREATE OPENGL OBJECT
-            CreateBuffer(data);
+            CreateBuffer(Data);
+            Data = null;
             if (HasErrorOrGlError(err, "", -1))
                 throw err;
         }
@@ -143,7 +144,8 @@ namespace App
 
             // map buffer and copy data to CPU memory
             var mapSize = Math.Min(Size, data.Length);
-            var dataPtr = GL.MapNamedBufferRange(glname, (IntPtr)offset, mapSize, BufferAccessMask.MapReadBit);
+            var dataPtr = GL.MapNamedBufferRange(glname, (IntPtr)offset, mapSize,
+                                                 BufferAccessMask.MapReadBit);
             Marshal.Copy(dataPtr, data, 0, mapSize);
             GL.UnmapNamedBuffer(glname);
         }
@@ -153,12 +155,12 @@ namespace App
         /// </summary>
         public override void Delete()
         {
-            base.Delete();
             if (glname > 0)
             {
                 GL.DeleteBuffer(glname);
                 glname = 0;
             }
+            base.Delete();
         }
 
         /// <summary>
@@ -190,11 +192,11 @@ namespace App
         /// Create OpenGL buffer from data array.
         /// </summary>
         /// <param name="data"></param>
-        private void CreateBuffer(byte[] data)
+        protected void CreateBuffer(byte[] data)
         {
             // CREATE OPENGL OBJECT
             glname = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, glname);
+            GL.BindBuffer(Target, glname);
 
             // ALLOCATE (AND WRITE) GPU MEMORY
             if (Size > 0)
@@ -211,7 +213,7 @@ namespace App
                     GL.NamedBufferData(glname, Size, IntPtr.Zero, Usage);
             }
 
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindBuffer(Target, 0);
         }
 
         /// <summary>
@@ -263,7 +265,7 @@ namespace App
 
             return null;
         }
-        
+
         /// <summary>
         /// Get text from scene structure by processing the specified command.
         /// </summary>

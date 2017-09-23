@@ -287,4 +287,8 @@
       2  3  0
     </triangles>
   </mesh>
+  <number>
+    <uint_zero type='uint' isbinary='false'>0</uint_zero>
+    <uint_max type='uint' isbinary='false'>4294967295</uint_max>
+  </number>
 </data>

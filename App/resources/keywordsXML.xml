@@ -28,6 +28,8 @@
     <Style theme='LightTheme' name='anno' fore='#2FABA7'/>
     <Keyword style_name='type' name='buffer' hint='Allocate buffer on the GPU.
                                                   \  &lt;key&gt;buffer&lt;/key&gt; &lt;param&gt;[name]&lt;/param&gt;'/>
+    <Keyword style_name='type' name='memory' hint='Allocate memory on the CPU.
+                                                  \  &lt;key&gt;memory&lt;/key&gt; &lt;param&gt;[name]&lt;/param&gt;'/>
     <Keyword style_name='type' name='csharp' hint='Load C# assemplies.
                                                   \  &lt;key&gt;csharp&lt;/key&gt; &lt;param&gt;[name]&lt;/param&gt;'/>
     <Keyword style_name='type' name='fragoutput'
@@ -144,6 +146,10 @@
       <Keyword style_name='command' name='txt'
                hint='Load data from a text file.
                     \  &lt;key&gt;txt&lt;/key&gt; &lt;param&gt;[text_name]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='target'
+               hint='Specify how the buffer will be
+                    \used by the application.
+                    \  &lt;key&gt;target&lt;/key&gt; &lt;param&gt;[buffer_target]&lt;/param&gt;'/>
       <Keyword style_name='command' name='usage'
                hint='Specify how the buffer will be
                     \used by the application.
@@ -154,6 +160,19 @@
       <Keyword style_name='command' name='class'
                hint='Post process data using the defined method.
                     \  &lt;key&gt;class&lt;/key&gt; &lt;param&gt;[csharp_name] [class_name] [method_name]&lt;/param&gt;'/>
+      <!-- buffer - TARGET -->
+      <Lexer type='target' lexer='CommandLexer'>
+        <Style theme='DarkTheme' name='argument' fore='#9589CC'/>
+        <Style theme='LightTheme' name='argument' fore='#9589CC'/>
+        <Keyword style_name='argument' name='atomic'/>
+        <Keyword style_name='argument' name='array'/>
+        <Keyword style_name='argument' name='ellement'/>
+        <Keyword style_name='argument' name='transformFeedback'/>
+        <Keyword style_name='argument' name='drawIndirect'/>
+        <Keyword style_name='argument' name='shaderStorage'/>
+        <Keyword style_name='argument' name='dispatchIndirect'/>
+        <Keyword style_name='argument' name='query'/>
+      </Lexer>
       <!-- buffer - USAGE -->
       <Lexer type='usage' lexer='CommandLexer'>
         <Style theme='DarkTheme' name='argument' fore='#9589CC'/>
@@ -168,6 +187,23 @@
         <Keyword style_name='argument' name='streamDraw'/>
         <Keyword style_name='argument' name='streamRead'/>
       </Lexer>
+    </Lexer>
+    <!-- MEMORY -->
+    <Lexer type='memory' lexer='TechBodyLexer'>
+      <Style theme='DarkTheme' name='command' fore='#7AC0F4'/>
+      <Style theme='LightTheme' name='command' fore='#7AC0F4'/>
+      <Keyword style_name='command' name='size'
+               hint='Specify the memory size in bytes.
+                    \  &lt;key&gt;size&lt;/key&gt; &lt;param&gt;[bytes]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='txt'
+               hint='Load data from a text file.
+                    \  &lt;key&gt;txt&lt;/key&gt; &lt;param&gt;[text_name]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='xml'
+               hint='Load data from a xml file.
+                    \  &lt;key&gt;xml&lt;/key&gt; &lt;param&gt;[path] {node}&lt;/param&gt;'/>
+      <Keyword style_name='command' name='class'
+               hint='Post process data using the defined method.
+                    \  &lt;key&gt;class&lt;/key&gt; &lt;param&gt;[csharp_name] [class_name] [method_name]&lt;/param&gt;'/>
     </Lexer>
     <!-- CSHARP -->
     <Lexer type='csharp' lexer='TechBodyLexer'>
@@ -355,6 +391,10 @@
                hint = 'Bind/unbind a texture sampler to/from a texture unit.
                     \  &lt;key&gt;samp&lt;/key&gt; &lt;param&gt;[samp_name] [unit]&lt;/param&gt;
                     \  &lt;key&gt;samp&lt;/key&gt; &lt;param&gt;[unit] {unbind}&lt;/param&gt;'/>
+      <Keyword style_name='command' name='atomic'
+               hint = 'Bind/unbind an atomic buffer to/from an atomic unit.
+                    \  &lt;key&gt;atomic&lt;/key&gt; &lt;param&gt;[buffer_name] [unit]&lt;/param&gt;
+                    \  &lt;key&gt;atomic&lt;/key&gt; &lt;param&gt;[unit] {unbind}&lt;/param&gt;'/>
       <!-- pass - TEX -->
       <Lexer type='tex' lexer='CommandLexer'>
         <Style theme='DarkTheme' name='argument' fore='#9589CC'/>
@@ -727,6 +767,21 @@
       <Keyword style_name='keyword' name='layout' hint='Layout qualifiers affect where the storage
                                                        \for a variable comes from, as well as other
                                                        \user-facing properties of a particular definition.'/>
+      <Keyword style_name='keyword' name='coherent' hint='Using this requires the appropriate memory barriers to be
+                                                         \executed, so that visibility can be achieved. When communicating
+                                                         \between shader invocations for different rendering commands,
+                                                         \glMemoryBarrier should be used instead of this qualifier.'/>
+      <Keyword style_name='keyword' name='volatile' hint='With this qualifier, the compiler assumes that the contents
+                                                         \of the storage represented by the variable could be changed
+                                                         \at any time.'/>
+      <Keyword style_name='keyword' name='restrict' hint='With this qualifier, you are telling the compiler that this
+                                                         \particular variable is the only variable that can modify the
+                                                         \memory visible through that variable within this shader
+                                                         \invocation (other shader stages do not count here). This
+                                                         \allows the compiler to optimize reads/writes better.'/>
+      <Keyword style_name='keyword' name='readonly' hint='The variable can only be used for reading operations.'/>
+      <Keyword style_name='keyword' name='writeonly' hint='The variable can only be used for writing operations
+                                                          \(atomic writes are forbidden because they also count as reads).'/>
       <Keyword style_name='keyword' name='uniform' hint='define uniform variable, buffer or sampler object'/>
       <Keyword style_name='keyword' name='struct' hint='define a data structure'/>
       <Keyword style_name='keyword' name='image1D' hint='1D image binding unit'/>
@@ -1151,6 +1206,12 @@
                       \bit set to 1 in an integer
                       \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;findMSB&lt;/key&gt;&lt;param&gt;(genIType value)&lt;/param&gt;
                       \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;findMSB&lt;/key&gt;&lt;param&gt;(genUType value)&lt;/param&gt;'/>
+        <Keyword style_name='function' name='floatBitsToInt'
+                 hint='produce the encoding of a floating point value as an integer
+                      \  &lt;param&gt;genIType&lt;/param&gt; &lt;key&gt;floatBitsToInt&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
+        <Keyword style_name='function' name='floatBitsToUint'
+                 hint='produce the encoding of a floating point value as an unsigned integer
+                      \  &lt;param&gt;genUType&lt;/param&gt; &lt;key&gt;floatBitsToUint&lt;/key&gt;&lt;param&gt;(genType x)&lt;/param&gt;'/>
         <Keyword style_name='function' name='floor'
                  hint='find the nearest integer less than
                       \or equal to the parameter

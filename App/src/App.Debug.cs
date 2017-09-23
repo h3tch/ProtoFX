@@ -416,7 +416,7 @@ namespace App
             debugListView.AddColumn("Z", 80);
             debugListView.AddColumn("W", 80);
 
-            if (0 <= CurrentDebugInfo && CurrentDebugInfo < DebugInfo.Length)
+            if (0 <= CurrentDebugInfo && CurrentDebugInfo < (DebugInfo?.Length ?? 0))
             {
                 // get debug variables of the line where the caret is placed
                 var line = DebugInfo[CurrentDebugInfo].Location.Line;

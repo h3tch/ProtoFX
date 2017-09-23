@@ -201,7 +201,7 @@ namespace App
             {
                 val = fieldType.IsEnum
                     // if this is an enum, convert the string to an enum value
-                    ? Convert.ChangeType(Enum.Parse(fieldType, cmd[0].Text, true), fieldType)
+                    ? Convert.ChangeType(EnumSearch(fieldType, cmd[0].Text), fieldType)
                     // else try to convert it to the field type
                     : Convert.ChangeType(cmd[0].Text, fieldType, CultureInfo.CurrentCulture);
             }
@@ -210,6 +210,21 @@ namespace App
             field.GetType()
                 .GetMethod("SetValue", new[] { typeof(object), typeof(object) })
                 .Invoke(field, new object[] { clazz, val });
+        }
+
+        static private object EnumSearch(Type enumType, string name)
+        {
+            try
+            {
+                return Enum.Parse(enumType, name, true);
+            }
+            catch (ArgumentException)
+            {
+                foreach (var value in Enum.GetValues(enumType))
+                    if (value.ToString().StartsWith(name, true, CultureInfo.CurrentCulture))
+                        return value;
+            }
+            throw new ArgumentException("Argument '{name}' cannot be parsed.");
         }
         #endregion
     }

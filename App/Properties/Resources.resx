@@ -214,7 +214,6 @@ uvec3 _dbgComp</value>
 System.Core.dll
 System.Runtime.dll
 System.Drawing.dll
-System.ValueTuple.dll
 System.Windows.Forms.dll
 OpenTK.dll</value>
   </data>

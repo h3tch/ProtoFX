@@ -409,7 +409,7 @@ namespace App
                                 : types[i].IsEnum
                                     ? Enum.Parse(types[i], arg.Text, true)
                                     : Convert.ChangeType(arg.Text, types[i],
-                                        CultureInfo.CurrentCulture);
+                                                         CultureInfo.CurrentCulture);
                             if (values[i] != null)
                             {
                                 lastArgUsed = a;

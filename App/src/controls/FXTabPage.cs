@@ -22,7 +22,7 @@
                 var editor = tab[i].Controls[0] as ScintillaNET.CodeEditor;
 
                 // if references are matching
-                if (editor.Filename.Equals(filename, comparison))
+                if (editor.Filename?.Equals(filename, comparison) ?? false)
                     return i;
             }
 

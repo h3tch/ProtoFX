@@ -483,7 +483,8 @@ namespace App
 
             // COMPILE THE CURRENTLY SELECTED FILE
             var root = Compiler.Compile(CompiledEditor.Filename);
-            var shaderLines = from x in root where x.Type == "shader" select new[] { x.Line, x.LineCount };
+            var shaderLines = from x in root where x.Type == "shader"
+                              select new[] { x.Line, x.LineCount };
             CompiledEditor.RemoveInvalidBreakpoints(shaderLines);
             CompiledEditor.RemoveExecutionMarker();
 
@@ -523,9 +524,12 @@ namespace App
             comboBuf.Items.Clear();
             comboImg.Items.Clear();
             comboProp.Items.Clear();
-            glControl.Scene.Where(x => x.Value is GLBuffer).ForEach(x => comboBuf.Items.Add(x.Value));
-            glControl.Scene.Where(x => x.Value is GLImage).ForEach(x => comboImg.Items.Add(x.Value));
-            glControl.Scene.Where(x => x.Value is GLInstance).ForEach(x => comboProp.Items.Add(x.Value));
+            glControl.Scene.Where(x => x.Value is GLBuffer)
+                           .ForEach(x => comboBuf.Items.Add(x.Value));
+            glControl.Scene.Where(x => x.Value is GLImage)
+                           .ForEach(x => comboImg.Items.Add(x.Value));
+            glControl.Scene.Where(x => x.Value is GLInstance)
+                           .ForEach(x => comboProp.Items.Add(x.Value));
 
             // SHOW DEBUG BUTTONS IF NECESSARY
             toolBtnDbgStepBreakpoint.Enabled = debugging;
@@ -542,10 +546,8 @@ namespace App
         /// <param name="e"></param>
         private void ToolBtnSave_Click(object s, EventArgs e)
         {
-            if (!(SelectedTab?.Text.EndsWith("*") ?? false))
-                return;
-            SaveTab(SelectedTab, false);
-            SelectedTab.Text = SelectedTab.Text.Substring(0, SelectedTab.Text.Length - 1);
+            if (SelectedTab?.Text.EndsWith("*") ?? false)
+                SaveTab(SelectedTab, false);
         }
 
         /// <summary>
