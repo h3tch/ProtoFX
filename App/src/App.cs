@@ -504,7 +504,7 @@ namespace App
 
             // underline all debug errors
             var ranges = line.Select(x => new[] {
-                CompiledEditor.Lines[x].Position,
+                CompiledEditor.Lines[x].Position + CompiledEditor.Lines[x].Text.NextNonWhitespace(),
                 CompiledEditor.Lines[x].EndPosition
             });
             CompiledEditor.ClearIndicators(CodeEditor.DebugIndicatorIndex);

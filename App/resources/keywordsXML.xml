@@ -166,7 +166,7 @@
         <Style theme='LightTheme' name='argument' fore='#9589CC'/>
         <Keyword style_name='argument' name='atomic'/>
         <Keyword style_name='argument' name='array'/>
-        <Keyword style_name='argument' name='ellement'/>
+        <Keyword style_name='argument' name='element'/>
         <Keyword style_name='argument' name='transformFeedback'/>
         <Keyword style_name='argument' name='drawIndirect'/>
         <Keyword style_name='argument' name='shaderStorage'/>
@@ -824,12 +824,12 @@
       <Keyword style_name='keyword' name='samplerCubeArray' hint='cube map array binding unit'/>
       <Keyword style_name='keyword' name='samplerCubeArrayShadow' hint='shadow cube map array binding unit'/>
       <Keyword style_name='keyword' name='samplerCubeShadow' hint='shadow cube map binding unit'/>
+      <Keyword style_name='keyword' name='atomic_uint' hint='atomic counter binding unit'/>
       <Keyword style_name='datatype' name='void'/>
       <Keyword style_name='datatype' name='bool'/>
       <Keyword style_name='datatype' name='int'/>
       <Keyword style_name='datatype' name='uint'/>
       <Keyword style_name='datatype' name='float'/>
-      <Keyword style_name='datatype' name='atomic_uint'/>
       <Keyword style_name='datatype' name='bvec2' hint='bool vector with 2 components'/>
       <Keyword style_name='datatype' name='bvec3' hint='bool vector with 3 components'/>
       <Keyword style_name='datatype' name='bvec4' hint='bool vector with 4 components'/>

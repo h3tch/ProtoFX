@@ -242,7 +242,8 @@ namespace App
             {
                 GL.BindBufferBase(x.target, x.unit, x.obj?.glname ?? 0);
                 if (x.clearValuePtr != null && x.obj != null)
-                    GL.ClearNamedBufferData(x.obj.glname, PixelInternalFormat.R32ui, PixelFormat.Red, All.UnsignedInt, x.clearValuePtr);
+                    GL.ClearNamedBufferData(x.obj.glname, PixelInternalFormat.R32ui,
+                        PixelFormat.Red, All.UnsignedInt, x.clearValuePtr);
                 ThrowOnGLError($"OpenGL error in texture '{x.obj?.Name}' of pass '{Name}'.");
             }
 

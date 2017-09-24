@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace App
 {
@@ -69,6 +70,14 @@ namespace App
 
         private void CompileShader(CompileException err, Compiler.Block block, string code)
         {
+            ParseMessage GetVendorSpecificLogParser()
+            {
+                var vendor = GL.GetString(StringName.Vendor);
+                if (vendor.IndexOf("nvidia", StringComparison.CurrentCultureIgnoreCase) >= 0)
+                    return NvidiaParser;
+                return DefaultParser;
+            }
+
             // delete existing objects
             Delete();
 
@@ -79,7 +88,15 @@ namespace App
 
             GL.GetProgram(glname, GetProgramParameterName.LinkStatus, out int status);
             if (status != 1)
-                err.Error($"\n{GL.GetProgramInfoLog(glname)}", block);
+            {
+                var log = GL.GetProgramInfoLog(glname);
+                var parser = GetVendorSpecificLogParser();
+                foreach (var line in log.Split('\n'))
+                {
+                    (var col, var row, var message) = parser(line);
+                    err.Error(message, block.Filename, block.LineInFile + row);
+                }
+            }
             if (HasErrorOrGlError(err, block))
                 throw err;
         }
@@ -108,6 +125,27 @@ namespace App
                 DebugShader.Delete();
                 DebugShader = null;
             }
+        }
+
+        delegate (int col, int row, string message) ParseMessage(string line);
+
+        private static (int col, int row, string message) DefaultParser(string line)
+        {
+            return (0, 0, line);
+        }
+
+        private static (int col, int row, string message) NvidiaParser(string line)
+        {
+            var match = Regex.Match(line, @"\d+\(\d+\)\s*:");
+            if (match.Success)
+            {
+                var message = line.Substring(match.Index + match.Length);
+                var matches = Regex.Matches(match.Value, @"\d+");
+                var col = int.Parse(matches[0].Value);
+                var row = int.Parse(matches[1].Value);
+                return (col, row - 1, message);
+            }
+            return (0, 0, line);
         }
     }
 }

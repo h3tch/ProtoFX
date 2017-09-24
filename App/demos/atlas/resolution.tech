@@ -20,22 +20,21 @@ memory mem_clear_max {
 }
 
 buffer buff_pos {
-	// buffer will only be used for reading
-	// and will not be updated during runtime
+	target array
 	usage staticDraw
-	// load <pos></pos> data from XML file
-	// these are vertex positions for each vertex
 	xml "../geom/cube.xml" data/position
 	xml "../geom/plane.xml" data/position
 }
 
 buffer buff_color {
+	target array
 	usage staticDraw
 	xml "../geom/cube.xml" data/color
 	xml "../geom/plane.xml" data/color
 }
 
 buffer buf_idx {
+	target element
 	usage staticDraw
 	xml "../geom/cube.xml" data/index
 	xml "../geom/plane.xml" data/index
@@ -54,10 +53,7 @@ buffer buf_resolution_max {
 }
 
 image img_shadowmap {
-	// image size in pixels
 	size 128 128
-	// pixel format is a 32
-	// bit floating point depth
 	format depth32f
 }
 
@@ -66,11 +62,7 @@ image img_shadowmap {
 /////////////////////
 
 vertinput in_vert {
-	// first attribute: floating point
-	// vertex positions (x,y,z,1)
 	attr buff_pos float 4
-	// second attribute: floating point
-	// vertex colors (x,y,z,1)
 	attr buff_color float 4
 }
 
@@ -80,7 +72,6 @@ sampler samp_linear {
 }
 
 fragoutput out_shadowmap {
-	// depth attachment
 	depth img_shadowmap
 }
 
