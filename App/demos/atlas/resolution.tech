@@ -225,32 +225,31 @@ shader fs_simple frag {
 		vec3 dx = dFdx(in_wpos);
 		vec3 dy = dFdy(in_wpos);
 		
-		if (shadow == 0 || shadow == 9) {
+		if (shadow == 0 || shadow == 9)
 			return;
-		} else {
-			vec3 p[4];
-			p[0] = in_wpos;
-			p[1] = p[0] + dx;
-			p[2] = p[0] + dy;
-			p[3] = p[1] + dy;
-			
-			for (int i = 0; i < 4; i++) 
-			{
-				vec4 v = light.viewProj * vec4(p[i], 1.0);
-				p[i] = (v.xyz / v.w) * 0.5 + 0.5;
-			}
-			
-			vec2 wh = max(max(p[0], p[1]), max(p[2], p[3])).xy;
-			wh -= min(min(p[0], p[1]), min(p[2], p[3])).xy;
-			
-			// pass color
-			color = vec4(wh * 100, 0, 1);
-			wh *= textureSize(shadowmap, 0).xy;
-			atomicCounterMinARB(resolution_min[0], floatBitsToUint(wh.x));
-			atomicCounterMinARB(resolution_min[1], floatBitsToUint(wh.y));
-			atomicCounterMaxARB(resolution_max[0], floatBitsToUint(wh.x));
-			atomicCounterMaxARB(resolution_max[1], floatBitsToUint(wh.y));
+		
+		vec3 p[4];
+		p[0] = in_wpos;
+		p[1] = p[0] + dx;
+		p[2] = p[0] + dy;
+		p[3] = p[1] + dy;
+		
+		for (int i = 0; i < 4; i++) 
+		{
+			vec4 v = light.viewProj * vec4(p[i], 1.0);
+			p[i] = (v.xyz / v.w) * 0.5 + 0.5;
 		}
+		
+		vec2 wh = max(max(p[0], p[1]), max(p[2], p[3])).xy;
+		wh -= min(min(p[0], p[1]), min(p[2], p[3])).xy;
+		
+		// pass color
+		color = vec4(wh * 100, 0, 1);
+		wh *= textureSize(shadowmap, 0).xy;
+		atomicCounterMinARB(resolution_min[0], floatBitsToUint(wh.x));
+		atomicCounterMinARB(resolution_min[1], floatBitsToUint(wh.y));
+		atomicCounterMaxARB(resolution_max[0], floatBitsToUint(wh.x));
+		atomicCounterMaxARB(resolution_max[1], floatBitsToUint(wh.y));
 	}
 }
 

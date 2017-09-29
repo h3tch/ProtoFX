@@ -123,6 +123,16 @@ namespace App
             ComboBuf_SelectedIndexChanged(sender, null);
         }
 
+        /// <summary>
+        /// Update the buffer on click.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TableBuf_Click(object sender, EventArgs e)
+        {
+            ComboBuf_SelectedIndexChanged(sender, e);
+        }
+
         #endregion
 
         #region Debug Properties

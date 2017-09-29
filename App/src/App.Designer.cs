@@ -1161,6 +1161,7 @@ namespace App
             this.tableBuf.RowTemplate.Height = 28;
             this.tableBuf.Size = new System.Drawing.Size(274, 658);
             this.tableBuf.TabIndex = 1;
+            this.tableBuf.Click += new System.EventHandler(this.TableBuf_Click);
             // 
             // tableLayoutBuffers
             // 
