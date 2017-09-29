@@ -43,13 +43,13 @@ buffer buf_idx {
 buffer buf_resolution_min {
 	target atomic
 	usage staticDraw
-	size 4
+	size 8
 }
 
 buffer buf_resolution_max {
 	target atomic
 	usage staticDraw
-	size 4
+	size 8
 }
 
 image img_shadowmap {
@@ -209,24 +209,36 @@ shader fs_simple frag {
 		vec2 grad = depthGradient(lpos);
 		
 		int shadow = 0;
-		for (int u = -1; u <= 1; u++)
+		int count = 0;
+		const float r = 3;
+		const int samples = 15;
+		for (float u = -r; u <= r; u+=(2*r)/samples)
 		{
-			for (int v = -1; v <= 1; v++)
+			for (float v = -r; v <= r; v+=(2*r)/samples)
 			{
 				// if pixel distance from the light source is greader than
 				// the distance in the shadow map, the pixel is in shadow
-				ivec2 offset = ivec2(u, v);
-				vec2 uvoffset = vec2(offset) / textureSize(shadowmap, 0).xy;
-				float z = lpos.z + dot(grad, uvoffset);
-				shadow += int(z - 0.0003 > textureOffset(shadowmap, lpos.xy, offset).x);
+				vec2 uvoffset = vec2(u, v) / textureSize(shadowmap, 0).xy;
+				float z = lpos.z + dot(grad, uvoffset) - 0.0003;
+				shadow += int(z > texture(shadowmap, lpos.xy + uvoffset).x);
+				count++;
 			}
 		}
 		
 		vec3 dx = dFdx(in_wpos);
 		vec3 dy = dFdy(in_wpos);
 		
-		if (shadow == 0 || shadow == 9)
+		if (shadow <= count / 2)
 			return;
+			
+		if (shadow > count / 2)
+		{
+			color *= 0;
+			return;
+		}
+		
+		color *= 1 - shadow / float(count);
+		return;
 		
 		vec3 p[4];
 		p[0] = in_wpos;
@@ -245,11 +257,11 @@ shader fs_simple frag {
 		
 		// pass color
 		color = vec4(wh * 100, 0, 1);
-		wh *= textureSize(shadowmap, 0).xy;
-		atomicCounterMinARB(resolution_min[0], floatBitsToUint(wh.x));
-		atomicCounterMinARB(resolution_min[1], floatBitsToUint(wh.y));
-		atomicCounterMaxARB(resolution_max[0], floatBitsToUint(wh.x));
-		atomicCounterMaxARB(resolution_max[1], floatBitsToUint(wh.y));
+		wh *= textureSize(shadowmap, 0).xy * 100;
+		atomicCounterMinARB(resolution_min[0], uint(wh.x));
+		atomicCounterMinARB(resolution_min[1], uint(wh.y));
+		atomicCounterMaxARB(resolution_max[0], uint(wh.x));
+		atomicCounterMaxARB(resolution_max[1], uint(wh.y));
 	}
 }
 

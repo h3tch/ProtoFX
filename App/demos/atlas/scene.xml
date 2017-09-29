@@ -290,5 +290,8 @@
   <number>
     <uint_zero type='uint' isbinary='false'>0</uint_zero>
     <uint_max type='uint' isbinary='false'>4294967295</uint_max>
+    <float_zero type='float' isbinary='false'>0</float_zero>
+    <float_min type='float' isbinary='false'>1.175494351e–38</float_min>
+    <float_max type='float' isbinary='false'>3.402823466e+38</float_max>
   </number>
 </data>
