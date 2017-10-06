@@ -30,17 +30,29 @@ namespace App
         /// <param name="e"></param>
         private void NumImgLayer_ValueChanged(object sender, EventArgs e)
         {
-            if (comboImg.SelectedItem == null || !(comboImg.SelectedItem is GLImage))
+            var item = comboImg.SelectedItem;
+            if (item == null)
                 return;
 
-            // get selected image
-            var img = (GLImage)comboImg.SelectedItem;
-            numImgLayer.Maximum = Math.Max(Math.Max(img.Length, img.Depth) - 1, 0);
+            Bitmap bmp;
 
-            // read image data from GPU
-            //glControl.MakeCurrent();
-            var bmp = img.Read((int)numImgLayer.Value, 0);
-            bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            if (item is GLImage image)
+            {
+                // update the maximum number of mipmap layers
+                numImgLayer.Maximum = Math.Max(Math.Max(image.Length, image.Depth) - 1, 0);
+                // read image data from the GPU
+                bmp = image.Read((int)numImgLayer.Value, 0);
+            }
+            else if (item is GLInstance instance)
+            {
+                // mipmap layers are not supported for GLInstance visualizations
+                numImgLayer.Maximum = 0;
+                // get visualization
+                bmp = (Bitmap)instance.Visualize();
+            }
+            else return;
+
+            bmp?.RotateFlip(RotateFlipType.RotateNoneFlipY);
             panelImg.Image.Image = bmp;
         }
 
@@ -65,23 +77,25 @@ namespace App
         /// <param name="e"></param>
         private void ComboBuf_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBuf.SelectedItem == null || !(comboBuf.SelectedItem is GLBuffer))
+            var item = comboBuf.SelectedItem;
+            if (item == null || !(item is GLBuffer || item is GLInstance))
                 return;
 
-            // gather needed info
-            var buf = (GLBuffer)comboBuf.SelectedItem;
+            // gather format info
             var type = (string)comboBufType.SelectedItem;
             var dim = (int)numBufDim.Value;
+            var name = (item as GLObject).Name;
 
-            // read data from GPU
-            glControl.MakeCurrent();
-            var data = buf.Read();
+            // gather data
+            var data = (item is GLBuffer)
+                ? (item as GLBuffer).Read()
+                : (byte[])(item as GLInstance).Visualize();
 
             // convert data to specified type
             var da = data.To(type, out Type colType);
 
             // CREATE TABLE
-            var dt = new DataTable(buf.Name);
+            var dt = new DataTable(name);
             var col = dt.Columns.Add("#", typeof(string));
             // create columns
             for (int i = 0; i < dim; i++)
@@ -97,10 +111,10 @@ namespace App
             }
 
             // update GUI
-            var ds = new DataSet(buf.Name);
+            var ds = new DataSet(name);
             ds.Tables.Add(dt);
             tableBuf.DataSource = ds;
-            tableBuf.DataMember = buf.Name;
+            tableBuf.DataMember = name;
         }
 
         /// <summary>

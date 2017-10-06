@@ -58,7 +58,7 @@ texture tex_shadowmap {
 /////////////
 
 shader vs_shadowmap vert {
-	#version 440
+	#version 450
 	
 	layout(binding = 0) uniform SpotLight {
 		mat4 viewProj;
@@ -80,7 +80,7 @@ shader vs_shadowmap vert {
 }
 
 shader vs_render vert {
-	#version 440
+	#version 450
 	
 	layout(binding = 0) uniform SpotLight {
 		mat4 viewProj;

@@ -528,8 +528,16 @@ namespace App
                            .ForEach(x => comboBuf.Items.Add(x.Value));
             glControl.Scene.Where(x => x.Value is GLImage)
                            .ForEach(x => comboImg.Items.Add(x.Value));
-            glControl.Scene.Where(x => x.Value is GLInstance)
-                           .ForEach(x => comboProp.Items.Add(x.Value));
+            foreach (var instance in glControl.Scene.Where(x => x.Value is GLInstance)
+                                                    .Select(x => x.Value as GLInstance))
+            {
+                comboProp.Items.Add(instance);
+                if (instance.VisualizeAsBuffer)
+                    comboBuf.Items.Add(instance);
+                if (instance.VisualizeAsImage)
+                    comboImg.Items.Add(instance);
+            }
+
 
             // SHOW DEBUG BUTTONS IF NECESSARY
             toolBtnDbgStepBreakpoint.Enabled = debugging;

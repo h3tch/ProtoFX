@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using Commands = System.Collections.Generic.Dictionary<string, string[]>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
@@ -42,7 +43,7 @@ namespace csharp
 
             // CREATE POISSON DISK
 
-            points = Disc.Generate(maxPoints, minRadius);
+            points = Disc.Generate(ref maxPoints, ref minRadius);
         }
 
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
@@ -60,6 +61,41 @@ namespace csharp
             }
 
             unif.Bind();
+        }
+
+        public Bitmap Visualize()
+        {
+            var border = 5;
+            var resolution = minRadius / 8f;
+            float minx = float.MaxValue, miny = float.MaxValue;
+            float maxx = float.MinValue, maxy = float.MinValue;
+            for (var v = 0; v < points.GetLength(0); v++)
+            {
+                minx = Math.Min(minx, points[v, 0]);
+                miny = Math.Min(miny, points[v, 1]);
+                maxx = Math.Max(maxx, points[v, 0]);
+                maxy = Math.Max(maxy, points[v, 1]);
+            }
+            minx = (float)Math.Floor(minx / resolution) - border;
+            miny = (float)Math.Floor(miny / resolution) - border;
+            maxx = (float)Math.Ceiling(maxx / resolution) + border;
+            maxy = (float)Math.Ceiling(maxy / resolution) + border;
+
+            var width = maxx - minx;
+            var height = maxy - miny;
+
+            var image = new Bitmap((int)width, (int)height);
+            using (var g = Graphics.FromImage(image))
+            {
+                for (var v = 0; v < points.GetLength(0); v++)
+                {
+                    g.FillRectangle(Brushes.White, (int)(points[v, 0] / resolution - minx),
+                                                   (int)(points[v, 1] / resolution - miny),
+                                                   1, 1);
+                }
+            }
+
+            return image;
         }
 
         public void Delete()
@@ -124,14 +160,14 @@ namespace csharp
                     return ( fx* fx + fy* fy ) <= 0.25f;
                 }
 
-                public float lengthSq() {
-                    return x* x + y* y;
-                }
+                //public float LengthSq() {
+                //    return x* x + y* y;
+                //}
 
-                public Point Sub(Point b)
-                {
-                    return new Point(x - b.x, y - b.y);
-                }
+                //public Point Sub(Point b)
+                //{
+                //    return new Point(x - b.x, y - b.y);
+                //}
             };
 
             private struct GridPoint
@@ -232,7 +268,7 @@ namespace csharp
                 return new Point(X, Y);
             }
             
-            public static float[,] Generate(int NumPoints = 0, float MinDist = -1f,
+            public static float[,] Generate(ref int NumPoints, ref float MinDist,
                 bool Circle = true, int NewPointsCount = 30)
             {
                 if (MinDist <= 0.0f && NumPoints <= 0)

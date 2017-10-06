@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using System;
+using System.Drawing;
 using System.Reflection;
 
 namespace App
@@ -7,9 +8,12 @@ namespace App
     class GLInstance : GLObject
     {
         public object Instance = null;
+        public bool VisualizeAsBuffer = false;
+        public bool VisualizeAsImage = false;
         private MethodInfo update = null;
         private MethodInfo endpass = null;
         private MethodInfo delete = null;
+        private MethodInfo visualize = null;
 
         /// <summary>
         /// Create class instance of a C# class compiled through GLCSharp.
@@ -35,6 +39,16 @@ namespace App
 
             // get Delete method from main class instance
             delete = Instance.GetType().GetMethod("Delete");
+
+            // get Visualize method from main class instance
+            visualize = Instance.GetType().GetMethod("Visualize");
+            if (visualize != null)
+            {
+                if (visualize.ReturnType.IsAssignableFrom(typeof(byte[])))
+                    VisualizeAsBuffer = true;
+                if (visualize.ReturnType.IsAssignableFrom(typeof(Bitmap)))
+                    VisualizeAsImage = true;
+            }
 
             // get all public methods and check whether
             // they can be used as event handlers for glControl
@@ -81,6 +95,11 @@ namespace App
         {
             base.Delete();
             delete?.Invoke(Instance, null);
+        }
+
+        public object Visualize()
+        {
+            return visualize?.Invoke(Instance, null);
         }
     }
 }
