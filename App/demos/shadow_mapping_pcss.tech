@@ -1,7 +1,7 @@
 // AUTHOR: Michael Hecher
 
 // global variables
-#global MAX_POISSON_POINTS 25
+#global MAX_POISSON_POINTS 128
 
 /////////////
 // BUFFERS //
