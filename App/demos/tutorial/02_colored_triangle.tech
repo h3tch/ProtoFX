@@ -36,7 +36,7 @@ vertinput in_vert {
 // SHADERS //
 /////////////
 
-shader vert vs_simple {
+shader vs_simple vert {
 	#version 440
 	
 	layout(location = 0) in vec4 in_pos;
@@ -49,13 +49,17 @@ shader vert vs_simple {
 	// location of the fragment shader.
 	layout(location = 0) out vec4 out_col;
 	
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
+	
 	void main () {
 		gl_Position = in_pos;
 		out_col = in_col;
 	}
 }
 
-shader frag fs_simple {
+shader fs_simple frag {
 	#version 440
 	
 	// We have an additional input for vertex colors.
@@ -75,6 +79,7 @@ shader frag fs_simple {
 pass pass_render {
 	vert vs_simple
 	frag fs_simple
+	glDisable depthTest
 	draw buf_idx in_vert ushort triangles 0 0 3
 }
 

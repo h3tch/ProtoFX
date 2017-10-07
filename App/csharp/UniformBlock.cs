@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace csharp
+namespace protofx
 {
     public class UniformBlock<Names>
     {

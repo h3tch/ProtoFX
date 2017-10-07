@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Commands = System.Collections.Generic.Dictionary<string, string[]>;
 
-namespace csharp
+namespace protofx
 {
     class CsObject
     {

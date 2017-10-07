@@ -87,12 +87,12 @@ namespace ScintillaNET
         protected Trie<Keyword>[] keywords;
         protected Lexing.Style[] styles;
         public IEnumerable<Lexing.Style> Styles => styles.Concat(lexer.SelectMany(x => x.Styles));
-        public int firstStyle { get; private set; }
-        public int lastStyle { get; private set; }
-        public static int firstBaseStyle { get; private set; }
-        public static int lastBaseStyle { get; private set; }
+        public int FirstStyle { get; private set; }
+        public int LastStyle { get; private set; }
+        public static int FirstBaseStyle { get; private set; }
+        public static int LastBaseStyle { get; private set; }
         protected virtual Type StateType => null;
-        public int MaxStyle => Math.Max(lastStyle, lexer.Select(x => x.MaxStyle).MaxOr(0));
+        public int MaxStyle => Math.Max(LastStyle, lexer.Select(x => x.MaxStyle).MaxOr(0));
         public BaseLexer ParentLexer;
         protected BaseLexer DefaultLexer;
         private static Regex regexHint = new Regex(@"\n.*\\");
@@ -111,20 +111,20 @@ namespace ScintillaNET
             int firstState = styleCount > 0 ? ((int[])stateValues).Min() : 0;
 
             // adjust style ranges if they fall into the Scintilla styles
-            firstStyle = firstFreeStyle;
-            if (SciStyle.Default <= firstStyle + styleCount && firstStyle <= SciStyle.CallTip)
-                firstStyle = SciStyle.CallTip + 1;
-            lastStyle = firstStyle + styleCount - 1;
-            firstFreeStyle = lastStyle + 1;
+            FirstStyle = firstFreeStyle;
+            if (SciStyle.Default <= FirstStyle + styleCount && FirstStyle <= SciStyle.CallTip)
+                FirstStyle = SciStyle.CallTip + 1;
+            LastStyle = FirstStyle + styleCount - 1;
+            firstFreeStyle = LastStyle + 1;
 
             if (StateType.IsEquivalentTo(typeof(BaseState)))
             {
-                firstBaseStyle = firstStyle;
-                lastBaseStyle = lastStyle;
+                FirstBaseStyle = FirstStyle;
+                LastBaseStyle = LastStyle;
             }
 
             // allocate arrays for styles
-            styles = Enumerable.Range(firstStyle, styleCount)
+            styles = Enumerable.Range(FirstStyle, styleCount)
                 .Select(x => new Lexing.Style {
                     id = x, fore = Theme.ForeColor, back = Theme.Workspace
                 }).ToArray();
@@ -329,16 +329,16 @@ namespace ScintillaNET
         public IEnumerable<Keyword> SelectKeywordInfo(int style, string word)
         {
             // style not handled by this lexer
-            if (style < firstStyle || lastStyle < style)
+            if (style < FirstStyle || LastStyle < style)
                 return lexer.SelectMany(x => x.SelectKeywordInfo(style, word));
             
             // style is default style which has no keywords
-            if (style == firstStyle && keywords[0] == null)
+            if (style == FirstStyle && keywords[0] == null)
                 // get a list of all words for all styles
                 return keywords.Where(x => x != null).SelectMany(x => x[word]);
 
             // get keywords for the specified style
-            int idx = style - firstStyle;
+            int idx = style - FirstStyle;
             return keywords[idx] != null ? keywords[idx][word] : Enumerable.Empty<Keyword>();
         }
 
@@ -378,7 +378,7 @@ namespace ScintillaNET
         /// <returns>The new state after processing the current state.</returns>
         protected int ProcessStringState(CodeEditor editor, Region c)
         {
-            return (c.c == '\n' || (c[-1] == '"' && c[-2] != '\\' && c.GetStyleAt(-2) == StringStyle))
+            return (c.Char == '\n' || (c[-1] == '"' && c[-2] != '\\' && c.GetStyleAt(-2) == StringStyle))
                            ? ProcessDefaultState(editor, c)
                            : (int)BaseState.String;
         }
@@ -391,10 +391,10 @@ namespace ScintillaNET
         /// <returns>The new state after processing the current state.</returns>
         protected int ProcessNumberState(CodeEditor editor, Region c)
         {
-            return char.IsNumber(c.c)
-                           || c.c == '.' || c.c == 'x'
-                           || ('a' <= c.c && c.c <= 'f')
-                           || ('A' <= c.c && c.c <= 'F')
+            return char.IsNumber(c.Char)
+                           || c.Char == '.' || c.Char == 'x'
+                           || ('a' <= c.Char && c.Char <= 'f')
+                           || ('A' <= c.Char && c.Char <= 'F')
                            ? (int)BaseState.Number
                            : ProcessDefaultState(editor, c);
         }
@@ -407,7 +407,7 @@ namespace ScintillaNET
         /// <returns>The new state after processing the current state.</returns>
         protected int ProcessLineCommentState(CodeEditor editor, Region c)
         {
-            return c.c == '\n' ? ProcessDefaultState(editor, c) : (int)BaseState.LineComment;
+            return c.Char == '\n' ? ProcessDefaultState(editor, c) : (int)BaseState.LineComment;
         }
 
         /// <summary>
@@ -431,7 +431,7 @@ namespace ScintillaNET
         protected int ProcessIndicatorState(CodeEditor editor, Region c, int IndicatorState)
         {
             // position still inside the word range
-            if (char.IsLetterOrDigit(c.c) || c.c == '_')
+            if (char.IsLetterOrDigit(c.Char) || c.Char == '_')
                 return IndicatorState;
 
             // relex last word
@@ -491,7 +491,7 @@ namespace ScintillaNET
         /// <returns>A lexer that can handle the style or <code>null</code></returns>
         public BaseLexer FindLexerForStyle(int style)
         {
-            return firstStyle <= style && style <= lastStyle
+            return FirstStyle <= style && style <= LastStyle
                 ? this
                 : lexer.Select(x => x.FindLexerForStyle(style)).FirstOrDefault(x => x != null);
         }
@@ -503,7 +503,7 @@ namespace ScintillaNET
         /// <returns></returns>
         protected int StateToStyle(int state)
         {
-            return state + (state < FirstBaseState ? firstStyle : -FirstBaseState);
+            return state + (state < FirstBaseState ? FirstStyle : -FirstBaseState);
         }
 
         /// <summary>
@@ -546,8 +546,8 @@ namespace ScintillaNET
             {
                 // if necessary convert style to state
                 var style = c.GetStyleAt(-1);
-                if (firstStyle <= style && style <= lastStyle)
-                    state = style - firstStyle;
+                if (FirstStyle <= style && style <= LastStyle)
+                    state = style - FirstStyle;
             }
             return state;
         }
@@ -643,7 +643,7 @@ namespace ScintillaNET
 
         public override int ProcessDefaultState(CodeEditor editor, Region c)
         {
-            switch (c.c)
+            switch (c.Char)
             {
                 case '/':
                     if (c[1] == '/') return (int)BaseState.LineComment;
@@ -654,7 +654,7 @@ namespace ScintillaNET
                 case '_': return (int)State.Indicator;
             }
 
-            if (char.IsLetter(c.c))
+            if (char.IsLetter(c.Char))
                 return (int)State.Indicator;
 
             return (int)State.Default;
@@ -681,7 +681,7 @@ namespace ScintillaNET
                     editor.SetStyling(newEndPos - c.Pos, StateToStyle((int)BaseState.Default));
                     // go to matching brace
                     c.Pos = newEndPos;
-                    return (int)(c.c == '}' ? BaseState.Braces : BaseState.Default);
+                    return (int)(c.Char == '}' ? BaseState.Braces : BaseState.Default);
                 }
 
                 // lex code block
@@ -692,9 +692,9 @@ namespace ScintillaNET
 
         private int ProcessPreprocessorState(CodeEditor editor, Region c)
         {
-            if (c.c == '\n')
+            if (c.Char == '\n')
                 return (int)State.Default;
-            if (char.IsWhiteSpace(c.c))
+            if (char.IsWhiteSpace(c.Char))
                 return (int)State.PreprocessorBody;
             return (int)State.Preprocessor;
         }
@@ -702,7 +702,7 @@ namespace ScintillaNET
         private int ProcessPreprocessorBodyState(CodeEditor editor, Region c)
         {
             // still inside the preprocessor body
-            if (c.c != '\n')
+            if (c.Char != '\n')
                 return (int)State.PreprocessorBody;
 
             // RE-LEX ALL PREPROCESSORCODE PARTS
@@ -753,7 +753,7 @@ namespace ScintillaNET
 
         public override int ProcessDefaultState(CodeEditor editor, Region c)
         {
-            switch (c.c)
+            switch (c.Char)
             {
                 case '/':
                     if (c[1] == '/') return (int)BaseState.LineComment;
@@ -765,7 +765,7 @@ namespace ScintillaNET
             }
 
             // the beginning of a word or keyword
-            if (char.IsLetter(c.c))
+            if (char.IsLetter(c.Char))
                 return (int)State.Indicator;
             
             return (int)State.Default;
@@ -774,7 +774,7 @@ namespace ScintillaNET
         private new int ProcessIndicatorState(CodeEditor editor, Region c, int endPos)
         {
             // is still part of the command
-            if (!char.IsWhiteSpace(c.c))
+            if (!char.IsWhiteSpace(c.Char))
                 return (int)State.Indicator;
 
             // relex last word
@@ -833,7 +833,7 @@ namespace ScintillaNET
 
         public override int ProcessDefaultState(CodeEditor editor, Region c)
         {
-            switch (c.c)
+            switch (c.Char)
             {
                 case  '_': return (int)State.Indicator;
                 case  '"': return (int)BaseState.String;
@@ -842,11 +842,11 @@ namespace ScintillaNET
             }
 
             // the beginning of a word or keyword
-            if (char.IsLetter(c.c))
+            if (char.IsLetter(c.Char))
                 return (int)State.Indicator;
 
             // start of a number
-            if(char.IsNumber(c.c))
+            if(char.IsNumber(c.Char))
                 return (int)BaseState.Number;
 
             return (int)State.Default;
@@ -892,7 +892,7 @@ namespace ScintillaNET
 
         public override int ProcessDefaultState(CodeEditor editor, Region c)
         {
-            switch (c.c)
+            switch (c.Char)
             {
                 case '"': case '\'':
                     // the beginning of a string
@@ -931,11 +931,11 @@ namespace ScintillaNET
             }
 
             // the beginning of an operator
-            if (char.IsSymbol(c.c))
+            if (char.IsSymbol(c.Char))
                 return (int)BaseState.Operator;
 
             // the beginning of a number
-            if (char.IsNumber(c.c) && !char.IsLetter(c[-1]) && c[-1] != '_')
+            if (char.IsNumber(c.Char) && !char.IsLetter(c[-1]) && c[-1] != '_')
                 return (int)BaseState.Number;
             
             return (int)BaseState.Default;
@@ -976,6 +976,8 @@ namespace ScintillaNET
                     return ProcessLineCommentState(editor, c);
                 case (int)BaseState.BlockComment:
                     return ProcessBlockCommentState(editor, c);
+                case (int)BaseState.Number:
+                    return ProcessNumberState(editor, c);
                 case (int)State.Preprocessor:
                     return ProcessPreprocessorState(editor, c, endPos);
                 case (int)State.Indicator:
@@ -986,7 +988,7 @@ namespace ScintillaNET
 
         public override int ProcessDefaultState(CodeEditor editor, Region c)
         {
-            switch (c.c)
+            switch (c.Char)
             {
                 case '#': return (int)State.Preprocessor;
                 case '_': return (int)State.Indicator;
@@ -1003,8 +1005,12 @@ namespace ScintillaNET
                     break;
             }
 
+            // the beginning of a number
+            if (char.IsDigit(c.Char))
+                return (int)BaseState.Number;
+
             // the beginning of a keyword
-            if (char.IsLetter(c.c))
+            if (char.IsLetter(c.Char))
                 return (int)State.Indicator;
 
             return (int)State.Default;
@@ -1012,9 +1018,9 @@ namespace ScintillaNET
 
         private int ProcessPreprocessorState(CodeEditor editor, Region c, int endPos)
         {
-            if (c.c == '\n')
+            if (c.Char == '\n')
                 return (int)State.Default;
-            if (char.IsWhiteSpace(c.c))
+            if (char.IsWhiteSpace(c.Char))
             {
                 var newEndPos = editor.SyncFunc(x => x.Text.IndexOf('\n', c.Pos, endPos - c.Pos));
                 c.Pos = DefaultLexer.Style(editor, c.Pos, newEndPos < 0 ? endPos : newEndPos);
@@ -1071,7 +1077,7 @@ namespace ScintillaNET
 
         #region STATE
 
-        private enum State : int { Default, Indicator, Keyword, DataType, Preprocessor }
+        private enum State : int { Default, Indicator, Keyword, DataType, Preprocessor, Special }
 
         protected override Type StateType => typeof(State);
 
@@ -1104,7 +1110,7 @@ namespace ScintillaNET
 
         public override int ProcessDefaultState(CodeEditor editor, Region c)
         {
-            switch (c.c)
+            switch (c.Char)
             {
                 case ')': return (int)BaseState.Braces;
                 case '=': return (int)BaseState.Operator;
@@ -1112,11 +1118,11 @@ namespace ScintillaNET
             }
 
             // the beginning of a number
-            if (char.IsDigit(c.c))
+            if (char.IsDigit(c.Char))
                 return (int)BaseState.Number;
 
             // the beginning of a qualifier keyword
-            if (char.IsLetter(c.c))
+            if (char.IsLetter(c.Char))
                 return (int)State.Indicator;
 
             return (int)State.Default;
@@ -1126,7 +1132,7 @@ namespace ScintillaNET
 
         #region STATE
 
-        private enum State : int { Default, Indicator, Qualifier }
+        private enum State : int { Default, Indicator, Qualifier, Special }
 
         protected override Type StateType => typeof(State);
 
@@ -1184,7 +1190,7 @@ namespace ScintillaNET
 
         public override int ProcessDefaultState(CodeEditor editor, Region c)
         {
-            switch (c.c)
+            switch (c.Char)
             {
                 case ',': case ';':
                     // a punctuation
@@ -1200,11 +1206,11 @@ namespace ScintillaNET
             }
 
             // the beginning of a number
-            if (char.IsDigit(c.c))
+            if (char.IsDigit(c.Char))
                 return (int)BaseState.Number;
 
             // the beginning of a data type keyword
-            if (char.IsLetter(c.c))
+            if (char.IsLetter(c.Char))
                 return (int)State.Indicator;
 
             return (int)State.Default;
@@ -1242,7 +1248,7 @@ namespace ScintillaNET
 
         #region STATE
 
-        private enum State : int { Default, Indicator, Keyword, DataType }
+        private enum State : int { Default, Indicator, Keyword, DataType, Special }
 
         protected override Type StateType => typeof(State);
 
@@ -1281,7 +1287,7 @@ namespace ScintillaNET
 
         public override int ProcessDefaultState(CodeEditor editor, Region c)
         {
-            switch (c.c)
+            switch (c.Char)
             {
                 case '"': case '\'':
                     return (int)BaseState.String;
@@ -1309,15 +1315,15 @@ namespace ScintillaNET
             }
 
             // the beginning of a number
-            if (char.IsNumber(c.c))
+            if (char.IsNumber(c.Char))
                 return (int)BaseState.Number;
             
             // an operator
-            if (char.IsSymbol(c.c))
+            if (char.IsSymbol(c.Char))
                 return (int)BaseState.Operator;
 
             // the beginning of a keyword
-            if (char.IsLetter(c.c))
+            if (char.IsLetter(c.Char))
                 return (int)State.Indicator;
 
             return (int)State.Default;
@@ -1347,7 +1353,7 @@ namespace ScintillaNET
 
                 // go to first non base state before the matching brace position
                 for (style = editor.GetStyleAt(--i);
-                    i >= 0 && firstBaseStyle <= style && style <= lastBaseStyle;
+                    i >= 0 && FirstBaseStyle <= style && style <= LastBaseStyle;
                     style = editor.GetStyleAt(--i))
                 {
                     var C = editor.GetCharAt(i);
@@ -1356,7 +1362,7 @@ namespace ScintillaNET
                 }
 
                 // if no function lexer state found, exit
-                if ((i < 0 || style < firstStyle || lastStyle < style) && style != BraceStyle)
+                if ((i < 0 || style < FirstStyle || LastStyle < style) && style != BraceStyle)
                     return -1;
             }
 
@@ -1367,7 +1373,7 @@ namespace ScintillaNET
 
         #region STATE
         
-        private enum State : int { Default, Indicator, Keyword, DataType, BuiltIn, Function }
+        private enum State : int { Default, Indicator, Keyword, DataType, BuiltIn, Function, Special }
 
         protected override Type StateType => typeof(State);
 
@@ -1397,10 +1403,10 @@ namespace ScintillaNET
         private CodeEditor editor;
         private int pos;
         public char this[int i] => GetChar(pos + i);
-        public char c { get; private set; }
+        public char Char { get; private set; }
         public int Pos
         {
-            get => pos; set => c = (char)editor.GetCharAt(pos = value);
+            get => pos; set => Char = (char)editor.GetCharAt(pos = value);
         }
 
         public Region(CodeEditor editor, int pos)

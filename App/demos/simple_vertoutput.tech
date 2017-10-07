@@ -64,7 +64,7 @@ shader vs_transform vert {
 	void main ()
 	{
 		int i = 0;
-		<<out_pos>> = camera.viewProj * <<in_pos>>;
+		out_pos = camera.viewProj * in_pos;
 	}
 }
 
@@ -75,6 +75,9 @@ shader vs_render vert {
 	layout(location = 1) in vec4 in_col;
 
 	layout(location = 0) out vec4 vs_col;
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
 	
 	void main ()
 	{
@@ -108,9 +111,10 @@ csharp cs_util {
 }
 
 instance cs_camera {
-	class cs_util csharp.SimpleCamera
+	class cs_util camera.SimpleCamera
 	name SimpleCamera
-	pos 0 0 5
+	pos -5 4 10
+	rot -20 -15 0
 }
 
 /////////////////
@@ -126,7 +130,7 @@ pass pass_transform {
 	
 	// OPENGL FUNCTIONS
 	// disable rasterization
-	Enable rasterizerDiscard
+	glEnable rasterizerDiscard
 	
 	// EXECUTE CONTROL
 	exec cs_camera
@@ -143,10 +147,10 @@ pass pass_render {
 	// OPENGL FUNCTIONS
 	// enable rasterization before
 	// clearing the framebuffer
-	Disable rasterizerDiscard
-	Enable depthTest
-	ClearColor 0.1 0.3 1.0 0.0
-	Clear ColorDepthBit
+	glDisable rasterizerDiscard
+	glEnable depthTest
+	glClearColor 0.1 0.3 1.0 0.0
+	glClear ColorDepthBit
 	
 	// DRAW CALLS
 	draw buf_idx in_projvert ushort triangles 0 0 36

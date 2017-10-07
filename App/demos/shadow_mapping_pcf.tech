@@ -75,6 +75,10 @@ shader vs_shadowmap vert {
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
 	
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
+	
 	void main ()
 	{
 		// transform vertex to light projection space
@@ -100,6 +104,9 @@ shader vs_simple vert {
 	// vertex shader output
 	layout(location = 0) out vec4 out_lpos;
 	layout(location = 1) out vec4 out_col;
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
 	
 	void main ()
 	{
@@ -170,14 +177,14 @@ csharp cs_util {
 }
 
 instance cs_light {
-	class cs_util csharp.StaticCamera
+	class cs_util camera.StaticCamera
 	name StaticCamera
 	pos 3 4 3
 	rot -45 45 0
 }
 
 instance cs_camera {
-	class cs_util csharp.SimpleCamera
+	class cs_util camera.SimpleCamera
 	name SimpleCamera
 	pos -5 4 10
 	rot -20 -15 0

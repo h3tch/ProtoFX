@@ -38,7 +38,7 @@ csharp cs_util {
 }
 
 instance cs_camera {
-	class cs_util csharp.SimpleCamera
+	class cs_util camera.SimpleCamera
 	name SimpleCamera
 	pos 0 0 5
 }

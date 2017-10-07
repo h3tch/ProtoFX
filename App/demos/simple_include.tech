@@ -18,6 +18,9 @@ shader vs_simple vert {
 
 	// vertex shader output
 	layout(location = 0) out vec4 vs_col;
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
 	
 	void main ()
 	{

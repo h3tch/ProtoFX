@@ -77,12 +77,18 @@ vertinput in_vert {
 // executed for each vertex listed in the triangle list 'buf_idx'
 // (index buffer). If a vertex is listed multiple times, the
 // shader will also be executed multiple times.
-shader vert vs_simple {
+shader vs_simple vert {
 	// GLSL shader based on the OpenGL 4.4 standard.
 	#version 440
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
+	
+	// Because ProtoFX uses separable shader programs,
+	// we need to define a standard per vertex output.
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
 	
 	// The 'main' function is the entry
 	// point where the program starts.
@@ -97,7 +103,7 @@ shader vert vs_simple {
 // everywhere geometry is visible inside the viewport/frame.
 // Fragment shaders are executed for each fragment generated
 // through rasterization.
-shader frag fs_simple {
+shader fs_simple frag{
 	#version 440
 	
 	// fragment color output
@@ -126,6 +132,9 @@ pass pass_render {
 	vert vs_simple
 	frag fs_simple
 	
+	// Make sure the depth test is disabled
+	glDisable depthTest
+	
 	// DRAW CALLS
 	// Draw the triangle defined by 'buf_idx' and 'buf_pos'.
 	// buff_idx .... name of the ellement array buffer
@@ -141,15 +150,6 @@ pass pass_render {
 	draw buf_idx in_vert ushort triangles 0 0 3
 }
 
-// Every ProtoFX thechnique should habe a pass which resets the
-// OpenGL state to the default state. This is necessary because
-// ProtoFX uses only one OpenGL context, which is not reset by
-// switching, recompiling or restarting a ProtoFX technique.
-pass pass_reset {
-	// The OpenGL state is not changed,
-	// therefore this pass is empty.
-}
-
 ///////////////
 // TECHNIQUE //
 ///////////////
@@ -158,5 +158,4 @@ pass pass_reset {
 // In this case we only have one pass.
 tech tech_simple {
 	pass pass_render
-	pass pass_reset
 }

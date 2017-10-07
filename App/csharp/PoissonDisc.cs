@@ -1,17 +1,21 @@
-﻿using System;
+﻿using protofx;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using Commands = System.Collections.Generic.Dictionary<string, string[]>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
-namespace csharp
+namespace sampling
 {
-    class PoissonDisc : CsObject
+    class PoissonDisc : protofx.CsObject
     {
         public enum Names
         {
             numPoints,
             points,
+            distances,
+            indices,
         }
 
         #region FIELDS
@@ -19,6 +23,8 @@ namespace csharp
         public int maxPoints = 0;
         public float minRadius = 0f;
         public float[,] points;
+        public float[,] distances;
+        public int[,] indices;
         protected Dictionary<int, UniformBlock<Names>> uniform =
             new Dictionary<int, UniformBlock<Names>>();
         #endregion
@@ -28,6 +34,7 @@ namespace csharp
         public string Name { get { return name; } }
         public int MaxPoints { get { return maxPoints; } }
         public float MinRadius { get { return minRadius; } }
+        public int NumPoints { get; private set; }
         #endregion
 
         public PoissonDisc(string name, Commands cmds, GLNames glNames)
@@ -50,25 +57,51 @@ namespace csharp
                 maxPoints = (int)(1 / (minRadius * minRadius));
 
             var pointList = PoissonSampler.SampleCircle(new Vector2(0f, 0f), 1f, minRadius);
-            points = new float[pointList.Count, 2];
-            for (int i = 0; i < pointList.Count; i++)
+            NumPoints = pointList.Count;
+            points = new float[NumPoints, 2];
+            distances = new float[NumPoints, NumPoints];
+            indices = new int[NumPoints, NumPoints];
+
+            for (int i = 0; i < NumPoints; i++)
             {
                 points[i, 0] = pointList[i].X;
                 points[i, 1] = pointList[i].Y;
             }
-            //points = Disc.Generate(ref maxPoints, ref minRadius);
+
+            var dist = new float[NumPoints];
+            var ind = Enumerable.Range(0, NumPoints).ToArray();
+            for (int i = 0; i < NumPoints; i++)
+            {
+                for (int j = 0; j < NumPoints; j++)
+                {
+                    var dx = points[i, 0] - points[j, 0];
+                    var dy = points[i, 1] - points[j, 1];
+                    dist[j] = (float)Math.Sqrt(dx * dx + dy * dy);
+                }
+                var sorti = (int[])ind.Clone();
+                Array.Sort(dist, sorti);
+                for (int j = 0; j < NumPoints; j++)
+                {
+                    distances[i, j] = dist[j];
+                    indices[i, j] = sorti[j];
+                }
+            }
         }
 
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
             // GET OR CREATE POISSON DISC UNIFORMS FOR program
+#pragma warning disable IDE0018
             UniformBlock<Names> unif;
+#pragma warning restore IDE0018
             if (uniform.TryGetValue(pipeline, out unif) == false)
             {
                 uniform.Add(pipeline, unif = new UniformBlock<Names>(pipeline, name));
                 // SET UNIFORM VALUES
                 unif.Set(Names.numPoints, new[] { Math.Min(unif[Names.points].length, points.GetLength(0)) });
                 unif.Set(Names.points, points);
+                unif.Set(Names.distances, distances);
+                unif.Set(Names.indices, indices);
                 // UPDATE UNIFORM BUFFER
                 unif.Update();
             }

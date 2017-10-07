@@ -4,7 +4,7 @@ using System.Windows.Forms;
 using Commands = System.Collections.Generic.Dictionary<string, string[]>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
-namespace csharp
+namespace camera
 {
     class SimpleCamera : StaticCamera
     {

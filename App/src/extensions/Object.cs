@@ -102,10 +102,28 @@ namespace System
         /// <param name="obj"></param>
         /// <param name="text"></param>
         /// <param name="value"></param>
-        public static void SetValue<T>(this T obj, string text, object value)
+        public static void SetMemberValue<T>(this T obj, string text, object value)
         {
             (object owner, object info, int index) = obj.FindMember(text);
-            SetValue(owner, info, index, value);
+            if (owner == null || info == null)
+                throw new MissingMemberException($"Could not set member '{text}' of object '{obj}'.");
+            SetMemberValue(owner, info, index, value);
+        }
+
+        /// <summary>
+        /// Get the value of a field or property using a string (e.g.,
+        /// "obj1.field3.property3", "obj1.TypeName.property3",
+        /// "obj1.field3.property[1]", ...).
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="text"></param>
+        public static object GetMemberValue<T>(this T obj, string text)
+        {
+            (object owner, object info, int index) = obj.FindMember(text);
+            if (owner == null || info == null)
+                throw new MissingMemberException($"Could not get member '{text}' of object '{obj}'.");
+            return GetMemberValue(owner, info, index);
         }
 
         /// <summary>
@@ -208,20 +226,17 @@ namespace System
         /// <param name="info"></param>
         /// <param name="index"></param>
         /// <param name="value"></param>
-        private static void SetValue(object owner, object info, int index, object value)
+        private static void SetMemberValue(object owner, object info, int index, object value)
         {
             // get property or field information
-            object field = null;
             Type fieldType = null;
 
             switch (info)
             {
                 case FieldInfo f:
-                    field = f;
                     fieldType = f.FieldType;
                     break;
                 case PropertyInfo p:
-                    field = p;
                     fieldType = p.PropertyType;
                     break;
             }
@@ -241,16 +256,57 @@ namespace System
             // in case of an array
             if (index >= 0)
             {
-                var method = field.GetType().GetMethod("GetValue", flags, null,
+                var method = info.GetType().GetMethod("GetValue", flags, null,
                     CallingConventions.Any, new[] { typeof(object) }, null);
-                var array = method.Invoke(field, new[] { owner }) as Array;
+                var array = method.Invoke(info, new[] { owner }) as Array;
                 array.SetValue(value, index);
             }
             else
             {
-                var method = field.GetType().GetMethod("SetValue", flags, null,
+                var method = info.GetType().GetMethod("SetValue", flags, null,
                     CallingConventions.Any, new[] { typeof(object), typeof(object) }, null);
-                method.Invoke(field, new[] { owner, value });
+                method.Invoke(info, new[] { owner, value });
+            }
+        }
+
+        /// <summary>
+        /// Get the value of a field or property, which can also be an array.
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <param name="info"></param>
+        /// <param name="index"></param>
+        private static object GetMemberValue(object owner, object info, int index)
+        {
+            // get property or field information
+            Type fieldType = null;
+
+            switch (info)
+            {
+                case FieldInfo f:
+                    fieldType = f.FieldType;
+                    break;
+                case PropertyInfo p:
+                    fieldType = p.PropertyType;
+                    break;
+            }
+
+            // if we need to set the value of an array we need the
+            // element type, otherwise the field type is used
+            var type = index >= 0 ? fieldType.GetElementType() : fieldType;
+
+            // in case of an array
+            if (index >= 0)
+            {
+                var method = info.GetType().GetMethod("GetValue", flags, null,
+                    CallingConventions.Any, new[] { typeof(object) }, null);
+                var array = method.Invoke(info, new[] { owner }) as Array;
+                return array.GetValue(index);
+            }
+            else
+            {
+                var method = info.GetType().GetMethod("GetValue", flags, null,
+                    CallingConventions.Any, new[] { typeof(object) }, null);
+                return method.Invoke(info, new[] { owner });
             }
         }
 

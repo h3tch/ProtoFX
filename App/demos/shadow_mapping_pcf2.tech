@@ -50,6 +50,39 @@ texture tex_shadowmap {
 	img img_shadowmap
 }
 
+////////////////
+// EXTENSIONS //
+////////////////
+
+csharp cs_util {
+	file "<csharp>/StaticCamera.cs" ...
+	     "<csharp>/SimpleCamera.cs" ...
+	     "<csharp>/SpotLight.cs" ...
+	     "<csharp>/PoissonDisc.cs" ...
+	     "<csharp>/UniformBlock.cs" ...
+	     "<csharp>/CsObject.cs"
+}
+
+instance cs_light {
+	class cs_util camera.SpotLight
+	name SpotLight
+	pos 3 4 3
+	rot -45 45 0
+}
+
+instance cs_camera {
+	class cs_util camera.SimpleCamera
+	name SimpleCamera
+	pos -5 4 10
+	rot -20 -15 0
+}
+
+instance cs_poisson {
+	class cs_util sampling.PoissonDisc
+	name PoissonDisc
+	minRadius 0.3
+}
+
 /////////////
 // SHADERS //
 /////////////
@@ -63,6 +96,10 @@ shader vs_shadowmap vert {
 	
 	// vertex input as specified by 'in_vert'
 	layout(location = 0) in vec4 in_pos;
+	
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
 	
 	void main ()
 	{
@@ -89,6 +126,9 @@ shader vs_render vert {
 	// vertex shader output
 	layout(location = 0) out vec4 out_lpos;
 	layout(location = 1) out vec4 out_col;
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
 	
 	void main ()
 	{
@@ -103,11 +143,12 @@ shader vs_render vert {
 
 shader fs_render frag {
 	#version 440
-	#define NUM_POINTS 25
-	#define PI 3.1415926535897932384626433832795
+	
+	const float PI = 3.1415926535897932384626433832795;
+	const int numPoints = global.cs_poisson.NumPoints;
 
 	layout(binding = 2) uniform PoissonDisc {
-		vec2 points[NUM_POINTS];
+		vec2 points[numPoints];
 	} disc;
 	
 	layout(binding = 0) uniform sampler2D shadowmap;
@@ -132,12 +173,12 @@ shader fs_render frag {
 		mat2 R = randRot(2 * PI * rand(lpos.xy));
 		const float bias = 0.0005;
 
-		for (int i = 0; i < NUM_POINTS; i++) {
+		for (int i = 0; i < numPoints; i++) {
 			vec2 p = lpos.xy + R * disc.points[i] * filterR;
 			shadow += lpos.z - bias > texture(shadowmap, p).x ? 1.0 : 0.0;
 		}
 
-		return shadow / float(NUM_POINTS);
+		return shadow / float(numPoints);
 	}
 	
 	void main ()
@@ -168,36 +209,6 @@ shader fs_render frag {
 /////////////
 // PROGRAM //
 /////////////
-
-csharp cs_util {
-	file "<csharp>/StaticCamera.cs" ...
-	     "<csharp>/SimpleCamera.cs" ...
-	     "<csharp>/SpotLight.cs" ...
-	     "<csharp>/PoissonDisc.cs" ...
-	     "<csharp>/UniformBlock.cs" ...
-	     "<csharp>/CsObject.cs"
-}
-
-instance cs_light {
-	class cs_util csharp.SpotLight
-	name SpotLight
-	pos 3 4 3
-	rot -45 45 0
-}
-
-instance cs_camera {
-	class cs_util csharp.SimpleCamera
-	name SimpleCamera
-	pos -5 4 10
-	rot -20 -15 0
-}
-
-instance cs_poisson {
-	class cs_util csharp.PoissonDisc
-	name PoissonDisc
-	maxSamples 64
-	minRadius 0.3
-}
 
 pass pass_shadowmap {
 	// attach shaders

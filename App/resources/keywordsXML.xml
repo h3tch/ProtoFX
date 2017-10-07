@@ -755,9 +755,13 @@
       <Style theme='DarkTheme' name='keyword' fore='#3C81C1'/>
       <Style theme='DarkTheme' name='datatype' fore='#7AC0F4'/>
       <Style theme='DarkTheme' name='preprocessor' fore='#9B9B9B'/>
+      <Style theme='DarkTheme' name='special' fore='#D57C30'/>
       <Style theme='LightTheme' name='keyword' fore='#3C81C1'/>
       <Style theme='LightTheme' name='datatype' fore='#7AC0F4'/>
       <Style theme='LightTheme' name='preprocessor' fore='#9B9B9B'/>
+      <Style theme='LightTheme' name='special' fore='#D57C30'/>
+      <Keyword style_name='special' name='global' hint='Get the value of a global object variable before compiling the shader.
+                                                       \  &lt;key&gt;global&lt;/key&gt;.name.variable'/>
       <Keyword style_name='keyword' name='in' hint='Specify a shader input stream from a vertex
                                                    \buffer object or the previous shader stage.'/>
       <Keyword style_name='keyword' name='out' hint='Specify a sshader output stream for the next
@@ -871,7 +875,11 @@
       <Keyword style_name='datatype' name='dmat4x4' hint='double matrix with 4 columns and 4 rows'/>
       <Lexer type='layout' lexer='GlslLayoutLexer'>
         <Style theme='DarkTheme' name='qualifier' fore='#9589CC'/>
+        <Style theme='DarkTheme' name='special' fore='#D57C30'/>
         <Style theme='LightTheme' name='qualifier' fore='#9589CC'/>
+        <Style theme='LightTheme' name='special' fore='#D57C30'/>
+        <Keyword style_name='special' name='global' hint='Get the value of a global object variable before compiling the shader.
+                                                         \  &lt;key&gt;global&lt;/key&gt;.name.variable'/>
         <Keyword style_name='qualifier' name='local_size_x'/>
         <Keyword style_name='qualifier' name='local_size_y'/>
         <Keyword style_name='qualifier' name='local_size_z'/>
@@ -983,8 +991,12 @@
       <Lexer type='struct' lexer='GlslStructLexer'>
         <Style theme='DarkTheme' name='keyword' fore='#3C81C1'/>
         <Style theme='DarkTheme' name='datatype' fore='#7AC0F4'/>
+        <Style theme='DarkTheme' name='special' fore='#D57C30'/>
         <Style theme='LightTheme' name='keyword' fore='#3C81C1'/>
         <Style theme='LightTheme' name='datatype' fore='#7AC0F4'/>
+        <Style theme='LightTheme' name='special' fore='#D57C30'/>
+        <Keyword style_name='special' name='global' hint='Get the value of a global object variable before compiling the shader.
+                                                         \  &lt;key&gt;global&lt;/key&gt;.name.variable'/>
         <Keyword style_name='keyword' name='layout' hint='Specify additional qualifications for the member variable.'/>
         <Keyword style_name='datatype' name='void'/>
         <Keyword style_name='datatype' name='bool'/>
@@ -1043,10 +1055,14 @@
         <Style theme='DarkTheme' name='datatype' fore='#7AC0F4'/>
         <Style theme='DarkTheme' name='builtin' fore='#99B387'/>
         <Style theme='DarkTheme' name='function' fore='#61ABA9'/>
+        <Style theme='DarkTheme' name='special' fore='#D57C30'/>
         <Style theme='LightTheme' name='keyword' fore='#3C81C1'/>
         <Style theme='LightTheme' name='datatype' fore='#7AC0F4'/>
         <Style theme='LightTheme' name='builtin' fore='#99B387'/>
         <Style theme='LightTheme' name='function' fore='#61ABA9'/>
+        <Style theme='LightTheme' name='special' fore='#D57C30'/>
+        <Keyword style_name='special' name='global' hint='Get the value of a global object variable before compiling the shader.
+                                                         \  &lt;key&gt;global&lt;/key&gt;.name.variable'/>
         <Keyword style_name='function' name='abs'
                  hint='return the absolute value of the parameter
                       \  &lt;param&gt;genType &lt;/param&gt; &lt;key&gt;abs&lt;/key&gt;&lt;param&gt;(genType  x)&lt;/param&gt;
@@ -2189,7 +2205,11 @@
       </Lexer>
       <Lexer type='functionheader' lexer='GlslFunctionArgLexer'>
         <Style theme='DarkTheme' name='datatype' fore='#7AC0F4'/>
+        <Style theme='DarkTheme' name='special' fore='#D57C30'/>
         <Style theme='LightTheme' name='datatype' fore='#7AC0F4'/>
+        <Style theme='LightTheme' name='special' fore='#D57C30'/>
+        <Keyword style_name='special' name='global' hint='Get the value of a global object variable before compiling the shader.
+                                                         \  &lt;key&gt;global&lt;/key&gt;.name.variable'/>
         <Keyword style_name='datatype' name='void'/>
         <Keyword style_name='datatype' name='bool'/>
         <Keyword style_name='datatype' name='int'/>

@@ -1,11 +1,12 @@
-﻿using OpenTK;
+﻿using protofx;
+using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Commands = System.Collections.Generic.Dictionary<string, string[]>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
-namespace csharp
+namespace camera
 {
 
     class SpotLight
@@ -39,6 +40,7 @@ namespace csharp
         #endregion
 
         #region PROPERTIES
+#pragma warning disable IDE0027
         public float[] Position { get { return pos; } set { pos = value; } }
         public float[] Rotation { get { return rot; } set { rot = value; } }
         public float FieldOfViewY { get { return fov; } set { fov = value; } }
@@ -48,6 +50,7 @@ namespace csharp
         public float Intensity { get { return intensity; } set { intensity = value; } }
         public float Radius { get { return radius; } set { radius = value; } }
         public float InnerCone { get { return innerCone; } set { innerCone = value; } }
+#pragma warning restore IDE0027
         #endregion
 
         public SpotLight(string name, Commands cmds, GLNames glNames)
@@ -75,7 +78,9 @@ namespace csharp
             var proj = Matrix4.CreatePerspectiveFieldOfView(fov * rad2deg, aspect, near, far);
 
             // GET OR CREATE CAMERA UNIFORMS FOR program
+#pragma warning disable IDE0018
             UniformBlock<Names> unif;
+#pragma warning restore IDE0018
             if (uniform.TryGetValue(pipeline, out unif) == false)
                 uniform.Add(pipeline, unif = new UniformBlock<Names>(pipeline, name));
 

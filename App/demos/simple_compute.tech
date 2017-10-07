@@ -19,8 +19,7 @@ buffer buf_idx {
 
 image img_compute {
 	type texture2D
-	width 512
-	height 512
+	size 512 512
 }
 
 /////////////////////
@@ -71,6 +70,9 @@ shader vs_simple vert {
 
 	// vertex shader output
 	layout(location = 0) out vec2 vs_uv;
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
 	
 	void main ()
 	{
@@ -105,7 +107,7 @@ csharp cs_util {
 }
 
 instance cs_camera {
-	class cs_util csharp.SimpleCamera
+	class cs_util camera.SimpleCamera
 	name SimpleCamera
 	pos 0 0 5
 }
@@ -138,7 +140,6 @@ pass pass_render {
 }
 
 pass pass_reset {
-	img 0
 	tex 0
 	glClearColor 0.0 0.0 0.0 0.0
 	glDisable depthTest

@@ -53,6 +53,42 @@ texture tex_shadowmap {
 	img img_shadowmap
 }
 
+////////////////
+// EXTENSIONS //
+////////////////
+
+csharp cs_util {
+	file "<csharp>/StaticCamera.cs" ...
+		 "<csharp>/SimpleCamera.cs" ...
+		 "<csharp>/SpotLight.cs" ...
+	     "<csharp>/PoissonDisc.cs" ...
+		 "<csharp>/UniformBlock.cs" ...
+	     "<csharp>/CsObject.cs"
+}
+
+instance cs_light {
+	class cs_util camera.SpotLight
+	name SpotLight
+	pos 3 4 3
+	rot -45 45 0
+	near 2
+	far 40
+	radius 1
+}
+
+instance cs_camera {
+	class cs_util camera.SimpleCamera
+	name SimpleCamera
+	pos -2.5 2 5
+	rot -20 -15 0
+}
+
+instance cs_poisson {
+	class cs_util sampling.PoissonDisc
+	name PoissonDisc
+	minRadius 0.2
+}
+
 /////////////
 // SHADERS //
 /////////////
@@ -117,6 +153,8 @@ shader vs_render vert {
 shader fs_render frag {
 	#version 440
 	
+	const int numPoints = global.cs_poisson.NumPoints;
+	
 	layout(binding = 0) uniform SpotLight {
 		mat4 viewProj;
 		vec4 camera;
@@ -124,8 +162,9 @@ shader fs_render frag {
 	} light;
 
 	layout(binding = 2) uniform PoissonDisc {
-		vec2 points[MAX_POISSON_POINTS];
-		int numPoints;
+		vec2 points[numPoints];
+		float distances[numPoints*numPoints];
+		int indices[numPoints*numPoints];
 	} disc;
 	
 	layout(binding = 0) uniform sampler2D shadowmap;
@@ -184,7 +223,7 @@ shader fs_render frag {
 		float zBlocker = 0.0;
 		mat2 R = randRot(2 * PI * rand(lpos.xy));
 
-		for (int i = 0; i < disc.numPoints; i++) {
+		for (int i = 0; i < numPoints; i++) {
 			vec2 p = R * disc.points[i] * filterR;
 			float z = texture(shadowmap, lpos.xy + p).x;
 			//z = exp2linDepth(z);
@@ -202,14 +241,14 @@ shader fs_render frag {
 		float shadow = 0.0;
 		mat2 R = randRot(2 * PI * rand(lpos.xy));
 
-		for (int i = 0; i < disc.numPoints; i++) {
+		for (int i = 0; i < numPoints; i++) {
 			vec2 p = R * disc.points[i] * filterR;
 			float z = texture(shadowmap, lpos.xy + p).x;
 			//z = exp2linDepth(z);
 			shadow += lpos.z + bias(surfBias, p) > z ? 1.0 : 0.0;
 		}
 
-		return shadow / float(disc.numPoints);
+		return shadow / float(numPoints);
 	}
 
 	float PCSS(vec2 surfBias, vec3 lpos) {
@@ -261,39 +300,6 @@ shader fs_render frag {
 /////////////
 // PROGRAM //
 /////////////
-
-csharp cs_util {
-	file "<csharp>/StaticCamera.cs" ...
-		 "<csharp>/SimpleCamera.cs" ...
-		 "<csharp>/SpotLight.cs" ...
-	     "<csharp>/PoissonDisc.cs" ...
-		 "<csharp>/UniformBlock.cs" ...
-	     "<csharp>/CsObject.cs"
-}
-
-instance cs_light {
-	class cs_util csharp.SpotLight
-	name SpotLight
-	pos 3 4 3
-	rot -45 45 0
-	near 2
-	far 40
-	radius 1
-}
-
-instance cs_camera {
-	class cs_util csharp.SimpleCamera
-	name SimpleCamera
-	pos -2.5 2 5
-	rot -20 -15 0
-}
-
-instance cs_poisson {
-	class cs_util csharp.PoissonDisc
-	name PoissonDisc
-	maxPoints MAX_POISSON_POINTS
-	minRadius 0.2
-}
 
 pass pass_shadowmap {
 	// attach shaders

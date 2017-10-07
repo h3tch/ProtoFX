@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using protofx;
+using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Drawing;
@@ -7,7 +8,7 @@ using System.Windows.Forms;
 using Commands = System.Collections.Generic.Dictionary<string, string[]>;
 using GlNames = System.Collections.Generic.Dictionary<string, int>;
 
-namespace csharp
+namespace camera
 {
     class BufferCamera : CsObject
     {

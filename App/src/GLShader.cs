@@ -44,7 +44,7 @@ namespace App
                 default: throw err.Error($"Shader type '{Anno}' is not supported.", block);
             }
 
-            CompileShader(err, block, block.Body);
+            CompileShader(err, block, block.Body, scene);
 
             /// CREATE CSHARP DEBUG CODE
             
@@ -52,7 +52,7 @@ namespace App
             if (debugging)
             {
                 if (ShaderType == ShaderType.FragmentShader)
-                    InitializeFragmentShaderDebugging(err, block);
+                    InitializeFragmentShaderDebugging(err, block, scene);
 
                 var code = Converter.Shader2Class(ShaderType, Name, block.Body, block.BodyIndex);
                 rs = GLCsharp.CompileFilesOrSource(new[] { code }, null, block, err, new[] { Name });
@@ -68,7 +68,7 @@ namespace App
                 throw err;
         }
 
-        private void CompileShader(CompileException err, Compiler.Block block, string code)
+        private void CompileShader(CompileException err, Compiler.Block block, string code, Dict scene)
         {
             ParseMessage GetVendorSpecificLogParser()
             {
@@ -80,6 +80,26 @@ namespace App
 
             // delete existing objects
             Delete();
+
+            foreach(Match match in Regex.Matches(code, @"\bglobal\s*\.[\w\d]+\.[\w\d]+", RegexOptions.RightToLeft))
+            {
+                var global = match.Value.Split(new[] { '.' });
+                var blockName = global[1];
+                var propName = global[2];
+                try
+                {
+                    var obj = scene.GetValue<GLObject>(blockName);
+                    var value = obj.GetMemberValue($"Instance.{propName}");
+                    code = code.Remove(match.Index, match.Length).Insert(match.Index, value.ToString());
+                }
+                catch
+                {
+                    var row = code.LineFromPosition(match.Index);
+                    err.Error($"Could not process '{match.Value}'.", block.Filename, block.LineInFile + row);
+                }
+            }
+            if (HasErrorOrGlError(err, block))
+                throw err;
 
             // compile shader code
             glname = GL.CreateShaderProgram(ShaderType, 1, new[] { code });
@@ -101,12 +121,12 @@ namespace App
                 throw err;
         }
 
-        private void InitializeFragmentShaderDebugging(CompileException err, Compiler.Block block)
+        private void InitializeFragmentShaderDebugging(CompileException err, Compiler.Block block, Dict scene)
         {
             // convert fragment shader into a debug shader
             var (_, dict) = GLU.InputLocationMappings(glname);
             var shaderCode = Converter.FragmentDebugShader(block.Body, dict);
-            CompileShader(err, block, shaderCode);
+            CompileShader(err, block, shaderCode, scene);
         }
 
         /// <summary>

@@ -1,12 +1,11 @@
 ﻿using OpenTK;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Commands = System.Collections.Generic.Dictionary<string, string[]>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
-namespace csharp
+namespace camera
 {
     class TurntableCamera : StaticCamera
     {
@@ -16,8 +15,7 @@ namespace csharp
         #endregion
 
         #region PROPERTIES
-        private float Dist
-        { get { return (float)Math.Sqrt(pos[0] * pos[0] + pos[1] * pos[1] + pos[2] * pos[2]); } }
+        private float Dist { get { return (float)Math.Sqrt(pos[0] * pos[0] + pos[1] * pos[1] + pos[2] * pos[2]); } }
         #endregion
 
         public TurntableCamera(string name, Commands cmds, GLNames glNames)

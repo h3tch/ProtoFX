@@ -4,8 +4,9 @@ using System.Windows.Forms;
 using System.Linq;
 using Commands = System.Collections.Generic.Dictionary<string, string[]>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
+using sampling;
 
-namespace csharp
+namespace protofx
 {
     class ArtifactQuest : CsObject
     {
@@ -106,8 +107,10 @@ namespace csharp
             line[2] = line[0] * widthTex / 2 + line[1] * heightTex / 2;
 
             // GET OR CREATE CAMERA UNIFORMS FOR program
+#pragma warning disable IDE0018
             UniformBlock<Names> unif;
             UniformBlock<Disc> unifDisc;
+#pragma warning restore IDE0018
             if (uniform.TryGetValue(pipeline, out unif) == false)
                 uniform.Add(pipeline, unif = new UniformBlock<Names>(pipeline, name));
             if (uniformDisc.TryGetValue(pipeline, out unifDisc) == false)

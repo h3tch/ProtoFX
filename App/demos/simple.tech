@@ -60,10 +60,10 @@ shader vs_simple vert {
 	layout(location = 1) in vec4 in_col;
 
 	// vertex shader output
+	layout(location = 0) out vec4 vs_col;
 	out gl_PerVertex {
 		vec4 gl_Position;
 	};
-	layout(location = 0) out vec4 vs_col;
 	
 	void main ()
 	{
@@ -105,7 +105,7 @@ csharp cs_util {
 }
 
 instance cs_camera {
-	class cs_util csharp.SimpleCamera
+	class cs_util camera.SimpleCamera
 	name SimpleCamera
 	pos -5 4 10
 	rot -20 -15 0

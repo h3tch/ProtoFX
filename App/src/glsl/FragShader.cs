@@ -122,7 +122,7 @@ namespace App.Glsl
                 i += head.Heigth + 1;
 
                 var varying = DbgLoc2Input[head.Location];
-                this.SetValue(varying, head.Value);
+                this.SetMemberValue(varying, head.Value);
             }
         }
 
