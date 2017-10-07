@@ -827,6 +827,10 @@ namespace ScintillaNET
                     return ProcessNumberState(editor, c);
                 case (int)BaseState.String:
                     return ProcessStringState(editor, c);
+                case (int)BaseState.LineComment:
+                    return ProcessLineCommentState(editor, c);
+                case (int)BaseState.BlockComment:
+                    return ProcessBlockCommentState(editor, c);
             }
             return ProcessDefaultState(editor, c);
         }
@@ -839,6 +843,13 @@ namespace ScintillaNET
                 case  '"': return (int)BaseState.String;
                 case  '.': return (int)(char.IsNumber(c[1]) ? BaseState.Number : BaseState.Punctuation);
                 case '\n': return DefaultProcessNewLine(editor, c);
+                case '/':
+                    // the beginning of a line comment
+                    if (c[1] == '/') return (int)BaseState.LineComment;
+                    // the beginning of a block comment
+                    if (c[1] == '*') return (int)BaseState.BlockComment;
+                    // an operator
+                    return (int)BaseState.Operator;
             }
 
             // the beginning of a word or keyword

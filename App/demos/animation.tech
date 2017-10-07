@@ -1,0 +1,181 @@
+// AUTHOR: Michael Hecher
+
+//////////////////
+// DATA OBJECTS //
+//////////////////
+
+// Vertex positions
+buffer buf_pos {
+	// we will only read the data
+	usage staticDraw
+	// load data <position> from cube.xml
+	xml "geom/cube.xml" data/position
+}
+
+// Vertex colors
+buffer buf_col {
+	usage staticDraw
+	// load data <color> from cube.xml
+	xml "geom/cube.xml" data/color
+}
+
+// Triangle list defining the mesh
+buffer buf_idx {
+	usage staticDraw
+	// load data <index> from cube.xml
+	xml "geom/cube.xml" data/index
+}
+
+/////////////////////////
+// DATA FORMAT OBJECTS //
+/////////////////////////
+
+// Define how to access vertex data from shaders
+vertinput in_vert {
+	// bind vertex position buffer to attribute location 0
+	// (see in_pos in vs_simple)
+	attr buf_pos float 4
+	// bind vertex color buffer to attribute location 1
+	// (see in_col in vs_simple)
+	attr buf_col float 4
+}
+
+/////////////
+// SHADERS //
+/////////////
+
+// Simple GLSL vertex shader transforming
+// vertex positions from model to perspective space
+shader vs_simple vert {
+	#version 440
+	
+	// shader variable which will be set by "SimpleCamera.cs"
+	// (only uniform variables can be accessed outside the shader)
+	layout(binding = 0) uniform SimpleCamera {
+		mat4 viewProj;
+	} camera;
+	
+	layout(binding = 1) uniform Interpolation {
+		float value;
+	} animation;
+	
+	// vertex input as specified by 'in_vert'
+	layout(location = 0) in vec4 in_pos;
+	layout(location = 1) in vec4 in_col;
+
+	// vertex shader output
+	layout(location = 0) out vec4 vs_col;
+	out gl_PerVertex {
+		vec4 gl_Position;
+	};
+	
+	void main ()
+	{
+		vec4 pos = in_pos;
+		pos.y += animation.value;
+		gl_Position = camera.viewProj * pos;
+		vs_col = in_col;
+	}
+}
+
+// Simple GLSL fragment shader writing
+// the color of the fragment to the framebuffer
+shader fs_simple frag {
+	#version 440
+	
+	// fragment shader input (see vs_col in vs_simple)
+	layout(location = 0) in vec4 gs_col;
+	
+	// fragment color output
+	out vec4 color;
+	
+	void main ()
+	{
+		color = gs_col;
+	}
+}
+
+//////////////
+// CONTROLS //
+//////////////
+
+// Include C# code to allow
+// for simple camera controls
+csharp cs_util {
+	assembly "OpenTK.dll"
+	// Compile C# file "SimpleCamera.cs"
+	file "<csharp>/Interpolation.cs" ...
+	     "<csharp>/StaticCamera.cs" ...
+	     "<csharp>/SimpleCamera.cs" ...
+	     "<csharp>/UniformBlock.cs" ...
+	     "<csharp>/CsObject.cs"
+}
+
+instance cs_camera {
+	class cs_util camera.SimpleCamera
+	name SimpleCamera
+	pos -5 4 10
+	rot -20 -15 0
+}
+
+instance cs_interpolation {
+	class cs_util animation.Interpolate
+	name Interpolation
+	reflect true
+	smooth true
+}
+
+/////////////////
+// RENDER PASS //
+/////////////////
+
+// Define a rendering pass
+pass pass_render {
+	// ATTATCH SHADERS
+	vert vs_simple
+	frag fs_simple
+	
+	// OPENGL FUNCTIONS
+	// set clear color
+	glClearColor 0.1 0.3 1.0 0.0
+	// clear color and depth buffer
+	glClear colorDepthBit
+	// enable depth buffer test
+	glEnable depthTest
+	
+	// EXECUTE CONTROL
+	// execute camera code (sets g_viewproj in vs_simple)
+	exec cs_camera
+	exec cs_interpolation
+	
+	// DRAW CALLS
+	// buff_idx .... name of the ellement array buffer
+	//               containing triangle indices
+	// in_vert ..... name of the vertex input object defining
+	//               how vertex data should be accessed
+	// ushort ...... the format of the indices stored in buff_idx
+	// triangles ... the primitive type stored in buff_idx
+	//               (in this case a triangle list)
+	// 0 ........... the fisrt vertex to use is vertex 0
+	// 0 ........... the first index of 'buff_idx' to use is 0
+	// 36 .......... use 36 indices in 'buff_idx'
+	//               (= 36/3 = 12 triangles)
+	draw buf_idx in_vert ushort triangles 0 0 36
+}
+
+pass pass_reset {
+	glClearColor 0.0 0.0 0.0 0.0
+	glDisable depthTest
+}
+
+///////////////
+// TECHNIQUE //
+///////////////
+
+// Combine passes into a single technique.
+// In this case we only have one pass.
+tech tech_simple {
+	// First pass
+	pass pass_render
+	pass pass_reset
+}
