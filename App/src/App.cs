@@ -547,6 +547,11 @@ namespace App
             debugListView.Visible = debugging;
         }
 
+        private void ToolBtnRender_CheckedChanged(object s, EventArgs e)
+        {
+            glControl.Rendering = toolBtnRender.Checked;
+        }
+
         /// <summary>
         /// Save the currently active tab.
         /// </summary>

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace OpenTK
@@ -21,6 +22,7 @@ namespace OpenTK
         private Dict scene = new Dict();
         // performance measurement class
         private FXPerf perf;
+        private bool renderingEnabled = false;
 
         #endregion
 
@@ -32,11 +34,11 @@ namespace OpenTK
         public IEnumerable<float> Timings => perf?.Timings ?? Enumerable.Empty<float>();
         public IEnumerable<int> Frames => perf?.Frames ?? Enumerable.Empty<int>();
         public bool Rendering {
-            get => Rendering;
+            get => renderingEnabled;
             set {
-                if (Rendering != value)
+                if (renderingEnabled != value)
                 {
-                    if (Rendering = value)
+                    if (renderingEnabled = value)
                         Application.Idle += HandleIdle;
                     else
                         Application.Idle -= HandleIdle;
@@ -230,7 +232,8 @@ namespace OpenTK
         /// <param name="e"></param>
         private void HandleIdle(object sender, EventArgs e)
         {
-            Render();
+            Thread.Sleep(1);
+            Invalidate();
         }
 
         #endregion

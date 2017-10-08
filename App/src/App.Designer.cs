@@ -73,6 +73,7 @@ namespace App
             this.toolBtnSaveAs = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.toolBtnRun = new System.Windows.Forms.ToolStripButton();
+            this.toolBtnRender = new System.Windows.Forms.ToolStripButton();
             this.toolBtnDbg = new System.Windows.Forms.ToolStripButton();
             this.toolBtnDbgStepBreakpoint = new System.Windows.Forms.ToolStripButton();
             this.toolBtnDbgStepOver = new System.Windows.Forms.ToolStripButton();
@@ -617,6 +618,7 @@ namespace App
             this.toolBtnDbgStepInto,
             this.toolBtnDbgStepBack,
             this.toolStripSeparator2,
+            this.toolBtnRender,
             this.toolBtnPick,
             this.toolStripSeparator1,
             this.toolBtnComment,
@@ -758,6 +760,18 @@ namespace App
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(6, 39);
+            // 
+            // toolBtnRender
+            // 
+            this.toolBtnRender.CheckOnClick = true;
+            this.toolBtnRender.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolBtnRender.Image = global::App.Properties.Resources.ImgRun;
+            this.toolBtnRender.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolBtnRender.Margin = new System.Windows.Forms.Padding(0);
+            this.toolBtnRender.Name = "toolBtnRender";
+            this.toolBtnRender.Size = new System.Drawing.Size(36, 36);
+            this.toolBtnRender.Text = "Enable Rendering Loop";
+            this.toolBtnRender.CheckedChanged += new System.EventHandler(this.ToolBtnRender_CheckedChanged);
             // 
             // toolBtnPick
             // 
@@ -1494,6 +1508,7 @@ namespace App
         private System.Windows.Forms.ToolStripButton toolBtnOpen;
         private System.Windows.Forms.ToolStripButton toolBtnSave;
         private System.Windows.Forms.ToolStripButton toolBtnSaveAll;
+        private System.Windows.Forms.ToolStripButton toolBtnRender;
         private System.Windows.Forms.ToolStripButton toolBtnRun;
         private System.Windows.Forms.ToolStripButton toolBtnNew;
         private System.Windows.Forms.ToolStripButton toolBtnSaveAs;
