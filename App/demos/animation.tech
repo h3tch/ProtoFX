@@ -102,7 +102,6 @@ shader fs_simple frag {
 // Include C# code to allow
 // for simple camera controls
 csharp cs_util {
-	assembly "OpenTK.dll"
 	// Compile C# file "SimpleCamera.cs"
 	file "<csharp>/Interpolation.cs" ...
 	     "<csharp>/StaticCamera.cs" ...

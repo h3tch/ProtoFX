@@ -31,6 +31,18 @@ namespace OpenTK
         public int TimingsCount => perf?.TimingsCount ?? 0;
         public IEnumerable<float> Timings => perf?.Timings ?? Enumerable.Empty<float>();
         public IEnumerable<int> Frames => perf?.Frames ?? Enumerable.Empty<int>();
+        public bool Rendering {
+            get => Rendering;
+            set {
+                if (Rendering != value)
+                {
+                    if (Rendering = value)
+                        Application.Idle += HandleIdle;
+                    else
+                        Application.Idle -= HandleIdle;
+                }
+            }
+        }
 
         #endregion
 
@@ -207,6 +219,16 @@ namespace OpenTK
         /// <param name="s"></param>
         /// <param name="e"></param>
         private void HandleKeyUp(object s, KeyEventArgs e)
+        {
+            Render();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleIdle(object sender, EventArgs e)
         {
             Render();
         }

@@ -187,12 +187,12 @@ namespace App
             this.tableLayoutRenderOutput.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 51F));
             this.tableLayoutRenderOutput.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 51F));
             this.tableLayoutRenderOutput.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 51F));
-            this.tableLayoutRenderOutput.Controls.Add(this.labelTitle, 1, 0);
-            this.tableLayoutRenderOutput.Controls.Add(this.splitRenderOutput, 0, 1);
             this.tableLayoutRenderOutput.Controls.Add(this.imgAppIcon, 0, 0);
+            this.tableLayoutRenderOutput.Controls.Add(this.labelTitle, 1, 0);
             this.tableLayoutRenderOutput.Controls.Add(this.btnWindowMinimize2, 2, 0);
             this.tableLayoutRenderOutput.Controls.Add(this.btnWindowMaximize2, 3, 0);
             this.tableLayoutRenderOutput.Controls.Add(this.btnWindowClose2, 4, 0);
+            this.tableLayoutRenderOutput.Controls.Add(this.splitRenderOutput, 0, 1);
             this.tableLayoutRenderOutput.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutRenderOutput.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutRenderOutput.Name = "tableLayoutRenderOutput";
