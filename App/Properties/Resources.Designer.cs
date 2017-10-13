@@ -183,6 +183,16 @@ namespace App.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ImgAnimate {
+            get {
+                object obj = ResourceManager.GetObject("ImgAnimate", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ImgComment {
             get {
                 object obj = ResourceManager.GetObject("ImgComment", resourceCulture);
@@ -256,6 +266,16 @@ namespace App.Properties {
         internal static System.Drawing.Bitmap ImgOpen {
             get {
                 object obj = ResourceManager.GetObject("ImgOpen", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ImgPause {
+            get {
+                object obj = ResourceManager.GetObject("ImgPause", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

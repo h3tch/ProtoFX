@@ -263,6 +263,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\ImgAnimate.png" />
     <Content Include="resources\ImgDbgStepBack.png" />
     <Content Include="resources\ImgDbgStepBreakpoint.png" />
     <Content Include="resources\ImgDbgStepBreakpoint.svg" />
@@ -270,6 +271,7 @@
     <Content Include="resources\ImgDbgStepInto.svg" />
     <Content Include="resources\ImgDbgStepOver.png" />
     <Content Include="resources\ImgDbgStepOver.svg" />
+    <None Include="resources\ImgPause.png" />
     <Content Include="resources\logo.ico" />
     <Content Include="resources\logoHighRes.png" />
     <Content Include="resources\Normalize.png" />

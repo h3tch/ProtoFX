@@ -232,7 +232,10 @@ namespace OpenTK
         /// <param name="e"></param>
         private void HandleIdle(object sender, EventArgs e)
         {
+            // Pause so the render loop does not
+            // take up too much processing time
             Thread.Sleep(1);
+            // Redraw the OpenGL control
             Invalidate();
         }
 

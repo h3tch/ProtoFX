@@ -550,6 +550,9 @@ namespace App
         private void ToolBtnRender_CheckedChanged(object s, EventArgs e)
         {
             glControl.Rendering = toolBtnRender.Checked;
+            toolBtnRender.Image = toolBtnRender.Checked
+                ? Properties.Resources.ImgPause
+                : Properties.Resources.ImgAnimate;
         }
 
         /// <summary>

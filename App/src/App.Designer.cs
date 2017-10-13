@@ -765,7 +765,7 @@ namespace App
             // 
             this.toolBtnRender.CheckOnClick = true;
             this.toolBtnRender.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnRender.Image = global::App.Properties.Resources.ImgRun;
+            this.toolBtnRender.Image = global::App.Properties.Resources.ImgAnimate;
             this.toolBtnRender.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnRender.Margin = new System.Windows.Forms.Padding(0);
             this.toolBtnRender.Name = "toolBtnRender";
