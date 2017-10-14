@@ -4,6 +4,7 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -81,7 +82,14 @@ namespace App
             // delete existing objects
             Delete();
 
-            foreach(Match match in Regex.Matches(code, @"\bglobal\s*\.[\w\d]+\.[\w\d]+", RegexOptions.RightToLeft))
+            // remove #fold keywords
+            code = Regex.Replace(code, @"#fold.*",
+                x => new string(x.Value.Select(c => (c != '\n' && c != '\r') ? ' ' : c).ToArray()));
+            code = Regex.Replace(code, @"#endfold.*",
+                x => new string(x.Value.Select(c => (c != '\n' && c != '\r') ? ' ' : c).ToArray()));
+
+            // replace global variables with their actual value
+            foreach (Match match in Regex.Matches(code, @"\bglobal\s*\.[\w\d]+\.[\w\d]+", RegexOptions.RightToLeft))
             {
                 var global = match.Value.Split(new[] { '.' });
                 var blockName = global[1];

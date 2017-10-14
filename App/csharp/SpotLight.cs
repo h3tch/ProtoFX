@@ -32,7 +32,7 @@ namespace camera
         protected float intensity = 100f;
         protected float innerCone = 40f;
         protected float radius = 0.1f;
-        protected const float rad2deg = (float)(Math.PI / 180);
+        protected const float deg2rad = (float)(Math.PI / 180);
         protected string name;
         protected Dictionary<int, UniformBlock<Names>> uniform =
             new Dictionary<int, UniformBlock<Names>>();
@@ -72,10 +72,10 @@ namespace camera
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
             var view = Matrix4.CreateTranslation(-pos[0], -pos[1], -pos[2])
-                 * Matrix4.CreateRotationY(-rot[1] * rad2deg)
-                 * Matrix4.CreateRotationX(-rot[0] * rad2deg);
-            var aspect = (float)width / height;
-            var proj = Matrix4.CreatePerspectiveFieldOfView(fov * rad2deg, aspect, near, far);
+                 * Matrix4.CreateRotationY(-rot[1] * deg2rad)
+                 * Matrix4.CreateRotationX(-rot[0] * deg2rad);
+            var aspect = (float)widthTex / heightTex;
+            var proj = Matrix4.CreatePerspectiveFieldOfView(fov * deg2rad, aspect, near, far);
 
             // GET OR CREATE CAMERA UNIFORMS FOR program
 #pragma warning disable IDE0018
@@ -93,16 +93,16 @@ namespace camera
                 unif.Set(Names.viewProj, (view * proj).AsInt32());
 
             if (unif.Has(Names.camera))
-                unif.Set(Names.camera, new[] { fov * rad2deg, aspect, near, far }.AsInt32());
+                unif.Set(Names.camera, new[] { fov * deg2rad, aspect, near, far }.AsInt32());
 
             if (unif.Has(Names.color))
                 unif.Set(Names.color, new[] { color[0], color[1], color[2], intensity }.AsInt32());
 
             if (unif.Has(Names.light))
             {
-                var x = near * (float)Math.Tan(fov * rad2deg);
+                var x = near * (float)Math.Tan(fov * deg2rad);
                 var y = x / aspect;
-                unif.Set(Names.light, new[] { innerCone * rad2deg, radius, x, y }.AsInt32());
+                unif.Set(Names.light, new[] { innerCone * deg2rad, radius, x, y }.AsInt32());
             }
 
             // UPDATE UNIFORM BUFFER

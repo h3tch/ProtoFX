@@ -228,12 +228,12 @@ shader fs_render frag {
 			float z = texture(shadowmap, lpos.xy + p).x;
 			//z = exp2linDepth(z);
 			if (lpos.z + bias(surfBias, p) > z) {
-				zBlocker += z;
+				zBlocker += exp2linDepth(z);
 				nBlocker++;
 			}
 		}
 		//return zBlocker / float(nBlocker);
-		return exp2linDepth(zBlocker / float(nBlocker));
+		return zBlocker / float(nBlocker);
 	}
 
 	float PCF(vec2 filterR, vec3 lpos, vec2 surfBias) {

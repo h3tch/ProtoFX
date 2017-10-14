@@ -235,6 +235,8 @@ namespace ScintillaNET
             var lastCharPos = line;
             var foldLevel = editor.Lines[line].FoldLevel;
             var textLength = editor.TextLength;
+            var addFold = -1;
+            var endFold = -1;
             const int DEFAULT_FOLD_LEVEL = 1024;
 
             // for each character
@@ -254,6 +256,19 @@ namespace ScintillaNET
                     case '}':
                         state = FoldState.EndFolding;
                         break;
+                    case '#':
+                        var word = editor.GetWordFromPosition(pos + 1);
+                        if (word == "fold")
+                        {
+                            var l = editor.Lines[line];
+                            addFold = l.EndPosition - (l.Text.EndsWith("\r\n") ? 2 : 1);
+                        }
+                        else if (word == "endfold")
+                        {
+                            var l = editor.Lines[line];
+                            endFold = l.EndPosition - (l.Text.EndsWith("\r\n") ? 2 : 1);
+                        }
+                        break;
                     // next line
                     case '\n':
                         line++;
@@ -264,6 +279,17 @@ namespace ScintillaNET
                         if (char.IsLetterOrDigit(c))
                             lastCharPos = pos;
                         break;
+                }
+
+                if (pos == addFold)
+                {
+                    state = FoldState.StartFolding;
+                    addFold = -1;
+                }
+                if (pos == endFold)
+                {
+                    state = FoldState.EndFolding;
+                    endFold = -1;
                 }
 
                 switch (state)
