@@ -74,7 +74,7 @@ namespace camera
             var view = Matrix4.CreateTranslation(-pos[0], -pos[1], -pos[2])
                  * Matrix4.CreateRotationY(-rot[1] * deg2rad)
                  * Matrix4.CreateRotationX(-rot[0] * deg2rad);
-            var aspect = (float)widthTex / heightTex;
+            var aspect = (float)width / height;
             var proj = Matrix4.CreatePerspectiveFieldOfView(fov * deg2rad, aspect, near, far);
 
             // GET OR CREATE CAMERA UNIFORMS FOR program

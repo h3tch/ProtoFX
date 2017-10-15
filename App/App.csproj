@@ -230,8 +230,6 @@
     <EmbeddedResource Include="src\controls\CallTip.resx">
       <DependentUpon>CallTip.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="demos\atlas\quest.tech" />
-    <None Include="demos\atlas\resolution.tech" />
     <None Include="demos\shadow_mapping.tech" />
     <None Include="demos\shadow_mapping_pcf.tech" />
     <None Include="demos\shadow_mapping_pcf2.tech" />
@@ -308,8 +306,6 @@
     <Content Include="demos\tex\lena.jpg" />
     <None Include="demos\simple.tech" />
     <None Include="demos\simple_fragoutput.tech" />
-    <None Include="demos\atlas\render.tech" />
-    <Content Include="demos\atlas\scene.xml" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6">
