@@ -18,7 +18,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        public GLTech(Compiler.Block block, Dict scene, bool debugging)
+        public GLTech(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
             : base(block.Name, block.Anno, 309, debugging)
         {
             var err = new CompileException($"tech '{Name}'");
@@ -75,7 +75,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="err"></param>
-        private void ParsePasses(ref List<GLPass> list, Compiler.Block block, Dict scene,
+        private void ParsePasses(ref List<GLPass> list, Compiler.Block block, Dictionary<string, object> scene,
             CompileException err)
         {
             var cmdName = ReferenceEquals(list, init)

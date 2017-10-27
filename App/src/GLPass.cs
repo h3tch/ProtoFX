@@ -58,7 +58,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="genDebugInfo"></param>
-        public GLPass(Compiler.Block block, Dict scene, bool genDebugInfo)
+        public GLPass(Compiler.Block block, Dictionary<string, object> scene, bool genDebugInfo)
             : base(block.Name, block.Anno, 309, genDebugInfo)
         {
             var err = new CompileException($"pass '{Name}'");
@@ -334,7 +334,7 @@ namespace App
         
         #region PARSE COMMANDS
 
-        private void ParseDrawCall(Compiler.Command cmd, Dict classes, CompileException err)
+        private void ParseDrawCall(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
         {
             var args = new List<int>();
             GLVertinput vertexin = null;
@@ -349,13 +349,13 @@ namespace App
             // parse draw call arguments
             foreach (var arg in cmd)
             {
-                if (classes.TryGetValue(arg.Text, ref vertexin))
+                if (TryGetValue(classes, arg.Text, ref vertexin))
                     continue;
-                if (classes.TryGetValue(arg.Text, ref vertout))
+                if (TryGetValue(classes, arg.Text, ref vertout))
                     continue;
-                if (classes.TryGetValue(arg.Text, ref indexbuf))
+                if (TryGetValue(classes, arg.Text, ref indexbuf))
                     continue;
-                if (classes.TryGetValue(arg.Text, ref indirect))
+                if (TryGetValue(classes, arg.Text, ref indirect))
                     continue;
                 if (int.TryParse(arg.Text, out int val))
                     args.Add(val);
@@ -369,7 +369,7 @@ namespace App
 
             if (err.HasErrors)
                 return;
-            
+
             // a draw call must specify a primitive type
             if (modeIsSet == false)
             {
@@ -404,9 +404,17 @@ namespace App
             multidrawcall.cmd.Add(new DrawCall(drawfunc, primitive, indextype, args));
 
             drawcalls.Add(multidrawcall);
+
+            bool TryGetValue<T>(Dictionary<string, object> dict, string key, ref T obj)
+            {
+                if (obj != null || !dict.TryGetValue(key, out var tmp) || !(tmp is T))
+                    return false;
+                obj = (T)tmp;
+                return true;
+            }
         }
         
-        private void ParseComputeCall(Compiler.Command cmd, Dict classes, CompileException err)
+        private void ParseComputeCall(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
         {
             // check for errors
             if (cmd.ArgCount < 2 || cmd.ArgCount > 3)
@@ -432,8 +440,8 @@ namespace App
                 if (cmd.ArgCount == 2)
                 {
                     // indirect compute call buffer
-                    call.numGroupsX = (uint)classes.GetValue<GLBuffer>(cmd[0].Text,
-                        "First argument of compute command must be a buffer name").glname;
+                    call.numGroupsX = (uint)(GetValue<GLBuffer>(classes, cmd[0].Text,
+                        "First argument of compute command must be a buffer name")).glname;
                     // indirect compute call buffer pointer
                     call.numGroupsY = Arg2UInt(cmd[1].Text, "Argument must be an unsigned integer, "
                         + "specifying a pointer into the indirect compute call buffer.");
@@ -456,9 +464,17 @@ namespace App
             {
                 err.Error(ex.Message, cmd);
             }
+
+            // LOCAL HELPER FUNCTION
+            T GetValue<T>(Dictionary<string, object> dict, string key, string info = "Value not found.") where T: GLObject
+            {
+                if (dict.TryGetValue(key, out var tmp) && tmp is T)
+                    return (T)tmp;
+                throw new ArgumentException(info);
+            }
         }
         
-        private void ParseTexCmd(Compiler.Command cmd, Dict classes, CompileException err)
+        private void ParseTexCmd(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
         {
             if (cmd.ArgCount != 1 && cmd.ArgCount != 2)
             {
@@ -476,7 +492,7 @@ namespace App
                 textures.Add(new Res<GLTexture>(values));
         }
 
-        private void ParseImgCmd(Compiler.Command cmd, Dict classes, CompileException err)
+        private void ParseImgCmd(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
         {
             if (cmd.ArgCount != 1 && cmd.ArgCount != 6)
             {
@@ -505,7 +521,7 @@ namespace App
                 texImages.Add(new ResTexImg(values));
         }
 
-        private void ParseSampCmd(Compiler.Command cmd, Dict classes, CompileException err)
+        private void ParseSampCmd(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
         {
             if (cmd.ArgCount != 1 && cmd.ArgCount != 2)
             {
@@ -523,7 +539,7 @@ namespace App
                 sampler.Add(new Res<GLSampler>(values));
         }
 
-        private void ParseAtomicCmd(Compiler.Command cmd, Dict classes, CompileException err)
+        private void ParseAtomicCmd(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
         {
             if (cmd.ArgCount < 1 || 3 < cmd.ArgCount)
             {
@@ -542,7 +558,7 @@ namespace App
                 buffers.Add(new ResBuffer(BufferRangeTarget.AtomicCounterBuffer, values));
         }
 
-        private void ParseOpenGLCall(Compiler.Command cmd, Dict classes, CompileException err)
+        private void ParseOpenGLCall(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
         {
             // find OpenGL method
             var mname = cmd.Name.StartsWith("gl") ? cmd.Name.Substring(2) : cmd.Name;
@@ -568,11 +584,13 @@ namespace App
                             param[i].ParameterType);
                         break;
                     case Type type when (type == typeof(IntPtr)):
-                        inval[i] = classes.GetValueOrDefault<GLMemory>(cmd[i].Text)?.DataIntPtr;
+                        if (classes.TryGetValue(cmd[i].Text, out var mem) && mem is GLMemory)
+                            inval[i] = ((GLMemory)mem).DataIntPtr;
                         break;
                     case Type type when (type == typeof(int) || type == typeof(uint)):
-                        inval[i] = classes.GetValueOrDefault<GLObject>(cmd[i].Text)?.glname
-                            ?? Convert.ChangeType(cmd[i].Text, param[i].ParameterType,
+                        inval[i] = classes.TryGetValue(cmd[i].Text, out var obj)
+                            ? ((GLObject)obj).glname
+                            : Convert.ChangeType(cmd[i].Text, param[i].ParameterType,
                                                   CultureInfo.CurrentCulture);
                         break;
                     default:
@@ -585,7 +603,7 @@ namespace App
             glfunc.Add(new GLMethod(mtype, inval));
         }
         
-        private void ParseCsharpExec(Compiler.Command cmd, Dict classes, CompileException err)
+        private void ParseCsharpExec(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
         {
             // check if command provides the correct amount of parameters
             if (cmd.ArgCount == 0)
@@ -614,7 +632,7 @@ namespace App
                     select method).FirstOrDefault();
         }
 
-        private GLShader Attach(Compiler.Block block, string shadername, Dict classes,
+        private GLShader Attach(Compiler.Block block, string shadername, Dictionary<string, object> classes,
             CompileException err)
         {
             GLShader obj = null;
@@ -931,7 +949,7 @@ namespace App
             public bool resume;
             //public string[] outputVaryings;
 
-            public Vertoutput(Compiler.Command cmd, Dict scene, CompileException err)
+            public Vertoutput(Compiler.Command cmd, Dictionary<string, object> scene, CompileException err)
             {
                 // specify argument types
                 var types = new[] {

@@ -2,7 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Commands = System.Collections.Generic.Dictionary<string, string[]>;
+using Commands = System.Linq.ILookup<string, string[]>;
+using Objects = System.Collections.Generic.Dictionary<string, object>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace animation
@@ -17,7 +18,8 @@ namespace animation
         protected string name;
         private double from = 0;
         private double to = 1;
-        private double value = 0;
+        private protofx.Double value = new protofx.Double();
+        private protofx.Double t = new protofx.Double();
         private double speed = 1;
         private bool reflect = false;
         private bool smooth = false;
@@ -25,7 +27,8 @@ namespace animation
         protected Dictionary<int, UniformBlock<Names>> uniform =
             new Dictionary<int, UniformBlock<Names>>();
 
-        public Interpolate(string name, Commands cmds, GLNames glNames)
+        public Interpolate(string name, Commands cmds, Objects objs, GLNames glNames)
+            : base(cmds, objs)
         {
             this.name = name;
             Convert(cmds, "name", ref this.name);
@@ -40,27 +43,31 @@ namespace animation
 
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
-            // GET OR CREATE CAMERA UNIFORMS FOR program
-#pragma warning disable IDE0018
-            UniformBlock<Names> unif;
-#pragma warning restore IDE0018
-            if (uniform.TryGetValue(pipeline, out unif) == false)
-                uniform.Add(pipeline, unif = new UniformBlock<Names>(pipeline, name));
+            InitializeConnections();
 
             // increase value based on the elapsed time
             if (stopwatch.IsRunning)
-                value = (value + (stopwatch.ElapsedMilliseconds / 1000.0) * speed) % 1;
+            {
+                value.value = (value + (stopwatch.ElapsedMilliseconds / 1000.0) * speed) % 1;
+                value.Update();
+            }
 
             // restart the stop watch
             stopwatch.Restart();
 
             // reflect and smooth the value if necessary
-            var t = reflect ? Math.Abs(value * 2 - 1) : value;
+            t.value = reflect ? Math.Abs(value * 2 - 1) : value;
             if (smooth)
-                t = 1 - Math.Cos(Math.PI * t) * 0.5 + 0.5;
+                t.value = 1 - Math.Cos(Math.PI * t) * 0.5 + 0.5;
 
             // interpolate between 'from' and 'to' value
-            t = (float)(from * (1 - t) + to * t);
+            t.value = from * (1 - t) + to * t;
+            t.Update();
+
+            // GET OR CREATE CAMERA UNIFORMS FOR program
+            var unif = GetUniformBlock(uniform, pipeline, name);
+            if (unif == null)
+                return;
 
             unif.Set(Names.value, new[] { (float)t });
 
@@ -72,7 +79,10 @@ namespace animation
         public void Delete()
         {
             foreach (var u in uniform)
-                u.Value.Delete();
+            {
+                if (u.Value != null)
+                    u.Value.Delete();
+            }
         }
     }
 }

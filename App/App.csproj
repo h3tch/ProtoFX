@@ -148,6 +148,7 @@
     </Compile>
     <Compile Include="src\extensions\Array.cs" />
     <Compile Include="src\extensions\BinaryReader.cs" />
+    <Compile Include="src\extensions\Dictionary.cs" />
     <Compile Include="src\extensions\DropOutStack.cs" />
     <Compile Include="src\extensions\MatchCollection.cs" />
     <Compile Include="src\controls\CodeEditor.cs">

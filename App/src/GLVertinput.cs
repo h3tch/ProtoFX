@@ -16,7 +16,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        public GLVertinput(Compiler.Block block, Dict scene, bool debugging)
+        public GLVertinput(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"vertinput '{Name}'");
@@ -47,7 +47,7 @@ namespace App
         /// <param name="cmd"></param>
         /// <param name="scene"></param>
         /// <param name="err"></param>
-        private void Attach(int unit, Compiler.Command cmd, Dict scene, CompileException err)
+        private void Attach(int unit, Compiler.Command cmd, Dictionary<string, object> scene, CompileException err)
         {
             // check commands for errors
             if (cmd.ArgCount < 3)

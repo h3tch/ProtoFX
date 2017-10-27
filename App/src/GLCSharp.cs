@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Globalization;
+using System;
 
 namespace App
 {
@@ -14,6 +15,7 @@ namespace App
         [FxField] private string Version = null;
         [FxField] private string[] Assembly = null;
         [FxField] private string[] File = null;
+        [FxField] private string[] Folder = null;
         private CompilerResults CompilerResults;
         #endregion
 
@@ -23,7 +25,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        public GLCsharp(Compiler.Block block, Dict scene, bool debugging)
+        public GLCsharp(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"csharp '{Name}'");
@@ -34,7 +36,7 @@ namespace App
             // check for errors
             if (err.HasErrors)
                 throw err;
-            if (File == null || File.Length == 0)
+            if ((File == null || File.Length == 0) && (Folder == null || Folder.Length == 0))
                 return;
 
             // LOAD ADDITIONAL ASSEMBLIES
@@ -56,7 +58,9 @@ namespace App
 
             // replace placeholders with actual path
             var dir = Path.GetDirectoryName(block.Filename) + Path.DirectorySeparatorChar;
-            var filepath = ProcessPaths(dir, File);
+            var folders = ProcessPaths(dir, Folder);
+            var filepath = ProcessPaths(dir, File).Concat(GetCSharpFiles(folders));
+            var unique = new HashSet<string>(filepath).ToArray();
 
             // COMPILE FILES
             CompilerResults = CompileFilesOrSource(filepath.ToArray(), Version, block, err);
@@ -150,10 +154,8 @@ namespace App
                 // check for compiler errors
                 if (rs?.Errors.Count != 0)
                 {
-                    string msg = "";
                     foreach (var message in rs.Errors)
-                        msg += $"\n{message}";
-                    err.Error(msg, block);
+                        err.Error(message.ToString(), block);
                 }
             }
             return rs;
@@ -167,21 +169,26 @@ namespace App
         /// <returns></returns>
         private IEnumerable<string> ProcessPaths(string abspath, string[] paths)
         {
-            // replace placeholders with actual path
-            var path = (IEnumerable<string>)paths;
-            var curDir = Directory.GetCurrentDirectory() + "/";
-            var placeholders = new[] { new[] { "<csharp>", $"{curDir}../csharp" } };
-            foreach (var placeholder in placeholders)
-                path = path.Select(x => x.Replace(placeholder[0], placeholder[1]));
+            if (paths != null)
+            {
+                var curDir = Directory.GetCurrentDirectory() + "/";
+                var placeholders = new[] { new[] { "<csharp>", $"{curDir}../csharp" } };
 
-            // convert relative file paths to absolut file paths
-            path = path.Select(x => Path.IsPathRooted(x) ? x : abspath + x);
-
-            // use '\\' file paths instead of '/' and set absolute directory path
-            if (Path.DirectorySeparatorChar != '/')
-                path = path.Select(x => x.Replace('/', Path.DirectorySeparatorChar));
-
-            return path;
+                foreach (var path in paths)
+                {
+                    var s = (string)path.Clone();
+                    // replace placeholders with actual path
+                    foreach (var placeholder in placeholders)
+                        s = s.Replace(placeholder[0], placeholder[1]);
+                    // convert relative file paths to absolut file paths
+                    if (!Path.IsPathRooted(s))
+                        s = abspath + s;
+                    // use '\\' file paths instead of '/' and set absolute directory path
+                    if (Path.DirectorySeparatorChar != '/')
+                        s = s.Replace('/', Path.DirectorySeparatorChar);
+                    yield return s;
+                }
+            }
         }
 
         /// <summary>
@@ -190,7 +197,7 @@ namespace App
         /// <param name="cmd"></param>
         /// <param name="err"></param>
         /// <returns></returns>
-        internal static MethodInfo GetMethod(Compiler.Command cmd, Dict scene, CompileException err)
+        internal static MethodInfo GetMethod(Compiler.Command cmd, Dictionary<string, object> scene, CompileException err)
         {
             // check command
             if (cmd.ArgCount < 1)
@@ -200,15 +207,15 @@ namespace App
             }
 
             // FIND CSHARP CLASS DEFINITION
-            var csharp = scene.GetValueOrDefault<GLCsharp>(cmd[0].Text);
-            if (csharp == null)
+            var csharp = scene.GetValueOrDefault(cmd[0].Text);
+            if (csharp == null || !(csharp is GLCsharp))
             {
                 err.Error($"Could not find csharp code '{cmd[0].Text}' of command '{cmd.Text}' ", cmd);
                 return null;
             }
 
             // INSTANTIATE CSHARP CLASS
-            return csharp.GetMethod(cmd, err);
+            return ((GLCsharp)csharp).GetMethod(cmd, err);
         }
 
         /// <summary>
@@ -218,7 +225,7 @@ namespace App
         /// <param name="scene"></param>
         /// <param name="err"></param>
         /// <returns></returns>
-        internal static object CreateInstance(Compiler.Block block, Dict scene, CompileException err)
+        internal static object CreateInstance(Compiler.Block block, Dictionary<string, object> scene, CompileException err)
         {
             // GET CLASS COMMAND
             var cmds = block["class"].ToList();
@@ -238,7 +245,7 @@ namespace App
             }
 
             // FIND CSHARP CLASS DEFINITION
-            var csharp = scene.GetValueOrDefault<GLCsharp>(cmd[0].Text);
+            var csharp = scene.GetValueOrDefault(cmd[0].Text);
             if (csharp == null)
             {
                 err.Error($"Could not find csharp code '{cmd[0].Text}' of command '{cmd.Text}' ", cmd);
@@ -246,7 +253,7 @@ namespace App
             }
 
             // INSTANTIATE CSHARP CLASS
-            return csharp.CreateInstance(block, cmd, scene, err);
+            return ((GLCsharp)csharp).CreateInstance(block, cmd, scene, err);
         }
 
         /// <summary>
@@ -256,7 +263,7 @@ namespace App
         /// <param name="cmd"></param>
         /// <param name="err"></param>
         /// <returns></returns>
-        private object CreateInstance(Compiler.Block block, Compiler.Command cmd, Dict scene, CompileException err)
+        private object CreateInstance(Compiler.Block block, Compiler.Command cmd, Dictionary<string, object> scene, CompileException err)
         {
             // check if the command is valid
             if (cmd.ArgCount < 2)
@@ -267,13 +274,14 @@ namespace App
             
             // create OpenGL name lookup dictionary
             var glNames = new Dictionary<string, int>(scene.Count);
-            scene.Keys.ForEach(scene.Values, (k, v) => glNames.Add(k, v.glname));
+            scene.Keys.ForEach(scene.Values, (k, v) => glNames.Add(k, ((GLObject)v).glname));
 
             // create main class from compiled files
             var classname = cmd[1].Text;
             var instance = CompilerResults.CompiledAssembly.CreateInstance(
                 classname, false, BindingFlags.Default, null,
-                new object[] { block.Name, ToDict(block), glNames }, CultureInfo.CurrentCulture, null);
+                new object[] { block.Name, ToDict(block), scene, glNames },
+                CultureInfo.CurrentCulture, null);
 
             if (instance == null)
                 throw err.Error($"Main class '{classname}' could not be found.", cmd);
@@ -314,15 +322,12 @@ namespace App
         /// </summary>
         /// <param name="block"></param>
         /// <returns></returns>
-        private Dictionary<string, string[]> ToDict(Compiler.Block block)
+        private ILookup<string, string[]> ToDict(Compiler.Block block)
         {
-            // convert to dictionary of string arrays
-            var dict = new Dictionary<string, string[]>();
             // add commands to dictionary
-            block.ForEach(cmd => dict.Add(cmd.Name, cmd.Select(x => x.Text).ToArray()));
-            return dict;
+            return block.ToLookup(cmd => cmd.Name, cmd => cmd.Select(x => x.Text).ToArray());
         }
-        
+
         /// <summary>
         /// Invoke a method of an object instance.
         /// </summary>
@@ -350,6 +355,20 @@ namespace App
         private static bool IsFilename(string str)
         {
             return str.IndexOf('\n') < 0 && System.IO.File.Exists(str);
+        }
+
+        private static IEnumerable<string> GetCSharpFiles(IEnumerable<string> folders)
+        {
+            foreach (var folder in folders)
+            {
+                if (!Directory.Exists(folder) || folder.IndexOf('\n') >= 0)
+                    continue;
+                foreach (var file in Directory.GetFiles(folder))
+                {
+                    if (file.EndsWith(".cs", StringComparison.CurrentCultureIgnoreCase))
+                        yield return file;
+                }
+            }
         }
     }
 }

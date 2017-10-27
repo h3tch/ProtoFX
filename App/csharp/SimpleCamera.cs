@@ -1,7 +1,8 @@
 using OpenTK;
 using System.Drawing;
 using System.Windows.Forms;
-using Commands = System.Collections.Generic.Dictionary<string, string[]>;
+using Commands = System.Linq.ILookup<string, string[]>;
+using Objects = System.Collections.Generic.Dictionary<string, object>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace camera
@@ -15,8 +16,8 @@ namespace camera
 
         #endregion
 
-        public SimpleCamera(string name, Commands cmds, GLNames glNames)
-            : base(name, cmds, glNames)
+        public SimpleCamera(string name, Commands cmds, Objects objs, GLNames glNames)
+            : base(name, cmds, objs, glNames)
         {
         }
 
@@ -44,17 +45,23 @@ namespace camera
 
         private void Rotate(float x, float y, float z)
         {
-            rot[0] += x;
-            rot[1] += y;
-            rot[2] += z;
+            rotx.value += x;
+            roty.value += y;
+            rotz.value += z;
+            rotx.Update();
+            roty.Update();
+            rotz.Update();
         }
 
         private void Move(float x, float y, float z)
         {
             Vector3 v = view.Column0.Xyz * x + view.Column1.Xyz * y + view.Column2.Xyz * z;
-            pos[0] += v[0];
-            pos[1] += v[1];
-            pos[2] += v[2];
+            posx.value += v[0];
+            posy.value += v[1];
+            posz.value += v[2];
+            posx.Update();
+            posy.Update();
+            posz.Update();
         }
 
         #endregion

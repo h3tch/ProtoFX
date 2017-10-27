@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
 
@@ -19,7 +20,7 @@ namespace App
         /// Create class instance of a C# class compiled through GLCSharp.
         /// </summary>
         /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLInstance(Compiler.Block block, Dict scene, bool debugging)
+        public GLInstance(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"instance '{Name}'");
@@ -52,7 +53,7 @@ namespace App
 
             // get all public methods and check whether
             // they can be used as event handlers for glControl
-            var reference = scene.GetValueOrDefault<GLReference>(GraphicControl.nullname);
+            var reference = (GLReference)scene.GetValueOrDefault(GraphicControl.nullname);
             var glControl = (GraphicControl)reference.Reference;
             var methods = Instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance);
             foreach (var method in methods)

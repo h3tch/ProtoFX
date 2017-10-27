@@ -69,7 +69,7 @@ namespace App
         /// Create OpenGL image object.
         /// </summary>
         /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLImage(Compiler.Block block, Dict scene, bool debugging)
+        public GLImage(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"image '{Name}'");

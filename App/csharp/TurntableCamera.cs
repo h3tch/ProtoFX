@@ -2,7 +2,8 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Commands = System.Collections.Generic.Dictionary<string, string[]>;
+using Commands = System.Linq.ILookup<string, string[]>;
+using Objects = System.Collections.Generic.Dictionary<string, object>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace camera
@@ -15,13 +16,13 @@ namespace camera
         #endregion
 
         #region PROPERTIES
-        private float Dist { get { return (float)Math.Sqrt(pos[0] * pos[0] + pos[1] * pos[1] + pos[2] * pos[2]); } }
+        private float Dist { get { return (float)Math.Sqrt(posx * posx + posy * posy + posz * posz); } }
         #endregion
 
-        public TurntableCamera(string name, Commands cmds, GLNames glNames)
-            : base(name, cmds, glNames)
+        public TurntableCamera(string name, Commands cmds, Objects objs, GLNames glNames)
+            : base(name, cmds, objs, glNames)
         {
-            float tilt = rot[0], yaw = rot[1], dist = Dist;
+            float tilt = rotx, yaw = roty, dist = Dist;
             Convert(cmds, "tilt", ref tilt);
             Convert(cmds, "yaw", ref yaw);
             Convert(cmds, "dist", ref dist);
@@ -49,27 +50,27 @@ namespace camera
         #region PRIVATE UTILITY METHODS
         private void Rotate(float deltaTilt, float deltaYaw)
         {
-            Turntable(rot[0] + deltaTilt, rot[1] + deltaYaw, Dist);
+            Turntable(rotx + deltaTilt, roty + deltaYaw, Dist);
         }
 
         private void Move(float delta)
         {
-            Turntable(rot[0], rot[1], Dist + delta);
+            Turntable(rotx, roty, Dist + delta);
         }
 
-        private void Turntable(float tilt, float yaw, float dist)
+        private void Turntable(double tilt, double yaw, float dist)
         {
             // set rotation
-            rot[0] = tilt;
-            rot[1] = yaw;
-            rot[2] = 0f;
+            rotx.value = tilt;
+            roty.value = yaw;
+            rotz.value = 0f;
             // set position
-            var camRotM = Matrix4.CreateRotationY(-rot[1] * rad2deg)
-                        * Matrix4.CreateRotationX(-rot[0] * rad2deg);
+            var camRotM = Matrix4.CreateRotationY(-roty * deg2rad)
+                        * Matrix4.CreateRotationX(-rotx * deg2rad);
             var camPos = camRotM.Column2.Xyz * dist;
-            pos[0] = camPos[0];
-            pos[1] = camPos[1];
-            pos[2] = camPos[2];
+            posx.value = camPos[0];
+            posy.value = camPos[1];
+            posz.value = camPos[2];
         }
         #endregion
     }

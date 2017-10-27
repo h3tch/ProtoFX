@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 using PrimitiveType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
 
 namespace App
@@ -12,7 +13,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        public GLVertoutput(Compiler.Block block, Dict scene, bool debugging)
+        public GLVertoutput(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"vertoutput '{Name}'");
@@ -89,7 +90,7 @@ namespace App
         /// <param name="cmd">Command line to process.</param>
         /// <param name="scene">Dictionary of scene objects.</param>
         /// <param name="err">Compiler exception collector.</param>
-        private void Attach(int unit, Compiler.Command cmd, Dict scene, CompileException err)
+        private void Attach(int unit, Compiler.Command cmd, Dictionary<string, object> scene, CompileException err)
         {
             if (cmd.ArgCount == 0)
             {
@@ -98,8 +99,7 @@ namespace App
             }
 
             // get buffer
-            var buf = scene.GetValueOrDefault<GLBuffer>(cmd[0].Text);
-            if (buf == null)
+            if (!(scene.TryGetValue(cmd[0].Text, out var buf) && buf is GLBuffer))
             {
                 err.Error($"The name '{cmd[0]}' does not reference an object of type 'buffer'.", cmd);
                 return;
@@ -114,7 +114,7 @@ namespace App
             }
 
             // parse size
-            int size = buf.Size;
+            int size = ((GLBuffer)buf).Size;
             if (cmd.ArgCount > 2 && int.TryParse(cmd[2].Text, out size) == false)
             {
                 err.Error($"The third parameter (size) of buff {unit} is invalid.", cmd);
@@ -123,7 +123,7 @@ namespace App
 
             // bind buffer to transform feedback
             GL.BindBufferRange(BufferRangeTarget.TransformFeedbackBuffer,
-                unit, buf.glname, (IntPtr)offset, (IntPtr)size);
+                unit, ((GLBuffer)buf).glname, (IntPtr)offset, (IntPtr)size);
         }
     }
 }

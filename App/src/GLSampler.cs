@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using System.Collections.Generic;
 
 namespace App
 {
@@ -18,7 +19,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        public GLSampler(Compiler.Block block, Dict scene, bool debugging)
+        public GLSampler(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"sampler '{Name}'");

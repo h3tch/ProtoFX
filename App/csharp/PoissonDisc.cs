@@ -3,7 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using Commands = System.Collections.Generic.Dictionary<string, string[]>;
+using Commands = System.Linq.ILookup<string, string[]>;
+using Objects = System.Collections.Generic.Dictionary<string, object>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace sampling
@@ -37,7 +38,8 @@ namespace sampling
         public int NumPoints { get; private set; }
         #endregion
 
-        public PoissonDisc(string name, Commands cmds, GLNames glNames)
+        public PoissonDisc(string name, Commands cmds, Objects objs, GLNames glNames)
+            : base(cmds, objs)
         {
             // PARSE COMMAND VALUES SPECIFIED BY THE USER
 
@@ -91,9 +93,7 @@ namespace sampling
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
             // GET OR CREATE POISSON DISC UNIFORMS FOR program
-#pragma warning disable IDE0018
             UniformBlock<Names> unif;
-#pragma warning restore IDE0018
             if (uniform.TryGetValue(pipeline, out unif) == false)
             {
                 uniform.Add(pipeline, unif = new UniformBlock<Names>(pipeline, name));

@@ -19,7 +19,7 @@ namespace OpenTK
         // reference to compiler output
         private DataGridView output;
         // a collection of all objects making up the scene
-        private Dict scene = new Dict();
+        private Dictionary<string, object> scene = new Dictionary<string, object>();
         // performance measurement class
         private FXPerf perf;
         private bool renderingEnabled = false;
@@ -28,7 +28,7 @@ namespace OpenTK
 
         #region PROPERTIES
         
-        public Dict Scene { get { return scene; } }
+        public Dictionary<string, object> Scene { get { return scene; } }
         public int Frame { get; private set; } = 0;
         public int TimingsCount => perf?.TimingsCount ?? 0;
         public IEnumerable<float> Timings => perf?.Timings ?? Enumerable.Empty<float>();
@@ -153,7 +153,7 @@ namespace OpenTK
         {
             Events.Dispose();
             // call delete method of OpenGL resources
-            scene.ForEach(x => x.Value.Delete());
+            scene.ForEach(x => ((GLObject)x.Value).Delete());
             // clear list of classes
             scene.Clear();
             // add default OpenTK glControl

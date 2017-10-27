@@ -527,14 +527,13 @@ namespace App
             var name = editor.GetWordFromPosition(pos);
 
             // get object
-            var obj = glControl.Scene.GetValueOrDefault<T>(name);
-            if (obj == null)
+            if (!(glControl.Scene.TryGetValue(name, out var obj) && obj is T))
                 return;
 
             // if there are performance timings, show them
-            if (obj.TimingsCount > 0)
+            if (((T)obj).TimingsCount > 0)
             {
-                (var frames, var times) = PostProcessPerfData(obj.Frames, obj.Timings, 10);
+                (var frames, var times) = PostProcessPerfData(((T)obj).Frames, ((T)obj).Timings, 10);
                 editor.PerfTipShow(position, frames.ToArray(), times.ToArray());
             }
         }

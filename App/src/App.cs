@@ -514,7 +514,7 @@ namespace App
             DebugRender(debugging);
 
             // add externally created textures to the scene
-            var existing = glControl.Scene.Values.ToArray();
+            var existing = glControl.Scene.Values.Cast<GLObject>().ToArray();
             GLImage.FindTextures(existing).ForEach(x => glControl.Scene.Add(x.Name, x));
 
             // add externally created buffers to the scene

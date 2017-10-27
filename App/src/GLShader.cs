@@ -27,7 +27,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        public GLShader(Compiler.Block block, Dict scene, bool debugging)
+        public GLShader(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"shader '{Name}'");
@@ -69,7 +69,7 @@ namespace App
                 throw err;
         }
 
-        private void CompileShader(CompileException err, Compiler.Block block, string code, Dict scene)
+        private void CompileShader(CompileException err, Compiler.Block block, string code, Dictionary<string, object> scene)
         {
             ParseMessage GetVendorSpecificLogParser()
             {
@@ -96,7 +96,7 @@ namespace App
                 var propName = global[2];
                 try
                 {
-                    var obj = scene.GetValue<GLObject>(blockName);
+                    var obj = (GLObject)scene.GetValue(blockName);
                     var value = obj.GetMemberValue($"Instance.{propName}");
                     code = code.Remove(match.Index, match.Length).Insert(match.Index, value.ToString());
                 }
@@ -129,7 +129,7 @@ namespace App
                 throw err;
         }
 
-        private void InitializeFragmentShaderDebugging(CompileException err, Compiler.Block block, Dict scene)
+        private void InitializeFragmentShaderDebugging(CompileException err, Compiler.Block block, Dictionary<string, object> scene)
         {
             // convert fragment shader into a debug shader
             var (_, dict) = GLU.InputLocationMappings(glname);

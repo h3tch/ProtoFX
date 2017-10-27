@@ -12,7 +12,7 @@ namespace App
         private List<MessageInfo> messages;
 
         // compile call stack into a single string
-        private string Callstackstring => callstack.Cat(": ");
+        private string Callstackstring => callstack.Cat(": ") + ": ";
 
         /// <summary>
         /// Returns true if there are any errors messages in the class.

@@ -33,28 +33,15 @@ namespace protofx
 
         public UniformBlock(int pipeline, string name)
         {
-            var stages = new[] {
-                ProgramPipelineParameter.ComputeShader,
-                ProgramPipelineParameter.VertexShader,
-                ProgramPipelineParameter.TessControlShader,
-                ProgramPipelineParameter.TessEvaluationShader,
-                ProgramPipelineParameter.GeometryShader,
-                ProgramPipelineParameter.FragmentShader,
-            };
-
             int block = -1;
-            foreach (var stage in stages)
+            if (!TryGetUnifromBlock(pipeline, name, out program, out block))
             {
-                // get the shader program of the pipeline
-                GL.GetProgramPipeline(pipeline, stage, out program);
-                if (program > 0 && (block = GL.GetUniformBlockIndex(program, name)) >= 0)
-                    break;
+                if (program <= 0)
+                    throw new Exception("No shader program active in the current pipeline bound.");
+                if (block < 0)
+                    throw new Exception("Could not find uniform block '" + name + "'.");
             }
 
-            if (program <= 0)
-                throw new Exception("No shader program active in the current pipeline bound.");
-            if (block < 0)
-                throw new Exception("Could not find uniform block '" + name + "'.");
             GL.GetActiveUniformBlock(program, block,
                 ActiveUniformBlockParameter.UniformBlockBinding, out unit);
             GL.GetActiveUniformBlock(program, block,
@@ -153,6 +140,38 @@ namespace protofx
                 GL.DeleteBuffer(glbuf);
                 glbuf = 0;
             }
+        }
+
+        public static bool HasUnifromBlock(int pipeline, string name)
+        {
+            int program = -1;
+            int block = -1;
+            return TryGetUnifromBlock(pipeline, name, out program, out block);
+        }
+
+        public static bool TryGetUnifromBlock(int pipeline, string name, out int program, out int block)
+        {
+            program = -1;
+            block = -1;
+
+            var stages = new[] {
+                ProgramPipelineParameter.ComputeShader,
+                ProgramPipelineParameter.VertexShader,
+                ProgramPipelineParameter.TessControlShader,
+                ProgramPipelineParameter.TessEvaluationShader,
+                ProgramPipelineParameter.GeometryShader,
+                ProgramPipelineParameter.FragmentShader,
+            };
+            
+            foreach (var stage in stages)
+            {
+                // get the shader program of the pipeline
+                GL.GetProgramPipeline(pipeline, stage, out program);
+                if (program > 0 && (block = GL.GetUniformBlockIndex(program, name)) >= 0)
+                    break;
+            }
+
+            return program != -1 && block != -1;
         }
 
         public struct Info

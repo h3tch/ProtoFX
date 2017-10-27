@@ -49,11 +49,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="csharp\ArtifactQuest.cs" />
     <Compile Include="csharp\BufferCamera.cs" />
     <Compile Include="csharp\Converter.cs" />
     <Compile Include="csharp\CsObject.cs" />
     <Compile Include="csharp\Interpolation.cs" />
+    <Compile Include="csharp\Node.cs" />
     <Compile Include="csharp\PoissonDisc.cs" />
     <Compile Include="csharp\SimpleCamera.cs" />
     <Compile Include="csharp\SpotLight.cs" />

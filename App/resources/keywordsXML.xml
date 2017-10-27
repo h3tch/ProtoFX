@@ -213,8 +213,11 @@
                hint='Include the specified assemply.
                     \  &lt;key&gt;assembly&lt;/key&gt; &lt;param&gt;[path] {path} {...}&lt;/param&gt;'/>
       <Keyword style_name='command' name='file'
-               hint='Compile the the specified files.
+               hint='Compile the specified files.
                     \  &lt;key&gt;file&lt;/key&gt; &lt;param&gt;[path] {path} {...}&lt;/param&gt;'/>
+      <Keyword style_name='command' name='folder'
+               hint='Compile all files of the specified folders.
+                    \  &lt;key&gt;folder&lt;/key&gt; &lt;param&gt;[path] {path} {...}&lt;/param&gt;'/>
     </Lexer>
     <!-- FRAGOUTPUT -->
     <Lexer type='fragoutput' lexer='TechBodyLexer'>
@@ -328,6 +331,10 @@
       <Keyword style_name='command' name='name' 
                hint='Rename the class instance.
                     \  &lt;key&gt;name&lt;/key&gt; &lt;param&gt;[new_name]&lt;/param&gt;'/>
+      <Keyword style_name='command' name='connect' 
+               hint='Connect two fields. If the source field
+                    \changes, so will the connected fields.
+                    \  &lt;key&gt;connect&lt;/key&gt; &lt;param&gt;[field_name] [name.field_name]&lt;/param&gt;'/>
     </Lexer>
     <!-- PASS -->
     <Lexer type='pass' lexer='TechBodyLexer'>

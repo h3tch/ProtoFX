@@ -49,7 +49,7 @@ namespace App
         /// <param name="scene"></param>
         /// <param name="glbuff"></param>
         /// <param name="glimg"></param>
-        public GLTexture(Compiler.Block block, Dict scene, GLBuffer glbuff, GLImage glimg)
+        public GLTexture(Compiler.Block block, Dictionary<string, object> scene, GLBuffer glbuff, GLImage glimg)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"texture '{Name}'");
@@ -87,7 +87,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        public GLTexture(Compiler.Block block, Dict scene, bool debugging)
+        public GLTexture(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
             : this(block, scene, null, null)
         {
         }

@@ -387,8 +387,8 @@ namespace App
             /// <param name="err"></param>
             /// <returns>List of objects values. If a value could not be
             /// parsed, the returned value will be null.</returns>
-            public (object[], string[]) Parse(Type[] types, bool[][] mandatory, Dict scene,
-                CompileException err = null)
+            public (object[], string[]) Parse(Type[] types, bool[][] mandatory,
+                Dictionary<string, object> scene, CompileException err = null)
             {
                 var values = new object[types.Length];
 
@@ -405,7 +405,7 @@ namespace App
                         try
                         {
                             values[i] = types[i].IsSubclassOf(typeof(GLObject))
-                                ? scene.GetValueOrDefault<GLObject>(arg.Text)
+                                ? (GLObject)scene.GetValueOrDefault(arg.Text)
                                 : types[i].IsEnum
                                     ? Enum.Parse(types[i], arg.Text, true)
                                     : Convert.ChangeType(arg.Text, types[i],
@@ -587,18 +587,46 @@ namespace App
     // convenience extension to the Dict class
     static class CompilerDictExtensions
     {
-        public static bool TryGetValue<T>(this Dict dict, string key, out T obj,
+        public static bool TryGetValue<T>(this Dictionary<string, object> dict, string key, out T obj,
             Compiler.Command cmd, CompileException err)
             where T : GLObject
         {
-            return dict.TryGetValue(key, out obj, cmd.LineInFile, cmd.File, err);
+            return TryGetValue(dict, key, out obj, cmd.LineInFile, cmd.File, err);
         }
 
-        public static bool TryGetValue<T>(this Dict dict, string key, out T obj,
+        public static bool TryGetValue<T>(this Dictionary<string, object> dict, string key, out T obj,
             Compiler.Block block, CompileException err)
             where T : GLObject
         {
-            return dict.TryGetValue(key, out obj, block.LineInFile, block.Filename, err);
+            return TryGetValue(dict, key, out obj, block.LineInFile, block.Filename, err);
+        }
+
+        /// <summary>
+        /// Try to find the value to a key. If the key could not be found add an exception message.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key">Key to search for.</param>
+        /// <param name="obj">Output object reference.</param>
+        /// <param name="file">Specify the file identifying an exception if it occurs.</param>
+        /// <param name="line">Specify the file line identifying an exception if it occurs.</param>
+        /// <param name="err">Add new exceptions to this existing one.</param>
+        /// <returns></returns>
+        private static bool TryGetValue<T>(Dictionary<string, object> dict, string key,
+            out T obj, int line, string file, CompileException err)
+            where T : GLObject
+        {
+            obj = null;
+
+            // try to find the object instance
+            var value = dict.GetValueOrDefault(key);
+            if (value is T && (obj = (T)value) != default(T))
+                return true;
+
+            // get class name of object type
+            var classname = typeof(T).Name.Substring(2).ToLower();
+            err.Error($"The name '{key}' could not be found or does not "
+                + $"reference an object of type '{classname}'.", file, line);
+            return false;
         }
     }
 

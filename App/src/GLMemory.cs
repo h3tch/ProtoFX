@@ -47,7 +47,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        public GLMemory(Compiler.Block block, Dict scene, bool debugging)
+        public GLMemory(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"memory '{block.Name}'");
@@ -104,7 +104,7 @@ namespace App
         /// <param name="scene"></param>
         /// <param name="err"></param>
         /// <returns></returns>
-        protected static byte[] LoadXml(Compiler.Command cmd, Dict scene, CompileException err)
+        protected static byte[] LoadXml(Compiler.Command cmd, Dictionary<string, object> scene, CompileException err)
         {
             // Get text from file or text object
             string str = GetText(scene, cmd);
@@ -154,7 +154,7 @@ namespace App
         /// <param name="scene"></param>
         /// <param name="err"></param>
         /// <returns></returns>
-        protected static byte[] LoadText(Compiler.Command cmd, Dict scene, CompileException err)
+        protected static byte[] LoadText(Compiler.Command cmd, Dictionary<string, object> scene, CompileException err)
         {
             // Get text from file or text object
             var str = GetText(scene, cmd);
@@ -175,12 +175,11 @@ namespace App
         /// <param name="scene"></param>
         /// <param name="cmd"></param>
         /// <returns></returns>
-        protected static string GetText(Dict scene, Compiler.Command cmd)
+        protected static string GetText(Dictionary<string, object> scene, Compiler.Command cmd)
         {
-            GLText text = null;
             string dir = Path.GetDirectoryName(cmd.File) + Path.DirectorySeparatorChar;
-            if (scene.TryGetValue(cmd[0].Text, ref text))
-                return text.Text.Trim();
+            if (scene.TryGetValue(cmd[0].Text, out object obj) && obj is GLText)
+                return ((GLText)obj).Text.Trim();
             else if (File.Exists(cmd[0].Text))
                 return File.ReadAllText(cmd[0].Text);
             else if (File.Exists(dir + cmd[0].Text))

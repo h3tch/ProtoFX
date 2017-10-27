@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 
 namespace App
 {
@@ -44,7 +45,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        public GLFragoutput(Compiler.Block block, Dict scene, bool debugging)
+        public GLFragoutput(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"fragoutput '{Name}'");
@@ -118,11 +119,11 @@ namespace App
         /// <param name="cmd">Command to process.</param>
         /// <param name="scene">Dictionary of all objects in the scene.</param>
         /// <param name="err">Compilation error collector.</param>
-        private void Attach(Compiler.Command cmd, Dict scene, CompileException err)
+        private void Attach(Compiler.Command cmd, Dictionary<string, object> scene, CompileException err)
         {
             // get OpenGL image
-            var glimg = scene.GetValueOrDefault<GLImage>(cmd[0].Text);
-            if (glimg == null)
+            var glimg = scene.GetValueOrDefault(cmd[0].Text);
+            if (glimg == null && glimg is GLImage)
             {
                 err.Error($"The name '{cmd[0].Text}' does not reference an object of type 'image'.", cmd);
                 return;
@@ -131,8 +132,8 @@ namespace App
             // set width and height for GLPass to set the right viewport size
             if (Width == 0 && Height == 0)
             {
-                Width = glimg.Width;
-                Height = glimg.Height;
+                Width = ((GLImage)glimg).Width;
+                Height = ((GLImage)glimg).Height;
             }
 
             // get additional optional parameters
@@ -149,24 +150,26 @@ namespace App
             }
 
             // attach texture to framebuffer
-            switch (glimg.Target)
+            var target = ((GLImage)glimg).Target;
+            var glname = ((GLImage)glimg).glname;
+            switch (((GLImage)glimg).Target)
             {
                 case TextureTarget.Texture2DArray:
                 case TextureTarget.Texture3D:
                     GL.FramebufferTexture3D(FramebufferTarget.Framebuffer,
-                        attachment, glimg.Target, glimg.glname, mipmap, layer);
+                        attachment, target, glname, mipmap, layer);
                     break;
                 case TextureTarget.Texture1DArray:
                 case TextureTarget.Texture2D:
                     GL.FramebufferTexture2D(FramebufferTarget.Framebuffer,
-                        attachment, glimg.Target, glimg.glname, mipmap);
+                        attachment, target, glname, mipmap);
                     break;
                 case TextureTarget.Texture1D:
                     GL.FramebufferTexture1D(FramebufferTarget.Framebuffer,
-                        attachment, glimg.Target, glimg.glname, mipmap);
+                        attachment, target, glname, mipmap);
                     break;
                 default:
-                    err.Error($"The texture type '{glimg.Target}' of image " +
+                    err.Error($"The texture type '{target}' of image " +
                         $"'{cmd[0].Text}' is not supported.", cmd);
                     break;
             }

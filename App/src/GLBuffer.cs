@@ -65,7 +65,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        public GLBuffer(Compiler.Block block, Dict scene, bool debugging)
+        public GLBuffer(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"buffer '{block.Name}'");

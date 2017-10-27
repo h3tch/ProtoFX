@@ -7,7 +7,7 @@ namespace App
     /// </summary>
     /// <typeparam name="TValue">
     /// Type to be stored in the dictionary. Has to be a GLObject type.</typeparam>
-    class Dict : Dictionary<string, GLObject>
+    class _Dict : Dictionary<string, GLObject>
     {
         /// <summary>
         /// Get the value to the specified key. Throw
