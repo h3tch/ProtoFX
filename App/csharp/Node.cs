@@ -1,18 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace protofx
 {
-    class Double
-    {
-        public double value;
-        private List<Double> Targets;
-        public UpdateEvent OnUpdate;
-        public delegate void UpdateEvent(double value);
+    class Connectable : System.Attribute { }
 
-        public void Connect(Double other)
+
+    class Connection
+    {
+        private FieldObject Field;
+        private List<Connection> Targets;
+        private event UpdateEvent OnUpdate;
+        public delegate void UpdateEvent(object value);
+
+        public Connection(object clazz, FieldInfo field)
+        {
+            Field = new FieldObject(clazz, field);
+        }
+
+        public void Connect(Connection other)
         {
             if (Targets == null)
-                Targets = new List<Double>();
+                Targets = new List<Connection>();
             Targets.Add(other);
         }
 
@@ -23,49 +33,37 @@ namespace protofx
 
             for (int i = 0; i < Targets.Count; i++)
             {
-                var target = Targets[i];
-
-                target.value = value;
+                Targets[i].Field.Value = Field.Value;
                 if (OnUpdate != null)
-                    OnUpdate(value);
+                    OnUpdate(Field.Value);
 
-                target.Update();
+                Targets[i].Update();
             }
         }
 
-        public static double operator +(Double a, double b)
+        #region INNER STRUCT
+
+        private struct FieldObject
         {
-            return a.value + b;
+            private object Object;
+            private FieldInfo Info;
+            public object Value
+            {
+                get { return Info.GetValue(Object); }
+                set
+                {
+                    var newValue = Convert.ChangeType(value, Info.FieldType, CsObject.culture);
+                    Info.SetValue(Object, newValue);
+                }
+            }
+
+            public FieldObject(object obj, FieldInfo info)
+            {
+                Object = obj;
+                Info = info;
+            }
         }
 
-        public static double operator -(Double a, double b)
-        {
-            return a.value - b;
-        }
-
-        public static double operator *(Double a, double b)
-        {
-            return a.value * b;
-        }
-
-        public static double operator /(Double a, double b)
-        {
-            return a.value / b;
-        }
-
-        public static double operator %(Double a, double b)
-        {
-            return a.value %= b;
-        }
-
-        public static implicit operator double(Double d)
-        {
-            return d.value;
-        }
-
-        public static implicit operator float(Double d)
-        {
-            return (float)d.value;
-        }
+        #endregion
     }
 }

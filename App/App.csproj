@@ -193,7 +193,6 @@
     </Compile>
     <Compile Include="src\GLBuffer.cs" />
     <Compile Include="src\GLCSharp.cs" />
-    <Compile Include="src\extensions\Dict.cs" />
     <Compile Include="src\CompileException.cs" />
     <Compile Include="src\controls\GraphicControl.cs">
       <SubType>UserControl</SubType>

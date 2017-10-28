@@ -14,23 +14,25 @@ namespace camera
     class BufferCamera : CsObject
     {
         #region FIELDS
+
         private Point mousedown = new Point(0, 0);
         private Point mousepos = new Point(0, 0);
-        public protofx.Double posx = new protofx.Double();
-        public protofx.Double posy = new protofx.Double();
-        public protofx.Double posz = new protofx.Double();
-        public protofx.Double rotx = new protofx.Double();
-        public protofx.Double roty = new protofx.Double();
-        public protofx.Double rotz = new protofx.Double();
-        public protofx.Double fov = new protofx.Double();
-        public protofx.Double near = new protofx.Double();
-        public protofx.Double far = new protofx.Double();
+        public float posx;
+        public float posy;
+        public float posz;
+        public float rotx;
+        public float roty;
+        public float rotz;
+        public float fov;
+        public float near;
+        public float far;
         protected string name;
         protected string[] buff = new string[2];
         protected int glBuff;
         protected int glOffset;
         protected Matrix4 view;
         protected const float deg2rad = (float)(Math.PI / 180);
+
         #endregion
 
         public BufferCamera(string name, Commands cmds, Objects objs, GlNames glNames)
@@ -49,15 +51,15 @@ namespace camera
             Convert(cmds, "fov", ref fov);
             Convert(cmds, "near", ref near);
             Convert(cmds, "far", ref far);
-            posx.value = pos[0];
-            posy.value = pos[1];
-            posz.value = pos[2];
-            rotx.value = rot[0];
-            roty.value = rot[1];
-            rotz.value = rot[2];
-            this.fov.value = fov;
-            this.near.value = near;
-            this.far.value = far;
+            posx = pos[0];
+            posy = pos[1];
+            posz = pos[2];
+            rotx = rot[0];
+            roty = rot[1];
+            rotz = rot[2];
+            this.fov = fov;
+            this.near = near;
+            this.far = far;
 
             // get buffer object
             if (buff != null)
@@ -73,13 +75,14 @@ namespace camera
 
         public void Update(int program, int width, int height, int widthTex, int heightTex)
         {
-            InitializeConnections();
+            if (!connectionsInitialized)
+                InitializeConnections();
 
             view = Matrix4.CreateTranslation(-posx, -posy, -posz)
                  * Matrix4.CreateRotationY(-roty * deg2rad)
                  * Matrix4.CreateRotationX(-rotx * deg2rad);
             var aspect = (float)width / height;
-            var angle = (float)(fov * deg2rad);
+            var angle = fov * deg2rad;
             var proj = Matrix4.CreatePerspectiveFieldOfView(angle, aspect, near, far);
             var viewProj = view * proj;
             var data = viewProj.AsInt32();
@@ -115,23 +118,17 @@ namespace camera
         #region PRIVATE UTILITY METHODS
         private void Rotate(float x, float y, float z)
         {
-            rotx.value += x;
-            roty.value += y;
-            rotz.value += z;
-            rotx.Update();
-            roty.Update();
-            rotz.Update();
+            rotx += x;
+            roty += y;
+            rotz += z;
         }
 
         private void Move(float x, float y, float z)
         {
             Vector3 v = view.Column0.Xyz * x + view.Column1.Xyz * y + view.Column2.Xyz * z;
-            posx.value += v[0];
-            posy.value += v[1];
-            posz.value += v[2];
-            posx.Update();
-            posy.Update();
-            posz.Update();
+            posx += v[0];
+            posy += v[1];
+            posz += v[2];
         }
         #endregion
     }

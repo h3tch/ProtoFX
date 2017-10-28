@@ -10,16 +10,25 @@ namespace protofx
 {
     class CsObject
     {
+        #region FIELDS
+
         public static CultureInfo EN = new CultureInfo("en");
         public static CultureInfo culture = EN;
+        protected static BindingFlags bindingFlags =
+            BindingFlags.Instance |
+            BindingFlags.Public |
+            BindingFlags.NonPublic;
         protected List<string> errors = new List<string>();
-        private string[][] connects;
+        private Dictionary<string, Connection> connections = new Dictionary<string, Connection>();
+        private Commands commands;
         private Objects objects;
-        private bool connectionsInitialized = false;
+        protected bool connectionsInitialized = false;
+
+        #endregion
 
         public CsObject(Commands cmds, Objects objs)
         {
-            connects = cmds["connect"].ToArray();
+            commands = cmds;
             objects = objs;
         }
 
@@ -35,81 +44,92 @@ namespace protofx
             return unif;
         }
 
-        public void InitializeConnections()
+        protected void InitializeConnections()
         {
-            if (connectionsInitialized)
-                return;
-
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | 
-                BindingFlags.NonPublic;
-            var type = GetType();
-            const string err = "command 'connect': ";
-
-            foreach (var connect in connects)
+            foreach (var connect in commands["connect"])
             {
-                // check the connect command syntax
-                if (connect.Length != 2)
+                try
                 {
-                    errors.Add(err + "Exactly two arguments are expected (e.g. 'object_name.value_name').");
-                    continue;
-                }
+                    // check the connect command syntax
+                    if (connect.Length != 2)
+                        throw new ArgumentException("Exactly two arguments are expected (e.g. 'object_name.value_name').");
 
-                // split target string
-                var dstScript = connect[1].Split('.');
-                if (dstScript.Length != 2)
-                {
-                    errors.Add(err + "The second argument expects 'object_name.value_name' as syntax.");
-                    continue;
-                }
+                    // split target string
+                    var dstScript = connect[1].Split('.');
+                    if (dstScript.Length != 2)
+                        throw new ArgumentException("The second argument expects 'object_name.value_name' as syntax.");
 
-                // get destination object
-                if (!objects.Keys.Contains(dstScript[0]))
-                {
-                    errors.Add(err + "Could not find an object named '" + dstScript[0] + "'.");
-                    continue;
-                }
-                var dstGlInstance = objects[dstScript[0]];
+                    // get connection object
+                    if (!connections.ContainsKey(connect[0]))
+                    {
+                        // If the connection object does not yet exist, create a new one.
+                        var info = FindField(this, connect[0]);
+                        connections[connect[0]] = new Connection(this, info);
+                    }
 
-                // get field informations
-                var srcField = type.GetField(connect[0], flags);
-                if (srcField == null)
-                {
-                    errors.Add(err + "This instance does not contain a field named '" + connect[0] + "'.");
-                    continue;
-                }
-                var instanceField = dstGlInstance.GetType().GetField("Instance", flags);
-                if (instanceField == null)
-                {
-                    errors.Add(err + "The target '" + dstScript[0] + "' is not an instance.");
-                    continue;
-                }
-                var dstObj = instanceField.GetValue(dstGlInstance);
-                var dstField = dstObj.GetType().GetField(dstScript[1], flags);
-                if (dstField == null)
-                {
-                    errors.Add(err + "The target instance does not contain a field named '" + dstScript[1] + "'.");
-                    continue;
-                }
+                    // get destination object
+                    var d = (CsObject)FindSceneObject(dstScript[0]);
 
-                // get field values
-                var src = srcField.GetValue(this);
-                var dst = dstField.GetValue(dstObj);
-                if (!(src is protofx.Double))
-                {
-                    errors.Add(err + "The source field '" + connect[0] + "' cannot be used for a connection.");
-                    continue;
-                }
-                if (!(dst is protofx.Double))
-                {
-                    errors.Add(err + "The target field '" + dstScript[1] + "' cannot be used for a connection.");
-                    continue;
-                }
+                    // get connection object of the destination object
+                    if (!d.connections.ContainsKey(dstScript[1]))
+                    {
+                        // If the connection object does not yet exist, create a new one.
+                        var info = FindField(d, dstScript[1]);
+                        d.connections[dstScript[1]] = new Connection(d, info);
+                    }
 
-                // connect the fields
-                ((protofx.Double)src).Connect((protofx.Double)dst);
+                    // connect the two connection objects
+                    connections[connect[0]].Connect(d.connections[dstScript[1]]);
+                }
+                catch (ArgumentException ex)
+                {
+                    errors.Add(ex.Message);
+                }
+                catch (FieldAccessException ex)
+                {
+                    errors.Add(ex.Message);
+                }
+                catch { }
             }
 
             connectionsInitialized = true;
+        }
+
+        protected void UpdateConnections()
+        {
+            foreach (var connection in connections.Values)
+                connection.Update();
+        }
+
+        private void AddCommandError(string message)
+        {
+            errors.Add("command 'connect': " + message);
+        }
+
+        private object FindSceneObject(string name)
+        {
+            // get protofx instance object
+            if (!objects.Keys.Contains(name))
+                throw new ArgumentException("Could not find an object named '" + name + "'.");
+            var dstGlInstance = objects[name];
+
+            // get field informations
+            var instanceField = dstGlInstance.GetType().GetField("Instance", bindingFlags);
+            if (instanceField == null)
+                throw new FieldAccessException("The target '" + name + "' is not an instance.");
+
+            // get object
+            return instanceField.GetValue(dstGlInstance);
+        }
+
+        private FieldInfo FindField(object obj, string name)
+        {
+            var info = obj.GetType().GetField(name, bindingFlags);
+            if (info == null)
+                throw new FieldAccessException("This instance does not contain a field named '" + name + "'.");
+            if (!info.FieldType.IsPrimitive)
+                throw new FieldAccessException("Field '" + name + "' must have a primitive type, not '" + info.FieldType.Name + "'.");
+            return info;
         }
 
         public List<string> GetErrors()

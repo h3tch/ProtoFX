@@ -22,25 +22,27 @@ namespace camera
         }
 
         #region FIELDS
-        public protofx.Double posx = new protofx.Double();
-        public protofx.Double posy = new protofx.Double();
-        public protofx.Double posz = new protofx.Double();
-        public protofx.Double rotx = new protofx.Double();
-        public protofx.Double roty = new protofx.Double();
-        public protofx.Double rotz = new protofx.Double();
-        public protofx.Double fov = new protofx.Double();
-        public protofx.Double near = new protofx.Double();
-        public protofx.Double far = new protofx.Double();
-        public protofx.Double colorr = new protofx.Double();
-        public protofx.Double colorg = new protofx.Double();
-        public protofx.Double colorb = new protofx.Double();
-        public protofx.Double intensity = new protofx.Double();
-        public protofx.Double innerCone = new protofx.Double();
-        public protofx.Double radius = new protofx.Double();
+
+        public float posx;
+        public float posy;
+        public float posz;
+        public float rotx;
+        public float roty;
+        public float rotz;
+        public float fov;
+        public float near;
+        public float far;
+        public float colorr;
+        public float colorg;
+        public float colorb;
+        public float intensity;
+        public float innerCone;
+        public float radius;
         protected const float deg2rad = (float)(Math.PI / 180);
         protected string name;
         protected Dictionary<int, UniformBlock<Names>> uniform =
             new Dictionary<int, UniformBlock<Names>>();
+
         #endregion
 
         #region PROPERTIES
@@ -48,24 +50,24 @@ namespace camera
         public float[] Position
         {
             get { return new float[] { posx, posy, posz }; }
-            set { posx.value = value[0]; posy.value = value[1]; posz.value = value[2]; }
+            set { posx = value[0]; posy = value[1]; posz = value[2]; }
         }
         public float[] Rotation
         {
             get { return new float[] { rotx, roty, rotz }; }
-            set { rotx.value = value[0]; roty.value = value[1]; rotz.value = value[2]; }
+            set { rotx = value[0]; roty = value[1]; rotz = value[2]; }
         }
-        public float FieldOfViewY { get { return fov; } set { fov.value = value; } }
-        public float NearPlane { get { return near; } set { near.value = value; } }
-        public float FarPlane { get { return far; } set { far.value = value; } }
+        public float FieldOfViewY { get { return fov; } set { fov = value; } }
+        public float NearPlane { get { return near; } set { near = value; } }
+        public float FarPlane { get { return far; } set { far = value; } }
         public float[] Color
         {
             get { return new float[] { colorr, colorg, colorb }; }
-            set { colorr.value = value[0]; colorg.value = value[1]; colorb.value = value[2]; }
+            set { colorr = value[0]; colorg = value[1]; colorb = value[2]; }
         }
-        public float Intensity { get { return intensity; } set { intensity.value = value; } }
-        public float Radius { get { return radius; } set { radius.value = value; } }
-        public float InnerCone { get { return innerCone; } set { innerCone.value = value; } }
+        public float Intensity { get { return intensity; } set { intensity = value; } }
+        public float Radius { get { return radius; } set { radius = value; } }
+        public float InnerCone { get { return innerCone; } set { innerCone = value; } }
 
         #endregion
 
@@ -89,23 +91,24 @@ namespace camera
             Convert(cmds, "intensity", ref intensity);
             Convert(cmds, "innerCone", ref innerCone);
             Convert(cmds, "radius", ref radius);
-            posx.value = pos[0];
-            posy.value = pos[1];
-            posz.value = pos[2];
-            rotx.value = rot[0];
-            roty.value = rot[1];
-            rotz.value = rot[2];
-            this.fov.value = fov;
-            this.near.value = near;
-            this.far.value = far;
-            this.intensity.value = intensity;
-            this.innerCone.value = innerCone;
-            this.radius.value = radius;
+            posx = pos[0];
+            posy = pos[1];
+            posz = pos[2];
+            rotx = rot[0];
+            roty = rot[1];
+            rotz = rot[2];
+            this.fov = fov;
+            this.near = near;
+            this.far = far;
+            this.intensity = intensity;
+            this.innerCone = innerCone;
+            this.radius = radius;
         }
 
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
-            InitializeConnections();
+            if (!connectionsInitialized)
+                InitializeConnections();
 
             // GET OR CREATE CAMERA UNIFORMS FOR program
             var unif = GetUniformBlock(uniform, pipeline, name);

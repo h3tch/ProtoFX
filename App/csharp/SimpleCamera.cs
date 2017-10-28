@@ -45,23 +45,17 @@ namespace camera
 
         private void Rotate(float x, float y, float z)
         {
-            rotx.value += x;
-            roty.value += y;
-            rotz.value += z;
-            rotx.Update();
-            roty.Update();
-            rotz.Update();
+            rotx += x;
+            roty += y;
+            rotz += z;
         }
 
         private void Move(float x, float y, float z)
         {
             Vector3 v = view.Column0.Xyz * x + view.Column1.Xyz * y + view.Column2.Xyz * z;
-            posx.value += v[0];
-            posy.value += v[1];
-            posz.value += v[2];
-            posx.Update();
-            posy.Update();
-            posz.Update();
+            posx += v[0];
+            posy += v[1];
+            posz += v[2];
         }
 
         #endregion

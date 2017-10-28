@@ -28,15 +28,15 @@ namespace camera
 
         #region FIELDS
 
-        public protofx.Double posx = new protofx.Double();
-        public protofx.Double posy = new protofx.Double();
-        public protofx.Double posz = new protofx.Double();
-        public protofx.Double rotx = new protofx.Double();
-        public protofx.Double roty = new protofx.Double();
-        public protofx.Double rotz = new protofx.Double();
-        public protofx.Double fov = new protofx.Double();
-        public protofx.Double near = new protofx.Double();
-        public protofx.Double far = new protofx.Double();
+        public float posx;
+        public float posy;
+        public float posz;
+        public float rotx;
+        public float roty;
+        public float rotz;
+        public float fov;
+        public float near;
+        public float far;
         protected const float deg2rad = (float)(Math.PI / 180);
         protected string name;
         protected Matrix4 view;
@@ -50,16 +50,16 @@ namespace camera
         public string Name { get { return name; } }
         public float[] Position {
             get { return new float[] { posx, posy, posz }; }
-            set { posx.value = value[0]; posy.value = value[1]; posz.value = value[2]; }
+            set { posx = value[0]; posy = value[1]; posz = value[2]; }
         }
         public float[] Rotation
         {
             get { return new float[] { rotx, roty, rotz }; }
-            set { rotx.value = value[0]; roty.value = value[1]; rotz.value = value[2]; }
+            set { rotx = value[0]; roty = value[1]; rotz = value[2]; }
         }
-        public float FieldOfViewY { get { return fov; } set { fov.value = value; } }
-        public float NearPlane { get { return near; } set { near.value = value; } }
-        public float FarPlane { get { return far; } set { far.value = value; } }
+        public float FieldOfViewY { get { return fov; } set { fov = value; } }
+        public float NearPlane { get { return near; } set { near = value; } }
+        public float FarPlane { get { return far; } set { far = value; } }
         
         #endregion
 
@@ -88,20 +88,21 @@ namespace camera
             Convert(cmds, "fov", ref fov);
             Convert(cmds, "near", ref near);
             Convert(cmds, "far", ref far);
-            posx.value = pos[0];
-            posy.value = pos[1];
-            posz.value = pos[2];
-            rotx.value = rot[0];
-            roty.value = rot[1];
-            rotz.value = rot[2];
-            this.fov.value = fov;
-            this.near.value = near;
-            this.far.value = far;
+            posx = pos[0];
+            posy = pos[1];
+            posz = pos[2];
+            rotx = rot[0];
+            roty = rot[1];
+            rotz = rot[2];
+            this.fov = fov;
+            this.near = near;
+            this.far = far;
         }
 
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
-            InitializeConnections();
+            if (!connectionsInitialized)
+                InitializeConnections();
 
             // GET OR CREATE CAMERA UNIFORMS FOR program
             var unif = GetUniformBlock(uniform, pipeline, name);

@@ -18,8 +18,8 @@ namespace animation
         protected string name;
         private double from = 0;
         private double to = 1;
-        private protofx.Double value = new protofx.Double();
-        private protofx.Double t = new protofx.Double();
+        private double v;
+        [Connectable] private double value;
         private double speed = 1;
         private bool reflect = false;
         private bool smooth = false;
@@ -43,33 +43,33 @@ namespace animation
 
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
-            InitializeConnections();
+            if (!connectionsInitialized)
+                InitializeConnections();
 
             // increase value based on the elapsed time
             if (stopwatch.IsRunning)
-            {
-                value.value = (value + (stopwatch.ElapsedMilliseconds / 1000.0) * speed) % 1;
-                value.Update();
-            }
+                v = (v + (stopwatch.ElapsedMilliseconds / 1000.0) * speed) % 1;
 
             // restart the stop watch
             stopwatch.Restart();
 
             // reflect and smooth the value if necessary
-            t.value = reflect ? Math.Abs(value * 2 - 1) : value;
+            value = reflect ? Math.Abs(v * 2 - 1) : v;
             if (smooth)
-                t.value = 1 - Math.Cos(Math.PI * t) * 0.5 + 0.5;
+                value = 1 - Math.Cos(Math.PI * value) * 0.5 + 0.5;
 
             // interpolate between 'from' and 'to' value
-            t.value = from * (1 - t) + to * t;
-            t.Update();
+            value = from * (1 - value) + to * value;
+
+            // UPDATE CONNECTIONS
+            UpdateConnections();
 
             // GET OR CREATE CAMERA UNIFORMS FOR program
             var unif = GetUniformBlock(uniform, pipeline, name);
             if (unif == null)
                 return;
 
-            unif.Set(Names.value, new[] { (float)t });
+            unif.Set(Names.value, new[] { (float)value });
 
             // UPDATE UNIFORM BUFFER
             unif.Update();

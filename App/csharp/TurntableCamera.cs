@@ -58,19 +58,19 @@ namespace camera
             Turntable(rotx, roty, Dist + delta);
         }
 
-        private void Turntable(double tilt, double yaw, float dist)
+        private void Turntable(float tilt, float yaw, float dist)
         {
             // set rotation
-            rotx.value = tilt;
-            roty.value = yaw;
-            rotz.value = 0f;
+            rotx = tilt;
+            roty = yaw;
+            rotz = 0f;
             // set position
             var camRotM = Matrix4.CreateRotationY(-roty * deg2rad)
                         * Matrix4.CreateRotationX(-rotx * deg2rad);
             var camPos = camRotM.Column2.Xyz * dist;
-            posx.value = camPos[0];
-            posy.value = camPos[1];
-            posz.value = camPos[2];
+            posx = camPos[0];
+            posy = camPos[1];
+            posz = camPos[2];
         }
         #endregion
     }
