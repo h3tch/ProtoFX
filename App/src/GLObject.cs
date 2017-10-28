@@ -187,14 +187,20 @@ namespace App
             if (err != null && err.HasErrors)
                 return;
 
-            object val = null;
+            var val = field.GetType()
+                .GetMethod("GetValue", new[] { typeof(object) })
+                .Invoke(field, new object[] { clazz });
 
             if (fieldType.IsArray)
             {
                 var elType = fieldType.GetElementType();
-                var array = Array.CreateInstance(elType, cmd.Length);
+                var start = ((Array)val)?.Length ?? 0;
+                var length = start + cmd.Length;
+                var array = Array.CreateInstance(elType, length);
+                if (val != null)
+                    Array.Copy((Array)val, array, start);
                 for (int i = 0; i < cmd.Length; i++)
-                    array.SetValue(Convert.ChangeType(cmd[i].Text, elType, CultureInfo.CurrentCulture), i);
+                    array.SetValue(Convert.ChangeType(cmd[i].Text, elType, CultureInfo.CurrentCulture), start + i);
                 val = array;
             }
             else

@@ -65,12 +65,12 @@ namespace scene
             if (buff != null)
             {
                 if (!glNames.TryGetValue(buff[0], out glBuff))
-                    errors.Add("The specified buffer name '" + buff[0] + "' could not be found.");
+                    Errors.Add("The specified buffer name '" + buff[0] + "' could not be found.");
                 if (buff.Length > 1 && !int.TryParse(buff[1], out glOffset))
-                    errors.Add("Could not parse offset value '" + buff[1] + "' of buff command.");
+                    Errors.Add("Could not parse offset value '" + buff[1] + "' of buff command.");
             }
             else
-                errors.Add("A buffer object needs to be specified (e.g., buff buf_name).");
+                Errors.Add("A buffer object needs to be specified (e.g., buff buf_name).");
         }
 
         public void Update(int program, int width, int height, int widthTex, int heightTex)

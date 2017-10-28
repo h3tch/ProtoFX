@@ -7,25 +7,42 @@ using Objects = System.Collections.Generic.Dictionary<string, object>;
 
 namespace protofx
 {
+    /// <summary>
+    /// This is the base object of which every 
+    /// extension needs to be derived from.
+    /// </summary>
     class Object
     {
         #region FIELDS
 
         public static CultureInfo EN = new CultureInfo("en");
         public static CultureInfo culture = EN;
-        protected List<string> errors = new List<string>();
         private Dictionary<int, object> uniformBlocks = new Dictionary<int, object>();
+        protected List<string> Errors = new List<string>();
         protected Commands commands;
         protected Objects objects;
 
         #endregion
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="cmds"></param>
+        /// <param name="objs"></param>
         public Object(Commands cmds, Objects objs)
         {
             commands = cmds;
             objects = objs;
         }
 
+        /// <summary>
+        /// Search in the specified shader pipeline for the
+        /// specified uniform block name.
+        /// </summary>
+        /// <typeparam name="Names"></typeparam>
+        /// <param name="pipeline"></param>
+        /// <param name="name"></param>
+        /// <returns>The uniform block or 'null' if the block could not be found.</returns>
         public UniformBlock<Names> GetUniformBlock<Names>(int pipeline, string name)
         {
             object unif = null;
@@ -38,11 +55,14 @@ namespace protofx
             return (UniformBlock<Names>)unif;
         }
 
-        public List<string> GetErrors()
-        {
-            return errors;
-        }
-
+        /// <summary>
+        /// Search for command and convert in into an array.
+        /// The result is written to 'v'.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="cmds"></param>
+        /// <param name="cmd"></param>
+        /// <param name="v"></param>
         protected void Convert<T>(Commands cmds, string cmd, ref T[] v)
         {
             int i = 0, l;
@@ -56,28 +76,45 @@ namespace protofx
             for (l = Math.Min(s.Length, length); i < s.Length; i++)
             {
                 if (!TryChangeType(s[i], ref v[i]))
-                    errors.Add("Command '" + cmd + "': Could not convert argument "
+                    Errors.Add("Command '" + cmd + "': Could not convert argument "
                         + (i + 1) + " '" + s[i] + "'.");
             }
         }
 
+        /// <summary>
+        /// Search for command and convert in into the specified type.
+        /// The result is written to 'v'.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="cmds"></param>
+        /// <param name="cmd"></param>
+        /// <param name="v"></param>
         protected void Convert<T>(Commands cmds, string cmd, ref T v)
         {
             var s = cmds[cmd].FirstOrDefault();
             if (s == null)
                 return;
             if (!TryChangeType(s[0], ref v))
-                errors.Add("Command '" + cmd + "': Could not convert argument 1 '" + s[0] + "'.");
+                Errors.Add("Command '" + cmd + "': Could not convert argument 1 '" + s[0] + "'.");
         }
 
-        private static bool TryChangeType<T>(object invalue, ref T value)
+        /// <summary>
+        /// Try to change the input to the specified type.
+        /// The result is written to 'v'. If the conversion failed,
+        /// the method will return 'false'.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private static bool TryChangeType<T>(object input, ref T value)
         {
-            if (invalue == null || invalue as IConvertible == null)
+            if (input == null || input as IConvertible == null)
                 return false;
 
             try
             {
-                value = (T)System.Convert.ChangeType(invalue, typeof(T), culture);
+                value = (T)System.Convert.ChangeType(input, typeof(T), culture);
                 return true;
             }
             catch

@@ -293,7 +293,7 @@ namespace App
                 throw err.Error($"Main class '{classname}' could not be found.", cmd);
 
             InvokeMethod<object>(instance, "Initialize");
-            InvokeMethod<List<string>>(instance, "GetErrors")?.ForEach(msg => err.Error(msg, cmd));
+            GetField<List<string>>(instance, "Errors")?.ForEach(msg => err.Error(msg, cmd));
 
             return instance;
         }
@@ -345,7 +345,29 @@ namespace App
         private T InvokeMethod<T>(object instance, string methodname)
         {
             // try to find and invoke the specified method
-            var value = instance.GetType().GetMethod(methodname)?.Invoke(instance, new object[] { });
+            var value = instance.GetType()
+                .GetMethod(methodname, BindingFlags.NonPublic | BindingFlags.Instance)
+                ?.Invoke(instance, null);
+            // if nothing was returned, return the default value
+            if (value == null)
+                return default(T);
+            // if the type of the returned value is not of
+            // the required type, return the default value
+            return value.GetType() == typeof(T) ? (T)value : default(T);
+        }
+
+        /// <summary>
+        /// Get a property from the specified instance.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="instance"></param>
+        /// <param name="fieldname"></param>
+        /// <returns></returns>
+        private T GetField<T>(object instance, string fieldname)
+        {
+            // try to find and invoke the specified method
+            const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
+            var value = instance.GetType().GetField(fieldname, flags)?.GetValue(instance);
             // if nothing was returned, return the default value
             if (value == null)
                 return default(T);
