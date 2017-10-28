@@ -49,17 +49,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="csharp\BufferCamera.cs" />
-    <Compile Include="csharp\Converter.cs" />
-    <Compile Include="csharp\CsObject.cs" />
-    <Compile Include="csharp\Interpolation.cs" />
-    <Compile Include="csharp\Node.cs" />
-    <Compile Include="csharp\PoissonDisc.cs" />
-    <Compile Include="csharp\SimpleCamera.cs" />
-    <Compile Include="csharp\SpotLight.cs" />
-    <Compile Include="csharp\StaticCamera.cs" />
-    <Compile Include="csharp\TurntableCamera.cs" />
-    <Compile Include="csharp\UniformBlock.cs" />
+    <Compile Include="ext\scene\BufferCamera.cs" />
+    <Compile Include="ext\data\Converter.cs" />
+    <Compile Include="ext\protofx\Object.cs" />
+    <Compile Include="ext\math\Interpolation.cs" />
+    <Compile Include="ext\protofx\Node.cs" />
+    <Compile Include="ext\sampling\PoissonDisc.cs" />
+    <Compile Include="ext\scene\SimpleCamera.cs" />
+    <Compile Include="ext\scene\SpotLight.cs" />
+    <Compile Include="ext\scene\StaticCamera.cs" />
+    <Compile Include="ext\scene\TurntableCamera.cs" />
+    <Compile Include="ext\protofx\UniformBlock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -95,6 +95,7 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

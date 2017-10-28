@@ -6,10 +6,10 @@ using Commands = System.Linq.ILookup<string, string[]>;
 using Objects = System.Collections.Generic.Dictionary<string, object>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
-namespace camera
+namespace scene
 {
 
-    class StaticCamera : CsNode
+    class StaticCamera : Node
     {
         public enum Names
         {

@@ -7,7 +7,7 @@ using Objects = System.Collections.Generic.Dictionary<string, object>;
 
 namespace protofx
 {
-    class CsObject
+    class Object
     {
         #region FIELDS
 
@@ -20,7 +20,7 @@ namespace protofx
 
         #endregion
 
-        public CsObject(Commands cmds, Objects objs)
+        public Object(Commands cmds, Objects objs)
         {
             commands = cmds;
             objects = objs;

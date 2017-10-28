@@ -9,9 +9,9 @@ using Commands = System.Linq.ILookup<string, string[]>;
 using Objects = System.Collections.Generic.Dictionary<string, object>;
 using GlNames = System.Collections.Generic.Dictionary<string, int>;
 
-namespace camera
+namespace scene
 {
-    class BufferCamera : CsNode
+    class BufferCamera : Node
     {
         #region FIELDS
 

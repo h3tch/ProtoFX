@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Globalization;
 using System;
+using System.Text.RegularExpressions;
 
 namespace App
 {
@@ -63,7 +64,7 @@ namespace App
             var unique = new HashSet<string>(filepath).ToArray();
 
             // COMPILE FILES
-            CompilerResults = CompileFilesOrSource(filepath.ToArray(), Version, block, err);
+            CompilerResults = CompileFilesOrSource(unique, Version, block, err);
 
             // check for errors
             if (err.HasErrors)
@@ -174,14 +175,17 @@ namespace App
             if (paths != null)
             {
                 var curDir = Directory.GetCurrentDirectory() + "/";
-                var placeholders = new[] { new[] { "<csharp>", $"{curDir}../csharp" } };
+                //var placeholders = new[] { new[] { "<ext>", $"{curDir}../ext" } };
 
                 foreach (var path in paths)
                 {
                     var s = (string)path.Clone();
                     // replace placeholders with actual path
-                    foreach (var placeholder in placeholders)
-                        s = s.Replace(placeholder[0], placeholder[1]);
+                    var match = Regex.Match(s, @"<[\w\d]+>");
+                    if (match.Success && match.Index == 0)
+                        s = $"{curDir}../{s.Substring(1, match.Length - 2) + s.Substring(match.Length)}";
+                    //foreach (var placeholder in placeholders)
+                    //    s = s.Replace(placeholder[0], placeholder[1]);
                     // convert relative file paths to absolut file paths
                     if (!Path.IsPathRooted(s))
                         s = abspath + s;

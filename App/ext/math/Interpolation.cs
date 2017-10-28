@@ -6,9 +6,9 @@ using Commands = System.Linq.ILookup<string, string[]>;
 using Objects = System.Collections.Generic.Dictionary<string, object>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
-namespace animation
+namespace math
 {
-    class Interpolate : CsNode
+    class Interpolate : Node
     {
         public enum Names
         {

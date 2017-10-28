@@ -54,7 +54,7 @@ namespace protofx
                 get { return Info.GetValue(Object); }
                 set
                 {
-                    var newValue = Convert.ChangeType(value, Info.FieldType, CsObject.culture);
+                    var newValue = Convert.ChangeType(value, Info.FieldType, protofx.Object.culture);
                     Info.SetValue(Object, newValue);
                 }
             }
@@ -70,7 +70,7 @@ namespace protofx
     }
 
 
-    class CsNode : CsObject
+    class Node : Object
     {
         protected static BindingFlags bindingFlags =
             BindingFlags.Instance |
@@ -79,7 +79,7 @@ namespace protofx
         protected bool connectionsInitialized = false;
         private Dictionary<string, Connection> connections = new Dictionary<string, Connection>();
 
-        public CsNode(Commands cmds, Objects objs) : base(cmds, objs)
+        public Node(Commands cmds, Objects objs) : base(cmds, objs)
         {
         }
 
@@ -110,9 +110,9 @@ namespace protofx
 
                     // get destination object
                     var obj = FindSceneObject(dstScript[0]);
-                    if (!(obj is CsNode))
+                    if (!(obj is Node))
                         throw new ArgumentException("'" + dstScript[0] + "' does not support connections.");
-                    var dst = (CsNode)obj;
+                    var dst = (Node)obj;
 
                     // get connection object of the destination object
                     if (!dst.connections.ContainsKey(dstScript[1]))

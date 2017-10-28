@@ -9,7 +9,7 @@ using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace sampling
 {
-    class PoissonDisc : protofx.CsObject
+    class PoissonDisc : protofx.Object
     {
         public enum Names
         {
