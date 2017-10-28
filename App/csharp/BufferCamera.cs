@@ -11,21 +11,21 @@ using GlNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace camera
 {
-    class BufferCamera : CsObject
+    class BufferCamera : CsNode
     {
         #region FIELDS
 
         private Point mousedown = new Point(0, 0);
         private Point mousepos = new Point(0, 0);
-        public float posx;
-        public float posy;
-        public float posz;
-        public float rotx;
-        public float roty;
-        public float rotz;
-        public float fov;
-        public float near;
-        public float far;
+        [Connectable] protected float posx;
+        [Connectable] protected float posy;
+        [Connectable] protected float posz;
+        [Connectable] protected float rotx;
+        [Connectable] protected float roty;
+        [Connectable] protected float rotz;
+        [Connectable] protected float fov;
+        [Connectable] protected float near;
+        [Connectable] protected float far;
         protected string name;
         protected string[] buff = new string[2];
         protected int glBuff;
@@ -75,9 +75,6 @@ namespace camera
 
         public void Update(int program, int width, int height, int widthTex, int heightTex)
         {
-            if (!connectionsInitialized)
-                InitializeConnections();
-
             view = Matrix4.CreateTranslation(-posx, -posy, -posz)
                  * Matrix4.CreateRotationY(-roty * deg2rad)
                  * Matrix4.CreateRotationX(-rotx * deg2rad);
@@ -121,6 +118,8 @@ namespace camera
             rotx += x;
             roty += y;
             rotz += z;
+            // UPDATE CONNECTIONS
+            UpdateConnections();
         }
 
         private void Move(float x, float y, float z)
@@ -129,6 +128,8 @@ namespace camera
             posx += v[0];
             posy += v[1];
             posz += v[2];
+            // UPDATE CONNECTIONS
+            UpdateConnections();
         }
         #endregion
     }

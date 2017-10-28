@@ -138,8 +138,10 @@ namespace App
 #endif
                 }
                 else
+                {
                     throw err.Error("Cannot mix filenames and source code"
                         + "strings when compiling C# code.", block);
+                }
             }
             catch (DirectoryNotFoundException ex)
             {
@@ -280,12 +282,13 @@ namespace App
             var classname = cmd[1].Text;
             var instance = CompilerResults.CompiledAssembly.CreateInstance(
                 classname, false, BindingFlags.Default, null,
-                new object[] { block.Name, ToDict(block), scene, glNames },
+                new object[] { block.Name, ToLookup(block), scene, glNames },
                 CultureInfo.CurrentCulture, null);
 
             if (instance == null)
                 throw err.Error($"Main class '{classname}' could not be found.", cmd);
-            
+
+            InvokeMethod<object>(instance, "Initialize");
             InvokeMethod<List<string>>(instance, "GetErrors")?.ForEach(msg => err.Error(msg, cmd));
 
             return instance;
@@ -322,7 +325,7 @@ namespace App
         /// </summary>
         /// <param name="block"></param>
         /// <returns></returns>
-        private ILookup<string, string[]> ToDict(Compiler.Block block)
+        private ILookup<string, string[]> ToLookup(Compiler.Block block)
         {
             // add commands to dictionary
             return block.ToLookup(cmd => cmd.Name, cmd => cmd.Select(x => x.Text).ToArray());

@@ -1,6 +1,5 @@
 ﻿using OpenTK;
 using System;
-using System.Drawing;
 using System.Windows.Forms;
 using Commands = System.Linq.ILookup<string, string[]>;
 using Objects = System.Collections.Generic.Dictionary<string, object>;
@@ -8,15 +7,12 @@ using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace camera
 {
-    class TurntableCamera : StaticCamera
+    class TurntableCamera : SimpleCamera
     {
-        #region FIELDS
-        private Point mousedown = new Point(0, 0);
-        private Point mousepos = new Point(0, 0);
-        #endregion
-
         #region PROPERTIES
+
         private float Dist { get { return (float)Math.Sqrt(posx * posx + posy * posy + posz * posz); } }
+
         #endregion
 
         public TurntableCamera(string name, Commands cmds, Objects objs, GLNames glNames)
@@ -30,13 +26,14 @@ namespace camera
         }
 
         #region OPENTK GLCONTROL WINDOW EVENTS
-        public void MouseDown(object sender, MouseEventArgs e)
+
+        public new void MouseDown(object sender, MouseEventArgs e)
         {
             mousedown.X = mousepos.X = e.X;
             mousedown.Y = mousepos.Y = e.Y;
         }
 
-        public void MouseMove(object sender, MouseEventArgs e)
+        public new void MouseMove(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
                 Rotate(0.1f * (mousepos.Y - e.Y), 0.1f * (mousepos.X - e.X));
@@ -45,9 +42,11 @@ namespace camera
             mousepos.X = e.X;
             mousepos.Y = e.Y;
         }
+
         #endregion
 
         #region PRIVATE UTILITY METHODS
+
         private void Rotate(float deltaTilt, float deltaYaw)
         {
             Turntable(rotx + deltaTilt, roty + deltaYaw, Dist);
@@ -71,7 +70,10 @@ namespace camera
             posx = camPos[0];
             posy = camPos[1];
             posz = camPos[2];
+            // UPDATE CONNECTIONS
+            UpdateConnections();
         }
+
         #endregion
     }
 }

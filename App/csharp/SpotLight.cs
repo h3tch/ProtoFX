@@ -1,4 +1,4 @@
-﻿using protofx;
+﻿ using protofx;
 using OpenTK;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using GLNames = System.Collections.Generic.Dictionary<string, int>;
 namespace camera
 {
 
-    class SpotLight : CsObject
+    class SpotLight : CsNode
     {
         public enum Names
         {
@@ -23,21 +23,21 @@ namespace camera
 
         #region FIELDS
 
-        public float posx;
-        public float posy;
-        public float posz;
-        public float rotx;
-        public float roty;
-        public float rotz;
-        public float fov;
-        public float near;
-        public float far;
-        public float colorr;
-        public float colorg;
-        public float colorb;
-        public float intensity;
-        public float innerCone;
-        public float radius;
+        [Connectable] protected float posx;
+        [Connectable] protected float posy;
+        [Connectable] protected float posz;
+        [Connectable] protected float rotx;
+        [Connectable] protected float roty;
+        [Connectable] protected float rotz;
+        [Connectable] protected float fov;
+        [Connectable] protected float near;
+        [Connectable] protected float far;
+        [Connectable] protected float colorr;
+        [Connectable] protected float colorg;
+        [Connectable] protected float colorb;
+        [Connectable] protected float intensity;
+        [Connectable] protected float innerCone;
+        [Connectable] protected float radius;
         protected const float deg2rad = (float)(Math.PI / 180);
         protected string name;
         protected Dictionary<int, UniformBlock<Names>> uniform =
@@ -107,14 +107,6 @@ namespace camera
 
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
-            if (!connectionsInitialized)
-                InitializeConnections();
-
-            // GET OR CREATE CAMERA UNIFORMS FOR program
-            var unif = GetUniformBlock(uniform, pipeline, name);
-            if (unif == null)
-                return;
-
             // COMPUTE CAMERA ORIENTATION
             var view = Matrix4.CreateTranslation(-posx, -posy, -posz)
                  * Matrix4.CreateRotationY(-roty * deg2rad)
@@ -122,6 +114,11 @@ namespace camera
             var aspect = (float)width / height;
             float fovRad = (float)(fov * deg2rad);
             var proj = Matrix4.CreatePerspectiveFieldOfView(fovRad, aspect, near, far);
+
+            // GET OR CREATE CAMERA UNIFORMS FOR program
+            var unif = GetUniformBlock<Names>(pipeline, name);
+            if (unif == null)
+                return;
 
             // SET UNIFORM VALUES
             unif.Set(Names.view, view.AsInt32());

@@ -11,8 +11,8 @@ namespace camera
     {
         #region FIELDS
 
-        private Point mousedown = new Point(0, 0);
-        private Point mousepos = new Point(0, 0);
+        protected Point mousedown = new Point(0, 0);
+        protected Point mousepos = new Point(0, 0);
 
         #endregion
 
@@ -48,6 +48,8 @@ namespace camera
             rotx += x;
             roty += y;
             rotz += z;
+            // UPDATE CONNECTIONS
+            UpdateConnections();
         }
 
         private void Move(float x, float y, float z)
@@ -56,6 +58,8 @@ namespace camera
             posx += v[0];
             posy += v[1];
             posz += v[2];
+            // UPDATE CONNECTIONS
+            UpdateConnections();
         }
 
         #endregion

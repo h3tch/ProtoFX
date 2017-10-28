@@ -9,7 +9,7 @@ using GLNames = System.Collections.Generic.Dictionary<string, int>;
 namespace camera
 {
 
-    class StaticCamera : CsObject
+    class StaticCamera : CsNode
     {
         public enum Names
         {
@@ -28,15 +28,15 @@ namespace camera
 
         #region FIELDS
 
-        public float posx;
-        public float posy;
-        public float posz;
-        public float rotx;
-        public float roty;
-        public float rotz;
-        public float fov;
-        public float near;
-        public float far;
+        [Connectable] protected float posx;
+        [Connectable] protected float posy;
+        [Connectable] protected float posz;
+        [Connectable] protected float rotx;
+        [Connectable] protected float roty;
+        [Connectable] protected float rotz;
+        [Connectable] protected float fov;
+        [Connectable] protected float near;
+        [Connectable] protected float far;
         protected const float deg2rad = (float)(Math.PI / 180);
         protected string name;
         protected Matrix4 view;
@@ -101,11 +101,8 @@ namespace camera
 
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
-            if (!connectionsInitialized)
-                InitializeConnections();
-
             // GET OR CREATE CAMERA UNIFORMS FOR program
-            var unif = GetUniformBlock(uniform, pipeline, name);
+            var unif = GetUniformBlock<Names>(pipeline, name);
             if (unif == null)
                 return;
 

@@ -8,7 +8,7 @@ using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace animation
 {
-    class Interpolate : CsObject
+    class Interpolate : CsNode
     {
         public enum Names
         {
@@ -43,9 +43,6 @@ namespace animation
 
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
-            if (!connectionsInitialized)
-                InitializeConnections();
-
             // increase value based on the elapsed time
             if (stopwatch.IsRunning)
                 v = (v + (stopwatch.ElapsedMilliseconds / 1000.0) * speed) % 1;
@@ -65,7 +62,7 @@ namespace animation
             UpdateConnections();
 
             // GET OR CREATE CAMERA UNIFORMS FOR program
-            var unif = GetUniformBlock(uniform, pipeline, name);
+            var unif = GetUniformBlock<Names>(pipeline, name);
             if (unif == null)
                 return;
 
