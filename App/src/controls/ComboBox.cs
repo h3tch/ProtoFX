@@ -494,9 +494,11 @@ namespace System.Windows.Forms
             var brBackground = new SolidBrush(BackColor);
             var penOuterBorder = new Pen(BorderColor, 0);
             var brButtonLeft = new LinearGradientBrush(rectBtn, ForeColor, ForeColor, LinearGradientMode.Vertical);
-            var blend = new ColorBlend();
-            blend.Colors = new Color[] { Transparent, ForeColor, Transparent };
-            blend.Positions = new float[] { 0.0f, 0.5f, 1.0f};
+            var blend = new ColorBlend
+            {
+                Colors = new Color[] { Transparent, ForeColor, Transparent },
+                Positions = new float[] { 0.0f, 0.5f, 1.0f }
+            };
             brButtonLeft.InterpolationColors = blend;
             var penLeftButton = new Pen(brButtonLeft, 0);
             var brButton = new SolidBrush(ForeColor);
@@ -532,8 +534,10 @@ namespace System.Windows.Forms
             //text
             if (DropDownStyle == ComboBoxStyle.DropDownList)
             {
-                var sf  = new StringFormat(StringFormatFlags.NoWrap);
-                sf.Alignment = StringAlignment.Near;
+                var sf = new StringFormat(StringFormatFlags.NoWrap)
+                {
+                    Alignment = StringAlignment.Near
+                };
 
                 var rectText = _textBox.Bounds;
                 rectText.Offset(-3, 0);
@@ -619,6 +623,11 @@ namespace System.Windows.Forms
         protected override void SetItemsCore(System.Collections.IList items)
         {
             //throw new Exception("The method or operation is not implemented.");
+        }
+
+        public void RefreshListBox()
+        {
+            _listBox.Refresh();
         }
 
         #endregion

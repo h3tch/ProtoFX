@@ -8,7 +8,7 @@ using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace sampling
 {
-    class PoissonDisc : protofx.Object
+    class PoissonDisk : protofx.Object
     {
         #region UNIFORM NAMES
 
@@ -36,8 +36,8 @@ namespace sampling
 
         #endregion
 
-        // Properties accessible by ProtoGL
         #region PROPERTIES
+        // Properties accessible by ProtoFX
 
         public string Name { get { return name; } }
         public int MaxPoints { get { return maxPoints; } }
@@ -46,7 +46,14 @@ namespace sampling
 
         #endregion
 
-        public PoissonDisc(string name, Commands cmds, Objects objs, GLNames glNames)
+        /// <summary>
+        /// ProtoFX Constructor.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="cmds"></param>
+        /// <param name="objs"></param>
+        /// <param name="glNames"></param>
+        public PoissonDisk(string name, Commands cmds, Objects objs, GLNames glNames)
             : base(cmds, objs)
         {
             // PARSE COMMAND VALUES SPECIFIED BY THE USER
@@ -98,6 +105,14 @@ namespace sampling
             }
         }
 
+        /// <summary>
+        /// ProtoFX update method.
+        /// </summary>
+        /// <param name="pipeline">Active shader pipeline</param>
+        /// <param name="width">Backbuffer width</param>
+        /// <param name="height">Backbuffer height</param>
+        /// <param name="widthTex">Framebuffer width</param>
+        /// <param name="heightTex">Framebuffer height</param>
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
             // GET OR CREATE CAMERA UNIFORMS FOR program
@@ -127,6 +142,11 @@ namespace sampling
             unif.Bind();
         }
 
+        /// <summary>
+        /// ProtoFX visualization method used by the resource
+        /// view of ProtoFX to visualize the poisson disk.
+        /// </summary>
+        /// <returns></returns>
         public Bitmap Visualize()
         {
             var border = 5;

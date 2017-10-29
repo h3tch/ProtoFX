@@ -41,15 +41,26 @@ namespace scene
         #endregion
 
         #region PROPERTIES
-        
+        // Properties accessible by ProtoFX
+
         public float[] Color
         {
             get { return new float[] { colorr, colorg, colorb }; }
             set { colorr = value[0]; colorg = value[1]; colorb = value[2]; }
         }
-
+        public float Intensity { get { return intensity; } set { intensity = value; } }
+        public float InnerCone { get { return innerCone; } set { innerCone = value; } }
+        public float Radius { get { return radius; } set { radius = value; } }
+        
         #endregion
 
+        /// <summary>
+        /// ProtoFX Constructor.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="cmds"></param>
+        /// <param name="objs"></param>
+        /// <param name="glNames"></param>
         public SpotLight(string name, Commands cmds, Objects objs, GLNames glNames)
             : base(name, cmds, objs, glNames)
         {
@@ -62,6 +73,14 @@ namespace scene
             Color = color;
         }
 
+        /// <summary>
+        /// ProtoFX update method.
+        /// </summary>
+        /// <param name="pipeline">Active shader pipeline</param>
+        /// <param name="width">Backbuffer width</param>
+        /// <param name="height">Backbuffer height</param>
+        /// <param name="widthTex">Framebuffer width</param>
+        /// <param name="heightTex">Framebuffer height</param>
         public new void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
             // GET OR CREATE CAMERA UNIFORMS FOR program

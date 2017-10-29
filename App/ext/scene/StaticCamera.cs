@@ -8,7 +8,6 @@ using System.Linq;
 
 namespace scene
 {
-
     class StaticCamera : Node
     {
         #region UNIFORM NAMES
@@ -51,6 +50,7 @@ namespace scene
         #endregion
 
         #region PROPERTIES
+        // Properties accessible by ProtoFX
 
         public string Name { get { return name; } }
         public float[] Position {
@@ -65,9 +65,16 @@ namespace scene
         public float FieldOfViewY { get { return fov; } set { fov = value; } }
         public float NearPlane { get { return near; } set { near = value; } }
         public float FarPlane { get { return far; } set { far = value; } }
-        
+
         #endregion
 
+        /// <summary>
+        /// ProtoFX Constructor.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="cmds"></param>
+        /// <param name="objs"></param>
+        /// <param name="glNames"></param>
         public StaticCamera(string name, Commands cmds, Objects objs, GLNames glNames)
             : base(cmds, objs)
         {
@@ -96,6 +103,14 @@ namespace scene
             Rotation = rot;
         }
 
+        /// <summary>
+        /// ProtoFX update method.
+        /// </summary>
+        /// <param name="pipeline">Active shader pipeline</param>
+        /// <param name="width">Backbuffer width</param>
+        /// <param name="height">Backbuffer height</param>
+        /// <param name="widthTex">Framebuffer width</param>
+        /// <param name="heightTex">Framebuffer height</param>
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
             // GET OR CREATE CAMERA UNIFORMS FOR program

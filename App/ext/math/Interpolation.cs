@@ -36,6 +36,25 @@ namespace math
 
         #endregion
 
+        #region PROPERTIES
+        // Properties accessible by ProtoFX
+
+        public string Name { get { return name; } }
+        public double From { get { return from; } set { from = value; } }
+        public double To { get { return to; } set { to = value; } }
+        public double Speed { get { return speed; } set { speed = value; } }
+        public bool Reflect { get { return reflect; } set { reflect = value; } }
+        public bool Smooth { get { return smooth; } set { smooth = value; } }
+
+        #endregion
+
+        /// <summary>
+        /// ProtoFX Constructor.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="cmds"></param>
+        /// <param name="objs"></param>
+        /// <param name="glNames"></param>
         public Interpolate(string name, Commands cmds, Objects objs, GLNames glNames)
             : base(cmds, objs)
         {
@@ -50,6 +69,14 @@ namespace math
             Convert(cmds, "smooth", ref smooth);
         }
 
+        /// <summary>
+        /// ProtoFX update method.
+        /// </summary>
+        /// <param name="pipeline">Active shader pipeline</param>
+        /// <param name="width">Backbuffer width</param>
+        /// <param name="height">Backbuffer height</param>
+        /// <param name="widthTex">Framebuffer width</param>
+        /// <param name="heightTex">Framebuffer height</param>
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
             // increase value based on the elapsed time

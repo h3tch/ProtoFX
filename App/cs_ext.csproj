@@ -54,7 +54,7 @@
     <Compile Include="ext\protofx\Object.cs" />
     <Compile Include="ext\math\Interpolation.cs" />
     <Compile Include="ext\protofx\Node.cs" />
-    <Compile Include="ext\sampling\PoissonDisc.cs" />
+    <Compile Include="ext\sampling\PoissonDisk.cs" />
     <Compile Include="ext\scene\SimpleCamera.cs" />
     <Compile Include="ext\scene\SpotLight.cs" />
     <Compile Include="ext\scene\StaticCamera.cs" />

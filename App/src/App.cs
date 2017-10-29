@@ -524,10 +524,10 @@ namespace App
             comboBuf.Items.Clear();
             comboImg.Items.Clear();
             comboProp.Items.Clear();
-            glControl.Scene.Where(x => x.Value is GLBuffer)
-                           .ForEach(x => comboBuf.Items.Add(x.Value));
-            glControl.Scene.Where(x => x.Value is GLImage)
-                           .ForEach(x => comboImg.Items.Add(x.Value));
+            foreach (var buf in glControl.Scene.Where(x => x.Value is GLBuffer))
+                comboBuf.Items.Add(buf.Value as GLBuffer);
+            foreach (var buf in glControl.Scene.Where(x => x.Value is GLImage))
+                comboImg.Items.Add(buf.Value as GLImage);
             foreach (var instance in glControl.Scene.Where(x => x.Value is GLInstance)
                                                     .Select(x => x.Value as GLInstance))
             {
@@ -537,7 +537,11 @@ namespace App
                 if (instance.VisualizeAsImage)
                     comboImg.Items.Add(instance);
             }
-
+            // WORKARROUND: The combo box does not resize nicely the first time
+            // it is opened. Open and closing it the first time here, solves the issue.
+            comboBuf.IsDroppedDown = !(comboBuf.IsDroppedDown = true);
+            comboImg.IsDroppedDown = !(comboImg.IsDroppedDown = true);
+            comboProp.IsDroppedDown = !(comboProp.IsDroppedDown = true);
 
             // SHOW DEBUG BUTTONS IF NECESSARY
             toolBtnDbgStepBreakpoint.Enabled = debugging;
