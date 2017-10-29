@@ -1,12 +1,13 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace protofx
 {
-    public class UniformBlock<Names>
+    public class UniformBlock
     {
         #region FIELDS
         public int program;
@@ -20,18 +21,23 @@ namespace protofx
         private int[] matstride;
         private int[] data;
         #endregion
+        
+        public Info this[int idx]
+        {
+            get
+            {
+                return new Info
+                {
+                    location = location[idx],
+                    length = length[idx],
+                    offset = offset[idx],
+                    stride = stride[idx],
+                    matstride = matstride[idx],
+                };
+            }
+        }
 
-        public Info this[Names name] { get {
-            return new Info {
-                location = location[Convert.ToInt32(name)],
-                length = length[Convert.ToInt32(name)],
-                offset = offset[Convert.ToInt32(name)],
-                stride = stride[Convert.ToInt32(name)],
-                matstride = matstride[Convert.ToInt32(name)],
-            };
-        } }
-
-        public UniformBlock(int pipeline, string name)
+        public UniformBlock(int pipeline, string name, string[] uniformNames)
         {
             int block = -1;
             if (!TryGetUnifromBlock(pipeline, name, out program, out block))
@@ -50,16 +56,16 @@ namespace protofx
                 throw new Exception("Uniform block '" + name + "' size of '" + size + "' is invalid.");
 
             // allocate memory for uniform block uniforms
-            var names = Enum.GetNames(typeof(Names)).Select(v => name + "." + v).ToArray();
-            location = Enumerable.Repeat(-1, names.Length).ToArray();
-            length = new int[names.Length];
-            offset = new int[names.Length];
-            stride = new int[names.Length];
-            matstride = new int[names.Length];
+            location = Enumerable.Repeat(-1, uniformNames.Length).ToArray();
+            length = new int[uniformNames.Length];
+            offset = new int[uniformNames.Length];
+            stride = new int[uniformNames.Length];
+            matstride = new int[uniformNames.Length];
             data = new int[size / Marshal.SizeOf<int>()];
 
             // get uniform indices in uniform block
-            GL.GetUniformIndices(program, names.Length, names, location);
+            var names = uniformNames.Select(v => name + "." + v).ToArray();
+            GL.GetUniformIndices(program, uniformNames.Length, names, location);
 
             // get additional information about uniforms
             // like array length, offset and stride
@@ -114,16 +120,14 @@ namespace protofx
             GL.UnmapNamedBuffer(glbuf);
         }
 
-        public bool Has(Names name)
+        public bool Has(int name)
         {
-            return location[Convert.ToInt32(name)] >= 0;
+            return location[name] >= 0;
         }
 
-        public void Set(Names name, Array src)
+        public void Set(int idx, Array src)
         {
-            int idx = Convert.ToInt32(name);
-            if (location[idx] < 0 || src == null)
-                return;
+            Debug.Assert(location[idx] >= 0 && src != null);
             // get the size of an array element
             int elementSize = Marshal.SizeOf(src.GetType().GetElementType());
             // get the size of the whole array, but

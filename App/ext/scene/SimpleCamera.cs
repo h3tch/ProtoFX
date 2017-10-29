@@ -45,21 +45,17 @@ namespace scene
 
         private void Rotate(float x, float y, float z)
         {
-            rotx += x;
-            roty += y;
-            rotz += z;
-            // UPDATE CONNECTIONS
-            UpdateConnections();
+            rotx += x; if (x != 0) Propagate(() => rotx);
+            roty += y; if (y != 0) Propagate(() => roty);
+            rotz += z; if (z != 0) Propagate(() => rotz);
         }
 
         private void Move(float x, float y, float z)
         {
             Vector3 v = view.Column0.Xyz * x + view.Column1.Xyz * y + view.Column2.Xyz * z;
-            posx += v[0];
-            posy += v[1];
-            posz += v[2];
-            // UPDATE CONNECTIONS
-            UpdateConnections();
+            posx += v[0]; if (v[0] != 0) Propagate(() => posx);
+            posy += v[1]; if (v[1] != 0) Propagate(() => posy);
+            posz += v[2]; if (v[2] != 0) Propagate(() => posz);
         }
 
         #endregion

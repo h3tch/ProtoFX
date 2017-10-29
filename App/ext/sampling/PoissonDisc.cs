@@ -1,5 +1,4 @@
-﻿using protofx;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -11,31 +10,40 @@ namespace sampling
 {
     class PoissonDisc : protofx.Object
     {
+        #region UNIFORM NAMES
+
         public enum Names
         {
             numPoints,
             points,
             distances,
             indices,
+            LAST,
         }
+        protected static string[] UniformNames = Enum.GetNames(typeof(Names))
+            .Take((int)Names.LAST).ToArray();
+
+        #endregion
 
         #region FIELDS
+
         private string name = "PoissonDisc";
         public int maxPoints = 0;
         public float minRadius = 0f;
         public float[,] points;
         public float[,] distances;
         public int[,] indices;
-        protected Dictionary<int, UniformBlock<Names>> uniform =
-            new Dictionary<int, UniformBlock<Names>>();
+
         #endregion
 
         // Properties accessible by ProtoGL
         #region PROPERTIES
+
         public string Name { get { return name; } }
         public int MaxPoints { get { return maxPoints; } }
         public float MinRadius { get { return minRadius; } }
         public int NumPoints { get; private set; }
+
         #endregion
 
         public PoissonDisc(string name, Commands cmds, Objects objs, GLNames glNames)
@@ -92,16 +100,26 @@ namespace sampling
 
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
-            // GET OR CREATE POISSON DISC UNIFORMS FOR program
-            UniformBlock<Names> unif;
-            if (uniform.TryGetValue(pipeline, out unif) == false)
+            // GET OR CREATE CAMERA UNIFORMS FOR program
+            var unif = GetUniformBlock(pipeline, name, UniformNames);
+            if (unif != null)
             {
-                uniform.Add(pipeline, unif = new UniformBlock<Names>(pipeline, name));
                 // SET UNIFORM VALUES
-                unif.Set(Names.numPoints, new[] { Math.Min(unif[Names.points].length, points.GetLength(0)) });
-                unif.Set(Names.points, points);
-                unif.Set(Names.distances, distances);
-                unif.Set(Names.indices, indices);
+                if (unif.Has((int)Names.numPoints))
+                {
+                    var length = Math.Min(unif[(int)Names.points].length, points.GetLength(0));
+                    unif.Set((int)Names.numPoints, new[] { length });
+                }
+
+                if (unif.Has((int)Names.points))
+                    unif.Set((int)Names.points, points);
+
+                if (unif.Has((int)Names.distances))
+                    unif.Set((int)Names.distances, distances);
+
+                if (unif.Has((int)Names.indices))
+                    unif.Set((int)Names.indices, indices);
+
                 // UPDATE UNIFORM BUFFER
                 unif.Update();
             }
@@ -142,12 +160,6 @@ namespace sampling
             }
 
             return image;
-        }
-
-        public void Delete()
-        {
-            foreach (var u in uniform)
-                u.Value.Delete();
         }
     }
 

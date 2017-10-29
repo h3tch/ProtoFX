@@ -60,18 +60,16 @@ namespace scene
         private void Turntable(float tilt, float yaw, float dist)
         {
             // set rotation
-            rotx = tilt;
-            roty = yaw;
-            rotz = 0f;
+            rotx = tilt; if (rotx != tilt) Propagate(() => rotx);
+            roty = yaw; if (roty != yaw) Propagate(() => roty);
+            rotz = 0f; if (rotz != 0f) Propagate(() => rotz);
             // set position
             var camRotM = Matrix4.CreateRotationY(-roty * deg2rad)
                         * Matrix4.CreateRotationX(-rotx * deg2rad);
             var camPos = camRotM.Column2.Xyz * dist;
-            posx = camPos[0];
-            posy = camPos[1];
-            posz = camPos[2];
-            // UPDATE CONNECTIONS
-            UpdateConnections();
+            posx = camPos[0]; if (camPos[0] != 0) Propagate(() => posx);
+            posy = camPos[1]; if (camPos[1] != 0) Propagate(() => posy);
+            posz = camPos[2]; if (camPos[2] != 0) Propagate(() => posz);
         }
 
         #endregion

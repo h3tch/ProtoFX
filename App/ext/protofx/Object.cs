@@ -39,20 +39,19 @@ namespace protofx
         /// Search in the specified shader pipeline for the
         /// specified uniform block name.
         /// </summary>
-        /// <typeparam name="Names"></typeparam>
         /// <param name="pipeline"></param>
         /// <param name="name"></param>
         /// <returns>The uniform block or 'null' if the block could not be found.</returns>
-        public UniformBlock<Names> GetUniformBlock<Names>(int pipeline, string name)
+        public UniformBlock GetUniformBlock(int pipeline, string name, string[] variableNames)
         {
             object unif = null;
             if (uniformBlocks.TryGetValue(pipeline, out unif) == false)
             {
-                if (UniformBlock<Names>.HasUnifromBlock(pipeline, name))
-                    unif = new UniformBlock<Names>(pipeline, name);
+                if (UniformBlock.HasUnifromBlock(pipeline, name))
+                    unif = new UniformBlock(pipeline, name, variableNames);
                 uniformBlocks.Add(pipeline, unif);
             }
-            return (UniformBlock<Names>)unif;
+            return (UniformBlock)unif;
         }
 
         /// <summary>

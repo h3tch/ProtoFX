@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Commands = System.Linq.ILookup<string, string[]>;
 using Objects = System.Collections.Generic.Dictionary<string, object>;
@@ -15,8 +17,15 @@ namespace protofx
         #region FIELDS
 
         protected static BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-        protected bool connectionsInitialized = false;
         private Dictionary<string, Connection> connections = new Dictionary<string, Connection>();
+        public Connection this[string name] {
+            get
+            {
+                Connection connection;
+                connections.TryGetValue(name, out connection);
+                return connection;
+            }
+        }
 
         #endregion
 
@@ -87,16 +96,12 @@ namespace protofx
                 }
                 catch { }
             }
-
-            connectionsInitialized = true;
         }
 
-        /// <summary>
-        /// Automatically pass values to all connected fields.
-        /// </summary>
-        protected void UpdateConnections()
+        protected void Propagate<T>(Expression<Func<T>> memberAccess)
         {
-            foreach (var connection in connections.Values)
+            Connection connection;
+            if (connections.TryGetValue(NameOf(memberAccess), out connection))
                 connection.Update();
         }
 
@@ -135,6 +140,11 @@ namespace protofx
         {
             var info = FindField(obj, name);
             return info.GetValue(obj);
+        }
+
+        private static string NameOf<T>(Expression<Func<T>> memberAccess)
+        {
+            return ((MemberExpression)memberAccess.Body).Member.Name;
         }
     }
 

@@ -1,19 +1,28 @@
 ﻿using protofx;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Commands = System.Linq.ILookup<string, string[]>;
 using Objects = System.Collections.Generic.Dictionary<string, object>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
+using System.Linq;
 
 namespace math
 {
     class Interpolate : Node
     {
+        #region UNIFORM NAMES
+
         public enum Names
         {
-            value
+            value,
+            LAST,
         }
+        protected static string[] UniformNames = Enum.GetNames(typeof(Names))
+            .Take((int)Names.LAST).ToArray();
+
+        #endregion
+
+        #region FIELDS
 
         protected string name;
         private double from = 0;
@@ -24,8 +33,8 @@ namespace math
         private bool reflect = false;
         private bool smooth = false;
         private Stopwatch stopwatch = new Stopwatch();
-        protected Dictionary<int, UniformBlock<Names>> uniform =
-            new Dictionary<int, UniformBlock<Names>>();
+
+        #endregion
 
         public Interpolate(string name, Commands cmds, Objects objs, GLNames glNames)
             : base(cmds, objs)
@@ -51,35 +60,31 @@ namespace math
             stopwatch.Restart();
 
             // reflect and smooth the value if necessary
-            value = reflect ? Math.Abs(v * 2 - 1) : v;
+            var newValue = reflect ? Math.Abs(v * 2 - 1) : v;
             if (smooth)
-                value = 1 - Math.Cos(Math.PI * value) * 0.5 + 0.5;
+                newValue = 1 - Math.Cos(Math.PI * newValue) * 0.5 + 0.5;
 
             // interpolate between 'from' and 'to' value
-            value = from * (1 - value) + to * value;
+            newValue = from * (1 - newValue) + to * newValue;
 
             // UPDATE CONNECTIONS
-            UpdateConnections();
+            if (value != newValue)
+            {
+                value = newValue;
+                Propagate(() => value);
+            }
 
             // GET OR CREATE CAMERA UNIFORMS FOR program
-            var unif = GetUniformBlock<Names>(pipeline, name);
+            var unif = GetUniformBlock(pipeline, name, UniformNames);
             if (unif == null)
                 return;
 
-            unif.Set(Names.value, new[] { (float)value });
+            if (unif.Has((int)Names.value))
+                unif.Set((int)Names.value, new[] { (float)value });
 
             // UPDATE UNIFORM BUFFER
             unif.Update();
             unif.Bind();
-        }
-
-        public void Delete()
-        {
-            foreach (var u in uniform)
-            {
-                if (u.Value != null)
-                    u.Value.Delete();
-            }
         }
     }
 }

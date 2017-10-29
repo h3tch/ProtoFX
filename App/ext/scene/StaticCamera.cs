@@ -1,17 +1,19 @@
 ﻿using protofx;
 using OpenTK;
 using System;
-using System.Collections.Generic;
 using Commands = System.Linq.ILookup<string, string[]>;
 using Objects = System.Collections.Generic.Dictionary<string, object>;
 using GLNames = System.Collections.Generic.Dictionary<string, int>;
+using System.Linq;
 
 namespace scene
 {
 
     class StaticCamera : Node
     {
-        public enum Names
+        #region UNIFORM NAMES
+
+        protected enum Names
         {
             view,
             proj,
@@ -24,7 +26,12 @@ namespace scene
             rotation,
             direction,
             nearPlane,
+            LAST,
         }
+        protected static string[] UniformNames = Enum.GetNames(typeof(Names))
+            .Take((int)Names.LAST).ToArray();
+
+        #endregion
 
         #region FIELDS
 
@@ -34,14 +41,12 @@ namespace scene
         [Connectable] protected float rotx;
         [Connectable] protected float roty;
         [Connectable] protected float rotz;
-        [Connectable] protected float fov;
-        [Connectable] protected float near;
-        [Connectable] protected float far;
+        [Connectable] protected float fov = 60f;
+        [Connectable] protected float near = 0.1f;
+        [Connectable] protected float far = 100f;
         protected const float deg2rad = (float)(Math.PI / 180);
         protected string name;
         protected Matrix4 view;
-        protected Dictionary<int, UniformBlock<Names>> uniform =
-            new Dictionary<int, UniformBlock<Names>>();
 
         #endregion
 
@@ -81,95 +86,82 @@ namespace scene
             // PARSE COMMAND VALUES SPECIFIED BY THE USER
             float[] pos = new float[3] { 0f, 0f, 0f };
             float[] rot = new float[3] { 0f, 0f, 0f };
-            float fov = 60f, near = 0.1f, far = 100f;
             Convert(cmds, "name", ref this.name);
             Convert(cmds, "pos", ref pos);
             Convert(cmds, "rot", ref rot);
             Convert(cmds, "fov", ref fov);
             Convert(cmds, "near", ref near);
             Convert(cmds, "far", ref far);
-            posx = pos[0];
-            posy = pos[1];
-            posz = pos[2];
-            rotx = rot[0];
-            roty = rot[1];
-            rotz = rot[2];
-            this.fov = fov;
-            this.near = near;
-            this.far = far;
+            Position = pos;
+            Rotation = rot;
         }
 
         public void Update(int pipeline, int width, int height, int widthTex, int heightTex)
         {
             // GET OR CREATE CAMERA UNIFORMS FOR program
-            var unif = GetUniformBlock<Names>(pipeline, name);
+            var unif = PrepareUpdate(pipeline, width, height, widthTex, heightTex, UniformNames);
             if (unif == null)
                 return;
-
-            // This function is executed every frame at the beginning of a pass.
-            view = Matrix4.CreateTranslation(-posx, -posy, -posz)
-                 * Matrix4.CreateRotationY(-roty * deg2rad)
-                 * Matrix4.CreateRotationX(-rotx * deg2rad);
-            float aspect = (float)width / height;
-            float angle = (float)(fov * deg2rad);
-            Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(angle, aspect, near, far);
-
-            // SET UNIFORM VALUES
-            if (unif.Has(Names.view))
-                unif.Set(Names.view, view.AsInt32());
-
-            if (unif.Has(Names.proj))
-                unif.Set(Names.proj, proj.AsInt32());
-
-            if (unif.Has(Names.viewProj))
-                unif.Set(Names.viewProj, (view * proj).AsInt32());
-
-            if (unif.Has(Names.viewInv))
-                unif.Set(Names.viewInv, view.Inverted().AsInt32());
-
-            if (unif.Has(Names.projInv))
-                unif.Set(Names.projInv, proj.Inverted().AsInt32());
-
-            if (unif.Has(Names.viewProjInv))
-                unif.Set(Names.viewProjInv, (view * proj).Inverted().AsInt32());
-
-            if (unif.Has(Names.camera))
-                unif.Set(Names.camera, new[] { fov, aspect, near, far }.AsInt32());
-
-            if (unif.Has(Names.position))
-                unif.Set(Names.position, Position.AsInt32());
-
-            if (unif.Has(Names.rotation))
-                unif.Set(Names.rotation, Rotation.AsInt32());
-
-            if (unif.Has(Names.direction))
-                unif.Set(Names.direction, view.Row2.AsInt32());
-
-            if (unif.Has(Names.nearPlane))
-            {
-                var n = view.Row2.Xyz;
-                var w = n.X * posx + n.Y * posy + n.Z * posz;
-                unif.Set(Names.nearPlane, new[] { n.X, n.Y, n.Z, w }.AsInt32());
-            }
 
             // UPDATE UNIFORM BUFFER
             unif.Update();
             unif.Bind();
         }
 
-        //public void EndPass(int program)
-        //{
-        //    // Executed at the end of a pass every frame.
-        //    // not used
-        //}
-
-        public void Delete()
+        protected UniformBlock PrepareUpdate(int pipeline, int width, int height, int widthTex, int heightTex, string[] uniformNames)
         {
-            foreach (var u in uniform)
+            // GET OR CREATE CAMERA UNIFORMS FOR program
+            var unif = GetUniformBlock(pipeline, name, uniformNames);
+            if (unif == null)
+                return null;
+
+            // This function is executed every frame at the beginning of a pass.
+            view = Matrix4.CreateTranslation(-posx, -posy, -posz)
+                 * Matrix4.CreateRotationY(-roty * deg2rad)
+                 * Matrix4.CreateRotationX(-rotx * deg2rad);
+            float aspect = (float)width / height;
+            float angle = fov * deg2rad;
+            Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(angle, aspect, near, far);
+
+            // SET UNIFORM VALUES
+            if (unif.Has((int)Names.view))
+                unif.Set((int)Names.view, view.AsInt32());
+
+            if (unif.Has((int)Names.proj))
+                unif.Set((int)Names.proj, proj.AsInt32());
+
+            if (unif.Has((int)Names.viewProj))
+                unif.Set((int)Names.viewProj, (view * proj).AsInt32());
+
+            if (unif.Has((int)Names.viewInv))
+                unif.Set((int)Names.viewInv, view.Inverted().AsInt32());
+
+            if (unif.Has((int)Names.projInv))
+                unif.Set((int)Names.projInv, proj.Inverted().AsInt32());
+
+            if (unif.Has((int)Names.viewProjInv))
+                unif.Set((int)Names.viewProjInv, (view * proj).Inverted().AsInt32());
+
+            if (unif.Has((int)Names.camera))
+                unif.Set((int)Names.camera, new[] { fov, aspect, near, far }.AsInt32());
+
+            if (unif.Has((int)Names.position))
+                unif.Set((int)Names.position, Position.AsInt32());
+
+            if (unif.Has((int)Names.rotation))
+                unif.Set((int)Names.rotation, Rotation.AsInt32());
+
+            if (unif.Has((int)Names.direction))
+                unif.Set((int)Names.direction, view.Row2.AsInt32());
+
+            if (unif.Has((int)Names.nearPlane))
             {
-                if (u.Value != null)
-                    u.Value.Delete();
+                var n = view.Row2.Xyz;
+                var w = n.X * posx + n.Y * posy + n.Z * posz;
+                unif.Set((int)Names.nearPlane, new[] { n.X, n.Y, n.Z, w }.AsInt32());
             }
+
+            return unif;
         }
     }
 }
