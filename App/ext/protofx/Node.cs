@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Commands = System.Linq.ILookup<string, string[]>;
@@ -17,15 +16,7 @@ namespace protofx
         #region FIELDS
 
         protected static BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-        private Dictionary<string, Connection> connections = new Dictionary<string, Connection>();
-        public Connection this[string name] {
-            get
-            {
-                Connection connection;
-                connections.TryGetValue(name, out connection);
-                return connection;
-            }
-        }
+        protected Connections connections = new Connections();
 
         #endregion
 
@@ -61,14 +52,14 @@ namespace protofx
                     if (!connections.ContainsKey(connect[0]))
                     {
                         // If the connection object does not yet exist, create a new one.
-                        var info = FindField(this, connect[0]);
+                        var info = GetField(this, connect[0]);
                         if (info.GetCustomAttribute<Connectable>() == null)
                             throw new ArgumentException("'" + connect[0] + "' does not support connections.");
                         connections[connect[0]] = new Connection(this, info);
                     }
 
                     // get destination object
-                    var obj = FindSceneObject(dstScript[0]);
+                    var obj = GetSceneObject(dstScript[0]);
                     if (!(obj is Node))
                         throw new ArgumentException("'" + dstScript[0] + "' does not support connections.");
                     var dst = (Node)obj;
@@ -77,7 +68,7 @@ namespace protofx
                     if (!dst.connections.ContainsKey(dstScript[1]))
                     {
                         // If the connection object does not yet exist, create a new one.
-                        var info = FindField(dst, dstScript[1]);
+                        var info = GetField(dst, dstScript[1]);
                         if (info.GetCustomAttribute<Connectable>() == null)
                             throw new ArgumentException("target '" + connect[1] + "' does not support connections.");
                         dst.connections[dstScript[1]] = new Connection(dst, info);
@@ -88,63 +79,75 @@ namespace protofx
                 }
                 catch (ArgumentException ex)
                 {
-                    AddCommandError(ex.Message);
+                    Errors.Add("command 'connect': " + ex.Message);
                 }
-                catch (FieldAccessException ex)
-                {
-                    AddCommandError(ex.Message);
-                }
-                catch { }
             }
         }
-
-        protected void Propagate<T>(Expression<Func<T>> memberAccess)
-        {
-            Connection connection;
-            if (connections.TryGetValue(NameOf(memberAccess), out connection))
-                connection.Update();
-        }
-
-        private void AddCommandError(string message)
-        {
-            Errors.Add("command 'connect': " + message);
-        }
-
-        private object FindSceneObject(string name)
+        
+        /// <summary>
+        /// Find the specified scene object.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private object GetSceneObject(string name)
         {
             // get protofx instance object
-            if (!objects.ContainsKey(name))
+            object dstGlInstance;
+            if (!objects.TryGetValue(name, out dstGlInstance))
                 throw new ArgumentException("Could not find an object named '" + name + "'.");
-            var dstGlInstance = objects[name];
 
             // get field informations
             var instanceField = dstGlInstance.GetType().GetField("Instance", bindingFlags);
             if (instanceField == null)
-                throw new FieldAccessException("The target '" + name + "' is not an instance.");
+                throw new ArgumentException("The target '" + name + "' is not an instance.");
 
             // get object
             return instanceField.GetValue(dstGlInstance);
         }
 
-        private FieldInfo FindField(object obj, string name)
+        /// <summary>
+        /// Find the specified field of the specified class.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private static FieldInfo GetField(object obj, string name)
         {
             var info = obj.GetType().GetField(name, bindingFlags);
             if (info == null)
-                throw new FieldAccessException("This instance does not contain a field named '" + name + "'.");
+                throw new ArgumentException("This instance does not contain a field named '" + name + "'.");
             if (!info.FieldType.IsPrimitive)
-                throw new FieldAccessException("Field '" + name + "' must have a primitive type, not '" + info.FieldType.Name + "'.");
+                throw new ArgumentException("Field '" + name + "' must have a primitive type, not '" + info.FieldType.Name + "'.");
             return info;
         }
-
-        private object FindValue(object obj, string name)
+        
+        /// <summary>
+        /// Work around the missing 'nameof' function in older C# standard.
+        /// </summary>
+        /// <param name="member">An expression containing the member of
+        /// which the name is requested (e.g. NameOf(() => memberName))</param>
+        /// <returns>Returns the name of the member access expression.</returns>
+        protected static string NameOf(Expression<Func<object>> member)
         {
-            var info = FindField(obj, name);
-            return info.GetValue(obj);
+            MemberExpression memberExpression;
+            if (member.Body is UnaryExpression)
+                memberExpression = (MemberExpression)((UnaryExpression)member.Body).Operand;
+            else if (member.Body is MemberExpression)
+                memberExpression = (MemberExpression)member.Body;
+            else
+                return null;
+            return memberExpression.Member.Name;
         }
 
-        private static string NameOf<T>(Expression<Func<T>> memberAccess)
+        /// <summary>
+        /// An utility class to simplify the access to connections.
+        /// </summary>
+        protected class Connections : Dictionary<string, Connection>
         {
-            return ((MemberExpression)memberAccess.Body).Member.Name;
+            public Connection this[Expression<Func<object>> member]
+            {
+                get { return this[NameOf(member)]; }
+            }
         }
     }
 

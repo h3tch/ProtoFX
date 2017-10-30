@@ -551,6 +551,11 @@ namespace App
             debugListView.Visible = debugging;
         }
 
+        /// <summary>
+        /// Activate or deactivate the rendering loop.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
         private void ToolBtnRender_CheckedChanged(object s, EventArgs e)
         {
             glControl.Rendering = toolBtnRender.Checked;
