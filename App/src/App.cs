@@ -36,7 +36,7 @@ namespace App
         /// <summary>
         /// Get the currently selected editor.
         /// </summary>
-        private CodeEditor SelectedEditor => (CodeEditor)tabSource.SelectedTab?.Controls[0];
+        private CodeEditor SelectedEditor => (CodeEditor)SelectedTab?.Controls[0];
         /// <summary>
         /// Is the window currently in maximized state.
         /// </summary>
@@ -462,7 +462,7 @@ namespace App
             // if no tab page is selected nothing needs to be compiled
             if (SelectedTab == null)
                 return;
-            CompiledEditor = (CodeEditor)SelectedTab.Controls[0];
+            CompiledEditor = SelectedEditor;
 
             // save code
             ToolBtnSave_Click(s, null);
@@ -472,78 +472,45 @@ namespace App
             glControl.ClearScene();
             glControl.RemoveEvents();
 
-            // get include directory
-            var includeDir = (CompiledEditor.Filename != null
-                ? Path.GetDirectoryName(CompiledEditor.Filename)
-                : Directory.GetCurrentDirectory()) + Path.DirectorySeparatorChar;
-
             // get code text form tab page
             // generate debug information?
             var debugging = s == toolBtnDbg;
 
             // COMPILE THE CURRENTLY SELECTED FILE
+
             var root = Compiler.Compile(CompiledEditor.Filename);
+
+            // REMOVE INVALID BREAKPOINTS AND EXECUTION MARKERS
+
             var shaderLines = from x in root where x.Type == "shader"
                               select new[] { x.Line, x.LineCount };
             CompiledEditor.RemoveInvalidBreakpoints(shaderLines);
             CompiledEditor.RemoveExecutionMarker();
 
             // INSTANTIATE THE CLASS WITH THE SPECIFIED ARGUMENTS (collect all errors)
-            var ex = root.Catch(x => glControl.AddObject(x, debugging)).ToArray();
+            
+            HighlightErrors(root.Catch(x => glControl.AddObject(x, debugging)).ToArray());
+
             // add events to the end of the event list
             glControl.AddEvents(output);
-            glControl.MouseUp += new MouseEventHandler(GlControl_MouseUp);
-
-            // show errors
-            var exc = from x in ex
-                      where x is CompileException || x.InnerException is CompileException
-                      select (x is CompileException ? x : x.InnerException) as CompileException;
-            var err = from x in exc from y in x select y;
-            var line = from x in err select x.Line;
-            err.ForEach(line, (e, l) => AddOutputItem(includeDir, e.File, l + 1, e.Msg));
-
-            // underline all debug errors
-            var ranges = line.Select(x => new[] {
-                CompiledEditor.Lines[x].Position + CompiledEditor.Lines[x].Text.NextNonWhitespace(),
-                CompiledEditor.Lines[x].EndPosition
-            });
-            CompiledEditor.ClearIndicators(CodeEditor.DebugIndicatorIndex);
-            CompiledEditor.AddIndicators(CodeEditor.DebugIndicatorIndex, ranges);
+            glControl.MouseUp += GlControl_MouseUp;
 
             // SHOW SCENE
+
+            // do an initial rendering pass
+            // so extensions are initialized
             DebugRender(debugging);
 
-            // add externally created textures to the scene
-            var existing = glControl.Scene.Values.Cast<GLObject>().ToArray();
-            GLImage.FindTextures(existing).ForEach(x => glControl.Scene.Add(x.Name, x));
-
-            // add externally created buffers to the scene
-            GLBuffer.FindBuffers(existing).ForEach(x => glControl.Scene.Add(x.Name, x));
+            // extension might have created additional resources,
+            // so we need to gather them and add them to the scene
+            GatherExternalResources().ForEach(x => glControl.Scene.Add(x.Name, x));
 
             // UPDATE DEBUG DATA
-            comboBuf.Items.Clear();
-            comboImg.Items.Clear();
-            comboProp.Items.Clear();
-            foreach (var buf in glControl.Scene.Where(x => x.Value is GLBuffer))
-                comboBuf.Items.Add(buf.Value as GLBuffer);
-            foreach (var buf in glControl.Scene.Where(x => x.Value is GLImage))
-                comboImg.Items.Add(buf.Value as GLImage);
-            foreach (var instance in glControl.Scene.Where(x => x.Value is GLInstance)
-                                                    .Select(x => x.Value as GLInstance))
-            {
-                comboProp.Items.Add(instance);
-                if (instance.VisualizeAsBuffer)
-                    comboBuf.Items.Add(instance);
-                if (instance.VisualizeAsImage)
-                    comboImg.Items.Add(instance);
-            }
-            // WORKARROUND: The combo box does not resize nicely the first time
-            // it is opened. Open and closing it the first time here, solves the issue.
-            comboBuf.IsDroppedDown = !(comboBuf.IsDroppedDown = true);
-            comboImg.IsDroppedDown = !(comboImg.IsDroppedDown = true);
-            comboProp.IsDroppedDown = !(comboProp.IsDroppedDown = true);
+
+            RefreshResourceViews();
 
             // SHOW DEBUG BUTTONS IF NECESSARY
+
             toolBtnDbgStepBreakpoint.Enabled = debugging;
             toolBtnDbgStepInto.Enabled = debugging;
             toolBtnDbgStepOver.Enabled = debugging;
@@ -864,6 +831,81 @@ namespace App
         {
             HideDeveloperGui(hide);
             tableLayoutRenderOutput.RowStyles[0].Height = 0;
+        }
+
+        /// <summary>
+        /// Process the ProtoFX compiler exceptions and underline errors in the code.
+        /// </summary>
+        /// <param name="ex"></param>
+        private void HighlightErrors(Exception[] ex)
+        {
+            // get include directory
+            var includeDir = (CompiledEditor.Filename != null
+                ? Path.GetDirectoryName(CompiledEditor.Filename)
+                : Directory.GetCurrentDirectory()) + Path.DirectorySeparatorChar;
+
+            // show errors
+            var exc = from x in ex
+                      where x is CompileException || x.InnerException is CompileException
+                      select (x is CompileException ? x : x.InnerException) as CompileException;
+            var err = from x in exc from y in x select y;
+            var line = from x in err select x.Line;
+            err.ForEach(line, (e, l) => AddOutputItem(includeDir, e.File, l + 1, e.Msg));
+
+            // underline all debug errors
+            var ranges = line.Select(x => new[] {
+                CompiledEditor.Lines[x].Position + CompiledEditor.Lines[x].Text.NextNonWhitespace(),
+                CompiledEditor.Lines[x].EndPosition
+            });
+            CompiledEditor.ClearIndicators(CodeEditor.DebugIndicatorIndex);
+            CompiledEditor.AddIndicators(CodeEditor.DebugIndicatorIndex, ranges);
+        }
+
+        /// <summary>
+        /// Find externally created OpenGL buffers
+        /// and textures (e.g., created by extensions).
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerable<GLObject> GatherExternalResources()
+        {
+            // find externally created textures and buffers to the scene
+            var existing = glControl.Scene.Values.Cast<GLObject>().ToArray();
+            return GLImage.FindTextures(existing).Concat(GLBuffer.FindBuffers(existing));
+        }
+
+        /// <summary>
+        /// Refresh the resource views in ProtoFX (buffers, images and instances).
+        /// </summary>
+        private void RefreshResourceViews()
+        {
+            comboBuf.Items.Clear();
+            comboImg.Items.Clear();
+            comboProp.Items.Clear();
+            // add buffer objects to the buffer resource view
+            foreach (var buf in glControl.Scene.Where<GLBuffer>())
+                comboBuf.Items.Add(buf);
+            // add image objects to the image resource view
+            foreach (var img in glControl.Scene.Where<GLImage>())
+                comboImg.Items.Add(img);
+            // add instance objects to the property, buffer and/or image resource view
+            foreach (var instance in glControl.Scene.Where<GLInstance>())
+            {
+                // add instance to property view
+                comboProp.Items.Add(instance);
+                // if the extension provides a buffer visualization,
+                // add it to the buffer resource view
+                if (instance.VisualizeAsBuffer)
+                    comboBuf.Items.Add(instance);
+                // if the extension provides an image visualization,
+                // add it to the image resource view
+                if (instance.VisualizeAsImage)
+                    comboImg.Items.Add(instance);
+            }
+            // WORKARROUND: The combo box does not resize nicely the first time
+            // it is opened. Open and closing it the first time here, solves the issue.
+            comboBuf.IsDroppedDown = !(comboBuf.IsDroppedDown = true);
+            comboImg.IsDroppedDown = !(comboImg.IsDroppedDown = true);
+            comboProp.IsDroppedDown = !(comboProp.IsDroppedDown = true);
         }
 
         #endregion

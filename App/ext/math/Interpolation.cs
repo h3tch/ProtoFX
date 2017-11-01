@@ -98,7 +98,7 @@ namespace math
             if (value != newValue)
             {
                 value = newValue;
-                connections[() => value].Update();
+                connections.TryUpdate(() => value);
             }
 
             // GET OR CREATE CAMERA UNIFORMS FOR program

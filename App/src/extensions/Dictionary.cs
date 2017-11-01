@@ -1,4 +1,6 @@
-﻿namespace System.Collections.Generic
+﻿using System.Linq;
+
+namespace System.Collections.Generic
 {
     public static class DictionaryExtensions
     {
@@ -30,6 +32,22 @@
         {
             return key != null && dict.TryGetValue(key, out var obj) && obj is TValue
                 ? obj : default(object);
+        }
+
+        public static IEnumerable<TValue> Where<TKey, TValue>(this Dictionary<TKey, TValue> dict, Type type)
+        {
+            return from x in dict
+                   where x.Value.GetType().IsSubclassOf(type)
+                   select x.Value;
+        }
+
+        public static IEnumerable<TResult> Where<TResult>(this IDictionary dict)
+        {
+            foreach (var value in dict.Values)
+            {
+                if (value is TResult)
+                    yield return (TResult)Convert.ChangeType(value, typeof(TResult));
+            }
         }
     }
 }

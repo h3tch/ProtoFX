@@ -170,6 +170,15 @@ namespace System.Collections.Generic
             }
         }
 
+        /// <summary>
+        /// Convert enumerable type to two-dimensional array.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="ie"></param>
+        /// <param name="h"></param>
+        /// <param name="w"></param>
+        /// <param name="rowList"></param>
+        /// <returns></returns>
         public static T[,] ToArray<T>(this IEnumerable<T> ie, int h, int w, bool rowList = true)
         {
             if (h <= 0)

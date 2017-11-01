@@ -148,6 +148,14 @@ namespace protofx
             {
                 get { return this[NameOf(member)]; }
             }
+
+            public void TryUpdate(Expression<Func<object>> member)
+            {
+                var name = NameOf(member);
+                Connection connection;
+                if (TryGetValue(name, out connection))
+                    connection.Update();
+            }
         }
     }
 
