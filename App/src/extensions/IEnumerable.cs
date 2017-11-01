@@ -202,6 +202,21 @@ namespace System.Collections.Generic
 
             return array;
         }
+
+        /// <summary>
+        /// Return all values that can be cast to the specified return type.
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="dict"></param>
+        /// <returns></returns>
+        public static IEnumerable<TResult> Where<TResult>(this IEnumerable ie)
+        {
+            foreach (var value in ie)
+            {
+                if (value is TResult)
+                    yield return (TResult)Convert.ChangeType(value, typeof(TResult));
+            }
+        }
     }
 
 }

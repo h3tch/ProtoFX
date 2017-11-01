@@ -882,13 +882,13 @@ namespace App
             comboImg.Items.Clear();
             comboProp.Items.Clear();
             // add buffer objects to the buffer resource view
-            foreach (var buf in glControl.Scene.Where<GLBuffer>())
+            foreach (var buf in glControl.Scene.Values.Where<GLBuffer>())
                 comboBuf.Items.Add(buf);
             // add image objects to the image resource view
-            foreach (var img in glControl.Scene.Where<GLImage>())
+            foreach (var img in glControl.Scene.Values.Where<GLImage>())
                 comboImg.Items.Add(img);
             // add instance objects to the property, buffer and/or image resource view
-            foreach (var instance in glControl.Scene.Where<GLInstance>())
+            foreach (var instance in glControl.Scene.Values.Where<GLInstance>())
             {
                 // add instance to property view
                 comboProp.Items.Add(instance);
