@@ -1,9 +1,6 @@
 using OpenTK;
 using System.Drawing;
 using System.Windows.Forms;
-using Commands = System.Linq.ILookup<string, string[]>;
-using Objects = System.Collections.Generic.Dictionary<string, object>;
-using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace scene
 {
@@ -16,8 +13,7 @@ namespace scene
 
         #endregion
 
-        public SimpleCamera(string name, Commands cmds, Objects objs, GLNames glNames)
-            : base(name, cmds, objs, glNames)
+        public SimpleCamera(object @params) : base(@params)
         {
         }
 

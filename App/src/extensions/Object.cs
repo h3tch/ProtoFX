@@ -1,10 +1,57 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace System
 {
     static class ObjectExtensions
     {
+        public static TReturn GetInstanceValue<TReturn>(this object obj, string name)
+        {
+            return (TReturn)obj.GetInstanceValue(name);
+        }
+
+        public static object GetInstanceValue(this object obj, string name)
+        {
+            return obj.GetInstanceField(name) ?? obj.GetInstanceProperty(name);
+        }
+
+        public static TReturn GetInstanceField<TReturn>(this object obj, string name)
+        {
+            return (TReturn)obj.GetInstanceField(name);
+        }
+
+        public static TReturn GetInstanceField<TReturn>(this object obj)
+        {
+            foreach (var field in obj.GetType().GetFields(flags))
+                if (field.FieldType == typeof(TReturn))
+                    return (TReturn)field.GetValue(obj);
+            return default(TReturn);
+        }
+
+        public static object GetInstanceField(this object obj, string name)
+        {
+            return obj.GetType().GetField(name, flags)?.GetValue(obj);
+        }
+
+        public static TReturn GetInstanceProperty<TReturn>(this object obj, string name)
+        {
+            return (TReturn)obj.GetInstanceProperty(name);
+        }
+
+        public static TReturn GetInstanceProperty<TReturn>(this object obj)
+        {
+            foreach (var prop in obj.GetType().GetProperties(flags))
+                if (prop.PropertyType == typeof(TReturn))
+                    return (TReturn)prop.GetValue(obj);
+            return default(TReturn);
+        }
+
+        public static object GetInstanceProperty(this object obj, string name)
+        {
+            return obj.GetType().GetProperty(name, flags)?.GetValue(obj);
+        }
+
         /// <summary>
         /// Perform a deep copy.
         /// </summary>

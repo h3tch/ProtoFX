@@ -374,7 +374,7 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void Editor_ShowCallTip(object s, ShowTipEventHandlerArgs e)
+        private void Editor_ShowCallTip(object s, ShowTipEventArgs e)
         {
             var editor = s as CodeEditor;
 
@@ -392,7 +392,7 @@ namespace App
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void Editor_CancleCallTip(object s, CancleTipEventHandlerArgs e)
+        private void Editor_CancleCallTip(object s, CancleTipEventArgs e)
         {
             (s as CodeEditor).PerfTipCancel();
         }

@@ -2,12 +2,7 @@
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
-using Commands = System.Linq.ILookup<string, string[]>;
-using Objects = System.Collections.Generic.Dictionary<string, object>;
-using GlNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace scene
 {
@@ -21,14 +16,18 @@ namespace scene
 
         #endregion
 
-        public BufferCamera(string name, Commands cmds, Objects objs, GlNames glNames)
-            : base(name, cmds, objs, glNames)
+        public BufferCamera(object @params) : base(@params)
         {
             // get buffer object
             if (buff != null)
             {
-                if (!glNames.TryGetValue(buff[0], out glBuff))
+                object buffer;
+                if (!objects.TryGetValue(buff[0], out buffer))
                     Errors.Add("The specified buffer name '" + buff[0] + "' could not be found.");
+                var prop = buffer.GetType().GetProperty("glname");
+                if (prop == null)
+                    Errors.Add("The buffer object '" + buff[0] + "' does not provide an OpenGL name.");
+                glBuff = (int)prop.GetValue(buffer);
                 if (buff.Length > 1 && !int.TryParse(buff[1], out glOffset))
                     Errors.Add("Could not parse offset value '" + buff[1] + "' of buff command.");
             }

@@ -27,6 +27,12 @@ namespace App
 
         #endregion
 
+        public GLMemory(object @params)
+            : this(@params.GetInstanceField<Compiler.Block>(),
+                   @params.GetInstanceField<Dictionary<string, object>>())
+        {
+        }
+
         /// <summary>
         /// Construct GLMemory object.
         /// </summary>
@@ -46,8 +52,7 @@ namespace App
         /// </summary>
         /// <param name="block"></param>
         /// <param name="scene"></param>
-        /// <param name="debugging"></param>
-        public GLMemory(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
+        public GLMemory(Compiler.Block block, Dictionary<string, object> scene)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"memory '{block.Name}'");

@@ -15,7 +15,12 @@ namespace ScintillaNET
     /// </summary>
     public class FxLexer : BaseLexer
     {
-        public FxLexer(string file) : base(0, LoadFxLexerFromXml(file), null) { }
+        public FxLexer(string file) : base(0, GetNodeFromXml(file, "FxLexer"), null) { }
+
+        public void AddLexer(string file)
+        {
+            AddLexer(GetNodeFromXml(file, "Lexer"));
+        }
 
         public override int Style(CodeEditor editor, int pos, int endPos)
         {
@@ -61,14 +66,14 @@ namespace ScintillaNET
             return lexer.Select(x => x.FindLexerForStyle(style)).FirstOr(x => x != null, null);
         }
 
-        private static XmlNode LoadFxLexerFromXml(string file)
+        private static XmlNode GetNodeFromXml(string file, string root)
         {
             var xml = new XmlDocument();
             if (System.IO.File.Exists(file))
                 xml.Load(file);
             else
                 xml.LoadXml(file);
-            return xml.SelectSingleNode("FxLexer");
+            return xml.SelectSingleNode(root);
         }
 
         protected override Type StateType => typeof(BaseState);
@@ -83,7 +88,7 @@ namespace ScintillaNET
         #region FIELDS
 
         protected string lexerType;
-        protected BaseLexer[] lexer;
+        protected List<BaseLexer> lexer;
         protected Trie<Keyword>[] keywords;
         protected Lexing.Style[] styles;
         public IEnumerable<Lexing.Style> Styles => styles.Concat(lexer.SelectMany(x => x.Styles));
@@ -91,31 +96,39 @@ namespace ScintillaNET
         public int LastStyle { get; private set; }
         public static int FirstBaseStyle { get; private set; }
         public static int LastBaseStyle { get; private set; }
+        protected int StyleCount => Enum.GetValues(StateType).Length;
+        protected int FirstState
+        {
+            get
+            {
+                var stateValues = Enum.GetValues(StateType);
+                return stateValues.Length > 0 ? ((int[])stateValues).Min() : 0;
+            }
+        }
         protected virtual Type StateType => null;
         public int MaxStyle => Math.Max(LastStyle, lexer.Select(x => x.MaxStyle).MaxOr(0));
         public BaseLexer ParentLexer;
         protected BaseLexer DefaultLexer;
         private static Regex regexHint = new Regex(@"\n.*\\");
+        private static int FirstFreeStyle = 0;
 
         #endregion
 
         public BaseLexer(int firstFreeStyle, XmlNode lexerNode, BaseLexer parent)
         {
             ParentLexer = parent;
-            DefaultLexer = GetType().Name == "DefaultLexer" ? null
-                : new DefaultLexer(firstFreeStyle, null, this);
+            if (GetType().Name != "DefaultLexer")
+                DefaultLexer = new DefaultLexer(FirstFreeStyle, null, this);
 
             // get style and state ranges
-            var stateValues = Enum.GetValues(StateType);
-            int styleCount = stateValues.Length;
-            int firstState = styleCount > 0 ? ((int[])stateValues).Min() : 0;
+            int styleCount = StyleCount;
 
             // adjust style ranges if they fall into the Scintilla styles
-            FirstStyle = firstFreeStyle;
+            FirstStyle = FirstFreeStyle;
             if (SciStyle.Default <= FirstStyle + styleCount && FirstStyle <= SciStyle.CallTip)
                 FirstStyle = SciStyle.CallTip + 1;
             LastStyle = FirstStyle + styleCount - 1;
-            firstFreeStyle = LastStyle + 1;
+            FirstFreeStyle = LastStyle + 1;
 
             if (StateType.IsEquivalentTo(typeof(BaseState)))
             {
@@ -123,18 +136,21 @@ namespace ScintillaNET
                 LastBaseStyle = LastStyle;
             }
 
-            // allocate arrays for styles
+            // allocate arrays for styles, keywords and sub-lexers
             styles = Enumerable.Range(FirstStyle, styleCount)
-                .Select(x => new Lexing.Style {
-                    id = x, fore = Theme.ForeColor, back = Theme.Workspace
+                .Select(x => new Lexing.Style
+                {
+                    id = x,
+                    fore = Theme.ForeColor,
+                    back = Theme.Workspace
                 }).ToArray();
             keywords = new Trie<Keyword>[styleCount];
+            lexer = new List<BaseLexer>();
 
             // SET TO DEFAULT LEXER
             if (lexerNode == null)
             {
                 lexerType = "default";
-                lexer = new BaseLexer[0];
                 return;
             }
 
@@ -142,47 +158,53 @@ namespace ScintillaNET
             lexerType = lexerNode.GetAttributeValue("type");
 
             // get style colors
-            var styleList = lexerNode.SelectNodes("Style");
-            foreach (XmlNode style in styleList)
-            {
-                if (style.HasAttributeValue("theme") && style.GetAttributeValue("theme").ToLower() != Theme.Name.ToLower())
-                    continue;
-                var id = (int)Enum.Parse(StateType, style.GetAttributeValue("name"), true);
-                var idx = id - firstState;
-                if (style.HasAttributeValue("fore"))
-                    styles[idx].fore = ColorTranslator.FromHtml(style.GetAttributeValue("fore"));
-                if (style.HasAttributeValue("back"))
-                    styles[idx].back = ColorTranslator.FromHtml(style.GetAttributeValue("back"));
-            }
+            foreach (XmlNode style in lexerNode.SelectNodes("Style"))
+                AddStyle(style);
 
             // get keyword definitions
-            var keywordList = lexerNode.SelectNodes("Keyword");
-            foreach (XmlNode keyword in keywordList)
-            {
-                var id = (int)Enum.Parse(StateType, keyword.GetAttributeValue("style_name"), true);
-                var idx = id - firstState;
-                var name = keyword.GetAttributeValue("name");
-                var hint = keyword.GetAttributeValue("hint");
-                if (hint != null && hint.IndexOf('\\') >= 0)
-                    hint = regexHint.Replace(hint, "\n");
-                if (keywords[idx] == null)
-                    keywords[idx] = new Trie<Keyword>();
-                keywords[idx].Add(name, new Keyword { word = name, hint = hint });
-            }
+            foreach (XmlNode keyword in lexerNode.SelectNodes("Keyword"))
+                AddKeyword(keyword);
 
             // instantiate sub-lexers
-            var lexerList = lexerNode.SelectNodes("Lexer");
-            lexer = new BaseLexer[lexerList.Count];
-            var assembly = typeof(BaseLexer).FullName.Substring(0,
-                typeof(BaseLexer).FullName.Length - typeof(BaseLexer).Name.Length);
-            for (int i = 0; i < lexerList.Count; i++)
-            {
-                var type = lexerList[i].GetAttributeValue("lexer");
-                var param = new object[] { firstFreeStyle, lexerList[i], this };
-                var t = Type.GetType($"{assembly}{type}");
-                lexer[i] = (BaseLexer)Activator.CreateInstance(t, param);
-                firstFreeStyle = lexer[i].MaxStyle + 1;
-            }
+            foreach (XmlNode lex in lexerNode.SelectNodes("Lexer"))
+                AddLexer(lex);
+        }
+
+        protected void AddLexer(XmlNode lexerNode)
+        {
+            var type = lexerNode.GetAttributeValue("lexer");
+            var param = new object[] { FirstFreeStyle, lexerNode, this };
+            var t = Type.GetType($"{typeof(BaseLexer).Namespace}.{type}");
+            var lexer = (BaseLexer)Activator.CreateInstance(t, param);
+            FirstFreeStyle = lexer.MaxStyle + 1;
+            this.lexer.Add(lexer);
+        }
+
+        private void AddKeyword(XmlNode keywordNode)
+        {
+            var id = (int)Enum.Parse(StateType, keywordNode.GetAttributeValue("style_name"), true);
+            var idx = id - FirstState;
+            var name = keywordNode.GetAttributeValue("name");
+            var hint = keywordNode.GetAttributeValue("hint");
+            if (hint != null && hint.IndexOf('\\') >= 0)
+                hint = regexHint.Replace(hint, "\n");
+            if (keywords[idx] == null)
+                keywords[idx] = new Trie<Keyword>();
+            keywords[idx].Add(name, new Keyword { word = name, hint = hint });
+        }
+
+        private void AddStyle(XmlNode styleNode)
+        {
+            const StringComparison compareFlags = StringComparison.CurrentCultureIgnoreCase;
+            if (styleNode.HasAttributeValue("theme") &&
+                styleNode.GetAttributeValue("theme").Equals(Theme.Name, compareFlags))
+                return;
+            var id = (int)Enum.Parse(StateType, styleNode.GetAttributeValue("name"), true);
+            var idx = id - FirstState;
+            if (styleNode.HasAttributeValue("fore"))
+                styles[idx].fore = ColorTranslator.FromHtml(styleNode.GetAttributeValue("fore"));
+            if (styleNode.HasAttributeValue("back"))
+                styles[idx].back = ColorTranslator.FromHtml(styleNode.GetAttributeValue("back"));
         }
 
         #region ILexer

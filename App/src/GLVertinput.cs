@@ -10,13 +10,19 @@ namespace App
     {
         private List<VertAttr> attributes = new List<VertAttr>();
 
+        public GLVertinput(object @params)
+            : this(@params.GetInstanceField<Compiler.Block>(),
+                   @params.GetInstanceField<Dictionary<string, object>>())
+        {
+        }
+
         /// <summary>
         /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        public GLVertinput(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
+        public GLVertinput(Compiler.Block block, Dictionary<string, object> scene)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"vertinput '{Name}'");

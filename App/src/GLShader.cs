@@ -21,6 +21,13 @@ namespace App
 
         #endregion
 
+        public GLShader(object @params)
+            : this(@params.GetInstanceField<Compiler.Block>(),
+                   @params.GetInstanceField<Dictionary<string, object>>(),
+                   @params.GetInstanceField<bool>())
+        {
+        }
+
         /// <summary>
         /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>

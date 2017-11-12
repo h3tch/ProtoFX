@@ -1,18 +1,27 @@
 ﻿using protofx;
 using System;
 using System.Diagnostics;
-using Commands = System.Linq.ILookup<string, string[]>;
-using Objects = System.Collections.Generic.Dictionary<string, object>;
-using GLNames = System.Collections.Generic.Dictionary<string, int>;
 using System.Linq;
 
 namespace math
 {
+    [Fx("<Lexer type='interpolate' lexer='TechBodyLexer'>",
+        "<Style theme='DarkTheme' name='command' fore='#7AC0F4'>",
+        "<Style theme='LightTheme' name='command' fore='#7AC0F4'>",
+        "<Keyword style_name='command' name='name' hint='Specify the name of the instance.'>",
+        "<Keyword style_name='command' name='from' hint='The start value of the interpolation (default &lt;param&gt;0.0&lt;/param&gt).'>",
+        "<Keyword style_name='command' name='start' hint='The start value of the interpolation (default &lt;param&gt;0.0&lt;/param&gt).'>",
+        "<Keyword style_name='command' name='to' hint='The end value of the interpolation (default &lt;param&gt;1.0&lt;/param&gt).'>",
+        "<Keyword style_name='command' name='end' hint='The end value of the interpolation (default &lt;param&gt;1.0&lt;/param&gt).'>",
+        "<Keyword style_name='command' name='speed' hint='The end value of the interpolation (default &lt;param&gt;1.0&lt;/param&gt).'>",
+        "<Keyword style_name='command' name='reflect' hint='The end value of the interpolation (default &lt;param&gt;false&lt;/param&gt).'>",
+        "<Keyword style_name='command' name='smooth' hint='The end value of the interpolation (default &lt;param&gt;false&lt;/param&gt).'>",
+        "</Lexer>")]
     class Interpolate : Node
     {
         #region UNIFORM NAMES
 
-        public enum Names
+        protected enum Names
         {
             value,
             LAST,
@@ -55,18 +64,18 @@ namespace math
         /// <param name="cmds"></param>
         /// <param name="objs"></param>
         /// <param name="glNames"></param>
-        public Interpolate(string name, Commands cmds, Objects objs, GLNames glNames)
-            : base(cmds, objs)
+        public Interpolate(object @params)
+            : base(@params)
         {
-            this.name = name;
-            Convert(cmds, "name", ref this.name);
-            Convert(cmds, "from", ref from);
-            Convert(cmds, "start", ref from);
-            Convert(cmds, "to", ref to);
-            Convert(cmds, "end", ref to);
-            Convert(cmds, "speed", ref speed);
-            Convert(cmds, "reflect", ref reflect);
-            Convert(cmds, "smooth", ref smooth);
+            name = @params.GetInstanceValue<string>("Name");
+            Convert(commands, "name", ref name);
+            Convert(commands, "from", ref from);
+            Convert(commands, "start", ref from);
+            Convert(commands, "to", ref to);
+            Convert(commands, "end", ref to);
+            Convert(commands, "speed", ref speed);
+            Convert(commands, "reflect", ref reflect);
+            Convert(commands, "smooth", ref smooth);
         }
 
         /// <summary>

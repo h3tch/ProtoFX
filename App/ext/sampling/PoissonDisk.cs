@@ -1,10 +1,8 @@
-﻿using System;
+﻿using protofx;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using Commands = System.Linq.ILookup<string, string[]>;
-using Objects = System.Collections.Generic.Dictionary<string, object>;
-using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace sampling
 {
@@ -53,17 +51,16 @@ namespace sampling
         /// <param name="cmds"></param>
         /// <param name="objs"></param>
         /// <param name="glNames"></param>
-        public PoissonDisk(string name, Commands cmds, Objects objs, GLNames glNames)
-            : base(cmds, objs)
+        public PoissonDisk(object @params) : base(@params)
         {
             // PARSE COMMAND VALUES SPECIFIED BY THE USER
 
-            this.name = name;
-            Convert(cmds, "name", ref this.name);
-            Convert(cmds, "maxPoints", ref maxPoints);
-            Convert(cmds, "nPoints", ref maxPoints);
-            Convert(cmds, "minRadius", ref minRadius);
-            Convert(cmds, "minDist", ref minRadius);
+            name = @params.GetInstanceValue<string>("Name");
+            Convert(commands, "name", ref name);
+            Convert(commands, "maxPoints", ref maxPoints);
+            Convert(commands, "nPoints", ref maxPoints);
+            Convert(commands, "minRadius", ref minRadius);
+            Convert(commands, "minDist", ref minRadius);
 
             // CREATE POISSON DISK
             if (minRadius <= 0.0f && maxPoints <= 0)

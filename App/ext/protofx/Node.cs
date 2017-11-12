@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Commands = System.Linq.ILookup<string, string[]>;
-using Objects = System.Collections.Generic.Dictionary<string, object>;
 
 namespace protofx
 {
@@ -25,7 +23,7 @@ namespace protofx
         /// </summary>
         /// <param name="cmds"></param>
         /// <param name="objs"></param>
-        public Node(Commands cmds, Objects objs) : base(cmds, objs)
+        public Node(object @params) : base(@params)
         {
         }
 

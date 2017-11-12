@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -23,6 +24,7 @@ namespace OpenTK
         // performance measurement class
         private FXPerf perf;
         private bool renderingEnabled = false;
+        private GLCsharp csExtensions = new GLCsharp(new[] { "../ext" });
 
         #endregion
 
@@ -130,8 +132,8 @@ namespace OpenTK
         public void AddObject(Compiler.Block block, bool debugging)
         {
             // GET CLASS TYPE, ANNOTATION AND NAME
-            var typeStr = "App.GL" + block.Type[0].ToString().ToUpper() + block.Type.Substring(1);
-            var type = Type.GetType(typeStr);
+            var typeName = block.Type[0].ToString().ToUpper() + block.Type.Substring(1);
+            var type = Type.GetType($"App.GL{typeName}") ?? csExtensions.GetType(typeName);
 
             // check for errors
             if (type == null)
@@ -141,9 +143,16 @@ namespace OpenTK
                 throw new CompileException($"{block.Type} '{block.Name}'")
                     .Error($"Class name '{block.Name}' already exists.", block);
 
+            var @params = new Params()
+            {
+                Block = block,
+                Scene = scene,
+                Debug = debugging
+            };
+
             // instantiate class
-            var instance = (GLObject)Activator.CreateInstance(type, block, scene, debugging);
-            scene.Add(instance.Name, instance);
+            var instance = Activator.CreateInstance(type, @params);
+            scene.Add(block.Name, instance);
         }
         
         /// <summary>
@@ -240,5 +249,14 @@ namespace OpenTK
         }
 
         #endregion
+
+        class Params
+        {
+            public Compiler.Block Block;
+            public Dictionary<string, object> Scene;
+            public bool Debug;
+            public ILookup<string, string[]> Commands => Block.ToLookup();
+            public string Name => Block.Name;
+        }
     }
 }

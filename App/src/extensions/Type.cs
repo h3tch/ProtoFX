@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 
 namespace System
 {
@@ -8,6 +9,28 @@ namespace System
             where TResult : Attribute
         {
             return ((TResult)Attribute.GetCustomAttribute(type, typeof(TResult)));
+        }
+
+        public static object GetAttribute(this Type type, string attrName,
+            StringComparison comparisonType = StringComparison.CurrentCulture)
+        {
+            foreach (var attr in Attribute.GetCustomAttributes(type))
+            {
+                if (attr.GetType().Name.Equals(attrName, comparisonType))
+                    return attr;
+            }
+            return null;
+        }
+
+        public static object GetAttribute(this TypeInfo type, string attrName,
+            StringComparison comparisonType = StringComparison.CurrentCulture)
+        {
+            foreach (var attr in type.GetCustomAttributes(true))
+            {
+                if (attr.GetType().Name.Equals(attrName, comparisonType))
+                    return attr;
+            }
+            return null;
         }
 
         public static Dictionary<string, Type> Str2Type = new Dictionary<string, Type>

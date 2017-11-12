@@ -1,9 +1,6 @@
 ﻿using protofx;
 using OpenTK;
 using System;
-using Commands = System.Linq.ILookup<string, string[]>;
-using Objects = System.Collections.Generic.Dictionary<string, object>;
-using GLNames = System.Collections.Generic.Dictionary<string, int>;
 using System.Linq;
 
 namespace scene
@@ -74,9 +71,7 @@ namespace scene
         /// <param name="name"></param>
         /// <param name="cmds"></param>
         /// <param name="objs"></param>
-        /// <param name="glNames"></param>
-        public StaticCamera(string name, Commands cmds, Objects objs, GLNames glNames)
-            : base(cmds, objs)
+        public StaticCamera(object @params) : base(@params)
         {
             // The constructor is executed only once when the pass is created.
 
@@ -89,16 +84,16 @@ namespace scene
 
             // parse command for values specified by the user
 
-            this.name = name;
+            name = @params.GetInstanceValue<string>("Name");
             // PARSE COMMAND VALUES SPECIFIED BY THE USER
             float[] pos = new float[3] { 0f, 0f, 0f };
             float[] rot = new float[3] { 0f, 0f, 0f };
-            Convert(cmds, "name", ref this.name);
-            Convert(cmds, "pos", ref pos);
-            Convert(cmds, "rot", ref rot);
-            Convert(cmds, "fov", ref fov);
-            Convert(cmds, "near", ref near);
-            Convert(cmds, "far", ref far);
+            Convert(commands, "name", ref name);
+            Convert(commands, "pos", ref pos);
+            Convert(commands, "rot", ref rot);
+            Convert(commands, "fov", ref fov);
+            Convert(commands, "near", ref near);
+            Convert(commands, "far", ref far);
             Position = pos;
             Rotation = rot;
         }

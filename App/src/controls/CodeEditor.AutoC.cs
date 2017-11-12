@@ -19,13 +19,13 @@ namespace ScintillaNET
         #region EVENTS
 
         [Category("Behavior"), Description("Occurs when CallTipShow is called.")]
-        public event ShowTipEventHandler ShowCallTip;
+        public event ShowTipEvent ShowCallTip;
         [Category("Behavior"), Description("Occurs when CallTipCancel is called.")]
-        public event CancleTipEventHandler CancleCallTip;
+        public event CancleTipEvent CancleCallTip;
         [Category("Behavior"), Description("Occurs when CallTipShow is called.")]
-        public event ShowTipEventHandler ShowPerfTip;
+        public event ShowTipEvent ShowPerfTip;
         [Category("Behavior"), Description("Occurs when CallTipCancel is called.")]
-        public event CancleTipEventHandler CanclePerfTip;
+        public event CancleTipEvent CanclePerfTip;
 
         #endregion
 
@@ -185,7 +185,7 @@ namespace ScintillaNET
         /// <param name="handlers"></param>
         /// <param name="position"></param>
         /// <param name="hint"></param>
-        private void TipShow(ref CallTip tip, ShowTipEventHandler handlers, int position, object hint)
+        private void TipShow(ref CallTip tip, ShowTipEvent handlers, int position, object hint)
         {
             // create calltip class
             tip = new CallTip();
@@ -199,7 +199,7 @@ namespace ScintillaNET
             rect.Inflate(3, 3);
             
             // invoke event hadlers
-            var e = new ShowTipEventHandlerArgs
+            var e = new ShowTipEventArgs
             {
                 TextPosition = position,
                 Definition = hint,
@@ -228,12 +228,12 @@ namespace ScintillaNET
         /// </summary>
         /// <param name="tip"></param>
         /// <param name="handlers"></param>
-        private void TipCancel(CallTip tip, CancleTipEventHandler handlers)
+        private void TipCancel(CallTip tip, CancleTipEvent handlers)
         {
             if (tip == null || !tip.Visible)
                 return;
 
-            var e = new CancleTipEventHandlerArgs();
+            var e = new CancleTipEventArgs();
             handlers?.Invoke(this, e);
             if (e.Cancle)
                 return;
@@ -259,10 +259,10 @@ namespace ScintillaNET
 
     #region CALL TIP EVENTS
 
-    public delegate void ShowTipEventHandler(object sender, ShowTipEventHandlerArgs e);
-    public delegate void CancleTipEventHandler(object sender, CancleTipEventHandlerArgs e);
+    public delegate void ShowTipEvent(object sender, ShowTipEventArgs e);
+    public delegate void CancleTipEvent(object sender, CancleTipEventArgs e);
 
-    public class ShowTipEventHandlerArgs
+    public class ShowTipEventArgs : EventArgs
     {
         public int TextPosition;
         public Point ScreenPosition;
@@ -270,7 +270,7 @@ namespace ScintillaNET
         public bool Cancle;
     }
 
-    public class CancleTipEventHandlerArgs
+    public class CancleTipEventArgs : EventArgs
     {
         public bool Cancle;
     }

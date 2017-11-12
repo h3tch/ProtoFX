@@ -16,17 +16,23 @@ namespace App
         private MethodInfo delete = null;
         private MethodInfo visualize = null;
 
+        public GLInstance(object @params)
+            : this(@params.GetInstanceField<Compiler.Block>(), @params)
+        {
+        }
+
         /// <summary>
         /// Create class instance of a C# class compiled through GLCSharp.
         /// </summary>
         /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLInstance(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
+        public GLInstance(Compiler.Block block, object @params)
             : base(block.Name, block.Anno)
         {
+            var scene = @params.GetInstanceField<Dictionary<string, object>>();
             var err = new CompileException($"instance '{Name}'");
             
             // INSTANTIATE CSHARP CLASS FROM CODE BLOCK
-            Instance = GLCsharp.CreateInstance(block, scene, err);
+            Instance = GLCsharp.CreateInstance(block, scene, @params, err);
             if (err.HasErrors)
                 throw err;
 

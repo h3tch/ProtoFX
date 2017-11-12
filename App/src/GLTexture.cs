@@ -17,6 +17,12 @@ namespace App
 
         #endregion
 
+        public GLTexture(object @params)
+            : this(@params.GetInstanceField<Compiler.Block>(),
+                   @params.GetInstanceField<Dictionary<string, object>>())
+        {
+        }
+
         /// <summary>
         /// Create OpenGL object specifying the texture
         /// format and referenced scene objects directly.
@@ -87,7 +93,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        public GLTexture(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
+        public GLTexture(Compiler.Block block, Dictionary<string, object> scene)
             : this(block, scene, null, null)
         {
         }

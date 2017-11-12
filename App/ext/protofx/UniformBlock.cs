@@ -11,6 +11,7 @@ namespace protofx
     {
         #region FIELDS
         public int program;
+        public string name;
         private int glbuf;
         private int unit;
         private int size;
@@ -54,6 +55,9 @@ namespace protofx
                 ActiveUniformBlockParameter.UniformBlockDataSize, out size);
             if (size <= 0)
                 throw new Exception("Uniform block '" + name + "' size of '" + size + "' is invalid.");
+
+            // set name
+            this.name = name;
 
             // allocate memory for uniform block uniforms
             location = Enumerable.Repeat(-1, uniformNames.Length).ToArray();

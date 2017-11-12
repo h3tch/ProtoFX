@@ -1,8 +1,5 @@
 ﻿using protofx;
 using System;
-using Commands = System.Linq.ILookup<string, string[]>;
-using Objects = System.Collections.Generic.Dictionary<string, object>;
-using GLNames = System.Collections.Generic.Dictionary<string, int>;
 using System.Linq;
 
 namespace scene
@@ -60,16 +57,14 @@ namespace scene
         /// <param name="name"></param>
         /// <param name="cmds"></param>
         /// <param name="objs"></param>
-        /// <param name="glNames"></param>
-        public SpotLight(string name, Commands cmds, Objects objs, GLNames glNames)
-            : base(name, cmds, objs, glNames)
+        public SpotLight(object @params) : base(@params)
         {
             // PARSE COMMAND VALUES SPECIFIED BY THE USER
             float[] color = new float[3] { 1f, 1f, 1f };
-            Convert(cmds, "color", ref color);
-            Convert(cmds, "intensity", ref intensity);
-            Convert(cmds, "innerCone", ref innerCone);
-            Convert(cmds, "radius", ref radius);
+            Convert(commands, "color", ref color);
+            Convert(commands, "intensity", ref intensity);
+            Convert(commands, "innerCone", ref innerCone);
+            Convert(commands, "radius", ref radius);
             Color = color;
         }
 

@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ext\protofx\Attr.cs" />
     <Compile Include="ext\scene\BufferCamera.cs" />
     <Compile Include="ext\data\Converter.cs" />
     <Compile Include="ext\protofx\Object.cs" />

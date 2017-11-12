@@ -1,9 +1,6 @@
 ﻿using OpenTK;
 using System;
 using System.Windows.Forms;
-using Commands = System.Linq.ILookup<string, string[]>;
-using Objects = System.Collections.Generic.Dictionary<string, object>;
-using GLNames = System.Collections.Generic.Dictionary<string, int>;
 
 namespace scene
 {
@@ -15,13 +12,12 @@ namespace scene
 
         #endregion
 
-        public TurntableCamera(string name, Commands cmds, Objects objs, GLNames glNames)
-            : base(name, cmds, objs, glNames)
+        public TurntableCamera(object @params) : base(@params)
         {
             float tilt = rotx, yaw = roty, dist = Dist;
-            Convert(cmds, "tilt", ref tilt);
-            Convert(cmds, "yaw", ref yaw);
-            Convert(cmds, "dist", ref dist);
+            Convert(commands, "tilt", ref tilt);
+            Convert(commands, "yaw", ref yaw);
+            Convert(commands, "dist", ref dist);
             Turntable(tilt, yaw, dist);
         }
 

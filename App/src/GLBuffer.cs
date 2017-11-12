@@ -20,6 +20,12 @@ namespace App
 
         #endregion
 
+        public GLBuffer(object @params)
+            : this(@params.GetInstanceField<Compiler.Block>(),
+                   @params.GetInstanceField<Dictionary<string, object>>())
+        {
+        }
+
         /// <summary>
         /// Construct GLBuffer object.
         /// </summary>
@@ -64,8 +70,7 @@ namespace App
         /// </summary>
         /// <param name="block"></param>
         /// <param name="scene"></param>
-        /// <param name="debugging"></param>
-        public GLBuffer(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
+        public GLBuffer(Compiler.Block block, Dictionary<string, object> scene)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"buffer '{block.Name}'");

@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using static OpenTK.Graphics.OpenGL4.ProgramStageMask;
 using static OpenTK.Graphics.OpenGL4.TransformFeedbackMode;
 using static System.Reflection.BindingFlags;
 using ElementType = OpenTK.Graphics.OpenGL4.DrawElementsType;
 using PrimType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 using VertoutPrimType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
+using Objects = System.Collections.Generic.Dictionary<string, object>;
 
 namespace App
 {
@@ -52,13 +52,20 @@ namespace App
 
         #endregion
 
+        public GLPass(object @params)
+            : this(@params.GetInstanceField<Compiler.Block>(),
+                   @params.GetInstanceField<Dictionary<string, object>>(),
+                   @params.GetInstanceField<bool>())
+        {
+        }
+
         /// <summary>
         /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="genDebugInfo"></param>
-        public GLPass(Compiler.Block block, Dictionary<string, object> scene, bool genDebugInfo)
+        public GLPass(Compiler.Block block, Objects scene, bool genDebugInfo)
             : base(block.Name, block.Anno, 309, genDebugInfo)
         {
             var err = new CompileException($"pass '{Name}'");
@@ -103,7 +110,8 @@ namespace App
 
             if (Vert != null || Comp != null)
             {
-                GL.CreateProgramPipelines(1, out glname);
+                GL.CreateProgramPipelines(1, out int id);
+                glname = id;
 
                 // Attach shader objects.
                 // First try attaching a compute shader. If that
@@ -334,7 +342,7 @@ namespace App
         
         #region PARSE COMMANDS
 
-        private void ParseDrawCall(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
+        private void ParseDrawCall(Compiler.Command cmd, Objects classes, CompileException err)
         {
             var args = new List<int>();
             GLVertinput vertexin = null;
@@ -394,10 +402,10 @@ namespace App
 
             // get index buffer object (if present) and find existing MultiDraw class
             var multidrawcall = drawcalls.Find(
-                x => x.vertexin == (vertexin != null ? vertexin.glname : 0)
-                  && x.indexbuf == (indexbuf != null ? indexbuf.glname : 0)
-                  && x.vertout == (vertout != null ? vertout.glname : 0)
-                  && x.indirect == (indirect != null ? indirect.glname : 0))
+                x => x.vertexin == (vertexin?.glname ?? 0)
+                  && x.indexbuf == (indexbuf?.glname ?? 0)
+                  && x.vertout == (vertout?.glname ?? 0)
+                  && x.indirect == (indirect?.glname ?? 0))
                 ?? new MultiDrawCall(drawfunc, vertexin, vertout, indexbuf, indirect);
 
             // add new draw command to the MultiDraw class
@@ -405,7 +413,7 @@ namespace App
 
             drawcalls.Add(multidrawcall);
 
-            bool TryGetValue<T>(Dictionary<string, object> dict, string key, ref T obj)
+            bool TryGetValue<T>(Objects dict, string key, ref T obj)
             {
                 if (obj != null || !dict.TryGetValue(key, out var tmp) || !(tmp is T))
                     return false;
@@ -414,7 +422,7 @@ namespace App
             }
         }
         
-        private void ParseComputeCall(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
+        private void ParseComputeCall(Compiler.Command cmd, Objects classes, CompileException err)
         {
             // check for errors
             if (cmd.ArgCount < 2 || cmd.ArgCount > 3)
@@ -474,7 +482,7 @@ namespace App
             }
         }
         
-        private void ParseTexCmd(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
+        private void ParseTexCmd(Compiler.Command cmd, Objects classes, CompileException err)
         {
             if (cmd.ArgCount != 1 && cmd.ArgCount != 2)
             {
@@ -492,7 +500,7 @@ namespace App
                 textures.Add(new Res<GLTexture>(values));
         }
 
-        private void ParseImgCmd(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
+        private void ParseImgCmd(Compiler.Command cmd, Objects classes, CompileException err)
         {
             if (cmd.ArgCount != 1 && cmd.ArgCount != 6)
             {
@@ -521,7 +529,7 @@ namespace App
                 texImages.Add(new ResTexImg(values));
         }
 
-        private void ParseSampCmd(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
+        private void ParseSampCmd(Compiler.Command cmd, Objects classes, CompileException err)
         {
             if (cmd.ArgCount != 1 && cmd.ArgCount != 2)
             {
@@ -539,7 +547,7 @@ namespace App
                 sampler.Add(new Res<GLSampler>(values));
         }
 
-        private void ParseAtomicCmd(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
+        private void ParseAtomicCmd(Compiler.Command cmd, Objects classes, CompileException err)
         {
             if (cmd.ArgCount < 1 || 3 < cmd.ArgCount)
             {
@@ -558,7 +566,7 @@ namespace App
                 buffers.Add(new ResBuffer(BufferRangeTarget.AtomicCounterBuffer, values));
         }
 
-        private void ParseOpenGLCall(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
+        private void ParseOpenGLCall(Compiler.Command cmd, Objects classes, CompileException err)
         {
             // find OpenGL method
             var mname = cmd.Name.StartsWith("gl") ? cmd.Name.Substring(2) : cmd.Name;
@@ -603,7 +611,7 @@ namespace App
             glfunc.Add(new GLMethod(mtype, inval));
         }
         
-        private void ParseCsharpExec(Compiler.Command cmd, Dictionary<string, object> classes, CompileException err)
+        private void ParseCsharpExec(Compiler.Command cmd, Objects classes, CompileException err)
         {
             // check if command provides the correct amount of parameters
             if (cmd.ArgCount == 0)
@@ -632,8 +640,7 @@ namespace App
                     select method).FirstOrDefault();
         }
 
-        private GLShader Attach(Compiler.Block block, string shadername, Dictionary<string, object> classes,
-            CompileException err)
+        private GLShader Attach(Compiler.Block block, string shadername, Objects classes, CompileException err)
         {
             GLShader obj = null;
 

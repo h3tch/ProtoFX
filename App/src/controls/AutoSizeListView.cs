@@ -136,11 +136,12 @@ namespace System.Windows.Forms
             base.Dispose(disposing);
             if (disposing)
             {
+                HeaderFormat?.Dispose();
+                ItemFormat?.Dispose();
                 headerBorderPen?.Dispose();
                 headerForeBrush?.Dispose();
                 headerBackBrush?.Dispose();
                 groupForeBrush?.Dispose();
-                headerBorderPen?.Dispose();
                 groupBorderPen?.Dispose();
             }
         }

@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Linq;
-using Commands = System.Collections.Generic.Dictionary<string, string[]>;
-using GLNames = System.Collections.Generic.Dictionary<string, int>;
+using Commands = System.Linq.ILookup<string, string[]>;
+using Objects = System.Collections.Generic.Dictionary<string, object>;
 using sampling;
+using protofx;
 
-namespace protofx
+namespace atlas
 {
-    class ArtifactQuest : CsObject
+    class ArtifactQuest : Node
     {
         #region FIELDS
-        public enum Names
+
+        protected enum Names
         {
             rendertargetSize,
             framebufferSize,
@@ -19,21 +21,26 @@ namespace protofx
             randomAngle,
             artifactSize,
             filterRadius,
+            moveOffset,
+            LAST,
         }
+        protected static string[] UniformNames = Enum.GetNames(typeof(Names))
+            .Take((int)Names.LAST).ToArray();
 
-        public enum Disc
+        protected enum Disk
         {
             nPoints,
             points,
+            LAST,
         }
+        protected static string[] UniformNamesDisk = Enum.GetNames(typeof(Disk))
+            .Take((int)Disk.LAST).ToArray();
 
         private string name;
         private bool matlabConsol = false;
         private float randomAngle = 0;
-        protected Dictionary<int, UniformBlock<Names>> uniform =
-            new Dictionary<int, UniformBlock<Names>>();
-        protected Dictionary<int, UniformBlock<Disc>> uniformDisc =
-            new Dictionary<int, UniformBlock<Disc>>();
+        [Connectable] private double moveOffset;
+
         #endregion
 
         #region QUESTS
@@ -41,24 +48,23 @@ namespace protofx
         private double[,] intensities = new[,] { { 0.0, 1.0 }, { 0.0, 0.5 }, { 0.5, 1.0 } };
         private int[] artifactSize = new[] { 10, 20, 30 };
         private double[] lineAngles = new[] { deg2rad * 1, deg2rad * 45 };
-        private float[] poissonRadii = new[] { 0.0f, 0.1f, 0.2f };
-        private PoissonDisc[] poissonDisc;
+        private float[] poissonRadii = new[] { 0.1f, 0.2f };
+        private PoissonDisk[] poissonDisk;
         private Quest[] quests = new[] {
-            // intensity quests
-            new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
-            new Quest { intensityId = 1, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
-            new Quest { intensityId = 2, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
-            // artifact quests
-            new Quest { intensityId = 0, artifactId = 0, lineId = 0, poissonId = 0, radius = 10*startFactor},
-            new Quest { intensityId = 0, artifactId = 1, lineId = 0, poissonId = 0, radius = 20*startFactor},
-            new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
-            // line angle quests
-            new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
-            new Quest { intensityId = 0, artifactId = 2, lineId = 1, poissonId = 0, radius = 30*startFactor},
+            //// intensity quests
+            //new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
+            //new Quest { intensityId = 1, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
+            //new Quest { intensityId = 2, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
+            //// artifact quests
+            //new Quest { intensityId = 0, artifactId = 0, lineId = 0, poissonId = 0, radius = 10*startFactor},
+            //new Quest { intensityId = 0, artifactId = 1, lineId = 0, poissonId = 0, radius = 20*startFactor},
+            //new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
+            //// line angle quests
+            //new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
+            //new Quest { intensityId = 0, artifactId = 2, lineId = 1, poissonId = 0, radius = 30*startFactor},
             // poisson quests
             new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
-            new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 1, radius = 30*startFactor},
-            new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 2, radius = 30*startFactor},
+            new Quest { intensityId = 0, artifactId = 2, lineId = 1, poissonId = 1, radius = 30*startFactor},
         };
         private int[] nQuests;
         private int activeQuest;
@@ -67,23 +73,32 @@ namespace protofx
         private double factor;
         #endregion
 
-        public ArtifactQuest(string name, Commands cmds, GLNames glNames)
+        public ArtifactQuest(object @params) : base(@params)
         {
-            this.name = name;
-            Convert(cmds, "name", ref this.name);
-            Convert(cmds, "matlabConsol", ref matlabConsol);
+            name = @params.GetInstanceValue<string>("Name");
+            Convert(commands, "name", ref this.name);
+            Convert(commands, "matlabConsol", ref matlabConsol);
 
             // CREATE POISSON DISCS
 
-            poissonDisc = new PoissonDisc[poissonRadii.Length];
+            var diskParams = new Params()
+            {
+                Name = name,
+                Scene = objects,
+                Commands = null,
+                Debug = @params.GetInstanceValue<bool>("Debug")
+            };
+
+            poissonDisk = new PoissonDisk[poissonRadii.Length];
             for (int i = 0; i < poissonRadii.Length; i++)
             {
                 if (poissonRadii[i] <= 0f)
                     continue;
-                if (cmds.ContainsKey("minRadius"))
-                    cmds.Remove("minRadius");
-                cmds.Add("minRadius", new[] { poissonRadii[i].ToString(EN) });
-                poissonDisc[i] = new PoissonDisc(name, cmds, glNames);
+                var radius = ToCommand("minRadius", new[] { poissonRadii[i].ToString(EN) });
+                diskParams.Commands = commands.Where(x => x.Key != "minRadius")
+                                              .Concat(radius)
+                                              .ToLookup(x => x.Key, x => x.First());
+                poissonDisk[i] = new PoissonDisk(diskParams);
             }
 
             // CREATE PSYCHOPHYSICS TOOLBOX QUESTS //
@@ -100,33 +115,30 @@ namespace protofx
             var sub = quests[activeQuest];
             var size = artifactSize[sub.artifactId];
             var angle = lineAngles[sub.lineId];
-            var samples = poissonDisc[sub.poissonId] != null
-                ? poissonDisc[sub.poissonId].points.GetLength(0) : 0;
+            var samples = poissonDisk[sub.poissonId] != null
+                ? poissonDisk[sub.poissonId].points.GetLength(0) : 0;
 
-            var line = new[] { (float)Math.Sin(angle), (float)Math.Cos(angle), 0 };
+            var line = new float[] { (float)Math.Sin(angle), (float)Math.Cos(angle), 0 };
             line[2] = line[0] * widthTex / 2 + line[1] * heightTex / 2;
 
             // GET OR CREATE CAMERA UNIFORMS FOR program
-#pragma warning disable IDE0018
-            UniformBlock<Names> unif;
-            UniformBlock<Disc> unifDisc;
-#pragma warning restore IDE0018
-            if (uniform.TryGetValue(pipeline, out unif) == false)
-                uniform.Add(pipeline, unif = new UniformBlock<Names>(pipeline, name));
-            if (uniformDisc.TryGetValue(pipeline, out unifDisc) == false)
-                uniformDisc.Add(pipeline, unifDisc = new UniformBlock<Disc>(pipeline, name + "Disc"));
+
+            var unif = GetUniformBlock(pipeline, name, UniformNames);
+            var unifDisc = GetUniformBlock(pipeline, name + "Disk", UniformNamesDisk);
+            if (unif == null || unifDisc == null)
+                return;
 
             // SET UNIFORM VALUES
-            unif.Set(Names.rendertargetSize, new[] {
+            unif.Set((int)Names.rendertargetSize, new int[] {
                 widthTex, heightTex, widthScreen, heightScreen,
             });
-            unif.Set(Names.lineAngle, new[] {
-                (float)angle, randomAngle, size, sub.radius
+            unif.Set((int)Names.lineAngle, new float[] {
+                (float)angle, randomAngle, size, sub.radius, (float)moveOffset
             });
 
-            unifDisc.Set(Disc.nPoints, new[] { samples });
+            unifDisc.Set((int)Disk.nPoints, new[] { samples });
             if (samples > 0)
-                unifDisc.Set(Disc.points, poissonDisc[sub.poissonId].points);
+                unifDisc.Set((int)Disk.points, poissonDisk[sub.poissonId].points);
             
             // UPDATE UNIFORM BUFFER
             unif.Update();
@@ -170,6 +182,13 @@ namespace protofx
             return (float)(360 * deg2rad * rnd.NextDouble());
         }
 
+        private static Commands ToCommand(string key, string[] args)
+        {
+            return new[] {
+                new KeyValuePair<string, string[]>(key, args)
+            }.ToLookup(x => x.Key, x => x.Value);
+        }
+
         private class Quest
         {
             public int intensityId;
@@ -179,5 +198,12 @@ namespace protofx
             public int radius;
         }
 
+        class Params
+        {
+            public string Name;
+            public Dictionary<string, object> Scene;
+            public ILookup<string, string[]> Commands;
+            public bool Debug;
+        }
     }
 }

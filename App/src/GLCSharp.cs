@@ -20,13 +20,19 @@ namespace App
         private CompilerResults CompilerResults;
         #endregion
 
+        public GLCsharp(object @params)
+            : this(@params.GetInstanceField<Compiler.Block>(),
+                   @params.GetInstanceField<Dictionary<string, object>>())
+        {
+        }
+
         /// <summary>
         /// Create OpenGL object. Standard object constructor for ProtoFX.
         /// </summary>
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        public GLCsharp(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
+        public GLCsharp(Compiler.Block block, Dictionary<string, object> scene)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"csharp '{Name}'");
@@ -48,9 +54,9 @@ namespace App
                     try {
                         System.Reflection.Assembly.LoadFrom(assemblypath);
                     } catch (FileNotFoundException) {
-                        err.Error($"Assembly file '{assemblypath}' cound not be found.", block);
+                        err.Error($"Assembly file '{assemblypath}' could not be found.", block);
                     } catch (FileLoadException) {
-                        err.Error($"Assembly '{assemblypath}' cound not be loaded.", block);
+                        err.Error($"Assembly '{assemblypath}' could not be loaded.", block);
                     } catch {
                         err.Error($"Unknown exception when loading assembly '{assemblypath}'.", block);
                     }
@@ -59,18 +65,48 @@ namespace App
 
             // replace placeholders with actual path
             var dir = Path.GetDirectoryName(block.Filename) + Path.DirectorySeparatorChar;
-            var folders = ProcessPaths(dir, Folder);
-            var filepath = ProcessPaths(dir, File).Concat(GetCSharpFiles(folders));
-            var unique = new HashSet<string>(filepath).ToArray();
+            var files = GetCSharpFiles(ProcessPaths(dir, Folder), ProcessPaths(dir, File));
 
             // COMPILE FILES
-            CompilerResults = CompileFilesOrSource(unique, Version, block, err);
+            CompilerResults = CompileFilesOrSource(files, Version, block, err);
 
             // check for errors
             if (err.HasErrors)
                 throw err;
         }
-        
+
+        public GLCsharp(string[] folders) : base("__extensions__", null)
+        {
+            var err = new CompileException($"csharp '{Name}'");
+
+            Folder = folders;
+
+            // COMPILE FILES
+            CompilerResults = CompileFilesOrSource(GetCSharpFiles(Folder, true).ToArray());
+
+            // check for compiler errors
+            if (CompilerResults?.Errors.Count != 0)
+            {
+                foreach (CompilerError message in CompilerResults.Errors)
+                {
+                    if (message.IsWarning)
+                        err.Info(message.ErrorText, message.FileName, message.Line);
+                    else
+                        err.Error(message.ErrorText, message.FileName, message.Line);
+                }
+            }
+        }
+
+        public IEnumerable<TypeInfo> GetExtensions()
+        {
+            return CompilerResults?.CompiledAssembly.GetTypesByAttribute("FxAttribute");
+        }
+
+        public Type GetType(string name)
+        {
+            return CompilerResults?.CompiledAssembly.GetType(name, false, true);
+        }
+
         /// <summary>
         /// Compile a list of files or a list of source code.
         /// </summary>
@@ -84,65 +120,11 @@ namespace App
             CompilerResults rs = null;
             try
             {
-                // set compicompiler parameters
-                var compilerParams = new CompilerParameters()
-                {
-                    GenerateInMemory = true,
-                    GenerateExecutable = false,
-                    TempFiles = new TempFileCollection("tmp", false),
-#if DEBUG
-                    IncludeDebugInformation = true,
-                    CompilerOptions = "/define:DEBUG",
-#else
-                    IncludeDebugInformation = false,
-#endif
-                };
-                
-                // add assemblies
-                compilerParams.ReferencedAssemblies.Add(
-                    System.Reflection.Assembly.GetExecutingAssembly().Location);
-                compilerParams.ReferencedAssemblies.AddRange(
-                    Properties.Resources.CSHARP_REFERENCES.Split('\n')
-                    .Select(s => s.Trim()).ToArray());
-
-                // select compiler version
-                var provider = version != null
-                    ? new CSharpCodeProvider(new Dictionary<string, string> {
-                        { "CompilerVersion", version }
-                    })
-                    : new CSharpCodeProvider();
-                var check = code.Count(x => IsFilename(x));
-                if (check == code.Length)
-                {
-                    rs = provider.CompileAssemblyFromFile(compilerParams, code);
-                }
-                else if (check == 0)
-                {
-#if DEBUG
-                    Directory.CreateDirectory("tmp");
-                    var filenames = new string[code.Length];
-                    for (int i = 0; i < filenames.Length; i++)
-                    {
-                        filenames[i] = $"tmp{Path.DirectorySeparatorChar}tmp_{tmpNames[i]}.cs";
-                        if (System.IO.File.Exists(filenames[i]))
-                        {
-                            var tmp = System.IO.File.ReadAllText(filenames[i]);
-                            if (tmp != code[i])
-                                System.IO.File.WriteAllText(filenames[i], code[i]);
-                        }
-                        else
-                            System.IO.File.WriteAllText(filenames[i], code[i]);
-                    }
-                    rs = provider.CompileAssemblyFromFile(compilerParams, filenames);
-#else
-                    rs = provider.CompileAssemblyFromSource(compilerParams, code);
-#endif
-                }
-                else
-                {
-                    throw err.Error("Cannot mix filenames and source code"
-                        + "strings when compiling C# code.", block);
-                }
+                rs = CompileFilesOrSource(code, version, tmpNames);
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw err.Error(ex.Message, block);
             }
             catch (DirectoryNotFoundException ex)
             {
@@ -157,43 +139,86 @@ namespace App
                 // check for compiler errors
                 if (rs?.Errors.Count != 0)
                 {
-                    foreach (var message in rs.Errors)
-                        err.Error(message.ToString(), block);
+                    foreach (CompilerError message in rs.Errors)
+                    {
+                        if (message.IsWarning)
+                            err.Info(message.ErrorText, message.FileName, message.Line);
+                        else
+                            err.Error(message.ErrorText, message.FileName, message.Line);
+                    }
                 }
             }
             return rs;
         }
 
         /// <summary>
-        /// Process paths to replace predefined placeholders like <code>"<sharp>"</code>.
+        /// Compile a list of files or a list of source code.
         /// </summary>
-        /// <param name="abspath"></param>
-        /// <param name="paths"></param>
+        /// <param name="code"></param>
+        /// <param name="block"></param>
+        /// <param name="err"></param>
         /// <returns></returns>
-        private IEnumerable<string> ProcessPaths(string abspath, string[] paths)
+        public static CompilerResults CompileFilesOrSource(string[] code,
+            string version = null, string[] tmpNames = null)
         {
-            if (paths != null)
+            // set compicompiler parameters
+            var compilerParams = new CompilerParameters()
             {
-                var curDir = Directory.GetCurrentDirectory() + "/";
-                //var placeholders = new[] { new[] { "<ext>", $"{curDir}../ext" } };
+                GenerateInMemory = true,
+                GenerateExecutable = false,
+                TempFiles = new TempFileCollection("tmp", false),
+#if DEBUG
+                IncludeDebugInformation = true,
+                CompilerOptions = "/define:DEBUG",
+#else
+                IncludeDebugInformation = false,
+#endif
+            };
 
-                foreach (var path in paths)
+            // add assemblies
+            compilerParams.ReferencedAssemblies.Add(
+                System.Reflection.Assembly.GetExecutingAssembly().Location);
+            compilerParams.ReferencedAssemblies.AddRange(
+                Properties.Resources.CSHARP_REFERENCES.Split('\n')
+                .Select(s => s.Trim()).ToArray());
+
+            // select compiler version
+            var provider = version != null
+                ? new CSharpCodeProvider(new Dictionary<string, string> {
+                    { "CompilerVersion", version }
+                })
+                : new CSharpCodeProvider();
+            var check = code.Count(x => IsFilename(x));
+            if (check == code.Length)
+            {
+                return provider.CompileAssemblyFromFile(compilerParams, code);
+            }
+            else if (check == 0)
+            {
+#if DEBUG
+                Directory.CreateDirectory("tmp");
+                var filenames = new string[code.Length];
+                for (int i = 0; i < filenames.Length; i++)
                 {
-                    var s = (string)path.Clone();
-                    // replace placeholders with actual path
-                    var match = Regex.Match(s, @"<[\w\d]+>");
-                    if (match.Success && match.Index == 0)
-                        s = $"{curDir}../{s.Substring(1, match.Length - 2) + s.Substring(match.Length)}";
-                    //foreach (var placeholder in placeholders)
-                    //    s = s.Replace(placeholder[0], placeholder[1]);
-                    // convert relative file paths to absolut file paths
-                    if (!Path.IsPathRooted(s))
-                        s = abspath + s;
-                    // use '\\' file paths instead of '/' and set absolute directory path
-                    if (Path.DirectorySeparatorChar != '/')
-                        s = s.Replace('/', Path.DirectorySeparatorChar);
-                    yield return s;
+                    filenames[i] = $"tmp{Path.DirectorySeparatorChar}tmp_{tmpNames[i]}.cs";
+                    if (System.IO.File.Exists(filenames[i]))
+                    {
+                        var tmp = System.IO.File.ReadAllText(filenames[i]);
+                        if (tmp != code[i])
+                            System.IO.File.WriteAllText(filenames[i], code[i]);
+                    }
+                    else
+                        System.IO.File.WriteAllText(filenames[i], code[i]);
                 }
+                return provider.CompileAssemblyFromFile(compilerParams, filenames);
+#else
+                return provider.CompileAssemblyFromSource(compilerParams, code);
+#endif
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot mix filenames and " +
+                    "source code strings when compiling C# code.");
             }
         }
 
@@ -231,7 +256,7 @@ namespace App
         /// <param name="scene"></param>
         /// <param name="err"></param>
         /// <returns></returns>
-        internal static object CreateInstance(Compiler.Block block, Dictionary<string, object> scene, CompileException err)
+        internal static object CreateInstance(Compiler.Block block, Dictionary<string, object> scene, object @params, CompileException err)
         {
             // GET CLASS COMMAND
             var cmds = block["class"].ToList();
@@ -242,6 +267,13 @@ namespace App
                 return null;
             }
             var cmd = cmds.First();
+            // check if the command is valid
+            if (cmd.ArgCount < 2)
+            {
+                err.Error("'class' command must specify a class name.", block);
+                return null;
+            }
+            var classname = cmd[1].Text;
 
             // check command
             if (cmd.ArgCount < 1)
@@ -259,7 +291,7 @@ namespace App
             }
 
             // INSTANTIATE CSHARP CLASS
-            return ((GLCsharp)csharp).CreateInstance(block, cmd, scene, err);
+            return ((GLCsharp)csharp).CreateInstance(block, classname, @params, err);
         }
 
         /// <summary>
@@ -269,31 +301,21 @@ namespace App
         /// <param name="cmd"></param>
         /// <param name="err"></param>
         /// <returns></returns>
-        private object CreateInstance(Compiler.Block block, Compiler.Command cmd, Dictionary<string, object> scene, CompileException err)
+        private object CreateInstance(Compiler.Block block, string classname, object @params, CompileException err)
         {
-            // check if the command is valid
-            if (cmd.ArgCount < 2)
-            {
-                err.Error("'class' command must specify a class name.", block);
-                return null;
-            }
-            
-            // create OpenGL name lookup dictionary
-            var glNames = new Dictionary<string, int>(scene.Count);
-            scene.Keys.ForEach(scene.Values, (k, v) => glNames.Add(k, ((GLObject)v).glname));
-
             // create main class from compiled files
-            var classname = cmd[1].Text;
             var instance = CompilerResults.CompiledAssembly.CreateInstance(
                 classname, false, BindingFlags.Default, null,
-                new object[] { block.Name, ToLookup(block), scene, glNames },
+                new object[] { @params },
                 CultureInfo.CurrentCulture, null);
 
             if (instance == null)
-                throw err.Error($"Main class '{classname}' could not be found.", cmd);
+                throw err.Error($"Main class '{classname}' could not be found.", block);
 
             InvokeMethod<object>(instance, "Initialize");
-            GetField<List<string>>(instance, "Errors")?.ForEach(msg => err.Error(msg, cmd));
+            GetField<List<string>>(instance, "Errors")?.ForEach(msg => err.Error(msg, block));
+            GetField<List<string>>(instance, "Warnings")?.ForEach(msg => err.Info(msg, block));
+            GetField<List<string>>(instance, "Infos")?.ForEach(msg => err.Info(msg, block));
 
             return instance;
         }
@@ -323,18 +345,7 @@ namespace App
             var type = CompilerResults.CompiledAssembly.GetType(classname);
             return type?.GetMethod(methodname, BindingFlags.Public | BindingFlags.Static);
         }
-
-        /// <summary>
-        /// Convert code block commands to dictionary.
-        /// </summary>
-        /// <param name="block"></param>
-        /// <returns></returns>
-        private ILookup<string, string[]> ToLookup(Compiler.Block block)
-        {
-            // add commands to dictionary
-            return block.ToLookup(cmd => cmd.Name, cmd => cmd.Select(x => x.Text).ToArray());
-        }
-
+        
         /// <summary>
         /// Invoke a method of an object instance.
         /// </summary>
@@ -386,16 +397,58 @@ namespace App
             return str.IndexOf('\n') < 0 && System.IO.File.Exists(str);
         }
 
-        private static IEnumerable<string> GetCSharpFiles(IEnumerable<string> folders)
+        public static string[] GetCSharpFiles(IEnumerable<string> folders, IEnumerable<string> files)
         {
+            folders = folders != null ? GetCSharpFiles(folders) : null;
+
+            if (folders != null && files != null)
+                return new HashSet<string>(files.Concat(folders)).ToArray();
+            else if (folders != null)
+                return new HashSet<string>(folders).ToArray();
+            else if (files != null)
+                return new HashSet<string>(files).ToArray();
+            return new string[0];
+        }
+
+        private static IEnumerable<string> GetCSharpFiles(IEnumerable<string> folders,
+            bool includeSubFolders = false)
+        {
+            var obt = includeSubFolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
             foreach (var folder in folders)
             {
                 if (!Directory.Exists(folder) || folder.IndexOf('\n') >= 0)
                     continue;
-                foreach (var file in Directory.GetFiles(folder))
+                foreach (var file in Directory.GetFiles(folder, "*.cs", obt))
+                    yield return file;
+            }
+        }
+
+        /// <summary>
+        /// Process paths to replace predefined placeholders like <code>"<sharp>"</code>.
+        /// </summary>
+        /// <param name="abspath"></param>
+        /// <param name="paths"></param>
+        /// <returns></returns>
+        private static IEnumerable<string> ProcessPaths(string abspath, IEnumerable<string> paths)
+        {
+            if (paths != null)
+            {
+                var curDir = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar;
+
+                foreach (var path in paths)
                 {
-                    if (file.EndsWith(".cs", StringComparison.CurrentCultureIgnoreCase))
-                        yield return file;
+                    var s = (string)path.Clone();
+                    // replace placeholders with actual path
+                    var match = Regex.Match(s, @"<[\w\d]+>");
+                    if (match.Success && match.Index == 0)
+                        s = $"{curDir}../{s.Substring(1, match.Length - 2) + s.Substring(match.Length)}";
+                    // convert relative file paths to absolute file paths
+                    if (!Path.IsPathRooted(s))
+                        s = abspath + s;
+                    // use '\\' file paths instead of '/' and set absolute directory path
+                    if (Path.DirectorySeparatorChar != '/')
+                        s = s.Replace('/', Path.DirectorySeparatorChar);
+                    yield return s;
                 }
             }
         }

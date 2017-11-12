@@ -19,7 +19,7 @@ namespace App
     
     abstract class GLObject
     {
-        internal int glname;
+        public int glname { get; protected set; }
         [FxField] public string Name { get; protected set; }
         public string Anno { get; protected set; }
 
@@ -34,7 +34,7 @@ namespace App
             Name = name;
             Anno = anno;
         }
-        
+
         /// <summary>
         /// Get debug label to the specified OpenGL object.
         /// </summary>

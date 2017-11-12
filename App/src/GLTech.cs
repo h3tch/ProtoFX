@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace App
 {
@@ -11,6 +12,13 @@ namespace App
         private List<GLPass> uninit = new List<GLPass>();
 
         #endregion
+
+        public GLTech(object @params)
+            : this(@params.GetInstanceField<Compiler.Block>(),
+                   @params.GetInstanceField<Dictionary<string, object>>(),
+                   @params.GetInstanceField<bool>())
+        {
+        }
 
         /// <summary>
         /// Create OpenGL object. Standard object constructor for ProtoFX.

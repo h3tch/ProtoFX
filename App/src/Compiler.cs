@@ -195,13 +195,12 @@ namespace App
         {
             #region FIELD
 
-            public File Owner { get; private set; }
+            internal File Owner { get; private set; }
             public int Line { get; private set; }
             public int LineCount { get; private set; }
             public int LineInFile => Line;
-            public string Text { get; private set; }
-            public int TextLength => Text?.Length ?? 0;
-            public List<int> TextIndex { get; private set; }
+            internal string Text { get; private set; }
+            private List<int> TextIndex { get; set; }
             public string Body => Text.Subrange(Text.IndexOf('{') + 1, Text.LastIndexOf('}') - 1);
             public List<int> BodyIndex {
                 get {
@@ -209,14 +208,12 @@ namespace App
                     return TextIndex.GetRange(i, Text.LastIndexOf('}') - 1 - i);
                 }
             }
-            public int BodyLength => Body.Length;
             public string Type { get; private set; }
             public string Name { get; private set; }
             public string Anno { get; private set; }
             public string Filename { get { return Owner.Path; } }
-            public Command[] Cmds { get; private set; }
-            public Command this[int i] { get { return Cmds[i]; } }
-            public IEnumerable<Command> this[string name] { get { return GetCommands(name); } }
+            public Dictionary<string, List<Command>> Commands { get; private set; } = new Dictionary<string, List<Command>>();
+            public IEnumerable<Command> this[string name] => GetCommands(name);
 
             #endregion
 
@@ -249,7 +246,7 @@ namespace App
                     Anno = matches[2].Value;
 
                 // process command body of the block
-                Cmds = ProcessCommands().ToArray();
+                ProcessCommands();
             }
             
             /// <summary>
@@ -259,16 +256,21 @@ namespace App
             /// <returns>Returns all commands sorted by occurrence.</returns>
             public IEnumerable<Command> GetCommands(string name = null)
             {
-                foreach (var cmd in Cmds)
-                    if (name == null || cmd.Name == name)
-                        yield return cmd;
+                foreach (var pair in Commands)
+                {
+                    if (name == null || pair.Key == name)
+                    {
+                        foreach (var cmd in pair.Value)
+                            yield return cmd;
+                    }
+                }
             }
 
             /// <summary>
             /// Process each line of an object block for commands.
             /// </summary>
             /// <returns>Returns a list of commands.</returns>
-            private IEnumerable<Command> ProcessCommands()
+            private void ProcessCommands()
             {
                 // split the command body of the block into lines
                 var braceOpen = Text.IndexOf('{');
@@ -288,9 +290,14 @@ namespace App
                     line = line.Replace("...", " ");
                     // create new command class
                     var cmd = new Command(this, linei, line);
-                    // only return valid commands
+                    // only add valid commands
                     if (cmd.ArgCount >= 0)
-                        yield return cmd;
+                    {
+                        if (Commands.TryGetValue(cmd.Name, out var cmds))
+                            cmds.Add(cmd);
+                        else
+                            Commands.Add(cmd.Name, new List<Command> { cmd });
+                    }
                 }
             }
 
@@ -311,6 +318,12 @@ namespace App
                 return GetCommands().GetEnumerator();
             }
 
+            public ILookup<string, string[]> ToLookup()
+            {
+                // add commands to dictionary
+                return this.ToLookup(cmd => cmd.Name, cmd => cmd.Select(x => x.Text).ToArray());
+            }
+
             #endregion
         }
 
@@ -318,16 +331,16 @@ namespace App
         {
             #region FIELD
 
-            public Block Owner { get; private set; }
+            private Block Owner { get; set; }
             public int Line { get; private set; }
             public int LineInFile => Owner.LineInFile + Line;
             public string Text { get; private set; }
-            public int Length => Args.Length - 1;
-            private Argument[] Args { get; set; }
-            public string File { get { return Owner.Owner.Path; } }
-            public string Name { get { return Args[0].Text; } }
-            public int ArgCount { get { return Args.Length - 1; } }
-            public Argument this[int i] { get { return Args[i + 1]; } }
+            public int Length => Arguments.Length;
+            private Argument[] Arguments { get; set; }
+            public string File => Owner.Owner.Path;
+            public string Name { get; private set; }
+            public int ArgCount => Arguments != null ? Arguments.Length : -1;
+            public Argument this[int i] => Arguments[i];
 
             #endregion
 
@@ -344,7 +357,9 @@ namespace App
                 Text = text.Trim();
 
                 // process arguments in the command line
-                Args = ProcessArguments().ToArray();
+                var iter = ProcessArguments();
+                Name = iter.Count() > 0 ? iter.First().Text : null;
+                Arguments = iter.Count() > 1 ? iter.Skip(1).ToArray() : null;
             }
             
             /// <summary>
@@ -436,17 +451,18 @@ namespace App
             #region IEnumerable Interface
             public IEnumerator<Argument> GetEnumerator()
             {
-                return Args.Skip(1).GetEnumerator();
+                foreach (var arg in Arguments)
+                    yield return arg;
             }
 
             IEnumerator<Argument> IEnumerable<Argument>.GetEnumerator()
             {
-                return Args.Skip(1).GetEnumerator();
+                return GetEnumerator();
             }
 
             IEnumerator IEnumerable.GetEnumerator()
             {
-                return Args.Skip(1).GetEnumerator();
+                return Arguments.GetEnumerator();
             }
             #endregion
         }
@@ -454,7 +470,7 @@ namespace App
         public class Argument
         {
             #region FIELD
-            public Command Owner { get; private set; }
+            private Command Owner { get; set; }
             public int Line => 0;
             public int LineInFile => Owner.LineInFile + Line;
             public string Text { get; private set; }

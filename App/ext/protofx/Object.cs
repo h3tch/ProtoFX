@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Commands = System.Linq.ILookup<string, string[]>;
-using Objects = System.Collections.Generic.Dictionary<string, object>;
+using System.Reflection;
 
 namespace protofx
 {
@@ -17,10 +16,10 @@ namespace protofx
 
         public static CultureInfo EN = new CultureInfo("en");
         public static CultureInfo culture = EN;
-        private Dictionary<int, object> uniformBlocks = new Dictionary<int, object>();
+        private Dictionary<string, object> uniformBlocks = new Dictionary<string, object>();
         protected List<string> Errors = new List<string>();
-        protected Commands commands;
-        protected Objects objects;
+        protected ILookup<string, string[]> commands;
+        protected Dictionary<string, object> objects;
 
         #endregion
 
@@ -29,10 +28,10 @@ namespace protofx
         /// </summary>
         /// <param name="cmds"></param>
         /// <param name="objs"></param>
-        public Object(Commands cmds, Objects objs)
+        public Object(object @params)
         {
-            commands = cmds;
-            objects = objs;
+            commands = @params.GetInstanceValue<ILookup<string, string[]>>();
+            objects = @params.GetInstanceValue<Dictionary<string, object>>();
         }
 
         /// <summary>
@@ -45,12 +44,13 @@ namespace protofx
         public UniformBlock GetUniformBlock(int pipeline, string name, string[] variableNames)
         {
             object unif = null;
-            if (uniformBlocks.TryGetValue(pipeline, out unif) == false)
-            {
-                if (UniformBlock.HasUnifromBlock(pipeline, name))
-                    unif = new UniformBlock(pipeline, name, variableNames);
-                uniformBlocks.Add(pipeline, unif);
-            }
+            var key = name + "(" + pipeline + ")";
+            if (uniformBlocks.TryGetValue(key, out unif))
+                return (UniformBlock)unif;
+
+            if (UniformBlock.HasUnifromBlock(pipeline, name))
+                unif = new UniformBlock(pipeline, name, variableNames);
+            uniformBlocks.Add(key, unif);
             return (UniformBlock)unif;
         }
 
@@ -62,7 +62,7 @@ namespace protofx
         /// <param name="cmds"></param>
         /// <param name="cmd"></param>
         /// <param name="v"></param>
-        protected void Convert<T>(Commands cmds, string cmd, ref T[] v)
+        protected void Convert<T>(ILookup<string, string[]> cmds, string cmd, ref T[] v)
         {
             int i = 0, l;
 
@@ -88,7 +88,7 @@ namespace protofx
         /// <param name="cmds"></param>
         /// <param name="cmd"></param>
         /// <param name="v"></param>
-        protected void Convert<T>(Commands cmds, string cmd, ref T v)
+        protected void Convert<T>(ILookup<string, string[]> cmds, string cmd, ref T v)
         {
             var s = cmds[cmd].FirstOrDefault();
             if (s == null)
@@ -121,5 +121,71 @@ namespace protofx
                 return false;
             }
         }
+    }
+
+    static class ObjectExtensions
+    {
+        public static TReturn GetInstanceValue<TReturn>(this object obj, string name)
+        {
+            return (TReturn)obj.GetInstanceValue(name);
+        }
+        public static TReturn GetInstanceValue<TReturn>(this object obj)
+        {
+            TReturn value = obj.GetInstanceField<TReturn>();
+            if (value == null)
+                value = obj.GetInstanceProperty<TReturn>();
+            return value;
+        }
+
+        public static object GetInstanceValue(this object obj, string name)
+        {
+            var value = obj.GetInstanceField(name);
+            if (value == null)
+                value = obj.GetInstanceProperty(name);
+            return value;
+        }
+
+        public static TReturn GetInstanceField<TReturn>(this object obj, string name)
+        {
+            return (TReturn)obj.GetInstanceField(name);
+        }
+
+        public static TReturn GetInstanceField<TReturn>(this object obj)
+        {
+            foreach (var field in obj.GetType().GetFields(flags))
+                if (field.FieldType == typeof(TReturn))
+                    return (TReturn)field.GetValue(obj);
+            return default(TReturn);
+        }
+
+        public static object GetInstanceField(this object obj, string name)
+        {
+            var field = obj.GetType().GetField(name, flags);
+            return field != null ? field.GetValue(obj) : null;
+        }
+
+        public static TReturn GetInstanceProperty<TReturn>(this object obj, string name)
+        {
+            return (TReturn)obj.GetInstanceProperty(name);
+        }
+
+        public static TReturn GetInstanceProperty<TReturn>(this object obj)
+        {
+            foreach (var prop in obj.GetType().GetProperties(flags))
+                if (prop.PropertyType == typeof(TReturn))
+                    return (TReturn)prop.GetValue(obj);
+            return default(TReturn);
+        }
+
+        public static object GetInstanceProperty(this object obj, string name)
+        {
+            var prop = obj.GetType().GetProperty(name, flags);
+            return prop != null ? prop.GetValue(obj) : null;
+        }
+
+        private static BindingFlags flags =
+            BindingFlags.Public |
+            BindingFlags.NonPublic |
+            BindingFlags.Instance;
     }
 }
