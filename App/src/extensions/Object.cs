@@ -1,57 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
 
 namespace System
 {
     static class ObjectExtensions
     {
-        public static TReturn GetInstanceValue<TReturn>(this object obj, string name)
-        {
-            return (TReturn)obj.GetInstanceValue(name);
-        }
-
-        public static object GetInstanceValue(this object obj, string name)
-        {
-            return obj.GetInstanceField(name) ?? obj.GetInstanceProperty(name);
-        }
-
-        public static TReturn GetInstanceField<TReturn>(this object obj, string name)
-        {
-            return (TReturn)obj.GetInstanceField(name);
-        }
-
-        public static TReturn GetInstanceField<TReturn>(this object obj)
-        {
-            foreach (var field in obj.GetType().GetFields(flags))
-                if (field.FieldType == typeof(TReturn))
-                    return (TReturn)field.GetValue(obj);
-            return default(TReturn);
-        }
-
-        public static object GetInstanceField(this object obj, string name)
-        {
-            return obj.GetType().GetField(name, flags)?.GetValue(obj);
-        }
-
-        public static TReturn GetInstanceProperty<TReturn>(this object obj, string name)
-        {
-            return (TReturn)obj.GetInstanceProperty(name);
-        }
-
-        public static TReturn GetInstanceProperty<TReturn>(this object obj)
-        {
-            foreach (var prop in obj.GetType().GetProperties(flags))
-                if (prop.PropertyType == typeof(TReturn))
-                    return (TReturn)prop.GetValue(obj);
-            return default(TReturn);
-        }
-
-        public static object GetInstanceProperty(this object obj, string name)
-        {
-            return obj.GetType().GetProperty(name, flags)?.GetValue(obj);
-        }
-
         /// <summary>
         /// Perform a deep copy.
         /// </summary>
@@ -132,11 +85,11 @@ namespace System
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="me"></param>
-        /// <param name="text"></param>
+        /// <param name="name"></param>
         /// <returns></returns>
-        public static (object Owner, object Info, int Index) FindMember<T>(this T me, string text)
+        public static (object Owner, object Info, int Index) FindMember(this object me, string name)
         {
-            FindMember(me, text, out object owner, out object info, out int index);
+            FindMember(me, name, out object owner, out object info, out int index);
             return (owner, info, index);
         }
 
@@ -147,13 +100,13 @@ namespace System
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
-        /// <param name="text"></param>
+        /// <param name="name"></param>
         /// <param name="value"></param>
-        public static void SetMemberValue<T>(this T obj, string text, object value)
+        public static void SetMemberValue(this object obj, string name, object value)
         {
-            (object owner, object info, int index) = obj.FindMember(text);
+            (object owner, object info, int index) = obj.FindMember(name);
             if (owner == null || info == null)
-                throw new MissingMemberException($"Could not set member '{text}' of object '{obj}'.");
+                throw new MissingMemberException($"Could not set member '{name}' of object '{obj}'.");
             SetMemberValue(owner, info, index, value);
         }
 
@@ -164,13 +117,117 @@ namespace System
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
-        /// <param name="text"></param>
-        public static object GetMemberValue<T>(this T obj, string text)
+        /// <param name="name"></param>
+        public static object GetMemberValue(this object obj, string name)
         {
-            (object owner, object info, int index) = obj.FindMember(text);
+            (object owner, object info, int index) = obj.FindMember(name);
             if (owner == null || info == null)
-                throw new MissingMemberException($"Could not get member '{text}' of object '{obj}'.");
+                throw new MissingMemberException($"Could not get member '{name}' of object '{obj}'.");
             return GetMemberValue(owner, info, index);
+        }
+
+        /// <summary>
+        /// Get the value of a field or property using a string (e.g.,
+        /// "obj1.field3.property3", "obj1.TypeName.property3",
+        /// "obj1.field3.property[1]", ...) and cast the result
+        /// to the specified return type.
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static TReturn GetMemberValue<TReturn>(this object obj, string name)
+        {
+            return (TReturn)obj.GetMemberValue(name);
+        }
+
+        /// <summary>
+        /// Get the first member of the specified type.
+        /// Fields are preferred over properties.
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static TReturn GetMemberValue<TReturn>(this object obj)
+        {
+            var result = obj.GetFieldValue<TReturn>();
+            return result == null ? obj.GetPropertyValue<TReturn>() : result;
+        }
+
+        /// <summary>
+        /// Get the first field of the specified type.
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static TReturn GetFieldValue<TReturn>(this object obj)
+        {
+            var field = obj.GetType().GetFields(flags)
+                .FirstOrDefault(x => x.FieldType == typeof(TReturn));
+            return field != null ? (TReturn)field.GetValue(obj) : default(TReturn);
+        }
+
+        /// <summary>
+        /// Get the first property of the specified type.
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static TReturn GetPropertyValue<TReturn>(this object obj)
+        {
+            var prop = obj.GetType().GetProperties(flags)
+                .FirstOrDefault(x => x.PropertyType == typeof(TReturn));
+            return prop != null ? (TReturn)prop.GetValue(obj) : default(TReturn);
+        }
+
+        /// <summary>
+        /// Get the field value matching the specified name
+        /// and cast it to the specified type.
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static TReturn GetFieldValue<TReturn>(this object obj, string name)
+        {
+            return (TReturn)obj.GetType().GetField(name, flags)?.GetValue(obj);
+        }
+
+        /// <summary>
+        /// Get the property value matching the specified name
+        /// and cast it to the specified type.
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static TReturn GetPropertyValue<TReturn>(this object obj, string name)
+        {
+            return (TReturn)obj.GetType().GetProperty(name, flags)?.GetValue(obj);
+        }
+
+        /// <summary>
+        /// Get the field value matching the specified name.
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static object GetFieldValue(this object obj, string name)
+        {
+            return obj.GetType().GetField(name, flags)?.GetValue(obj);
+        }
+
+        /// <summary>
+        /// Get the property value matching the specified name.
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static object GetPropertyValue(this object obj, string name)
+        {
+            return obj.GetType().GetProperty(name, flags)?.GetValue(obj);
         }
 
         /// <summary>
@@ -183,7 +240,7 @@ namespace System
         /// <param name="Owner"></param>
         /// <param name="Info"></param>
         /// <param name="Index"></param>
-        private static void FindMember<T>(this T me, string access, out object Owner, out object Info, out int Index)
+        private static void FindMember(this object me, string access, out object Owner, out object Info, out int Index)
         {
             var parts = access.Split('.');
             object owner = me;

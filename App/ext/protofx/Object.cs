@@ -30,8 +30,8 @@ namespace protofx
         /// <param name="objs"></param>
         public Object(object @params)
         {
-            commands = @params.GetInstanceValue<ILookup<string, string[]>>();
-            objects = @params.GetInstanceValue<Dictionary<string, object>>();
+            commands = @params.GetMemberValue<ILookup<string, string[]>>();
+            objects = @params.GetMemberValue<Dictionary<string, object>>();
         }
 
         /// <summary>
@@ -125,32 +125,59 @@ namespace protofx
 
     static class ObjectExtensions
     {
-        public static TReturn GetInstanceValue<TReturn>(this object obj, string name)
+        /// <summary>
+        /// Get the value of a field or property using a string (e.g.,
+        /// "obj1.field3.property3", "obj1.TypeName.property3",
+        /// "obj1.field3.property[1]", ...) and cast the result
+        /// to the specified return type.
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static TReturn GetMemberValue<TReturn>(this object obj, string name)
         {
-            return (TReturn)obj.GetInstanceValue(name);
+            return (TReturn)obj.GetMemberValue(name);
         }
-        public static TReturn GetInstanceValue<TReturn>(this object obj)
+
+        /// <summary>
+        /// Get the first member of the specified type.
+        /// Fields are preferred over properties.
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static TReturn GetMemberValue<TReturn>(this object obj)
         {
-            TReturn value = obj.GetInstanceField<TReturn>();
+            TReturn value = obj.GetFieldValue<TReturn>();
             if (value == null)
-                value = obj.GetInstanceProperty<TReturn>();
+                value = obj.GetPropertyValue<TReturn>();
             return value;
         }
 
-        public static object GetInstanceValue(this object obj, string name)
+        /// <summary>
+        /// Get the value of a field or property using a string (e.g.,
+        /// "obj1.field3.property3", "obj1.TypeName.property3",
+        /// "obj1.field3.property[1]", ...).
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="text"></param>
+        public static object GetMemberValue(this object obj, string name)
         {
-            var value = obj.GetInstanceField(name);
+            var value = obj.GetFieldValue(name);
             if (value == null)
-                value = obj.GetInstanceProperty(name);
+                value = obj.GetPropertyValue(name);
             return value;
         }
 
-        public static TReturn GetInstanceField<TReturn>(this object obj, string name)
-        {
-            return (TReturn)obj.GetInstanceField(name);
-        }
-
-        public static TReturn GetInstanceField<TReturn>(this object obj)
+        /// <summary>
+        /// Get the first field of the specified type.
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static TReturn GetFieldValue<TReturn>(this object obj)
         {
             foreach (var field in obj.GetType().GetFields(flags))
                 if (field.FieldType == typeof(TReturn))
@@ -158,18 +185,13 @@ namespace protofx
             return default(TReturn);
         }
 
-        public static object GetInstanceField(this object obj, string name)
-        {
-            var field = obj.GetType().GetField(name, flags);
-            return field != null ? field.GetValue(obj) : null;
-        }
-
-        public static TReturn GetInstanceProperty<TReturn>(this object obj, string name)
-        {
-            return (TReturn)obj.GetInstanceProperty(name);
-        }
-
-        public static TReturn GetInstanceProperty<TReturn>(this object obj)
+        /// <summary>
+        /// Get the first property of the specified type.
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static TReturn GetPropertyValue<TReturn>(this object obj)
         {
             foreach (var prop in obj.GetType().GetProperties(flags))
                 if (prop.PropertyType == typeof(TReturn))
@@ -177,7 +199,27 @@ namespace protofx
             return default(TReturn);
         }
 
-        public static object GetInstanceProperty(this object obj, string name)
+        /// <summary>
+        /// Get the field value matching the specified name.
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static object GetFieldValue(this object obj, string name)
+        {
+            var field = obj.GetType().GetField(name, flags);
+            return field != null ? field.GetValue(obj) : null;
+        }
+
+        /// <summary>
+        /// Get the property value matching the specified name.
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static object GetPropertyValue(this object obj, string name)
         {
             var prop = obj.GetType().GetProperty(name, flags);
             return prop != null ? prop.GetValue(obj) : null;

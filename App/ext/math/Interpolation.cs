@@ -67,7 +67,7 @@ namespace math
         public Interpolate(object @params)
             : base(@params)
         {
-            name = @params.GetInstanceValue<string>("Name");
+            name = @params.GetMemberValue<string>("Name");
             Convert(commands, "name", ref name);
             Convert(commands, "from", ref from);
             Convert(commands, "start", ref from);

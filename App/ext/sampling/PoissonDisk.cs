@@ -55,7 +55,7 @@ namespace sampling
         {
             // PARSE COMMAND VALUES SPECIFIED BY THE USER
 
-            name = @params.GetInstanceValue<string>("Name");
+            name = @params.GetMemberValue<string>("Name");
             Convert(commands, "name", ref name);
             Convert(commands, "maxPoints", ref maxPoints);
             Convert(commands, "nPoints", ref maxPoints);

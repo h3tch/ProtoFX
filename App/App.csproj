@@ -220,7 +220,6 @@
     <Compile Include="src\controls\Theme.cs" />
     <Compile Include="src\extensions\Trie.cs" />
     <Compile Include="src\extensions\XmlSerializer.cs" />
-    <Compile Include="src\util\Params.cs" />
     <EmbeddedResource Include="src\App.resx">
       <DependentUpon>App.cs</DependentUpon>
     </EmbeddedResource>

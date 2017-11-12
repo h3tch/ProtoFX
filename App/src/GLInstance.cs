@@ -17,7 +17,7 @@ namespace App
         private MethodInfo visualize = null;
 
         public GLInstance(object @params)
-            : this(@params.GetInstanceField<Compiler.Block>(), @params)
+            : this(@params.GetFieldValue<Compiler.Block>(), @params)
         {
         }
 
@@ -28,7 +28,7 @@ namespace App
         public GLInstance(Compiler.Block block, object @params)
             : base(block.Name, block.Anno)
         {
-            var scene = @params.GetInstanceField<Dictionary<string, object>>();
+            var scene = @params.GetFieldValue<Dictionary<string, object>>();
             var err = new CompileException($"instance '{Name}'");
             
             // INSTANTIATE CSHARP CLASS FROM CODE BLOCK

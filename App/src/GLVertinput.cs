@@ -11,8 +11,8 @@ namespace App
         private List<VertAttr> attributes = new List<VertAttr>();
 
         public GLVertinput(object @params)
-            : this(@params.GetInstanceField<Compiler.Block>(),
-                   @params.GetInstanceField<Dictionary<string, object>>())
+            : this(@params.GetFieldValue<Compiler.Block>(),
+                   @params.GetFieldValue<Dictionary<string, object>>())
         {
         }
 

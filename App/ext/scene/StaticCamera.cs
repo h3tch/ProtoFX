@@ -84,7 +84,7 @@ namespace scene
 
             // parse command for values specified by the user
 
-            name = @params.GetInstanceValue<string>("Name");
+            name = @params.GetMemberValue<string>("Name");
             // PARSE COMMAND VALUES SPECIFIED BY THE USER
             float[] pos = new float[3] { 0f, 0f, 0f };
             float[] rot = new float[3] { 0f, 0f, 0f };

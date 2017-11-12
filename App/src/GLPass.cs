@@ -53,9 +53,9 @@ namespace App
         #endregion
 
         public GLPass(object @params)
-            : this(@params.GetInstanceField<Compiler.Block>(),
-                   @params.GetInstanceField<Dictionary<string, object>>(),
-                   @params.GetInstanceField<bool>())
+            : this(@params.GetFieldValue<Compiler.Block>(),
+                   @params.GetFieldValue<Dictionary<string, object>>(),
+                   @params.GetFieldValue<bool>())
         {
         }
 

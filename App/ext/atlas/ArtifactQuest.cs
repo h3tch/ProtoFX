@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Linq;
-using Commands = System.Linq.ILookup<string, string[]>;
-using Objects = System.Collections.Generic.Dictionary<string, object>;
 using sampling;
 using protofx;
 
@@ -75,8 +73,8 @@ namespace atlas
 
         public ArtifactQuest(object @params) : base(@params)
         {
-            name = @params.GetInstanceValue<string>("Name");
-            Convert(commands, "name", ref this.name);
+            name = @params.GetMemberValue<string>("Name");
+            Convert(commands, "name", ref name);
             Convert(commands, "matlabConsol", ref matlabConsol);
 
             // CREATE POISSON DISCS
@@ -86,7 +84,7 @@ namespace atlas
                 Name = name,
                 Scene = objects,
                 Commands = null,
-                Debug = @params.GetInstanceValue<bool>("Debug")
+                Debug = @params.GetMemberValue<bool>("Debug")
             };
 
             poissonDisk = new PoissonDisk[poissonRadii.Length];
@@ -101,7 +99,7 @@ namespace atlas
                 poissonDisk[i] = new PoissonDisk(diskParams);
             }
 
-            // CREATE PSYCHOPHYSICS TOOLBOX QUESTS //
+            // CREATE PSYCHOPHYSICS TOOLBOX QUESTS
 
             nQuests = new int[quests.Length];
             factor = artifactSize.Max();
@@ -182,7 +180,7 @@ namespace atlas
             return (float)(360 * deg2rad * rnd.NextDouble());
         }
 
-        private static Commands ToCommand(string key, string[] args)
+        private static ILookup<string, string[]> ToCommand(string key, string[] args)
         {
             return new[] {
                 new KeyValuePair<string, string[]>(key, args)

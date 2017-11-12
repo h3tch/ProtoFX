@@ -21,8 +21,8 @@ namespace App
         #endregion
 
         public GLCsharp(object @params)
-            : this(@params.GetInstanceField<Compiler.Block>(),
-                   @params.GetInstanceField<Dictionary<string, object>>())
+            : this(@params.GetFieldValue<Compiler.Block>(),
+                   @params.GetFieldValue<Dictionary<string, object>>())
         {
         }
 
