@@ -52,6 +52,15 @@ namespace App
 
         #endregion
 
+        /// <summary>
+        /// Generic constructor used to build the scene objects.
+        /// </summary>
+        /// <param name="params">A class containing all the parameters
+        /// needed to instantiate the class. The GLPass class requires a
+        /// <code>Compiler.Block</code> object of the respective part in the code,
+        /// a <code>Dictionary&lt;string, object&gt;</code> object containing
+        /// the scene objects and a <code>bool</code> value to enable the debugger.
+        /// </param>
         public GLPass(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>(),
@@ -65,7 +74,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="genDebugInfo"></param>
-        public GLPass(Compiler.Block block, Objects scene, bool genDebugInfo)
+        private GLPass(Compiler.Block block, Objects scene, bool genDebugInfo)
             : base(block.Name, block.Anno, 309, genDebugInfo)
         {
             var err = new CompileException($"pass '{Name}'");

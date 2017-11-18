@@ -17,11 +17,18 @@ namespace App
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class FxField : Attribute { }
     
+    /// <summary>
+    /// The base class for scene objects.
+    /// </summary>
     abstract class GLObject
     {
+        #region FIELDS
+        #pragma warning disable IDE1006
         public int glname { get; protected set; }
+        #pragma warning restore IDE1006
         [FxField] public string Name { get; protected set; }
         public string Anno { get; protected set; }
+        #endregion FIELDS
 
         /// <summary>
         /// Default constructor.
@@ -76,13 +83,16 @@ namespace App
             MethodInfo glIs, MethodInfo glLabel, int range)
         {
             // select all object IDs in the scene that are of one of the specified types
-            var internID = from x in existing where types.Any(y => y == x.GetType()) select x.glname;
+            var internID = from x in existing
+                           where types.Any(y => y == x.GetType())
+                           select x.glname;
             // find all external object IDs of the same type in OpenGL
             var externID = from x in Enumerable.Range(0, range)
                            where !internID.Contains(x) && (bool)glIs.Invoke(null, new object[] { x })
                            select x;
             // get respective OpenGL labels to ObenGL IDs
-            var externName = from x in externID select (string)glLabel.Invoke(null, new object[] { x });
+            var externName = from x in externID
+                             select (string)glLabel.Invoke(null, new object[] { x });
             // create ProtoFX classes referencing these OpenGL objects
             return externID
                 .Zip(externName, (i, n) => n.Length == 0 ? null : new object[] { n, "tex", i })

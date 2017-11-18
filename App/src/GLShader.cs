@@ -21,6 +21,15 @@ namespace App
 
         #endregion
 
+        /// <summary>
+        /// Generic constructor used to build the scene objects.
+        /// </summary>
+        /// <param name="params">A class containing all the parameters
+        /// needed to instantiate the class. The GLShader class requires a
+        /// <code>Compiler.Block</code> object of the respective part in the code,
+        /// a <code>Dictionary&lt;string, object&gt;</code> object containing
+        /// the scene objects and a <code>bool</code> value to enable the debugger.
+        /// </param>
         public GLShader(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>(),
@@ -34,7 +43,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        public GLShader(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
+        private GLShader(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"shader '{Name}'");

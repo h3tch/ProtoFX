@@ -17,6 +17,14 @@ namespace App
 
         #endregion
 
+        /// <summary>
+        /// Generic constructor used to build the scene objects.
+        /// </summary>
+        /// <param name="params">A class containing all the parameters
+        /// needed to instantiate the class. The GLTexture class requires a
+        /// <code>Compiler.Block</code> object of the respective part in the code
+        /// and a <code>Dictionary&lt;string, object&gt;</code> object containing
+        /// the scene objects.</param>
         public GLTexture(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>())
@@ -55,7 +63,7 @@ namespace App
         /// <param name="scene"></param>
         /// <param name="glbuff"></param>
         /// <param name="glimg"></param>
-        public GLTexture(Compiler.Block block, Dictionary<string, object> scene, GLBuffer glbuff, GLImage glimg)
+        private GLTexture(Compiler.Block block, Dictionary<string, object> scene, GLBuffer glbuff, GLImage glimg)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"texture '{Name}'");
@@ -93,7 +101,7 @@ namespace App
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        public GLTexture(Compiler.Block block, Dictionary<string, object> scene)
+        private GLTexture(Compiler.Block block, Dictionary<string, object> scene)
             : this(block, scene, null, null)
         {
         }

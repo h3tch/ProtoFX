@@ -16,6 +16,12 @@ namespace App
         private MethodInfo delete = null;
         private MethodInfo visualize = null;
 
+        /// <summary>
+        /// Generic constructor used to build the scene objects.
+        /// </summary>
+        /// <param name="params">A class containing all the parameters
+        /// needed to instantiate the class. The GLInstance class requires a
+        /// <code>Compiler.Block</code> object of the respective part in the code.</param>
         public GLInstance(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(), @params)
         {
@@ -25,7 +31,7 @@ namespace App
         /// Create class instance of a C# class compiled through GLCSharp.
         /// </summary>
         /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLInstance(Compiler.Block block, object @params)
+        private GLInstance(Compiler.Block block, object @params)
             : base(block.Name, block.Anno)
         {
             var scene = @params.GetFieldValue<Dictionary<string, object>>();

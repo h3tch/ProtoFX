@@ -40,6 +40,14 @@ namespace App
 
         #endregion
 
+        /// <summary>
+        /// Generic constructor used to build the scene objects.
+        /// </summary>
+        /// <param name="params">A class containing all the parameters
+        /// needed to instantiate the class. The GLImage class requires a
+        /// <code>Compiler.Block</code> object of the respective part in the code
+        /// and a <code>Dictionary&lt;string, object&gt;</code> object containing
+        /// the scene objects.</param>
         public GLImage(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>())
@@ -75,7 +83,7 @@ namespace App
         /// Create OpenGL image object.
         /// </summary>
         /// <param name="params">Input parameters for GLObject creation.</param>
-        public GLImage(Compiler.Block block, Dictionary<string, object> scene)
+        private GLImage(Compiler.Block block, Dictionary<string, object> scene)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"image '{Name}'");

@@ -370,11 +370,14 @@ namespace System.Windows.Forms
 
             public static implicit operator XmlColor(Color c) => new XmlColor(c);
 
+#pragma warning disable IDE1006
             [Xml.Serialization.XmlAttribute]
             public string hex
             {
-                get => ColorTranslator.ToHtml(color); set => color = ColorTranslator.FromHtml(value);
+                get => ColorTranslator.ToHtml(color);
+                set => color = ColorTranslator.FromHtml(value);
             }
+#pragma warning restore IDE1006
         }
 
         #endregion

@@ -13,6 +13,7 @@ namespace sampling
         public enum Names
         {
             numPoints,
+            numClosest,
             points,
             distances,
             indices,
@@ -25,7 +26,7 @@ namespace sampling
 
         #region FIELDS
 
-        private string name = "PoissonDisc";
+        private string name = "PoissonDisk";
         public int maxPoints = 0;
         public float minRadius = 0f;
         public float[,] points;
@@ -41,6 +42,7 @@ namespace sampling
         public int MaxPoints { get { return maxPoints; } }
         public float MinRadius { get { return minRadius; } }
         public int NumPoints { get; private set; }
+        public int NumClosest { get; private set; }
 
         #endregion
 
@@ -72,9 +74,10 @@ namespace sampling
 
             var pointList = PoissonSampler.SampleCircle(new Vector2(0f, 0f), 1f, minRadius);
             NumPoints = pointList.Count;
+            NumClosest = 5; // NumClosest == 0 ? NumPoints : NumClosest;
             points = new float[NumPoints, 2];
-            distances = new float[NumPoints, NumPoints];
-            indices = new int[NumPoints, NumPoints];
+            distances = new float[NumPoints, NumClosest];
+            indices = new int[NumPoints, NumClosest];
 
             for (int i = 0; i < NumPoints; i++)
             {
@@ -94,7 +97,7 @@ namespace sampling
                 }
                 var sorti = (int[])ind.Clone();
                 Array.Sort(dist, sorti);
-                for (int j = 0; j < NumPoints; j++)
+                for (int j = 0; j < NumClosest; j++)
                 {
                     distances[i, j] = dist[j];
                     indices[i, j] = sorti[j];
@@ -120,7 +123,7 @@ namespace sampling
                 if (unif.Has((int)Names.numPoints))
                 {
                     var length = Math.Min(unif[(int)Names.points].length, points.GetLength(0));
-                    unif.Set((int)Names.numPoints, new[] { length });
+                    unif.Set((int)Names.numPoints, new int[] { length, NumClosest });
                 }
 
                 if (unif.Has((int)Names.points))

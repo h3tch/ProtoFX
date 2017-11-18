@@ -25,14 +25,14 @@ namespace atlas
         protected static string[] UniformNames = Enum.GetNames(typeof(Names))
             .Take((int)Names.LAST).ToArray();
 
-        protected enum Disk
-        {
-            nPoints,
-            points,
-            LAST,
-        }
-        protected static string[] UniformNamesDisk = Enum.GetNames(typeof(Disk))
-            .Take((int)Disk.LAST).ToArray();
+        //protected enum Disk
+        //{
+        //    numPoints,
+        //    points,
+        //    LAST,
+        //}
+        protected static string[] UniformNamesDisk = Enum.GetNames(typeof(PoissonDisk.Names))
+            .Take((int)PoissonDisk.Names.LAST).ToArray();
 
         private string name;
         private bool matlabConsol = false;
@@ -113,8 +113,9 @@ namespace atlas
             var sub = quests[activeQuest];
             var size = artifactSize[sub.artifactId];
             var angle = lineAngles[sub.lineId];
-            var samples = poissonDisk[sub.poissonId] != null
-                ? poissonDisk[sub.poissonId].points.GetLength(0) : 0;
+            var disk = poissonDisk[sub.poissonId];
+            var numPoints = disk != null ? disk.points.GetLength(0) : 0;
+            var numClosest = disk != null ? disk.indices.GetLength(1) : 0;
 
             var line = new float[] { (float)Math.Sin(angle), (float)Math.Cos(angle), 0 };
             line[2] = line[0] * widthTex / 2 + line[1] * heightTex / 2;
@@ -134,10 +135,13 @@ namespace atlas
                 (float)angle, randomAngle, size, sub.radius, (float)moveOffset
             });
 
-            unifDisc.Set((int)Disk.nPoints, new[] { samples });
-            if (samples > 0)
-                unifDisc.Set((int)Disk.points, poissonDisk[sub.poissonId].points);
-            
+            unifDisc.Set((int)PoissonDisk.Names.numPoints, new[] { numPoints });
+            unifDisc.Set((int)PoissonDisk.Names.numClosest, new[] { numClosest });
+            if (numPoints > 0)
+                unifDisc.Set((int)PoissonDisk.Names.points, disk.points);
+            if (numClosest > 0)
+                unifDisc.Set((int)PoissonDisk.Names.indices, disk.indices);
+
             // UPDATE UNIFORM BUFFER
             unif.Update();
             unif.Bind();
