@@ -1,4 +1,4 @@
-﻿using App.Glsl.SamplerTypes;
+﻿using protofx.Glsl.SamplerTypes;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using Parameter = OpenTK.Graphics.OpenGL4.GetTextureParameter;
 
 #pragma warning disable IDE1006
 
-namespace App.Glsl
+namespace protofx.Glsl
 {
     public class Access : MathFunctions
     {

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Shadertype = OpenTK.Graphics.OpenGL4.ShaderType;
 
-namespace App.Glsl
+namespace protofx.Glsl
 {
     public abstract class FragShader : Shader
     {

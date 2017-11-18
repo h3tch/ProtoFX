@@ -1,4 +1,4 @@
-﻿using App.Glsl.SamplerTypes;
+﻿using protofx.Glsl.SamplerTypes;
 using System;
 using System.ComponentModel;
 using System.Linq;
@@ -8,7 +8,7 @@ using OpenTK.Graphics.OpenGL4;
 
 #pragma warning disable IDE1006
 
-namespace App.Glsl
+namespace protofx.Glsl
 {
     #region Necessary Extension
 

@@ -1,4 +1,4 @@
-﻿using App.Glsl;
+﻿using protofx.Glsl;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ using PrimType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 using VertoutPrimType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
 using Objects = System.Collections.Generic.Dictionary<string, object>;
 
-namespace App
+namespace protofx
 {
     class GLPass : FXPerf
     {

@@ -7,7 +7,7 @@
     <ProjectGuid>{248FE1EF-E4B2-4E69-99D6-0923C21E2D04}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>App</RootNamespace>
+    <RootNamespace>protofx</RootNamespace>
     <AssemblyName>ProtoFX</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -56,7 +56,7 @@
   <PropertyGroup />
   <PropertyGroup />
   <PropertyGroup>
-    <StartupObject>App.Program</StartupObject>
+    <StartupObject>protofx.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">

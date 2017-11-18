@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using System.Xml;
 using static System.Windows.Forms.FormWindowState;
 
-namespace App
+namespace protofx
 {
     public partial class App : Form
     {

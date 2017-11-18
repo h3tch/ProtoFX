@@ -7,7 +7,7 @@ using System.Reflection;
 using UsageHint = OpenTK.Graphics.OpenGL4.BufferUsageHint;
 using ParameterName = OpenTK.Graphics.OpenGL4.BufferParameterName;
 
-namespace App
+namespace protofx
 {
     class GLBuffer : GLMemory
     {

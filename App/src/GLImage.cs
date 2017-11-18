@@ -15,7 +15,7 @@ using GpuColorFormat = OpenTK.Graphics.OpenGL4.PixelInternalFormat;
 using TexParameter = OpenTK.Graphics.OpenGL4.GetTextureParameter;
 using System.Linq;
 
-namespace App
+namespace protofx
 {
     class GLImage : GLObject
     {

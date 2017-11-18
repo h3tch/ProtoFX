@@ -1,4 +1,4 @@
-﻿using App;
+﻿using protofx;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,7 +96,7 @@ namespace OpenTK
                 MakeCurrent();
 
                 // clear debug trace
-                App.Glsl.Debugger.ClearDebugTrace();
+                protofx.Glsl.Debugger.ClearDebugTrace();
 
                 // begin timer query
                 if (perf == null)
@@ -133,7 +133,8 @@ namespace OpenTK
         {
             // GET CLASS TYPE, ANNOTATION AND NAME
             var typeName = block.Type[0].ToString().ToUpper() + block.Type.Substring(1);
-            var type = Type.GetType($"App.GL{typeName}") ?? csExtensions.GetType(typeName);
+            var className = $"{nameof(protofx)}.GL{typeName}";
+            var type = Type.GetType(className) ?? csExtensions.GetType(typeName);
 
             // check for errors
             if (type == null)

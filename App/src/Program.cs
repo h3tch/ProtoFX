@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace App
+namespace protofx
 {
     static class Program
     {

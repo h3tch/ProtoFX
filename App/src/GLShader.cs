@@ -1,4 +1,4 @@
-﻿using App.Glsl;
+﻿using protofx.Glsl;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.CodeDom.Compiler;
@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace App
+namespace protofx
 {
     class GLShader : GLObject
     {

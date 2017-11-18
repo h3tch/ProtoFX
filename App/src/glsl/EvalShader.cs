@@ -1,7 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System;
 
-namespace App.Glsl
+namespace protofx.Glsl
 {
     class EvalShader : Shader
     {

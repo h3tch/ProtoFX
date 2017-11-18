@@ -306,7 +306,7 @@ namespace System.Windows.Forms
             return true;
         }
 
-        private static bool ApplyTo(App.App c)
+        private static bool ApplyTo(protofx.App c)
         {
             c.BackColor = BackColor;
             c.ForeColor = AppBorderColor;

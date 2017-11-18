@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection;
 
-namespace App
+namespace protofx
 {
     class GLInstance : GLObject
     {

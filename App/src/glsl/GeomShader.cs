@@ -3,7 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 
-namespace App.Glsl
+namespace protofx.Glsl
 {
     public class GeomShader : Shader
     {

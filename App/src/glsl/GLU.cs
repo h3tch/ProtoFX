@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace App.Glsl
+namespace protofx.Glsl
 {
     public static class GLU
     {

@@ -8,7 +8,7 @@ using System.Globalization;
 using System;
 using System.Text.RegularExpressions;
 
-namespace App
+namespace protofx
 {
     class GLCsharp : GLObject
     {

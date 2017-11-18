@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace App
+namespace protofx
 {
     class GLSampler : GLObject
     {

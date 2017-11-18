@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace App.Glsl
+namespace protofx.Glsl
 {
     [AttributeUsage(AttributeTargets.All)]
     public class __in : Attribute { }

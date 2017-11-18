@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace App
+namespace protofx
 {
     [Serializable]
     class CompileException : Exception, IEnumerable<CompileException.MessageInfo>, IDisposable

@@ -1,4 +1,4 @@
-﻿namespace App
+﻿namespace protofx
 {
     class GLReference : GLObject
     {

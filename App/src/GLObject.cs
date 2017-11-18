@@ -8,7 +8,7 @@ using System.Text;
 using static System.Reflection.BindingFlags;
 using static System.Reflection.MemberTypes;
 
-namespace App
+namespace protofx
 {
     /// <summary>
     /// The <code>Field</code> attribute class is used to identify

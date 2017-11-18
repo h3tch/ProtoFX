@@ -5,7 +5,7 @@ using System.Globalization;
 #pragma warning disable IDE1006
 #pragma warning disable IDE0022
 
-namespace App.Glsl.SamplerTypes
+namespace protofx.Glsl.SamplerTypes
 {
     [TypeConverter(typeof(Converter<sampler1D>))]
     public struct sampler1D

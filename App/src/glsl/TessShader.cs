@@ -2,7 +2,7 @@
 using System;
 using System.Diagnostics;
 
-namespace App.Glsl
+namespace protofx.Glsl
 {
     class TessShader : Shader
     {

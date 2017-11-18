@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace App.Glsl
+namespace protofx.Glsl
 {
     public enum TraceInfoType
     {

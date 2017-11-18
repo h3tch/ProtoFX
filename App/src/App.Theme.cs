@@ -1,7 +1,7 @@
 ﻿using System.Windows.Forms;
 using System.Xml;
 
-namespace App
+namespace protofx
 {
     partial class App
     {

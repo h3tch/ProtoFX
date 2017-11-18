@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using IntType = OpenTK.Graphics.OpenGL4.VertexAttribIntegerType;
 using PointerType = OpenTK.Graphics.OpenGL4.VertexAttribPointerType;
 
-namespace App
+namespace protofx
 {
     class GLVertinput : GLObject
     {

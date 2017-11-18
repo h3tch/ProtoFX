@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using static System.Reflection.BindingFlags;
 
-namespace App.Glsl
+namespace protofx.Glsl
 {
     public class Converter
     {

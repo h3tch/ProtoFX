@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace App
+namespace protofx
 {
     partial class App
     {
@@ -478,7 +478,7 @@ namespace App
             // 
             // imgAppIcon
             // 
-            this.imgAppIcon.Image = global::App.Properties.Resources.logo;
+            this.imgAppIcon.Image = global::protofx.Properties.Resources.logo;
             this.imgAppIcon.Location = new System.Drawing.Point(0, 0);
             this.imgAppIcon.Margin = new System.Windows.Forms.Padding(0);
             this.imgAppIcon.Name = "imgAppIcon";
@@ -492,7 +492,7 @@ namespace App
             this.btnWindowMinimize2.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.btnWindowMinimize2.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(255)))));
             this.btnWindowMinimize2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnWindowMinimize2.Image = global::App.Properties.Resources.Minimize;
+            this.btnWindowMinimize2.Image = global::protofx.Properties.Resources.Minimize;
             this.btnWindowMinimize2.Location = new System.Drawing.Point(444, 0);
             this.btnWindowMinimize2.Margin = new System.Windows.Forms.Padding(0);
             this.btnWindowMinimize2.Name = "btnWindowMinimize2";
@@ -508,7 +508,7 @@ namespace App
             this.btnWindowMaximize2.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.btnWindowMaximize2.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(255)))));
             this.btnWindowMaximize2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnWindowMaximize2.Image = global::App.Properties.Resources.Maximize;
+            this.btnWindowMaximize2.Image = global::protofx.Properties.Resources.Maximize;
             this.btnWindowMaximize2.Location = new System.Drawing.Point(495, 0);
             this.btnWindowMaximize2.Margin = new System.Windows.Forms.Padding(0);
             this.btnWindowMaximize2.Name = "btnWindowMaximize2";
@@ -524,7 +524,7 @@ namespace App
             this.btnWindowClose2.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.btnWindowClose2.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.btnWindowClose2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnWindowClose2.Image = global::App.Properties.Resources.Close;
+            this.btnWindowClose2.Image = global::protofx.Properties.Resources.Close;
             this.btnWindowClose2.Location = new System.Drawing.Point(546, 0);
             this.btnWindowClose2.Margin = new System.Windows.Forms.Padding(0);
             this.btnWindowClose2.Name = "btnWindowClose2";
@@ -632,7 +632,7 @@ namespace App
             // toolBtnNew
             // 
             this.toolBtnNew.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnNew.Image = global::App.Properties.Resources.ImgNew;
+            this.toolBtnNew.Image = global::protofx.Properties.Resources.ImgNew;
             this.toolBtnNew.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnNew.Margin = new System.Windows.Forms.Padding(0);
             this.toolBtnNew.Name = "toolBtnNew";
@@ -644,7 +644,7 @@ namespace App
             // toolBtnOpen
             // 
             this.toolBtnOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnOpen.Image = global::App.Properties.Resources.ImgOpen;
+            this.toolBtnOpen.Image = global::protofx.Properties.Resources.ImgOpen;
             this.toolBtnOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnOpen.Margin = new System.Windows.Forms.Padding(0);
             this.toolBtnOpen.Name = "toolBtnOpen";
@@ -655,7 +655,7 @@ namespace App
             // toolBtnSave
             // 
             this.toolBtnSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnSave.Image = global::App.Properties.Resources.ImgSave;
+            this.toolBtnSave.Image = global::protofx.Properties.Resources.ImgSave;
             this.toolBtnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnSave.Margin = new System.Windows.Forms.Padding(0);
             this.toolBtnSave.Name = "toolBtnSave";
@@ -666,7 +666,7 @@ namespace App
             // toolBtnSaveAll
             // 
             this.toolBtnSaveAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnSaveAll.Image = global::App.Properties.Resources.ImgSaveAll;
+            this.toolBtnSaveAll.Image = global::protofx.Properties.Resources.ImgSaveAll;
             this.toolBtnSaveAll.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnSaveAll.Margin = new System.Windows.Forms.Padding(0);
             this.toolBtnSaveAll.Name = "toolBtnSaveAll";
@@ -677,7 +677,7 @@ namespace App
             // toolBtnSaveAs
             // 
             this.toolBtnSaveAs.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnSaveAs.Image = global::App.Properties.Resources.ImgSaveAs;
+            this.toolBtnSaveAs.Image = global::protofx.Properties.Resources.ImgSaveAs;
             this.toolBtnSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnSaveAs.Margin = new System.Windows.Forms.Padding(0);
             this.toolBtnSaveAs.Name = "toolBtnSaveAs";
@@ -693,7 +693,7 @@ namespace App
             // toolBtnRun
             // 
             this.toolBtnRun.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnRun.Image = global::App.Properties.Resources.ImgRun;
+            this.toolBtnRun.Image = global::protofx.Properties.Resources.ImgRun;
             this.toolBtnRun.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnRun.Margin = new System.Windows.Forms.Padding(0);
             this.toolBtnRun.Name = "toolBtnRun";
@@ -704,7 +704,7 @@ namespace App
             // toolBtnDbg
             // 
             this.toolBtnDbg.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnDbg.Image = global::App.Properties.Resources.ImgDbg;
+            this.toolBtnDbg.Image = global::protofx.Properties.Resources.ImgDbg;
             this.toolBtnDbg.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnDbg.Margin = new System.Windows.Forms.Padding(0);
             this.toolBtnDbg.Name = "toolBtnDbg";
@@ -716,7 +716,7 @@ namespace App
             // 
             this.toolBtnDbgStepBreakpoint.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolBtnDbgStepBreakpoint.Enabled = false;
-            this.toolBtnDbgStepBreakpoint.Image = global::App.Properties.Resources.ImgDbgStepBreakpoint;
+            this.toolBtnDbgStepBreakpoint.Image = global::protofx.Properties.Resources.ImgDbgStepBreakpoint;
             this.toolBtnDbgStepBreakpoint.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnDbgStepBreakpoint.Name = "toolBtnDbgStepBreakpoint";
             this.toolBtnDbgStepBreakpoint.Size = new System.Drawing.Size(36, 36);
@@ -727,7 +727,7 @@ namespace App
             // 
             this.toolBtnDbgStepOver.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolBtnDbgStepOver.Enabled = false;
-            this.toolBtnDbgStepOver.Image = global::App.Properties.Resources.ImgDbgStepOver;
+            this.toolBtnDbgStepOver.Image = global::protofx.Properties.Resources.ImgDbgStepOver;
             this.toolBtnDbgStepOver.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnDbgStepOver.Name = "toolBtnDbgStepOver";
             this.toolBtnDbgStepOver.Size = new System.Drawing.Size(36, 36);
@@ -738,7 +738,7 @@ namespace App
             // 
             this.toolBtnDbgStepInto.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolBtnDbgStepInto.Enabled = false;
-            this.toolBtnDbgStepInto.Image = global::App.Properties.Resources.ImgDbgStepInto;
+            this.toolBtnDbgStepInto.Image = global::protofx.Properties.Resources.ImgDbgStepInto;
             this.toolBtnDbgStepInto.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnDbgStepInto.Name = "toolBtnDbgStepInto";
             this.toolBtnDbgStepInto.Size = new System.Drawing.Size(36, 36);
@@ -749,7 +749,7 @@ namespace App
             // 
             this.toolBtnDbgStepBack.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolBtnDbgStepBack.Enabled = false;
-            this.toolBtnDbgStepBack.Image = global::App.Properties.Resources.ImgDbgStepBack;
+            this.toolBtnDbgStepBack.Image = global::protofx.Properties.Resources.ImgDbgStepBack;
             this.toolBtnDbgStepBack.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnDbgStepBack.Name = "toolBtnDbgStepBack";
             this.toolBtnDbgStepBack.Size = new System.Drawing.Size(36, 36);
@@ -765,7 +765,7 @@ namespace App
             // 
             this.toolBtnRender.CheckOnClick = true;
             this.toolBtnRender.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnRender.Image = global::App.Properties.Resources.ImgAnimate;
+            this.toolBtnRender.Image = global::protofx.Properties.Resources.ImgAnimate;
             this.toolBtnRender.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnRender.Margin = new System.Windows.Forms.Padding(0);
             this.toolBtnRender.Name = "toolBtnRender";
@@ -777,7 +777,7 @@ namespace App
             // 
             this.toolBtnPick.CheckOnClick = true;
             this.toolBtnPick.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnPick.Image = global::App.Properties.Resources.ImgPick;
+            this.toolBtnPick.Image = global::protofx.Properties.Resources.ImgPick;
             this.toolBtnPick.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnPick.Margin = new System.Windows.Forms.Padding(0);
             this.toolBtnPick.Name = "toolBtnPick";
@@ -793,7 +793,7 @@ namespace App
             // toolBtnComment
             // 
             this.toolBtnComment.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnComment.Image = global::App.Properties.Resources.ImgComment;
+            this.toolBtnComment.Image = global::protofx.Properties.Resources.ImgComment;
             this.toolBtnComment.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnComment.Margin = new System.Windows.Forms.Padding(0);
             this.toolBtnComment.Name = "toolBtnComment";
@@ -805,7 +805,7 @@ namespace App
             // toolBtnUncomment
             // 
             this.toolBtnUncomment.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolBtnUncomment.Image = global::App.Properties.Resources.ImgUncomment;
+            this.toolBtnUncomment.Image = global::protofx.Properties.Resources.ImgUncomment;
             this.toolBtnUncomment.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolBtnUncomment.Margin = new System.Windows.Forms.Padding(0);
             this.toolBtnUncomment.Name = "toolBtnUncomment";
@@ -821,7 +821,7 @@ namespace App
             this.btnWindowMinimize.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.btnWindowMinimize.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(255)))));
             this.btnWindowMinimize.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnWindowMinimize.Image = global::App.Properties.Resources.Minimize;
+            this.btnWindowMinimize.Image = global::protofx.Properties.Resources.Minimize;
             this.btnWindowMinimize.Location = new System.Drawing.Point(437, 0);
             this.btnWindowMinimize.Margin = new System.Windows.Forms.Padding(0);
             this.btnWindowMinimize.Name = "btnWindowMinimize";
@@ -837,7 +837,7 @@ namespace App
             this.btnWindowMaximize.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
             this.btnWindowMaximize.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(255)))));
             this.btnWindowMaximize.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnWindowMaximize.Image = global::App.Properties.Resources.Maximize;
+            this.btnWindowMaximize.Image = global::protofx.Properties.Resources.Maximize;
             this.btnWindowMaximize.Location = new System.Drawing.Point(488, 0);
             this.btnWindowMaximize.Margin = new System.Windows.Forms.Padding(0);
             this.btnWindowMaximize.Name = "btnWindowMaximize";
@@ -853,7 +853,7 @@ namespace App
             this.btnWindowClose.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.btnWindowClose.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.btnWindowClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnWindowClose.Image = global::App.Properties.Resources.Close;
+            this.btnWindowClose.Image = global::protofx.Properties.Resources.Close;
             this.btnWindowClose.Location = new System.Drawing.Point(539, 0);
             this.btnWindowClose.Margin = new System.Windows.Forms.Padding(0);
             this.btnWindowClose.Name = "btnWindowClose";

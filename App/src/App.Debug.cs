@@ -7,7 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace App
+namespace protofx
 {
     public partial class App
     {

@@ -5,7 +5,7 @@ using System.Xml;
 using System.IO;
 using System.Linq;
 
-namespace App
+namespace protofx
 {
     class GLMemory : GLObject
     {

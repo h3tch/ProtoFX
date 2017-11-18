@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace App
+namespace protofx
 {
     class FXPerf : GLObject
     {

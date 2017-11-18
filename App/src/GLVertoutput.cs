@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using PrimitiveType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
 
-namespace App
+namespace protofx
 {
     class GLVertoutput : GLObject
     {

@@ -2,7 +2,7 @@
 
 #pragma warning disable IDE1006
 
-namespace App.Glsl
+namespace protofx.Glsl
 {
     public struct vec4
     {
