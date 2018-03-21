@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace protofx
+namespace protofx.gl
 {
-    class GLTech : FXPerf
+    class Tech : FXPerf
     {
         #region FIELDS
 
-        private List<GLPass> init = new List<GLPass>();
-        private List<GLPass> passes = new List<GLPass>();
-        private List<GLPass> uninit = new List<GLPass>();
+        private List<Pass> init = new List<Pass>();
+        private List<Pass> passes = new List<Pass>();
+        private List<Pass> uninit = new List<Pass>();
 
         #endregion
 
@@ -22,7 +22,7 @@ namespace protofx
         /// a <code>Dictionary&lt;string, object&gt;</code> object containing
         /// the scene objects and a <code>bool</code> value to enable the debugger.
         /// </param>
-        public GLTech(object @params)
+        public Tech(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>(),
                    @params.GetFieldValue<bool>())
@@ -35,7 +35,7 @@ namespace protofx
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        private GLTech(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
+        private Tech(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
             : base(block.Name, block.Anno, 309, debugging)
         {
             var err = new CompileException($"tech '{Name}'");
@@ -92,7 +92,7 @@ namespace protofx
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="err"></param>
-        private void ParsePasses(ref List<GLPass> list, Compiler.Block block, Dictionary<string, object> scene,
+        private void ParsePasses(ref List<Pass> list, Compiler.Block block, Dictionary<string, object> scene,
             CompileException err)
         {
             var cmdName = ReferenceEquals(list, init)
@@ -100,7 +100,7 @@ namespace protofx
                 : ReferenceEquals(list, passes) ? "pass" : "uninit";
             foreach (var cmd in block[cmdName])
             {
-                if (scene.TryGetValue(cmd[0].Text, out GLPass pass, block,
+                if (scene.TryGetValue(cmd[0].Text, out Pass pass, block,
                         err | $"command '{cmd.Text}'"))
                     list.Add(pass);
             }

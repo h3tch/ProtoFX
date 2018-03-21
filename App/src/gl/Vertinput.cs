@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using IntType = OpenTK.Graphics.OpenGL4.VertexAttribIntegerType;
 using PointerType = OpenTK.Graphics.OpenGL4.VertexAttribPointerType;
 
-namespace protofx
+namespace protofx.gl
 {
-    class GLVertinput : GLObject
+    class Vertinput : Object
     {
         private List<VertAttr> attributes = new List<VertAttr>();
 
@@ -18,7 +18,7 @@ namespace protofx
         /// <code>Compiler.Block</code> object of the respective part in the code
         /// and a <code>Dictionary&lt;string, object&gt;</code> object containing
         /// the scene objects.</param>
-        public GLVertinput(object @params)
+        public Vertinput(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>())
         {
@@ -30,7 +30,7 @@ namespace protofx
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        private GLVertinput(Compiler.Block block, Dictionary<string, object> scene)
+        private Vertinput(Compiler.Block block, Dictionary<string, object> scene)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"vertinput '{Name}'");
@@ -78,7 +78,7 @@ namespace protofx
             int offset = cmd.ArgCount > 4 ? int.Parse(cmd[4].Text) : 0;
             int divisor = cmd.ArgCount > 5 ? int.Parse(cmd[5].Text) : 0;
             
-            if (scene.TryGetValue(buffname, out GLBuffer buff, cmd, err) == false)
+            if (scene.TryGetValue(buffname, out Buffer buff, cmd, err) == false)
             {
                 err.Error($"Buffer '{buffname}' could not be found.", cmd);
                 return;
@@ -164,7 +164,7 @@ namespace protofx
 
         private struct VertAttr
         {
-            public GLBuffer buffer;
+            public Buffer buffer;
             public int type;
             public int length;
             public int stride;

@@ -1,8 +1,8 @@
 ﻿using protofx;
+using protofx.gl;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -24,7 +24,7 @@ namespace OpenTK
         // performance measurement class
         private FXPerf perf;
         private bool renderingEnabled = false;
-        private GLCsharp csExtensions = new GLCsharp(new[] { "../ext" });
+        private Csharp csExtensions = new Csharp(new[] { "../ext" });
 
         #endregion
 
@@ -82,12 +82,16 @@ namespace OpenTK
         /// </summary>
         public void Render()
         {
+            const string render = "render";
+
             // clear existing render exceptions
             if (renderExceptions > 0)
             {
-                for (int i = 0; i < output.Rows.Count; i++)
-                    if ((string)output.Rows[i].Cells[0].Value == "render")
-                        output.Rows.RemoveAt(i--);
+                foreach (var row in from DataGridViewRow r in output.Rows
+                                    where r.Cells[0].Value.Equals(render)
+                                    select r)
+                    output.Rows.RemoveAt(row.Index);
+
                 renderExceptions = 0;
             }
 
@@ -105,7 +109,7 @@ namespace OpenTK
                 perf.StartTimer(Frame);
 
                 // render the scene
-                foreach (var x in from o in scene where o.Value is GLTech select o.Value as GLTech)
+                foreach (var x in from o in scene where o.Value is Tech select o.Value as Tech)
                     x.Exec(ClientSize.Width, ClientSize.Height, Frame);
 
                 // end timer query
@@ -116,7 +120,7 @@ namespace OpenTK
             catch (Exception ex)
             {
                 // add exception to output
-                output.Rows.Add(new[] { "render", string.Empty, (ex.InnerException ?? ex).Message });
+                output.Rows.Add(new[] { render, string.Empty, (ex.InnerException ?? ex).Message });
                 renderExceptions++;
             }
 
@@ -133,7 +137,7 @@ namespace OpenTK
         {
             // GET CLASS TYPE, ANNOTATION AND NAME
             var typeName = block.Type[0].ToString().ToUpper() + block.Type.Substring(1);
-            var className = $"{nameof(protofx)}.GL{typeName}";
+            var className = $"{nameof(protofx)}.{nameof(protofx.gl)}.{typeName}";
             var type = Type.GetType(className) ?? csExtensions.GetType(typeName);
 
             // check for errors
@@ -163,11 +167,11 @@ namespace OpenTK
         {
             Events.Dispose();
             // call delete method of OpenGL resources
-            scene.ForEach(x => ((GLObject)x.Value).Delete());
+            scene.ForEach(x => ((protofx.gl.Object)x.Value).Delete());
             // clear list of classes
             scene.Clear();
             // add default OpenTK glControl
-            scene.Add(nullname, new GLReference(nullname, "internal", this));
+            scene.Add(nullname, new Reference(nullname, "internal", this));
         }
 
         #region EVENTS

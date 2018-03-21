@@ -8,7 +8,7 @@ using System.Text;
 using static System.Reflection.BindingFlags;
 using static System.Reflection.MemberTypes;
 
-namespace protofx
+namespace protofx.gl
 {
     /// <summary>
     /// The <code>Field</code> attribute class is used to identify
@@ -16,11 +16,23 @@ namespace protofx
     /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class FxField : Attribute { }
-    
+
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    public class FxBody : Attribute { }
+
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    public class FxAnno : Attribute { }
+
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    public class FxName : Attribute { }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class FxClass : Attribute { }
+
     /// <summary>
     /// The base class for scene objects.
     /// </summary>
-    abstract class GLObject
+    abstract class Object
     {
         #region FIELDS
         #pragma warning disable IDE1006
@@ -35,7 +47,7 @@ namespace protofx
         /// </summary>
         /// <param name="name"></param>
         /// <param name="anno"></param>
-        public GLObject(string name, string anno)
+        public Object(string name, string anno)
         {
             glname = 0;
             Name = name;
@@ -79,7 +91,7 @@ namespace protofx
         /// <param name="glLabel">The respective OpenGL function to get the label to the object.</param>
         /// <param name="range">Range in which to search for external objects (starting with 0).</param>
         /// <returns></returns>
-        protected static IEnumerable<GLObject> FindObjects(GLObject[] existing, Type[] types,
+        protected static IEnumerable<Object> FindObjects(Object[] existing, Type[] types,
             MethodInfo glIs, MethodInfo glLabel, int range)
         {
             // select all object IDs in the scene that are of one of the specified types
@@ -97,7 +109,7 @@ namespace protofx
             return externID
                 .Zip(externName, (i, n) => n.Length == 0 ? null : new object[] { n, "tex", i })
                 .Where(x => x != null)
-                .Select(x => (GLObject)Activator.CreateInstance(types[0], x));
+                .Select(x => (Object)Activator.CreateInstance(types[0], x));
         }
 
         #region Error handling
@@ -171,7 +183,7 @@ namespace protofx
         protected MemberInfo GetFxField(string name)
         {
             var Name = name.Substring(0, 1).ToUpper() + name.Substring(1).ToLower();
-            var member = GetType().GetMember(Name, Field | Property, Instance | Public | NonPublic);
+            var member = GetType().GetMember(Name, Field | Property, BindingFlags.Instance | Public | NonPublic);
             if (member.Length == 0 || member[0].GetCustomAttributes(typeof(FxField), false).Length == 0)
                 return null;
             return member[0];

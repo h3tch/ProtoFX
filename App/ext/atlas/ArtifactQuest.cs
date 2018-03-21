@@ -16,59 +16,46 @@ namespace atlas
             rendertargetSize,
             framebufferSize,
             lineAngle,
-            randomAngle,
             artifactSize,
-            filterRadius,
-            moveOffset,
+            bandlimitFilterRadius,
+            shadowFilterRadius,
             LAST,
         }
         protected static string[] UniformNames = Enum.GetNames(typeof(Names))
             .Take((int)Names.LAST).ToArray();
-
-        //protected enum Disk
-        //{
-        //    numPoints,
-        //    points,
-        //    LAST,
-        //}
+        
         protected static string[] UniformNamesDisk = Enum.GetNames(typeof(PoissonDisk.Names))
             .Take((int)PoissonDisk.Names.LAST).ToArray();
 
         private string name;
         private bool matlabConsol = false;
-        private float randomAngle = 0;
-        [Connectable] private double moveOffset;
+        [Connectable] private double lineAngle;
 
         #endregion
 
         #region QUESTS
-        private const int startFactor = 10;
-        private double[,] intensities = new[,] { { 0.0, 1.0 }, { 0.0, 0.5 }, { 0.5, 1.0 } };
-        private int[] artifactSize = new[] { 10, 20, 30 };
-        private double[] lineAngles = new[] { deg2rad * 1, deg2rad * 45 };
+
         private float[] poissonRadii = new[] { 0.1f, 0.2f };
         private PoissonDisk[] poissonDisk;
         private Quest[] quests = new[] {
-            //// intensity quests
-            //new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
-            //new Quest { intensityId = 1, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
-            //new Quest { intensityId = 2, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
-            //// artifact quests
-            //new Quest { intensityId = 0, artifactId = 0, lineId = 0, poissonId = 0, radius = 10*startFactor},
-            //new Quest { intensityId = 0, artifactId = 1, lineId = 0, poissonId = 0, radius = 20*startFactor},
-            //new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
-            //// line angle quests
-            //new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
-            //new Quest { intensityId = 0, artifactId = 2, lineId = 1, poissonId = 0, radius = 30*startFactor},
-            // poisson quests
-            new Quest { intensityId = 0, artifactId = 2, lineId = 0, poissonId = 0, radius = 30*startFactor},
-            new Quest { intensityId = 0, artifactId = 2, lineId = 1, poissonId = 1, radius = 30*startFactor},
+            new Quest {
+                artifactSize = 10,
+                poissonId = 1,
+                bandlimitFilterRadius = 2f,
+                shadowFilterRadius = 3f
+            },
+            new Quest {
+                artifactSize = 10,
+                poissonId = 1,
+                bandlimitFilterRadius = 6f,
+                shadowFilterRadius = 3f
+            },
         };
         private int[] nQuests;
         private int activeQuest;
         private Random rnd = new Random();
         private const double deg2rad = Math.PI / 180;
-        private double factor;
+
         #endregion
 
         public ArtifactQuest(object @params) : base(@params)
@@ -102,29 +89,28 @@ namespace atlas
             // CREATE PSYCHOPHYSICS TOOLBOX QUESTS
 
             nQuests = new int[quests.Length];
-            factor = artifactSize.Max();
 
             activeQuest = NextRandomQuest();
-            randomAngle = NextRandomAngle();
         }
 
         public void Update(int pipeline, int widthScreen, int heightScreen, int widthTex, int heightTex)
         {
             var sub = quests[activeQuest];
-            var size = artifactSize[sub.artifactId];
-            var angle = lineAngles[sub.lineId];
+            var size = sub.artifactSize;
             var disk = poissonDisk[sub.poissonId];
+            var bandlimitRadius = sub.bandlimitFilterRadius;
+            var shadowRadius = sub.shadowFilterRadius;
             var numPoints = disk != null ? disk.points.GetLength(0) : 0;
             var numClosest = disk != null ? disk.indices.GetLength(1) : 0;
 
-            var line = new float[] { (float)Math.Sin(angle), (float)Math.Cos(angle), 0 };
+            var line = new float[] { (float)Math.Sin(lineAngle), (float)Math.Cos(lineAngle), 0 };
             line[2] = line[0] * widthTex / 2 + line[1] * heightTex / 2;
 
             // GET OR CREATE CAMERA UNIFORMS FOR program
 
             var unif = GetUniformBlock(pipeline, name, UniformNames);
-            var unifDisc = GetUniformBlock(pipeline, name + "Disk", UniformNamesDisk);
-            if (unif == null || unifDisc == null)
+            var unifDisk = GetUniformBlock(pipeline, name + "Disk", UniformNamesDisk);
+            if (unif == null || unifDisk == null)
                 return;
 
             // SET UNIFORM VALUES
@@ -132,21 +118,23 @@ namespace atlas
                 widthTex, heightTex, widthScreen, heightScreen,
             });
             unif.Set((int)Names.lineAngle, new float[] {
-                (float)angle, randomAngle, size, sub.radius, (float)moveOffset
+                (float)lineAngle, size, shadowRadius, bandlimitRadius
             });
 
-            unifDisc.Set((int)PoissonDisk.Names.numPoints, new[] { numPoints });
-            unifDisc.Set((int)PoissonDisk.Names.numClosest, new[] { numClosest });
-            if (numPoints > 0)
-                unifDisc.Set((int)PoissonDisk.Names.points, disk.points);
-            if (numClosest > 0)
-                unifDisc.Set((int)PoissonDisk.Names.indices, disk.indices);
+            if (unifDisk.Has((int)PoissonDisk.Names.numPoints))
+                unifDisk.Set((int)PoissonDisk.Names.numPoints, new[] { numPoints });
+            if (unifDisk.Has((int)PoissonDisk.Names.numClosest))
+                unifDisk.Set((int)PoissonDisk.Names.numClosest, new[] { numClosest });
+            if (numPoints > 0 && unifDisk.Has((int)PoissonDisk.Names.points))
+                unifDisk.Set((int)PoissonDisk.Names.points, disk.points);
+            if (numClosest > 0 && unifDisk.Has((int)PoissonDisk.Names.indices))
+                unifDisk.Set((int)PoissonDisk.Names.indices, disk.indices);
 
             // UPDATE UNIFORM BUFFER
             unif.Update();
             unif.Bind();
-            unifDisc.Update();
-            unifDisc.Bind();
+            unifDisk.Update();
+            unifDisk.Bind();
         }
 
         public void KeyUp(object sender, KeyEventArgs args)
@@ -157,15 +145,30 @@ namespace atlas
             {
                 case Keys.Space:
                     activeQuest = NextRandomQuest();
-                    randomAngle = NextRandomAngle();
                     return;
                 case Keys.Left:
-                    sub.radius -= 5;
-                    if (sub.radius < 1)
-                        sub.radius = 1;
+                    sub.shadowFilterRadius -= 2f;
+                    if (sub.shadowFilterRadius < 1f)
+                        sub.shadowFilterRadius = 1f;
                     return;
                 case Keys.Right:
-                    sub.radius += 5;
+                    sub.shadowFilterRadius += 2f;
+                    return;
+                case Keys.Down:
+                    sub.bandlimitFilterRadius -= 2f;
+                    if (sub.bandlimitFilterRadius < 1f)
+                        sub.bandlimitFilterRadius = 1f;
+                    return;
+                case Keys.Up:
+                    sub.bandlimitFilterRadius += 2f;
+                    return;
+                case Keys.PageDown:
+                    sub.artifactSize -= 1;
+                    if (sub.artifactSize < 1)
+                        sub.artifactSize = 1;
+                    return;
+                case Keys.PageUp:
+                    sub.artifactSize += 1;
                     return;
             }
         }
@@ -179,11 +182,6 @@ namespace atlas
             return minId;
         }
 
-        private float NextRandomAngle()
-        {
-            return (float)(360 * deg2rad * rnd.NextDouble());
-        }
-
         private static ILookup<string, string[]> ToCommand(string key, string[] args)
         {
             return new[] {
@@ -193,11 +191,10 @@ namespace atlas
 
         private class Quest
         {
-            public int intensityId;
-            public int artifactId;
-            public int lineId;
+            public int artifactSize;
             public int poissonId;
-            public int radius;
+            public float bandlimitFilterRadius;
+            public float shadowFilterRadius;
         }
 
         class Params

@@ -6,16 +6,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 
-namespace protofx
+namespace protofx.gl
 {
-    class GLShader : GLObject
+    class Shader : Object
     {
         #region Fields
 
-        internal Shader DebugShader { get; private set; }
+        internal Glsl.Shader DebugShader { get; private set; }
         internal int GlDebugShader { get; private set; }
         internal ShaderType ShaderType;
 
@@ -30,7 +29,7 @@ namespace protofx
         /// a <code>Dictionary&lt;string, object&gt;</code> object containing
         /// the scene objects and a <code>bool</code> value to enable the debugger.
         /// </param>
-        public GLShader(object @params)
+        public Shader(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>(),
                    @params.GetFieldValue<bool>())
@@ -43,7 +42,7 @@ namespace protofx
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        private GLShader(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
+        private Shader(Compiler.Block block, Dictionary<string, object> scene, bool debugging)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"shader '{Name}'");
@@ -72,9 +71,9 @@ namespace protofx
                     InitializeFragmentShaderDebugging(err, block, scene);
 
                 var code = Converter.Shader2Class(ShaderType, Name, block.Body, block.BodyIndex);
-                rs = GLCsharp.CompileFilesOrSource(new[] { code }, null, block, err, new[] { Name });
+                rs = Csharp.CompileFilesOrSource(new[] { code }, null, block, err, new[] { Name });
                 if (rs.Errors.Count == 0)
-                    DebugShader = (Shader)rs.CompiledAssembly.CreateInstance(
+                    DebugShader = (Glsl.Shader)rs.CompiledAssembly.CreateInstance(
                         $"App.Glsl.{Name}", false, BindingFlags.Default, null,
                         new object[] { block.LineInFile },
                         CultureInfo.CurrentCulture, null);
@@ -112,7 +111,7 @@ namespace protofx
                 var propName = global[2];
                 try
                 {
-                    var obj = (GLObject)scene.GetValue(blockName);
+                    var obj = (Object)scene.GetValue(blockName);
                     var value = obj.GetMemberValue($"Instance.{propName}");
                     code = code.Remove(match.Index, match.Length).Insert(match.Index, value.ToString());
                 }

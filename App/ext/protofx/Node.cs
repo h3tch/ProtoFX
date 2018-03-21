@@ -95,7 +95,7 @@ namespace protofx
                 throw new ArgumentException("Could not find an object named '" + name + "'.");
 
             // get field informations
-            var instanceField = dstGlInstance.GetType().GetField("Instance", bindingFlags);
+            var instanceField = dstGlInstance.GetType().GetField("Owner", bindingFlags);
             if (instanceField == null)
                 throw new ArgumentException("The target '" + name + "' is not an instance.");
 

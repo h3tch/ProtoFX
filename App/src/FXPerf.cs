@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace protofx
+namespace protofx.gl
 {
-    class FXPerf : GLObject
+    class FXPerf : Object
     {
         #region FIELDS
 

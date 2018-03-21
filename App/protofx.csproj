@@ -161,15 +161,15 @@
     <Compile Include="src\extensions\String.cs" />
     <Compile Include="src\extensions\Sync.cs" />
     <Compile Include="src\extensions\Type.cs" />
-    <Compile Include="src\GLMemory.cs" />
+    <Compile Include="src\gl\Memory.cs" />
     <Compile Include="src\glsl\Access.cs" />
     <Compile Include="src\glsl\Debugger.cs" />
     <Compile Include="src\glsl\GLU.cs" />
     <Compile Include="src\glsl\Qualifiers.cs" />
     <Compile Include="src\glsl\Typedef.cs" />
     <Compile Include="src\FXPerf.cs" />
-    <Compile Include="src\GLInstance.cs" />
-    <Compile Include="src\GLReference.cs" />
+    <Compile Include="src\gl\Instance.cs" />
+    <Compile Include="src\gl\Reference.cs" />
     <Compile Include="src\glsl\CompShader.cs" />
     <Compile Include="src\glsl\Converter.cs" />
     <Compile Include="src\glsl\EvalShader.cs" />
@@ -185,30 +185,30 @@
     <Compile Include="src\glsl\vec3.cs" />
     <Compile Include="src\glsl\vec4.cs" />
     <Compile Include="src\glsl\VertShader.cs" />
-    <Compile Include="src\GLText.cs" />
+    <Compile Include="src\gl\Text.cs" />
     <Compile Include="src\App.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="src\App.Designer.cs">
       <DependentUpon>App.cs</DependentUpon>
     </Compile>
-    <Compile Include="src\GLBuffer.cs" />
-    <Compile Include="src\GLCSharp.cs" />
+    <Compile Include="src\gl\Buffer.cs" />
+    <Compile Include="src\gl\CSharp.cs" />
     <Compile Include="src\CompileException.cs" />
     <Compile Include="src\controls\GraphicControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="src\extensions\DataXml.cs" />
-    <Compile Include="src\GLFragoutput.cs" />
-    <Compile Include="src\GLImage.cs" />
-    <Compile Include="src\GLObject.cs" />
-    <Compile Include="src\GLPass.cs" />
-    <Compile Include="src\GLSampler.cs" />
-    <Compile Include="src\GLShader.cs" />
-    <Compile Include="src\GLTech.cs" />
-    <Compile Include="src\GLTexture.cs" />
-    <Compile Include="src\GLVertinput.cs" />
-    <Compile Include="src\GLVertoutput.cs" />
+    <Compile Include="src\gl\Fragoutput.cs" />
+    <Compile Include="src\gl\Image.cs" />
+    <Compile Include="src\gl\Object.cs" />
+    <Compile Include="src\gl\Pass.cs" />
+    <Compile Include="src\gl\Sampler.cs" />
+    <Compile Include="src\gl\Shader.cs" />
+    <Compile Include="src\gl\Tech.cs" />
+    <Compile Include="src\gl\Texture.cs" />
+    <Compile Include="src\gl\Vertinput.cs" />
+    <Compile Include="src\gl\Vertoutput.cs" />
     <Compile Include="src\controls\ImageViewer.cs">
       <SubType>Component</SubType>
     </Compile>

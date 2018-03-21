@@ -15,9 +15,9 @@ using GpuColorFormat = OpenTK.Graphics.OpenGL4.PixelInternalFormat;
 using TexParameter = OpenTK.Graphics.OpenGL4.GetTextureParameter;
 using System.Linq;
 
-namespace protofx
+namespace protofx.gl
 {
-    class GLImage : GLObject
+    class Image : Object
     {
         #region FIELDS
 
@@ -48,7 +48,7 @@ namespace protofx
         /// <code>Compiler.Block</code> object of the respective part in the code
         /// and a <code>Dictionary&lt;string, object&gt;</code> object containing
         /// the scene objects.</param>
-        public GLImage(object @params)
+        public Image(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>())
         {
@@ -61,7 +61,7 @@ namespace protofx
         /// <param name="name"></param>
         /// <param name="anno"></param>
         /// <param name="glname">OpenGL object to like to.</param>
-        public GLImage(string name, string anno, int glname) : base(name, anno)
+        public Image(string name, string anno, int glname) : base(name, anno)
         {
             this.glname = glname;
             this.Size = Enumerable.Repeat(1, 4).ToArray();
@@ -83,7 +83,7 @@ namespace protofx
         /// Create OpenGL image object.
         /// </summary>
         /// <param name="params">Input parameters for GLObject creation.</param>
-        private GLImage(Compiler.Block block, Dictionary<string, object> scene)
+        private Image(Compiler.Block block, Dictionary<string, object> scene)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"image '{Name}'");
@@ -331,13 +331,13 @@ namespace protofx
         /// <param name="existing">List of objects already existent in the scene.</param>
         /// <param name="range">Range in which to search for external objects (starting with 0).</param>
         /// <returns></returns>
-        public static IEnumerable<GLObject> FindTextures(GLObject[] existing, int range = 64)
+        public static IEnumerable<Object> FindTextures(Object[] existing, int range = 64)
         {
-            return FindObjects(existing, new[] { typeof(GLImage), typeof(GLTexture) }, GLIsTexMethod, GLTexLabel, range);
+            return FindObjects(existing, new[] { typeof(Image), typeof(Texture) }, GLIsTexMethod, GLTexLabel, range);
         }
 
         private static MethodInfo GLIsTexMethod = typeof(GL).GetMethod("IsTexture", new[] { typeof(int) });
-        private static MethodInfo GLTexLabel = typeof(GLImage).GetMethod("GetLabel", new[] { typeof(int) });
+        private static MethodInfo GLTexLabel = typeof(Image).GetMethod("GetLabel", new[] { typeof(int) });
 
         #region UTIL METHODS
 
@@ -358,7 +358,7 @@ namespace protofx
             bool isdepth = gpuformat.ToString().StartsWith("Depth");
             // set default file format and pixel size
             var fileformat = CpuFormat.Format32bppArgb;
-            var pixelsize = Image.GetPixelFormatSize(fileformat) / 8;
+            var pixelsize = System.Drawing.Image.GetPixelFormatSize(fileformat) / 8;
 
             // LOAD IMAGA DATA FROM FILES
             if (filepaths?.Length > 0 && !isdepth)

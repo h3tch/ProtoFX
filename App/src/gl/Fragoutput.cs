@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace protofx
+namespace protofx.gl
 {
-    class GLFragoutput : GLObject
+    class Fragoutput : Object
     {
         #region PROPERTIES
 
@@ -47,7 +47,7 @@ namespace protofx
         /// <code>Compiler.Block</code> object of the respective part in the code
         /// and a <code>Dictionary&lt;string, object&gt;</code> object containing
         /// the scene objects.</param>
-        public GLFragoutput(object @params)
+        public Fragoutput(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>())
         {
@@ -59,7 +59,7 @@ namespace protofx
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        private GLFragoutput(Compiler.Block block, Dictionary<string, object> scene)
+        private Fragoutput(Compiler.Block block, Dictionary<string, object> scene)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"fragoutput '{Name}'");
@@ -137,7 +137,7 @@ namespace protofx
         {
             // get OpenGL image
             var glimg = scene.GetValueOrDefault(cmd[0].Text);
-            if (glimg == null && glimg is GLImage)
+            if (glimg == null && glimg is Image)
             {
                 err.Error($"The name '{cmd[0].Text}' does not reference an object of type 'image'.", cmd);
                 return;
@@ -146,8 +146,8 @@ namespace protofx
             // set width and height for GLPass to set the right viewport size
             if (Width == 0 && Height == 0)
             {
-                Width = ((GLImage)glimg).Width;
-                Height = ((GLImage)glimg).Height;
+                Width = ((Image)glimg).Width;
+                Height = ((Image)glimg).Height;
             }
 
             // get additional optional parameters
@@ -164,9 +164,9 @@ namespace protofx
             }
 
             // attach texture to framebuffer
-            var target = ((GLImage)glimg).Target;
-            var glname = ((GLImage)glimg).glname;
-            switch (((GLImage)glimg).Target)
+            var target = ((Image)glimg).Target;
+            var glname = ((Image)glimg).glname;
+            switch (((Image)glimg).Target)
             {
                 case TextureTarget.Texture2DArray:
                 case TextureTarget.Texture3D:

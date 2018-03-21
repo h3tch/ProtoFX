@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using PrimitiveType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
 
-namespace protofx
+namespace protofx.gl
 {
-    class GLVertoutput : GLObject
+    class Vertoutput : Object
     {
         /// <summary>
         /// Generic constructor used to build the scene objects.
@@ -15,7 +15,7 @@ namespace protofx
         /// <code>Compiler.Block</code> object of the respective part in the code
         /// and a <code>Dictionary&lt;string, object&gt;</code> object containing
         /// the scene objects.</param>
-        public GLVertoutput(object @params)
+        public Vertoutput(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>())
         {
@@ -27,7 +27,7 @@ namespace protofx
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        private GLVertoutput(Compiler.Block block, Dictionary<string, object> scene)
+        private Vertoutput(Compiler.Block block, Dictionary<string, object> scene)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"vertoutput '{Name}'");
@@ -113,7 +113,7 @@ namespace protofx
             }
 
             // get buffer
-            if (!(scene.TryGetValue(cmd[0].Text, out var buf) && buf is GLBuffer))
+            if (!(scene.TryGetValue(cmd[0].Text, out var buf) && buf is Buffer))
             {
                 err.Error($"The name '{cmd[0]}' does not reference an object of type 'buffer'.", cmd);
                 return;
@@ -128,7 +128,7 @@ namespace protofx
             }
 
             // parse size
-            int size = ((GLBuffer)buf).Size;
+            int size = ((Buffer)buf).Size;
             if (cmd.ArgCount > 2 && int.TryParse(cmd[2].Text, out size) == false)
             {
                 err.Error($"The third parameter (size) of buff {unit} is invalid.", cmd);
@@ -137,7 +137,7 @@ namespace protofx
 
             // bind buffer to transform feedback
             GL.BindBufferRange(BufferRangeTarget.TransformFeedbackBuffer,
-                unit, ((GLBuffer)buf).glname, (IntPtr)offset, (IntPtr)size);
+                unit, ((Buffer)buf).glname, (IntPtr)offset, (IntPtr)size);
         }
     }
 }

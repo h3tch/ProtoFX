@@ -7,15 +7,14 @@ using System.Linq;
 using System.Reflection;
 using static OpenTK.Graphics.OpenGL4.ProgramStageMask;
 using static OpenTK.Graphics.OpenGL4.TransformFeedbackMode;
-using static System.Reflection.BindingFlags;
 using ElementType = OpenTK.Graphics.OpenGL4.DrawElementsType;
 using PrimType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 using VertoutPrimType = OpenTK.Graphics.OpenGL4.TransformFeedbackPrimitiveType;
 using Objects = System.Collections.Generic.Dictionary<string, object>;
 
-namespace protofx
+namespace protofx.gl
 {
-    class GLPass : FXPerf
+    class Pass : FXPerf
     {
         #region FIELDS
 
@@ -25,12 +24,12 @@ namespace protofx
         [FxField] private string Geom = null;
         [FxField] private string Frag = null;
         [FxField] private string Comp = null;
-        private GLShader glvert;
-        private GLShader gltess;
-        private GLShader gleval;
-        private GLShader glgeom;
-        private GLShader glfrag;
-        private GLShader glcomp;
+        private gl.Shader glvert;
+        private gl.Shader gltess;
+        private gl.Shader gleval;
+        private gl.Shader glgeom;
+        private gl.Shader glfrag;
+        private gl.Shader glcomp;
         private VertShader dbgvert;
         private TessShader dbgtess;
         private EvalShader dbgeval;
@@ -38,15 +37,15 @@ namespace protofx
         private FragShader dbgfrag;
         private CompShader dbgcomp;
         private Vertoutput vertoutput;
-        private GLFragoutput fragoutput;
+        private Fragoutput fragoutput;
         private List<MultiDrawCall> drawcalls = new List<MultiDrawCall>();
         private List<CompCall> compcalls = new List<CompCall>();
         private List<ResTexImg> texImages = new List<ResTexImg>();
-        private List<Res<GLTexture>> textures = new List<Res<GLTexture>>();
+        private List<Res<Texture>> textures = new List<Res<Texture>>();
         private List<ResBuffer> buffers = new List<ResBuffer>();
-        private List<Res<GLSampler>> sampler = new List<Res<GLSampler>>();
+        private List<Res<Sampler>> sampler = new List<Res<Sampler>>();
         private List<GLMethod> glfunc = new List<GLMethod>();
-        private List<GLInstance> csexec = new List<GLInstance>();
+        private List<Instance> csexec = new List<Instance>();
         private bool GenDebugInfo;
         public bool TraceDebugInfo { get; set; } = false;
 
@@ -61,7 +60,7 @@ namespace protofx
         /// a <code>Dictionary&lt;string, object&gt;</code> object containing
         /// the scene objects and a <code>bool</code> value to enable the debugger.
         /// </param>
-        public GLPass(object @params)
+        public Pass(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>(),
                    @params.GetFieldValue<bool>())
@@ -74,7 +73,7 @@ namespace protofx
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="genDebugInfo"></param>
-        private GLPass(Compiler.Block block, Objects scene, bool genDebugInfo)
+        private Pass(Compiler.Block block, Objects scene, bool genDebugInfo)
             : base(block.Name, block.Anno, 309, genDebugInfo)
         {
             var err = new CompileException($"pass '{Name}'");
@@ -89,7 +88,7 @@ namespace protofx
             foreach (var cmd in block)
             {
                 // ignore class fields
-                var field = GetType().GetField(cmd.Name, Instance | Public | NonPublic);
+                var field = GetType().GetField(cmd.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 var attr = field?.GetCustomAttributes(typeof(FxField), false);
                 if (attr?.Length > 0)
                     continue;
@@ -143,7 +142,7 @@ namespace protofx
                     }
                     else
                     {
-                        Shader prev =
+                        Glsl.Shader prev =
                         dbgvert = (VertShader)glvert?.DebugShader;
                         dbgtess = (TessShader)gltess?.DebugShader;
                         dbgeval = (EvalShader)gleval?.DebugShader;
@@ -242,12 +241,12 @@ namespace protofx
 
             foreach (var x in textures)
             {
-                GLTexture.BindTex(x.unit, x.obj);
+                Texture.BindTex(x.unit, x.obj);
                 ThrowOnGLError($"OpenGL error in texture '{x.obj?.Name}' of pass '{Name}'.");
             }
             foreach (var x in texImages)
             {
-                GLTexture.BindImg(x.unit, x.obj, x.level, x.layer, x.access, x.format);
+                Texture.BindImg(x.unit, x.obj, x.level, x.layer, x.access, x.format);
                 ThrowOnGLError($"OpenGL error in image '{x.obj?.Name}' of pass '{Name}'.");
             }
             foreach (var x in sampler)
@@ -279,7 +278,7 @@ namespace protofx
             {
                 try
                 {
-                    Shader.DrawCall = drawcalls.First();
+                    Glsl.Shader.DrawCall = drawcalls.First();
                     if (dbgcomp != null)
                     {
                         dbgcomp.ExecuteCpuDebugShader();
@@ -354,10 +353,10 @@ namespace protofx
         private void ParseDrawCall(Compiler.Command cmd, Objects classes, CompileException err)
         {
             var args = new List<int>();
-            GLVertinput vertexin = null;
-            GLVertoutput vertout = null;
-            GLBuffer indexbuf = null;
-            GLBuffer indirect = null;
+            Vertinput vertexin = null;
+            gl.Vertoutput vertout = null;
+            Buffer indexbuf = null;
+            Buffer indirect = null;
             bool modeIsSet = false;
             bool typeIsSet = false;
             PrimType primitive = 0;
@@ -441,13 +440,6 @@ namespace protofx
                     + "'compute buffer_name indirect_pointer').", cmd);
                 return;
             }
-            
-            del Arg2UInt = (arg, exceptionMessage) =>
-            {
-                if (!uint.TryParse(arg, out uint value))
-                    throw new CompileException(exceptionMessage);
-                return value;
-            };
 
             try
             {
@@ -457,7 +449,7 @@ namespace protofx
                 if (cmd.ArgCount == 2)
                 {
                     // indirect compute call buffer
-                    call.numGroupsX = (uint)(GetValue<GLBuffer>(classes, cmd[0].Text,
+                    call.numGroupsX = (uint)(GetValue<Buffer>(classes, cmd[0].Text,
                         "First argument of compute command must be a buffer name")).glname;
                     // indirect compute call buffer pointer
                     call.numGroupsY = Arg2UInt(cmd[1].Text, "Argument must be an unsigned integer, "
@@ -483,7 +475,14 @@ namespace protofx
             }
 
             // LOCAL HELPER FUNCTION
-            T GetValue<T>(Dictionary<string, object> dict, string key, string info = "Value not found.") where T: GLObject
+            uint Arg2UInt(string arg, string exceptionMessage)
+            {
+                if (!uint.TryParse(arg, out uint value))
+                    throw new CompileException(exceptionMessage);
+                return value;
+            }
+
+            T GetValue<T>(Dictionary<string, object> dict, string key, string info = "Value not found.") where T: Object
             {
                 if (dict.TryGetValue(key, out var tmp) && tmp is T)
                     return (T)tmp;
@@ -499,14 +498,14 @@ namespace protofx
                 return;
             }
             // specify argument types
-            var types = new[] { typeof(GLTexture), typeof(int), typeof(string) };
+            var types = new[] { typeof(Texture), typeof(int), typeof(string) };
             // specify mandatory arguments
             var mandatory = new[] { new[] { true, true, false }, new[] { false, true, false } };
             // parse command arguments
             (var values, var unused) = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
             if (!err.HasErrors)
-                textures.Add(new Res<GLTexture>(values));
+                textures.Add(new Res<Texture>(values));
         }
 
         private void ParseImgCmd(Compiler.Command cmd, Objects classes, CompileException err)
@@ -518,7 +517,7 @@ namespace protofx
             }
             // specify argument types
             var types = new[] {
-                typeof(GLTexture),
+                typeof(Texture),
                 typeof(int),
                 typeof(int),
                 typeof(int),
@@ -546,14 +545,14 @@ namespace protofx
                 return;
             }
             // specify argument types
-            var types = new[] { typeof(GLSampler), typeof(int), typeof(string) };
+            var types = new[] { typeof(Sampler), typeof(int), typeof(string) };
             // specify mandatory arguments
             var mandatory = new[] { new[] { true, true, false }, new[] { false, true, false } };
             // parse command arguments
             (var values, var unused) = cmd.Parse(types, mandatory, classes, err);
             // if there are no errors, add the object to the pass
             if (!err.HasErrors)
-                sampler.Add(new Res<GLSampler>(values));
+                sampler.Add(new Res<Sampler>(values));
         }
 
         private void ParseAtomicCmd(Compiler.Command cmd, Objects classes, CompileException err)
@@ -564,7 +563,7 @@ namespace protofx
                 return;
             }
             // specify argument types
-            var types = new[] { typeof(GLBuffer), typeof(int), typeof(GLMemory) };
+            var types = new[] { typeof(Buffer), typeof(int), typeof(Memory) };
             // specify mandatory arguments
             var mandatory = new[] { new[] { true, true, false },
                                     new[] { false, true, false } };
@@ -601,12 +600,12 @@ namespace protofx
                             param[i].ParameterType);
                         break;
                     case Type type when (type == typeof(IntPtr)):
-                        if (classes.TryGetValue(cmd[i].Text, out var mem) && mem is GLMemory)
-                            inval[i] = ((GLMemory)mem).DataIntPtr;
+                        if (classes.TryGetValue(cmd[i].Text, out var mem) && mem is Memory)
+                            inval[i] = ((Memory)mem).DataIntPtr;
                         break;
                     case Type type when (type == typeof(int) || type == typeof(uint)):
                         inval[i] = classes.TryGetValue(cmd[i].Text, out var obj)
-                            ? ((GLObject)obj).glname
+                            ? ((Object)obj).glname
                             : Convert.ChangeType(cmd[i].Text, param[i].ParameterType,
                                                   CultureInfo.CurrentCulture);
                         break;
@@ -630,7 +629,7 @@ namespace protofx
             }
 
             // get instance
-            if (!classes.TryGetValue(cmd[0].Text, out GLInstance instance, cmd, err))
+            if (!classes.TryGetValue(cmd[0].Text, out Instance instance, cmd, err))
                 return;
 
             csexec.Add(instance);
@@ -649,9 +648,9 @@ namespace protofx
                     select method).FirstOrDefault();
         }
 
-        private GLShader Attach(Compiler.Block block, string shadername, Objects classes, CompileException err)
+        private Shader Attach(Compiler.Block block, string shadername, Objects classes, CompileException err)
         {
-            GLShader obj = null;
+            Shader obj = null;
 
             // get shader from class list
             if (shadername != null && classes.TryGetValue(shadername, out obj, block, err))
@@ -698,8 +697,8 @@ namespace protofx
 
         internal class MultiDrawCall
         {
-            public GLVertinput vertin;
-            public GLBuffer indbuf;
+            public Vertinput vertin;
+            public Buffer indbuf;
             public DrawFunc drawfunc;
             public int vertexin;
             public int indexbuf;
@@ -709,10 +708,10 @@ namespace protofx
 
             public MultiDrawCall(
                 DrawFunc drawfunc,
-                GLVertinput vertexin,
-                GLVertoutput vertout,
-                GLBuffer indexbuf,
-                GLBuffer indirect)
+                Vertinput vertexin,
+                protofx.gl.Vertoutput vertout,
+                Buffer indexbuf,
+                Buffer indirect)
             {
                 vertin = vertexin;
                 indbuf = indexbuf;
@@ -910,7 +909,7 @@ namespace protofx
             }
         }
 
-        private class ResTexImg : Res<GLTexture>
+        private class ResTexImg : Res<Texture>
         {
             public int level;
             public int layer;
@@ -930,7 +929,7 @@ namespace protofx
             }
         }
 
-        private class ResBuffer : Res<GLBuffer>
+        private class ResBuffer : Res<Buffer>
         {
             public BufferRangeTarget target;
             public IntPtr clearValuePtr = (IntPtr)0;
@@ -939,7 +938,7 @@ namespace protofx
             {
                 this.target = target;
                 if (values[2] != null)
-                    clearValuePtr = ((GLMemory)values[2]).DataIntPtr;
+                    clearValuePtr = ((Memory)values[2]).DataIntPtr;
             }
         }
 
@@ -958,7 +957,7 @@ namespace protofx
         private class Vertoutput
         {
             enum ResumePause { None, Pause, Resume, }
-            public GLVertoutput glvertout;
+            public gl.Vertoutput glvertout;
             public VertoutPrimType vertoutPrim;
             public TransformFeedbackMode vertoutMode;
             public bool pause;
@@ -969,7 +968,7 @@ namespace protofx
             {
                 // specify argument types
                 var types = new[] {
-                    typeof(GLVertoutput),
+                    typeof(gl.Vertoutput),
                     typeof(VertoutPrimType),
                     typeof(ResumePause),
                     typeof(TransformFeedbackMode),
@@ -991,7 +990,7 @@ namespace protofx
                     return;
 
                 // set fields
-                glvertout = (GLVertoutput)values[0];
+                glvertout = (gl.Vertoutput)values[0];
                 vertoutPrim = (VertoutPrimType)values[1];
                 switch ((ResumePause)(values[2] ?? ResumePause.None))
                 {
@@ -1011,7 +1010,7 @@ namespace protofx
 
             public void Unbind()
             {
-                GLVertoutput.Unbind(pause);
+                gl.Vertoutput.Unbind(pause);
             }
         }
 

@@ -8,9 +8,9 @@ using System.Globalization;
 using System;
 using System.Text.RegularExpressions;
 
-namespace protofx
+namespace protofx.gl
 {
-    class GLCsharp : GLObject
+    class Csharp : Object
     {
         #region FIELDS
         [FxField] private string Version = null;
@@ -28,7 +28,7 @@ namespace protofx
         /// <code>Compiler.Block</code> object of the respective part in the code
         /// and a <code>Dictionary&lt;string, object&gt;</code> object containing
         /// the scene objects.</param>
-        public GLCsharp(object @params)
+        public Csharp(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>())
         {
@@ -40,7 +40,7 @@ namespace protofx
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        private GLCsharp(Compiler.Block block, Dictionary<string, object> scene)
+        private Csharp(Compiler.Block block, Dictionary<string, object> scene)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"csharp '{Name}'");
@@ -83,7 +83,7 @@ namespace protofx
                 throw err;
         }
 
-        public GLCsharp(string[] folders) : base("__extensions__", null)
+        public Csharp(string[] folders) : base("__extensions__", null)
         {
             var err = new CompileException($"csharp '{Name}'");
 
@@ -247,14 +247,14 @@ namespace protofx
 
             // FIND CSHARP CLASS DEFINITION
             var csharp = scene.GetValueOrDefault(cmd[0].Text);
-            if (csharp == null || !(csharp is GLCsharp))
+            if (csharp == null || !(csharp is Csharp))
             {
                 err.Error($"Could not find csharp code '{cmd[0].Text}' of command '{cmd.Text}' ", cmd);
                 return null;
             }
 
             // INSTANTIATE CSHARP CLASS
-            return ((GLCsharp)csharp).GetMethod(cmd, err);
+            return ((Csharp)csharp).GetMethod(cmd, err);
         }
 
         /// <summary>
@@ -299,7 +299,7 @@ namespace protofx
             }
 
             // INSTANTIATE CSHARP CLASS
-            return ((GLCsharp)csharp).CreateInstance(block, classname, @params, err);
+            return ((Csharp)csharp).CreateInstance(block, classname, @params, err);
         }
 
         /// <summary>

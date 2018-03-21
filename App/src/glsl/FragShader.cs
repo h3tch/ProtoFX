@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using protofx.gl;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -75,14 +76,14 @@ namespace protofx.Glsl
             (DbgLoc2Input, _) = GLU.InputLocationMappings(program);
 
             // find an unused image unit
-            DbgOutUnit = GLTexture.FirstUnusedImgUnit(0, gl_MaxTextureImageUnits);
+            DbgOutUnit = Texture.FirstUnusedImgUnit(0, gl_MaxTextureImageUnits);
             if (DbgOutUnit < 0)
                 return;
 
             // bind debug resources
             GL.ProgramUniform1(program, _dbgOut, DbgOutUnit);
             GL.ProgramUniform2(program, _dbgFragment, 0, 0);
-            GLTexture.BindImg(DbgOutUnit, Debugger.DebugTexture, 0, 0,
+            Texture.BindImg(DbgOutUnit, Debugger.DebugTexture, 0, 0,
                 TextureAccess.WriteOnly, GpuFormat.Rgba32f);
         }
 
@@ -96,7 +97,7 @@ namespace protofx.Glsl
                 return;
 
             // unbind shader resources
-            GLTexture.BindImg(DbgOutUnit, null, 0, 0,
+            Texture.BindImg(DbgOutUnit, null, 0, 0,
                 TextureAccess.WriteOnly, GpuFormat.Rgba32f);
 
             // get class fields

@@ -7,9 +7,9 @@ using System.Reflection;
 using UsageHint = OpenTK.Graphics.OpenGL4.BufferUsageHint;
 using ParameterName = OpenTK.Graphics.OpenGL4.BufferParameterName;
 
-namespace protofx
+namespace protofx.gl
 {
-    class GLBuffer : GLMemory
+    class Buffer : Memory
     {
         #region FIELDS
 
@@ -26,7 +26,7 @@ namespace protofx
         /// <code>Compiler.Block</code> object of the respective part in the code
         /// and a <code>Dictionary&lt;string, object&gt;</code> object containing
         /// the scene objects.</param>
-        public GLBuffer(object @params)
+        public Buffer(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>())
         {
@@ -40,7 +40,7 @@ namespace protofx
         /// <param name="usage">How the buffer should be used by the program.</param>
         /// <param name="size">The memory size to be allocated in bytes.</param>
         /// <param name="data">Optionally initialize the buffer object with the specified data.</param>
-        public GLBuffer(string name, string anno, BufferTarget target, UsageHint usage, int size, byte[] data = null)
+        public Buffer(string name, string anno, BufferTarget target, UsageHint usage, int size, byte[] data = null)
             : base(name, anno, size, data)
         {
             var err = new CompileException($"buffer '{name}'");
@@ -62,7 +62,7 @@ namespace protofx
         /// <param name="name">Name of the object.</param>
         /// <param name="anno">Annotation of the object.</param>
         /// <param name="glname">OpenGL object to like to.</param>
-        public GLBuffer(string name, string anno, int glname) : base(name, anno)
+        public Buffer(string name, string anno, int glname) : base(name, anno)
         {
             this.glname = glname;
             GL.GetNamedBufferParameter(glname, ParameterName.BufferSize, out int s);
@@ -76,7 +76,7 @@ namespace protofx
         /// </summary>
         /// <param name="block"></param>
         /// <param name="scene"></param>
-        private GLBuffer(Compiler.Block block, Dictionary<string, object> scene)
+        private Buffer(Compiler.Block block, Dictionary<string, object> scene)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"buffer '{block.Name}'");
@@ -103,7 +103,7 @@ namespace protofx
             var clazz = block["class"].FirstOrDefault();
             if (clazz != null && Size > 0)
             {
-                var converter = GLCsharp.GetMethod(clazz, scene, err);
+                var converter = Csharp.GetMethod(clazz, scene, err);
                 data = (byte[])converter?.Invoke(null, new[] { data });
             }
 
@@ -190,13 +190,13 @@ namespace protofx
         /// <param name="existing">List of objects already existent in the scene.</param>
         /// <param name="range">Range in which to search for external objects (starting with 0).</param>
         /// <returns></returns>
-        public static IEnumerable<GLObject> FindBuffers(GLObject[] existing, int range = 64)
+        public static IEnumerable<Object> FindBuffers(Object[] existing, int range = 64)
         {
-            return FindObjects(existing, new[] { typeof(GLBuffer) }, GLIsBufMethod, GLBufLabel, range);
+            return FindObjects(existing, new[] { typeof(Buffer) }, GLIsBufMethod, GLBufLabel, range);
         }
 
         private static MethodInfo GLIsBufMethod = typeof(GL).GetMethod("IsBuffer", new[] { typeof(int) });
-        private static MethodInfo GLBufLabel = typeof(GLBuffer).GetMethod("GetLabel", new[] { typeof(int) });
+        private static MethodInfo GLBufLabel = typeof(Buffer).GetMethod("GetLabel", new[] { typeof(int) });
 
         #region UTIL METHODS
         /// <summary>

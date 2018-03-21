@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace protofx
+namespace protofx.gl
 {
-    class GLSampler : GLObject
+    class Sampler : Object
     {
         #region FIELDS
 
@@ -22,7 +22,7 @@ namespace protofx
         /// <code>Compiler.Block</code> object of the respective part in the code
         /// and a <code>Dictionary&lt;string, object&gt;</code> object containing
         /// the scene objects.</param>
-        public GLSampler(object @params)
+        public Sampler(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>())
         {
@@ -34,7 +34,7 @@ namespace protofx
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        private GLSampler(Compiler.Block block, Dictionary<string, object> scene)
+        private Sampler(Compiler.Block block, Dictionary<string, object> scene)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"sampler '{Name}'");

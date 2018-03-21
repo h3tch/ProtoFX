@@ -3,17 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace protofx
+namespace protofx.gl
 {
-    class GLTexture : GLObject
+    class Texture : Object
     {
         #region FIELDS
 
         [FxField] private string Buff = null;
         [FxField] private string Img = null;
         [FxField] private GpuFormat Format = 0;
-        private GLBuffer glBuff = null;
-        public GLImage glImg = null;
+        private Buffer glBuff = null;
+        public Image glImg = null;
 
         #endregion
 
@@ -25,7 +25,7 @@ namespace protofx
         /// <code>Compiler.Block</code> object of the respective part in the code
         /// and a <code>Dictionary&lt;string, object&gt;</code> object containing
         /// the scene objects.</param>
-        public GLTexture(object @params)
+        public Texture(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>())
         {
@@ -40,7 +40,7 @@ namespace protofx
         /// <param name="format"></param>
         /// <param name="glbuff"></param>
         /// <param name="glimg"></param>
-        public GLTexture(string name, string anno, GpuFormat format, GLBuffer glbuff, GLImage glimg)
+        public Texture(string name, string anno, GpuFormat format, Buffer glbuff, Image glimg)
             : base(name, anno)
         {
             var err = new CompileException($"texture '{name}'");
@@ -63,7 +63,7 @@ namespace protofx
         /// <param name="scene"></param>
         /// <param name="glbuff"></param>
         /// <param name="glimg"></param>
-        private GLTexture(Compiler.Block block, Dictionary<string, object> scene, GLBuffer glbuff, GLImage glimg)
+        private Texture(Compiler.Block block, Dictionary<string, object> scene, Buffer glbuff, Image glimg)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"texture '{Name}'");
@@ -101,7 +101,7 @@ namespace protofx
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        private GLTexture(Compiler.Block block, Dictionary<string, object> scene)
+        private Texture(Compiler.Block block, Dictionary<string, object> scene)
             : this(block, scene, null, null)
         {
         }
@@ -124,7 +124,7 @@ namespace protofx
         /// </summary>
         /// <param name="unit">Texture unit.</param>
         /// <param name="tex">Texture object.</param>
-        public static void BindTex(int unit, GLTexture tex)
+        public static void BindTex(int unit, Texture tex)
         {
             var target = tex?.glImg?.Target ?? TextureTarget.TextureBuffer;
             GL.ActiveTexture(TextureUnit.Texture0 + unit);
@@ -149,7 +149,7 @@ namespace protofx
         /// <param name="layer">Texture array index or texture depth.</param>
         /// <param name="access">How the texture will be accessed by the shader.</param>
         /// <param name="format">Pixel format of texture pixels.</param>
-        public static void BindImg(int unit, GLTexture tex, int level = 0, int layer = 0,
+        public static void BindImg(int unit, Texture tex, int level = 0, int layer = 0,
             TextureAccess access = TextureAccess.ReadOnly, GpuFormat format = GpuFormat.Rgba8)
         {
             GL.BindImageTexture(unit, tex?.glname ?? 0, level, tex?.glImg?.Length > 0,

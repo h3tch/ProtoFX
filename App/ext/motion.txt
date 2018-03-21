@@ -1,0 +1,52 @@
+
+csharp cs_quest {
+	folder "<ext>/protofx"
+	folder "<ext>/scene"
+	folder "<ext>/sampling"
+	folder "<ext>/math"
+}
+
+text xml_screen_triangle {
+	<?xml version='1.0'?>
+	<data>
+		<position type='float' isbinary='false'>
+			-1.0 -1.0  0.0  1.0
+			 2.0 -1.0  0.0  1.0
+			-1.0  2.0  0.0  1.0
+		</position>
+		<index type='ushort' isbinary='false'>
+			0  1  2
+		</index>
+	</data>
+}
+
+buffer buf_pos {
+	usage staticDraw
+	xml xml_quad data/position
+}
+
+buffer buf_idx {
+	usage staticDraw
+	xml xml_quad data/index
+}
+
+vertinput in_vert {
+	attr buf_pos float 4
+}
+
+image img_framebuffer {
+	size 1024 1024 3
+	format rgb32f
+}
+
+texture tex_framebuffer {
+	img img_framebuffer 
+}
+
+fragoutput out_framebuffer0 {
+	color img_framebuffer 0 0
+}
+
+fragoutput out_framebuffer1 {
+	color img_framebuffer 0 1
+}

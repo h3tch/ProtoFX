@@ -1,4 +1,5 @@
-﻿using ScintillaNET;
+﻿using protofx.gl;
+using ScintillaNET;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -695,6 +696,8 @@ namespace protofx
                 // if the dialog did not return a valid state
                 if (saveDlg.ShowDialog() != DialogResult.OK)
                     return;
+
+                filename = saveDlg.FileName;
             }
 
             // save the file
@@ -866,11 +869,11 @@ namespace protofx
         /// and textures (e.g., created by extensions).
         /// </summary>
         /// <returns></returns>
-        private IEnumerable<GLObject> GatherExternalResources()
+        private IEnumerable<gl.Object> GatherExternalResources()
         {
             // find externally created textures and buffers to the scene
-            var existing = glControl.Scene.Values.Cast<GLObject>().ToArray();
-            return GLImage.FindTextures(existing).Concat(GLBuffer.FindBuffers(existing));
+            var existing = glControl.Scene.Values.Cast<gl.Object>().ToArray();
+            return gl.Image.FindTextures(existing).Concat(gl.Buffer.FindBuffers(existing));
         }
 
         /// <summary>
@@ -882,13 +885,13 @@ namespace protofx
             comboImg.Items.Clear();
             comboProp.Items.Clear();
             // add buffer objects to the buffer resource view
-            foreach (var buf in glControl.Scene.Values.Where<GLBuffer>())
+            foreach (var buf in glControl.Scene.Values.Where<gl.Buffer>())
                 comboBuf.Items.Add(buf);
             // add image objects to the image resource view
-            foreach (var img in glControl.Scene.Values.Where<GLImage>())
+            foreach (var img in glControl.Scene.Values.Where<gl.Image>())
                 comboImg.Items.Add(img);
             // add instance objects to the property, buffer and/or image resource view
-            foreach (var instance in glControl.Scene.Values.Where<GLInstance>())
+            foreach (var instance in glControl.Scene.Values.Where<Instance>())
             {
                 // add instance to property view
                 comboProp.Items.Add(instance);

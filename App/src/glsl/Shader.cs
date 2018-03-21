@@ -97,7 +97,7 @@ namespace protofx.Glsl
         protected int LineInFile;
         protected ProgramPipelineParameter ShaderType;
         internal Shader Prev;
-        internal static GLPass.MultiDrawCall DrawCall;
+        internal static gl.Pass.MultiDrawCall DrawCall;
         internal static DebugSettings Settings = new DebugSettings();
         internal static readonly Type[] VecIntTypes = new[] {
             typeof(bvec2), typeof(bvec3), typeof(bvec4),

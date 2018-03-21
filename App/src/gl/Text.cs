@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace protofx
+namespace protofx.gl
 {
-    class GLText : GLObject
+    class Text : Object
     {
-        public string Text { get; private set; }
+        public string Body { get; private set; }
 
         /// <summary>
         /// Generic constructor used to build the scene objects.
@@ -15,7 +15,7 @@ namespace protofx
         /// <code>Compiler.Block</code> object of the respective part in the code
         /// and a <code>Dictionary&lt;string, object&gt;</code> object containing
         /// the scene objects.</param>
-        public GLText(object @params)
+        public Text(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>())
         {
@@ -27,10 +27,10 @@ namespace protofx
         /// <param name="block"></param>
         /// <param name="scene"></param>
         /// <param name="debugging"></param>
-        private GLText(Compiler.Block block, Dictionary<string, object> scene)
+        private Text(Compiler.Block block, Dictionary<string, object> scene)
             : base(block.Name, block.Anno)
         {
-            Text = block.Body;
+            Body = block.Body;
         }
     }
 }

@@ -419,8 +419,8 @@ namespace protofx
                     {
                         try
                         {
-                            values[i] = types[i].IsSubclassOf(typeof(GLObject))
-                                ? (GLObject)scene.GetValueOrDefault(arg.Text)
+                            values[i] = types[i].IsSubclassOf(typeof(gl.Object))
+                                ? (gl.Object)scene.GetValueOrDefault(arg.Text)
                                 : types[i].IsEnum
                                     ? Enum.Parse(types[i], arg.Text, true)
                                     : Convert.ChangeType(arg.Text, types[i],
@@ -605,14 +605,14 @@ namespace protofx
     {
         public static bool TryGetValue<T>(this Dictionary<string, object> dict, string key, out T obj,
             Compiler.Command cmd, CompileException err)
-            where T : GLObject
+            where T : gl.Object
         {
             return TryGetValue(dict, key, out obj, cmd.LineInFile, cmd.File, err);
         }
 
         public static bool TryGetValue<T>(this Dictionary<string, object> dict, string key, out T obj,
             Compiler.Block block, CompileException err)
-            where T : GLObject
+            where T : gl.Object
         {
             return TryGetValue(dict, key, out obj, block.LineInFile, block.Filename, err);
         }
@@ -629,7 +629,7 @@ namespace protofx
         /// <returns></returns>
         private static bool TryGetValue<T>(Dictionary<string, object> dict, string key,
             out T obj, int line, string file, CompileException err)
-            where T : GLObject
+            where T : gl.Object
         {
             obj = null;
 

@@ -1,4 +1,5 @@
-﻿using ScintillaNET;
+﻿using protofx.gl;
+using ScintillaNET;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -36,14 +37,14 @@ namespace protofx
 
             Bitmap bmp;
 
-            if (item is GLImage image)
+            if (item is gl.Image image)
             {
                 // update the maximum number of mipmap layers
                 numImgLayer.Maximum = Math.Max(Math.Max(image.Length, image.Depth) - 1, 0);
                 // read image data from the GPU
                 bmp = image.Read((int)numImgLayer.Value, 0);
             }
-            else if (item is GLInstance instance)
+            else if (item is Instance instance)
             {
                 // mipmap layers are not supported for GLInstance visualizations
                 numImgLayer.Maximum = 0;
@@ -78,18 +79,18 @@ namespace protofx
         private void ComboBuf_SelectedIndexChanged(object sender, EventArgs e)
         {
             var item = comboBuf.SelectedItem;
-            if (item == null || !(item is GLBuffer || item is GLInstance))
+            if (item == null || !(item is gl.Buffer || item is Instance))
                 return;
 
             // gather format info
             var type = (string)comboBufType.SelectedItem;
             var dim = (int)numBufDim.Value;
-            var name = (item as GLObject).Name;
+            var name = (item as gl.Object).Name;
 
             // gather data
-            var data = (item is GLBuffer)
-                ? (item as GLBuffer).Read()
-                : (byte[])(item as GLInstance).Visualize();
+            var data = (item is gl.Buffer)
+                ? (item as gl.Buffer).Read()
+                : (byte[])(item as Instance).Visualize();
 
             // convert data to specified type
             var da = data.To(type, out Type colType);
@@ -159,8 +160,8 @@ namespace protofx
         private void ComboProp_SelectedIndexChanged(object s, EventArgs e)
         {
             // gather needed info
-            if (comboProp.SelectedItem is GLInstance)
-                propertyGrid.SelectedObject = (comboProp.SelectedItem as GLInstance).Instance;
+            if (comboProp.SelectedItem is Instance)
+                propertyGrid.SelectedObject = (comboProp.SelectedItem as Instance).Owner;
         }
 
         /// <summary>
@@ -381,8 +382,8 @@ namespace protofx
             // is the selected word a performance keyword
             switch (editor.GetWordFromPosition(e.TextPosition))
             {
-                case "pass": ShowPerfTip<GLPass>(editor, e.TextPosition); break;
-                case "tech": ShowPerfTip<GLTech>(editor, e.TextPosition); break;
+                case "pass": ShowPerfTip<Pass>(editor, e.TextPosition); break;
+                case "tech": ShowPerfTip<Tech>(editor, e.TextPosition); break;
             }
         }
 
@@ -590,8 +591,8 @@ namespace protofx
             // enable or disable traceing debug information
             if (traceDebugInfo)
                 glControl.Scene
-                    .Where(x => x.Value is GLPass)
-                    .ForEach(x => ((GLPass)x.Value).TraceDebugInfo = true);
+                    .Where(x => x.Value is Pass)
+                    .ForEach(x => ((Pass)x.Value).TraceDebugInfo = true);
 
             // render the scene
             glControl.Render();

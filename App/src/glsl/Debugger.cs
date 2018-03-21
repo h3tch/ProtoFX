@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using protofx.gl;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,8 +23,8 @@ namespace protofx.Glsl
         private static int ShaderLineOffset = 0;
         private static bool CollectDebugData = false;
         private static List<TraceInfo> TraceLog = new List<TraceInfo>();
-        internal static GLBuffer DebugBuffer = new GLBuffer("Debug Buffer", null, BufferTarget.ArrayBuffer, BufferUsageHint.StaticRead, 1024);
-        internal static GLTexture DebugTexture = new GLTexture("Debug Texture Buffer", null, GpuFormat.Rgba32f, DebugBuffer, null);
+        internal static gl.Buffer DebugBuffer = new gl.Buffer("Debug Buffer", null, BufferTarget.ArrayBuffer, BufferUsageHint.StaticRead, 1024);
+        internal static Texture DebugTexture = new Texture("Debug Texture Buffer", null, GpuFormat.Rgba32f, DebugBuffer, null);
         
         #region Debug Trace
 

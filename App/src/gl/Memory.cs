@@ -5,9 +5,9 @@ using System.Xml;
 using System.IO;
 using System.Linq;
 
-namespace protofx
+namespace protofx.gl
 {
-    class GLMemory : GLObject
+    class Memory : Object
     {
         #region FIELDS
         
@@ -35,7 +35,7 @@ namespace protofx
         /// <code>Compiler.Block</code> object of the respective part in the code
         /// and a <code>Dictionary&lt;string, object&gt;</code> object containing
         /// the scene objects.</param>
-        public GLMemory(object @params)
+        public Memory(object @params)
             : this(@params.GetFieldValue<Compiler.Block>(),
                    @params.GetFieldValue<Dictionary<string, object>>())
         {
@@ -48,7 +48,7 @@ namespace protofx
         /// <param name="anno">Annotation of the object.</param>
         /// <param name="size">The memory size to be allocated in bytes.</param>
         /// <param name="data">Optionally initialize the buffer object with the specified data.</param>
-        public GLMemory(string name, string anno, int size = 0, byte[] data = null)
+        public Memory(string name, string anno, int size = 0, byte[] data = null)
             : base(name, anno)
         {
             Size = size;
@@ -60,7 +60,7 @@ namespace protofx
         /// </summary>
         /// <param name="block"></param>
         /// <param name="scene"></param>
-        private GLMemory(Compiler.Block block, Dictionary<string, object> scene)
+        private Memory(Compiler.Block block, Dictionary<string, object> scene)
             : base(block.Name, block.Anno)
         {
             var err = new CompileException($"memory '{block.Name}'");
@@ -87,7 +87,7 @@ namespace protofx
             var clazz = block["class"].FirstOrDefault();
             if (clazz != null && Size > 0)
             {
-                var converter = GLCsharp.GetMethod(clazz, scene, err);
+                var converter = Csharp.GetMethod(clazz, scene, err);
                 Data = (byte[])converter?.Invoke(null, new[] { Data });
             }
 
@@ -191,8 +191,8 @@ namespace protofx
         protected static string GetText(Dictionary<string, object> scene, Compiler.Command cmd)
         {
             string dir = Path.GetDirectoryName(cmd.File) + Path.DirectorySeparatorChar;
-            if (scene.TryGetValue(cmd[0].Text, out object obj) && obj is GLText)
-                return ((GLText)obj).Text.Trim();
+            if (scene.TryGetValue(cmd[0].Text, out object obj) && obj is Text)
+                return ((Text)obj).Body.Trim();
             else if (File.Exists(cmd[0].Text))
                 return File.ReadAllText(cmd[0].Text);
             else if (File.Exists(dir + cmd[0].Text))

@@ -1,8 +1,8 @@
-﻿namespace protofx
+﻿namespace protofx.gl
 {
-    class GLReference : GLObject
+    class Reference : Object
     {
-        public object Reference { get; }
+        public object Ref { get; }
         
         /// <summary>
         /// Create a reference to another object.
@@ -10,9 +10,9 @@
         /// <param name="name">Name of the reference object.</param>
         /// <param name="anno">Reference object annotation.</param>
         /// <param name="reference">Object to be referenced.</param>
-        public GLReference(string name, string anno, object reference) : base(name, anno)
+        public Reference(string name, string anno, object reference) : base(name, anno)
         {
-            Reference = reference;
+            Ref = reference;
         }
     }
 }
